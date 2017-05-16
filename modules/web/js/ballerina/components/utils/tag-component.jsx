@@ -73,7 +73,7 @@ class TagController extends React.Component {
                 <g key={componentData.title}>
                     <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns</text>
                     <text x={componentData.components.openingBracket.x}
-                          y={componentData.components.openingBracket.y + 3}
+                          y={componentData.components.openingBracket.y + 2 }
                           className={componentData.openingBracketClassName}>(
                     </text>
                     {modelComponents}
@@ -101,7 +101,7 @@ class TagController extends React.Component {
                         </EditableText>
                     </g>
                     <text x={componentData.components.closingBracket.x}
-                          y={componentData.components.closingBracket.y + 3}
+                          y={componentData.components.closingBracket.y }
                           className={componentData.closingBracketClassName}>)
                     </text>
                 </g>
@@ -110,16 +110,16 @@ class TagController extends React.Component {
             return (
                 <g key={componentData.title}>
                     <text x={componentData.components.openingBracket.x}
-                          y={componentData.components.openingBracket.y + 3}
+                          y={componentData.components.openingBracket.y + 3 }
                           className={componentData.openingBracketClassName}>(
                     </text>
                     {modelComponents}
 
                     <g>
                         <rect x={componentData.components.closingBracket.x - 100}
-                              y={componentData.components.closingBracket.y + 2} width={90} height={20}
+                              y={componentData.components.closingBracket.y} width={90} height={20}
                               className="attribute-content-operations-wrapper"/>
-                        <EditableText x={componentData.components.closingBracket.x - 100}
+                        <EditableText x={componentData.components.closingBracket.x - 95}
                                       y={componentData.components.closingBracket.y + 25 / 2}
                                       width={90}
                                       height={20}
@@ -138,7 +138,7 @@ class TagController extends React.Component {
                         </EditableText>
                     </g>
                     <text x={componentData.components.closingBracket.x}
-                          y={componentData.components.closingBracket.y + 3}
+                          y={componentData.components.closingBracket.y + 3 }
                           className={componentData.closingBracketClassName}>)
                     </text>
                 </g>

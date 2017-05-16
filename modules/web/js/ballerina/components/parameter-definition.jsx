@@ -31,12 +31,12 @@ class ParameterDefinition extends React.Component {
         let model = this.props.model;
         let viewState = model.viewState;
         return (<g>
-            <rect x={viewState.bBox.x} y={viewState.bBox.y + 3} width={viewState.w} height={viewState.h} rx="0" ry="0"
+            <rect x={viewState.bBox.x} y={viewState.bBox.y } width={viewState.w + 5} height={viewState.h} rx="0" ry="0"
                   className="parameter-wrapper"/>
             <text x={viewState.bBox.x + 5} y={viewState.bBox.y + 3}
                   className="parameter-text">{model.getParameterDefinitionAsString()}</text>
-            <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 3}
-                  width={viewState.components.deleteIcon.w} height={viewState.components.deleteIcon.h} rx="0" ry="0"
+            <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y }
+                  width={viewState.components.deleteIcon.w + 2} height={viewState.components.deleteIcon.h + 7} rx="0" ry="0"
                   className="parameter-delete-icon-wrapper"/>
             <image x={viewState.components.deleteIcon.x + 2} y={viewState.components.deleteIcon.y + 5} width="14"
                    height="14" className="parameter-delete-icon"
