@@ -52,9 +52,7 @@ try {
 
 }
 ```
-If any exception occurs while execution the first block of statements then the exception will be handled by the block after the `catch`.
-
-> NOTE: Ballerina currently does not have a `finally` concept but we will likely add it.
+If any exception occurs while executing the first block of statements, the exception is handled by the block after the `catch`.
 
 # The `throw` Statement
 
