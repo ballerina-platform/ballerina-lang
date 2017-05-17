@@ -185,7 +185,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -194,13 +194,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Double) state.get("MinValue");
             minDeque = (Deque<Double>) state.get("MinDeque");
         }
@@ -242,7 +244,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -251,13 +253,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Float) state.get("MinValue");
             minDeque = (Deque<Float>) state.get("MinDeque");
         }
@@ -292,7 +296,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -308,13 +312,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Integer) state.get("MinValue");
             minDeque = (Deque<Integer>) state.get("MinDeque");
         }
@@ -348,7 +354,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -364,13 +370,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Long) state.get("MinValue");
             minDeque = (Deque<Long>) state.get("MinDeque");
         }

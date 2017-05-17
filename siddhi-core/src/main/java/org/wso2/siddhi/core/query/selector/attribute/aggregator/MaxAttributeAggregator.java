@@ -180,7 +180,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -189,13 +189,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Double) state.get("MaxValue");
             maxDeque = (Deque<Double>) state.get("MaxDeque");
         }
@@ -236,7 +238,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -245,13 +247,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Float) state.get("MaxValue");
             maxDeque = (Deque<Float>) state.get("MaxDeque");
         }
@@ -293,7 +297,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -302,13 +306,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Integer) state.get("MaxValue");
             maxDeque = (Deque<Integer>) state.get("MaxDeque");
         }
@@ -350,7 +356,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -359,13 +365,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Long) state.get("MaxValue");
             maxDeque = (Deque<Long>) state.get("MaxDeque");
         }
