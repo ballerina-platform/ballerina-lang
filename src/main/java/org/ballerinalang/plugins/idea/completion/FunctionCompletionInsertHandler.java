@@ -52,7 +52,7 @@ public class FunctionCompletionInsertHandler implements InsertHandler<LookupElem
         Project project = editor.getProject();
         if (project != null) {
             if (!isCompletionCharAtSpace(editor)) {
-                EditorModificationUtil.insertStringAtCaret(editor, "();",false,1);
+                EditorModificationUtil.insertStringAtCaret(editor, "()",false,1);
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
