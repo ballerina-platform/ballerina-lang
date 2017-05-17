@@ -11,7 +11,16 @@ The Ballerina approach is to introduce a first class error concept that can both
 
 ## Behavior
 
-Ballerina errors are Ballerina structs, which are structurally equivalent to the ballerina.lang.errors:Error struct.
+Ballerina errors are Ballerina structs, which are structurally equivalent to the ballerina.lang.errors:Error struct. The following is an error struct.
+
+```
+package ballerina.lang.errors;
+
+struct Error {
+	string msg;
+	Error cause;
+}
+```
 
 An exception may be thrown by a native Ballerina function or any Ballerina construct using the `throw` statement. When thrown, the runtime searches for the nearest enclosing block containing a `try-catch` statement. If none is found in the current stack frame then execution of the function (or resource or action or type mapper) stops and the frame is popped and the search continues until a `try-catch` statement is found. If none is found at the outermost level of the worker, then that worker thread dies in an abnormal state.
 
@@ -35,8 +44,12 @@ The syntax of a `try-catch` is as follows:
 ```
 try {
     Statement;+
-} catch (exception e) {
+} catch (ErrorTypeName e) {
     Statement;+
+} catch (errors:Error e) {
+    Statement;+
+} finally {
+
 }
 ```
 If any exception occurs while execution the first block of statements then the exception will be handled by the block after the `catch`.
