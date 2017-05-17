@@ -1108,7 +1108,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getWhileStmtWS(tokenStream, ctx);
         }
-         modelBuilder.createWhileStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        modelBuilder.createWhileStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
@@ -1229,6 +1229,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addTryCatchBlockStmt();
+    }
+
+    @Override
+    public void exitCatchClauses(BallerinaParser.CatchClausesContext ctx) {
+    }
+
+    @Override
     public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1242,13 +1254,31 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
         String key = ctx.Identifier().getText();
-        // FIX ME
-        SimpleTypeName simpleTypeName = new SimpleTypeName("exception");
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getCatchClauseWS(tokenStream, ctx);
         }
-        modelBuilder.addCatchClause(getCurrentLocation(ctx), whiteSpaceDescriptor, simpleTypeName, key);
+        modelBuilder.addCatchClause(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop(), key);
+    }
+
+    @Override
+    public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startFinallyBlock(getCurrentLocation(ctx));
+    }
+
+    @Override
+    public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFinallyClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.addFinallyBlock(whiteSpaceDescriptor);
     }
 
     @Override
@@ -1377,7 +1407,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
         if (ctx.exception == null) {
-            WhiteSpaceDescriptor  whiteSpaceDescriptor = null;
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
             }
@@ -1909,7 +1939,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             String stringLiteral = terminalNode.getText();
             stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
             stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
-            modelBuilder.createStringLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor,  stringLiteral);
+            modelBuilder.createStringLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, stringLiteral);
             return;
         }
 

@@ -43,7 +43,6 @@ public class BTypes {
     public static BType typeJSON;
     public static BType typeMessage;
     public static BType typeMap;
-    public static BType typeException;
     public static BType typeDatatable;
     public static BType typeAny;
     public static BType typeConnector;
@@ -68,7 +67,6 @@ public class BTypes {
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
         globalScope.define(typeMap.getSymbolName(), typeMap);
-        globalScope.define(typeException.getSymbolName(), typeException);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
         globalScope.define(typeAny.getSymbolName(), typeAny);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
@@ -78,7 +76,6 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.FLOAT_TNAME);
         builtInTypeNames.add(TypeConstants.BOOLEAN_TNAME);
         builtInTypeNames.add(TypeConstants.MESSAGE_TNAME);
-        builtInTypeNames.add(TypeConstants.EXCEPTION_TNAME);
         builtInTypeNames.add(TypeConstants.XML_TNAME);
         builtInTypeNames.add(TypeConstants.JSON_TNAME);
         builtInTypeNames.add(TypeConstants.MAP_TNAME);
@@ -100,7 +97,6 @@ public class BTypes {
         typeXML = new BXMLType(TypeConstants.XML_TNAME, null, globalScope);
         typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
-        typeException = new BExceptionType(TypeConstants.EXCEPTION_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);

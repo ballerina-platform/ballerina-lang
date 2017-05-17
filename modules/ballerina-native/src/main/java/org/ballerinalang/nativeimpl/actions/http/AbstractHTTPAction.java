@@ -20,8 +20,6 @@ package org.ballerinalang.nativeimpl.actions.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
@@ -156,7 +154,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                     }
                 }
             }
-            handleTransportException(balConnectorCallback.getValueRef());
+//            handleTransportException(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
@@ -180,32 +178,32 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     @Override
     public void validate(BalConnectorCallback callback) {
-        handleTransportException(callback.getValueRef());
+//        handleTransportException(callback.getValueRef());
     }
 
     @Override
     public boolean isNonBlockingAction() {
         return true;
     }
-
-    private void handleTransportException(BValue valueRef) {
-        if (valueRef instanceof BMessage) {
-            BMessage bMsg = (BMessage) valueRef;
-            if (bMsg.value() == null) {
-                String msg = "Received unknown message for the action invocation";
-                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                throw new BallerinaException(msg, exception);
-            }
-            if (bMsg.value().getMessagingException() != null) {
-                String msg = bMsg.value().getMessagingException().getMessage();
-                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                throw new BallerinaException(msg, exception);
-            }
-        } else {
-            String msg = "Invalid message received for the action invocation";
-            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-            throw new BallerinaException(msg, exception);
-        }
-    }
+//
+//    private void handleTransportException(BValue valueRef) {
+////        if (valueRef instanceof BMessage) {
+////            BMessage bMsg = (BMessage) valueRef;
+//////            if (bMsg.value() == null) {
+//////                String msg = "Received unknown message for the action invocation";
+//////                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+//////                throw new BallerinaException(msg, exception);
+//////            }
+//////            if (bMsg.value().getMessagingException() != null) {
+//////                String msg = bMsg.value().getMessagingException().getMessage();
+//////                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+//////                throw new BallerinaException(msg, exception);
+//////            }
+////        } else {
+////            String msg = "Invalid message received for the action invocation";
+//////            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+//////            throw new BallerinaException(msg, exception);
+////        }
+//    }
 
 }

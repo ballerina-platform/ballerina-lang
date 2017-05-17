@@ -52,7 +52,6 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.slf4j.Logger;
@@ -298,7 +297,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     next.accept(this);
                 }
             } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
+//                handleBException(new BException(e.getMessage()));
             }
         }
     }
@@ -313,7 +312,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     next.accept(this);
                 }
             } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
+//                handleBException(new BException(e.getMessage()));
             }
         }
     }

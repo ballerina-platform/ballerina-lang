@@ -597,7 +597,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         TryCatchStmtEndNode endNode = new TryCatchStmtEndNode(tryCatchStmt);
         Statement tryBlock = tryCatchStmt.getTryBlock();
-        Statement catchBlock = tryCatchStmt.getCatchBlock().getCatchBlockStmt();
         // Visit Try Catch block.
         tryBlock.setParent(tryCatchStmt);
         tryCatchStmt.setNext(tryBlock);
@@ -606,8 +605,13 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         endNode.setNext(findNext(tryCatchStmt));
 
         // Visit Catch Block.
-        catchBlock.setParent(tryCatchStmt);
-        catchBlock.accept(this);
+        for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            catchBlock.getCatchBlockStmt().setParent(tryCatchStmt);
+            catchBlock.getCatchBlockStmt().accept(this);
+        }
+
+        tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().setParent(tryCatchStmt);
+        tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
     }
 
     @Override

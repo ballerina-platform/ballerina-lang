@@ -74,7 +74,7 @@ public enum SemanticErrors {
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
     ONLY_COUNT_1_ALLOWED_THIS_VERSION("only.count.1.allowed.this.version", "SEMANTIC_0051"),
-    ONLY_EXCEPTION_TYPE_HERE("only.exception.type.here", "SEMANTIC_0052"),
+    ONLY_ERROR_TYPE_ALLOWED_HERE("only.error.type.here", "SEMANTIC_0052"),
     BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053"),
     UNDEFINED_TYPE_MAPPER("undefined.type.mapper", "SEMANTIC_0054"),
     UNDEFINED_NATIVE_ACTION("undefined.native.action", "SEMANTIC_0055"),
@@ -99,7 +99,12 @@ public enum SemanticErrors {
     TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output", "SEMANTIC_0073"),
     ABORT_STMT_NOT_ALLOWED_HERE("abort.stmt.not.allowed.here", "SEMANTIC_0074"),
     RETURN_CANNOT_USED_IN_TRANSACTION("return.cannot.used.in.transaction",  "SEMANTIC_0075"),
-    WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076");
+    WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076"),
+
+    DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
+    RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
+    IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
+    ;
 
     private String errorMsgKey;
     private String errorCode;

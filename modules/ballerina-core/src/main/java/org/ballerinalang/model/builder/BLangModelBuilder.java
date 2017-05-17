@@ -131,6 +131,7 @@ public class BLangModelBuilder {
     public static final String ELSE_CLAUSE = "ElseClause";
     public static final String CATCH_CLAUSE = "CatchClause";
     public static final String TRY_CLAUSE = "TryClause";
+    public static final String FINALLY_CLAUSE = "FinallyClause";
 
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
@@ -212,6 +213,7 @@ public class BLangModelBuilder {
     }
 
     public BallerinaFile build() {
+        addImplicitImportPackages();
         importPkgMap.values()
                 .stream()
                 .filter(importPkg -> !importPkg.isUsed())
@@ -249,6 +251,15 @@ public class BLangModelBuilder {
         bFileBuilder.setPackageLocation(location);
     }
 
+    public void addImplicitImportPackages() {
+        if (!"ballerina.lang.errors".equals(currentPackagePath)) {
+            ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
+            error.setImplicitImport(true);
+            bFileBuilder.addImportPackage(error);
+            importPkgMap.put(error.getName(), error);
+        }
+    }
+
     public void addImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor,
                                 String pkgPath, String asPkgName) {
         ImportPackage importPkg;
@@ -270,8 +281,10 @@ public class BLangModelBuilder {
 
 
     // Add constant definition
+
     public void addConstantDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                SimpleTypeName typeName, String constName) {
+        validateIdentifier(constName, location);
         Identifier identifier = new Identifier(constName);
         SymbolName symbolName = new SymbolName(identifier.getName());
         ConstDef constantDef = new ConstDef(location, whiteSpaceDescriptor, identifier, typeName, currentPackagePath,
@@ -287,6 +300,7 @@ public class BLangModelBuilder {
     // Add global variable definition
     public void addGlobalVarDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                 SimpleTypeName typeName, String varName, boolean exprAvailable) {
+        validateIdentifier(varName, location);
         Identifier identifier = new Identifier(varName);
         SymbolName symbolName = new SymbolName(identifier.getName());
         GlobalVariableDef globalVariableDef = new GlobalVariableDef(location, whiteSpaceDescriptor, identifier,
@@ -327,6 +341,7 @@ public class BLangModelBuilder {
      */
     public void addFieldDefinition(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                    SimpleTypeName typeName, String fieldName, boolean defaultValueAvailable) {
+        validateIdentifier(fieldName, location);
         Identifier identifier = new Identifier(fieldName);
         SymbolName symbolName = new SymbolName(identifier.getName());
 
@@ -434,6 +449,7 @@ public class BLangModelBuilder {
             annotationDefBuilder.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
                     .putAll(whiteSpaceDescriptor.getWhiteSpaceRegions());
         }
+        validateIdentifier(name, location);
         annotationDefBuilder.setIdentifier(new Identifier(name));
         annotationDefBuilder.setPackagePath(currentPackagePath);
         
@@ -519,6 +535,7 @@ public class BLangModelBuilder {
      */
     public void addParam(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
                          String paramName, int annotationCount, boolean isReturnParam) {
+        validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
@@ -968,6 +985,7 @@ public class BLangModelBuilder {
 
     public void createWorker(NodeLocation sourceLocation, WhiteSpaceDescriptor whiteSpaceDescriptor,
                              String name) {
+        validateIdentifier(name, sourceLocation);
         Identifier workerIdentifier = new Identifier(name);
         currentCUBuilder.setIdentifier(workerIdentifier);
         currentCUBuilder.setNodeLocation(sourceLocation);
@@ -1067,6 +1085,7 @@ public class BLangModelBuilder {
     // Statements
     public void addVariableDefinitionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                             SimpleTypeName typeName, String varName, boolean exprAvailable) {
+        validateIdentifier(varName, location);
         Identifier identifier = new Identifier(varName);
         VariableRefExpr variableRefExpr = new VariableRefExpr(location,  whiteSpaceDescriptor, identifier.getName());
         SymbolName symbolName = new SymbolName(identifier.getName());
@@ -1302,7 +1321,7 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void startCatchClause(NodeLocation location) {
+    public void addTryCatchBlockStmt() {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Creating Try clause.
@@ -1310,10 +1329,14 @@ public class BLangModelBuilder {
         BlockStmt tryBlock = blockStmtBuilder.build();
         tryCatchStmtBuilder.setTryBlock(tryBlock);
         currentScope = tryBlock.getEnclosingScope();
+    }
+
+    public void startCatchClause(NodeLocation location) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Staring parsing catch clause.
         TryCatchStmt.CatchBlock catchBlock = new TryCatchStmt.CatchBlock(currentScope);
-        tryCatchStmtBuilder.setCatchBlock(catchBlock);
+        tryCatchStmtBuilder.addCatchBlock(catchBlock);
         currentScope = catchBlock;
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
@@ -1322,8 +1345,9 @@ public class BLangModelBuilder {
         currentScope = catchBlockBuilder.getCurrentScope();
     }
 
-    public void addCatchClause(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                SimpleTypeName exceptionType, String argName) {
+    public void addCatchClause(NodeLocation nodeLocation, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                               SimpleTypeName errorType, String argName) {
+        validateIdentifier(argName, nodeLocation);
         Identifier identifier = new Identifier(argName);
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
@@ -1333,13 +1357,7 @@ public class BLangModelBuilder {
                 ws = new WhiteSpaceDescriptor();
                 tryCatchStmtBuilder.setWhiteSpaceDescriptor(ws);
             }
-            ws.addChildDescriptor(CATCH_CLAUSE, whiteSpaceDescriptor);
-        }
-
-        if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.ONLY_EXCEPTION_TYPE_HERE);
-            errorMsgs.add(errMsg);
+            tryCatchStmtBuilder.getLastCatchBlock().setWhiteSpaceDescriptor(ws);
         }
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
@@ -1347,12 +1365,42 @@ public class BLangModelBuilder {
         currentScope = catchBlock.getEnclosingScope();
 
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
-        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), null, identifier, exceptionType,
-                symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), null, identifier, errorType, symbolName,
+                currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
-        tryCatchStmtBuilder.getCatchBlock().setParameterDef(paramDef);
-        tryCatchStmtBuilder.setCatchBlockStmt(catchBlock);
+        tryCatchStmtBuilder.getLastCatchBlock().setParameterDef(paramDef);
+        tryCatchStmtBuilder.setLastCatchBlockStmt(catchBlock);
+    }
+
+    public void startFinallyBlock(NodeLocation location) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
+
+        // Start Parsing finally clause.
+        TryCatchStmt.FinallyBlock finallyBlock = new TryCatchStmt.FinallyBlock(currentScope);
+        tryCatchStmtBuilder.setFinallyBlock(finallyBlock);
+        currentScope = finallyBlock;
+
+        BlockStmt.BlockStmtBuilder finallyBlockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(finallyBlockStmtBuilder);
+
+        currentScope = finallyBlockStmtBuilder.getCurrentScope();
+    }
+
+    public void addFinallyBlock(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
+        if (whiteSpaceDescriptor != null) {
+            WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
+            if (ws == null) {
+                ws = new WhiteSpaceDescriptor();
+                tryCatchStmtBuilder.setWhiteSpaceDescriptor(ws);
+            }
+            ws.addChildDescriptor(FINALLY_CLAUSE, whiteSpaceDescriptor);
+        }
+        BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt finallyBlock = catchBlockBuilder.build();
+        currentScope = finallyBlock.getEnclosingScope();
+        tryCatchStmtBuilder.setFinallyBlockStmt(finallyBlock);
     }
 
     public void addTryCatchStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
@@ -1376,7 +1424,8 @@ public class BLangModelBuilder {
             addToBlockStmt(throwStmt);
             return;
         }
-        String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors.ONLY_EXCEPTION_TYPE_HERE);
+        String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors
+                .ONLY_ERROR_TYPE_ALLOWED_HERE);
         errorMsgs.add(errMsg);
     }
 
@@ -1396,6 +1445,7 @@ public class BLangModelBuilder {
     }
 
     public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
@@ -1444,6 +1494,7 @@ public class BLangModelBuilder {
     }
 
     public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+        validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
@@ -1853,6 +1904,14 @@ public class BLangModelBuilder {
             AnnotationAttachment attachment = annonAttachmentStack.pop();
             collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
             annonAttachmentList.add(attachment);
+        }
+    }
+
+    private void validateIdentifier(String identifier, NodeLocation location) {
+        if (identifier.equals("_")) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors
+                    .RESERVED_IDENTIFIER, identifier);
+            errorMsgs.add(errMsg);
         }
     }
 

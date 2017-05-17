@@ -772,6 +772,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -779,6 +791,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

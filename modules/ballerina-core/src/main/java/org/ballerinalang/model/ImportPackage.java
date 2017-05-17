@@ -43,6 +43,7 @@ public class ImportPackage implements Node {
     private SymbolName symbolName;
 
     private boolean isUsed;
+    private boolean isImplicitImport;
 
     public ImportPackage(String path) {
         int lastIndex = path.lastIndexOf(".");
@@ -103,6 +104,15 @@ public class ImportPackage implements Node {
     }
 
     public void markUsed() {
+        isUsed = true;
+    }
+
+    public boolean isImplicitImport() {
+        return isImplicitImport;
+    }
+
+    public void setImplicitImport(boolean implicitImport) {
+        isImplicitImport = implicitImport;
         isUsed = true;
     }
 

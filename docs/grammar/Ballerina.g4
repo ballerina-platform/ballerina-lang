@@ -56,7 +56,7 @@ functionDefinition
     ;
 
 callableUnitSignature
-    :   Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')?
+    :   Identifier '(' parameterList? ')' returnParameters?
     ;
 
 connectorDefinition
@@ -152,7 +152,6 @@ valueTypeName
 builtInReferenceTypeName
     :   'message'
     |   'map' ('<' typeName '>')?
-    |   'exception'
     |   'xml' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
@@ -314,11 +313,20 @@ timeoutClause
     ;
 
 tryCatchStatement
-    :   'try' '{' statement* '}' catchClause
+    :   'try' '{' statement* '}' catchClauses
+    ;
+
+catchClauses
+    : catchClause+ finallyClause?
+    | finallyClause
     ;
 
 catchClause
-    :   'catch' '(' 'exception' Identifier ')' '{' statement* '}'
+    :  'catch' '(' typeName Identifier ')' '{' statement* '}'
+    ;
+
+finallyClause
+    : 'finally' '{' statement* '}'
     ;
 
 throwStatement

@@ -173,10 +173,6 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START),
                 "\n                            ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD), " ");
-        Assert.assertEquals(function.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD), " ");
-        Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN), "  ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
@@ -203,8 +199,6 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_ACTION_KEYWORD_TO_IDENTIFIER_START), " ");
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START), "  ");
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START), "    ");
-        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_RETURN_PARAM_END_TO_THROWS_KEYWORD), "      ");
-        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_THROWS_KEYWORD_TO_EXCEPTION_KEYWORD), " ");
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN), "   ");
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
     }

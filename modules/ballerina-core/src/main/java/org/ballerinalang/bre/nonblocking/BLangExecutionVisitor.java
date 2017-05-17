@@ -62,7 +62,6 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.invokers.MainInvoker;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -89,7 +88,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract void execute(FunctionInvocationExpr functionInvocationExpr);
 
-    public abstract void handleBException(BException exception);
+    public abstract void handleBException(Object exception);
 
     public abstract void continueExecution(LinkedNode linkedNode);
 
@@ -275,7 +274,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
         try {
             this.visit(expression);
         } catch (RuntimeException e) {
-            handleBException(new BException(e.getMessage()));
+//            handleBException(new BException(e.getMessage()));
         }
     }
 }

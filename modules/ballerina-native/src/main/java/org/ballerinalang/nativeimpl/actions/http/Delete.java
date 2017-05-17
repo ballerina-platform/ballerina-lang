@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.actions.http;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -67,7 +66,7 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         name = "action.net.http.delete",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Delete extends AbstractHTTPAction {
+public class  Delete extends AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(Delete.class);
 
@@ -93,10 +92,10 @@ public class Delete extends AbstractHTTPAction {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
         } catch (ClientConnectorException | RuntimeException e) {
-            String msg = "Failed to invoke 'delete' action in " + Constants.CONNECTOR_NAME
-                    + ". " + e.getMessage();
-            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-            context.getExecutor().handleBException(exception);
+//            String msg = "Failed to invoke 'delete' action in " + Constants.CONNECTOR_NAME
+//                    + ". " + e.getMessage();
+//            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+//            context.getExecutor().handleBException(exception);
         } catch (Throwable t) {
             // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'delete' action in " + Constants.CONNECTOR_NAME
