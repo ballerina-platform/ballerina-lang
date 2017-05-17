@@ -154,7 +154,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         //import declarations
         if (bFile.getImportPackages() != null) {
             for (ImportPackage anImport : bFile.getImportPackages()) {
-                anImport.accept(this);
+                if (!anImport.isImplicitImport()) {
+                    anImport.accept(this);
+                }
             }
         }
 
