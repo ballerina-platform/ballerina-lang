@@ -603,11 +603,11 @@ public class BLangModelBuilder {
             if (i == dimensions) {
                 parent = new VariableRefExpr(location, whiteSpaceDescriptor, nameReference.name, nameReference.pkgName,
                         nameReference.pkgPath);
-                ((VariableRefExpr) parent).setIsArrayIndexExpr(true);
             } else {
                 parent = exprStack.pop();
             }
             FieldAccessExpr parentExpr = new FieldAccessExpr(location, whiteSpaceDescriptor, parent, fieldExpr);
+            parentExpr.setIsArrayIndexExpr(true);
             fieldExpr = parentExpr;
         }
         exprStack.push(fieldExpr);
