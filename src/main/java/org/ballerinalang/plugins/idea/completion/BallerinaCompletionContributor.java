@@ -498,7 +498,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             suggestAnnotationsFromPackage(parameters, resultSet, null, attachmentType);
                         }
                     } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.COMMA) {
-                        addStructFields(parameters, resultSet, element);
                         MapStructLiteralNode node = PsiTreeUtil.getParentOfType(element, MapStructLiteralNode.class);
                         if (node != null) {
                             // Eg: User user = {n<caret>}

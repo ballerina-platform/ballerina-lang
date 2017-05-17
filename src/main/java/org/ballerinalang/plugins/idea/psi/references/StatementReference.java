@@ -26,7 +26,6 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
@@ -68,8 +67,9 @@ public class StatementReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof PackageNameNode || def instanceof VariableDefinitionNode || def instanceof ParameterNode
                 || def instanceof ConstantDefinitionNode || def instanceof TypeNameNode
-                || def instanceof ConnectorDefinitionNode || def instanceof StructDefinitionNode
-                || def instanceof GlobalVariableDefinitionNode || def instanceof ConstantDefinitionNode;
+                || def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
+                || def instanceof StructDefinitionNode || def instanceof GlobalVariableDefinitionNode
+                || def instanceof ConstantDefinitionNode;
     }
 
     @NotNull
@@ -134,22 +134,6 @@ public class StatementReference extends BallerinaElementReference {
             }
         }
 
-        // We need to check parameters for matches as well. So we need to first get the enclosing definition node.
-        IdentifierDefSubtree definitionNode = PsiTreeUtil.getParentOfType(getElement(), FunctionDefinitionNode.class,
-                ResourceDefinitionNode.class, ConnectorDefinitionNode.class, ActionDefinitionNode.class);
-//        // Get all parameter nodes.
-//        Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(definitionNode, ParameterNode.class);
-//        // Check and add each result.
-//        for (ParameterNode parameterNode : parameterNodes) {
-//            PsiElement nameIdentifier = parameterNode.getNameIdentifier();
-//            if (nameIdentifier == null) {
-//                continue;
-//            }
-//            if (myElement.getText().equals(nameIdentifier.getText())) {
-//                results.add(new PsiElementResolveResult(parameterNode));
-//            }
-//        }
-
         PsiElement previousElement = BallerinaCompletionUtils.getPreviousNonEmptyElement(file,
                 myElement.getTextOffset());
         if (previousElement instanceof LeafPsiElement) {
@@ -161,10 +145,20 @@ public class StatementReference extends BallerinaElementReference {
                     if (reference != null) {
                         PsiElement resolvedElement = reference.resolve();
                         if (resolvedElement != null && resolvedElement instanceof PsiDirectory) {
+                            List<PsiElement> functions =
+                                    BallerinaPsiImplUtil.getAllFunctionsFromPackage((PsiDirectory) resolvedElement);
+                            for (PsiElement function : functions) {
+                                if (myElement.getText().startsWith(function.getText())) {
+                                    results.add(new PsiElementResolveResult(function));
+                                }
+                            }
+
                             List<PsiElement> connectors =
                                     BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) resolvedElement);
                             for (PsiElement connector : connectors) {
-                                results.add(new PsiElementResolveResult(connector));
+                                if (myElement.getText().startsWith(connector.getText())) {
+                                    results.add(new PsiElementResolveResult(connector));
+                                }
                             }
                         }
                     }
@@ -172,7 +166,6 @@ public class StatementReference extends BallerinaElementReference {
             }
         }
 
-        // We need to check connectors in the package as well.
         List<PsiElement> connectorsInCurrentPackage =
                 BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(file.getParent());
         for (PsiElement connector : connectorsInCurrentPackage) {
@@ -188,7 +181,6 @@ public class StatementReference extends BallerinaElementReference {
             }
         }
 
-        // We need to check global variables in the package as well.
         List<PsiElement> globalVariablesInCurrentPackage =
                 BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(file.getParent());
         for (PsiElement variable : globalVariablesInCurrentPackage) {
@@ -204,7 +196,6 @@ public class StatementReference extends BallerinaElementReference {
             }
         }
 
-        // We need to check global variables in the package as well.
         List<PsiElement> constants =
                 BallerinaPsiImplUtil.getAllConstantsFromPackage(file.getParent());
         for (PsiElement constant : constants) {
@@ -231,24 +222,6 @@ public class StatementReference extends BallerinaElementReference {
             definitionElement = definitionElement.getParent();
         }
         if (isDefinitionNode(definitionElement)) {
-            //            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
-            //            String defName = id != null ? id.getText() : null;
-            //
-            //            PsiElement parent = definitionElement.getParent();
-            //            PsiElement temp = myElement;
-            //
-            //            boolean inScope = false;
-            //            while (!(temp instanceof PsiFile)) {
-            //                if (parent == temp) {
-            //                    inScope = true;
-            //                    break;
-            //                }
-            //                temp = temp.getParent();
-            //            }
-            //            if (!inScope) {
-            //                return false;
-            //            }
-            //            return refName != null && defName != null && refName.equals(defName);
             if (definitionElement instanceof FunctionDefinitionNode
                     || definitionElement instanceof ConnectorDefinitionNode
                     || definitionElement instanceof StructDefinitionNode

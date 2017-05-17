@@ -169,6 +169,13 @@ public class NameReference extends BallerinaElementReference {
                     }
                 }
 
+                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(directory);
+                for (PsiElement struct : structs) {
+                    if (getElement().getText().equals(struct.getText())) {
+                        results.add(new PsiElementResolveResult(struct));
+                    }
+                }
+
                 List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(directory);
                 for (PsiElement variable : globalVariables) {
                     if (getElement().getText().equals(variable.getText())) {

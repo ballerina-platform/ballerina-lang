@@ -52,7 +52,7 @@ public class BallerinaAutoImportInsertHandler implements InsertHandler<LookupEle
     private final boolean myTriggerAutoPopup;
 
     private BallerinaAutoImportInsertHandler(boolean triggerAutoPopup) {
-        this(false, triggerAutoPopup);
+        this(triggerAutoPopup, false);
     }
 
     private BallerinaAutoImportInsertHandler(boolean triggerAutoPopup, boolean suggestAlias) {
