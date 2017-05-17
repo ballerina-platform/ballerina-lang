@@ -43,6 +43,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -124,6 +125,7 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.util.BValueUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
@@ -141,6 +143,7 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,6 +179,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
     private boolean completed;
 
+    public BStruct thrownError;
+    private StructDef error, stackTraceItemDef, stackTraceDef;
+    private SymbolScope parentScope;
+
     /**
      * struct memory block stack to temporarily hold nested struct init values.
      */
@@ -187,6 +194,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         this.controlStack = bContext.getControlStack();
         this.branchIDStack = new Stack<>();
         this.tryCatchStackRefs = new Stack<>();
+    }
+
+    public void setParentScope(SymbolScope parentScope) {
+        this.parentScope = parentScope;
     }
 
     /* Statement nodes. */
@@ -290,8 +301,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TryCatchStmt {}", getNodeLocation(tryCatchStmt.getNodeLocation()));
         }
-//        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt.getCatchBlock(),
-//                bContext.getControlStack().getCurrentFrame()));
+        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt, controlStack.getCurrentFrame()));
         next = tryCatchStmt.next;
     }
 
@@ -940,9 +950,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ThrowStmt - EndNode");
         }
-//        BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
-//        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-//        this.handleBException(exception);
+        BStruct error = (BStruct) getTempValue(throwStmtEndNode.getStatement().getExpr());
+        error.setStackTrace(generateStackTrace());
+        handleBException();
     }
 
     @Override
@@ -1145,7 +1155,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryExpressionEndNode.next;
         } catch (RuntimeException e) {
-//            handleBException(new BException(e.getMessage()));
+            createBErrorFromException(e, null);
+            handleBException();
         }
     }
 
@@ -1172,7 +1183,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryEqualityExpressionEndNode.next;
         } catch (RuntimeException e) {
-//            handleBException(new BException(e.getMessage()));
+            createBErrorFromException(e, null);
+            handleBException();
         }
     }
     
@@ -1457,8 +1469,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 next = invokeNativeActionNode.next;
             }
         } catch (RuntimeException e) {
-//            BException bException = new BException(e.getMessage());
-//            handleBException(bException);
+            createBErrorFromException(e, null);
+            handleBException();
         }
     }
 
@@ -1528,35 +1540,65 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 //        setTempValue(jsonInitExprEndNode.getExpression().getTempOffset(), new BJSON(sj.toString()));
 //    }
 
-    /**
-     * Util method handle Ballerina exception. Native implementations <b>Must</b> use method to handle errors.
-     *
-     * @param bException Exception to handle
-     */
-    public void handleBException(Object bException) {
-        // SaveStack current StackTrace.
-//        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-//        if (tryCatchStackRefs.size() == 0) {
-//            // There is no tryCatch block to handle this exception. Pass this to handle at root.
-//            throw new BallerinaException(bException.value().getMessage().stringValue());
-//        }
-//        TryCatchStackRef ref = tryCatchStackRefs.pop();
-//        // unwind stack till we found the current frame.
-//        while (controlStack.getCurrentFrame() != ref.stackFrame) {
-//            if (controlStack.getStack().size() > 0) {
-//                controlStack.popFrame();
-//            } else {
-//                // Something has gone wrong. No StackFrame to pop ? this shouldn't be executed.
-//                throw new FlowBuilderException("Not handle catch statement in execution builder phase");
-//            }
-//        }
-//        MemoryLocation memoryLocation = ref.getCatchBlock().getParameterDef().getMemoryLocation();
-//        if (memoryLocation instanceof StackVarLocation) {
-//            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
-//            controlStack.setValue(stackFrameOffset, bException);
-//        }
-        // Execute Catch block.
-//        next = ref.getCatchBlock().getCatchBlockStmt();
+    public void handleBException() {
+        if (tryCatchStackRefs.size() == 0) {
+            // There is no tryCatch block to handle this exception. Pass this to handle at root.
+            String errorMsg = "uncaught error: " + thrownError.getType().getName() + "{ msg : " +
+                    thrownError.getValue(0).stringValue() + "}";
+            throw new BallerinaException(errorMsg);
+        }
+        TryCatchStmt.CatchBlock equalCatchType = null;
+        TryCatchStmt.CatchBlock equivalentCatchBlock = null;
+        TryCatchStackRef ref = null;
+        whileBlock:
+        while (equivalentCatchBlock == null && equalCatchType == null) {
+            if (tryCatchStackRefs.size() > 0) {
+                ref = tryCatchStackRefs.pop();
+            } else {
+                break;
+            }
+            for (TryCatchStmt.CatchBlock catchBlock : ref.getTryCatchStmt().getCatchBlocks()) {
+                if (thrownError.getType().equals(catchBlock.getParameterDef().getType())) {
+                    equalCatchType = catchBlock;
+                    break whileBlock;
+                }
+                if (equivalentCatchBlock == null && (TypeLattice.getExplicitCastLattice().getEdgeFromTypes
+                        (thrownError.getType(), catchBlock.getParameterDef().getType(), null) != null)) {
+                    equivalentCatchBlock = catchBlock;
+                }
+            }
+            // TODO : Invoke finally block.
+        }
+        if (ref != null) {
+            // unwind stack till we found the current frame.
+            while (controlStack.getCurrentFrame() != ref.stackFrame) {
+                if (controlStack.getStack().size() > 0) {
+                    controlStack.popFrame();
+                } else {
+                    throw new BallerinaException("Not handle catch statement in execution builder phase");
+                }
+            }
+            if (equalCatchType != null || equivalentCatchBlock != null) {
+                MemoryLocation memoryLocation;
+                // Execute Catch block.
+                if (equalCatchType != null) {
+                    memoryLocation = equalCatchType.getParameterDef().getMemoryLocation();
+                    next = equalCatchType.getCatchBlockStmt();
+                } else {
+                    memoryLocation = equivalentCatchBlock.getParameterDef().getMemoryLocation();
+                    next = equivalentCatchBlock.getCatchBlockStmt();
+                }
+                if (memoryLocation instanceof StackVarLocation) {
+                    int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+                    controlStack.setValue(stackFrameOffset, thrownError);
+                }
+            } else {
+                next = null;
+                String errorMsg = "uncaught error: " + thrownError.getType().getName() + "{ msg : " +
+                        thrownError.getValue(0).stringValue() + "}";
+                throw new BallerinaException(errorMsg);
+            }
+        }
     }
 
     // Private methods
@@ -1981,5 +2023,44 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         return arrayVal;
+    }
+
+    public void createBErrorFromException(Throwable t, String message) {
+        if (error == null) {
+            error = (StructDef) parentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+            if (error == null) {
+                throw new BLangRuntimeException("Unresolved type Error");
+            }
+        }
+        BString msg = new BString(message != null ? message : t.getMessage());
+        thrownError = new BStruct(error, new BValue[]{msg});
+        thrownError.setStackTrace(generateStackTrace());
+    }
+
+    public BStruct generateStackTrace() {
+        if (stackTraceDef == null) {
+            stackTraceItemDef = (StructDef) parentScope.resolve(new SymbolName("StackTraceItem",
+                    "ballerina.lang.errors"));
+            stackTraceDef = (StructDef) parentScope.resolve(new SymbolName("StackTrace",
+                    "ballerina.lang.errors"));
+            if (stackTraceDef == null) {
+                throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:StackTraceItem");
+            }
+        }
+        BArray<BStruct> bArray = stackTraceDef.getFieldDefStmts()[0].getVariableDef().getType().getEmptyValue();
+        Stack<StackFrame> stack = bContext.getControlStack().getStack();
+        BStruct stackTrace = new BStruct(stackTraceDef, new BValue[]{bArray});
+        for (int i = stack.size(); i > 0; i--) {
+            StackFrame currentFrame = stack.get(i - 1);
+            BValue[] structInfo = {
+                    new BString(currentFrame.getNodeInfo().getName()),
+                    new BString(currentFrame.getNodeInfo().getPackage()),
+                    new BString(currentFrame.getNodeInfo().getNodeLocation().getFileName()),
+                    new BInteger(currentFrame.getNodeInfo().getNodeLocation().getLineNumber()),
+            };
+            BStruct frameItem = new BStruct(stackTraceItemDef, structInfo);
+            bArray.add((stack.size() - i), frameItem);
+        }
+        return stackTrace;
     }
 }

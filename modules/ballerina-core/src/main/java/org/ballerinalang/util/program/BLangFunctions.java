@@ -155,6 +155,7 @@ public class BLangFunctions {
 
             // Invoke main function
             BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+            nonBlockingExecutor.setParentScope(function.getSymbolScope());
             nonBlockingExecutor.execute(funcIExpr);
             int length = funcIExpr.getCallableUnit().getReturnParameters().length;
             BValue[] result = new BValue[length];
