@@ -47,6 +47,8 @@ The `aborted` section is executed after the transaction is rolled back due to an
 - abort statement
 - throw statement
 
+### Nested Transactions
+
 A `nested transaction` is defined as follows:
 
 ```
