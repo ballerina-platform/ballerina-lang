@@ -373,6 +373,7 @@ expression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
     |   nameReference '(' expressionList? ')'           # functionInvocationExpression
+    |   '<' typeName '>' expression                     # typeConversionExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
     |   ('+' | '-' | '!') expression                    # unaryExpression
     |   '(' expression ')'                              # bracedExpression

@@ -564,6 +564,13 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
