@@ -28,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>swagger-ballerina</artifactId>
     <packaging>pom</packaging>
-    <version>0.87</version>
+    <version>0.88-SNAPSHOT</version>
     <name>WSO2 Swagger Ballerina Tooling - Parent</name>
     <url>http://wso2.org</url>
 
@@ -36,7 +36,7 @@
         <url>https://github.com/ballerinalang/tool-swagger-ballerina.git</url>
         <developerConnection>scm:git:https://github.com/ballerinalang/tool-swagger-ballerina.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/tool-swagger-ballerina.git</connection>
-        <tag>v0.87</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <repositories>
