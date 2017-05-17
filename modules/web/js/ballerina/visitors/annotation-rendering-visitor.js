@@ -41,7 +41,7 @@ class AnnotationRenderingVisitor {
             let annotations = node.filterChildren(function (child) {
                 return ASTFactory.isAnnotation(child)
             });
-            if(!this.hiddenService){
+            if(annotations.length > 0 && !this.hiddenService){
                 let bBox = Object.assign({}, node.viewState.bBox);
                 bBox.h = node.viewState.components.annotation.h
                 this.annotations.push(
