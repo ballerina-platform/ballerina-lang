@@ -1,8 +1,12 @@
-# Local Transactions
+# Transactions
+
+Transaction processing is information processing that is divided into individual, indivisible operations called transactions. Each transaction must succeed or fail as a complete unit; it can never be only partially complete. There are two types of transactions; local and distributed.
+
+## Local Transactions
 
 Local transactions are transactions associated with a particular datasource (this means they are resource-specific). The most common example is a transaction associated with a JDBC connection.
 
-# Distributed Transaction: (Global/XA Transaction)
+## Distributed Transaction: (Global/XA Transaction)
 
 A distributed transaction is a transaction that accesses and updates data on two or more networked resources, and therefore must be coordinated among those resources. This coordination is the function of the transaction manager.
 
@@ -14,7 +18,7 @@ JTA specifies standard Java interfaces between the transaction manager and the o
 A `transaction` is defined as follows:
 
 ```
-transaction { //Initialize BallerinaTransactionManager for the Context
+transaction { 
 
    sql:ClientConnector.update(testdb1,...) 
 
@@ -36,54 +40,54 @@ transaction { //Initialize BallerinaTransactionManager for the Context
 }
 
 ```
-A `transaction` can be aborted if an `If` condition is met and the `abort;` command is executed. It can also be aborted with specific logic using the `aborted` method.
+The `aborted` section is executed after the transaction is rolled back due to any of the following conditions:
+- an exception occurred within the transaction block
+- abort statement
+- throw statement
 
 A `nested transaction` is defined as follows:
 
 ```
-transaction { //Initialize BallerinaTransactionManager for the Context - transactionLevel = 1
+transaction { 
 
    ....
 
    ....
 
-transaction { transactionLevel = 2
+	transaction { transactionLevel = 2
 
-   ....
+	   ....
 
-   ....
+	   ....
 
-} 
-aborted { 
-   ...
+	} 
+	aborted { 
+	   ...
 
-   ...
-}
+	   ...
+	}
    ....
    
    ....
 
 
 } 
-onRollback { 
+aborted { 
    //Logic which needs to execute on transaction failure
    ...
 
    ...
 }
 ```
-Rollback happens after the `onRollback` block executes.
 
 ## Example
 
-The following is an example of a local transaction.
+The following is an example of a local transaction where the transaction gets aborted if any of the `update` actions fail.
 
 ```
-function testLocalTransacton () (int, int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
     sql:ClientConnector.update(testDB, "Insert into Customers
@@ -93,60 +97,18 @@ function testLocalTransacton () (int, int) {
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
                                parameters);
     } aborted {
-        returnVal = - 1;
+        system.println("The transaction is aborted");
     }
-    //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 200",
-    parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
-    }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return returnVal, count;
-}
-```
-The following is an example of the rollback function in a transaction.
 
 ```
-function testTransactonRollback () (int, int) {
+
+The following is an example of the `abort` statement in a transaction.
+
+```
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
-    sql:Parameter[] parameters = [];
-    transaction {
-        sql:ClientConnector.update(testDB, "Insert into Customers
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
-                                   parameters);
-        sql:ClientConnector.update(testDB, "Insert into Customers2
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
-                                   parameters);
-    } aborted {
-        returnVal = - 1;
-    }
-    //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 210",
-        parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
-    }
-    datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return returnVal, count;
-}
-```
-
-The following is an example of the abort function in a transaction.
-
-```
-function testTransactonAbort () (int, int) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
         int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
@@ -158,20 +120,10 @@ function testTransactonAbort () (int, int) {
                                              parameters);
         int i = 0;
         if (i == 0) {
-            abort;
+            abort;//transaction can be aborted based on a condition
         }
     } aborted {
-        returnVal = - 1;
+        system.println("The transaction is aborted");
     }
-    //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 220",
-        parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
-    }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return returnVal, count;
-}
 ```
