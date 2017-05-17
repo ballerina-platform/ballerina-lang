@@ -48,7 +48,8 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
             try {
                 next.accept(this);
             } catch (RuntimeException e) {
-//                handleBException(new BException(e.getMessage()));
+                createBErrorFromException(e, null);
+                handleBException();
             }
         }
     }
@@ -58,9 +59,9 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
             try {
                 next.accept(this);
             } catch (RuntimeException e) {
-//                handleBException(new BException(e.getMessage()));
+                createBErrorFromException(e, null);
+                handleBException();
             }
         }
     }
-
 }

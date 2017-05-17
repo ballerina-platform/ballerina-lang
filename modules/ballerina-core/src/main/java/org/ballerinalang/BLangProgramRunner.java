@@ -118,6 +118,7 @@ public class BLangProgramRunner {
                 debugManager.waitTillClientConnect();
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
                 debugManager.setDebugger(debugger);
+                debugger.setParentScope(mainFunction);
                 bContext.setExecutor(debugger);
                 debugger.continueExecution(mainFunction.getCallableUnitBody());
                 debugManager.holdON();

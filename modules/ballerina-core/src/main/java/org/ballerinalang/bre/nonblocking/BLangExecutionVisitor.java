@@ -88,7 +88,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract void execute(FunctionInvocationExpr functionInvocationExpr);
 
-    public abstract void handleBException(Object exception);
+    public abstract void handleBException();
 
     public abstract void continueExecution(LinkedNode linkedNode);
 

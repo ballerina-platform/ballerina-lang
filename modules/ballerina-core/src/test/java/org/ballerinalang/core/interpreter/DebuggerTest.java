@@ -228,6 +228,7 @@ public class DebuggerTest {
 
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
             debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
+            debugger.setParentScope(bLangProgram);
         }
 
         public void startDebug() {

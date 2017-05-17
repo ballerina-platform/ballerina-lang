@@ -94,10 +94,10 @@ public class Patch extends AbstractHTTPAction {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
         } catch (ClientConnectorException | RuntimeException e) {
-//            String msg = "Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
-//                    + ". " + e.getMessage();
-//            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-//            context.getExecutor().handleBException(exception);
+            String msg = "Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
+                    + ". " + e.getMessage();
+            context.getExecutor().createBErrorFromException(e, msg);
+            context.getExecutor().handleBException();
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
                                          + ". " + t.getMessage(), context);

@@ -297,7 +297,8 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     next.accept(this);
                 }
             } catch (RuntimeException e) {
-//                handleBException(new BException(e.getMessage()));
+                createBErrorFromException(e, null);
+                handleBException();
             }
         }
     }
@@ -312,7 +313,8 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     next.accept(this);
                 }
             } catch (RuntimeException e) {
-//                handleBException(new BException(e.getMessage()));
+                createBErrorFromException(e, null);
+                handleBException();
             }
         }
     }
