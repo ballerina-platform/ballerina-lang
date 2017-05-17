@@ -30,8 +30,10 @@ class EditableText extends React.Component {
     }
 
     renderTextBox() {
-        const {x, y, width, height = 25, onChange, onBlur, onKeyDown, children="",
-            className='text-input', placeholder} = this.props;
+        const {
+            x, y, width, height = 25, onChange, onBlur, onKeyDown, children = "",
+            inputClass = 'text-input', placeholder
+        } = this.props;
         const inputStyle = {
             position: 'absolute',
             top: y - height / 2,
@@ -45,7 +47,6 @@ class EditableText extends React.Component {
         }
 
         const inputProps = {
-            className,
             ref: input => {
                 if (input !== null) {
                     input.focus();
@@ -59,14 +60,14 @@ class EditableText extends React.Component {
             value: children
         }
 
-        const inputElement = <input {...inputProps} />
+        const inputElement = (<input {...inputProps} className={inputClass}/>);
 
         ReactDOM.render(inputElement, this.context.overlay);
     }
 
     componentDidUpdate(prevProps) {
         const editingJustFinished = prevProps.editing && !this.props.editing
-        if(this.props.editing || editingJustFinished) {
+        if (this.props.editing || editingJustFinished) {
             this.renderTextBox();
         }
     }
@@ -88,7 +89,7 @@ class EditableText extends React.Component {
         };
 
         return (
-            <text {...textProps} className="panel-label">{ this.props.displayText || this.props.children }</text>
+            <text {...textProps} className={this.props.labelClass}>{ this.props.displayText || this.props.children }</text>
         );
     }
 }

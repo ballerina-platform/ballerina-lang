@@ -16,36 +16,46 @@
     cursor: pointer;
 }
 
-.parameter-space{
-    fill:#dcdcdc;
+.parameter-space {
+    fill: #dcdcdc;
 }
 
-.annotation-input{
+.annotation-input {
     fill: #eee;
     stroke: #b5b5b5;
     stroke-width: 1;
-    stroke-dasharray: 3,3;
-}
-.annotation-input-placeholder{
-    fill:#333;
+    stroke-dasharray: 3, 3;
 }
 
-.annotation-delete-wrapper{
+.annotation-input-placeholder {
+    fill: #333;
+}
+
+.annotation-delete-wrapper {
     fill: #dfdfdf;
     stroke: #dfdfdf;
     stroke-width: 1;
 }
+
 .annotation-attribute-wrapper {
     fill: #f3f3f3;
     shape-rendering: crispEdges;
     stroke: #ccc;
     stroke-width: 0.5;
 }
-.annotation-attribute-wrapper-text{
-    fill:#333;
+
+.annotation-attribute-wrapper-text {
+    fill: #333;
 }
 
-.panel-label{
+.panel-label {
     left: 10px;
     fill: #252525
+}
+
+.annotation-input-placeholder {
+    fill: #999
+}
+
+.annotation-input-text-box {
 }
