@@ -64,18 +64,4 @@ public class WorkspaceUtils {
 
         return false;
     }
-
-    /**
-     * return a available port from the seed port.
-     * If the seed port is available it will return that.
-     * 
-     * @param seed
-     * @return
-     */
-    public static int getAvailablePort(int seed) {
-        while (!WorkspaceUtils.available(seed)) {
-            seed++;
-        }
-        return seed;
-    }
 }

@@ -40,32 +40,57 @@ class ArgumentParameterDefinitionHolder extends React.Component {
     addArgumentParameter(input) {
         let model = this.props.model;
         let splitedExpression = input.split(" ");
-        let parameterDef = model.getFactory().createParameterDefinition();
-        let bType = splitedExpression[0];
-        if (this.validateType(bType)) {
-            parameterDef.setTypeName(bType);
-        } else {
-            let errorString = "Incorrect Variable Type: " + bType;
-            Alerts.error(errorString);
-            return false;
-        }
 
-        if (splitedExpression[1]) {
-            parameterDef.setName(splitedExpression[1]);
+        if (!this.checkWhetherIdentifierAlreadyExist(splitedExpression[1])) {
+            let parameterDef = model.getFactory().createParameterDefinition();
+            let bType = splitedExpression[0];
+            if (this.validateType(bType)) {
+                parameterDef.setTypeName(bType);
+            } else {
+                let errorString = "Incorrect Variable Type: " + bType;
+                Alerts.error(errorString);
+                return false;
+            }
+
+            if (splitedExpression[1]) {
+                parameterDef.setName(splitedExpression[1]);
+            } else {
+                let errorString = "Invalid Variable Name.";
+                Alerts.error(errorString);
+                return false;
+            }
+            this.props.model.addChild(parameterDef);
+            return true;
         } else {
-            let errorString = "Invalid Variable Name.";
+            let errorString = "Variable Already exists: " + splitedExpression[1];
             Alerts.error(errorString);
             return false;
         }
-        this.props.model.addChild(parameterDef);
-        return true;
+    }
+
+    /**
+     * Check whether given identifier is already exist.
+     * @param {string} identifier - identifier of the user entered variable declaration.
+     * @return {boolean} isExist - true if exist, false if not.
+     * */
+    checkWhetherIdentifierAlreadyExist(identifier) {
+        let isExist = false;
+        if (this.props.model.getChildren().length > 0) {
+            for (let i = 0; i < this.props.model.getChildren().length; i++) {
+                if (this.props.model.getChildren()[i].getName() === identifier) {
+                    isExist = true;
+                    break;
+                }
+            }
+        }
+        return isExist;
     }
 
     /**
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const { renderingContext } = this.context;
+        const {renderingContext} = this.context;
         let dropdownData = [];
         let bTypes = renderingContext.environment.getTypes();
         _.forEach(bTypes, function (bType) {

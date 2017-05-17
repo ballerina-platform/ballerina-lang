@@ -22,6 +22,7 @@ import Expression from './expression';
 class FieldAccessExpression extends Expression {
     constructor(args) {
         super('FieldAccessExpression');
+        this._isArrayExpression = _.get(args, 'isArrayExpression', false);
     }
 
     getExpression(){
@@ -34,31 +35,57 @@ class FieldAccessExpression extends Expression {
      * such as {@link FunctionInvocationExpression}. Hence if 2nd child exists, we call getExpression() on that child.
      * @return {string}
      */
-    generateExpression(isArrayExpression) {
-        if (_.isEqual(_.size(this.getChildren()), 2)) {
-            var firstVar = this.getChildren()[0];
-            var secondVar = this.getChildren()[1];
-            if (firstVar.getIsArrayExpression()) {
-                return firstVar.generateExpression() + '[' + secondVar.generateExpression(true) + ']';
-            } else {
-                return firstVar.generateExpression() + '.' + secondVar.generateExpression(false);
-            }
-        } else if (_.isEqual(_.size(this.getChildren()), 1)) {
+    generateExpression() {
+        if (this.getChildren().length === 1) {
             var exp = this.getChildren()[0];
             if (this.getFactory().isBasicLiteralExpression(exp)) {
-                if (isArrayExpression){
-                    return exp.generateExpression();
+                if (exp.getBasicLiteralType() === 'string') {
+                    if (this.getIsArrayExpression()) {
+                        return '[' + exp.generateExpression() + ']';
+                    } else {
+                        return '.' + exp.getBasicLiteralValue();
+                    }
                 } else {
-                    return exp.getBasicLiteralValue();
+                    return '[' + exp.generateExpression() + ']';
                 }
-            } else if (this.getFactory().isFieldAccessExpression(exp)) {
-                return exp.generateExpression(isArrayExpression);
             } else {
-                return exp.generateExpression();
+                return '[' + exp.generateExpression() + ']';
             }
+        } else if (this.getChildren().length === 2) {
+            var firstVar = this.getChildren()[0];
+            var secondVar = this.getChildren()[1];
+            if (this.getFactory().isFieldAccessExpression(this.getParent())) {
+                // if this is an inner field access expression
+                if (this.getIsArrayExpression()) {
+                    return '[' + firstVar.generateExpression() + ']' + secondVar.generateExpression();
+                } else {
+                    if (this.getFactory().isBasicLiteralExpression(firstVar)) {
+                        if (firstVar.getBasicLiteralType() === 'string') {
+                            if (this.getIsArrayExpression()) {
+                                return '[' + firstVar.generateExpression() + ']' + secondVar.generateExpression();
+                            } else {
+                                return '.' + firstVar.getBasicLiteralValue() + secondVar.generateExpression();
+                            }
+                        }
+                    } else {
+                        return '.' + firstVar.generateExpression() + secondVar.generateExpression();
+                    }
+                }
+            } else {
+                return firstVar.generateExpression() + secondVar.generateExpression();
+            }
+
         } else {
             log.error('Error in determining Field Access expression');
         }
+    }
+
+    setIsArrayExpression(isArrayExpression, options) {
+        this.setAttribute('_isArrayExpression', isArrayExpression, options);
+    }
+
+    getIsArrayExpression() {
+        return this._isArrayExpression;
     }
 
     /**
@@ -66,6 +93,7 @@ class FieldAccessExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.setIsArrayExpression(jsonNode.is_array_expression, {doSilently: true});
         _.each(jsonNode.children, childNode => {
             var child = this.getFactory().createFromJson(childNode);
             this.addChild(child);

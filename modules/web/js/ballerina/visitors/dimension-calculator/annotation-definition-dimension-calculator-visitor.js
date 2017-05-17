@@ -43,7 +43,7 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
 
         //Initial statement height include panel heading and pannel padding.
         let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        // Set the width to 0 dont add the padding now since we do a comparison.
+        // Set the width to 0 don't add the padding now since we do a comparison.
         let bodyWidth = 0;
         let largestWidthAmongChildren = 0;
 
@@ -86,7 +86,9 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
 
         viewState.components = components;
 
-        viewState.titleWidth = util.getTextWidth(node.getAnnotationName()).w;
+        const textWidth = util.getTextWidth(node.getAnnotationName());
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
 
         //// Creating components for parameters of the annotation
         // Creating component for opening bracket of the parameters view.

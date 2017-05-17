@@ -70,7 +70,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createConnectorDefTool = {
             id: "connectorDefinition",
-            name: "Connector",
+            name: "Connector Definition",
             iconSrc: require("./../../../images/tool-icons/connector.svg"),
             cssClass: "icon fw fw-connector",
             title: "Connector Definition",
@@ -79,7 +79,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createConnectorActionTool = {
             id: "connectorAction",
-            name: "Action",
+            name: "Connector Action",
             iconSrc: require("./../../../images/tool-icons/action.svg"),
             cssClass: "icon fw fw-dgm-action",
             title: "Connector Action",
@@ -181,7 +181,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         // TODO: change the icon with the new one
         var createVariableDefinitionStatementTool = {
             id: "VariableDefinition",
-            name: "Variable",
+            name: "VariableDefinition",
             iconSrc: require("./../../../images/variable.svg"),
             cssClass: "icon fw fw-variable",
             title: "Variable Definition",
@@ -190,7 +190,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createFunctionInvocationTool = {
             id: "FunctionInvocation",
-            name: "Function Invoke",
+            name: "FunctionInvocation",
             iconSrc: require("./../../../images/tool-icons/function-invoke.svg"),
             cssClass: "icon fw fw-function-invoke",
             title: "Function Invoke",
@@ -217,7 +217,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createWorkerInvocationStatementTool = {
             id: "WorkerInvocation",
-            name: "Worker Invoke",
+            name: "Worker Invocation",
             iconSrc: require("./../../../images/tool-icons/worker-invoke.svg"),
             cssClass: "icon fw fw-worker-invoke",
             title: "Worker Invocation",
@@ -273,8 +273,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             toolGroupName: "Constructs",
             toolGroupID: "constructs-tool-group",
             toolOrder: "horizontal",
-            toolDefinitions: constructsToolDefArray,
-            gridConfig: true
+            toolDefinitions: constructsToolDefArray
         });
 
         ToolPalette.push(constructs);

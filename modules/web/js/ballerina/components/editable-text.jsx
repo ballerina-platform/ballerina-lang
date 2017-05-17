@@ -30,8 +30,8 @@ class EditableText extends React.Component {
     }
 
     renderTextBox() {
-        const {x, y, width, height = 25, onChange, onBlur, onKeyDown, children,
-            className = 'text-input', placeHolder} = this.props;
+        const {x, y, width, height = 25, onChange, onBlur, onKeyDown, children="",
+            className = 'text-input', placeHolder, canUpdate} = this.props;
         const inputStyle = {
             position: 'absolute',
             top: y - height / 2,
@@ -44,11 +44,13 @@ class EditableText extends React.Component {
             inputStyle.display = 'none';
         }
 
-        const inputElement = (
+        let inputElement;
+        if (placeHolder || !canUpdate) {
+            inputElement = (
             <input
                 className={className}
                 ref={input => {
-                    if (input != null) {
+                        if (input !== null) {
                         input.focus();
                     }
                 }}
@@ -56,10 +58,26 @@ class EditableText extends React.Component {
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 onBlur={onBlur}
-                value={children}
                 placeholder={placeHolder}
             />
         );
+        } else {
+            inputElement = (
+                <input
+                    className={className}
+                    ref={input => {
+                        if (input !== null) {
+                            input.focus();
+                        }
+                    }}
+                    style={inputStyle}
+                    onChange={onChange}
+                    onKeyDown={onKeyDown}
+                    onBlur={onBlur}
+                    value={children}
+                />
+            );
+        }
         ReactDOM.render(inputElement, this.context.overlay);
     }
 
@@ -80,12 +98,13 @@ class EditableText extends React.Component {
 
     render() {
         let {x, y, onClick} = this.props;
+        x = x + 10;
         const textProps = {x, y, onClick};
         textProps.style = {
             dominantBaseline: 'central'
-        }
+        };
 
-        if (this.props.placeHolder) {
+        if (this.props.placeHolder & this.props.canUpdate) {
             return (
                 <text {...textProps} className="panel-label">{this.props.placeHolder}</text>
             )

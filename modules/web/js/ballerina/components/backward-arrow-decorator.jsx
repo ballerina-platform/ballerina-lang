@@ -19,7 +19,6 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import MessageManager from './../visitors/message-manager';
-import './arrow-decorator.css';
 
 class BackwardArrow extends React.Component {
     constructor(props, context) {

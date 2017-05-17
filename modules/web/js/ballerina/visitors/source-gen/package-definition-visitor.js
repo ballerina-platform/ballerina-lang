@@ -40,7 +40,9 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
-            var constructedSourceSegment = 'package ' + packageDefinition.getPackageName();
+            var constructedSourceSegment = 'package'
+                + packageDefinition.getParent().whiteSpaceDescriptor.regions[1]
+                + packageDefinition.getPackageName();
             this.appendSource(constructedSourceSegment);
         }
         log.debug('Begin Visit PackageDefinition');
@@ -52,7 +54,11 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitPackageDefinition(packageDefinition) {
         if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
-            this.appendSource(";\n\n");
+            this.appendSource(
+              packageDefinition.getParent().whiteSpaceDescriptor.regions[2]
+              + ';'
+              + packageDefinition.getParent().whiteSpaceDescriptor.regions[3]
+            );
             this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         }
         log.debug('End Visit PackageDefinition');

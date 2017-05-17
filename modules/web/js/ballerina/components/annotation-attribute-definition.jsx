@@ -19,17 +19,21 @@
 import React from 'react';
 import ImageUtil from './image-util';
 import _ from 'lodash';
-import Renderer from './renderer';
 import PropTypes from 'prop-types';
 import Alerts from 'alerts';
 import './annotation-definition.css';
+import EditableText from './editable-text';
 
 class AnnotationAttributeDefinition extends React.Component {
     constructor(props) {
         super(props);
         this.model = this.props.model;
         this.bBox = this.props.model.viewState.bBox;
-        this.state = {inputValue: this.props.model.getAttributeStatementString()};
+        this.state = {
+            inputValue: this.props.model.getAttributeStatementString(),
+            editing: false,
+            editValue: this.props.model.getAttributeStatementString()
+        };
         this.setAnnotationAttributeDefinition = this.setAnnotationAttributeDefinition.bind(this);
     }
 
@@ -43,24 +47,54 @@ class AnnotationAttributeDefinition extends React.Component {
     /**q
      * Render Edit mode for attribute definition.
      * */
-    renderEditAttribute() {
-        let model = this.props.model;
-        let bBox = model.viewState.bBox;
+    onClickVariableTextBox() {
+        this.setState({editing: true, editValue: this.props.model.getAttributeStatementString()});
+    }
 
-        let textBoxBBox = {
-            x: bBox.x,
-            y: bBox.y,
-            w: bBox.w,
-            h: bBox.h
-        };
+    onInputBlur(e) {
+        e.target.value = "";
+        this.setState({editing: false, editValue: this.props.model.getAttributeStatementString()});
+    }
 
-        const options = {
-            bBox: textBoxBBox,
-            onChange: this.setAnnotationAttributeDefinition,
-            initialValue: model.getAttributeStatementString()
-        };
+    onKeyDown(e) {
+        if (e.keyCode === 13) {
+            if (!this.setAnnotationAttributeDefinition(this.state.editValue)) {
+                e.preventDefault();
+            }
+            e.target.value = "";
+            this.setState({editing: false, editValue: this.state.editValue})
+        }
+    }
 
-        this.context.renderer.renderTextBox(options);
+    onInputChange(e) {
+        // let validate = this.props.validateInput;
+        // this.setState({editing: true, editValue: e.target.value.trim()});
+        let variableDeclaration = e.target.value.replace(";", "");
+        if (this.validateAttribute(variableDeclaration)) {
+            if (!this.setAnnotationAttributeDefinition(this.state.editValue)) {
+                e.preventDefault();
+            }
+            this.setState({editing: true, editValue: variableDeclaration});
+        }
+    }
+
+    validateAttribute(attribute) {
+        if (attribute.includes("=")) {
+            let splitedExpression = attribute.split("=");
+            let leftSideSplitted = splitedExpression[0].trim().split(" ");
+            let rightSide = splitedExpression[1].trim();
+
+            if (leftSideSplitted.length > 1 && rightSide) {
+                return true;
+            }
+        } else {
+            let splitedExpression = attribute.trim().split(" ");
+            if (splitedExpression.length > 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -119,16 +153,35 @@ class AnnotationAttributeDefinition extends React.Component {
     render() {
         return (
             <g className="attribute-content-operations-wrapper">
-                <g onClick={() => this.renderEditAttribute()}>
+                <g onClick={() => this.onClickVariableTextBox()}>
                     <rect x={this.bBox.x} y={this.bBox.y} width={this.bBox.w + 30} height={this.bBox.h}
                           className="annotation-attribute-wrapper "/>
-                    <text x={this.bBox.x + 10} y={this.bBox.y + 20} width={this.bBox.w + 30} height={this.bBox.h} className="annotation-attribute-wrapper-text">
-                        {this.props.model.viewState.textLength.text}
-                        <title>{this.props.model.getAttributeStatementString()}</title>
-                    </text>
+
+                    <EditableText x={this.bBox.x}
+                                  y={this.bBox.y + 15}
+                                  width={this.bBox.w}
+                                  height={this.bBox.h}
+                                  className="annotation-attribute-wrapper-text"
+                                  canUpdate={true}
+                                  onKeyDown={e => {
+                                      this.onKeyDown(e);
+                                  }}
+                                  onBlur={e => {
+                                      this.onInputBlur(e)
+                                  }}
+                                  onClick={() => {
+                                      this.onClickVariableTextBox()
+                                  }}
+                                  editing={this.state.editing}
+                                  onChange={e => {
+                                      this.onInputChange(e)
+                                  }}>
+                        {this.state.editValue}
+                    </EditableText>
                 </g>
                 <g onClick={() => this.deleteAttribute()}>
-                    <rect x={this.bBox.x + this.bBox.w} y={this.bBox.y} width={30} height={30} className="annotation-delete-wrapper"/>
+                    <rect x={this.bBox.x + this.bBox.w} y={this.bBox.y} width={30} height={30}
+                          className="annotation-delete-wrapper"/>
                     <image x={this.bBox.x + this.bBox.w + 5} y={this.bBox.y + 5} width={20} height={20}
                            className="delete-button-icon" xlinkHref={ImageUtil.getSVGIconString('delete-dark')}>
                         <title>Remove</title>
@@ -142,17 +195,12 @@ class AnnotationAttributeDefinition extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
+        const {renderingContext} = this.context;
         let dropdownData = [];
         // Adding items to the type dropdown.
-        // TODO: Add types to diagram context
-        let bTypes = ["int", "string"];
+        let bTypes = renderingContext.environment.getTypes();
         _.forEach(bTypes, function (bType) {
             dropdownData.push({id: bType, text: bType});
-        });
-
-        let structTypes = [];
-        _.forEach(structTypes, function (sType) {
-            dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
         });
 
         return dropdownData;
@@ -175,7 +223,7 @@ class AnnotationAttributeDefinition extends React.Component {
 }
 
 AnnotationAttributeDefinition.contextTypes = {
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default AnnotationAttributeDefinition;

@@ -21,21 +21,53 @@ import ResourceDefinition from './resource-definition.jsx'
 import StatementView from './statement-decorator.jsx'
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
+import GlobalExpanded from './globals-expanded';
+import * as DesignerDefaults from './../configs/designer-defaults';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 class ServiceDefinition extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
+        this.handleAddVariable = this.handleAddVariable.bind(this);
+        this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
+    }
+
     render() {
         let model = this.props.model;
+        const viewState = model.getViewState();
+        const components = viewState.components;
         let bBox = model.viewState.bBox;
+        const variables = model.filterChildren(function (child) {
+            return BallerinaASTFactory.isVariableDefinitionStatement(child);
+        });
 
         //get the service name
         let title = model.getServiceName();
 
-        var children = getComponentForNodeArray(this.props.model.getChildren());
+        const childrenWithNoVariables = model.filterChildren(function (child) {
+            return !BallerinaASTFactory.isVariableDefinitionStatement(child);
+        });
+
+        /**
+         * Here we skip rendering the variables
+         */
+        var children = getComponentForNodeArray(childrenWithNoVariables);
+
+        const expandedVariablesBBox = {
+            x: bBox.x + DesignerDefaults.panel.body.padding.left,
+            y: components.body.y + DesignerDefaults.panel.body.padding.top
+        };
+
         return (<PanelDecorator  icon="tool-icons/service" title={title} bBox={bBox}
                       model={model}
                       dropTarget={this.props.model}
                       dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}>
+            <GlobalExpanded
+                bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleGlobalsBadgeClick}
+                title="Variables" onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
+                getValue={ g => (g.getStatementString())}/>
                 {children}
                 </PanelDecorator>);
     }
@@ -46,6 +78,18 @@ class ServiceDefinition extends React.Component {
           // Panel's drop zone is for resource defs and connector declarations only.
           return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
               || nodeFactory.isResourceDefinition(nodeBeingDragged);
+    }
+
+    handleAddVariable(value) {
+        const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
+        const match = variableDefRegex.exec(value);
+        if(match && match[1] && match[2] && match[3]){
+            this.props.model.addVariableDefinitionStatement(match[1], match[2], match[3])
+        }
+    }
+
+    handleDeleteVariable(deletedGlobal) {
+        this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
     }
 }
 

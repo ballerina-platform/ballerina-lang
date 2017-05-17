@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from "react";
 import PropTypes from 'prop-types';
 import SimpleBBox from '../ast/simple-bounding-box';
@@ -28,7 +28,7 @@ import ActionBox from "./action-box";
 import ActiveArbiter from './active-arbiter';
 
 class LifeLine extends React.Component {
-    
+
     constructor(props){
         super(props);
         let bBox = this.props.bBox;
@@ -36,8 +36,18 @@ class LifeLine extends React.Component {
         this.state = {active: 'hidden'};
     }
 
+    onJumptoCodeLine() {
+        const {renderingContext: {ballerinaFileEditor}} = this.context;
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+        ballerinaFileEditor.getSourceView().jumpToLine({});
+    }
+
     render() {
         const bBox = this.props.bBox;
+        const lineClass = this.props.classes.lineClass + " unhoverable";
+        const polygonClassTop = this.props.classes.polygonClass;
+        const polygonClassBottom = this.props.classes.polygonClass + " unhoverable";
         const centerX = bBox.x + (bBox.w / 2);
         const y2 = bBox.h + bBox.y;
         const titleBoxH = lifeLine.head.height;
@@ -48,22 +58,27 @@ class LifeLine extends React.Component {
         actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
         actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
 
-        return (<g className="default-worker-life-line"
+        return (<g className="life-line-group"
                    onMouseOut={ this.setActionVisibility.bind(this, false) }
                    onMouseOver={ this.setActionVisibility.bind(this, true)}>
                         <line x1={ centerX } y1={ bBox.y + titleBoxH / 2} x2={ centerX } y2={ y2 - titleBoxH / 2 }
-                              className="unhoverable"/>
+                              className={lineClass}/>
                         <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ titleBoxH } rx="0" ry="0"
-                              className="connector-life-line-top-polygon" onClick={(e) => this.openExpressionEditor(e)}/>
+                              className={polygonClassTop} onClick={(e) => this.openExpressionEditor(e)}/>
                         <rect x={ bBox.x } y={ y2 - titleBoxH } width={ bBox.w } height={ titleBoxH } rx="0" ry="0"
-                              className="connector-life-line-bottom-polygon unhoverable"/>
+                              className={polygonClassBottom}/>
                         <text x={ centerX } y={ bBox.y + titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central"
-                              dominantBaseline="central" className="life-line-title genericT"
+                              dominantBaseline="central" className="life-line-text genericT"
                               onClick={(e) => this.openExpressionEditor(e)}>{ this.props.title }</text>
                         <text x={ centerX } y={ y2 - titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central"
-                              dominantBaseline="central" className="life-line-title genericT unhoverable">{ this.props.title }</text>
+                              dominantBaseline="central" className="life-line-text genericT unhoverable">{ this.props.title }</text>
                         {this.props.onDelete &&
-                            <ActionBox show={this.state.active} bBox={actionBbox} onDelete={this.onDelete.bind(this)}/>
+                            <ActionBox
+                              show={this.state.active}
+                              bBox={actionBbox}
+                              onDelete={ () => this.props.onDelete() }
+                              onJumptoCodeLine={ ()=> this.onJumptoCodeLine()}
+                            />
                         }
                 </g>);
     }

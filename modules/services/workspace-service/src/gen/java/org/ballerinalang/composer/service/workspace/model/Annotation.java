@@ -19,6 +19,9 @@ package org.ballerinalang.composer.service.workspace.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -32,6 +35,9 @@ public class Annotation   {
 
   @JsonProperty("value")
   private String value = null;
+
+  @JsonProperty("attachmentPoints")
+  private List<String> attachmentPoints = new ArrayList<String>();
 
   public Annotation name(String name) {
     this.name = name;
@@ -54,6 +60,24 @@ public class Annotation   {
   public Annotation value(String value) {
     this.value = value;
     return this;
+  }
+
+  public Annotation attachmentPoints(List<String> attachmentPoints) {
+    this.attachmentPoints = attachmentPoints;
+    return this;
+  }
+
+  public Annotation addAttachmentPointsItem(String attachmentPoint) {
+    this.attachmentPoints.add(attachmentPoint);
+    return this;
+  }
+
+  public void setAttachmentPoints(List<String> attachmentPoints){
+    this.attachmentPoints = attachmentPoints;
+  }
+
+  public List<String> getAttachmentPoints() {
+    return this.attachmentPoints;
   }
 
    /**
@@ -80,12 +104,13 @@ public class Annotation   {
     }
     Annotation annotation = (Annotation) o;
     return Objects.equals(this.name, annotation.name) &&
-        Objects.equals(this.value, annotation.value);
+        Objects.equals(this.value, annotation.value) &&
+            Objects.equals(this.attachmentPoints, annotation.attachmentPoints);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, value);
+    return Objects.hash(name, value, attachmentPoints);
   }
 
   @Override

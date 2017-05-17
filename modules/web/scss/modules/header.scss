@@ -8,6 +8,10 @@
         & a {
             color: $header-brand-color;
         }
+        
+        & span.appname {
+            color: #f17b31;
+        }
     }
 }
 

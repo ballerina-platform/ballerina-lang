@@ -49,6 +49,10 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleClick() {
+        if(this.props.model.getType() === 'FunctionDefinition' && this.props.model.getFunctionName() === 'main') {
+            // should not edit main function name
+            return;
+        }
         this.setState({titleEditing: true})
     }
 
@@ -93,19 +97,22 @@ class PanelDecorator extends React.Component {
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
                       className="headingRect" data-original-title="" title=""></rect>
+                <rect x={bBox.x} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
                 <EditableText
                     x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                    width={this.props.model.viewState.titleWidth}
                     onBlur={() => { this.onTitleInputBlur() }}
                     onClick={() => { this.onTitleClick() }}
                     editing={this.state.titleEditing}
-                    onChange={e => {this.onTitleInputChange(e)}}>
+                    onChange={e => {this.onTitleInputChange(e)}}
+                    placeHolder={this.props.model.viewState.trimmedTitle}>
                     {this.props.title}
                 </EditableText>
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}
                        xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
                 {titleComponents}
                 <g className="panel-header-controls">
-                    <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={iconSize} height={iconSize}
+                    <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={55} height={25}
                           className="panel-header-controls-wrapper"/>
                     <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize}
                            height={iconSize} className="control"

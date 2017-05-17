@@ -53,6 +53,10 @@ class BasicLiteralExpression extends Expression {
         return this._basicLiteralValue;
     }
 
+    getBasicLiteralType(){
+        return this._basicLiteralType;
+    }
+
     escapeEscapeChars(stringVal) {
         return stringVal.replace(/"/g, "\\\"")
                         .replace(/\n/g, "\\n")

@@ -31,26 +31,26 @@ class SuggestionsText extends React.Component {
 
         this.onSuggestionsFetchRequested = ({value}) => {
             this.setState({suggestions: this.getSuggestions(value)});
-        }
+        };
 
         this.onSuggestionsClearRequested = () => {
             this.setState({suggestions: []});
-        }
+        };
 
         this.renderSuggestionsContainer = this.renderSuggestionsContainer.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.storeInputReference = autosuggest => {
-          if (autosuggest !== null) {
-            this.input = autosuggest.input;
-          }
+            if (autosuggest !== null) {
+                this.input = autosuggest.input;
+            }
         };
     }
 
     renderSuggestion(suggestion) {
         return (
             <div>
-              {suggestion.name}
+                {suggestion.name}
             </div>
         );
     }
@@ -60,9 +60,9 @@ class SuggestionsText extends React.Component {
     }
 
     getSuggestions(query) {
-        var matches = [];
+        let matches = [];
 
-        var substrRegex = new RegExp(query, 'i');
+        let substrRegex = new RegExp(query, 'i');
 
         this.props.suggestionsPool.forEach(sug => {
             if (substrRegex.test(sug.name)) {
@@ -74,7 +74,7 @@ class SuggestionsText extends React.Component {
     }
 
     onKeyDown(e) {
-        if(e.keyCode === 13) {
+        if (e.keyCode === 13) {
             this.props.onEnter(this.state.value);
             this.setState({
                 value: ''
@@ -82,7 +82,7 @@ class SuggestionsText extends React.Component {
         }
     }
 
-    onChange(event, { newValue, method }) {
+    onChange(event, {newValue, method}) {
         this.setState({value: newValue});
     }
 
@@ -90,16 +90,16 @@ class SuggestionsText extends React.Component {
         ReactDOM.render(<noscript/>, this.context.overlay);
     }
 
-    renderSuggestionsContainer({ containerProps , children, query }) {
-        const {x, y, onClick, height=25, width=100} = this.props;
+    renderSuggestionsContainer({containerProps, children, query}) {
+        const {x, y, onClick, height = 25, width = 100} = this.props;
         const allProps = {
-          style: {
-              position: 'absolute',
-              top: y + height,
-              left: x,
-              width
-          }
-        }
+            style: {
+                position: 'absolute',
+                top: y + height,
+                left: x,
+                width
+            }
+        };
 
         Object.assign(allProps, containerProps);
 
@@ -111,12 +111,12 @@ class SuggestionsText extends React.Component {
     }
 
     renderSuggestionsText() {
-        if(!this.props.show) {
+        if (!this.props.show) {
             ReactDOM.render(<noscript/>, this.context.overlay);
             return;
         }
 
-        const {x, y, onClick, height=25, width=100} = this.props;
+        const {x, y, onClick, height = 25, width = 100} = this.props;
         const textProps = {x, y, onClick};
 
         const inputStyle = {
@@ -128,29 +128,29 @@ class SuggestionsText extends React.Component {
         };
 
         const inputProps = {
-          value: this.state.value,
-          onChange: this.onChange,
-          onKeyDown: this.onKeyDown,
-          onBlur: this.props.onBlur,
-          style: inputStyle
+            value: this.state.value,
+            onChange: this.onChange,
+            onKeyDown: this.onKeyDown,
+            onBlur: this.props.onBlur,
+            style: inputStyle
         };
 
         ReactDOM.render(
-          <Autosuggest
-            suggestions={this.state.suggestions}
-            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-            getSuggestionValue={this.getSuggestionValue}
-            renderSuggestion={this.renderSuggestion}
-            renderSuggestionsContainer={this.renderSuggestionsContainer}
-            inputProps={inputProps}
-            ref={this.storeInputReference}
-          />, this.context.overlay
+            <Autosuggest
+                suggestions={this.state.suggestions}
+                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                getSuggestionValue={this.getSuggestionValue}
+                renderSuggestion={this.renderSuggestion}
+                renderSuggestionsContainer={this.renderSuggestionsContainer}
+                inputProps={inputProps}
+                ref={this.storeInputReference}
+            />, this.context.overlay
         );
     }
 
     componentDidUpdate(prevProps) {
-        if(prevProps.show || this.props.show){
+        if (prevProps.show || this.props.show) {
             // If its not showing previously and still not showing no need to re-render
             // this also avoids removing other possible html elements from html overlay
             this.renderSuggestionsText();
@@ -168,13 +168,13 @@ class SuggestionsText extends React.Component {
 
         const style = {
             fill: "#eee"
-        }
+        };
 
-        if(!this.props.show) {
+        if (!this.props.show) {
             style.display = 'none'
         }
 
-        return <rect x={x} y={y} height={height} width={width} style={style} />
+        return <rect x={x} y={y} height={height} width={width} style={style}/>
     }
 }
 

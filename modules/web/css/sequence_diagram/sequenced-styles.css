@@ -133,7 +133,7 @@ svg use svg {
     fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
-    shape-rendering: crispEdges; 
+    shape-rendering: crispEdges;
 }
 
 .client rect {
@@ -291,7 +291,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-delete {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#statementDeleteIcon);
 }
 
@@ -302,7 +302,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-breakpoint {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#addBreakpointIcon);
 }
 
@@ -318,7 +318,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-jump {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#statementJumpIcon);
 }
 
@@ -382,74 +382,6 @@ text-anchor: start;
 .client-life-line polygon{
     stroke: #333;
     fill: #FFFFFF;
-}
-
-.client-life-line line{
-    stroke: #333;
-}
-
-.default-worker-life-line{
-    cursor: pointer;
-}
-.default-worker-life-line text{
-    fill: #fff;
-    cursor: pointer;
-    font-weight: 300;
-    font-size: 14px;
-}
-
-.default-worker-life-line .connector-life-line-top-polygon,
-.default-worker-life-line .connector-life-line-bottom-polygon{
-    stroke: #fff;
-    fill: #3498db;
-    stroke-width: 0;
-}
-
-.default-worker-life-line line{
-    stroke: #000;
-    stroke-width: 2px;
-}
-
-.connector-life-line {
-    cursor: pointer;
-}
-
-.connector-life-line text {
-    cursor: pointer;
-    fill: #fff;
-}
-
-.connector-life-line-top-polygon,
-.connector-life-line-bottom-polygon {
-    fill: #8e8e8e;
-    stroke-width: 0;
-}
-
-.connector-life-line line{
-    stroke: #000000;
-}
-
-.worker-life-line {
-    cursor: pointer;
-}
-
-.worker-life-line text {
-    cursor: pointer;
-    fill: #222;
-}
-
-.worker-life-line-top-polygon {
-    fill: white;
-    stroke: black;
-}
-
-.worker-life-line-bottom-polygon {
-    fill: white;
-    stroke: black;
-}
-
-.worker-life-line line{
-    stroke: #000000;
 }
 
 .start-action{
@@ -585,6 +517,11 @@ text-anchor: start;
     fill: #b9b9b9;
     shape-rendering: crispEdges;
     padding: 13px;
+}
+
+.parameter-space{
+    fill: #dcdcdc;
+    shape-rendering: crispEdges;
 }
 
 .parameter-delete-icon {

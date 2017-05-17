@@ -43,6 +43,12 @@ class FunctionDefinition extends React.Component {
         function_worker_bBox.w = lifeLine.width;
         function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
+        let classes = {
+            lineClass: "default-worker-life-line",
+            polygonClass: "default-worker-life-line-polygon"
+        };
+
+
         // filter children nodes and create components
         let children = getComponentForNodeArray(this.props.model.getChildren());
 
@@ -65,7 +71,7 @@ class FunctionDefinition extends React.Component {
                                 dropTarget={this.props.model}
                                 dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                                 titleComponentData={titleComponentData}>
-            <LifeLine title="default" bBox={function_worker_bBox}/>
+            <LifeLine title="default" bBox={function_worker_bBox} classes={classes}/>
             <StatementContainer dropTarget={this.props.model}
                                 title="StatementContainer" bBox={statementContainerBBox}>
                 {children}
