@@ -26,13 +26,6 @@ Add a service level annotation named `file:FileSource` and add the key-value pai
     <th>Default value</th>
   </tr>
   <tr>
-    <td>protocol</td>
-    <td>The protocol to which this service is bound.</td>
-    <td>Yes</td>
-    <td>file</td>
-    <td>-</td>
-  </tr>
-  <tr>
     <td>fileURI</td>
     <td>The URI where the files you want to process are located. This can be a URI to a folder. If it is a folder, all the files in the folder will be processed, one at a time. If the URI points to a single file, the file will be processed when it becomes available at that location.</td>
     <td>Yes</td>
