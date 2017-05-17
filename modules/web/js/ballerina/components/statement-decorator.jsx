@@ -140,9 +140,22 @@ class StatementDecorator extends React.Component {
 			isActionInvocation = !_.isNil(actionInvocation) && ASTFactory.isActionInvocationExpression(actionInvocation);
 			if (!_.isNil(actionInvocation._connector)) {
 				connector = actionInvocation._connector;
+
+				// TODO: need a proper way to do this
+				let isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(function (child) {
+					return child.id === connector.id;
+				}));
+
 				arrowStart.x = this.statementBox.x + this.statementBox.w;
 				arrowStart.y = this.statementBox.y + this.statementBox.h/3;
-				arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
+
+				if (!isConnectorAvailable) {
+					connector = undefined;
+					actionInvocation._connector = undefined;
+				} else {
+					arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
+				}
+
 				arrowEnd.y = arrowStart.y;
 				backArrowStart.x = arrowEnd.x;
 				backArrowStart.y = this.statementBox.y + (2 * this.statementBox.h/3);

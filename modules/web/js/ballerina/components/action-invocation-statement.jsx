@@ -50,7 +50,8 @@ class ActionInvocationStatement extends React.Component {
             expression = model.viewState.expression;
         let actionInvocation = model.getChildren()[0];
         const bBox = model.getViewState().bBox;
-        const connector = actionInvocation._connector;
+        let connector = actionInvocation._connector;
+
         let arrowStart = { x: 0, y: 0 };
         let arrowEnd = { x: 0, y: 0 };
         let backArrowStart = { x: 0, y: 0 };
@@ -72,6 +73,16 @@ class ActionInvocationStatement extends React.Component {
         if (!_.isNil(connector)) {
             arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
             arrowEnd.y = arrowStart.y;
+
+            // TODO: need a proper way to do this
+            let isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(function (child) {
+                return child.id === connector.id;
+            }));
+
+            if (!isConnectorAvailable) {
+                connector = undefined;
+                actionInvocation._connector = undefined;
+            }
         }
         backArrowStart.x = arrowEnd.x;
         backArrowStart.y = this.statementBox.y + (2 * this.statementBox.h/3);
