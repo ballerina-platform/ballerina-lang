@@ -47,6 +47,7 @@ public class BuiltinPackageRepository extends PackageRepository {
     private static final String FALSE = "false";
     private boolean skipNatives = false;
 
+
     private String packageDirPath;
 
     public BuiltinPackageRepository(Class providerClass) {
@@ -61,7 +62,14 @@ public class BuiltinPackageRepository extends PackageRepository {
         if (FALSE.equals(System.getProperty("skipNatives"))) {
             skipNatives = false;
         }
-        
+
+        if (internalPkgRepo != null) {
+            PackageSource pkgSource = internalPkgRepo.loadPackage(packageDirPath);
+            if (pkgSource != null && !pkgSource.getSourceFileStreamMap().isEmpty()) {
+                return pkgSource;
+            }
+        }
+
         // Replace system dependent file-separator with forward-slash
         this.packageDirPath = packageDirPath.toString().replace("\\", "/") + "/";
         
@@ -187,4 +195,17 @@ public class BuiltinPackageRepository extends PackageRepository {
         // TODO
         return null;
     }
+
+    /**
+     * Get list of All package package names exposed by builtin/external package repositories.
+     *
+     * @return List of package names.
+     */
+    public String[] loadPackageNames() {
+        List<String> builtInPackages = getFileNames(this.getClass().getClassLoader());
+        String[] array = new String[builtInPackages.size()];
+        builtInPackages.toArray(array);
+        return array;
+    }
+
 }

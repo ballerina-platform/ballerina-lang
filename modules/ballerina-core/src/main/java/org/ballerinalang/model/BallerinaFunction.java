@@ -312,6 +312,10 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
             bFunc.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bFunc.returnParameters = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            // Set the parameters to the workers if there are any
+            for (Worker worker : this.workerList) {
+                worker.setParameterDefs(bFunc.getParameterDefs());
+            }
             bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bFunc.functionBody = this.body;
             bFunc.isNative = this.isNative;

@@ -24,13 +24,18 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +59,7 @@ public class BLangPackages {
 
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
+
         if (pkgSource.getSourceFileStreamMap().isEmpty()) {
             throw new RuntimeException("no bal files in the package: " + packagePath.toString());
         }
@@ -175,6 +181,29 @@ public class BLangPackages {
         // add the last node
         builder.append("->" + targetPack.getSymbolName().toString());
         return builder.toString();
+    }
+
+    public static String[] getBuiltinPackageNames() {
+        Iterator<BuiltinPackageRepository> providerIterator =
+                ServiceLoader.load(BuiltinPackageRepository.class).iterator();
+        List<BuiltinPackageRepository> nameProviders = new ArrayList<>();
+        while (providerIterator.hasNext()) {
+            BuiltinPackageRepository constructLoader = providerIterator.next();
+            nameProviders.add(constructLoader);
+        }
+        HashSet<String> pkgSet = new HashSet<>();
+        if (!nameProviders.isEmpty()) {
+            for (BuiltinPackageRepository provider : nameProviders) {
+                String[] pkgs = provider.loadPackageNames();
+                if (pkgs != null && pkgs.length > 0) {
+                    for (String pkg : pkgs) {
+                        pkgSet.add(pkg);
+                    }
+                }
+            }
+        }
+        String[] pkgArray = new String[pkgSet.size()];
+        return pkgSet.toArray(pkgArray);
     }
 
 }

@@ -293,6 +293,10 @@ public class BallerinaAction implements Action, SymbolScope, Node {
             bAction.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bAction.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bAction.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            // Set the parameters to the workers if there are any
+            for (Worker worker : this.workerList) {
+                worker.setParameterDefs(bAction.getParameterDefs());
+            }
             bAction.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bAction.actionBody = this.body;
             bAction.isNative = this.isNative;

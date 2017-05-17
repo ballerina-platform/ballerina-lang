@@ -27,6 +27,17 @@ CREATE TABLE IF NOT EXISTS DataTypeTable(
   PRIMARY KEY (row_id)
 );
 /
+CREATE TABLE IF NOT EXISTS DateTimeTypes(
+  row_id         INTEGER,
+  date_type      DATE,
+  time_type      TIME,
+  datetime_type  DATETIME,
+  timestamp_type TIMESTAMP
+);
+/
+insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
+  (1, '2017-02-03', '11:35:45', '2017-02-03 11:53:00', '2017-02-03 11:53:00');
+/
 insert into DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type) values
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,

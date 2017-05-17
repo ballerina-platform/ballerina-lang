@@ -30,6 +30,7 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
+import org.ballerinalang.bre.WorkerExecutor;
 import org.ballerinalang.bre.WorkerRunner;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
@@ -317,18 +318,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         int sizeOfValueArray = worker.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
+        // Get values for all the worker arguments
+        int valueCounter = 0;
         // Evaluate the argument expression
-        BValue argValue = getTempValue(workerInvocationStmt.getInMsg());
-
-        if (argValue instanceof BMessage) {
-            argValue = ((BMessage) argValue).clone();
+        Expression[] expressions = workerInvocationStmt.getExpressionList();
+        for (Expression expression : expressions) {
+            localVals[valueCounter++] = getTempValue(expression);
         }
 
-        // Setting argument value in the stack frame
-        localVals[0] = argValue;
-
-        // Get values for all the worker arguments
-        int valueCounter = 1;
 
         for (ParameterDef returnParam : worker.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
@@ -358,9 +355,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
 
         executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
-        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
-        Future<BMessage> future = executor.submit(workerRunner);
-        worker.setResultFuture(future);
+        WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
+        executor.submit(workerRunner);
+//        Future<BMessage> future = executor.submit(workerRunner);
+//        worker.setResultFuture(future);
     }
 
     @Override
@@ -373,8 +371,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Future<BMessage> future = worker.getResultFuture();
         try {
             BMessage result = future.get(60, TimeUnit.SECONDS);
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
+            Expression[] expressions = workerReplyStmt.getExpressionList();
+            for (Expression expression: expressions) {
+                assignValueToVarRefExpr(result, (VariableRefExpr) expression);
+            }
             executor.shutdown();
             if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
@@ -382,8 +382,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } catch (Exception e) {
             // If there is an exception in the worker, set an empty value to the return variable
             BMessage result = BTypes.typeMessage.getEmptyValue();
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
+            Expression[] expressions = workerReplyStmt.getExpressionList();
+            for (Expression expression: expressions) {
+                assignValueToVarRefExpr(result, (VariableRefExpr) expression);
+            }
+
         } finally {
             // Finally, try again to shutdown if not done already
             executor.shutdownNow();
