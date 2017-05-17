@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Annotation attachment.
+ */
 public class AnnotationAttachment {
 
     @JsonProperty("name")

@@ -19,6 +19,9 @@ package org.ballerinalang.composer.service.workspace.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Annotation attribute value.
+ */
 public class AnnotationAttributeValue {
 
     AnnotationAttachment annotationValue;
