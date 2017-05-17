@@ -1,6 +1,6 @@
 # Local Transactions
 
-Local transactions are transactions associated with a particular data source (this means they are resource-specific). The most common example is a transaction associated with a JDBC connection.
+Local transactions are transactions associated with a particular datasource (this means they are resource-specific). The most common example is a transaction associated with a JDBC connection.
 
 # Distributed Transaction: (Global/XA Transaction)
 
