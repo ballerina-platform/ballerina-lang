@@ -134,6 +134,20 @@ public class StatementReference extends BallerinaElementReference {
             }
         }
 
+        // Check parameters
+        Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(bodyNode.getParent(),
+                ParameterNode.class);
+        // Check and add each result.
+        for (ParameterNode parameterNode : parameterNodes) {
+            PsiElement nameIdentifier = parameterNode.getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (myElement.getText().equals(nameIdentifier.getText())) {
+                results.add(new PsiElementResolveResult(parameterNode));
+            }
+        }
+
         PsiElement previousElement = BallerinaCompletionUtils.getPreviousNonEmptyElement(file,
                 myElement.getTextOffset());
         if (previousElement instanceof LeafPsiElement) {
@@ -158,6 +172,14 @@ public class StatementReference extends BallerinaElementReference {
                             for (PsiElement connector : connectors) {
                                 if (myElement.getText().startsWith(connector.getText())) {
                                     results.add(new PsiElementResolveResult(connector));
+                                }
+                            }
+
+                            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(
+                                    (PsiDirectory) resolvedElement);
+                            for (PsiElement variable : globalVariables) {
+                                if (myElement.getText().startsWith(variable.getText())) {
+                                    results.add(new PsiElementResolveResult(variable));
                                 }
                             }
                         }

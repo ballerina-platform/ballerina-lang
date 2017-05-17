@@ -1142,8 +1142,7 @@ public class BallerinaPsiImplUtil {
                             elementType = ((LeafPsiElement) nextSibling).getElementType();
                             if (elementType == BallerinaTypes.DOT) {
                                 PsiElement prevPrevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement
-                                        (element
-                                                .getContainingFile(), prevSibling.getTextOffset());
+                                        (element.getContainingFile(), prevSibling.getTextOffset());
                                 return BallerinaPsiImplUtil.resolveField(element, prevPrevSibling);
                             }
                         }

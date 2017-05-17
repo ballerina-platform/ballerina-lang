@@ -64,7 +64,7 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof NameReferenceNode) {
+        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
             PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(element.getParent(), PackageNameNode.class);
             if (packageNameNode == null) {
                 return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",

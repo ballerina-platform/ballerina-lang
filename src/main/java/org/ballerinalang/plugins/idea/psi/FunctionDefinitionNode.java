@@ -48,7 +48,7 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
     public PsiElement resolve(PsiNamedElement element) {
         // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
         // cause issues when using find usage, etc.
-        if (element.getParent() instanceof NameReferenceNode) {
+        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
 
             VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
                     VariableReferenceNode.class);
