@@ -33,7 +33,8 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "xml", "json", "exception", "map",
             "datatable");
-    private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else");
+    private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
+            "worker", "transform", "transaction", "abort", "aborted");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
     private static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
@@ -308,10 +309,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("any");
         expectedLookups.add("S");
         expectedLookups.add("F");
-        expectedLookups.add("fork");
-        expectedLookups.add("join");
-        expectedLookups.add("timeout");
-        expectedLookups.add("worker");
         doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -325,10 +322,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("any");
         expectedLookups.add("S");
         expectedLookups.add("F");
-        expectedLookups.add("fork");
-        expectedLookups.add("join");
-        expectedLookups.add("timeout");
-        expectedLookups.add("worker");
         doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -412,10 +405,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
         expectedLookups.add("any");
-        expectedLookups.add("fork");
-        expectedLookups.add("join");
-        expectedLookups.add("timeout");
-        expectedLookups.add("worker");
         doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -428,16 +417,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
         expectedLookups.add("any");
-        expectedLookups.add("fork");
-        expectedLookups.add("join");
-        expectedLookups.add("timeout");
-        expectedLookups.add("worker");
         doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithConst() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING", "any", "fork", "join",
-                "timeout", "worker");
+        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING", "any");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
@@ -457,26 +441,30 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("pack");
         expectedLookups.add("test");
         expectedLookups.add("any");
-        expectedLookups.add("fork");
-        expectedLookups.add("join");
-        expectedLookups.add("timeout");
-        expectedLookups.add("worker");
         doTest("import org.pack; function test () { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithCommonKeywords() {
-        doTest("function test () { i<caret> }", "exception", "int", "if", "string", "join", "timeout");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.add("exception");
+        expectedLookups.add("int");
+        expectedLookups.add("if");
+        expectedLookups.add("string");
+        expectedLookups.add("join");
+        expectedLookups.add("timeout");
+        expectedLookups.add("transaction");
+        doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
-        doTest("function test () { r<caret> }", "return", "string", "fork", "worker");
+        doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
+                "abort", "aborted");
     }
 
     public void testInvokingFunctionInDifferentFile1() {
-        myFixture.addFileToProject("file1.bal", "function test(){}");
-        myFixture.configureByText("file2.bal", "function main(string[] args){ tes<caret> }");
-        doCheckResult("test.bal", "function main(string[] args){ te<caret> }",
+        myFixture.addFileToProject("file.bal", "function test(){}");
+        doCheckResult("test.bal", "function main(string[] args){ tes<caret> }",
                 "function main(string[] args){ test() }", null);
     }
 
@@ -807,10 +795,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("s2");
         expectedLookups.add("A");
         expectedLookups.add("any");
-        expectedLookups.add("fork");
-        expectedLookups.add("join");
-        expectedLookups.add("timeout");
-        expectedLookups.add("worker");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -825,10 +809,6 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("s2");
         expectedLookups.add("A");
         expectedLookups.add("any");
-        expectedLookups.add("fork");
-        expectedLookups.add("join");
-        expectedLookups.add("timeout");
-        expectedLookups.add("worker");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> \nstring s4 = \"\";}",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }

@@ -205,6 +205,27 @@ statement
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
+    |   transformStatement
+    |   transactionStatement
+    |   abortStatement
+    ;
+
+transformStatement
+    :   'transform' '{' transformStatementBody* '}'
+    ;
+
+transformStatementBody
+    :   expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
+    |   transformStatement
+    ;
+
+expressionAssignmentStatement
+    :   variableReferenceList '=' expression ';'
+    ;
+
+expressionVariableDefinitionStatement
+    :   typeName Identifier '=' expression ';'
     ;
 
 variableDefinitionStatement
@@ -292,12 +313,12 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   Identifier '->' Identifier ';'
+    :   expressionList '->' Identifier? ';'
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   Identifier '<-' Identifier ';'
+    :   expressionList '<-' Identifier? ';'
     ;
 
 commentStatement
@@ -321,6 +342,18 @@ functionInvocationStatement
 actionInvocationStatement
     :   actionInvocation ';'
     |   variableReferenceList '=' actionInvocation ';'
+    ;
+
+transactionStatement
+    :   'transaction' '{' statement* '}' rollbackClause
+    ;
+
+rollbackClause
+    :   'aborted' '{' statement* '}'
+    ;
+
+abortStatement
+    :   'abort' ';'
     ;
 
 actionInvocation
@@ -389,6 +422,8 @@ simpleLiteral
 // LEXER
 
 // §3.9 Ballerina keywords
+ABORT           : 'abort';
+ABORTED           : 'aborted';
 ACTION          : 'action';
 ALL             : 'all';
 ANNOTATION      : 'annotation';
@@ -421,6 +456,8 @@ STRUCT          : 'struct';
 THROW           : 'throw';
 THROWS          : 'throws';
 TIMEOUT         : 'timeout';
+TRANSACTION     : 'transaction';
+TRANSFORM       : 'transform';
 TRY             : 'try';
 TYPEMAPPER      : 'typemapper';
 WHILE           : 'while';

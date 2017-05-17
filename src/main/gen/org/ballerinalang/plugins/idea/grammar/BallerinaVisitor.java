@@ -233,6 +233,30 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(BallerinaParser.StatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#transformStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransformStatement(BallerinaParser.TransformStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#transformStatementBody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransformStatementBody(BallerinaParser.TransformStatementBodyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#expressionAssignmentStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionAssignmentStatement(BallerinaParser.ExpressionAssignmentStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#expressionVariableDefinitionStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionVariableDefinitionStatement(BallerinaParser.ExpressionVariableDefinitionStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#variableDefinitionStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -411,6 +435,24 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#transactionStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#rollbackClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRollbackClause(BallerinaParser.RollbackClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#abortStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAbortStatement(BallerinaParser.AbortStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#actionInvocation}.
 	 * @param ctx the parse tree

@@ -74,6 +74,7 @@ import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
@@ -140,7 +141,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode
                 || parent instanceof ActionDefinitionNode) {
             handleNameReferenceNode(parameters, resultSet);
-        } else if (parent instanceof StatementNode) {
+        } else if (parent instanceof StatementNode || parent instanceof WorkerInterationStatementNode) {
             handleStatementNode(parameters, resultSet);
         } else if (parent instanceof VariableReferenceNode) {
             handleVariableReferenceNode(parameters, resultSet);
@@ -977,6 +978,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addCreateKeyword(resultSet);
             } else {
                 PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
+                if (currentElement instanceof PsiWhiteSpace) {
+                    currentElement = getPreviousNonEmptyElement(originalFile, currentElement.getTextOffset());
+                }
                 addLookups(resultSet, originalFile, true, true, true, true);
                 addVariableTypesAsLookups(resultSet, originalFile, currentElement);
                 addFunctionSpecificKeywords(parameters, resultSet);
