@@ -30,9 +30,5 @@ struct-variable-definition-value-text*/
     cursor: pointer;
 }
 
-.struct-variable-definition-type-text,
-.struct-variable-definition-identifier-text,
-.struct-variable-definition-value-text,
-.struct-statement-delete{
-    dominant-baseline: central;
-}
+
+

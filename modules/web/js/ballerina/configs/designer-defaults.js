@@ -180,7 +180,7 @@ export const structDefinition = {
 };
 
 export const contentOperations = {
-    height: 40,
+    height: 45,
     width: 600,
 };
 
