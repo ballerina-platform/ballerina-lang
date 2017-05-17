@@ -912,15 +912,17 @@ input#package-name-input {
     cursor: pointer;
 }
 
-.active-annotation{
-    background-color: #dddddd;
-}
+/*.active-annotation{*/
+    /*background-color: #dddddd;*/
+/*}*/
 
 .annotation-remove{
     display: inline-block;
-    padding-right: 5px;
+    padding-left: 5px;
     color: #b9b9b9;
     cursor: pointer;
+    font-size: 10px;
+    height: 15px;
 }
 
 .annotation-remove :hover{

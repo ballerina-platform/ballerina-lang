@@ -32,18 +32,18 @@ class Annotation extends React.Component {
         let children = [];
 
         let selectedClass = (this.state.selected)? "active-annotation":"";
-        let removeIcon = (this.state.selected)? <div className="annotation-remove" onClick={this.deleteAnnotation.bind(this)}><i className="fw fw-delete"></i></div>:<span></span>;
+        let removeIcon = (this.state.selected)? <div className="annotation-remove" onClick={this.deleteAnnotation.bind(this)}><i className="fw fw-cancel"></i></div>:<span></span>;
 
-        let key = <td className="annotation-key">{removeIcon}<span className="package-name">@{model.getPackageName()}</span>:<span className="identifire">{model.getIdentifier() + " { "}</span></td>;
+        let key = <td className="annotation-key"><span className="package-name">@{model.getPackageName()}</span>:<span className="identifire">{model.getIdentifier() + " { "}</span></td>;
         if(entries.length == 0){
-            children.push(<tr key="1" >{key}<td><span className="annotation-close">{" }"}</span></td></tr>);
+            children.push(<tr key="1" >{key}<td><span className="annotation-close">{" }"}</span>{removeIcon}</td></tr>);
         }else if(entries.length == 1){
-            children.push(<tr key="1" >{key}<td><span>{entries}</span><span className="annotation-close">{" } "}</span></td></tr>);
+            children.push(<tr key="1" >{key}<td><span>{entries}</span><span className="annotation-close">{" } "}</span>{removeIcon}</td></tr>);
         }else{
             children.push(<tr key="0">{key}<td><span>{entries[0]}</span></td></tr>);
             for (let i = 1; i < entries.length; i++) { 
                 let last = (i == (entries.length - 1))? " }" : "";
-                children.push(<tr  key={i} ><td className="annotation-key"><span>{""}</span></td><td>{entries[i]}<span className="annotation-close">{last}</span></td></tr>);
+                children.push(<tr  key={i} ><td className="annotation-key"><span>{""}</span></td><td>{entries[i]}<span className="annotation-close">{last}</span>{removeIcon}</td></tr>);
             }
         }
 
