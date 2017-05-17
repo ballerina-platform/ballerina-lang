@@ -28,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.87-SNAPSHOT</version>
+    <version>0.87</version>
     <name>Ballerina - Parent</name>
 
     <url>http://ballerinalang.org</url>
@@ -37,7 +37,7 @@
         <url>https://github.com/ballerinalang/ballerina.git</url>
         <developerConnection>scm:git:https://github.com/ballerinalang/ballerina.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/ballerina.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.87</tag>
     </scm>
 
     <repositories>
@@ -189,7 +189,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.87-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.87</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <commons-net.version>3.6</commons-net.version>
