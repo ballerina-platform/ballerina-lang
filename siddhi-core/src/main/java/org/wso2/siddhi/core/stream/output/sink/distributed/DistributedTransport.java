@@ -61,6 +61,7 @@ public abstract class DistributedTransport extends Sink {
     }
 
     /**
+     * This is method contains the additional parameters which require to initialize distributed transport
      *
      * @param streamDefinition Definition of the stream this sink instance is publishing to
      * @param type Type of the transport that (e.g., TCP, JMS)
@@ -69,7 +70,7 @@ public abstract class DistributedTransport extends Sink {
      * @param sinkMapper Hold the mapper that's used in this sink
      * @param mapType Type of the mapper
      * @param mapOptionHolder Options of the mapper
-     * @param payload The template of the payload message
+     * @param payloadTemplate The template of the payload message
      * @param mapperConfigReader This hold the {@link Sink} extensions configuration reader for the mapper
      * @param executionPlanContext The execution plan context
      * @param destinationOptionHolders List of option holders containing the options mentioned in @destination
