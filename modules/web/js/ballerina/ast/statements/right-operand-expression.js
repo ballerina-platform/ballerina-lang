@@ -34,6 +34,7 @@ class RightOperandExpression extends Statement {
         _.forEach(this.getChildren(), child => {
             expression += child.generateExpression();
         });
+        this._right_operand_expression_string = expression;
         return expression;
     }
 

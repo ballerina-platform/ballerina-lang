@@ -72,7 +72,8 @@ class AnnotationDefinition extends React.Component {
         let tagController = (<TagController key={model.getID()} model={model} setter={this.addAttachmentPoint}
                                             validateInput={this.validateInput} modelComponents={attachments}
                                             componentData={componentData} isSelectBox={true}
-                                            suggestions={this.getAnnotationAttachmentPointsForSuggestions()}/>);
+                                            suggestions={this.getAnnotationAttachmentPointsForSuggestions()}
+                                            groupClass="annotation-attachment-group"/>);
         let titleComponentData = [{
             isNode: false,
             model: tagController

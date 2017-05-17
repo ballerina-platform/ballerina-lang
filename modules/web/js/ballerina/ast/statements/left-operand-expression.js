@@ -73,7 +73,9 @@ class LeftOperandExpression extends Statement {
         _.forEach(this.getChildren(), child => {
             exps.push(child.generateExpression());
         });
-        return _.join(exps, ',');
+        const expression = _.join(exps, ',');
+        this._left_operand_expression_string = expression;
+        return expression;
     }
 
     /**

@@ -29,28 +29,28 @@ class TagController extends React.Component {
 
     constructor() {
         super();
-        this.state = {editing: false, editValue: DEFAULT_INPUT_VALUE};
+        this.state = {editing: false, editValue: ''};
     }
 
     onSelectClick() {
-        this.setState({editing: true, editValue: DEFAULT_INPUT_VALUE});
+        this.setState({editing: true, editValue: ''});
     }
 
     onEnter(input) {
         let setter = this.props.setter;
         setter(input);
-        this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE});
+        this.setState({editing: false, editValue: ''});
     }
 
     onSelectBlur() {
-        this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE});
+        this.setState({editing: false, editValue: ''});
     }
 
     /**
      * Click event handler for input
      * */
     onInputClick() {
-        this.setState({editing: true, editValue: DEFAULT_INPUT_VALUE});
+        this.setState({editing: true, editValue: ''});
     }
 
     /**
@@ -59,7 +59,7 @@ class TagController extends React.Component {
      * */
     onInputBlur(e) {
         e.target.value = "";
-        this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE});
+        this.setState({editing: false, editValue: ''});
     }
 
     /**
@@ -68,14 +68,18 @@ class TagController extends React.Component {
      * */
     onKeyDown(e) {
         if (e.keyCode === 13) {
-            let setter = this.props.setter;
-            if (DEFAULT_INPUT_VALUE !== this.state.editValue) {
-                if (!setter(this.state.editValue)) {
-                    e.preventDefault();
-                }
+            let validate = this.props.validateInput;
+            let variableDeclaration = this.state.editValue.replace("=", "").replace(";", "");
+
+            if (!validate(variableDeclaration)) {
+                return;
             }
-            e.target.value = "";
-            this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE});
+
+            let setter = this.props.setter;
+            if (!setter(this.state.editValue)) {
+                return;
+            }
+            this.setState({editing: false, editValue: ''});
         }
     }
 
@@ -84,12 +88,7 @@ class TagController extends React.Component {
      * @param {object} e - Event
      * */
     onInputChange(e) {
-        let validate = this.props.validateInput;
-        let variableDeclaration = e.target.value.replace("=", "");
-        variableDeclaration = variableDeclaration.replace(";", "");
-        if (validate(variableDeclaration)) {
-            this.setState({editing: true, editValue: variableDeclaration});
-        }
+        this.setState({editing: true, editValue: e.target.value});
     }
 
     render() {
@@ -97,6 +96,10 @@ class TagController extends React.Component {
         let componentData = this.props.componentData;
         if (this.props.isSelectBox) {
             return (<g key={componentData.title}>
+                <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y}
+                      width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
+                      + componentData.components.closingBracket.w}
+                      height={25} className={this.props.groupClass}/>
                 <text x={componentData.components.openingBracket.x}
                       y={componentData.components.openingBracket.y + 3 }
                       className={componentData.openingBracketClassName}>(
@@ -138,6 +141,10 @@ class TagController extends React.Component {
             if (componentData.components.typesIcon) {
                 return (
                     <g key={componentData.title}>
+                        <rect x={componentData.components.typesIcon.x - 3} y={componentData.components.openingBracket.y}
+                              width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
+                              + componentData.components.closingBracket.w + componentData.components.typesIcon.w}
+                              height={25} className={this.props.groupClass}/>
                         <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns
                         </text>
                         <text x={componentData.components.openingBracket.x}
@@ -149,14 +156,17 @@ class TagController extends React.Component {
                         <g>
                             <rect x={componentData.components.closingBracket.x - 100}
                                   y={componentData.components.closingBracket.y} width={90} height={25}
-                                  className="text-placeholder"/>
+                                  className="text-placeholder"
+                                  onClick={() => {
+                                      this.onInputClick()
+                                  }}/>
                             <EditableText x={componentData.components.closingBracket.x - 102}
                                           y={componentData.components.closingBracket.y + 25 / 2}
                                           width={93}
                                           height={26}
                                           className="tag-component-editable-text-box"
-                                          placeHolder={this.state.editValue}
-                                          canUpdate={false}
+                                          displayText={DEFAULT_INPUT_VALUE}
+                                          placeholder={DEFAULT_INPUT_VALUE}
                                           onKeyDown={e => {
                                               this.onKeyDown(e)
                                           }}
@@ -170,7 +180,7 @@ class TagController extends React.Component {
                                           onChange={e => {
                                               this.onInputChange(e)
                                           }}>
-                                + Add Value
+                                {this.state.editValue}
                             </EditableText>
                         </g>
                         <text x={componentData.components.closingBracket.x}
@@ -182,6 +192,10 @@ class TagController extends React.Component {
             } else {
                 return (
                     <g key={componentData.title}>
+                        <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y}
+                              width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
+                              + componentData.components.closingBracket.w}
+                              height={25} className={this.props.groupClass}/>
                         <text x={componentData.components.openingBracket.x}
                               y={componentData.components.openingBracket.y + 3 }
                               className={componentData.openingBracketClassName}>(
@@ -191,14 +205,17 @@ class TagController extends React.Component {
                         <g>
                             <rect x={componentData.components.closingBracket.x - 100}
                                   y={componentData.components.closingBracket.y} width={90} height={25}
-                                  className="text-placeholder"/>
+                                  className="text-placeholder"
+                                  onClick={() => {
+                                      this.onInputClick()
+                                  }}/>
                             <EditableText x={componentData.components.closingBracket.x - 102}
                                           y={componentData.components.closingBracket.y + 25 / 2}
                                           width={93}
                                           height={26}
                                           className="tag-component-editable-text-box"
-                                          placeHolder={this.state.editValue}
-                                          canUpdate={false}
+                                          displayText={DEFAULT_INPUT_VALUE}
+                                          placeholder={DEFAULT_INPUT_VALUE}
                                           onKeyDown={e => {
                                               this.onKeyDown(e);
                                           }}
@@ -212,7 +229,7 @@ class TagController extends React.Component {
                                           onChange={e => {
                                               this.onInputChange(e)
                                           }}>
-                                + Add Value
+                                {this.state.editValue}
                             </EditableText>
                         </g>
                         <text x={componentData.components.closingBracket.x}

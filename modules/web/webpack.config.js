@@ -149,9 +149,9 @@ var config = {
 if (process.env.NODE_ENV === 'production') {
   // Add UglifyJsPlugin only when we build for production.
   // uglyfying slows down webpack build so we avoid in when in development
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+  /*config.plugins.push(new webpack.optimize.UglifyJsPlugin({
     sourceMap: true
-  }));
+  }));*/
 
   config.plugins.push(new webpack.DefinePlugin({
     PRODUCTION: JSON.stringify(true)
