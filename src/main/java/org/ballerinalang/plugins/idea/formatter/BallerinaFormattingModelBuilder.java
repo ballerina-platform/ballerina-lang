@@ -47,7 +47,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
     private static SpacingBuilder createSpaceBuilder(CodeStyleSettings settings) {
         return new SpacingBuilder(settings, BallerinaLanguage.INSTANCE)
-                .around(OPERATORS).spaceIf(true)
                 .before(ALL).spaceIf(false)
                 .after(ALL).spaceIf(true)
                 .before(ANY).spaceIf(false)
@@ -55,6 +54,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(AS).spaceIf(true)
                 .around(BREAK).spaceIf(false)
                 .around(CATCH).spaceIf(true)
+                .around(FINALLY).spaceIf(true)
                 .after(CONNECTOR).spaceIf(true)
                 .after(CONST).spaceIf(true)
                 .after(CREATE).spaceIf(true)
@@ -89,9 +89,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(IDENTIFIER, LPAREN).spaceIf(true)
                 .between(TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .around(LBRACK).spaceIf(false)
-                .around(RBRACK).spaceIf(false)
-                .after(LBRACE).spaceIf(false)
-                .before(LBRACE).spaceIf(true)
                 .around(RBRACE).spaceIf(false)
                 .before(RPAREN).spaceIf(false)
                 .after(LPAREN).spaceIf(false)
@@ -106,7 +103,24 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(ANNOTATION).spaceIf(true)
                 .around(ATTACH).spaceIf(true)
                 .between(ANNOTATION_ATTACHMENT, TYPE_NAME).spaceIf(true)
-                .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true);
+                .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .between(ANNOTATION_ATTACHMENT, TYPE_NAME).spaceIf(true)
+                .between(TYPE_NAME, GT).spaceIf(false)
+                .between(LT, TYPE_NAME).spaceIf(false)
+                .around(TYPE_NAME).spaceIf(false)
+                .around(ABORTED).spaceIf(true)
+                .after(TRANSACTION).spaceIf(true)
+                .between(MESSAGE, IDENTIFIER).spaceIf(true)
+                .between(MAP, LT).spaces(0)
+                .between(JSON, LT).spaceIf(false)
+                .between(XML, LT).spaceIf(false)
+                .between(XML_DOCUMENT, LT).spaceIf(false)
+                .between(LT, LBRACE).spaceIf(false)
+                .between(RBRACE, GT).spaceIf(false)
+                .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
+                .between(XML_LOCAL_NAME, GT).spaceIf(false)
+                .between(NAME_REFERENCE, LBRACE).spaceIf(true)
+                .around(OPERATORS).spaceIf(true);
     }
 
     @Nullable

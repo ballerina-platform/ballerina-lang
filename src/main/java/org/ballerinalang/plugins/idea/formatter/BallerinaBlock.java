@@ -90,7 +90,8 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
                             || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
                             || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
-                            || parentElementType == FORK_JOIN_STATEMENT) {
+                            || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
+                            || parentElementType == TRANSFORM_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == COMMENT_STATEMENT) {
@@ -100,7 +101,8 @@ public class BallerinaBlock extends AbstractBlock {
                             || parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
                             || parentElementType == WHILE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
                             || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION
-                            || parentElementType == FORK_JOIN_STATEMENT) {
+                            || parentElementType == FORK_JOIN_STATEMENT || parentElementType == TRANSACTION_STATEMENT
+                            || parentElementType == TRANSFORM_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == ANNOTATION_ATTRIBUTE_LIST) {
@@ -110,6 +112,12 @@ public class BallerinaBlock extends AbstractBlock {
                 } else if (childElementType == WORKER_DECLARATION) {
                     if (parentElementType == FORK_JOIN_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
+                    }
+                } else {
+                    if (childElementType == TRANSFORM_STATEMENT_BODY) {
+                        if (parentElementType == TRANSFORM_STATEMENT) {
+                            indent = Indent.getSpaceIndent(4);
+                        }
                     }
                 }
                 // If the child node text is empty, the IDEA core will throw an exception.

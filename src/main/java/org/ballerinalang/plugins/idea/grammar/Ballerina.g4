@@ -59,8 +59,8 @@ callableUnitBody
     ;
 
 functionDefinition
-    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? ';'
-    |   'function' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? '{' callableUnitBody '}'
+    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ';'
+    |   'function' Identifier '(' parameterList? ')' returnParameters? '{' callableUnitBody '}'
     ;
 
 connectorDefinition
@@ -72,8 +72,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   'native' 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? ';'
-    |   'action' Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')? '{' callableUnitBody '}'
+    :   'native' 'action' Identifier '(' parameterList? ')' returnParameters? ';'
+    |   'action' Identifier '(' parameterList? ')' returnParameters? '{' callableUnitBody '}'
     ;
 
 structDefinition
@@ -148,7 +148,6 @@ valueTypeName
 builtInReferenceTypeName
     :   'message'
     |   'map' ('<' typeName '>')?
-    |   'exception'
     |   'xml' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
@@ -290,7 +289,7 @@ joinConditions
     ;
 
 tryCatchStatement
-    :   'try' '{' statement* '}' 'catch' '(' 'exception' Identifier ')' '{' statement* '}'
+    :   'try' '{' statement* '}' (( 'catch' '(' typeName Identifier ')' '{' statement* '}' )+ ( 'finally' '{' statement* '}' )? | ( 'finally' '{' statement* '}' ))
     ;
 
 throwStatement
@@ -345,11 +344,7 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' rollbackClause
-    ;
-
-rollbackClause
-    :   'aborted' '{' statement* '}'
+    :   'transaction' '{' statement* '}' 'aborted' '{' statement* '}'
     ;
 
 abortStatement
@@ -424,7 +419,7 @@ simpleLiteral
 
 // §3.9 Ballerina keywords
 ABORT           : 'abort';
-ABORTED           : 'aborted';
+ABORTED         : 'aborted';
 ACTION          : 'action';
 ALL             : 'all';
 ANNOTATION      : 'annotation';
@@ -438,6 +433,7 @@ CONST           : 'const';
 CONTINUE        : 'continue';
 CREATE          : 'create';
 ELSE            : 'else';
+FINALLY         : 'finally';
 FORK            : 'fork';
 FUNCTION        : 'function';
 IF              : 'if';
@@ -470,7 +466,6 @@ STRING          : 'string';
 
 MESSAGE         : 'message';
 MAP             : 'map';
-EXCEPTION       : 'exception';
 XML             : 'xml';
 XML_DOCUMENT    : 'xmlDocument';
 JSON            : 'json';

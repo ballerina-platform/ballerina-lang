@@ -121,10 +121,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ABORTED, ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, CONNECTOR, CONST, CONTINUE,
-            CREATE, ELSE, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE,  PACKAGE, PARAMETER, REPLY,
+            CREATE, ELSE, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, PACKAGE, PARAMETER, REPLY,
             RESOURCE, RETURN, SERVICE, SOME, STRUCT, THROW, THROWS, TIMEOUT, TRANSACTION, TRANSFORM, TRY, TYPEMAPPER,
-            WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, MESSAGE, MAP, EXCEPTION, XML, XML_DOCUMENT, JSON, DATATABLE,
-            BooleanLiteral,NullLiteral);
+            WHILE, WORKER, BOOLEAN, INT, FLOAT, STRING, MESSAGE, MAP, XML, XML_DOCUMENT, JSON, DATATABLE,
+            BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             SEMI, COMMA, SENDARROW, RECEIVEARROW, TILDE, COLON);
