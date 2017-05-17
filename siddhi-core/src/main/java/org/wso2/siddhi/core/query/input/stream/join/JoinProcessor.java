@@ -203,6 +203,7 @@ public class JoinProcessor implements Processor {
      *
      * @param leftStream  event left stream
      * @param rightStream event right stream
+     * @param type complex event type
      * @return StateEvent state event
      */
     public StateEvent joinEventBuilder(StreamEvent leftStream, StreamEvent rightStream, ComplexEvent.Type type) {

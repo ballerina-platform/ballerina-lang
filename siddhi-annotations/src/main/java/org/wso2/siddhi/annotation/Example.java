@@ -24,7 +24,6 @@ import java.lang.annotation.Target;
 
 /**
  * An Optional annotation for storing an examples for a Siddhi Extension.
- * <p>
  * <pre><code>
  * eg:-
  *      {@literal @}Extension(

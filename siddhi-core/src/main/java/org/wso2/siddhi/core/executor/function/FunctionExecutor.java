@@ -80,7 +80,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     /**
      * The initialization method for FunctionExecutor, this method will be called before the other methods
      *  @param attributeExpressionExecutors are the executors of each function parameters
-     * @param configReader
+     * @param configReader This hold the {@link FunctionExecutor} extensions configuration reader.
      * @param executionPlanContext         the context of the execution plan
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,

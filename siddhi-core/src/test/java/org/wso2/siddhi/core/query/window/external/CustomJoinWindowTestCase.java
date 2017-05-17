@@ -569,7 +569,7 @@ public class CustomJoinWindowTestCase {
      * Window shares locks event outside of queries. This test is to ensure that there is no
      * deadlock according to the implementation.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException throw exception if interrupted the input handler sender.
      */
     @Test
     public void testJoinWindowWithWindowForDeadLock() throws InterruptedException {
@@ -648,7 +648,7 @@ public class CustomJoinWindowTestCase {
      * When an event expires, it will be immediately removed from the internal event chunk so that,
      * when joined with the window, the expired event will not match with itself.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException throw exception if interrupted the input handler sender.
      */
     @Test
     public void testJoinWindowWithSameWindow() throws InterruptedException {

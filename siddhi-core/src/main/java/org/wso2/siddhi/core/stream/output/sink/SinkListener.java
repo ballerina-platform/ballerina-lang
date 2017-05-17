@@ -31,7 +31,7 @@ public interface SinkListener {
      *
      * @param payload          payload of the event
      * @param transportOptions one of the event constructing the payload
-     * @throws ConnectionUnavailableException
+     * @throws ConnectionUnavailableException throw when connections are unavailable.
      */
     void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException;
 }

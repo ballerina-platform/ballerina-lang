@@ -88,8 +88,8 @@ public class TimeWindowTestCase {
 
     /**
      * Commenting out intermittent failing test case until fix this properly.
+     * @throws InterruptedException throw exception if interrupted the input handler sender.
      */
-
     @Test
     public void timeWindowTest2() throws InterruptedException {
 

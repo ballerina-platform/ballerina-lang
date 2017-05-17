@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 /**
  * Annotation for storing additional attributes returned by a stream processor.
  * This should not be directly applied to any classes.
- * <p>
  * <pre><code>
  * eg:-
  *      {@literal @}Extension(

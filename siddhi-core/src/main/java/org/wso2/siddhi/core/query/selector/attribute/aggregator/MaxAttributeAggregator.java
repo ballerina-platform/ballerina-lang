@@ -65,7 +65,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
     /**
      * The initialization method for FunctionExecutor
      *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader
+     * @param configReader this hold the {@link MaxAttributeAggregator} configuration reader.
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
