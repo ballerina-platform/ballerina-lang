@@ -32,6 +32,7 @@ import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -644,6 +645,13 @@ public class BLangExecutor implements NodeExecutor {
         // Create the Stack frame
         Function function = funcIExpr.getCallableUnit();
 
+        if (function instanceof BallerinaFunction) {
+            // Start the workers defined within the function
+            for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
+                executeWorker(worker, funcIExpr.getArgExprs());
+            }
+        }
+
         int sizeOfValueArray = function.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
@@ -675,10 +683,6 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native function or not.
         if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
-            // Start the workers defined within the function
-            for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
-                executeWorker(worker, funcIExpr.getArgExprs());
-            }
             bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
@@ -696,6 +700,13 @@ public class BLangExecutor implements NodeExecutor {
     public BValue[] visit(ActionInvocationExpr actionIExpr) {
         // Create the Stack frame
         Action action = actionIExpr.getCallableUnit();
+
+        // Start the workers within the action
+        if (action instanceof BallerinaAction) {
+            for (Worker worker : ((BallerinaAction) action).getWorkers()) {
+                executeWorker(worker, actionIExpr.getArgExprs());
+            }
+        }
 
         BValue[] localVals = new BValue[action.getStackFrameSize()];
 
@@ -726,10 +737,6 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native action or not.
         if (action instanceof BallerinaAction) {
             BallerinaAction bAction = (BallerinaAction) action;
-            // Start the workers within the action
-            for (Worker worker : bAction.getWorkers()) {
-                executeWorker(worker, actionIExpr.getArgExprs());
-            }
             bAction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
@@ -748,6 +755,11 @@ public class BLangExecutor implements NodeExecutor {
     public BValue[] visit(ResourceInvocationExpr resourceIExpr) {
 
         Resource resource = resourceIExpr.getResource();
+
+        // Start the workers within the resource
+        for (Worker worker : resource.getWorkers()) {
+            executeWorker(worker, resourceIExpr.getArgExprs());
+        }
 
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
@@ -770,10 +782,6 @@ public class BLangExecutor implements NodeExecutor {
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
 
-        // Start the workers within the resource
-        for (Worker worker : resource.getWorkers()) {
-            executeWorker(worker, resourceIExpr.getArgExprs());
-        }
         resource.getResourceBody().execute(this);
 
 
@@ -1254,6 +1262,14 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(FieldAccessExpr fieldAccessExpr) {
         Expression varRef = fieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
+
+        if (value instanceof BArray) {
+            FieldAccessExpr childFieldExpr = fieldAccessExpr.getFieldExpr();
+            if (childFieldExpr != null && childFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+                return new BInteger(((BArray) value).size());
+            }
+        }
+        
         return getFieldExprValue(fieldAccessExpr, value);
     }
 
@@ -1439,6 +1455,9 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         BValue value = currentStructVal.getValue(fieldLocation);
+        if (value instanceof BArray && nestedFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+            return new BInteger(((BArray) value).size());
+        }
 
         // Recursively travel through the struct and get the value
         return getFieldExprValue(fieldExpr, value);
