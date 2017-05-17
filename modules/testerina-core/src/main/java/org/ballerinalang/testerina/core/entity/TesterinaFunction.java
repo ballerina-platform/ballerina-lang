@@ -139,8 +139,14 @@ public class TesterinaFunction {
 
         // 7) Invoke the function
         BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-        return funcIExpr.executeMultiReturn(executor);
-
+        executor.setParentScope(bLangProgram);
+        BValue[] values = funcIExpr.executeMultiReturn(executor);
+        if (executor.isErrorThrown && executor.thrownError != null) {
+            String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                    executor.thrownError.getValue(0).stringValue() + "}";
+            throw new BallerinaException(errorMsg);
+        }
+        return values;
     }
 
 

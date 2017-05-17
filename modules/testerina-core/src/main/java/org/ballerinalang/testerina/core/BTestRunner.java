@@ -26,8 +26,8 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
-import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
+import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -99,8 +99,7 @@ public class BTestRunner {
                 tFunction.invoke();
             } catch (BallerinaException e) {
                 outStream.println(
-                        "error in '" + tFunction.getName() + "': " +
-                                e.getBException().value().getMessage().stringValue());
+                        "error in '" + tFunction.getName() + "': " + e.getMessage());
             }
         }
 
