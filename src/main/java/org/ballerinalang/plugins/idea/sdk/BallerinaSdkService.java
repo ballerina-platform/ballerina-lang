@@ -96,11 +96,11 @@ public class BallerinaSdkService extends SimpleModificationTracker {
     }
 
     public String getSdkHomePath(@Nullable Module module) {
-        Sdk sdk = getGoSdk(module);
+        Sdk sdk = getBallerinaSdk(module);
         return sdk != null ? sdk.getHomePath() : null;
     }
 
-    private Sdk getGoSdk(@Nullable Module module) {
+    private Sdk getBallerinaSdk(@Nullable Module module) {
         if (module != null) {
             Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
             if (sdk != null && sdk.getSdkType() instanceof BallerinaSdkType) {
@@ -116,7 +116,7 @@ public class BallerinaSdkService extends SimpleModificationTracker {
     public String getSdkVersion(@Nullable Module module) {
         ComponentManager holder = ObjectUtils.notNull(module, myProject);
         return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
-            Sdk sdk = getGoSdk(module);
+            Sdk sdk = getBallerinaSdk(module);
             return CachedValueProvider.Result.create(sdk != null ? sdk.getVersionString() : null, this);
         });
     }
