@@ -111,7 +111,7 @@ public class WebSocketConnectionManager {
      * Closed.
      *
      * @param groupName name of the broadcast.
-     * @param session @link Session} to remove from the group.
+     * @param session {@link Session} to remove from the group.
      */
     public void removeConnectionFromGroup(String groupName, Session session) {
         // TODO: Throw exception if it is not there.
