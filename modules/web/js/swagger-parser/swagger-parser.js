@@ -98,7 +98,7 @@ class SwaggerParser {
                 if(_.isUndefined(existingResource)){
                     existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
                         let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-                        let pathAnnotation = resourceDefinition.getPathAnnotation();
+                        let pathAnnotation = resourceDefinition.getPathAnnotation(true);
                         return !_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
                             _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, '')) &&
                             _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());                       
@@ -257,7 +257,7 @@ class SwaggerParser {
     _mergeToResource(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
 
         // this._createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject);
-        let pathAnnotation = resourceDefinition.getPathAnnotation();
+        let pathAnnotation = resourceDefinition.getPathAnnotation(true);
         pathAnnotation.getChildren()[0].setRightValue(JSON.stringify(pathString), {doSilently: true});
         let methodAnnotation = resourceDefinition.getHttpMethodAnnotation();
         methodAnnotation.setIdentifier(httpMethodAsString.toUpperCase(), {doSilently: true});
@@ -455,7 +455,7 @@ class SwaggerParser {
             newResourceDefinition.setResourceName(httpMethodJsonObject.operationId);
         }
 
-        newResourceDefinition.getPathAnnotation().getChildren()[0].setRightValue(JSON.stringify(pathString));
+        newResourceDefinition.getPathAnnotation(true).getChildren()[0].setRightValue(JSON.stringify(pathString));
         newResourceDefinition.getHttpMethodAnnotation().setIdentifier(httpMethodAsString.toUpperCase());
 
         this._mergeToResource(newResourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject);

@@ -325,7 +325,7 @@ class ResourceDefinition extends ASTNode {
      * Gets the @http:Path{value: '/abc'} annotation AST.
      * @return {Annotation|undefined}
      */
-    getPathAnnotation() {
+    getPathAnnotation(ifNotExist = false) {
         let pathAnnotation = undefined;
         _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), annotationAST => {
             if (_.isEqual(annotationAST.getPackageName().toLowerCase(), 'http') && _.isEqual(annotationAST.getIdentifier().toLowerCase(), 'path')) {
@@ -333,7 +333,7 @@ class ResourceDefinition extends ASTNode {
             }
         });
         //if path annotation is not define we will create one with default behaviour.
-        if(_.isUndefined(pathAnnotation)){
+        if(_.isUndefined(pathAnnotation) && ifNotExist){
             // Creating path annotation.
             pathAnnotation = BallerinaASTFactory.createAnnotation({
                 fullPackageName: 'ballerina.net.http',

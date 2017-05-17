@@ -35,7 +35,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     beginVisitResourceDefinition(resourceDefinition) {
         // Creating path element that maps to the path annotation of the source.
         let pathAnnotation = resourceDefinition.getPathAnnotation();
-        let pathValue = '/'; // default path
+        let pathValue = '/' + resourceDefinition.getResourceName() ; // default path
         if (!_.isUndefined(pathAnnotation)) {
             pathValue = pathAnnotation.getChildren()[0].getRightValue().replace(/"/g, '');
         }
