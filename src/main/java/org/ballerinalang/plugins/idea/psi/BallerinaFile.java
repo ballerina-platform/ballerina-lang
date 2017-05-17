@@ -21,6 +21,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
@@ -64,9 +65,16 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier", "//structDefinition/Identifier",
-                    "//constantDefinition/Identifier", "//globalVariableDefinition/Identifier");
+            PsiElement resolved = BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
+                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
+            if (resolved != null) {
+                return resolved;
+            }
+            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(element.getParent(), PackageNameNode.class);
+            if (packageNameNode == null) {
+                return BallerinaPsiImplUtil.resolveElement(this, element, "//constantDefinition/Identifier",
+                        "//globalVariableDefinition/Identifier");
+            }
         } else if (element.getParent() instanceof TypeNameNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
                     "//connectorDefinition/Identifier", "//structDefinition/Identifier");

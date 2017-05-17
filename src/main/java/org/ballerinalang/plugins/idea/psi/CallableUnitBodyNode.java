@@ -19,8 +19,12 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,9 +39,35 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier", "//structDefinition/Identifier",
-                    "//variableDefinitionStatement/Identifier");
+            PsiElement definition = BallerinaPsiImplUtil.resolveElement(this, element,
+                    "//functionDefinition/Identifier", "//connectorDefinition/Identifier",
+                    "//structDefinition/Identifier");
+            if (definition != null) {
+                return definition;
+            }
+            VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
+                    VariableReferenceNode.class);
+            if (variableReferenceNode == null) {
+                return null;
+            }
+            PsiElement prevSibling = variableReferenceNode.getPrevSibling();
+            if (prevSibling != null) {
+                if (prevSibling instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                    if (elementType == BallerinaTypes.DOT) {
+                        return null;
+                    }
+                }
+            }
+
+            ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
+            if (expressionNode != null) {
+                if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
+                    return null;
+                }
+            }
+            
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof TypeNameNode) {

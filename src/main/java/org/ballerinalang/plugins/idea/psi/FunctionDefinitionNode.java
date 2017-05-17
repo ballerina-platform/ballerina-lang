@@ -21,11 +21,15 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,8 +48,29 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
         // cause issues when using find usage, etc.
         if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//parameter/Identifier");
+            VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
+                    VariableReferenceNode.class);
+            if (variableReferenceNode == null) {
+                return null;
+            }
+            PsiElement prevSibling = variableReferenceNode.getPrevSibling();
+            if (prevSibling != null) {
+                if (prevSibling instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                    if (elementType == BallerinaTypes.DOT) {
+                        return null;
+                    }
+                }
+            }
+
+            ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
+            if (expressionNode != null) {
+                if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
+                    return null;
+                }
+            }
+
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
         } else if (element.getParent() instanceof TypeNameNode) {

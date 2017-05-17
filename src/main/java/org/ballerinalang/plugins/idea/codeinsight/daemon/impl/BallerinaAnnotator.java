@@ -119,20 +119,17 @@ public class BallerinaAnnotator implements Annotator {
                 }
             }
         } else if (element instanceof IdentifierPSINode) {
-            PsiElement nameIdentifier = ((IdentifierPSINode) element).getNameIdentifier();
-            if (nameIdentifier == null) {
+            PsiReference reference = element.getReference();
+            if (reference == null) {
                 return;
             }
-            PsiReference[] references = nameIdentifier.getReferences();
-            for (PsiReference reference : references) {
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    return;
-                }
-                if (resolvedElement.getParent() instanceof ConstantDefinitionNode) {
-                    Annotation annotation = holder.createInfoAnnotation(element, null);
-                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
-                }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return;
+            }
+            if (resolvedElement.getParent() instanceof ConstantDefinitionNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
             }
         }
     }

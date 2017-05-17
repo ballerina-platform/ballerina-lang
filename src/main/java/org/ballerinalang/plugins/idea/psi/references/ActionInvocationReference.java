@@ -18,9 +18,10 @@ package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
+import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +37,7 @@ public class ActionInvocationReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof VariableDefinitionNode;
+        return def instanceof ActionDefinitionNode;
     }
 
     @NotNull
@@ -64,6 +65,20 @@ public class ActionInvocationReference extends BallerinaElementReference {
 
     @Override
     public boolean isReferenceTo(PsiElement definitionElement) {
-        return true;
+        if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
+            definitionElement = definitionElement.getParent();
+        }
+        if (isDefinitionNode(definitionElement)) {
+            PsiReference reference = myElement.getReference();
+            if (reference == null) {
+                return false;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return false;
+            }
+            return definitionElement.equals(resolvedElement.getParent());
+        }
+        return false;
     }
 }
