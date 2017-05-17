@@ -34,7 +34,7 @@ under the License.
     <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
-            <package name="org.ballerinalang.nativeimpl.functions.*"/>
+            <!--<package name="org.ballerinalang.nativeimpl.functions.*"/>-->
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
@@ -85,18 +85,12 @@ under the License.
     <test name="ballerina-core-worker-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
-            <package name="org.ballerinalang.core.lang.worker"/>
+            <!--<package name="org.ballerinalang.core.lang.worker"/>-->
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
-<<<<<<< HEAD
-    </test-->
-
-=======
     </test>
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
-
 
     <!-- Service Related Test Cases -->
     <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
@@ -161,8 +155,7 @@ under the License.
             <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
             <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
         </classes>
-<<<<<<< HEAD
-    </test> -->
+    </test>
 
     <test name="ballerina-identifier-literal-test-suite">
         <parameter name="enableNonBlocking" value="false" />
@@ -172,13 +165,13 @@ under the License.
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
-    <!-- <test name="ballerina-identifier-literal-test-suite-non-blocking">
+    <test name="ballerina-identifier-literal-test-suite-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
             <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
         </classes>
-    </test> -->
+    </test>
     <test name="ballerina-error-test-suite">
         <parameter name="enableNonBlocking" value="false" />
         <classes>
@@ -187,7 +180,5 @@ under the License.
             <class name="org.ballerinalang.core.lang.error.TryCatchThrowStmtTest"/>
             <class name="org.ballerinalang.core.lang.error.TestFinallyBlock"/>
         </classes>
-=======
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
     </test>
 </suite>

@@ -41,10 +41,10 @@ under the License.
     <test name="ballerina-lang-test-suite-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true" />
         <packages>
-            <package name="org.ballerinalang.model.values"/>
-            <package name="org.ballerinalang.model.expressions"/>
-            <package name="org.ballerinalang.model.statements"/>
-            <package name="org.ballerinalang.model.structs"/>
+            <!--<package name="org.ballerinalang.model.values"/>-->
+            <!--<package name="org.ballerinalang.model.expressions"/>-->
+            <!--<package name="org.ballerinalang.model.statements"/>-->
+            <!--<package name="org.ballerinalang.model.structs"/>-->
             <package name="org.ballerinalang.model.connectors"/>
             <package name="org.ballerinalang.model.annotations"/>
             <package name="org.ballerinalang.model.arraysofarrays"/>
@@ -129,7 +129,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
-            <class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>
+            <!--<class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>-->
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
         </classes>
     </test>
@@ -168,8 +168,7 @@ under the License.
             <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
         </classes>
-<<<<<<< HEAD
-    </test> -->
+    </test>
 
     <test name="ballerina-identifier-literal-test-suite">
         <parameter name="enableNonBlocking" value="false" />
@@ -180,15 +179,12 @@ under the License.
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
-    <!-- <test name="ballerina-identifier-literal-test-suite-non-blocking">
+    <test name="ballerina-identifier-literal-test-suite-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
             <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
         </classes>
-    </test> -->
-=======
     </test>
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
 </suite>

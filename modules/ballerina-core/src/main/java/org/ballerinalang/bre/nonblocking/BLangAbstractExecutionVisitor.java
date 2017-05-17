@@ -1518,7 +1518,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         setTempValue(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
     }
 
-<<<<<<< HEAD
 //    @Override
 //    public void visit(JSONInitExprEndNode jsonInitExprEndNode) {
 //        if (logger.isDebugEnabled()) {
@@ -1545,8 +1544,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 //        setTempValue(jsonInitExprEndNode.getExpression().getTempOffset(), new BJSON(sj.toString()));
 //    }
 
-    public void handleBException() {
-=======
     @Override
     public void visit(JSONInitExprEndNode jsonInitExprEndNode) {
         if (logger.isDebugEnabled()) {
@@ -1596,16 +1593,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         setTempValue(jsonInitExprEndNode.getExpression().getTempOffset(), new BJSON(stringJoiner.toString()));
     }
-    
-    /**
-     * Util method handle Ballerina exception. Native implementations <b>Must</b> use method to handle errors.
-     *
-     * @param bException Exception to handle
-     */
-    public void handleBException(BException bException) {
-        // SaveStack current StackTrace.
-        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
+
+    public void handleBException() {
         if (tryCatchStackRefs.size() == 0) {
             // There is no tryCatch block to handle this exception. Pass this to handle at root.
             String errorMsg = "uncaught error: " + thrownError.getType().getName() + "{ msg : " +
@@ -1789,27 +1778,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     /**
      * Recursively traverse and set the value of the access expression of a field of a struct.
      *
-<<<<<<< HEAD
-     * @param rValue     Value to be set
-     * @param currentExpr     FieldAccessExpr of the current field
-     * @param currentVal Value of the expression evaluated so far.
-     */
-    private void setFieldValue(BValue rValue, FieldAccessExpr currentExpr, BValue currentVal) {
-        if (currentExpr.getRefVarType() == BTypes.typeJSON) {
-            // TODO
-            return;
-        }
-
-        // currentVal is a BStruct or arrays/map of BStruct. hence get the element value of it.
-        BValue unitVal = getUnitValue(currentVal, currentExpr, currentExpr.getFieldExpr());
-
-        if (unitVal == null) {
-            throw new BallerinaException("field '" + currentExpr.getSymbolName() + "' is null");
-        }
-
-=======
      * @param rValue Value to be set
-     * @param expr StructFieldAccessExpr of the current field
+     * @param currentExpr StructFieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      */
     private void setFieldValue(BValue rValue, FieldAccessExpr currentExpr, BValue currentVal) {
@@ -1824,8 +1794,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             setJSONElementValue((BJSON) unitVal, currentExpr.getFieldExpr(), rValue);
             return;
         }
-        
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
+
         BStruct currentStructVal = (BStruct) unitVal;
         FieldAccessExpr fieldExpr = (FieldAccessExpr) currentExpr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
@@ -1893,13 +1862,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
-<<<<<<< HEAD
-        Expression[] exprs = varRef.getIndexExprs();
-
-=======
         Expression[] indexExprs = varRef.getIndexExprs();
         
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         if (arrayMapValue == null) {
@@ -1936,37 +1900,17 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         
         if (currentExpr.getRefVarType() == BTypes.typeJSON) {
-<<<<<<< HEAD
-            return null;
-        }
-
-        FieldAccessExpr fieldExpr = currentExpr.getFieldExpr();
-
-        // currentVal could be a value type or a array/map. Hence get the single element value of it.
-        BValue unitVal = getUnitValue(currentVal, currentExpr, fieldExpr);
-
-        if (fieldExpr == null) {
-            return unitVal;
-        }
-
-=======
             return getJSONElementValue((BJSON) currentVal, fieldExpr);
         } 
         
         // currentVal could be a value type or a array/map. Hence get the single element value of it.
         BValue unitVal = getUnitValue(currentVal, currentExpr);
         
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
         if (unitVal == null) {
             throw new BallerinaException("field '" + currentExpr.getVarName() + "' is null");
         }
-<<<<<<< HEAD
 
-        // if fieldExpr exist means this is a struct
-=======
-        
         // if fieldExpr exist means this is a struct.
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
         BStruct currentStructVal = (BStruct) unitVal;
 
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
@@ -2011,15 +1955,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      */
     private BValue getUnitValue(BValue currentVal, FieldAccessExpr currentExpr) {
         ReferenceExpr currentVarRefExpr = (ReferenceExpr) currentExpr.getVarRef();
-<<<<<<< HEAD
-        //if (currentVal == null) {
-        //    throw new BallerinaException("field '" +
-        //           generateErrorSymbolName(currentVarRefExpr.getSymbolName()) + "' is null");
-        //}
 
-=======
-        
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
@@ -2126,7 +2062,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         return arrayVal;
     }
-<<<<<<< HEAD
 
     public void createBErrorFromException(Throwable t, String message) {
         if (error == null) {
@@ -2165,7 +2100,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             bArray.add((stack.size() - i), frameItem);
         }
         return stackTrace;
-=======
+    }
     
     /**
      * Get the value of element from a given json object.
@@ -2224,6 +2159,5 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             jsonElement = JSONUtils.getElement(json, elementIndex.stringValue());
         }
         setJSONElementValue(jsonElement, childField, rValue);
->>>>>>> f8d5cc8... Implement non-blocking executor for json field access
     }
 }
