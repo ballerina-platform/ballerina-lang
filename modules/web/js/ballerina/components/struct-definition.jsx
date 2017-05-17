@@ -135,7 +135,7 @@ class StructDefinition extends React.Component {
 
     renderContentOperations({x, y, w, h}, columnSize) {
         const placeHolderPadding = 10;
-        const submitButtonPadding = 2;
+        const submitButtonPadding = 5;
         const typeCellbox = {
           x: x + panelPadding,
           y: y + panelPadding,
@@ -157,78 +157,31 @@ class StructDefinition extends React.Component {
             height: h - panelPadding * 2
         };
 
-
         return (
           <g>
-                <rect
-                    x={x}
-                    y={y}
-                    width={w}
-                    height={h}
-                    className="struct-content-operations-wrapper"
-                    fill="#3d3d3d"
-                 />
-                 <g
-                    onClick={ (e)=> this.handleTypeClick(this.state.newType, typeCellbox) }
-                 >
-                     <rect
-                        {...typeCellbox}
-                         className="new-type-drop-rect"
-                      />
-                      <text
-                          x={typeCellbox.x + placeHolderPadding}
-                          y={y + DesignerDefaults.contentOperations.height/2}
-                          className="struct-variable-definition-type-text"
-                          >
-                          {this.state.newType || "Select Type"}
-                      </text>
+              <rect x={x} y={y} width={w}  height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
+              <g onClick={ (e)=> this.handleTypeClick(this.state.newType, typeCellbox) } >
+                     <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
+                      <text x={typeCellbox.x + placeHolderPadding}  y={y + DesignerDefaults.contentOperations.height/2}
+                          className="struct-input-text" > {this.state.newType || "Select Type"} </text>
                   </g>
-                  <g
-                      onClick={(e)=> this.handleIdentifierClick(this.state.newIdentifier, identifierCellBox) }
-                  >
-                      <rect
-                          {...identifierCellBox}
-                          className="new-identifier-rect"
-                       />
-                       <text
-                           x={identifierCellBox.x + placeHolderPadding}
-                           y={y + DesignerDefaults.contentOperations.height/2}
-                           className="struct-variable-definition-identifier-text"
-                           >
-                           {this.state.newIdentifier || "Identifier"}
+                  <g onClick={(e)=> this.handleIdentifierClick(this.state.newIdentifier, identifierCellBox) } >
+                      <rect {...identifierCellBox} className="struct-input-value-wrapper" />
+                       <text x={identifierCellBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2}
+                           className="struct-input-text" > {this.state.newIdentifier || " + Add Identifier"}
                        </text>
                    </g>
-                   <g
-                        onClick={(e)=> this.handleValueClick(this.state.newValue, defaultValueBox) }
-                   >
-                       <rect
-                            {...defaultValueBox}
-                           className="new-value-rect"
-                        />
-                        <text
-                            x={defaultValueBox.x + placeHolderPadding}
-                            y={y + DesignerDefaults.contentOperations.height/2}
-                            className="struct-variable-definition-value-text"
-                            >
-                            {this.state.newValue || "Default Value"}
-                        </text>
+                   <g onClick={(e)=> this.handleValueClick(this.state.newValue, defaultValueBox) } >
+                       <rect {...defaultValueBox} className="struct-input-value-wrapper" />
+                        <text x={defaultValueBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2}
+                            className="struct-input-text" > {this.state.newValue || "+ Add Default Value"} </text>
                     </g>
-                    <rect
-                        x={x + DesignerDefaults.structDefinitionStatement.width - 30}
-                        y={y + 10}
-                        width={20}
-                        height={20}
-                        className="struct-content-operations-submit-wrapper"
-                     />
-                    <image
-                        x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPadding}
-                        style={{cursor:"pointer"}}
-                        y={y + 10 + submitButtonPadding}
-                        width={20 - submitButtonPadding * 2}
-                        height={20 - submitButtonPadding * 2}
-                        onClick={ ()=> this.createNew() }
+                    <rect x={x + DesignerDefaults.structDefinitionStatement.width - 30} y={y + 10} width={25} height={25}
+                        className="struct-added-value-wrapper" />
+                    <image x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPadding}
+                        style={{cursor:"pointer"}}  y={y + 10 + submitButtonPadding} width={20 - submitButtonPadding }
+                        height={20 - submitButtonPadding } onClick={ ()=> this.createNew() } className="struct-add-icon-wrapper"
                         xlinkHref={ImageUtil.getSVGIconString('check')}>
-                      >
                     </image>
             </g>
         );
@@ -291,7 +244,7 @@ class StructDefinition extends React.Component {
                         const type = child.getBType();
                         const identifier = child.getIdentifier();
                         const value = child.getValue();
-                        const y = coDimensions.y + DesignerDefaults.contentOperations.height + DesignerDefaults.structDefinitionStatement.height * i;
+                        const y = coDimensions.y + DesignerDefaults.contentOperations.height + DesignerDefaults.structDefinitionStatement.height * i + 10;
 
                         const typeCellbox = {
                             x: coDimensions.x,
@@ -316,66 +269,30 @@ class StructDefinition extends React.Component {
 
                         return (<g key={i} className="struct-definition-statement">
 
-                          <g
-                              className="struct-variable-definition-type"
-                              onClick={ (e)=> this.handleTypeClick(type, typeCellbox, child) }
-                              >
-                              <rect
-                                  {...typeCellbox}
-                                  className="struct-variable-definition-type-rect"
-                               />
-                              <text
-                                  x={panelPadding + coDimensions.x}
-                                  y={y + DesignerDefaults.structDefinitionStatement.height/2}
-                                  className="struct-variable-definition-type-text"
-                                  >
-                                  {type}
-                              </text>
+                          <g className="struct-variable-definition-type"  onClick={ (e)=> this.handleTypeClick(type, typeCellbox, child) } >
+                              <rect {...typeCellbox} className="struct-added-value-wrapper" />
+                              <text x={panelPadding + coDimensions.x} y={y + DesignerDefaults.structDefinitionStatement.height/2 + 3 }
+                                  className="struct-variable-definition-type-text" > {type} </text>
                           </g>
-
-                          <g
-                              className="struct-variable-definition-identifier"
-                              onClick={(e)=> this.handleIdentifierClick(identifier, identifierCellBox, child) }
-                              >
-                              <rect
-                                  {...identifierCellBox}
-                                  className="struct-variable-definition-identifier-rect"
-
-                              />
-                              <text
-                                  x={coDimensions.x + panelPadding + columnSize}
-                                  y={y + DesignerDefaults.structDefinitionStatement.height/2}
-                                  className="struct-variable-definition-identifier-text"
-                              >
-                                  {identifier}
-                              </text>
+                          <g className="struct-variable-definition-identifier" onClick={(e)=>
+                              this.handleIdentifierClick(identifier, identifierCellBox, child) }>
+                              <rect {...identifierCellBox} className="struct-added-value-wrapper"/>
+                              <text x={coDimensions.x + panelPadding + columnSize} y={y + DesignerDefaults.structDefinitionStatement.height/2 + 3}
+                                  className="struct-variable-definition-identifier-text" > {identifier} </text>
                           </g>
-
-                          <g
-                              className="struct-variable-definition-value"
-                              onClick={(e)=> this.handleValueClick(value, defaultValueBox, child) }
-                              >
-                              <rect
-                                  {...defaultValueBox}
-                                  className="struct-variable-definition-value-rect"
-
-                              />
-                              <text
-                                  x={coDimensions.x + panelPadding + columnSize * 2}
-                                  y={y + DesignerDefaults.structDefinitionStatement.height/2}
-                                  className="struct-variable-definition-value-text"
-                              >
-                                  {value}
-                              </text>
-
+                          <g className="struct-variable-definition-value" onClick={(e)=>
+                              this.handleValueClick(value, defaultValueBox, child) } >
+                              <rect {...defaultValueBox} className="struct-added-value-wrapper"/>
+                              <text x={coDimensions.x + panelPadding + columnSize * 2} y={y + DesignerDefaults.structDefinitionStatement.height/2 + 3}
+                                  className="struct-variable-definition-value-text" > {value} </text>
                           </g>
-                          <text
-                              x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
-                              y={y + DesignerDefaults.structDefinitionStatement.height/2}
-                              onClick={ ()=> this.deleteStatement(child) }
-                              className="struct-statement-delete">
-                              ×
-                          </text>
+                            <rect x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
+                                       y={y} onClick={ ()=> this.deleteStatement(child) }
+                                       width="30" height="30" className="parameter-delete-icon-wrapper"/>
+                             <image x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset + 9}
+                                    y={y + 9 } onClick={ ()=> this.deleteStatement(child) }
+                                    width="12" height="12" className="parameter-delete-icon" xlinkHref={ImageUtil.getSVGIconString('cancel')}>
+                             </image>
                           </g>
                         )
                     })

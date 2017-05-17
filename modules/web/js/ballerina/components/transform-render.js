@@ -138,7 +138,7 @@ disconnect(connection) {
         connection.sourceId, connection.targetId);
     this.midpoint = this.midpoint - this.midpointVariance;
     this.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
-    this.jsPlumbInstance.deleteConnection(connection);
+    this.jsPlumbInstance.detach(connection);
     this.reposition(this);
     this.disconnectCallback(propertyConnection);
     // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
