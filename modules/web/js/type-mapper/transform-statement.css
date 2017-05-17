@@ -86,14 +86,6 @@ svg.plumbConnect path {
     color : #000000;
 }
 
-.jstree-default .jstree-leaf>.jstree-ocl {
-    background-position: -69px 0px;
-}
-
-.jstree-default .jstree-clicked {
-    color: #000000;
-}
-
 .jstree-default .jstree-anchor {
     line-height: 24px;
     height: 28px;

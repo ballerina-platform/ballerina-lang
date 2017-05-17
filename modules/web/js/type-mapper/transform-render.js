@@ -90,38 +90,41 @@ class TransformRender
     });
 
     $('#' + self.contextMenu).hide();
-    this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
+        this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
         var contextMenuDiv = $('#' + self.contextMenu);
-    var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
-    anchorTag.html($('<i>').addClass('fw fw-delete'));
-    anchorTag.html( anchorTag.html() + " Remove");
-    contextMenuDiv.html(anchorTag);
+        var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
+        anchorTag.html($('<i>').addClass('fw fw-delete'));
+        anchorTag.html( anchorTag.html() + " Remove");
+        contextMenuDiv.html(anchorTag);
 
-    document.addEventListener('click', () => {
+        document.addEventListener('click', (eClick) => {
+            if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != "path")
+            {
+                $('#' + self.contextMenu).hide();
+            }
+        }, false);
+
+        $("#typeMapperConRemove").click(() => {
+            self.disconnect(connection);
         $('#' + self.contextMenu).hide();
-}, false);
+    });
 
-    $("#typeMapperConRemove").click(() => {
-        self.disconnect(connection);
-    $('#' + self.contextMenu).hide();
-});
+    contextMenuDiv.css({
+        'top':e.pageY  ,
+        'left': e.pageX,
+        zIndex : 1000
+    });
 
-contextMenuDiv.css({
-    'top':e.pageY  ,
-    'left': e.pageX,
-    zIndex : 1000
-});
-
-contextMenuDiv.show();
-e.preventDefault();
-});
+    contextMenuDiv.show();
+    e.preventDefault();
+    });
 
 
-this.jsPlumbInstance.bind('connection', (info, ev) => {
-    self.reposition(self);
-//TODO: for multiple type mappers
-// self.processTypeMapperDropdown(info);
-});
+    this.jsPlumbInstance.bind('connection', (info, ev) => {
+        self.reposition(self);
+    //TODO: for multiple type mappers
+    // self.processTypeMapperDropdown(info);
+    });
 }
 
 /**
