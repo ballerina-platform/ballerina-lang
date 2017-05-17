@@ -58,7 +58,12 @@ class TagController extends React.Component {
      * @param {object} e - Event
      * */
     onInputBlur(e) {
-        e.target.value = "";
+        let setter = this.props.setter;
+        if (DEFAULT_INPUT_VALUE !== this.state.editValue && this.state.editValue !== "") {
+            if (!setter(this.state.editValue)) {
+                e.preventDefault();
+            }
+        }
         this.setState({editing: false, editValue: ''});
     }
 
@@ -115,7 +120,7 @@ class TagController extends React.Component {
                     <text x={componentData.components.closingBracket.x - 98}
                           y={componentData.components.closingBracket.y + 17}
                           className="tag-component-attachment-text">
-                        + Add Value
+                        {DEFAULT_INPUT_VALUE}
                     </text>
                     <SuggestionsText x={componentData.components.closingBracket.x - 102}
                                      y={componentData.components.closingBracket.y}
@@ -164,7 +169,8 @@ class TagController extends React.Component {
                                           y={componentData.components.closingBracket.y + 25 / 2}
                                           width={93}
                                           height={26}
-                                          className="tag-component-editable-text-box"
+                                          labelClass={"tag-component-label"}
+                                          inputClass={"tag-component-input-text-box"}
                                           displayText={DEFAULT_INPUT_VALUE}
                                           placeholder={DEFAULT_INPUT_VALUE}
                                           onKeyDown={e => {
@@ -192,7 +198,8 @@ class TagController extends React.Component {
             } else {
                 return (
                     <g key={componentData.title}>
-                        <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y}
+                        <rect x={componentData.components.openingBracket.x - 3}
+                              y={componentData.components.openingBracket.y}
                               width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                               + componentData.components.closingBracket.w}
                               height={25} className={this.props.groupClass}/>
@@ -213,7 +220,8 @@ class TagController extends React.Component {
                                           y={componentData.components.closingBracket.y + 25 / 2}
                                           width={93}
                                           height={26}
-                                          className="tag-component-editable-text-box"
+                                          labelClass={"tag-component-label"}
+                                          inputClass={"tag-component-input-text-box"}
                                           displayText={DEFAULT_INPUT_VALUE}
                                           placeholder={DEFAULT_INPUT_VALUE}
                                           onKeyDown={e => {

@@ -52,36 +52,38 @@ class AnnotationAttributeDefinition extends React.Component {
     }
 
     onInputBlur(e) {
-        e.target.value = "";
         this.setState({editing: false, editValue: this.props.model.getAttributeStatementString()});
     }
 
     onKeyDown(e) {
         if (e.keyCode === 13) {
-            if (!this.setAnnotationAttributeDefinition(this.state.editValue)) {
-                e.preventDefault();
+            if (this.state.editValue !== "") {
+                if (this.validateAttribute(this.state.editValue)) {
+                    if (!this.setAnnotationAttributeDefinition(this.state.editValue)) {
+                        e.preventDefault();
+                    }
+                }
             }
-            e.target.value = "";
-            this.setState({editing: false, editValue: this.state.editValue})
+            this.setState({editing: false, editValue: this.props.model.getAttributeStatementString()});
         }
     }
 
     onInputChange(e) {
-        // let validate = this.props.validateInput;
-        // this.setState({editing: true, editValue: e.target.value.trim()});
         let variableDeclaration = e.target.value.replace(";", "");
-        if (this.validateAttribute(variableDeclaration)) {
-            if (!this.setAnnotationAttributeDefinition(this.state.editValue)) {
-                e.preventDefault();
+        if (variableDeclaration !== "") {
+            if (this.validateAttribute(variableDeclaration)) {
+                if (!this.setAnnotationAttributeDefinition(variableDeclaration)) {
+                    e.preventDefault();
+                }
             }
-            this.setState({editing: true, editValue: variableDeclaration});
         }
+        this.setState({editing: true, editValue: variableDeclaration});
     }
 
     validateAttribute(attribute) {
         if (attribute.includes("=")) {
             let splitedExpression = attribute.split("=");
-            let leftSideSplitted = splitedExpression[0].trim().split(" ");
+            let leftSideSplitted = splitedExpression[0].split(" ");
             let rightSide = splitedExpression[1].trim();
 
             if (leftSideSplitted.length > 1 && rightSide) {
@@ -161,8 +163,9 @@ class AnnotationAttributeDefinition extends React.Component {
                                   y={this.bBox.y + 15}
                                   width={this.bBox.w}
                                   height={this.bBox.h}
-                                  className="annotation-attribute-wrapper-text"
-                                  canUpdate={true}
+                                  labelClass={"annotation-attribute-wrapper-text"}
+                                  inputClass={"annotation-attribute-input-text-box"}
+                                  displayText={this.props.model.getAttributeStatementString()}
                                   onKeyDown={e => {
                                       this.onKeyDown(e);
                                   }}
