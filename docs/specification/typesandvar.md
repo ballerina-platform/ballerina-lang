@@ -160,13 +160,14 @@ Library functions for manipulating XML documents and elements are in the package
 
 ### Type: `json`
 
-A variable of type `json` can hold any JSON document. Ballerina also understands JSON Schema and allows one to declare that a JSON document must conform to a particular schema.
+JSON is a textual format for representing a collection of values: a simple value (string, number, “true”, “false”, “null”), an array of values or an object. Ballerina also understands JSON Schema and allows one to declare that a JSON document must conform to a particular schema.
+
+Ballerina has a single type named “json” that can represent any JSON value. Thus it is a built-in union type in Ballerina whose value can be any one of a string, a float, a boolean, an array of any or a map of any. We provide utility functions to read a JSON document to create a JSON typed value. The lexical representation of a value of that type is JSON, thus simply printing a JSON typed variable results in a JSON string.
 
 JSON variables are declared in the following way:
 ```
 json VariableName;
 ```
-
 This is a variable that may hold any JSON document.
 
 Ballerina will not always perform runtime schema validation as that will inhibit performance - instead a library function will allow that to be done on demand. For better performance a Ballerina implementation is expected to stream the contents of JSON documents and only load into memory what is needed based on how the document is used in the program.
@@ -201,7 +202,7 @@ system:println (m.city, m[“country”]);
 
 ```
 
-If the accessed field does not exist then, in the case of a struct there will be a compile-time error while the other cases will result in a null value being returned.
+If the accessed field does not exist, in the case of a struct there will be a compile-time error, while the other cases will result in a null value being returned.
 
 ### Type: `datatable`
 
