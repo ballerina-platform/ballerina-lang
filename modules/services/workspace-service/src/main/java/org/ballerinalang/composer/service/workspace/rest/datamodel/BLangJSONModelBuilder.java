@@ -856,14 +856,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tempJsonArrayRef.peek().addAll(tryStatement);
         }
 
-        if (tryCatchStmt.getCatchBlock() != null) {
+        TryCatchStmt.CatchBlock[] catchBlocks = tryCatchStmt.getCatchBlocks();
+        if (catchBlocks.length > 0 && catchBlocks[0] != null) {
             tempJsonArrayRef.push(new JsonArray());
             JsonObject catchBlockObj = new JsonObject();
             catchBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.CATCH_BLOCK);
 
-            this.addPosition(catchBlockObj, tryCatchStmt.getCatchBlock().getCatchBlockStmt().getNodeLocation());
+            this.addPosition(catchBlockObj, catchBlocks[0].getCatchBlockStmt().getNodeLocation());
             tempJsonArrayRef.push(new JsonArray());
-            tryCatchStmt.getCatchBlock().getCatchBlockStmt().accept(this);
+            catchBlocks[0].getCatchBlockStmt().accept(this);
             catchBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
             tempJsonArrayRef.peek().add(catchBlockObj);
