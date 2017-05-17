@@ -10,7 +10,7 @@ Local transactions are transactions associated with a particular datasource (thi
 
 ## Distributed Transactions: (Global/XA Transactions)
 
-A distributed transaction is a transaction that accesses and updates data on two or more networked resources, and therefore must be coordinated among those resources. This coordination is the function of the transaction manager.
+A distributed transaction is a transaction that accesses and updates data on two or more networked resources, and therefore must be coordinated among those resources. This coordination is the function of the transaction manager. The transaction manager is responsible for making the final decision either to commit or rollback any distributed transaction and it uses the two phase commit protocol for that.
 
 - First phase: The transaction manager polls all of the resource managers involved in the distributed transaction to see if each one is ready to commit. If a resource manager cannot commit, it responds negatively and rolls back its particular part of the transaction so that data is not altered.
 - Second phase: The transaction manager determines if any of the resource managers have responded negatively, and, if so, rolls back the whole transaction. If there are no negative responses, the translation manager commits the whole transaction, and returns the results to the application.
@@ -58,7 +58,7 @@ transaction {
 
    ....
 
-	transaction { transactionLevel = 2
+	transaction {
 
 	   ....
 
