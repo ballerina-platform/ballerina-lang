@@ -32,7 +32,7 @@ import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 import select2 from 'select2';
-import TransformRender from '../../type-mapper/transform-render';
+import TransformRender from '../../ballerina/components/transform-render';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import ActiveArbiter from './active-arbiter';
 import ImageUtil from './image-util';
