@@ -90,41 +90,38 @@ class TransformRender
     });
 
     $('#' + self.contextMenu).hide();
-        this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
+    this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
         var contextMenuDiv = $('#' + self.contextMenu);
-        var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
-        anchorTag.html($('<i>').addClass('fw fw-delete'));
-        anchorTag.html( anchorTag.html() + " Remove");
-        contextMenuDiv.html(anchorTag);
+    var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
+    anchorTag.html($('<i>').addClass('fw fw-delete'));
+    anchorTag.html( anchorTag.html() + " Remove");
+    contextMenuDiv.html(anchorTag);
 
-        document.addEventListener('click', (eClick) => {
-            if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != "path")
-            {
-                $('#' + self.contextMenu).hide();
-            }
-        }, false);
-
-        $("#typeMapperConRemove").click(() => {
-            self.disconnect(connection);
+    document.addEventListener('click', () => {
         $('#' + self.contextMenu).hide();
-    });
+}, false);
 
-    contextMenuDiv.css({
-        'top':e.pageY  ,
-        'left': e.pageX,
-        zIndex : 1000
-    });
+    $("#typeMapperConRemove").click(() => {
+        self.disconnect(connection);
+    $('#' + self.contextMenu).hide();
+});
 
-    contextMenuDiv.show();
-    e.preventDefault();
-    });
+contextMenuDiv.css({
+    'top':e.pageY  ,
+    'left': e.pageX,
+    zIndex : 1000
+});
+
+contextMenuDiv.show();
+e.preventDefault();
+});
 
 
-    this.jsPlumbInstance.bind('connection', (info, ev) => {
-        self.reposition(self);
-    //TODO: for multiple type mappers
-    // self.processTypeMapperDropdown(info);
-    });
+this.jsPlumbInstance.bind('connection', (info, ev) => {
+    self.reposition(self);
+//TODO: for multiple type mappers
+// self.processTypeMapperDropdown(info);
+});
 }
 
 /**
@@ -706,9 +703,15 @@ addTarget(element, self) {
             if (isValidTypes) {
                 self.midpoint = self.midpoint + self.midpointVariance;
                 self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
-                connection.id = self.onConnection(connection);
+                self.onConnection(connection);
+                return self.hasFunction(connection, self);
+                // self.disableParentsJsTree(params.sourceId, self);
+                // self.disableParentsJsTree(params.targetId, self);
             }
             return isValidTypes;
+        },
+        onDrop: function () {
+            self.reposition(self);
         }
     })
     ;
@@ -867,13 +870,13 @@ return connections;
 reposition(self) {
     var offset = 60;
     var typeMapperHeight = 0;
+    self.jsPlumbInstance.repaintEverything();
     var structs = $(".struct");
     _.forEach(structs, struct => {
         if (typeMapperHeight < $("#"+ struct.id).height() + offset) {
         typeMapperHeight = $("#"+ struct.id).height() + offset;
     }
     $(".leftType, .rightType").height(typeMapperHeight);
-    self.jsPlumbInstance.repaintEverything();
 });
 }
 

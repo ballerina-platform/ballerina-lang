@@ -110,7 +110,7 @@ class ActionInvocationExpression extends Expression {
     setConnector(connector, options) {
         if(!_.isNil(connector)){
             this.setAttribute("_connector", connector, options);
-            this.setExpression(this.generateExpression());
+            this.setAttribute('_expression', this.generateExpression(), options);
         }
     }
 

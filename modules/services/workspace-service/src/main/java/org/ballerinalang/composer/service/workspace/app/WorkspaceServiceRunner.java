@@ -76,8 +76,8 @@ public class WorkspaceServiceRunner {
         try {
             jcomander.parse(args);
         } catch (ParameterException e) {
-            PrintStream out = System.out;
-            out.println("Invalid argument passed.");
+            PrintStream err = System.err;
+            err.println("Invalid argument passed.");
             printUsage();
             return;
         }
@@ -123,28 +123,30 @@ public class WorkspaceServiceRunner {
         int fileServerPort = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
         //if a custom port is given give priority to that.
         if (null != composer.fileServerPort) {
-            fileServerPort = Integer.parseInt(composer.fileServerPort);
+            //if the file server port is set to 0 we will
+            if (composer.fileServerPort.equals(0)) {
+                fileServerPort = WorkspaceUtils.getAvailablePort(fileServerPort);
+            } else {
+                fileServerPort = composer.fileServerPort.intValue();
+            }
         }
+
         if (!WorkspaceUtils.available(fileServerPort)) {
-            PrintStream out = System.out;
-            out.println("Looks like you may be running the Ballerina composer already ?");
-            out.println(String.format("In any case, it appears someone is already using port %d, " +
+            PrintStream err = System.err;
+            err.println("Error: Looks like you may be running the Ballerina composer already ?");
+            err.println(String.format("In any case, it appears someone is already using port %d, " +
                     "please kick them out or tell me a different port to use.", fileServerPort));
             printUsage();
-            return;
+            System.exit(1);
         }
 
         //find free ports for API ports.
         int apiPort = Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT);
-        while (!WorkspaceUtils.available(apiPort)) {
-            apiPort++;
-        }
+        apiPort = WorkspaceUtils.getAvailablePort(apiPort);
 
         //find free port for launch service.
         int launcherPort = apiPort + 1;
-        while (!WorkspaceUtils.available(launcherPort)) {
-            launcherPort++;
-        }
+        launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
 
         // find free port for debugger
         int debuggerPort = LaunchUtils.getFreePort();
@@ -213,7 +215,7 @@ public class WorkspaceServiceRunner {
         private boolean helpFlag = false;
 
         @Parameter(names = "--port", description = "Specify a custom port for file server to start.")
-        private String fileServerPort;
+        private Integer fileServerPort;
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;

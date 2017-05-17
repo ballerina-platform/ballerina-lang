@@ -1316,10 +1316,6 @@ attachment-content-wrapper,
     width: 30px;
 }
 
-#modalAbout a {
-    color: #f47a1e;
-}
-
 #modalAbout .modal-dialog {
     width: 35%;
 }

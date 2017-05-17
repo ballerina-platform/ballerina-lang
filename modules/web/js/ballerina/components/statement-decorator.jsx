@@ -287,7 +287,8 @@ class StatementDecorator extends React.Component {
 		});
 
 		messageManager.startDrawMessage(function (source, destination) {
-			source.setAttribute('_connector', destination)
+			source.setConnector(destination, {doSilently: true});
+			model.generateStatementString();
 		});
 	}
 

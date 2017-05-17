@@ -32,7 +32,7 @@ import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
 import select2 from 'select2';
-import TransformRender from '../../ballerina/components/transform-render';
+import TransformRender from '../../type-mapper/transform-render';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import ActiveArbiter from './active-arbiter';
 import ImageUtil from './image-util';
@@ -51,7 +51,8 @@ class TransformStatementDecorator extends React.Component {
 		    innerDropZoneActivated: false,
 	        innerDropZoneDropNotAllowed: false,
 	        innerDropZoneExist: false,
-            active: 'hidden'
+            showActions: false,
+            active: false
 		};
 	}
 
@@ -230,8 +231,9 @@ class TransformStatementDecorator extends React.Component {
                assignmentStmt.addChild(leftOperand);
                assignmentStmt.addChild(rightOperand);
                self.props.model.addChild(assignmentStmt);
+               connection.id = assignmentStmt.id;
 
-               return assignmentStmt.id;
+               self.mapper.addConnection(connection);
            };
 
            var onDisconnectionCallback = function(connection) {
@@ -340,9 +342,13 @@ class TransformStatementDecorator extends React.Component {
     		}
 
     		return (
-           <g className="statement"
-               onMouseOut={ this.setActionVisibility.bind(this, false) }
-               onMouseOver={ this.setActionVisibility.bind(this, true)}>
+    	    	<g 	className="statement"
+                onMouseOut={ this.setActionVisibility.bind(this,false) }
+                onMouseOver={ (e) => {
+    							if(!this.context.dragDropManager.isOnDrag()) {
+    									this.setActionVisibility(true)
+    							}
+    						}}>
     						<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
     			                className={dropZoneClassName} {...fill}
     						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
@@ -353,85 +359,84 @@ class TransformStatementDecorator extends React.Component {
     							<text x={text_x} y={text_y} className="transform-action" onClick={(e) =>this.onExpand()}>{expression}</text>
     							 <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={ iconSize } height={ iconSize } onClick={(e) =>this.onExpand()} xlinkHref={ ImageUtil.getSVGIconString("expand")}/>
     						</g>
-						<ActionBox
-                            bBox={ actionBbox }
-                            show={ this.state.active }
-                            onDelete={ () => this.onDelete() }
-                            onJumptoCodeLine={ () => this.onJumptoCodeLine() }
-						/>
+                            <ActionBox
+                                bBox={ actionBbox }
+                                show={ this.state.showActions }
+                                isBreakpoint={model.isBreakpoint}
+                                onDelete={ () => this.onDelete() }
+                                onJumptoCodeLine = { () => this.onJumptoCodeLine() }
+                                onBreakpointClick = { () => this.onBreakpointClick() }
+                            />
 
-						{isActionInvocation &&
-							<g>
-								<circle cx={arrowStartPointX}
-								cy={arrowStartPointY}
-								r={radius}
-								fill="#444"
-								fillOpacity={0}
-								onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
-								onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
-								onMouseDown={(e) => this.onMouseDown(e)}
-								onMouseUp={(e) => this.onMouseUp(e)}/>
-								{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
-								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
-							</g>
-						}
-						{		model.isBreakpoint &&
-								this.renderBreakpointIndicator()
-						}
+    						{isActionInvocation &&
+    							<g>
+    								<circle cx={arrowStartPointX}
+    								cy={arrowStartPointY}
+    								r={radius}
+    								fill="#444"
+    								fillOpacity={0}
+    								onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
+    								onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
+    								onMouseDown={(e) => this.onMouseDown(e)}
+    								onMouseUp={(e) => this.onMouseUp(e)}/>
+    								{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
+    								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
+    							</g>
+    						}
+    						{		model.isBreakpoint &&
+    								this.renderBreakpointIndicator()
+    						}
     				{this.props.children}
     				</g>);
     	}
 
-       setActionVisibility (show) {
-          if (!this.context.dragDropManager.isOnDrag()) {
-              if (show) {
-                  this.context.activeArbiter.readyToActivate(this);
-              } else {
-                  this.context.activeArbiter.readyToDeactivate(this);
-              }
+      setActionVisibility (show) {
+          if (show) {
+              this.context.activeArbiter.readyToActivate(this);
           }
-       }
+          this.setState({showActions: show})
+      }
 
-	onDropZoneActivate (e) {
-			const dragDropManager = this.context.dragDropManager,
-						dropTarget = this.props.model.getParent(),
-						model = this.props.model;
-			if(dragDropManager.isOnDrag()) {
-					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
-							return;
-					}
-					dragDropManager.setActivatedDropTarget(dropTarget,
-							(nodeBeingDragged) => {
-									// IMPORTANT: override node's default validation logic
-									// This drop zone is for statements only.
-									// Statements should only be allowed here.
-									return model.getFactory().isStatement(nodeBeingDragged);
-							},
-							() => {
-									return dropTarget.getIndexOfChild(model);
-							}
-					);
-					this.setState({innerDropZoneActivated: true,
-							innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
-					});
-					dragDropManager.once('drop-target-changed', function(){
-							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
-					}, this);
-			}
-	}
+    	onDropZoneActivate (e) {
+    			const dragDropManager = this.context.dragDropManager,
+    						dropTarget = this.props.model.getParent(),
+    						model = this.props.model;
+    			if(dragDropManager.isOnDrag()) {
+    					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+    							return;
+    					}
+    					dragDropManager.setActivatedDropTarget(dropTarget,
+    							(nodeBeingDragged) => {
+    									// IMPORTANT: override node's default validation logic
+    									// This drop zone is for statements only.
+    									// Statements should only be allowed here.
+    									return model.getFactory().isStatement(nodeBeingDragged);
+    							},
+    							() => {
+    									return dropTarget.getIndexOfChild(model);
+    							}
+    					);
+    					this.setState({innerDropZoneActivated: true,
+    							innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
+    					});
+    					dragDropManager.once('drop-target-changed', function(){
+    							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
+    					}, this);
+    			}
+    	}
 
-	onDropZoneDeactivate (e) {
-			const dragDropManager = this.context.dragDropManager,
-						dropTarget = this.props.model.getParent();
-			if(dragDropManager.isOnDrag()){
-					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
-							dragDropManager.clearActivatedDropTarget();
-							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
-					}
-			}
-	}
+    	onDropZoneDeactivate (e) {
+    			const dragDropManager = this.context.dragDropManager,
+    						dropTarget = this.props.model.getParent();
+    			if(dragDropManager.isOnDrag()){
+    					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+    							dragDropManager.clearActivatedDropTarget();
+    							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
+    					}
+    			}
+    	}
 
-    onArrowStartPointMouseOver (e) {
+    	onArrowStartPointMouseOver (e) {
     		e.target.style.fill = '#444';
     		e.target.style.fillOpacity = 0.5;
     		e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
@@ -475,10 +480,8 @@ class TransformStatementDecorator extends React.Component {
 
     	openExpressionEditor(e){
     		let options = this.props.editorOptions;
-    		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
     		if(options){
-    			new ExpressionEditor( this.statementBox , this.context.container ,
-    				(text) => this.onUpdate(text), options , packageScope );
+    			new ExpressionEditor( this.statementBox , this.context.container , (text) => this.onUpdate(text), options );
     		}
     	}
 

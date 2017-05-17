@@ -30,7 +30,7 @@ import ToolView from './tool-view';
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
 
-        render: function (parent, toolOrderVertical, addToTop, collapsed) {
+        render: function (parent, toolOrderVertical, addToTop, collapsed, gridConfig) {
             var self = this;
             var groupDiv = $('<div></div>');
 
@@ -163,6 +163,7 @@ import ToolView from './tool-view';
             });
             this.model.on('tool-added', this.onToolAdded, this);
             this.model.on('tool-removed', this.onToolRemoved, this);
+
             return this;
         },
 

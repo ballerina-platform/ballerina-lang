@@ -22,6 +22,10 @@
         }
     }
     
+    & a {
+        color: $modal-btn-primary-bgcolor;
+    }
+    
     & .brand {
         & .logo {
             width: 150px;
@@ -29,10 +33,11 @@
         }
         
         & .appname {
-            color: #f17b31;
+            color: $brand-primary;
             font-size: 39px;
             display: inline-block;
             margin-top: -11px;
+            margin-left: 2px;
         }
     }
 }
