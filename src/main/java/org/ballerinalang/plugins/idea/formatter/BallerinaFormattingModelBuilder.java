@@ -47,6 +47,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
     private static SpacingBuilder createSpaceBuilder(CodeStyleSettings settings) {
         return new SpacingBuilder(settings, BallerinaLanguage.INSTANCE)
+                .around(OPERATORS).spaceIf(true)
                 .before(ALL).spaceIf(false)
                 .after(ALL).spaceIf(true)
                 .before(ANY).spaceIf(false)
@@ -119,8 +120,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RBRACE, GT).spaceIf(false)
                 .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
                 .between(XML_LOCAL_NAME, GT).spaceIf(false)
-                .between(NAME_REFERENCE, LBRACE).spaceIf(true)
-                .around(OPERATORS).spaceIf(true);
+                .between(NAME_REFERENCE, LBRACE).spaceIf(true);
     }
 
     @Nullable
