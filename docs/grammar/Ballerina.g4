@@ -410,6 +410,7 @@ expression
     |   backtickString                                  # templateExpression
     |   nameReference '(' expressionList? ')'           # functionInvocationExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
+    |   '<' typeName '>' expression                     # typeConversionExpression
     |   ('+' | '-' | '!') expression                    # unaryExpression
     |   '(' expression ')'                              # bracedExpression
     |   expression '^' expression                       # binaryPowExpression

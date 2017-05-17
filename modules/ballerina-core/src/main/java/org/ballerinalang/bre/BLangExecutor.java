@@ -56,6 +56,7 @@ import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -1103,6 +1104,12 @@ public class BLangExecutor implements NodeExecutor {
         }
     }
 
+    @Override
+    public BValue visit(TypeConversionExpression typeConversionExpression) {
+        // TODO
+        return null;
+    }
+    
     @Override
     public BValue visit(BasicLiteral basicLiteral) {
         return basicLiteral.getBValue();
