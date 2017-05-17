@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -37,7 +37,7 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitBallerinaASTRoot(astRoot) {
-        this.appendSource(astRoot.whiteSpaceDescriptor.regions[0]);
+        // FIXME this.appendSource(astRoot.whiteSpaceDescriptor.regions[0]);
     }
 
     visitServiceDefinition(serviceDefinition) {

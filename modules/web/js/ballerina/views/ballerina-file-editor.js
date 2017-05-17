@@ -219,7 +219,7 @@ class BallerinaFileEditor extends BallerinaView {
         toolPaletteOpts.container = toolPaletteContainer;
         toolPaletteOpts.ballerinaFileEditor = this;
         this.toolPalette = new ToolPalette(toolPaletteOpts);
-        this.messageManager = new MessageManager();
+        this.messageManager = new MessageManager({fileEditor: this});
 
         //this._createImportDeclarationPane(canvasContainer);
 
