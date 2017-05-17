@@ -165,7 +165,6 @@ class SwaggerView extends EventChannel {
      */
     updateServices() {
         //we do not update the dom if swagger is not edited.
-        debugger;
         if(this.swaggerDirty){
             _.forEach(this._swaggerData, swaggerDataEntry => {
                 if (swaggerDataEntry.hasModified) {
