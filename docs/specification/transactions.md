@@ -81,6 +81,7 @@ aborted {
    ...
 }
 ```
+Ballerina allows you to have transactions within a transaction.  All internal transactions are committed or aborted at the end of the outer most transaction block. If any of the transactions fail, the aborted block gets executed and all the transactions are rollbacked. The transaction is successful if all the nested transactions are successfully committed.
 
 ## Example
 
