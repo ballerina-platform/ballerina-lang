@@ -193,7 +193,7 @@ export const structDefinitionStatement = {
     padding: {
         left: 10
     },
-    deleteButtonOffset: 20,
+    deleteButtonOffset: 30,
 };
 
 export const panelHeading = {

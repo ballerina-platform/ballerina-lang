@@ -228,3 +228,14 @@
 .struct-delete-icon-wrapper{
 
 }
+
+.parameter-delete-icon-wrapper{
+    fill: #b9b9b9;
+    shape-rendering: crispEdges;
+    padding: 13px;
+    opacity: 0.3;
+}
+
+.parameter-delete-icon-wrapper:hover{
+    opacity: 1;
+}

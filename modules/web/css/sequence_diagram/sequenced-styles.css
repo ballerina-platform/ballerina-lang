@@ -513,12 +513,6 @@ text-anchor: start;
     shape-rendering: crispEdges;
 }
 
-.parameter-delete-icon-wrapper {
-    fill: #b9b9b9;
-    shape-rendering: crispEdges;
-    padding: 13px;
-}
-
 .parameter-space{
     fill: #dcdcdc;
     shape-rendering: crispEdges;

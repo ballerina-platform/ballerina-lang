@@ -181,7 +181,7 @@ class StructDefinition extends React.Component {
                     <image x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPadding}
                         style={{cursor:"pointer"}}  y={y + 10 + submitButtonPadding} width={20 - submitButtonPadding }
                         height={20 - submitButtonPadding } onClick={ ()=> this.createNew() } className="struct-add-icon-wrapper"
-                        xlinkHref={ImageUtil.getSVGIconString('check')}> >
+                        xlinkHref={ImageUtil.getSVGIconString('check')}>
                     </image>
             </g>
         );
@@ -244,7 +244,7 @@ class StructDefinition extends React.Component {
                         const type = child.getBType();
                         const identifier = child.getIdentifier();
                         const value = child.getValue();
-                        const y = coDimensions.y + DesignerDefaults.contentOperations.height + DesignerDefaults.structDefinitionStatement.height * i;
+                        const y = coDimensions.y + DesignerDefaults.contentOperations.height + DesignerDefaults.structDefinitionStatement.height * i + 10;
 
                         const typeCellbox = {
                             x: coDimensions.x,
@@ -286,9 +286,12 @@ class StructDefinition extends React.Component {
                               <text x={coDimensions.x + panelPadding + columnSize * 2} y={y + DesignerDefaults.structDefinitionStatement.height/2 + 3}
                                   className="struct-variable-definition-value-text" > {value} </text>
                           </g>
-                             <image x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
-                                    y={y + DesignerDefaults.structDefinitionStatement.height/2} onClick={ ()=> this.deleteStatement(child) }
-                                    className="struct-delete-icon-wrapper" xlinkHref={ImageUtil.getSVGIconString('cancel')}> >
+                            <rect x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
+                                       y={y} onClick={ ()=> this.deleteStatement(child) }
+                                       width="30" height="30" className="parameter-delete-icon-wrapper"/>
+                             <image x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset + 9}
+                                    y={y + 9 } onClick={ ()=> this.deleteStatement(child) }
+                                    width="12" height="12" className="parameter-delete-icon" xlinkHref={ImageUtil.getSVGIconString('cancel')}>
                              </image>
                           </g>
                         )
