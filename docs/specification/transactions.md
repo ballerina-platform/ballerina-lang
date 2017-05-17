@@ -1,12 +1,14 @@
 # Transactions
 
-Transaction processing is information processing that is divided into individual, indivisible operations called transactions. Each transaction must succeed or fail as a complete unit; it can never be only partially complete. There are two types of transactions; local and distributed.
+Transaction processing is information processing that is divided into individual, indivisible operations called transactions. Each transaction must succeed or fail as a complete unit; it can never be only partially complete. 
+
+A transaction is a series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state. It symbolizes a unit of work performed and treated in a coherent and reliable way independent of other transactions. There are two types of transactions; local and distributed.
 
 ## Local Transactions
 
 Local transactions are transactions associated with a particular datasource (this means they are resource-specific). The most common example is a transaction associated with a JDBC connection.
 
-## Distributed Transaction: (Global/XA Transaction)
+## Distributed Transactions: (Global/XA Transactions)
 
 A distributed transaction is a transaction that accesses and updates data on two or more networked resources, and therefore must be coordinated among those resources. This coordination is the function of the transaction manager.
 
