@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from "react";
 import PropTypes from 'prop-types';
 import SimpleBBox from '../ast/simple-bounding-box';
@@ -28,12 +28,19 @@ import ActionBox from "./action-box";
 import ActiveArbiter from './active-arbiter';
 
 class LifeLine extends React.Component {
-    
+
     constructor(props){
         super(props);
         let bBox = this.props.bBox;
         this.topBox = new SimpleBBox( bBox.x, bBox.y, bBox.w , lifeLine.head.height );
         this.state = {active: 'hidden'};
+    }
+
+    onJumptoCodeLine() {
+        const {renderingContext: {ballerinaFileEditor}} = this.context;
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+        ballerinaFileEditor.getSourceView().jumpToLine({});
     }
 
     render() {
@@ -66,7 +73,12 @@ class LifeLine extends React.Component {
                         <text x={ centerX } y={ y2 - titleBoxH / 2 } textAnchor="middle" alignmentBaseline="central"
                               dominantBaseline="central" className="life-line-text genericT unhoverable">{ this.props.title }</text>
                         {this.props.onDelete &&
-                            <ActionBox show={this.state.active} bBox={actionBbox} onDelete={this.onDelete.bind(this)}/>
+                            <ActionBox
+                              show={this.state.active}
+                              bBox={actionBbox}
+                              onDelete={ () => this.props.onDelete() }
+                              onJumptoCodeLine={ ()=> this.onJumptoCodeLine()}
+                            />
                         }
                 </g>);
     }
