@@ -1,8 +1,6 @@
-import ballerina.net.http;
-
 function main (string[] args) {
-    http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090");
-    message response = http:ClientConne<caret>ctor.get (nyseEP, "/nyseStock", m);
+    ClientConnector nyseEP = create ClientConnector("http://localhost:9090");
+    message response = ClientConne<caret>ctor.get (nyseEP, "/nyseStock", m);
 }
 
 @doc:Description {value:"Native HTTP Client Connector"}

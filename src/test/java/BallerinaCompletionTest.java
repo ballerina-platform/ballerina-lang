@@ -465,7 +465,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testInvokingFunctionInDifferentFile1() {
         myFixture.addFileToProject("file.bal", "function test(){}");
         doCheckResult("test.bal", "function main(string[] args){ tes<caret> }",
-                "function main(string[] args){ test() }", null);
+                "function main(string[] args){ test(); }", null);
     }
 
     public void testInvokingFunctionInDifferentFile2() {
