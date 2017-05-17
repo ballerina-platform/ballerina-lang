@@ -118,12 +118,14 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("AllGroupByKeyEvents", allGroupByKeyEvents);
+        synchronized (this) {
+            state.put("AllGroupByKeyEvents", allGroupByKeyEvents);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         allGroupByKeyEvents = (Map<String, ComplexEvent>) state.get("AllGroupByKeyEvents");
     }
 

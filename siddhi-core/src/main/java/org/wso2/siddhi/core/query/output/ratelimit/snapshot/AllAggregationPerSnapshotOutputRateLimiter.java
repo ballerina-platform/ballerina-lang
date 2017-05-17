@@ -116,12 +116,14 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("LastEvent", lastEvent);
+        synchronized (this) {
+            state.put("LastEvent", lastEvent);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         lastEvent = (ComplexEvent) state.get("LastEvent");
     }
 

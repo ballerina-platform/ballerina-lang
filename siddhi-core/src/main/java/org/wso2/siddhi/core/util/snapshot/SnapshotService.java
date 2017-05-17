@@ -58,7 +58,7 @@ public class SnapshotService {
 
     public byte[] snapshot() {
         HashMap<String, Map<String, Object>> snapshots = new HashMap<>(snapshotableMap.size());
-        List<Snapshotable> snapshotableList = new ArrayList<>();
+        List<Snapshotable> snapshotableList;
         byte[] serializedSnapshots;
         if (log.isDebugEnabled()) {
             log.debug("Taking snapshot ...");

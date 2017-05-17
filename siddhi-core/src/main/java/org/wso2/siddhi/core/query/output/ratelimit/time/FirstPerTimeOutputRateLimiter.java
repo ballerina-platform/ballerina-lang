@@ -114,12 +114,14 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("FirstEvent", firstEvent);
+        synchronized (this) {
+            state.put("FirstEvent", firstEvent);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         firstEvent = (ComplexEvent) state.get("FirstEvent");
     }
 

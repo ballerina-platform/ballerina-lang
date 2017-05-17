@@ -272,14 +272,16 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("CurrentEventChunk", currentEventChunk.getFirst());
-        state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
-        state.put("ResetEvent", resetEvent);
+        synchronized (this) {
+            state.put("CurrentEventChunk", currentEventChunk.getFirst());
+            state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
+            state.put("ResetEvent", resetEvent);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         if (expiredEventChunk != null) {
             expiredEventChunk.clear();
             expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));

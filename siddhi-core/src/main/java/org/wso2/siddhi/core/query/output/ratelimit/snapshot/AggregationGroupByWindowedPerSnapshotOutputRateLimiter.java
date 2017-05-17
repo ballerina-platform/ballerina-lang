@@ -36,7 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
                                                                     AggregationWindowedPerSnapshotOutputRateLimiter {
-    private LinkedList<GroupedComplexEvent> eventList;
+    private List<GroupedComplexEvent> eventList;
     private Map<String, Map<Integer, Object>> groupByAggregateAttributeValueMap;
 
     protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService
@@ -132,14 +132,16 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("EventList", eventList);
-        state.put("GroupByAggregateAttributeValueMap", groupByAggregateAttributeValueMap);
+        synchronized (this) {
+            state.put("EventList", eventList);
+            state.put("GroupByAggregateAttributeValueMap", groupByAggregateAttributeValueMap);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
-        eventList = (LinkedList<GroupedComplexEvent>) state.get("EventList");
+    public synchronized void restoreState(Map<String, Object> state) {
+        eventList = (List<GroupedComplexEvent>) state.get("EventList");
         groupByAggregateAttributeValueMap = (Map<String, Map<Integer, Object>>) state.get
                 ("GroupByAggregateAttributeValueMap");
     }

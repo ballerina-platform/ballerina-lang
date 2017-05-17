@@ -197,7 +197,9 @@ public class SiddhiDebugger {
      * @param siddhiDebuggerCallback the SiddhiDebuggerCallback
      */
     public void setDebuggerCallback(SiddhiDebuggerCallback siddhiDebuggerCallback) {
-        this.siddhiDebuggerCallback = siddhiDebuggerCallback;
+        synchronized (this) {
+            this.siddhiDebuggerCallback = siddhiDebuggerCallback;
+        }
     }
 
     /**

@@ -212,13 +212,15 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("CountMap", countMap);
+        synchronized (this) {
+            state.put("CountMap", countMap);
+        }
         return state;
     }
 
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         countMap = (ConcurrentHashMap<String, LossyCount>) state.get("CountMap");
     }
 

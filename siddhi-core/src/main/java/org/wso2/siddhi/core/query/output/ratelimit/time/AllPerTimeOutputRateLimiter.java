@@ -116,12 +116,14 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        synchronized (this) {
+            state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         allComplexEventChunk.clear();
         allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
     }

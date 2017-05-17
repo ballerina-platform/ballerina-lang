@@ -94,8 +94,8 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     private static final String ASC = "asc";
     private static final String DESC = "desc";
     private int lengthToKeep;
-    private ArrayList<StreamEvent> sortedWindow = new ArrayList<StreamEvent>();
-    private ArrayList<Object[]> parameterInfo;
+    private List<StreamEvent> sortedWindow = new ArrayList<StreamEvent>();
+    private List<Object[]> parameterInfo;
     private EventComparator eventComparator;
 
     @Override
@@ -183,14 +183,16 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("SortedWindow", sortedWindow);
+        synchronized (this) {
+            state.put("SortedWindow", sortedWindow);
+        }
         return state;
     }
 
 
     @Override
-    public void restoreState(Map<String, Object> state) {
-        sortedWindow = (ArrayList<StreamEvent>) state.get("SortedWindow");
+    public synchronized void restoreState(Map<String, Object> state) {
+        sortedWindow = (List<StreamEvent>) state.get("SortedWindow");
     }
 
     @Override

@@ -118,12 +118,14 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("EventChunk", eventChunk.getFirst());
+        synchronized (this) {
+            state.put("EventChunk", eventChunk.getFirst());
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         eventChunk.clear();
         eventChunk.add((ComplexEvent) state.get("EventList"));
     }

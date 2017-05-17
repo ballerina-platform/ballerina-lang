@@ -454,20 +454,22 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("StartTime", startTime);
-        state.put("EndTime", endTime);
-        state.put("LastScheduledTime", lastScheduledTime);
-        state.put("LastCurrentEventTime", lastCurrentEventTime);
-        state.put("CurrentEventChunk", currentEventChunk.getFirst());
-        state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
-        state.put("ResetEvent", resetEvent);
-        state.put("Flushed", flushed);
+        synchronized (this) {
+            state.put("StartTime", startTime);
+            state.put("EndTime", endTime);
+            state.put("LastScheduledTime", lastScheduledTime);
+            state.put("LastCurrentEventTime", lastCurrentEventTime);
+            state.put("CurrentEventChunk", currentEventChunk.getFirst());
+            state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
+            state.put("ResetEvent", resetEvent);
+            state.put("Flushed", flushed);
+        }
         return state;
     }
 
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         startTime = (long) state.get("StartTime");
         endTime = (long) state.get("EndTime");
         lastScheduledTime = (long) state.get("LastScheduledTime");

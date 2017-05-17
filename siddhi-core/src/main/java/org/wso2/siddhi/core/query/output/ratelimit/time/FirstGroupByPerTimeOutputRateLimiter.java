@@ -122,13 +122,15 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
-        state.put("GroupByKeys", groupByKeys);
+        synchronized (this) {
+            state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+            state.put("GroupByKeys", groupByKeys);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         allComplexEventChunk.clear();
         allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
         groupByKeys = (List<String>) state.get("GroupByKeys");

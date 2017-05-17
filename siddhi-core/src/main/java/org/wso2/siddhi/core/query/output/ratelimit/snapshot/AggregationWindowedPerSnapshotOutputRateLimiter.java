@@ -42,7 +42,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     protected final Long value;
     protected final ScheduledExecutorService scheduledExecutorService;
     protected String id;
-    private LinkedList<ComplexEvent> eventList;
+    private List<ComplexEvent> eventList;
     protected Comparator<ComplexEvent> comparator;
     protected List<Integer> aggregateAttributePositionList;
     protected Scheduler scheduler;
@@ -169,14 +169,16 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("EventList", eventList);
-        state.put("AggregateAttributeValueMap", aggregateAttributeValueMap);
+        synchronized (this) {
+            state.put("EventList", eventList);
+            state.put("AggregateAttributeValueMap", aggregateAttributeValueMap);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
-        eventList = (LinkedList<ComplexEvent>) state.get("EventList");
+    public synchronized void restoreState(Map<String, Object> state) {
+        eventList = (List<ComplexEvent>) state.get("EventList");
         aggregateAttributeValueMap = (Map<Integer, Object>) state.get("AdgregateAttributeValueMap");
     }
 

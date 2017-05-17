@@ -43,7 +43,7 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
     private final Long value;
     private final ScheduledExecutorService scheduledExecutorService;
     private String id;
-    private LinkedList<ComplexEvent> eventList;
+    private List<ComplexEvent> eventList;
     private Comparator comparator;
     private Scheduler scheduler;
     private long scheduledTime;
@@ -146,13 +146,15 @@ public class WindowedPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimi
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("EventList", eventList);
+        synchronized (this) {
+            state.put("EventList", eventList);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
-        eventList = (LinkedList<ComplexEvent>) state.get("EventList");
+    public synchronized void restoreState(Map<String, Object> state) {
+        eventList = (List<ComplexEvent>) state.get("EventList");
     }
 
 }

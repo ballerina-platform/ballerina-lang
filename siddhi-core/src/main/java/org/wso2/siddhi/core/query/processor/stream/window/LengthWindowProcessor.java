@@ -163,14 +163,16 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("Count", count);
-        state.put("ExpiredEventChunk", expiredEventChunk.getFirst());
+        synchronized (this) {
+            state.put("Count", count);
+            state.put("ExpiredEventChunk", expiredEventChunk.getFirst());
+        }
         return state;
     }
 
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         count = (int) state.get("Count");
         expiredEventChunk.clear();
         expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));

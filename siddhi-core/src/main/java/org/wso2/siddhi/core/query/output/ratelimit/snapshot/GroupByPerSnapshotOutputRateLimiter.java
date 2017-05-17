@@ -113,12 +113,14 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("GroupByKeyEvents", groupByKeyEvents);
+        synchronized (this) {
+            state.put("GroupByKeyEvents", groupByKeyEvents);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         groupByKeyEvents = (Map<String, ComplexEvent>) state.get("groupByKeyEvents");
     }
 
