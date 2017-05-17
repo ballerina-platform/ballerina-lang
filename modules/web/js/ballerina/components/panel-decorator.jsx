@@ -28,12 +28,18 @@ import './panel-decorator.css';
 import {panel} from '../configs/designer-defaults.js';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import {getComponentForNodeArray} from './utils';
+import {util} from '../visitors/sizing-utils'
 
 class PanelDecorator extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {dropZoneActivated: false, dropZoneDropNotAllowed: false, titleEditing: false};
+        this.state = {
+            dropZoneActivated: false,
+            dropZoneDropNotAllowed: false,
+            titleEditing: false,
+            editingTitle: this.props.title,
+        };
     }
 
     onCollapseClick() {
@@ -57,14 +63,26 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleInputBlur() {
-        this.setState({titleEditing: false})
+        this.setState({
+            titleEditing: false,
+            editingTitle: this.props.title
+        })
     }
 
     onTitleInputChange(e) {
-        const modelType = this.props.model.type.replace('Definition', '');
+        this.setState({editingTitle: e.target.value});
+    }
 
-        // Setter functions take form 'setModelTypeName'. eg: setServiceName
-        this.props.model[`set${modelType}Name`](e.target.value);
+    onTitleKeyDown(e) {
+        if(e.keyCode === 13) {
+            const modelType = this.props.model.type.replace('Definition', '');
+
+            // Setter functions take form 'setModelTypeName'. eg: setServiceName
+            this.props.model[`set${modelType}Name`](this.state.editingTitle);
+            this.setState({
+                titleEditing: false,
+            })
+        }
     }
 
     render() {
@@ -93,6 +111,8 @@ class PanelDecorator extends React.Component {
         let annotationString = this.getAnnotationsString(annotations);
         let annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
+        const titleWidth = util.getTextWidth(this.state.editingTitle);
+
         return (<g className="panel">
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
@@ -100,13 +120,14 @@ class PanelDecorator extends React.Component {
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
                 <EditableText
                     x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
-                    width={this.props.model.viewState.titleWidth}
+                    width={titleWidth.w}
                     onBlur={() => { this.onTitleInputBlur() }}
                     onClick={() => { this.onTitleClick() }}
                     editing={this.state.titleEditing}
                     onChange={e => {this.onTitleInputChange(e)}}
-                    placeHolder={this.props.model.viewState.trimmedTitle}>
-                    {this.props.title}
+                    displayText={titleWidth.text}
+                    onKeyDown={e => {this.onTitleKeyDown(e)}}>
+                    {this.state.editingTitle}
                 </EditableText>
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}
                        xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>

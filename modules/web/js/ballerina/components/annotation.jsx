@@ -23,6 +23,7 @@ import {getComponentForNodeArray} from './utils';
 class Annotation extends React.Component {
     constructor(props) {
         super(props);
+        this.state = { selected: false };
     }
 
     render() {
@@ -30,7 +31,10 @@ class Annotation extends React.Component {
         let entries = getComponentForNodeArray(model.children);
         let children = [];
 
-        let key = <td className="annotation-key"><span className="package-name">@{model.getPackageName()}</span>:<span className="identifire">{model.getIdentifier() + " { "}</span></td>;
+        let selectedClass = (this.state.selected)? "active-annotation":"";
+        let removeIcon = (this.state.selected)? <div className="annotation-remove" onClick={this.deleteAnnotation.bind(this)}><i className="fw fw-delete"></i></div>:<span></span>;
+
+        let key = <td className="annotation-key">{removeIcon}<span className="package-name">@{model.getPackageName()}</span>:<span className="identifire">{model.getIdentifier() + " { "}</span></td>;
         if(entries.length == 0){
             children.push(<tr key="1" >{key}<td><span className="annotation-close">{" }"}</span></td></tr>);
         }else if(entries.length == 1){
@@ -44,11 +48,25 @@ class Annotation extends React.Component {
         }
 
 
-        return <table className="annotation-table">
+        return <table className={ "annotation-table " + selectedClass} onMouseEnter={ this.onMouseOver.bind(this) }
+                      onMouseLeave={this.onMouseOut.bind(this)} >
                 <tbody>
                     {children}
                 </tbody>
             </table>;
+    }
+
+
+    onMouseOver(){
+        this.setState({ selected: true });
+    }
+
+    onMouseOut(){
+        this.setState({ selected: false });
+    }
+
+    deleteAnnotation(){
+        this.props.model.parent.removeChild(this.props.model);
     }
 }
 

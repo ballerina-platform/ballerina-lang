@@ -27,6 +27,7 @@ class AssignmentStatement extends Statement {
         super('AssignmentStatement');
         this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
+        this._statementString = _.get(args, 'statementString', '');
     }
 
     /**
@@ -41,6 +42,8 @@ class AssignmentStatement extends Statement {
             self.addChild(child);
             child.initFromJson(childNode);
         });
+
+        this.generateStatementString();
     }
 
     /**
@@ -63,7 +66,9 @@ class AssignmentStatement extends Statement {
     }
 
     generateStatementString(){
-        return this.getChildren()[0].generateExpression() + '=' + this.getChildren()[1].generateExpression();
+        const statementString =  this.getChildren()[0].generateExpression() + '=' + this.getChildren()[1].generateExpression();
+        this.setAttribute('_statementString', statementString);
+        return statementString;
     }
 
     /**

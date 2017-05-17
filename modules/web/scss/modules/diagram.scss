@@ -74,7 +74,15 @@
 
 .import-definition-decorator {
     width: 3px;
-    fill: #f39c12;
+    fill: $brand-primary;
+}
+
+.import-badge {
+    fill: $brand-primary;
+}
+
+.import-badge-text {
+    fill: #fff;
 }
 
 .global-definition-decorator {
@@ -87,14 +95,6 @@
 }
 
 .global-badge-text {
-    fill: #fff;
-}
-
-.import-badge {
-    fill: #f39c12;
-}
-
-.import-badge-text {
     fill: #fff;
 }
 

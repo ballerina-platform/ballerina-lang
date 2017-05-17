@@ -900,3 +900,29 @@ input#package-name-input {
 .annotation-close {
     padding-left: 5px;
 }
+
+.annotation-add{
+    line-height: 20px;
+    color: #999;
+    border: #999 dashed 1px;
+    font-size: 0.9em;
+    padding-left: 10px;
+    width: 120px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.active-annotation{
+    background-color: #dddddd;
+}
+
+.annotation-remove{
+    display: inline-block;
+    padding-right: 5px;
+    color: #b9b9b9;
+    cursor: pointer;
+}
+
+.annotation-remove :hover{
+    color: black;
+}

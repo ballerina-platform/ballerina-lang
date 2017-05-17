@@ -142,7 +142,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
         return (
             <TagController key={model.getID()} model={model} setter={this.addReturnParameter}
                            validateInput={this.validateInput} modelComponents={children}
-                           componentData={componentData}/>
+                           componentData={componentData} groupClass="return-parameter-group"/>
         );
     }
 }

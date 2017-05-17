@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+let keyIndex = 0;
 
 class AnnotationContainer {
 
@@ -24,7 +25,8 @@ class AnnotationContainer {
     }
 
     getID(){
-        return this.annotations[0].getID() + "-container";
+        keyIndex = keyIndex + 1;
+        return "annotation-container-" + keyIndex ;
     }
 
 }

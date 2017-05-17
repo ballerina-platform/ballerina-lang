@@ -348,7 +348,7 @@ class SizingUtil {
             components['body'].h = bodyHeight;
         }
         if (node.viewState.annotationViewCollapsed) {
-            components['annotation'].h = 25;
+            components['annotation'].h = 22;
         } else {
             components['annotation'].h = annotationHeight;
         }
@@ -575,11 +575,16 @@ class SizingUtil {
 
         _.forEach(annotations, (annotation) => {
             if(annotation.children.length == 0 ){
-                height = height + 25;
+                height = height + 20;
             }else{
-                height = height + ( annotation.children.length * 25 )
+                height = height + ( annotation.children.length * 20 )
             }
         });
+        
+        //add padding
+        height = height + 7 * 2;
+        // add a gap for add new annotation.
+        height = height + 25;
 
         return height;
     }

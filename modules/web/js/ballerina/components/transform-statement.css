@@ -9,13 +9,6 @@
     margin: auto;
     padding: 10px;
 }
-.source-view {
-    width: 50%;
-    float: left;
-}
-.target-view {
-    margin-left: 70%;
-}
 
 .data-mapper-container {
     position: relative;
@@ -84,14 +77,6 @@ svg.plumbConnect path {
 
 .jstree-default .jstree-hovered {
     color : #000000;
-}
-
-.jstree-default .jstree-leaf>.jstree-ocl {
-    background-position: -69px 0px;
-}
-
-.jstree-default .jstree-clicked {
-    color: #000000;
 }
 
 .jstree-default .jstree-anchor {

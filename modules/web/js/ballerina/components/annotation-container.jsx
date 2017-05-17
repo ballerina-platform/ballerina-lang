@@ -23,6 +23,7 @@ import {getComponentForNodeArray} from './utils';
 class AnnotationContainer extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {annotationSelect: false , text: ''};        
     }
 
     render() {
@@ -34,8 +35,26 @@ class AnnotationContainer extends React.Component {
             width: bBox.w,
             height: bBox.h            
         };
+
+
         let annotations = getComponentForNodeArray(this.props.model.annotations);
-        return <div style={style} className="annotation-container">{annotations}</div>;
+        return <div style={style} className="annotation-container">
+                    {annotations}
+                    { this.state.annotationSelect ? 
+                        <input autoFocus type="text" defaultValue="another" onBlur={this.onBlurHandle.bind(this)}/> 
+                        :
+                        <div className="annotation-add"  
+                            onClick={this.addAnnotation.bind(this)}> + Add Annotation</div>
+                    }
+               </div>;
+    }
+
+    addAnnotation(e){
+        this.setState({annotationSelect: true, text: ""});
+    }
+
+    onBlurHandle(e){
+        this.setState({annotationSelect: false, text: ""});
     }
 }
 
