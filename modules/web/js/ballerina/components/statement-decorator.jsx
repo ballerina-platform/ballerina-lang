@@ -302,6 +302,7 @@ class StatementDecorator extends React.Component {
 		messageManager.startDrawMessage(function (source, destination) {
 			source.setConnector(destination);
 			model.generateStatementString();
+			model.trigger('tree-modified', {type:'custom', title:'action set'});
 		});
 	}
 
