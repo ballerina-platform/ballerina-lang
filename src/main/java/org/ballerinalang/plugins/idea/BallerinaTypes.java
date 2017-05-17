@@ -77,6 +77,7 @@ public class BallerinaTypes {
     public static RuleIElementType TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_typeName);
     public static RuleIElementType EXPRESSION = ruleIElementTypes.get(BallerinaParser.RULE_expression);
     public static RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(BallerinaParser.RULE_returnParameters);
+    public static RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_valueTypeName);
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
@@ -97,7 +98,6 @@ public class BallerinaTypes {
     public static TokenIElementType IMPORT = tokenIElementTypes.get(BallerinaLexer.IMPORT);
     public static TokenIElementType ITERATE = tokenIElementTypes.get(BallerinaLexer.ITERATE);
     public static TokenIElementType JOIN = tokenIElementTypes.get(BallerinaLexer.JOIN);
-    public static TokenIElementType NULL = tokenIElementTypes.get(BallerinaLexer.NULL);
     public static TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
     public static TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
     public static TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);
