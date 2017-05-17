@@ -258,12 +258,12 @@ class TransformStatementDecorator extends React.Component {
                 var con = {};
                 con.id = assignments.id;
                 con.sourceStruct = assignments.getChildren()[1].getChildren()[0].getChildren()[0].getVariableName();
-                con.sourceProperty = [assignments.getChildren()[1].getChildren()[0].getChildren()[1].getExpression()];
+                con.sourceProperty = [assignments.getChildren()[1].getChildren()[0].getChildren()[1].getChildren()[0].getBasicLiteralValue()];
                 var sourceStruct = _.find(self.predefinedStructs, { name:con.sourceStruct});
                 var sourceProp = _.find(sourceStruct.properties, { name:con.sourceProperty[0]});
                 con.sourceType = sourceProp.type;
                 con.targetStruct = assignments.getChildren()[0].getChildren()[0].getChildren()[0].getVariableName();
-                con.targetProperty = [assignments.getChildren()[0].getChildren()[0].getChildren()[1].getExpression()];
+                con.targetProperty = [assignments.getChildren()[0].getChildren()[0].getChildren()[1].getChildren()[0].getBasicLiteralValue()];
                 var targetStruct = _.find(self.predefinedStructs, { name:con.targetStruct});
                 var targetProp = _.find(targetStruct.properties, { name:con.targetProperty[0]});
                 con.targetType = targetProp.type;
@@ -493,10 +493,9 @@ class TransformStatementDecorator extends React.Component {
     	var structExpression = BallerinaASTFactory.createFieldAccessExpression();
     	var structName =  BallerinaASTFactory.createVariableReferenceExpression();
     	var structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
-    	var structProperty = BallerinaASTFactory.createVariableReferenceExpression();
+		var structProperty = BallerinaASTFactory.createBasicLiteralExpression({basicLiteralType:'string', basicLiteralValue:property});
 
     	structName.setVariableName(name);
-    	structProperty.setVariableName(property);
 
     	structPropertyHolder.addChild(structProperty);
     	structExpression.addChild(structName);
