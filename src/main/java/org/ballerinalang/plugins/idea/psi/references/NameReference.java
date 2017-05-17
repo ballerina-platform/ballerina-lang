@@ -35,6 +35,7 @@ import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -70,7 +71,8 @@ public class NameReference extends BallerinaElementReference {
         return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
                 || def instanceof StructDefinitionNode || def instanceof VariableDefinitionNode
                 || def instanceof AnnotationDefinitionNode || def instanceof GlobalVariableDefinitionNode
-                || def instanceof ConstantDefinitionNode || def instanceof ParameterNode;
+                || def instanceof ConstantDefinitionNode || def instanceof ParameterNode
+                || def instanceof FieldDefinitionNode || def instanceof NameReferenceNode;
     }
 
     @NotNull
@@ -164,6 +166,13 @@ public class NameReference extends BallerinaElementReference {
                 for (PsiElement connector : connectors) {
                     if (getElement().getText().equals(connector.getText())) {
                         results.add(new PsiElementResolveResult(connector));
+                    }
+                }
+
+                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(directory);
+                for (PsiElement struct : structs) {
+                    if (getElement().getText().equals(struct.getText())) {
+                        results.add(new PsiElementResolveResult(struct));
                     }
                 }
 
@@ -338,16 +347,27 @@ public class NameReference extends BallerinaElementReference {
                     return false;
                 }
 
-                PsiElement prevSibling = variableReferenceNode.getPrevSibling();
-                if (prevSibling != null) {
+                while (variableReferenceNode != null) {
 
-                    if (prevSibling instanceof LeafPsiElement) {
-                        IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
-                        if (elementType == BallerinaTypes.DOT) {
-                            return false;
+                    PsiElement prevSibling = variableReferenceNode.getPrevSibling();
+                    if (prevSibling != null) {
+
+                        if (prevSibling instanceof LeafPsiElement) {
+                            IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                            if (elementType == BallerinaTypes.DOT) {
+                                return false;
+                            }
                         }
                     }
+
+                    PsiElement variableReferenceNodeParent = variableReferenceNode.getParent();
+                    if (variableReferenceNodeParent instanceof VariableReferenceNode) {
+                        variableReferenceNode = ((VariableReferenceNode) variableReferenceNodeParent);
+                    } else {
+                        variableReferenceNode = null;
+                    }
                 }
+
 
                 ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(myElement, ExpressionNode.class);
                 if (expressionNode != null) {
@@ -373,6 +393,19 @@ public class NameReference extends BallerinaElementReference {
                     }
                 }
                 return isValid((PsiNameIdentifierOwner) definitionElement, refName);
+            } else if (definitionElement instanceof FieldDefinitionNode) {
+                PsiReference reference = myElement.getReference();
+                if (reference == null) {
+                    return false;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    return false;
+                }
+
+                return resolvedElement.getParent().equals(definitionElement);
+            } else if (definitionElement instanceof NameReferenceNode) {
+
             }
         }
         return false;

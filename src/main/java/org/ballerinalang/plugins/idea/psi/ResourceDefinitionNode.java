@@ -19,10 +19,8 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -42,8 +40,7 @@ public class ResourceDefinitionNode extends IdentifierDefSubtree implements Scop
             // cause issues when using find usage, etc. So use BallerinaPsiImplUtil.resolveElement() instead.
             return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
         } else if (element.getParent() instanceof NameReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/Identifier");
+            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
         }
         return null;
     }

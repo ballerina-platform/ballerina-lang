@@ -30,6 +30,7 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,19 +48,47 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
     public PsiElement resolve(PsiNamedElement element) {
         // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
         // cause issues when using find usage, etc.
-        if (element.getParent() instanceof NameReferenceNode) {
+        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
+
             VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
                     VariableReferenceNode.class);
             if (variableReferenceNode == null) {
+
+                PsiElement prevToken = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                        .getContainingFile(), element.getTextOffset());
+
+                if (prevToken instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
+                    if (elementType == BallerinaTypes.DOT) {
+
+                        PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                                .getContainingFile(), prevToken.getTextOffset());
+
+                        return BallerinaPsiImplUtil.resolveField(element, prevSibling);
+
+                    }
+                }
                 return null;
             }
-            PsiElement prevSibling = variableReferenceNode.getPrevSibling();
-            if (prevSibling != null) {
-                if (prevSibling instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
-                    if (elementType == BallerinaTypes.DOT) {
-                        return null;
+
+            while (variableReferenceNode != null) {
+
+                PsiElement prevSibling = variableReferenceNode.getPrevSibling();
+                if (prevSibling != null) {
+
+                    if (prevSibling instanceof LeafPsiElement) {
+                        IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                        if (elementType == BallerinaTypes.DOT) {
+                            return null;
+                        }
                     }
+                }
+
+                PsiElement variableReferenceNodeParent = variableReferenceNode.getParent();
+                if (variableReferenceNodeParent instanceof VariableReferenceNode) {
+                    variableReferenceNode = ((VariableReferenceNode) variableReferenceNodeParent);
+                } else {
+                    variableReferenceNode = null;
                 }
             }
 
