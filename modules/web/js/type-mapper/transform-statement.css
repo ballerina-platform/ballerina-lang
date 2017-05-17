@@ -1,0 +1,256 @@
+.btn-add {
+    color:#446191;
+}
+.btn-remove {
+    color:#3d3d3d;
+    float:right;
+}
+.selector {
+    margin: auto;
+    padding: 10px;
+}
+.source-view {
+    width: 50%;
+    float: left;
+}
+.target-view {
+    margin-left: 70%;
+}
+
+.data-mapper-container {
+    position: relative;
+    width: 100%;
+    height: 100px;
+}
+.property-name {
+    padding: 5px;
+    color: #3d3d3d;
+}
+
+.property-type {
+    padding: 5px;
+    color: #3d3d3d;
+}
+
+.type-mapper-icon {
+    padding: 10px;
+}
+
+.leftType {
+    border: 1px solid gray;
+    width: 400px;
+    min-height: 400px;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    color: #3d3d3d;
+    float: left;
+    position: relative;
+}
+
+.rightType {
+    border: 1px solid gray;
+    width: 400px;
+    min-height: 400px;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    color: #3d3d3d;
+    position: relative;
+    float: right;
+}
+
+.struct {
+    border: 1px solid gray;
+    width: 400px;
+    height: auto;
+    background: #3d3d3d;
+    color: #ffffff;
+    position: absolute;
+}
+.property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    color: black;
+}
+
+svg.plumbConnect path {
+    stroke:#3d3d3d;
+}
+
+.jstree-default .jstree-last {
+    background: #ffffff;
+}
+
+.typeMapperList {
+    display: none;
+}
+
+.tree-container{
+    background: #ffffff;
+}
+
+.jstree-default .jstree-hovered {
+    color : #000000;
+}
+
+.jstree-default .jstree-leaf>.jstree-ocl {
+    background-position: -69px 0px;
+}
+
+.jstree-default .jstree-clicked {
+    background : #ffffff;
+    color: #000000;
+}
+
+.jstree-default .jstree-anchor {
+    line-height: 24px;
+    height: 28px;
+}
+
+.func {
+    border: 1px solid gray;
+    width: 400px;
+    height: auto;
+    background: #3d3d3d;
+    color: #ffffff;
+    position: absolute;
+}
+
+.func-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    border: 2px;
+    color: black;
+}
+
+.func-in-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    border: 2px;
+    color: black;
+    cursor: pointer;
+}
+
+.func-out-property {
+    padding: 2;
+    font-size: 16px;
+    background-color: #ffffff;
+    border: 2px;
+    color: black;
+    cursor: pointer;
+}
+
+.jstree-themeicon {
+    display:none !important;
+}
+
+.transformContextMenu {
+    position:fixed;
+    border: 1px solid black;
+    padding:5px;
+    display:none;
+}
+
+.func-output {
+    width:200px;
+    height:calc(100% - 33px);
+    border: 0.5px solid gray;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    background-color: transparent;
+    color: #446191;
+    position:absolute; right:0
+
+}
+
+.type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
+    top:10px;
+    left:10px;
+    width:370px;
+    position:absolute;
+}
+
+.transformOverlay {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+
+.transformOverlay-content {
+    background-color: #fefefe;
+    margin: auto;
+    border: 1px solid #888;
+    width: 80%;
+    min-width: 900px;
+}
+
+/* The Close Button */
+.close-transform {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    padding-right: 10px;
+}
+
+.close-transform:hover,
+.close-transform:focus {
+    color: #f2f2f2;
+    text-decoration: none;
+    cursor: pointer;
+    padding-right: 10px;
+}
+
+.transform-header {
+    width : 100%;
+    height: 40px;
+    background-color:#343434;
+}
+
+.transform-header-text {
+    color:white;
+    padding:5px;
+    font-size: 14px;
+}
+
+.transform-action {
+    cursor: pointer;
+    text-anchor: middle;
+    dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
+}
+
+.transform-statement-rect {
+    cursor: pointer;
+    fill: #ffffff;
+    stroke: #000000;
+    stroke-width: 1;
+}
+
+.transform-action-icon {
+    cursor: pointer;
+}
+
+.transform-header-icon {
+    padding: 6px 5px 5px;
+    background-color:#343434;
+    font-size: 16px;
+    width: 27px;
+}

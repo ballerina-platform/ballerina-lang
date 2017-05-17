@@ -45,7 +45,7 @@ define(['ast/ballerina-ast-factory'], function (BallerinaASTFactory) {
 
         //Adding resource argument
         var resourceArgument_m = ballerinaASTFactory.createResourceArgument();
-        resourceArgument_m.setType("message");
+        resourceArgument_m.setBType("message");
         resourceArgument_m.setIdentifier("m");
         resource_passthrough.addArgument("message", "m");
 

@@ -20,7 +20,7 @@
     background-image: url(./images/debug-point.svg);
     background-size: 10px 10px;
     background-repeat: no-repeat;
-    background-position: 5 center;
+    background-position: 5px center;
 }
 .ace_gutter-cell.ace_breakpoint.ace_error{
   background: rgba(255, 181, 163, 0.2);
@@ -146,7 +146,7 @@ table.debug-frames {
     color: white;
 }
 
-.highlight-statement{
+.statement-rect.debug-hit{
     fill: #b2d4ff;
 }
 

@@ -19,6 +19,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
 import BallerinaAstFactory from './ballerina-ast-factory';
+import SimpleBBox from './simple-bounding-box';
 
 /**
  * Constructor for the ASTNode
@@ -37,17 +38,36 @@ class ASTNode extends EventChannel {
         // TODO : Rename this to bType.
         this.type = type;
         this.id = uuid();
-        this.on('tree-modified', function(event){
-            if(!_.isNil(this.parent)){
+        this.on('tree-modified', function (event) {
+            if (!_.isNil(this.parent)) {
                 this.parent.trigger('tree-modified', event);
             } else {
-              log.debug("Cannot find the parent node to propagate tree modified event up. Node: " + this.getType()
-                  + ", EventType: " + event.type + ", EventTitle: " + event.title)
+                log.debug("Cannot find the parent node to propagate tree modified event up. Node: " + this.getType() +
+                    ", EventType: " + event.type + ", EventTitle: " + event.title);
             }
         });
 
         this._generateUniqueIdentifiers = undefined;
-        this._whitespaceTokens = [];
+        this.whiteSpaceDescriptor = {};
+        this.shouldCalculateIndentation = true;
+
+        /**
+         * View State Object to keep track of the model's view properties
+         * @type {{bBox: SimpleBBox, components: {}, dimensionsSynced: boolean}}
+         */
+        this.viewState = {
+            bBox: new SimpleBBox(),
+            components: {},
+            dimensionsSynced: false
+        }
+    }
+
+    /**
+     * Get the node's view state
+     * @return {{bBox: BBox}} node's view state
+     */
+    getViewState(){
+        return this.viewState;
     }
 
     getParent() {
@@ -83,10 +103,11 @@ class ASTNode extends EventChannel {
      * @param child
      * @param index
      * @param ignoreTreeModifiedEvent {boolean}
+     * @param ignoreChildAddedEvent {boolean}
      * @fires  ASTNode#child-added
      * @fires  ASTNode#tree-modified
      */
-    addChild(child, index, ignoreTreeModifiedEvent) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false) {
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
@@ -94,15 +115,19 @@ class ASTNode extends EventChannel {
         }
 
         //setting the parent node - doing silently avoid subsequent change events
-        child.setParent(this, {doSilently:true});
+        child.setParent(this, {
+            doSilently: true
+        });
         child.generateUniqueIdentifiers();
 
-        /**
-         * @event ASTNode#child-added
-         */
-        this.trigger('child-added', child, index);
+        if (!ignoreChildAddedEvent) {
+            /**
+             * @event ASTNode#child-added
+             */
+            this.trigger('child-added', child, index);
+        }
 
-        if(!ignoreTreeModifiedEvent) {
+        if (!ignoreTreeModifiedEvent) {
             /**
              * @event ASTNode#tree-modified
              */
@@ -135,7 +160,7 @@ class ASTNode extends EventChannel {
                  */
                 this.trigger("child-removed", child);
 
-                if(!ignoreTreeModifiedEvent){
+                if (!ignoreTreeModifiedEvent) {
                     /**
                      * @event ASTNode#tree-modified
                      */
@@ -169,7 +194,7 @@ class ASTNode extends EventChannel {
      */
     removeChildById(id, ignoreTreeModifiedEvent) {
         var child = this.getChildById(id);
-        this.removeChild(child,ignoreTreeModifiedEvent);
+        this.removeChild(child, ignoreTreeModifiedEvent);
     }
 
     /**
@@ -177,17 +202,17 @@ class ASTNode extends EventChannel {
      * @param visitor {ASTVisitor}
      */
     accept(visitor) {
-        if(visitor.canVisit(this)) {
+        if (visitor.canVisit(this)) {
             visitor.beginVisit(this);
-            var self = this;
+            visitor.visit(this);
             _.forEach(this.children, function (child) {
-                if(child){
-                    // visit current child
+                if (child) {
                     visitor.visit(child);
-                    self.trigger("child-visited", child);
                     // forward visitor down the hierarchy to visit children of current child
                     // if visitor doesn't support visiting children of current child, it will break
-                    child.accept(visitor);
+                    if(visitor.canVisit(child)) {
+                        child.accept(visitor);
+                    }
                 }
             });
             visitor.endVisit(this);
@@ -239,13 +264,24 @@ class ASTNode extends EventChannel {
     filterChildren(predicateFunction) {
         return _.filter(this.getChildren(), predicateFunction);
     }
-    
+
     /**
      * Find matching child from the predicate function+
      * @param predicateFunction a function returning a boolean to match find condition from children
      */
     findChild(predicateFunction) {
         return _.find(this.getChildren(), predicateFunction);
+    }
+
+    /**
+     * Remove matching child from the predicate function
+     * @param predicateFunction a function returning a boolean to match remove condition from children
+     * @param name of child to remove
+     */
+    removeChildByName(predicateFunction, name) {
+        _.remove(this.getChildren(), function (child) {
+            return predicateFunction && (child.getName() === name);
+        });
     }
 
     /**
@@ -276,7 +312,7 @@ class ASTNode extends EventChannel {
         _.set(this, attributeName, newValue);
 
         // fire change event with necessary callbacks for undo/redo
-        if(_.isNil(options) || !options.doSilently){
+        if (_.isNil(options) || !options.doSilently) {
             var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
             /**
              * @event ASTNode#tree-modified
@@ -291,16 +327,20 @@ class ASTNode extends EventChannel {
                     newValue: newValue,
                     oldValue: oldValue
                 },
-                undo: function(){
-                    this.setAttribute(attributeName, oldValue, {doSilently: true});
-                    if (_.has(options, 'undoCallBack') && _.isFunction(options.undoCallBack)){
+                undo: function () {
+                    this.setAttribute(attributeName, oldValue, {
+                        doSilently: true
+                    });
+                    if (_.has(options, 'undoCallBack') && _.isFunction(options.undoCallBack)) {
                         var undoCallBack = _.get(options, 'undoCallBack');
                         undoCallBack();
                     }
                 },
-                redo: function(){
-                    this.setAttribute(attributeName, newValue, {doSilently: true});
-                    if (_.has(options, 'redoCallBack') && _.isFunction(options.redoCallBack)){
+                redo: function () {
+                    this.setAttribute(attributeName, newValue, {
+                        doSilently: true
+                    });
+                    if (_.has(options, 'redoCallBack') && _.isFunction(options.redoCallBack)) {
                         var redoCallBack = _.get(options, 'redoCallBack');
                         redoCallBack();
                     }
@@ -334,7 +374,7 @@ class ASTNode extends EventChannel {
 
         // Check if a value already exists for the given key
         var existingValueIndex = -1;
-        if(_.has(options, 'predicate')) {
+        if (_.has(options, 'predicate')) {
             existingValueIndex = _.findIndex(currentArray, options.predicate);
         }
 
@@ -351,7 +391,7 @@ class ASTNode extends EventChannel {
         }
 
         // fire change event with necessary callbacks for undo/redo
-        if(_.isNil(options) || !options.doSilently){
+        if (_.isNil(options) || !options.doSilently) {
             var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
             /**
              * @event ASTNode#tree-modified
@@ -361,22 +401,22 @@ class ASTNode extends EventChannel {
                 type: 'custom',
                 title: title,
                 context: this,
-                undo: function(){
+                undo: function () {
                     var currentArray = _.get(this, arrAttrName);
                     if (existingValueIndex === -1) {
                         // A value with this key did not exist. So remove it.
                         _.remove(currentArray, options.predicate);
                     } else {
                         this.pushToArrayAttribute(arrAttrName, existingValue, {
-                          predicate: options.predicate,
-                          doSilently: true
+                            predicate: options.predicate,
+                            doSilently: true
                         });
                     }
                 },
-                redo: function() {
+                redo: function () {
                     this.pushToArrayAttribute(arrAttrName, newValue, {
-                      predicate: options.predicate,
-                      doSilently: true
+                        predicate: options.predicate,
+                        doSilently: true
                     });
                 }
             });
@@ -398,11 +438,27 @@ class ASTNode extends EventChannel {
      * @param [options.ignoreTreeModifiedEvent=false] {boolean} a flag to prevent tree-modified event being fired
      */
     remove(options) {
-        if(!_.isNil(this.getParent())){
+        if (!_.isNil(this.getParent())) {
             this.trigger('before-remove');
             this.getParent().removeChild(this, _.get(options, 'ignoreTreeModifiedEvent'));
             this.trigger('after-remove');
         }
+    }
+
+    addBreakpoint() {
+        this.isBreakpoint = true;
+    }
+
+    removeBreakpoint() {
+        this.isBreakpoint = false;
+    }
+
+    addDebugHit() {
+        this.setAttribute('isDebugHit', true);
+    }
+
+    removeDebugHit() {
+        this.setAttribute('isDebugHit', false);
     }
 
     setLineNumber(lineNumber, options) {
@@ -418,57 +474,74 @@ class ASTNode extends EventChannel {
      */
     generateUniqueIdentifiers() {}
 
-    /**
-     * Returned array will contain all the whitespace tokens associated with this particular node. Each token's position in
-     * the array is mapped to the index of possible whitespace region for the language construct - which is represented
-     * by this particular node - as defined in ballerina grammar.
-     *
-     * For example, take a look at possible whitespace regions in a package declaration
-     *        package<-0->org.ballerina.sample<-1->;<-2->//until next token start
-     *
-     *        It has three possible regions as below
-     *        0 - whitespace between 'package' keyword and package name start
-     *        1 - whitespace between package name end and semicolon
-     *        2 - whitespace between semicolon and next token start
-     *
-     * All nodes will carry whitespace tokens from it's end position to next token's start position. The very first node
-     * of AST will contain the whitespace from the beginning of the file to start position of node.
-     *
-     * @return {Array} The array of whitespace tokens associated with this node
+    getWhiteSpaceDescriptor() {
+        return this.whiteSpaceDescriptor;
+    }
+
+    setWhiteSpaceDescriptor(whiteSpaceDescriptor, options) {
+        this.setAttribute('whiteSpaceDescriptor', whiteSpaceDescriptor, options);
+    }
+
+    /** Gets the children of a specific type.
+     * @param  {function} typeCheckFunction The function thats used for type checking. Example: BallerinaASTFactory.isConnectorDeclaration
+     * @return {ASTNode[]}                   An array of children.
      */
-    getWhitespaceTokens() {
-        return this._whitespaceTokens;
+    getChildrenOfType(typeCheckFunction) {
+        return _.filter(this.getChildren(), function (child) {
+            return typeCheckFunction.call(child.getFactory(), child);
+        });
     }
 
     /**
-     * Sets whitespace tokens related to this particular node
-     *
-     * @param tokens {Array}
-     *                      This array should contain all the whitespace tokens associated with this particular node. Each token's position in
-     *                      the array is mapped to the index of possible whitespace region for the language construct - which is represented
-     *                      by this particular node - as defined in ballerina grammar.
-     *
-     *                      For example, take a look at possible whitespace regions in a package declaration
-     *                             package<-0->org.ballerina.sample<-1->;<-2->//until next token start
-     *
-     *                             It has three possible regions as below
-     *                             0 - whitespace between 'package' keyword and package name start
-     *                             1 - whitespace between package name end and semicolon
-     *                             2 - whitespace between semicolon and next token start
-     *
-     *                      As explained above, in addition to whitespace tokens inside it's own structure, all nodes will carry whitespace
-     *                      tokens from it's end position to next token's start position.   The very first node
-     *                      of AST will contain the whitespace from the beginning of the file to start position of node.
-     *
-     * @param options
+     * Fills in the pathVector array with location/position of node by traversing through it's children. Important: The
+     * return array is inverted.
+     * @param {ASTNode} node The node of which the path to be found.
+     * @param {number[]} pathVector An array
      */
-    setWhitespaceTokens(tokens, options) {
-        this.setAttribute('_whitespaceTokens', tokens, options);
+    getPathToNode(node, pathVector) {
+        let nodeParent = node.getParent();
+        if (!_.isNil(nodeParent)) {
+            let nodeIndex = _.findIndex(nodeParent.getChildren(), node);
+            pathVector.push(nodeIndex);
+            this.getPathToNode(nodeParent, pathVector);
+        }
+    }
+
+    /**
+     * Gets the node by vector which travers through node's children.
+     * @param {ASTNode} root The node to be traversed.
+     * @param {number[]} pathVector A reversed array of the position of the node to be found.
+     * @return {ASTNode|undefined}
+     */
+    getNodeByVector(root, pathVector) {
+        let returnNode = root;
+        let reverseVector = _.reverse(pathVector);
+
+        _.forEach(reverseVector, function (index) {
+            returnNode = returnNode.getChildren()[index];
+        });
+        return returnNode;
+    }
+
+    /**
+     * This returns the top level parent (should be Resource, action definition, function definition or worker declaration
+     * @returns {ASTNode} Parent Node
+     */
+    getTopLevelParent() {
+        const parent = this.getParent();
+        if (BallerinaAstFactory.isResourceDefinition(parent) || BallerinaAstFactory.isResourceDefinition(parent) ||
+            BallerinaAstFactory.isConnectorAction(parent) || BallerinaAstFactory.isFunctionDefinition(parent) ||
+            BallerinaAstFactory.isWorkerDeclaration(parent)) {
+
+            return parent;
+        } else {
+            return parent.getTopLevelParent();
+        }
     }
 }
 
 // Auto generated Id for service definitions (for accordion views)
-var uuid =  function (){
+var uuid = function () {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
             .toString(16)

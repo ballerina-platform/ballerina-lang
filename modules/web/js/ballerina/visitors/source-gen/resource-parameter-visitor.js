@@ -42,10 +42,9 @@ class ResourceParameterVisitor extends AbstractSourceGenVisitor {
 
     endVisitResourceParameter(resourceParameter) {
        this.appendSource(' ' + resourceParameter.getIdentifier() + ')');
-       this.getParent().appendSource(this.getGeneratedSource());
+       this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
        log.debug('End Visit Resource Parameter');
     }
 }
 
 export default ResourceParameterVisitor;
-    

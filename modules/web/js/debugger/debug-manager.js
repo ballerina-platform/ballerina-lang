@@ -30,8 +30,8 @@ class DebugManager extends EventChannel {
         this.channel = undefined;
         this.active = false;
 
-        this.on('breakpoint-added', () => { this.publishBreakPoints(); });
-        this.on('breakpoint-removed', () => { this.publishBreakPoints(); });
+        this.on('breakpoint-added', () => { this.publishBreakpoints(); });
+        this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
     }
 
     stepIn() {
@@ -93,21 +93,20 @@ class DebugManager extends EventChannel {
 
     connect(url) {
         if(url !== undefined || url !== ''){
-            this.channel = new Channel({ endpoint: `ws://${url}/debug` , debugger: this});
+            this.channel = new Channel({ endpoint: url , debugger: this});
             this.channel.connect();
         }
     }
 
-    startDebugger(port) {
-        const url =  `localhost:${port}`;
+    startDebugger(url) {
         this.connect(url);
     }
 
     init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
-        this.launchManager.on('debug-active', port => {
-            this.startDebugger(port);
+        this.launchManager.on('debug-active', url => {
+            this.startDebugger(url);
         });
     }
 
@@ -127,7 +126,7 @@ class DebugManager extends EventChannel {
         this.trigger('breakpoint-removed', fileName);
     }
 
-    publishBreakPoints() {
+    publishBreakpoints() {
         try{
             const message = { 'command': 'SET_POINTS', points: this.debugPoints };
             this.channel.sendMessage(message);
@@ -162,7 +161,7 @@ class DebugManager extends EventChannel {
             return item.fileName === fileName;
         });
         log.debug('removed all debugpoints for fileName', fileName);
-        this.publishBreakPoints();
+        this.publishBreakpoints();
     }
 
     createDebugPoint(lineNumber, fileName) {

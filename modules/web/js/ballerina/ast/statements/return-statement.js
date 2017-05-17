@@ -68,7 +68,7 @@ class ReturnStatement extends Statement {
             expression += child.getExpression();
 
             if (itr !== jsonNode.children.length - 1) {
-                expression += " , ";
+                expression += ", ";
             }
         }
         this.setExpression(expression, {doSilently: true});
@@ -76,4 +76,3 @@ class ReturnStatement extends Statement {
 }
 
 export default ReturnStatement;
-

@@ -24,7 +24,7 @@ import Statement from './statements/statement';
  */
 class Assignment extends Statement {
     constructor(args) {
-        super('Assignment');
+        super('AssignmentStatement');
         this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._expression = 'a = b';
     }

@@ -51,7 +51,7 @@ class ReturnTypeView extends BallerinaView {
         var returnTypeWrapper = $("<div/>", {
             id: this.getModel().getID(),
             class: "return-types-detail-wrapper",
-            text: this.getModel().getArgumentAsString()
+            text: this.getModel().getParameterDefinitionAsString()
         }).data("model", this.getModel()).appendTo(this.getContainer());
 
         this._returnTypeWrapper = returnTypeWrapper.get(0);
@@ -116,7 +116,7 @@ class ReturnTypeView extends BallerinaView {
 
         // Setting a default value for @PathParam and updating model when changed.
         $(returnTypeDropdown).change(function () {
-            self.getModel().setType($(this).val());
+            self.getModel().setBType($(this).val());
         });
 
         if (!_.isUndefined(this.getModel().getIdentifier())) {

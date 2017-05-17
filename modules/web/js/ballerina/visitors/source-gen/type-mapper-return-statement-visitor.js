@@ -42,9 +42,9 @@ class TypeMapperReturnStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     endVisitReturnStatement(returnStatement) {
-        this.appendSource(";\n");
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Type Mapper Return Statement Definition');
+//        this.appendSource(";\n");
+//        this.getParent().appendSource(this.getGeneratedSource());
+//        log.debug('End Visit Type Mapper Return Statement Definition');
     }
 
     visitExpression(expression) {
@@ -56,4 +56,3 @@ class TypeMapperReturnStatementVisitor extends AbstractStatementSourceGenVisitor
 }
 
 export default TypeMapperReturnStatementVisitor;
-    

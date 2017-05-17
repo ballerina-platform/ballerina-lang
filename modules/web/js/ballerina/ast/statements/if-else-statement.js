@@ -21,6 +21,7 @@ import Statement from './statement';
 import ElseStatement from './else-statement';
 import ElseIfStatement from './else-if-statement';
 import IfStatement from './if-statement';
+import BallerinaASTFactory from './../ballerina-ast-factory';
 
 /**
  * Class for if conditions in ballerina.
@@ -35,9 +36,8 @@ class IfElseStatement extends Statement {
         this.addChild(ifStatement);
         this._ifStatement = ifStatement;
 
-        var elseStatement = new ElseStatement(args);
-        this._elseStatement = elseStatement;
-        this.addChild(elseStatement);
+        this._elseStatement = new ElseStatement();
+        this.addChild(this._elseStatement);
 
         this._elseIfStatements = [];
         this.type = "IfElseStatement";
@@ -82,10 +82,33 @@ class IfElseStatement extends Statement {
     }
 
     /**
+     * Override the addChild method for ordering the child elements
+     * @param {ASTNode} child
+     * @param {number|undefined} index
+     */
+    addChild(child, index) {
+
+        const lastElseIfIndex = _.findLastIndex(this.getChildren(), function (node) {
+            return BallerinaASTFactory.isElseIfStatement(node);
+        });
+
+        const elseStatementIndex = _.findIndex(this.getChildren(), function (node) {
+            return BallerinaASTFactory.isElseStatement(node);
+        });
+
+        if (BallerinaASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
+            index = elseStatementIndex;
+        }
+
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+    }
+
+    /**
      * initialize IfElseStatement from json object
      * @param {Object} jsonNode to initialize from
      * @param {Object} [jsonNode.if_statement] - If statement block
      * @param {Object} [jsonNode.else_statement] - Else statement block
+     * @param {Object} [jsonNode.else_if_blocks] - Else If statement blocks
      */
     initFromJson(jsonNode) {
 
@@ -111,6 +134,26 @@ class IfElseStatement extends Statement {
                     child.initFromJson(childNodeTemp);
                 });
             }
+        });
+
+        _.each(jsonNode.else_if_blocks, function (elseIfNode) {
+            let elseIfStatement = new ElseIfStatement('testCondition');
+            self._elseIfStatements.push(elseIfStatement);
+            self.addChild(elseIfStatement);
+            _.each(elseIfNode.children, function (childNode) {
+                var child = undefined;
+                var childNodeTemp = undefined;
+                //TODO : generalize this logic
+                if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                    child = self.getFactory().createConnectorDeclaration();
+                    childNodeTemp = childNode;
+                } else {
+                    child = self.getFactory().createFromJson(childNode);
+                    childNodeTemp = childNode;
+                }
+                elseIfStatement.addChild(child);
+                child.initFromJson(childNodeTemp);
+            });
         });
 
         _.each(jsonNode.else_statement, function (childNode) {

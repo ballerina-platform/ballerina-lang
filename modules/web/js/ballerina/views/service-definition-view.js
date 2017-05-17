@@ -225,17 +225,23 @@ class ServiceDefinitionView extends SVGCanvas {
         // Adding separator for annotation icon.
         $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(operationsPane);
 
-        var annotationProperties = {
-            model: this._model,
-            activatorElement: panelAnnotationIcon,
-            paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-            viewOptions: {
-                position: {
-                    left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                    top: 0
-                }
-            }
+        let annotationViewArgs = {
+            astNode: this.getModel(),
+            diagramRenderingContext: this.getDiagramRenderingContext(),
+            viewPrependElement: this.getContainer().parent().parent()
         };
+        this._annotationView = new AnnotationView(annotationViewArgs);
+        this._annotationView.render();
+        $(panelAnnotationIcon).click(function() {
+            let isClicked = $(this).data('isClicked');
+            if (isClicked) {
+                self._annotationView.hideEditor();
+                $(this).data('isClicked', false);
+            } else {
+                self._annotationView.showEditor();
+                $(this).data('isClicked', true);
+            }
+        });
 
         var variableProperties = {
             model: this._model,
@@ -260,7 +266,8 @@ class ServiceDefinitionView extends SVGCanvas {
         });
 
         this.setSVGWidth(this._container.width());
-        new AnnotationView().createAnnotationPane(annotationProperties);
+
+        // Creating annotation pane
         this.getModel().accept(this);
     }
 

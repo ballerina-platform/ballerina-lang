@@ -16,8 +16,9 @@
  * under the License.
  */
 import _ from 'lodash';
+const ace = global.ace;
 
-let TokenIterator = ace.require('ace/token_iterator').TokenIterator;
+let TokenIterator = ace.acequire('ace/token_iterator').TokenIterator;
 
 let newLinesRules = [
     {

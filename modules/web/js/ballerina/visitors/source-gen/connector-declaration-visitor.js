@@ -40,7 +40,8 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         var connectorPkg = ((!_.isNil(connectorDeclaration.getConnectorPkgName()))
-                             && (!_.isEqual(connectorDeclaration.getConnectorPkgName(), 'Current Package'))) ?
+        && connectorDeclaration.getConnectorPkgName() !== ''
+            && (!_.isEqual(connectorDeclaration.getConnectorPkgName(), 'Current Package'))) ?
             (connectorDeclaration.getConnectorPkgName() + ":") : "";
         var constructedSource = connectorPkg +
             connectorDeclaration.getConnectorName() + ' ' + connectorDeclaration.getConnectorVariable() +
@@ -56,10 +57,9 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
 
     endVisitConnectorDeclaration(connectorDeclaration) {
         this.appendSource(";\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Connector Declaration');
     }
 }
 
 export default ConnectorDeclarationVisitor;
-    

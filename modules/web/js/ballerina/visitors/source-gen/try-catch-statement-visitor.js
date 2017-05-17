@@ -26,7 +26,7 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
         super(parent);
     }
 
-    canVisitStatement(statement) {
+    canVisitTryCatchStatement(statement) {
         return true;
     }
 
@@ -40,6 +40,10 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
+    }
+
+    endVisitTryCatchStatement(statement) {
+        this.getParent().appendSource('\n' + this.getGeneratedSource() + '\n');
     }
 }
 

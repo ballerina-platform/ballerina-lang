@@ -58,8 +58,40 @@ import ToolView from './tool-view';
 
             var groupBodyDiv = $("<div></div>");
             groupDiv.append(groupBodyDiv);
-            groupBodyDiv.attr('class', "tool-group-body");
+            groupBodyDiv.attr('class', "tool-group-body tool-group-body-list");
             this._$toolGroupBody = groupBodyDiv;
+
+            if(this.model.attributes.gridConfig){
+                var toolsViewModeControlsDiv = $("<div class='tools-view-modes-controls clearfix'></div>");
+                groupBodyDiv.append(toolsViewModeControlsDiv);
+
+                var groupTilesIcon = $("<a class='tool-group-tiles-view'></a>");
+                toolsViewModeControlsDiv.append(groupTilesIcon);
+                groupTilesIcon.attr('class', "collapse-icon fw fw-tiles");
+                groupTilesIcon.click(function(){
+                    $(this).parents('.tool-group').find('.tool-group-body')
+                        .attr("class", "tool-group-body tool-group-body-tiles");
+                    return false;
+                });
+
+                var groupGridIcon = $("<a class='tool-group-action-grid'></a>");
+                toolsViewModeControlsDiv.append(groupGridIcon);
+                groupGridIcon.attr('class', "collapse-icon fw fw-grid");
+                groupGridIcon.click(function(){
+                    $(this).parents('.tool-group').find('.tool-group-body')
+                        .attr("class", "tool-group-body tool-group-body-grid");
+                    return false;
+                });
+
+                var groupListIcon = $("<a class='tool-group-list-view'></a>");
+                toolsViewModeControlsDiv.append(groupListIcon);
+                groupListIcon.attr('class', "collapse-icon fw fw-list");
+                groupListIcon.click(function(){
+                    $(this).parents('.tool-group').find('.tool-group-body')
+                        .attr("class", "tool-group-body tool-group-body-list");
+                    return false;
+                });                
+            }
 
             if(collapsed) {
                 groupBodyDiv.hide();

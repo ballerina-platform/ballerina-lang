@@ -36,6 +36,7 @@ import ResourceDefinition from './resource-definition';
 import ReturnStatement from './statements/return-statement';
 import ServiceDefinition from './service-definition';
 import AnnotationDefinition from './annotation-definition';
+import AnnotationAttributeDefinition from './annotation-attribute-definition';
 import Statement from './statements/statement';
 import ThrowStatement from './statements/throw-statement';
 import TypeDefinition from './type-definition';
@@ -48,6 +49,7 @@ import PackageDefinition from './package-definition';
 import ImportDeclaration from './import-declaration';
 import Assignment from './assignment';
 import AssignmentStatement from './statements/assignment-statement';
+import TransformStatement from './statements/transform-statement';
 import FunctionInvocation from './statements/function-invocation-statement';
 import ActionInvocationExpression from './expressions/action-invocation-expression';
 import BallerinaASTDeserializer from './ballerina-ast-deserializer';
@@ -70,6 +72,9 @@ import VariableDefinition from './variable-definition';
 import BreakStatement from './statements/break-statement';
 import CommentStatement from './statements/comment-statement';
 import TypeCastExpression from './expressions/type-cast-expression';
+import Annotation from './annotations/annotation';
+import AnnotationEntry from './annotations/annotation-entry';
+import AnnotationEntryArray from './annotations/annotation-entry-array';
 
         export default  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -93,6 +98,7 @@ import TypeCastExpression from './expressions/type-cast-expression';
             ReturnStatement: ReturnStatement,
             ServiceDefinition: ServiceDefinition,
             AnnotationDefinition: AnnotationDefinition,
+            AnnotationAttributeDefinition: AnnotationAttributeDefinition,
             Statement: Statement,
             ThrowStatement: ThrowStatement,
             TypeDefinition: TypeDefinition,
@@ -105,6 +111,7 @@ import TypeCastExpression from './expressions/type-cast-expression';
             ImportDeclaration: ImportDeclaration,
             Assignment: Assignment,
             AssignmentStatement: AssignmentStatement,
+            TransformStatement: TransformStatement,
             LeftOperandExpression: LeftOperandExpression,
             RightOperandExpression: RightOperandExpression,
             FunctionInvocation: FunctionInvocation,
@@ -126,7 +133,10 @@ import TypeCastExpression from './expressions/type-cast-expression';
             VariableDefinition : VariableDefinition,
             BreakStatement : BreakStatement,
             CommentStatement : CommentStatement,
-            TypeCastExpression : TypeCastExpression
+            TypeCastExpression : TypeCastExpression,
+            Annotation : Annotation,
+            AnnotationEntry : AnnotationEntry,
+            AnnotationEntryArray : AnnotationEntryArray
         }
     
 

@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
+import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ExpressionVisitorFactory from './expression-visitor-factory';
@@ -44,49 +43,21 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        var self = this;
-        _.forEach(resourceDefinition.getAnnotations(), function(annotation) {
-            if (!_.isEmpty(annotation.value)) {
-
-                // At the moment we support only the http:Method and http:Path
-
-                var constructedPathAnnotation;
-                if (annotation.key.indexOf(":") !== -1) {
-                    constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
-                    // Separately handling the HTTP method annotations.
-                    if (_.isEqual(annotation.key, "http:Method")) {
-                        constructedPathAnnotation = "";
-                        var methods = annotation.value.replace( /\n/g, " " ).split(/[\s,]+/);
-                        _.forEach(methods, function(method){
-                            var cleanedMethod = method.trim();
-                            if (!_.isEmpty(cleanedMethod)) {
-                                constructedPathAnnotation += '@http:' + cleanedMethod + " {}\n";
-                            }
-                        });
-                    }
-                    else if (_.isEqual(annotation.key, "http:Path")) {
-                        constructedPathAnnotation = '@http:Path {value:"' + annotation.value +'"}';
-                    }
-                }
-                self.appendSource(constructedPathAnnotation);
+        let constructedSourceSegment = '\n';
+        _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
             }
         });
 
-        var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
+        constructedSourceSegment += this.getIndentation() + 'resource ' + resourceDefinition.getResourceName() + '(';
 
-        constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {';
+        constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {\n';
         this.appendSource(constructedSourceSegment);
-        log.debug('Begin Visit ResourceDefinition');
+        this.indent();
     }
 
     visitResourceDefinition(resourceDefinition) {
-        log.debug('Visit ResourceDefinition');
-    }
-
-    endVisitResourceDefinition(resourceDefinition) {
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit ResourceDefinition');
     }
 
     visitStatement(statement) {
@@ -95,27 +66,21 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         statement.accept(statementVisitor);
     }
 
-    visitExpression(expression) {
-        var expressionViewFactory = new ExpressionVisitorFactory();
-        var expressionView = expressionViewFactory.getExpressionView({model:expression, parent:this});
-        expression.accept(expressionView);
-    }
-
     visitConnectorDeclaration(connectorDeclaration) {
         var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
-    }
-
-    visitVariableDeclaration(variableDeclaration) {
-        var varialeDeclarationVisitor = new VariableDeclarationVisitor(this);
-        variableDeclaration.accept(varialeDeclarationVisitor);
     }
 
     visitWorkerDeclaration(workerDeclaration) {
         var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
         workerDeclaration.accept(workerDeclarationVisitor);
     }
+
+    endVisitResourceDefinition(resourceDefinition) {
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+    }
 }
 
 export default ResourceDefinitionVisitor;
-

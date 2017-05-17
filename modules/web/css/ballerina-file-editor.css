@@ -18,13 +18,10 @@
 }
 
 .canvas-container {
-    padding-left: 20px;
-    padding-top: 20px;
     padding-bottom: 120px;
     float: left;
     height: auto;
     min-height: 1000px;
-    overflow: hidden;
     position: relative;
 }
 
@@ -550,6 +547,8 @@
     background-color: #3d3d3d;
     padding: 10px;
     float: left;
+    stroke-width: 1px;
+    stroke: #3d3d3d;
 }
 
 .attribute-content-operations-wrapper {
@@ -561,7 +560,7 @@
 
 .struct-identifier-text-input {
     float: left;
-    width: 190px;
+    width: 195px;
     padding-left: 8px;
     padding-right: 8px;
     margin-right: 5px;
@@ -571,7 +570,7 @@
 
 .struct-default-value-text-input {
     float: left;
-    width: 190px;
+    width: 155px;
     padding-left: 8px;
     padding-right: 8px;
     margin-right: 5px;
@@ -859,4 +858,45 @@ input#package-name-input {
 
 .expression-editor-form-body-property-wrapper .ace_ballerina-keyword-non-primitive-type{
     color: #f39100;
+}
+
+.panel > .panel-header > .panel-header-controls > .control {
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+.panel > .panel-header > .panel-header-controls > .control:hover {
+    opacity: 1;
+}
+
+.annotation-container {
+    background: #EFEFEF;
+    overflow: auto;
+    padding-left: 5px;
+}
+
+.annotation-container table{
+
+}
+
+.annotation-container table td:last-child {
+    width: 100%;
+}
+
+.annotation-line{
+
+}
+
+.annotation-key{
+    white-space: nowrap;
+    padding-right: 10px;
+}
+
+.annotation-table td{
+    height: 20px;
+    line-height: 25px;
+}
+
+.annotation-close {
+    padding-left: 5px;
 }

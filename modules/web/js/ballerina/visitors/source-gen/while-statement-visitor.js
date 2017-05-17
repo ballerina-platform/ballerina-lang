@@ -28,11 +28,13 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     canVisitWhileStatement(whileStatement) {
-        return whileStatement instanceof WhileStatement && this._generatedSource === "";
+        return true;
     }
 
     beginVisitWhileStatement(whileStatement) {
-        this.appendSource('while(' + whileStatement.getCondition() + '){');
+        this.node = whileStatement;
+        this.appendSource('\n' + this.getIndentation() + 'while (' + whileStatement.getCondition() + ') {\n');
+        this.indent();
         log.debug('Begin Visit If Statement Definition');
     }
 
@@ -40,16 +42,19 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
         log.debug('Visit If Statement Definition');
     }
 
-    endVisitWhileStatement(whileStatement) {
-        this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit If Statement Definition');
+    visitStatement(statement) {
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 
-    visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
+    endVisitWhileStatement(whileStatement) {
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit If Statement Definition');
     }
 }
 

@@ -1,0 +1,10 @@
+#breadcrumb-container {
+    background-color: $breadcrumb-bgcolor;
+    height: 28px;
+    overflow: hidden;
+    line-height: 15px;
+    
+    & > ol.breadcrumb > li.breadcrumb-item.active {
+        color: $breadcrumb-active-color;
+    }
+}

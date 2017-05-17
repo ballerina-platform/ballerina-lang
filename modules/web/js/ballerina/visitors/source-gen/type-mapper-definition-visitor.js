@@ -35,10 +35,6 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
         return true;
     }
 
-    canVisitBlockStatementView(blockStatementView) {
-        return true;
-    }
-
     beginVisitTypeMapperDefinition(typeMapperDefinition) {
         /**
          * set the configuration start for the type mapper definition language construct
@@ -46,10 +42,11 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
 
-        var constructedSourceSegment = 'typemapper ' + typeMapperDefinition.getTypeMapperName() +
-            ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' )(' + typeMapperDefinition.getReturnType() +
-            ' ) {';
+        var constructedSourceSegment = '\n' + this.getIndentation() + 'typemapper ' + typeMapperDefinition.getTypeMapperName() +
+            ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' ) (' + typeMapperDefinition.getReturnType() +
+            ' ) {\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit TypeMapperDefinition');
     }
 
@@ -58,7 +55,8 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitTypeMapperDefinition(typeMapperDefinition) {
-        this.appendSource("} \n");
+        this.outdent();
+        this.appendSource(this.getIndentation() + '}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit TypeMapperDefinition');
     }
@@ -70,4 +68,3 @@ class TypeMapperDefinitionVisitor extends AbstractSourceGenVisitor {
 }
 
 export default TypeMapperDefinitionVisitor;
-    

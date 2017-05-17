@@ -29,8 +29,10 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Workspace implementation for local file system.
@@ -41,10 +43,16 @@ public class LocalFSWorkspace implements Workspace {
     private static final String FILE_EXTENSION = ".bal";
     private static final String FOLDER_TYPE = "folder";
     private static final String CONTENT = "content";
-    
+
     @Override
     public JsonArray listRoots() throws IOException {
         final Iterable<Path> rootDirs = FileSystems.getDefault().getRootDirectories();
+        List<Path> rootDirsList = new ArrayList<Path>();
+        rootDirs.forEach(rootDirsList::add);
+        return getJsonArrayForDirs(rootDirsList);
+    }
+
+    private JsonArray getJsonArrayForDirs(List<Path> rootDirs) {
         JsonArray rootArray = new JsonArray();
         for (Path root : rootDirs) {
             JsonObject rootObj = getJsonObjForFile(root, false);
@@ -71,7 +79,12 @@ public class LocalFSWorkspace implements Workspace {
         }
         return rootArray;
     }
-    
+
+    @Override
+    public JsonArray getRoots(List<Path> rootPaths) throws IOException {
+        return getJsonArrayForDirs(rootPaths);
+    }
+
     @Override
     public JsonArray listDirectoriesInPath(String path) throws IOException {
         Path ioPath = Paths.get(path);

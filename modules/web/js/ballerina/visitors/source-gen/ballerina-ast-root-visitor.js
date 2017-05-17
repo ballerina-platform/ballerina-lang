@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ServiceDefinitionVisitor from './service-definition-visitor';
 import AnnotationDefinitionVisitor from './annotation-definition-visitor';
@@ -34,20 +32,12 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
         super();
     }
 
-    canVisitBallerinaASTRoot(serviceDefinition) {
+    canVisitBallerinaASTRoot(astRoot) {
         return true;
     }
 
-    beginVisitBallerinaASTRoot(serviceDefinition) {
-        log.debug('Begin Visit BallerinaASTRoot');
-    }
-
-    visitBallerinaASTRoot(serviceDefinition) {
-        log.debug('Visit BallerinaASTRoot');
-    }
-
-    endVisitBallerinaASTRoot(serviceDefinition) {
-        log.debug('End Visit BallerinaASTRoot');
+    beginVisitBallerinaASTRoot(astRoot) {
+        this.appendSource(astRoot.whiteSpaceDescriptor.regions[0]);
     }
 
     visitServiceDefinition(serviceDefinition) {
@@ -97,4 +87,3 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
 }
 
 export default BallerinaASTRootVisitor;
-    

@@ -29,15 +29,17 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitAnnotationDefinition(annotationDefinition) {
-        var constructedSourceSegment = 'annotation ' + annotationDefinition.getAnnotationName() ;
-        if (annotationDefinition.getAttachmentPoints().length > 0){
-            constructedSourceSegment += ' attach '+ _.join(annotationDefinition.getAttachmentPoints(), ', ');
+        let constructedSourceSegment = '\nannotation ' + annotationDefinition.getAnnotationName();
+        let self = this;
+        if (annotationDefinition.getAttachmentPoints().length > 0) {
+            constructedSourceSegment += ' attach ' + _.join(annotationDefinition.getAttachmentPoints(), ', ');
         }
-        constructedSourceSegment +=' {\n';
+        constructedSourceSegment += ' {\n';
+        this.indent();
         _.each(annotationDefinition.getAnnotationAttributeDefinitions(), function (attrDefinition, count) {
-            constructedSourceSegment += attrDefinition.getAttributeStatementString() + ' ;';
-            if(count < annotationDefinition.getAnnotationAttributeDefinitions().length){
-                constructedSourceSegment+= '\n';
+            constructedSourceSegment += (self.getIndentation() + attrDefinition.getAttributeStatementString() + ';');
+            if (count < annotationDefinition.getAnnotationAttributeDefinitions().length) {
+                constructedSourceSegment += '\n';
             }
         });
 
@@ -50,8 +52,9 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitAnnotationDefinition(annotationDefinition) {
+        this.outdent();
         this.appendSource("}\n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Annotation Definition');
     }
 }

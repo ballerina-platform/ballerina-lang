@@ -1,11 +1,3 @@
-body {
-    background: #232323;
-}
-
-.footer {
-    background: #282b2f;
-}
-
 #alerts-container {
     display: none
 }
@@ -227,6 +219,18 @@ ol#breadcrumbList {
     dominant-baseline: central;
     width: 120px;
     max-width: 250px;
+}
+
+.panel-label {
+    dominant-baseline: middle;
+}
+
+.condition-text {
+    text-anchor: start;
+    dominant-baseline: central;
+    width: 120px;
+    max-width: 250px;
+    fill: "black"
 }
 
 /*//////////////////////////////////////////////////*/
@@ -917,7 +921,7 @@ attachment-content-wrapper,
 }
 
 .attachment-wrapper {
-   border: 1px solid #000005; 
+   border: 1px solid #000005;
 }
 
 /** Start of Constants view **/
@@ -1014,8 +1018,8 @@ attachment-content-wrapper,
     min-height: 28px;
  }
 
-.constant-pane-collapser-wrapper, 
-.import-pane-collapser-wrapper, 
+.constant-pane-collapser-wrapper,
+.import-pane-collapser-wrapper,
 .variable-pane-collapser-wrapper,
 .attachment-pane-collapser-wrapper {
     font-size: 12px;
@@ -1466,6 +1470,10 @@ a:hover {
     border: 0;
 }
 
+.annotation-body{
+    padding: 0;
+}
+
 .sidebar-left {
     background: #333;
 }
@@ -1597,4 +1605,63 @@ span.fw-stack.fw-lg {
 
 .select2-container--default .select2-selection--single {
     border-radius: 0 !important;
+}
+
+.topbar {
+    display: none;
+}
+
+.SplitPane .vertical  {
+    background-color: #FFF;
+}
+
+.swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-weight: normal;
+    line-height: normal;
+}
+
+.swagger-ui pre {
+    padding: 0;
+    font-size: medium;
+    line-height: normal;
+    word-break: normal;
+    word-wrap: normal;
+    background-color: transparent;
+    border-radius: 0;
+}
+
+.expand-operation {
+    display: none;
+}
+
+.SplitPane .vertical {
+    overflow: auto;
+}
+
+.swaggerEditor .SplitPane {
+    height: 100% !important;
+}
+
+.try-out {
+    display: none;
+}
+
+.swagger-service-selector-wrapper {
+    background-color: #131313;
+    height: 22px;
+    overflow: hidden;
+    line-height: 15px;
+    color: white;
+    padding-left: 20px;
+}
+
+.swagger-service-selector-span {
+    float: left;
+    margin-top: 6px;
+    padding-right: 8px;
+}
+
+.annotation-editor-view {
+    position: absolute !important;
+    z-index: 100 !important;
 }

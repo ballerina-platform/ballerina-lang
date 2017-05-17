@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import log from 'log';
 
 class TypeCastExpression extends Expression {
     constructor(args) {
@@ -110,7 +111,7 @@ class TypeCastExpression extends Expression {
         var targetType = jsonNode.target_type;
         var child = self.getFactory().createFromJson(jsonNode.children[0]);
         child.initFromJson(jsonNode.children[0]);
-        expString += "(" + targetType + ")" + child.getExpression();
+        expString += "(" + targetType + ") " + child.getExpression();
         return expString;
     }
 }

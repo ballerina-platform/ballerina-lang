@@ -25,7 +25,7 @@ import CommonUtils from '../utils/common-utils';
  * */
 class AnnotationDefinition extends ASTNode {
     constructor(args) {
-        super('Annotation');
+        super('AnnotationDefinition');
         this._annotationName = _.get(args, 'annotationName');
         this._attachmentPoints = _.get(args, 'attachmentPoints', []);
     }
@@ -34,7 +34,7 @@ class AnnotationDefinition extends ASTNode {
         if (!_.isNil(annotationName) && ASTNode.isValidIdentifier(annotationName)) {
             this.setAttribute('_annotationName', annotationName, options);
         } else {
-            var error = 'Invalid name for the annotation name: ' + annotationName;
+            let error = 'Invalid name for the annotation name: ' + annotationName;
             log.error(error);
             throw  error;
         }
@@ -60,34 +60,34 @@ class AnnotationDefinition extends ASTNode {
         return this.filterChildren(this.getFactory().isAnnotationAttributeDefinition);
     }
 
-    addAnnotationAttributeDefinition (type, identifier, defaultValue) {
+    addAnnotationAttributeDefinition(type, identifier, defaultValue) {
         // if identifier is empty
         if (_.isEmpty(identifier)) {
-            var errorString = 'Identifier cannot be empty';
+            let errorString = 'Identifier cannot be empty';
             log.error(errorString);
             throw errorString;
         }
 
         // Check if already variable definition exists with same identifier.
-        var identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (attDef) {
-            return attDef.getAttributeName() === identifier;
-        }) !== -1;
+        let identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (attDef) {
+                return attDef.getAttributeName() === identifier;
+            }) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
         if (identifierAlreadyExists) {
-            var errorString = 'An attribute with identifier \'' + identifier + '\' already exists.';
+            let errorString = 'An attribute with identifier \'' + identifier + '\' already exists.';
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new annotation attribute definition.
-            var newAnnotationAttributeDefinition = this.getFactory().createAnnotationAttributeDefinition();
+            let newAnnotationAttributeDefinition = this.getFactory().createAnnotationAttributeDefinition();
             newAnnotationAttributeDefinition.setAttributeName(identifier);
             newAnnotationAttributeDefinition.setAttributeType(type);
             newAnnotationAttributeDefinition.setAttributeValue(defaultValue);
 
             // Get the index of the last definition.
-            var index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
+            let index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
 
             this.addChild(newAnnotationAttributeDefinition, index + 1);
         }
@@ -99,21 +99,23 @@ class AnnotationDefinition extends ASTNode {
      * */
     addAnnotationAttachmentPoint(identifier) {
         if (_.isEmpty(identifier)) {
-            var errorString = 'Identifier cannot be empty';
+            let errorString = 'Identifier cannot be empty';
             log.error(errorString);
             throw errorString;
         }
 
-        var identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), function (attachmentPoint) {
+        let identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), function (attachmentPoint) {
                 return _.isEqual(identifier, attachmentPoint);
             }) !== -1;
 
-        if(identifierAlreadyExists){
-            var errorString = 'An attribute with identifier "'+identifier+'" already exists.';
+        if (identifierAlreadyExists) {
+            let errorString = 'An attribute with identifier "' + identifier + '" already exists.';
             log.error(errorString);
             throw errorString;
-        }else{
+        } else {
             this._attachmentPoints.push(identifier);
+            // Trigger model change.
+            this.setAttachmentPoints(this._attachmentPoints);
         }
     }
 
@@ -122,10 +124,12 @@ class AnnotationDefinition extends ASTNode {
      * @param {string} identifier - identifier for the attachment point.
      * */
     removeAnnotationAttachmentPoints(identifier) {
-        _.pull(this._attachmentPoints,identifier);
+        _.pull(this._attachmentPoints, identifier);
+        // Trigger model change.
+        this.setAttachmentPoints(this._attachmentPoints);
     }
 
-     /**
+    /**
      * Removes annotation attribute definition.
      * @param {string} modelID - The model ID of the variable.
      */
@@ -138,13 +142,13 @@ class AnnotationDefinition extends ASTNode {
      * @override
      * */
     initFromJson(jsonNode) {
-        var self = this;
+        let self = this;
         this.setAnnotationName(jsonNode.annotation_name, {doSilently: true});
-        if (!_.isNil(jsonNode.annotation_attachment_points)){
-        this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+        if (!_.isNil(jsonNode.annotation_attachment_points)) {
+            this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
         }
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+            let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
@@ -161,9 +165,9 @@ class AnnotationDefinition extends ASTNode {
                 defaultValue: 'Annotation',
                 setter: this.setAnnotationName,
                 getter: this.getAnnotationName,
-                parent: [{
+                parents: [{
                     node: this.parent,
-                    getChildrenFunc: this.parent.getAnnotationDefinitions(),
+                    getChildrenFunc: this.parent.getAnnotationDefinitions,
                     getter: this.getAnnotationName
                 }]
             }]

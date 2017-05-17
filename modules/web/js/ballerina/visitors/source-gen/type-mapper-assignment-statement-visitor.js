@@ -48,7 +48,7 @@ class TypeMapperAssignmentStatementVisitor extends AbstractStatementSourceGenVis
     }
 
     endVisitAssignmentStatement(assignmentStatement) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
         log.debug('End Visit Type Mapper Assignment Statement');
     }
 }

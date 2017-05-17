@@ -42,7 +42,7 @@ class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisi
         if (expression.getVariableName()) {
             this.appendSource(expression.getVariableName());
         }
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Variable Reference Expression');
     }
 

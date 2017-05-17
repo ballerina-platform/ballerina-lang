@@ -79,6 +79,12 @@ class ASTVisitor extends EventChannel {
             return this.canVisitBlockStatement(node);
         } else if(node instanceof AST.VariableDefinition){
             return this.canVisitVariableDefinition(node);
+        } else if(node instanceof AST.Annotation) {
+            return this.canVisitAnnotation(node);
+        } else if(node instanceof AST.AnnotationEntry) {
+            return this.canVisitAnnotationEntry(node);
+        } else if(node instanceof AST.AnnotationEntryArray) {
+            return this.canVisitAnnotationEntryArray(node);
         }
     }
 
@@ -136,6 +142,12 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitBlockStatement(node);
         } else if(node instanceof AST.VariableDefinition){
             return this.beginVisitVariableDefinition(node);
+        } else if(node instanceof AST.Annotation) {
+            return this.beginVisitAnnotation(node);
+        } else if(node instanceof AST.AnnotationEntry) {
+            return this.beginVisitAnnotationEntry(node);
+        } else if(node instanceof AST.AnnotationEntryArray) {
+            return this.beginVisitAnnotationEntryArray(node);
         }
     }
 
@@ -193,6 +205,12 @@ class ASTVisitor extends EventChannel {
             return this.visitBlockStatement(node);
         } else if(node instanceof AST.VariableDefinition){
             return this.visitVariableDefinition(node);
+        } else if(node instanceof AST.Annotation) {
+            return this.visitAnnotation(node);
+        } else if(node instanceof AST.AnnotationEntry) {
+            return this.visitAnnotationEntry(node);
+        } else if(node instanceof AST.AnnotationEntryArray) {
+            return this.visitAnnotationEntryArray(node);
         }
 
     }
@@ -251,6 +269,12 @@ class ASTVisitor extends EventChannel {
             return this.endVisitBlockStatement(node);
         } else if(node instanceof AST.VariableDefinition){
             return this.endVisitVariableDefinition(node);
+        } else if(node instanceof AST.Annotation) {
+            return this.endVisitAnnotation(node);
+        } else if(node instanceof AST.AnnotationEntry) {
+            return this.endVisitAnnotationEntry(node);
+        } else if(node instanceof AST.AnnotationEntryArray) {
+            return this.endVisitAnnotationEntryArray(node);
         }
 
     }
@@ -608,6 +632,45 @@ class ASTVisitor extends EventChannel {
     }
 
     endVisitCommentStatement(variableDefinition) {
+    }
+    
+    canVisitAnnotation(annotation){
+        return false;
+    }
+
+    beginVisitAnnotation(annotation){
+    }
+
+    visitAnnotation(annotation){
+    }
+
+    endVisitAnnotation(annotation){
+    }
+
+    canVisitAnnotationEntry(annotationEntry){
+        return false;
+    }
+
+    beginVisitAnnotationEntry(annotationEntry){
+    }
+
+    visitAnnotationEntry(annotationEntry){
+    }
+
+    endVisitAnnotationEntry(annotationEntry){
+    }
+
+    canVisitAnnotationEntryArray(annotationEntryArray){
+        return false;
+    }
+
+    beginVisitAnnotationEntryArray(annotationEntryArray){
+    }
+
+    visitAnnotationEntryArray(annotationEntryArray){
+    }
+
+    endVisitAnnotationEntryArray(annotationEntryArray){
     }
 }
 

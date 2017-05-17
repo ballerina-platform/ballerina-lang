@@ -21,7 +21,7 @@ import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
 import dagre from 'dagre';
 import alerts from 'alerts';
-import './type-mapper.css';
+import './transform-statement.css';
 /**
  * Renderer constructor for TypeMapper
  * @param {function} onConnectionCallback call back function when connection made
@@ -407,7 +407,7 @@ class TypeMapperRenderer {
     addSourceType(struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeType(struct, 50, 50, reference, "source");
+        this.makeType(struct, 250, 250, reference, "source");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)

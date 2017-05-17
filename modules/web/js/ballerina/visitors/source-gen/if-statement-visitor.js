@@ -31,24 +31,25 @@ class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitIfStatement(ifStatement) {
-        this.appendSource('if(' + ifStatement.getCondition() + '){');
+        this.node = ifStatement;
+        this.appendSource(this.getIndentation() + 'if (' + ifStatement.getCondition() + ') {\n');
+        this.indent();
         log.debug('Begin Visit If Statement Definition');
     }
 
-    visitIfStatement(ifStatement) {
-        log.debug('Visit If Statement Definition');
+    visitStatement(statement) {
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 
     endVisitIfStatement(ifStatement) {
-        this.appendSource("}\n");
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit If Statement Definition');
-    }
-
-    visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
     }
 }
 

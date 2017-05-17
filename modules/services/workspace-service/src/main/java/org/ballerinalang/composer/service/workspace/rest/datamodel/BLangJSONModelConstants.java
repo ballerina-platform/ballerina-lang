@@ -29,13 +29,13 @@ public class BLangJSONModelConstants {
 
     public static final String DEFINITION_TYPE = "type";
 
-    public static final String CONNECTOR_DEFINITION = "connector";
+    public static final String CONNECTOR_DEFINITION = "connector_definition";
 
     public static final String FUNCTION_DEFINITION = "function_definition";
 
     public static final String TYPE_MAPPER_DEFINITION = "type_mapper_definition";
 
-    public static final String ACTION_DEFINITION = "action";
+    public static final String ACTION_DEFINITION = "action_definition";
 
     public static final String FUNCTIONS_NAME = "function_name";
 
@@ -84,20 +84,29 @@ public class BLangJSONModelConstants {
     public static final String SERVICE_NAME = "service_name";
 
     public static final String RESOURCE_DEFINITION = "resource_definition";
-
+    
     public static final String ANNOTATION_ATTACHMENT = "annotation_attachment";
-
+    
     public static final String ANNOTATION_ATTACHMENTS = "annotation_attachments";
 
+    public static final String PARAMETER_DEFINITION = "parameter_definition";
+
+    
+    public static final String ANNOTATION = "annotation";
+    
+    public static final String ANNOTATION_ENTRY = "annotation_entry";
+    
+    public static final String ANNOTATION_ENTRY_ARRAY = "annotation_entry_array";
+    
+    public static final String ANNOTATION_ENTRY_KEY = "annotation_entry_key";
+    
+    public static final String ANNOTATION_ENTRY_VALUE = "annotation_entry_value";
+    
     public static final String ANNOTATION_PACKAGE_NAME = "annotation_package_name";
 
     public static final String ANNOTATION_PACKAGE_PATH = "annotation_package_path";
 
-    public static final String PARAMETER_DEFINITION = "argument_declaration";
-
-    public static final String CONNECTOR_DECLARATION = "connector_declaration";
-
-    public static final String VARIABLE_DECLARATION = "variable_declaration";
+    public static final String RESOURCE_ARGUMENT = "resource_argument";
 
     public static final String VARIABLE_DEFINITION = "variable_definition";
 
@@ -211,6 +220,10 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 
+    public static final String VARIABLE_REFERENCE_TYPE = "variable_reference_type";
+
+    public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
+
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
 
     public static final String ARRAY_MAP_ACCESS_EXPRESSION = "array_map_access_expression";
@@ -237,7 +250,13 @@ public class BLangJSONModelConstants {
 
     public static final String IF_STATEMENT_IF_CONDITION = "if_condition";
 
+    public static final String IF_STATEMENT_ELSE_IF_CONDITION = "else_if_condition";
+
     public static final String ELSE_STATEMENT = "else_statement";
+
+    public static final String ELSE_IF_STATEMENT = "else_if_statement";
+
+    public static final String ELSE_IF_BLOCKS = "else_if_blocks";
 
     public static final String STATEMENT = "statement";
 
@@ -245,7 +264,7 @@ public class BLangJSONModelConstants {
     
     public static final String STRUCT_DEFINITION = "struct_definition";
     
-    public static final String STRUCT_FIELD_ACCESS_EXPRESSION = "struct_field_access_expression";
+    public static final String FIELD_ACCESS_EXPRESSION = "field_access_expression";
     
     public static final String STRUCT_NAME = "struct_name";
 
@@ -283,4 +302,27 @@ public class BLangJSONModelConstants {
 
     public static final String THROW_STATEMENT = "throw_statement";
 
+    public static final String ARGUMENT_PARAMETER_DEFINITIONS = "argument_parameter_definitions";
+
+    public static final String RETURN_PARAMETER_DEFINITIONS = "return_parameter_definitions";
+
+    public static final String WHITESPACE_DESCRIPTOR = "whitespace_descriptor";
+
+    public static final String CHILD_DESCRIPTORS = "children";
+
+    public static final String WHITESPACE_REGIONS = "regions";
+
+    public static final String TRANSFORM_STATEMENT = "transform_statement";
+
+    public static final String TRANSFORM_INPUT = "transform_input";
+
+    public static final String TRANSFORM_OUTPUT = "transform_output";
+
+    public static final String IS_ARRAY_EXPRESSION = "is_array_expression";
+
+    public static final String EXPRESSION_LIST = "expression_list";
+
+    public static final String WORKER_REPLY_EXPRESSION = "worker_reply_expression";
+
+    public static final String WORKER_INVOKE_EXPRESSION = "worker_invoke_expression";
 }

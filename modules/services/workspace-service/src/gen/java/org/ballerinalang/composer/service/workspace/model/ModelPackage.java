@@ -47,6 +47,9 @@ public class ModelPackage   {
   @JsonProperty("structs")
   private List<Struct> structs = new ArrayList<Struct>();
 
+  @JsonProperty("annotations")
+  private List<Annotation> annotations = new ArrayList<Annotation>();
+
   public ModelPackage name(String name) {
     this.name = name;
     return this;
@@ -134,6 +137,16 @@ public class ModelPackage   {
     return this;
   }
 
+  public ModelPackage annotations(List<Annotation> annotations) {
+    this.annotations = annotations;
+    return this;
+  }
+
+  public ModelPackage addAnnotationsItem(Annotation annotationItem) {
+    this.annotations.add(annotationItem);
+    return this;
+  }
+
    /**
    * List of **public** functions available in the package.
    * @return functions
@@ -156,6 +169,15 @@ public class ModelPackage   {
     this.structs = structs;
   }
 
+  @ApiModelProperty(value = "List of **public** annotations avaialble in the package")
+  public List<Annotation> getAnnotations() {
+    return annotations;
+  }
+
+  public void setAnnotations(List<Annotation> annotations) {
+    this.annotations = annotations;
+  }
+
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -169,12 +191,13 @@ public class ModelPackage   {
         Objects.equals(this.description, modelPackage.description) &&
         Objects.equals(this.version, modelPackage.version) &&
         Objects.equals(this.connectors, modelPackage.connectors) &&
-        Objects.equals(this.functions, modelPackage.functions);
+        Objects.equals(this.functions, modelPackage.functions) &&
+            Objects.equals(this.annotations, modelPackage.annotations);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, version, connectors, functions);
+    return Objects.hash(name, description, version, connectors, functions, annotations);
   }
 
   @Override
@@ -187,6 +210,7 @@ public class ModelPackage   {
     sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("    connectors: ").append(toIndentedString(connectors)).append("\n");
     sb.append("    functions: ").append(toIndentedString(functions)).append("\n");
+    sb.append("    annotations: ").append(toIndentedString(annotations)).append("\n");
     sb.append("}");
     return sb.toString();
   }
