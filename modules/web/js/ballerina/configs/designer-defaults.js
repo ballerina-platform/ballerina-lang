@@ -180,7 +180,7 @@ export const structDefinition = {
 };
 
 export const contentOperations = {
-    height: 40,
+    height: 45,
     width: 600,
 };
 
@@ -193,7 +193,7 @@ export const structDefinitionStatement = {
     padding: {
         left: 10
     },
-    deleteButtonOffset: 20,
+    deleteButtonOffset: 30,
 };
 
 export const panelHeading = {
