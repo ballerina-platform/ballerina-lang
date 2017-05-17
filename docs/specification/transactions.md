@@ -1,8 +1,8 @@
-# Local transactions
+# Local Transactions
 
 Local transactions are transactions associated with a particular data source (this means they are resource-specific). The most common example is a transaction associated with a JDBC connection.
 
-# Distributed transaction: (Global/XA transaction)
+# Distributed Transaction: (Global/XA Transaction)
 
 A distributed transaction is a transaction that accesses and updates data on two or more networked resources, and therefore must be coordinated among those resources. This coordination is the function of the transaction manager.
 
