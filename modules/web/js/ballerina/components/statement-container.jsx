@@ -28,9 +28,11 @@ class StatementContainer extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        const {dragDropManager} = context;
+        const {dragDropManager, messageManager} = context;
         dragDropManager.on('drag-start', this.startDropZones.bind(this));
         dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
+		messageManager.on('message-draw-start', this.startDropZones.bind(this));
+		messageManager.on('message-draw-stop', this.stopDragZones.bind(this));
         this.state = {
             dropZoneExist: false,
             statementDropZoneActivated: false,
