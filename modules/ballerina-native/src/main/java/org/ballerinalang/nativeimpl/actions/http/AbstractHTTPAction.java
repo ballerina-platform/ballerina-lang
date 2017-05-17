@@ -120,8 +120,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     }
 
     private boolean validateParams(BConnector connector) {
-        if (connector != null && connector.getValue(0) != null
-                && !connector.getValue(0).stringValue().equals("")) {
+        //TODO removed empty string check for URL - fix this properly once the all connectors usages updated
+        //TODO remove empty URLs
+        if (connector != null && connector.getValue(0) != null) {
             return true;
         } else {
             throw new BallerinaException("Connector parameters not defined correctly.");
