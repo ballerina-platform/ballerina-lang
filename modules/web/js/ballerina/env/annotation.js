@@ -31,6 +31,7 @@ class Annotation extends EventChannel {
  constructor(args) {
      super(args);
      this._name = _.get(args, 'name', '');
+     this._attachmentPoints = _.get(args, 'attachmentPoints', []);
      this._id = _.get(args, 'id', '');
  }
  
@@ -68,13 +69,30 @@ class Annotation extends EventChannel {
      return this._id;
  }
 
+ /**
+  * returns attachment points
+  * @returns {string[]}
+  */
+ getAttachmentPoints(){
+     return this._attachmentPoints;
+ } 
+
+ addAttachmentPoints(attachmentPoints) {
+    this._attachmentPoints.push(attachmentPoints);
+ }
+
   /**
   * sets values from a json object
   * @param {Object} jsonNode
   */
  initFromJson(jsonNode) {
+     var self = this;
      this.setName(jsonNode.name);
-     this.setId(jsonNode.name);
+
+     _.each(jsonNode.attachmentPoints, function (attachmentPoint) {
+        self.addAttachmentPoints(attachmentPoint);
+     });
+
  }
 
 }
