@@ -1,0 +1,32 @@
+{
+  "codegen": {
+  },
+  "analytics": {
+    "google": {
+      "id": ""
+    }
+  },
+  "disableCodeGen": true,
+  "examplesFolder": "spec-files/",
+  "editorOptions": {
+    "theme": "ace/theme/atom_dark"
+  },
+  "exampleFiles": [
+      "default.yaml"
+  ],
+  "autocompleteExtension": {},
+  "useBackendForStorage": false,
+  "backendThrottle": 200,
+  "keyPressDebounceTime": 200,
+  "backendEndpoint": "/editor/spec",
+  "useYamlBackend": false,
+  "disableFileMenu": false,
+  "disableExamples": true,
+  "disableImport": true,
+  "headerBranding": false,
+  "disableNewUserIntro": true,
+  "enableTryIt": true,
+  "brandingCssClass": "ballerina",
+  "importProxyUrl": "https://cors-it.herokuapp.com/?url=",
+  "pointerResolutionBasePath": null
+}

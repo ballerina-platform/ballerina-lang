@@ -19,12 +19,13 @@ import log from 'log';
 import _ from 'lodash';
 import $ from 'jquery';
 import EventChannel from 'event_channel';
-import 'brace';
-import 'brace/ext/language_tools';
-import 'brace/ext/searchbox';
+import 'ace/ace';
+import 'ace/ext-language_tools';
+import 'ace/ext-searchbox';
+import '../utils/ace-mode';
 import ballerina from 'ballerina';
 var ace = global.ace;
-var Range = ace.acequire('ace/range');
+var Range = ace.require('ace/range');
 
 // require possible themes
 function requireAll(requireContext) {
@@ -33,7 +34,7 @@ function requireAll(requireContext) {
 requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
-var mode = ace.acequire('ace/mode/ballerina');
+var mode = ace.require('ace/mode/ballerina');
 
 /**
  * @class SourceView
@@ -63,7 +64,7 @@ class SourceView extends EventChannel {
     render() {
         var self = this;
         this._editor = ace.edit(this._container);
-        var mode = ace.acequire(_.get(this._options, 'mode')).Mode;
+        var mode = ace.require(_.get(this._options, 'mode')).Mode;
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
@@ -72,7 +73,7 @@ class SourceView extends EventChannel {
         var editorFontSize = (this._storage.get('pref:sourceViewFontSize') !== null) ? this._storage.get('pref:sourceViewFontSize')
             : _.get(this._options, 'font_size');
 
-        var editorTheme = ace.acequire(editorThemeName);
+        var editorTheme = ace.require(editorThemeName);
 
         this._editor.setTheme(editorTheme);
         this._editor.setFontSize(editorFontSize);

@@ -94,7 +94,7 @@ class LaunchManager extends EventChannel {
     processMesssage(message) {
         if(message.code === 'OUTPUT'){
             if(_.endsWith(message.message, this.debugPort)){
-                this.trigger('debug-active',this.debugEndpoint);
+                this.trigger('debug-active',this.debugPort);
                 return;
             }
         }
@@ -124,7 +124,6 @@ class LaunchManager extends EventChannel {
 
     init(options) {
         this.endpoint = _.get(options, 'application.config.services.launcher.endpoint');
-        this.debugEndpoint = _.get(options, 'application.config.services.debugger.endpoint');
         this.enable = true;
         this.application = options.application;
     }

@@ -66,7 +66,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createConnectorDefTool = {
             id: "connectorDefinition",
-            name: "Connector",
+            name: "Connector Definition",
             iconSrc: require("./../../../images/tool-icons/connector.svg"),
             title: "Connector Definition",
             nodeFactoryMethod:  DefaultBallerinaASTFactory.createConnectorDefinition
@@ -74,7 +74,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createConnectorActionTool = {
             id: "connectorAction",
-            name: "Action",
+            name: "Connector Action",
             iconSrc: require("./../../../images/tool-icons/action.svg"),
             title: "Connector Action",
             nodeFactoryMethod:  DefaultBallerinaASTFactory.createConnectorAction
@@ -90,9 +90,9 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createTypeMapperDefTool = {
             id: "typeMapper",
-            name: "Data Mapper",
+            name: "Type Mapper",
             iconSrc: require("./../../../images/tool-icons/type-converter.svg"),
-            title: "Data Mapper",
+            title: "Type Mapper",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createTypeMapperDefinition
         };
 
@@ -166,7 +166,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
         // TODO: change the icon with the new one
         var createVariableDefinitionStatementTool = {
             id: "VariableDefinition",
-            name: "Variable",
+            name: "VariableDefinition",
             iconSrc: require("./../../../images/variable.svg"),
             title: "Variable Definition",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createVariableDefinitionStatement
@@ -174,9 +174,9 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createFunctionInvocationTool = {
             id: "FunctionInvocation",
-            name: "Function Invoke",
+            name: "FunctionInvocation",
             iconSrc: require("./../../../images/tool-icons/function-invoke.svg"),
-            title: "Function Invoke",
+            title: "Function Invocation",
             nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
 
@@ -198,9 +198,9 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createWorkerInvocationStatementTool = {
             id: "WorkerInvocation",
-            name: "Worker Invoke",
+            name: "Worker Invocation",
             iconSrc: require("./../../../images/tool-icons/worker-invoke.svg"),
-            title: "Worker Invocation",
+            title: "Worker Invoke",
             nodeFactoryMethod: BallerinaASTFactory.createWorkerInvocationStatement
         };
 
@@ -251,8 +251,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
             toolGroupName: "Constructs",
             toolGroupID: "constructs-tool-group",
             toolOrder: "horizontal",
-            toolDefinitions: constructsToolDefArray,
-            gridConfig: true
+            toolDefinitions: constructsToolDefArray
         });
 
         ToolPalette.push(constructs);

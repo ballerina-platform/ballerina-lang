@@ -268,6 +268,15 @@ class ConnectorDefinition extends ASTNode {
         var self = this;
         this.setConnectorName(jsonNode.connector_name, {doSilently: true});
 
+        // Populate the annotations array
+        for (var itr = 0; itr < this.getAnnotations().length; itr ++) {
+            var key = this.getAnnotations()[itr].key;
+            for (var itrInner = 0; itrInner < jsonNode.annotations.length; itrInner ++) {
+                if (jsonNode.annotations[itrInner].annotation_name === key) {
+                    this._annotations[itr].value = jsonNode.annotations[itrInner].annotation_value;
+                }
+            }
+        }
         _.each(jsonNode.children, function (childNode) {
             var child = undefined;
             var childNodeTemp = undefined;
@@ -345,3 +354,4 @@ class ConnectorDefinition extends ASTNode {
 }
 
 export default ConnectorDefinition;
+

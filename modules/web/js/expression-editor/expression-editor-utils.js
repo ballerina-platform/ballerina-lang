@@ -15,14 +15,14 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
-import 'brace';
-import 'brace/ext/language_tools';
-import 'brace/ext/searchbox';
+import 'ace/ace';
+import 'ace/ext-language_tools';
+import 'ace/ext-searchbox';
 import '../ballerina/utils/ace-mode';
 import ballerina from 'ballerina';
 import { completerFactory } from './completer-factory.js';
 var ace = global.ace;
-var Range = ace.acequire('ace/range');
+var Range = ace.require('ace/range');
 
 
 // require possible themes
@@ -32,8 +32,8 @@ function requireAll(requireContext) {
 requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
-var mode = ace.acequire('ace/mode/ballerina');
-var langTools = ace.acequire("ace/ext/language_tools");
+var mode = ace.require('ace/mode/ballerina');
+var langTools = ace.require("ace/ext/language_tools");
 
 
 class ExpressionEditor{
@@ -56,12 +56,12 @@ class ExpressionEditor{
 
         this._editor =  ace.edit(editorContainer[0]);
 
-        var mode = ace.acequire("ace/mode/ballerina").Mode;
+        var mode = ace.require("ace/mode/ballerina").Mode;
         this._editor.getSession().setMode("ace/mode/ballerina");
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
 
-        var editorTheme = ace.acequire("ace/theme/chrome");
+        var editorTheme = ace.require("ace/theme/chrome");
         this._editor.setTheme(editorTheme);
 
         // set OS specific font size to prevent Mac fonts getting oversized.

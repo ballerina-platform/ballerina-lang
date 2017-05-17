@@ -92,8 +92,7 @@ import Tool from './tool';
         defaults: {
             toolGroupID: "id-not-set",
             toolGroupName: "",
-            toolGroup: "",
-            gridConfig: false
+            toolGroup: ""
         }
     });
 

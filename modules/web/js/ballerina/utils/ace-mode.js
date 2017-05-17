@@ -64,7 +64,7 @@ ace.define('ace/mode/ballerina',
             this.HighlightRules = BallerinaHighlightRules;
 
             this.createWorker = function(session) {
-                var worker = new WorkerClient(["ace/aceb", "bal_utils", "bal_configs"], "ace/worker/ballerina", "WorkerModule");
+                var worker = new WorkerClient(["ace/ace", "bal_utils", "bal_configs"], "ace/worker/ballerina", "WorkerModule");
                 worker.attachToDocument(session.getDocument());
 
                 worker.on("lint", function(results) {

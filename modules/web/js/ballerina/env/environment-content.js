@@ -21,14 +21,13 @@ var environment_content = {};
 /**
  * Get the packages from the package list api.
  * */
-environment_content.getPackages = function (app) {
-    let packageServiceURL = app.config.services.packages.endpoint;
+environment_content.getPackages = function () {
     var data = [];
 
     // TODO: remove the following hard coded url and use a value from application config
     $.ajax({
         type: "GET",
-        url: packageServiceURL,
+        url: "http://localhost:8289/service/packages",
         contentType: "application/json; charset=utf-8",
         async: false,
         dataType: "json",
@@ -45,13 +44,12 @@ environment_content.getPackages = function (app) {
 /**
  *  Get native types from the Ballerina program service
  */
-environment_content.getNativeTypes = function (app) {
-    let programNativeTypesServiceURL = app.config.services.programNativeTypes.endpoint;
+environment_content.getNativeTypes = function () {
     var data = [];
     // TODO: remove the following hard coded url and use a value from application config
     $.ajax({
         type: "GET",
-        url: programNativeTypesServiceURL,
+        url: "http://localhost:8289/service/program/native/types",
         contentType: "application/json; charset=utf-8",
         async: false,
         dataType: "json",

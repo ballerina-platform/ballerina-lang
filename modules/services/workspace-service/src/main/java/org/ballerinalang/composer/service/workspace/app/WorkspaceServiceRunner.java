@@ -18,14 +18,11 @@ package org.ballerinalang.composer.service.workspace.app;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.api.PackagesApi;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
-import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.rest.BallerinaProgramService;
 import org.ballerinalang.composer.service.workspace.rest.ConfigServiceImpl;
 import org.ballerinalang.composer.service.workspace.rest.FileServer;
@@ -41,8 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.MicroservicesRunner;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Paths;
 
@@ -72,8 +67,8 @@ public class WorkspaceServiceRunner {
         try {
             jcomander.parse(args);
         } catch (ParameterException e) {
-            PrintStream err = System.err;
-            err.println("Invalid argument passed.");
+            PrintStream out = System.out;
+            out.println("Invalid argument passed.");
             printUsage();
             return;
         }
@@ -87,26 +82,6 @@ public class WorkspaceServiceRunner {
             return;
         }
 
-        String apiPath = null;
-        String launcherPath = null;
-        String debuggerPath = null;
-        // reading configurations from workspace-service-config.yaml. Users are expected to drop the
-        // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
-        // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        File configFile = new File("./resources/composer/services/workspace-service-config.yaml");
-        if (configFile.exists()) {
-            try {
-                WorkspaceServiceConfig workspaceServiceConfig = mapper.readValue(configFile,
-                        WorkspaceServiceConfig.class);
-                apiPath = workspaceServiceConfig.getApiPath();
-                launcherPath = workspaceServiceConfig.getLauncherPath();
-                debuggerPath = workspaceServiceConfig.getDebuggerPath();
-            } catch (IOException e) {
-                logger.error("Error while reading workspace-service-config.yaml");
-            }
-        }
-
         /*
            Check if the ports have conflicts, if there are conflicts following is the plan.
                1. If file-server port has a conflict we will inform the user and ask for a different port.
@@ -117,33 +92,28 @@ public class WorkspaceServiceRunner {
         int fileServerPort = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
         //if a custom port is given give priority to that.
         if (null != composer.fileServerPort) {
-            //if the file server port is set to 0 we will
-            if (composer.fileServerPort.equals(0)) {
-                fileServerPort = WorkspaceUtils.getAvailablePort(fileServerPort);
-            } else {
-                fileServerPort = composer.fileServerPort.intValue();
-            }
+            fileServerPort = Integer.parseInt(composer.fileServerPort);
         }
-
         if (!WorkspaceUtils.available(fileServerPort)) {
-            PrintStream err = System.err;
-            err.println("Error: Looks like you may be running the Ballerina composer already ?");
-            err.println(String.format("In any case, it appears someone is already using port %d, " +
+            PrintStream out = System.out;
+            out.println("Looks like you may be running the Ballerina composer already ?");
+            out.println(String.format("In any case, it appears someone is already using port %d, " +
                     "please kick them out or tell me a different port to use.", fileServerPort));
             printUsage();
-            System.exit(1);
+            return;
         }
 
         //find free ports for API ports.
         int apiPort = Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT);
-        apiPort = WorkspaceUtils.getAvailablePort(apiPort);
+        while (!WorkspaceUtils.available(apiPort)) {
+            apiPort++;
+        }
 
         //find free port for launch service.
         int launcherPort = apiPort + 1;
-        launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
-
-        // find free port for debugger
-        int debuggerPort = LaunchUtils.getFreePort();
+        while (!WorkspaceUtils.available(launcherPort)) {
+            launcherPort++;
+        }
 
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
 
@@ -170,11 +140,6 @@ public class WorkspaceServiceRunner {
         ConfigServiceImpl configService = new ConfigServiceImpl();
         configService.setApiPort(apiPort);
         configService.setLauncherPort(launcherPort);
-        configService.setDebuggerPort(debuggerPort);
-        configService.setApiPath(apiPath);
-        configService.setLauncherPath(launcherPath);
-        configService.setDebuggerPath(debuggerPath);
-
 
         fileServer.setContextRoot(contextRoot);
         new MicroservicesRunner(fileServerPort)
@@ -198,7 +163,7 @@ public class WorkspaceServiceRunner {
         private boolean helpFlag = false;
 
         @Parameter(names = "--port", description = "Specify a custom port for file server to start.")
-        private Integer fileServerPort;
+        private String fileServerPort;
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;

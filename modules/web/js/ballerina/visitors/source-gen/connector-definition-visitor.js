@@ -47,23 +47,30 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '';
-        _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString() + '\n';
+        var self = this;
+        var argumentsSrc = "";
+        _.forEach(connectorDefinition.getAnnotations(), function(annotation) {
+            if (!_.isEmpty(annotation.value)) {
+                var constructedPathAnnotation;
+                if (annotation.key.indexOf(":") === -1) {
+                    constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
+                } else {
+                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + '(' + annotation.key.split(":")[1] +
+                        ' = "' + annotation.value + '")\n';
+                }
+                self.appendSource(constructedPathAnnotation);
             }
         });
 
-        var argumentsSrc = '';
         _.forEach(connectorDefinition.getArguments(), function(argument, index){
-            argumentsSrc += argument.type + ' ';
+            argumentsSrc += argument.type + " ";
             argumentsSrc += argument.identifier;
-            if (connectorDefinition.getArguments().length - 1 !== index) {
-                argumentsSrc += ', ';
+            if (connectorDefinition.getArguments().length - 1 != index) {
+                argumentsSrc += ", ";
             }
         });
 
-        constructedSourceSegment += 'connector ' + connectorDefinition.getConnectorName() +
+        var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() +
             ' (' + argumentsSrc + ')' + ' {\n';
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit Connector Definition');

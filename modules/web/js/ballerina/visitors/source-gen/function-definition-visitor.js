@@ -43,21 +43,13 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let functionReturnTypes = functionDefinition.getReturnTypesAsString();
-        let functionReturnTypesSource = '';
-
+        var functionReturnTypes = functionDefinition.getReturnTypesAsString();
+        var functionReturnTypesSource = "";
         if (!_.isEmpty(functionReturnTypes)) {
             functionReturnTypesSource = '(' + functionDefinition.getReturnTypesAsString() + ') ';
         }
 
-        let constructedSourceSegment = '';
-        _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation), annotationNode => {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString() + '\n';
-            }
-        });
-
-        constructedSourceSegment += 'function ' + functionDefinition.getFunctionName() + '(' +
+        var constructedSourceSegment = 'function ' + functionDefinition.getFunctionName() + '(' +
             functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{';
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit FunctionDefinition');

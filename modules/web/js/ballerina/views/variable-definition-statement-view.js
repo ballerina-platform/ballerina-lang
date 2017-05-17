@@ -112,8 +112,8 @@ class VariableDefinitionStatementView extends SimpleStatementView {
         var response = ballerinaFileEditor.getModelFromSource(generatedSource);
         var pathVector = [];
         if (this.getModel().getFactory().isBallerinaAstRoot(response)) {
-            this.getModel().getPathToNode(this.getModel(), pathVector);
-            var parsedNode = this.getModel().getNodeByVector(response, pathVector);
+            ballerinaFileEditor.getPathToNode(this.getModel(), pathVector);
+            var parsedNode = ballerinaFileEditor.getNodeByVector(response, pathVector);
             if (!this.getModel().getFactory().isVariableDefinitionStatement(parsedNode)) {
                 this.getSvgRect().classed('statement-rect', false).classed('statement-rect-error', true);
                 alerts.error('Node type expected to be Variable Definition Statement');

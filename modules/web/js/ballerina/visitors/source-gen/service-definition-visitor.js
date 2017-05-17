@@ -43,12 +43,19 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '';
-        _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
-            annotationNode => {
-                constructedSourceSegment += annotationNode.toString() + '\n';
-            });
-        constructedSourceSegment += 'service ' + serviceDefinition.getServiceName() + ' {\n';
+        var self = this;
+        _.forEach(serviceDefinition.getAnnotations(), function(annotation) {
+            if (!_.isEmpty(annotation.value)) {
+                var constructedPathAnnotation = '';
+                if (annotation.key.indexOf(':') !== -1) {
+                    constructedPathAnnotation = '@' + annotation.key.split(':')[0] + ':'
+                        + annotation.key.split(':')[1] + '{value:"' + annotation.value + '"}\n';
+                }
+                self.appendSource(constructedPathAnnotation);
+            }
+        });
+
+        var constructedSourceSegment = 'service ' + serviceDefinition.getServiceName() + ' {\n';
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit Service Definition');
     }
@@ -58,7 +65,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitServiceDefinition(serviceDefinition) {
-        this.appendSource('}\n');
+        this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Service Definition');
     }

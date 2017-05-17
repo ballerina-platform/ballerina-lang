@@ -478,23 +478,16 @@ public class SwaggerConverterUtils {
         //TODO improve code to avoid additional object creation.
         org.ballerinalang.model.Service[] services = SwaggerConverterUtils.
                 getServicesFromBallerinaDefinition(ballerinaDefinition);
-        StringBuilder swaggerDefinitions =  new StringBuilder();
+        String swaggerDefinition = "";
         if (services.length > 0) {
             //TODO this need to improve iterate through multiple services and generate single swagger file.
             SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
             //TODO mapper type need to set according to expected type.
             //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-            swaggerDefinitions.append("[");
-            for (int i = 0; i < services.length; i++) {
-                swaggerDefinitions.append(swaggerServiceMapper.generateSwaggerString(
-                        swaggerServiceMapper.convertServiceToSwagger(services[i])));
-                if (i != services.length - 1) {
-                    swaggerDefinitions.append(",");
-                }
-            }
-            swaggerDefinitions.append("]");
+            swaggerDefinition = swaggerServiceMapper.
+                    generateSwaggerString(swaggerServiceMapper.convertServiceToSwagger(services[0]));
         }
-        return swaggerDefinitions.toString();
+        return swaggerDefinition;
     }
     
     /**

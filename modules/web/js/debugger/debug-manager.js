@@ -93,20 +93,21 @@ class DebugManager extends EventChannel {
 
     connect(url) {
         if(url !== undefined || url !== ''){
-            this.channel = new Channel({ endpoint: url , debugger: this});
+            this.channel = new Channel({ endpoint: `ws://${url}/debug` , debugger: this});
             this.channel.connect();
         }
     }
 
-    startDebugger(url) {
+    startDebugger(port) {
+        const url =  `localhost:${port}`;
         this.connect(url);
     }
 
     init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
-        this.launchManager.on('debug-active', url => {
-            this.startDebugger(url);
+        this.launchManager.on('debug-active', port => {
+            this.startDebugger(port);
         });
     }
 

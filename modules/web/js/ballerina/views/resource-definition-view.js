@@ -759,24 +759,20 @@ class ResourceDefinitionView extends BallerinaView {
             self._model.remove();
         });
 
-        let annotationViewArgs = {
-            astNode: this.getModel(),
-            diagramRenderingContext: this.getDiagramRenderingContext(),
-            viewPrependElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-            positioningElement: this.getChildContainer()
-        };
-        this._annotationView = new AnnotationView(annotationViewArgs);
-        this._annotationView.render();
-        $(headingAnnotationIcon.node()).click(function() {
-            let isClicked = $(this).data('isClicked');
-            if (isClicked) {
-                self._annotationView.hideEditor();
-                $(this).data('isClicked', false);
-            } else {
-                self._annotationView.showEditor();
-                $(this).data('isClicked', true);
+        var annotationProperties = {
+            model: this._model,
+            activatorElement: headingAnnotationIcon.node(),
+            paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+            viewOptions: {
+                position: {
+                    // "-1" to remove the svg stroke line
+                    left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                    top: this.getChildContainer().attr("y")
+                }
             }
-        });
+        };
+
+        this._annotationView = new AnnotationView().createAnnotationPane(annotationProperties);
 
         this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
 
@@ -792,7 +788,7 @@ class ResourceDefinitionView extends BallerinaView {
             this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
             this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
             //repositioning annotation editor view
-            this._annotationView.positionEditor();
+            this._annotationView.move({dx: dw});
             //repositioning argument editor view
             this._resourceParamatersPaneView.move({dx: dw});
             // If the bounding box of the resource go over the svg's current width

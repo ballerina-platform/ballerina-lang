@@ -27,7 +27,7 @@ import D3Utils from 'd3utils';
 
         toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
             "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon.getAttribute(\"src\")%>\" " +
-            "class=\"tool-image\"  /><span class=\"tool-title-wrap\" ><p class=\"tool-title\"><%=name%></p></span></div>"),
+            "class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
         toolTemplateVertical: _.template("<div id=\"<%=id%>-tool\" class=\"tool-block tool-container-vertical " +
             "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
             "data-toggle=\"tooltip\" title='<%=title%>'><img src=\"<%=icon.getAttribute(\"src\")%>\" class=\"tool-image\"  />" +

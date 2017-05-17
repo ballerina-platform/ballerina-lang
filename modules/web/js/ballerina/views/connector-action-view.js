@@ -629,24 +629,21 @@ class ConnectorActionView extends BallerinaView {
             self._model.remove();
         });
 
-        let annotationViewArgs = {
-            astNode: this.getModel(),
-            diagramRenderingContext: this.getDiagramRenderingContext(),
-            viewPrependElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-            positioningElement: this.getChildContainer()
+        var annotationProperties = {
+            model: this._model,
+            activatorElement: headingAnnotationIcon.node(),
+            paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+            viewOptions: {
+                position: {
+                    // "-1" to remove the svg stroke line
+                    left: parseFloat(this.getChildContainer().attr('x')) + parseFloat(this.getChildContainer().attr('width')) - 1,
+                    top: this.getChildContainer().attr('y')
+                }
+            },
+            view: this
         };
-        this._annotationView = new AnnotationView(annotationViewArgs);
-        this._annotationView.render();
-        $(headingAnnotationIcon.node()).click(function() {
-            let isClicked = $(this).data('isClicked');
-            if (isClicked) {
-                self._annotationView.hideEditor();
-                $(this).data('isClicked', false);
-            } else {
-                self._annotationView.showEditor();
-                $(this).data('isClicked', true);
-            }
-        });
+
+        this._annotationView = new AnnotationView().createAnnotationPane(annotationProperties);
 
         var argumentsProperties = {
             model: this._model,
@@ -692,7 +689,7 @@ class ConnectorActionView extends BallerinaView {
             this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
 
             // repositioning annotation editor view
-            this._annotationView.positionEditor();
+            this._annotationView.move({dx: dw});
             // repositioning argument editor view
             this._argumentsView.move({dx: dw});
             // repositioning return type pane view

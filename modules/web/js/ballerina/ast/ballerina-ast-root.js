@@ -60,16 +60,6 @@ class BallerinaASTRoot extends ASTNode {
                     if (e.data.child._fullPackageName) {
                         addImportOnTreeChange(e.data.child.getFullPackageName());
                     }
-                } else if (self.getFactory().isServiceDefinition(e.data.child)) {
-                    let annotations = e.data.child.getChildrenOfType(e.data.child.getFactory().isAnnotation);
-                    _.forEach(annotations, annotation => {
-                        addImportOnTreeChange(annotation.getFullPackageName());
-                    });
-                } else if (self.getFactory().isResourceDefinition(e.data.child)) {
-                    let annotations = e.data.child.getChildrenOfType(e.data.child.getFactory().isAnnotation);
-                    _.forEach(annotations, annotation => {
-                        addImportOnTreeChange(annotation.getFullPackageName());
-                    });
                 } else if (self.getFactory().isActionInvocationExpression(e.data.child)) {
                     if (e.data.child._fullPackageName) {
                         addImportOnTreeChange(e.data.child.getFullPackageName());
