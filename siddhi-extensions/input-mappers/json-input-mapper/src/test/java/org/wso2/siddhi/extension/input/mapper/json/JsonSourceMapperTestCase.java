@@ -598,7 +598,10 @@ public class JsonSourceMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', " +
-                "@map(type='json', fail.on.missing.attribute='true'))\n" +
+                "@map(type='json', fail.on.missing.attribute='true', " +
+                "@attributes(symbol = \"event.symbol\", price = \"event.price\", " +
+                "volume = \"event.volume\") " +
+                "))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
