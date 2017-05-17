@@ -32,6 +32,7 @@ import DebugManager from './debugger/debug-manager';
 import LaunchManager from './launcher/launch-manager';
 import Launcher from './launcher/launcher';
 import Console from 'console';
+import BallerinaEnvironment from './ballerina/env/environment';
 // importing for side effects only
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/themes/base/draggable.css';
@@ -162,6 +163,7 @@ class Application {
         if(this.isElectronMode()) {
             this.menuBar.setVisible(false);
         }
+        BallerinaEnvironment.initialize({app: this});
     }
 
     displayInitialView() {
