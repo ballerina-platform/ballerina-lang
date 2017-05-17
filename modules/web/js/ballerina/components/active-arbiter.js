@@ -3,6 +3,11 @@ class ActiveArbiter {
     readyToDeactivate(statement) {
         clearTimeout(this.timeout);
         if (statement.state.active === 'visible') {
+            setTimeout(() => {
+                if (statement.state.active === 'fade') {
+                    statement.setState({active: 'hidden'});
+                }
+            }, 500);
             statement.setState({active: 'fade'});
         }
     }
