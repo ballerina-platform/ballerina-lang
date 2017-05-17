@@ -164,6 +164,8 @@
                 <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
                 <include>com.zaxxer:HikariCP</include>
                 <include>javax.jms:javax.jms-api</include>
+                <include>javax.transaction:javax.transaction-api</include>
+                <include>org.atomikos.wso2:atomikos</include>
             </includes>
         </dependencySet>
     </dependencySets>
