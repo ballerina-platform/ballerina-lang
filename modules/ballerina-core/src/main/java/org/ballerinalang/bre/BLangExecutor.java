@@ -307,9 +307,6 @@ public class BLangExecutor implements NodeExecutor {
         thrownError = (BStruct) throwStmt.getExpr().execute(this);
         thrownError.setStackTrace(generateStackTrace());
         isErrorThrown = true;
-        if (bContext.isInTransaction()) {
-            bContext.getBallerinaTransactionManager().setTransactionError(true);
-        }
     }
 
     private BStruct generateStackTrace() {
@@ -619,6 +616,9 @@ public class BLangExecutor implements NodeExecutor {
         ballerinaTransactionManager.beginTransactionBlock();
         try {
             transactionRollbackStmt.getTransactionBlock().execute(this);
+            if (isErrorThrown) {
+                ballerinaTransactionManager.setTransactionError(true);
+            }
             ballerinaTransactionManager.commitTransactionBlock();
         } catch (Exception e) {
             createBErrorFromException(e);
