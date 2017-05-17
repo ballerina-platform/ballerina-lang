@@ -223,7 +223,7 @@
 }
 
 .parameter-delete-icon-wrapper {
-    fill: #b9b9b9;
+    fill: $argument-parameter-group-wrapper-bgcolor;
     shape-rendering: crispEdges;
     padding: 13px;
     opacity: 0.3;
@@ -234,11 +234,14 @@
 }
 
 .argument-parameter-group,
-.annotation-attachment-group {
+.annotation-attachment-group,
+.return-parameter-group{
     fill: $argument-parameter-group-wrapper-bgcolor;
 }
 
-.parameter-bracket-text{
+.parameter-bracket-text,
+.return-types-opening-brack-text,
+.return-types-closing-brack-text {
     fill: #999;
     dominant-baseline: text-before-edge;
 }
