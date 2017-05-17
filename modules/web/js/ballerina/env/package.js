@@ -24,6 +24,7 @@ import TypeDefinition from './../ast/type-definition';
 import TypeMapperDefinition from './../ast/type-mapper-definition';
 import ConstantDefinition from './../ast/constant-definition';
 import StructDefinition from './../ast/struct-definition';
+import AnnotationDefinition from './../ast/annotation-definition';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
@@ -43,6 +44,7 @@ class Package extends EventChannel {
         this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
         this.addTypeMapperDefinitions(_.get(args, 'typeMapperDefinitions', []));
         this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
+        this.addAnnotationDefinitions(_.get(args, 'annotationDefinitions', []));
     }
 
     setName(name) {
@@ -263,6 +265,56 @@ class Package extends EventChannel {
     }
 
     /**
+     * Add annotation defs
+     * @param annotationDefinitions - can be an array of annotationDefs or a single annotationDef
+     */
+    addAnnotationDefinitions(annotationDefinitions){
+        var err;
+        if(!_.isArray(annotationDefinitions) && !(BallerinaEnvFactory.isAnnotation(annotationDefinitions))){
+            err = "Adding annotation def failed. Not an instance of AnnotationDefinition" + annotationDefinitions;
+            log.error(err);
+            throw err;
+        }
+        if(_.isArray(annotationDefinitions)){
+            if(!_.isEmpty(annotationDefinitions)){
+                _.each(annotationDefinitions, function(annotationDefinition){
+                    if(!(annotationDefinition instanceof  AnnotationDefinition)){
+                        err = "Adding annotation def failed. Not an instance of AnnotationDefinitions" + annotationDefinition;
+                        log.error(err);
+                        throw err;
+                    }
+                });
+            }
+        }
+        this._annotationDefinitions = this._annotationDefinitions || [];
+        this._annotationDefinitions = _.concat(this._annotationDefinitions , annotationDefinitions);
+        /**
+         * fired when new annotation defs are added to the package.
+         * @event Package#annotation-defs-added
+         * @type {[AnnotationDefinition]}
+         */
+        this.trigger("annotation-defs-added", annotationDefinitions);
+    }
+
+    /**
+     * Set annotation defs
+     *
+     * @param annotationDefs
+     */
+    setAnnotationDefinitions(annotationDefs) {
+        this._annotationDefinitions = null;
+        this.addAnnotationDefinitions(annotationDefs);
+    }
+
+    /**
+     *
+     * @returns {[AnnotationDefinition]}
+     */
+    getAnnotationDefinitions() {
+        return this._annotationDefinitions;
+    }
+
+    /**
      * Add service defs
      * @param serviceDefinitions - can be an array of serviceDefs or a single serviceDef
      */
@@ -473,6 +525,12 @@ class Package extends EventChannel {
             var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.initFromJson(functionNode);
             self.addFunctionDefinitions(functionDef);
+        });
+
+        _.each(jsonNode.annotations, function(annotationNode){
+            var annotationDef = BallerinaEnvFactory.createAnnotation();
+            annotationDef.initFromJson(annotationDef);
+            self.addAnnotationDefinitions(annotationDef);
         });
 
     }

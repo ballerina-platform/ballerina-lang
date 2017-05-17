@@ -20,6 +20,7 @@ import org.ballerinalang.composer.service.workspace.api.NotFoundException;
 import org.ballerinalang.composer.service.workspace.api.PackagesApiService;
 import org.ballerinalang.composer.service.workspace.model.Action;
 import org.ballerinalang.composer.service.workspace.model.Annotation;
+import org.ballerinalang.composer.service.workspace.model.AnnotationAttachment;
 import org.ballerinalang.composer.service.workspace.model.Connector;
 import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
@@ -120,6 +121,8 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         // turn off skipping native function parsing
         System.setProperty("skipNatives", "false");
 
+
+
         // process each package separately
         for (String builtInPkg : packagesArray) {
             Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
@@ -128,7 +131,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
                 BLangPackage pkg = BLangPackages.loadPackage(packagePath, fileRepo,
                         bLangProgram);
                 Stream.of(pkg.getAnnotationDefs()).forEach((annotationDef) -> extractAnnotationDefs(packages,
-                        annotationDef));
+                        pkg.getPackagePath(), annotationDef));
                 Stream.of(pkg.getConnectors()).forEach((connector) -> extractConnector(packages, pkg.getPackagePath(),
                         connector));
                 Stream.of(pkg.getFunctions()).forEach((function) -> extractFunction(packages, pkg.getPackagePath(),
@@ -144,8 +147,36 @@ public class PackagesApiServiceImpl extends PackagesApiService {
      * @param packages packages to send
      * @param annotationDef annotationDef
      * */
-    private void extractAnnotationDefs(Map<String, ModelPackage> packages, AnnotationDef annotationDef) {
+    private void extractAnnotationDefs(Map<String, ModelPackage> packages, String packagePath,
+                                       AnnotationDef annotationDef) {
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            List<AnnotationAttachment> annotationAttachment = new ArrayList<>();
+            addAnnotationAttachment(annotationAttachment, annotationDef.getAnnotations());
 
+            List<String> attachmentPoints = new ArrayList<>();
+            addAttachmentPoints(attachmentPoints, annotationDef.getAttachmentPoints());
+
+            //List<Action> attributeDefs = new ArrayList<>();
+            //addAttributeDefs(attributeDefs, annotationDef.getAttributeDefs());
+
+            modelPackage.addAnnotationsItem(createNewAnnotationDef(annotationDef.getName(), attachmentPoints));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+
+            List<AnnotationAttachment> annotationAttachment = new ArrayList<>();
+            addAnnotationAttachment(annotationAttachment, annotationDef.getAnnotations());
+
+            List<String> attachmentPoints = new ArrayList<>();
+            addAttachmentPoints(attachmentPoints, annotationDef.getAttachmentPoints());
+
+            //List<Action> attributeDefs = new ArrayList<>();
+            //addAttributeDefs(attributeDefs, annotationDef.getAttributeDefs());
+
+            modelPackage.addAnnotationsItem(createNewAnnotationDef(annotationDef.getName(), attachmentPoints));
+            packages.put(packagePath, modelPackage);
+        }
     }
 
     /**
@@ -260,6 +291,41 @@ public class PackagesApiServiceImpl extends PackagesApiService {
     }
 
     /**
+     * Add Attachment Points to a list from ballerina lang Attachment Points list.
+     * @param attachmentPoints attachmentPoints to send.
+     * @param attachmentPointsArray attachment Points Array
+     * */
+    private void addAttachmentPoints(List<String> attachmentPoints, String[] attachmentPointsArray) {
+        if (attachmentPointsArray != null) {
+            Stream.of(attachmentPointsArray).forEach(item -> attachmentPoints.add(item));
+        }
+    }
+
+    /**
+     * Add annotationAttachments from ballerina lang annotationAttachment list.
+     * @param annotationAttachment annotationAttachment
+     * @param attachmentPoints attachment Points
+     * */
+    private void addAnnotationAttachment(List<AnnotationAttachment> annotationAttachment,
+                                         org.ballerinalang.model.AnnotationAttachment[] attachmentPoints) {
+        if (attachmentPoints != null) {
+            Stream.of(attachmentPoints).forEach(attachmentPoint ->
+                    annotationAttachment.add(createAttachmentPoint(attachmentPoint)));
+        }
+    }
+
+    /**
+     * Create Annotation Attachment
+     * @param attachmentPoint attachmentPoint
+     * @return {Parameter} parameter
+     * */
+    private AnnotationAttachment createAttachmentPoint(org.ballerinalang.model.AnnotationAttachment attachmentPoint) {
+        AnnotationAttachment annotationAttachment = new AnnotationAttachment();
+        annotationAttachment.setName(attachmentPoint.getName());
+        return annotationAttachment;
+    }
+
+    /**
      * Extract action details from a connector.
      * @param action action.
      * @return {Action} action
@@ -354,6 +420,19 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         connector.setAnnotations(annotations);
         connector.setReturnParameters(returnParams);
         return connector;
+    }
+
+    /**
+     * Create new annotation
+     * @param name name of the annotation
+     * @param attachmentPoints list of attachmentPoints
+     * @return {Function} function
+     * */
+    private Annotation createNewAnnotationDef(String name, List<String> attachmentPoints) {
+        Annotation annotation = new Annotation();
+        annotation.setName(name);
+        annotation.setAttachmentPoints(attachmentPoints);
+        return annotation;
     }
 
     /**
