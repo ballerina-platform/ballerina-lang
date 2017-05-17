@@ -23,6 +23,7 @@ import ImageUtil from './image-util';
 import Alerts from 'alerts';
 import Renderer from './renderer';
 import PropTypes from 'prop-types';
+import EditableText from './editable-text';
 
 const DEFAULT_INPUT_VALUE = "+ Add Variable";
 
@@ -33,28 +34,57 @@ class AnnotationAttributeDecorator extends React.Component {
     constructor(props) {
         super(props);
         this.model = this.props.model;
-        this.state = {inputValue: DEFAULT_INPUT_VALUE};
+        this.state = {inputValue: DEFAULT_INPUT_VALUE, editing: false, editValue: DEFAULT_INPUT_VALUE};
         this.setAnnotationAttributeFromInputBox = this.setAnnotationAttributeFromInputBox.bind(this);
     }
 
-    onClickVariableTextBox() {
-        let model = this.props.model;
-        let bBox = model.viewState.bBox;
+    onClickVariableTextBox(e) {
+        this.setState({editing: true, editValue: DEFAULT_INPUT_VALUE});
+    }
 
-        let textBoxBBox = {
-            x: bBox.x + 50,
-            y: bBox.y + 50,
-            w: 330,
-            h: 30
-        };
+    onInputBlur(e) {
+        e.target.value = "";
+        this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE})
+    }
 
-        const options = {
-            bBox: textBoxBBox,
-            onChange: this.setAnnotationAttributeFromInputBox,
-            initialValue: ""
-        };
+    onKeyDown(e) {
+        if (e.keyCode === 13) {
+            if (DEFAULT_INPUT_VALUE !== this.state.editValue) {
+                if (!this.addAnnotationAttribute()) {
+                    e.preventDefault();
+                }
+            }
+            e.target.value = "";
+            this.setState({editing: false, editValue: DEFAULT_INPUT_VALUE})
+        }
+    }
 
-        this.context.renderer.renderTextBox(options);
+    onInputChange(e) {
+        // let validate = this.props.validateInput;
+        this.setState({editing: true, editValue: e.target.value.trim()});
+        let variableDeclaration = e.target.value.replace(";", "");
+        if (this.validateAttribute(variableDeclaration)) {
+            this.setState({editing: true, editValue: variableDeclaration});
+        }
+    }
+
+    validateAttribute(attribute) {
+        if (attribute.includes("=")) {
+            let splitedExpression = attribute.split("=");
+            let leftSideSplitted = splitedExpression[0].trim().split(" ");
+            let rightSide = splitedExpression[1].trim();
+
+            if (leftSideSplitted.length > 1 && rightSide) {
+                return true;
+            }
+        } else {
+            let splitedExpression = attribute.trim().split(" ");
+            if (splitedExpression.length > 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     setAnnotationAttributeFromInputBox(input) {
@@ -67,7 +97,7 @@ class AnnotationAttributeDecorator extends React.Component {
     addAnnotationAttribute() {
         let model = this.props.model;
         try {
-            let variableDeclaration = this.state.inputValue.trim();
+            let variableDeclaration = this.state.editValue.trim();
             if (DEFAULT_INPUT_VALUE !== variableDeclaration) {
                 let splitedExpression = variableDeclaration.split("=");
                 let leftHandSideExpression = splitedExpression[0].trim();
@@ -97,7 +127,7 @@ class AnnotationAttributeDecorator extends React.Component {
                 }
 
                 model.addAnnotationAttributeDefinition(bType, identifier, defaultValue);
-                this.setState({inputValue: DEFAULT_INPUT_VALUE});
+                return true;
             } else {
                 let errorString = "Please Enter Variable Declaration Before Adding";
                 Alerts.error(errorString);
@@ -105,6 +135,7 @@ class AnnotationAttributeDecorator extends React.Component {
             }
         } catch (e) {
             Alerts.error(e);
+            return false;
         }
     }
 
@@ -115,16 +146,28 @@ class AnnotationAttributeDecorator extends React.Component {
                 <g onClick={() => this.onClickVariableTextBox()}>
                     <rect x={bBox.x + 50} y={bBox.y + 50} width={330} height={30}
                           className="annotation-input"/>
-                    <text x={bBox.x + 60} y={bBox.y + 70} width={330} height={30} className="annotation-input-placeholder">
-                        {this.state.inputValue}
-                    </text>
-                </g>
-                <g onClick={() => this.addAnnotationAttribute()}>
-                    <rect x={bBox.x + 350 + 10 + 40} y={bBox.y + 50} width={30} height={30} className=""/>
-                    <image x={bBox.x + 350 + 15 + 40} y={bBox.y + 55} width={20} height={20}
-                           xlinkHref={ImageUtil.getSVGIconString('add')}>
-                        <title>Add</title>
-                    </image>
+                    <EditableText x={bBox.x + 50}
+                                  y={bBox.y + 65}
+                                  width={331}
+                                  height={31}
+                                  className="annotation-input-placeholder"
+                                  placeHolder={this.state.editValue}
+                                  canUpdate={false}
+                                  onKeyDown={e => {
+                                      this.onKeyDown(e);
+                                  }}
+                                  onBlur={e => {
+                                      this.onInputBlur(e)
+                                  }}
+                                  onClick={() => {
+                                      this.onClickVariableTextBox()
+                                  }}
+                                  editing={this.state.editing}
+                                  onChange={e => {
+                                      this.onInputChange(e)
+                                  }}>
+                        {DEFAULT_INPUT_VALUE}
+                    </EditableText>
                 </g>
             </g>
         );
@@ -134,19 +177,13 @@ class AnnotationAttributeDecorator extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
+        const {renderingContext} = this.context;
         let dropdownData = [];
         // Adding items to the type dropdown.
-        // TODO: Add types to diagram context
-        let bTypes = ["int", "string"];
+        let bTypes = renderingContext.environment.getTypes();
         _.forEach(bTypes, function (bType) {
             dropdownData.push({id: bType, text: bType});
         });
-
-        let structTypes = [];
-        _.forEach(structTypes, function (sType) {
-            dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
-        });
-
         return dropdownData;
     }
 
@@ -167,7 +204,7 @@ class AnnotationAttributeDecorator extends React.Component {
 }
 
 AnnotationAttributeDecorator.contextTypes = {
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default AnnotationAttributeDecorator;
