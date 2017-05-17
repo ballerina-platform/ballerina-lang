@@ -529,7 +529,7 @@ class Package extends EventChannel {
 
         _.each(jsonNode.annotations, function(annotationNode){
             var annotationDef = BallerinaEnvFactory.createAnnotation();
-            annotationDef.initFromJson(annotationDef);
+            annotationDef.initFromJson(annotationNode);
             self.addAnnotationDefinitions(annotationDef);
         });
 
