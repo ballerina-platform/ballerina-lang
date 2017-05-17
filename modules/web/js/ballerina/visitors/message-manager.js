@@ -32,6 +32,7 @@ class MessageManager {
      */
     constructor(args) {
         log.debug('Initialising Message Manager');
+        this._fileEditor = args.fileEditor;
         this._typeBeingDragged = undefined;
         this._isOnDrag = false;
         this._source = undefined;
@@ -151,7 +152,7 @@ class MessageManager {
     startDrawMessage(mouseUpCallback, targetValidationCallback) {
 
         var self = this,
-            container = d3.select('.svg-container');
+            container = d3.select(self._fileEditor._$canvasContainer.find('.svg-container').get(0));
 
         container.on('mousemove', function (e) {
             var m = d3.mouse(this);
