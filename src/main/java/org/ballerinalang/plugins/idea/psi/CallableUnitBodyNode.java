@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -58,7 +57,7 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
                     if (elementType == BallerinaTypes.DOT) {
                         PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
                                 .getContainingFile(), prevToken.getTextOffset());
-                        return resolveField(element, prevSibling);
+                        return BallerinaPsiImplUtil.resolveField(element, prevSibling);
                     }
                 }
                 return null;
@@ -70,7 +69,7 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
                     if (elementType == BallerinaTypes.DOT) {
                         PsiElement prevPrevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
                                 .getContainingFile(), prevSibling.getTextOffset());
-                        return resolveField(element, prevPrevSibling);
+                        return BallerinaPsiImplUtil.resolveField(element, prevPrevSibling);
                     }
                 }
             }
@@ -89,7 +88,7 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
                                     PsiElement prevPrevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement
                                             (element
                                                     .getContainingFile(), prevSibling.getTextOffset());
-                                    return resolveField(element, prevPrevSibling);
+                                    return BallerinaPsiImplUtil.resolveField(element, prevPrevSibling);
                                 }
                             }
                         }
@@ -121,35 +120,6 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
         } else if (element.getParent() instanceof TypeNameNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
                     "//connectorDefinition/Identifier");
-        }
-        return null;
-    }
-
-    private PsiElement resolveField(PsiNamedElement element, PsiElement prevSibling) {
-        if (prevSibling == null) {
-            return null;
-        }
-
-        PsiReference reference = prevSibling.getReference();
-        if (reference == null) {
-            return null;
-        }
-
-        PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement == null) {
-            return null;
-        }
-
-        PsiElement resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement);
-
-        if (resolvedStruct == null) {
-            resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement.getParent());
-        }
-        if (resolvedStruct == null) {
-            return null;
-        }
-        if (resolvedStruct.getParent() instanceof StructDefinitionNode) {
-            return ((StructDefinitionNode) resolvedStruct.getParent()).resolve(element);
         }
         return null;
     }

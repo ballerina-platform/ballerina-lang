@@ -68,7 +68,6 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
@@ -969,8 +968,25 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true,
                         true, true);
             } else if (elementType == BallerinaTypes.DOT) {
-                PsiElement element = getPreviousNonEmptyElement(originalFile, token.getTextOffset());
-                addStructFields(parameters, resultSet, element, null, true, true);
+                PsiElement element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
+                if (!(element instanceof IdentifierPSINode)) {
+                    element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset() - 1);
+                }
+                PsiReference reference = element.getReference();
+                if (reference == null) {
+                    return;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    return;
+                }
+                if (resolvedElement.getParent() instanceof ConnectorDefinitionNode) {
+                    // Eg. Twitter.<caret>
+                    handleActionInvocationNode(parameters, resultSet);
+                } else {
+                    // Eg: user.<caret>
+                    addStructFields(parameters, resultSet, element, null, false, true);
+                }
             } else if (elementType == BallerinaTypes.ASSIGN) {
                 PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
                 addLookups(resultSet, originalFile, true, true, false, true);
@@ -1033,7 +1049,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 handleActionInvocationNode(parameters, resultSet);
             } else {
                 // Eg: user.<caret>
-                addStructFields(parameters, resultSet, element, null, false, false);
+                addStructFields(parameters, resultSet, element, null, false, true);
             }
         } else {
             PsiElement currentElement = originalFile.findElementAt(parameters.getOffset());
@@ -1122,7 +1138,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         }
         return resolvedVariableDefElement;
     }
-
 
 
     private void suggestElementsFromAPackage(@NotNull CompletionParameters parameters,

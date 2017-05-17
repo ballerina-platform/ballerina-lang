@@ -69,7 +69,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BallerinaPsiImplUtil {
 
@@ -795,6 +794,13 @@ public class BallerinaPsiImplUtil {
                 return null;
                 //                return resolveElement((BallerinaFile) element.getContainingFile(), element, xpaths);
             }
+
+            PsiElement parent = element.getParent();
+            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+            if (packageNameNode != null) {
+                return null;
+            }
+
             // Iterate through all xpaths.
             for (String xpath : xpaths) {
                 // Get all matching elements from a package (functions, etc).
@@ -1034,4 +1040,34 @@ public class BallerinaPsiImplUtil {
         }
         return resolvedDefElement;
     }
+
+    public static PsiElement resolveField(PsiNamedElement element, PsiElement prevSibling) {
+        if (prevSibling == null) {
+            return null;
+        }
+
+        PsiReference reference = prevSibling.getReference();
+        if (reference == null) {
+            return null;
+        }
+
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+
+        PsiElement resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement);
+
+        if (resolvedStruct == null) {
+            resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement.getParent());
+        }
+        if (resolvedStruct == null) {
+            return null;
+        }
+        if (resolvedStruct.getParent() instanceof StructDefinitionNode) {
+            return ((StructDefinitionNode) resolvedStruct.getParent()).resolve(element);
+        }
+        return null;
+    }
+
 }
