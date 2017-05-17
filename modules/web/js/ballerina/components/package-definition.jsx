@@ -99,8 +99,6 @@ class PackageDefinition extends React.Component {
                 packageDefExpanded: false,
                 packageNameEditing: false
             })
-            // TODO: unset package name
-            return;
         }
         this.props.model.setPackageName(this.state.packageDefValue);
         this.setState({packageNameEditing: false});
