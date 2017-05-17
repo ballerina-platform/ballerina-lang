@@ -22,6 +22,7 @@ import StatementView from './statement-decorator.jsx'
 import PanelDecorator from './panel-decorator';
 import {getComponentForNodeArray} from './utils';
 import GlobalExpanded from './globals-expanded';
+import GlobalDefinitions from './global-definitions';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
@@ -32,6 +33,7 @@ class ConnectorDefinition extends React.Component {
         this.variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
         this.handleAddVariable = this.handleAddVariable.bind(this);
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
+        this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
 
     render() {
@@ -71,12 +73,21 @@ class ConnectorDefinition extends React.Component {
                                 dropTarget={this.props.model}
                                 dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
                                 titleComponentData={titleComponentData}>
-            <GlobalExpanded
-                bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleGlobalsBadgeClick}
-                title="Variables" onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
-                getValue={ g => (g.getStatementString())}/>
+                {
+                    this.props.model.viewState.variablesExpanded ?
+                        <GlobalExpanded
+                            bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleVarialblesBadgeClick}
+                            title="Variables" onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
+                            addText={'+ Add Variable'} getValue={ g => (g.getStatementString())}/> :
+                        <GlobalDefinitions bBox={expandedVariablesBBox} numberOfItems={variables.length}
+                                title={'Variables'} onExpand={this.handleVarialblesBadgeClick} />
+                }
             {children}
         </PanelDecorator>);
+    }
+
+    handleVarialblesBadgeClick() {
+        this.props.model.setAttribute('viewState.variablesExpanded', !this.props.model.viewState.variablesExpanded);
     }
 
     canDropToPanelBody(nodeBeingDragged) {
