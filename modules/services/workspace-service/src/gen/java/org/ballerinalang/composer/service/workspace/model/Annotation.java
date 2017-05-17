@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,7 +71,7 @@ public class Annotation   {
     return this;
   }
 
-  public void setAttachmentPoints(List<String> attachmentPoints){
+  public void setAttachmentPoints(List<String> attachmentPoints) {
     this.attachmentPoints = attachmentPoints;
   }
 
