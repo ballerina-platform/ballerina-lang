@@ -78,6 +78,11 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     private boolean isStaticField = false;
 
     /**
+     * Flag indicating whether the expression is an array or not.
+     */
+    private boolean isArrayIndexExpr = false;
+
+    /**
      * Creates a field access expression.
      *
      * @param location location of the expression in the source file
@@ -206,6 +211,11 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      */
     public void setLHSExpr(boolean isLhsExpr) {
         isLHSExpr = isLhsExpr;
+
+        // Set the property recursively
+        if (fieldRefExpr != null) {
+            fieldRefExpr.setLHSExpr(isLhsExpr);
+        }
     }
 
     /**
@@ -305,5 +315,13 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     
     public boolean isStaticField() {
         return isStaticField;
+    }
+
+    public boolean isArrayIndexExpr() {
+        return isArrayIndexExpr;
+    }
+
+    public void setIsArrayIndexExpr(boolean isArrayIndexExpr) {
+        this.isArrayIndexExpr = isArrayIndexExpr;
     }
 }

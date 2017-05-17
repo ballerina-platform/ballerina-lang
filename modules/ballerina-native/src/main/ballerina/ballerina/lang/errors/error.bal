@@ -19,6 +19,5 @@ struct StackTraceItem {
 native function getStackTrace(Error err)(StackTrace);
 
 function toString(StackTraceItem item)(string){
-    // native function printStackTrace(error err);
     return item.packageName + ":" + item.caller + "(" + item.fileName + ":" + item.lineNumber + ")";
 }
