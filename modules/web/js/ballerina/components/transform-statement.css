@@ -9,13 +9,6 @@
     margin: auto;
     padding: 10px;
 }
-.source-view {
-    width: 50%;
-    float: left;
-}
-.target-view {
-    margin-left: 70%;
-}
 
 .data-mapper-container {
     position: relative;
@@ -63,17 +56,14 @@
 }
 
 .struct {
-    border: 1px solid gray;
     width: 400px;
     height: auto;
-    background: #3d3d3d;
-    color: #ffffff;
+    color: #3d3d3d;
     position: absolute;
 }
 .property {
     padding: 5;
     font-size: 16px;
-    background-color: #ffffff;
     color: black;
 }
 
@@ -81,29 +71,12 @@ svg.plumbConnect path {
     stroke:#3d3d3d;
 }
 
-.jstree-default .jstree-last {
-    background: #ffffff;
-}
-
 .typeMapperList {
     display: none;
 }
 
-.tree-container{
-    background: #ffffff;
-}
-
 .jstree-default .jstree-hovered {
     color : #000000;
-}
-
-.jstree-default .jstree-leaf>.jstree-ocl {
-    background-position: -69px 0px;
-}
-
-.jstree-default .jstree-clicked {
-    background : #ffffff;
-    color: #000000;
 }
 
 .jstree-default .jstree-anchor {
