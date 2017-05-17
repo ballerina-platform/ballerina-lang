@@ -67,7 +67,6 @@ class AssignmentStatement extends Statement {
 
     generateStatementString(){
         const statementString =  this.getChildren()[0].generateExpression() + '=' + this.getChildren()[1].generateExpression();
-        this.setAttribute('_statementString', statementString);
         return statementString;
     }
 
