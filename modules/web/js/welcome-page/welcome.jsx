@@ -53,7 +53,7 @@ class WelcomeView extends React.Component {
                                         {/*<div className="thumbnail">*/}
                                             {/*<img src="images/tweetMediumFeed.bal.jpg"/>*/}
                                             {/*<div className="caption">*/}
-                                                {/*<h4>tweetMediumFeed.bal</h4>*/}
+                                                {/*<h4>contentBasedRoutingService.bal</h4>*/}
                                                 {/*<p>Apr 19th, 02:30pm</p>*/}
                                             {/*</div>*/}
                                         {/*</div>*/}
