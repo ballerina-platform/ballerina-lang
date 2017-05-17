@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -19,6 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Constructor for ResourceDefinition
@@ -29,14 +31,10 @@ import CommonUtils from '../utils/common-utils';
 class ResourceDefinition extends ASTNode {
     constructor(args) {
         // TODO: All the types should be referred from the global constants
-        super('Resource', 'resource {', '}');
+        super('ResourceDefinition');
         this._resourceName = _.get(args, 'resourceName');
 
         this.BallerinaASTFactory = this.getFactory();
-
-        // Adding the default worker declaration.
-        var defaultWorker = this.BallerinaASTFactory.createWorkerDeclaration({isDefaultWorker: true});
-        this.addChild(defaultWorker);
     }
 
     setResourceName(resourceName, options) {
@@ -49,11 +47,11 @@ class ResourceDefinition extends ASTNode {
     }
 
     getVariableDefinitionStatements() {
-        var variableDefinitionStatements = [];
-        var self = this;
+        let variableDefinitionStatements = [];
+        let self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isVariableDefinitionStatement(child)) {
+            if (self.getFactory().isVariableDefinitionStatement(child)) {
                 variableDefinitionStatements.push(child);
             }
         });
@@ -61,15 +59,7 @@ class ResourceDefinition extends ASTNode {
     }
 
     getParameters() {
-        var resourceParameters = [];
-        var self = this;
-
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isResourceParameter(child)) {
-                resourceParameters.push(child);
-            }
-        });
-        return resourceParameters;
+        return this.getArgumentParameterDefinitionHolder().getChildren();
     }
 
     getResourceName() {
@@ -80,17 +70,17 @@ class ResourceDefinition extends ASTNode {
      * Adds new variable declaration.
      */
     addVariableDeclaration(newVariableDeclaration) {
-        var self = this;
+        let self = this;
         // Get the index of the last variable declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child);
+        let index = _.findLastIndex(this.getChildren(), function (child) {
+            return self.getFactory().isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
             index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isConnectorDeclaration(child);
+                return self.getFactory().isConnectorDeclaration(child);
             });
         }
 
@@ -101,10 +91,10 @@ class ResourceDefinition extends ASTNode {
      * Adds new variable declaration.
      */
     removeVariableDeclaration(variableDeclarationIdentifier) {
-        var self = this;
+        let self = this;
         // Removing the variable from the children.
-        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isVariableDeclaration(child)
+        let variableDeclarationChild = _.find(this.getChildren(), function (child) {
+            return self.getFactory().isVariableDeclaration(child)
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
@@ -115,13 +105,13 @@ class ResourceDefinition extends ASTNode {
      * @return {string} - Parameters as string.
      */
     getParametersAsString() {
-        var paramsAsString = "";
-        var params = this.getParameters();
+        let paramsAsString = "";
+        let params = this.getParameters();
 
-        _.forEach(params, function(parameter, index){
-            paramsAsString += parameter.getParameterAsString();
+        _.forEach(params, function (parameter, index) {
+            paramsAsString += parameter.getParameterDefinitionAsString();
             if (params.length - 1 != index) {
-                paramsAsString += ",";
+                paramsAsString += ", ";
             }
         });
 
@@ -137,28 +127,28 @@ class ResourceDefinition extends ASTNode {
      */
     addParameter(annotationType, annotationText, parameterType, parameterIdentifier) {
         // Check if already parameter exists with same identifier.
-        var identifierAlreadyExists = _.findIndex(this.getParameters(), function (parameter) {
-                return parameter.getIdentifier() === parameterIdentifier;
+        let identifierAlreadyExists = _.findIndex(this.getParameters(), function (parameter) {
+                return parameter.getName() === parameterIdentifier;
             }) !== -1;
 
         // If parameter with the same identifier exists, then throw an error. Else create the new parameter.
         if (identifierAlreadyExists) {
-            var errorString = "A resource parameter with identifier '" + parameterIdentifier + "' already exists.";
+            let errorString = "A resource parameter with identifier '" + parameterIdentifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
             // Creating resource parameter
-            var newParameter = this.BallerinaASTFactory.createResourceParameter();
+            let newParameter = this.getFactory().createResourceParameter();
             newParameter.setAnnotationType(annotationType);
             newParameter.setAnnotationText(annotationText);
             newParameter.setType(parameterType);
-            newParameter.setIdentifier(parameterIdentifier);
+            newParameter.setName(parameterIdentifier);
 
-            var self = this;
+            let self = this;
 
             // Get the index of the last resource parameter declaration.
-            var index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.BallerinaASTFactory.isResourceParameter(child);
+            let index = _.findLastIndex(this.getChildren(), function (child) {
+                return self.getFactory().isResourceParameter(child);
             });
 
             this.addChild(newParameter, index + 1);
@@ -170,10 +160,10 @@ class ResourceDefinition extends ASTNode {
      * @param {string} modelID - The id of the parameter model.
      */
     removeParameter(modelID) {
-        var self = this;
+        let self = this;
         // Deleting the variable from the children.
-        var resourceParameter = _.find(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isResourceParameter(child) && child.id === modelID;
+        let resourceParameter = _.find(this.getChildren(), function (child) {
+            return self.getFactory().isResourceParameter(child) && child.id === modelID;
         });
 
         this.removeChild(resourceParameter);
@@ -188,8 +178,8 @@ class ResourceDefinition extends ASTNode {
     }
 
     getConnectionDeclarations() {
-        var connectorDeclaration = [];
-        var self = this;
+        let connectorDeclaration = [];
+        let self = this;
 
         _.forEach(this.getChildren(), function (child) {
             if (self.getFactory().isConnectorDeclaration(child)) {
@@ -202,8 +192,8 @@ class ResourceDefinition extends ASTNode {
     }
 
     getWorkerDeclarations() {
-        var workerDeclarations = [];
-        var self = this;
+        let workerDeclarations = [];
+        let self = this;
 
         _.forEach(this.getChildren(), function (child) {
             if (self.getFactory().isWorkerDeclaration(child)) {
@@ -215,6 +205,15 @@ class ResourceDefinition extends ASTNode {
         }]);
     }
 
+    getArgumentParameterDefinitionHolder() {
+        let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
+        if (_.isUndefined(argParamDefHolder)) {
+            argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
+            this.addChild(argParamDefHolder, undefined, true);
+        }
+        return argParamDefHolder;
+    }
+
     /**
      * Validates possible immediate child types.
      * @override
@@ -222,10 +221,10 @@ class ResourceDefinition extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.BallerinaASTFactory.isConnectorDeclaration(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node)
-            || this.BallerinaASTFactory.isWorkerDeclaration(node)
-            || this.BallerinaASTFactory.isStatement(node);
+        return this.getFactory().isConnectorDeclaration(node)
+            || this.getFactory().isVariableDeclaration(node)
+            || this.getFactory().isWorkerDeclaration(node)
+            || this.getFactory().isStatement(node);
     }
 
     /**
@@ -241,13 +240,13 @@ class ResourceDefinition extends ASTNode {
         this.setResourceName(jsonNode.resource_name, {doSilently: true});
         let self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = undefined;
-            var childNodeTemp = undefined;
+            let child = undefined;
+            let childNodeTemp = undefined;
             if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                child = self.BallerinaASTFactory.createConnectorDeclaration();
+                child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
-                child = self.BallerinaASTFactory.createFromJson(childNode);
+                child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
             self.addChild(child);
@@ -256,40 +255,22 @@ class ResourceDefinition extends ASTNode {
     }
 
     /**
-     * Override the addChild method for ordering the child elements as
-     * [Statements, Workers, Connectors]
+     * Override the addChild method for ordering the child elements
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index) {
-        if (_.isUndefined(index)) {
-            let indexNew;
-
-            let lastAnnotationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                return this.BallerinaASTFactory.isAnnotation(child);
+    addChild(child, index, ignoreTreeModifiedEvent) {
+        if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
+        } else {
+            const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
+                return BallerinaASTFactory.isWorkerDeclaration(child);
             });
 
-            indexNew = lastAnnotationIndex === -1 ? 0 : lastAnnotationIndex + 1;
-
-            if (!this.BallerinaASTFactory.isAnnotation(child)) {
-                let lastWorkerDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                    return this.BallerinaASTFactory.isWorkerDeclaration(child);
-                });
-
-                indexNew = lastWorkerDeclarationIndex === -1 ? indexNew : lastWorkerDeclarationIndex + 1;
-
-                if (!this.BallerinaASTFactory.isWorkerDeclaration(child)) {
-                    let lastConnectorDeclarationIndex = _.findLastIndex(this.getChildren(), (child) => {
-                        return this.BallerinaASTFactory.isConnectorDeclaration(child);
-                    });
-
-                    indexNew = lastConnectorDeclarationIndex === -1 ? indexNew : lastConnectorDeclarationIndex + 1;
-                }
+            if (firstWorkerIndex > -1 && _.isNil(index)) {
+                index = firstWorkerIndex;
             }
-
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
-        } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
         }
     }
 
@@ -320,12 +301,11 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration}
      */
     getConnectorByName(connectorName) {
-        var factory = this.getFactory();
-        var connectorReference = _.find(this.getChildren(), function (child) {
-            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        let connectorReference = _.find(this.getChildren(), (child) => {
+            return (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
-        return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
+        return !_.isNil(connectorReference) ? connectorReference : this.getParent().getConnectorByName(connectorName);
     }
 
     /**
@@ -333,8 +313,8 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration[]} connectorReferences
      */
     getConnectorsInImmediateScope() {
-        var factory = this.getFactory();
-        var connectorReferences = _.filter(this.getChildren(), function (child) {
+        let factory = this.getFactory();
+        let connectorReferences = _.filter(this.getChildren(), function (child) {
             return factory.isConnectorDeclaration(child);
         });
 
@@ -352,6 +332,21 @@ class ResourceDefinition extends ASTNode {
                 pathAnnotation = annotationAST;
             }
         });
+        //if path annotation is not define we will create one with default behaviour.
+        if(_.isUndefined(pathAnnotation)){
+            // Creating path annotation.
+            pathAnnotation = BallerinaASTFactory.createAnnotation({
+                fullPackageName: 'ballerina.net.http',
+                packageName: 'http',
+                identifier: 'Path'
+            });
+            let annotationEntryForPathValue = BallerinaASTFactory.createAnnotationEntry({
+                leftValue: 'value',
+                rightValue: '\"/' + this.getResourceName() + '\"'
+            });
+            pathAnnotation.addChild(annotationEntryForPathValue);
+            this.addChild(pathAnnotation, 1);
+        }
 
         return pathAnnotation;
     }
@@ -367,6 +362,17 @@ class ResourceDefinition extends ASTNode {
                 httpMethodAnnotation = annotationAST;
             }
         });
+
+        // Creating GET http method annotation.
+        if(_.isUndefined(httpMethodAnnotation)){
+            httpMethodAnnotation = BallerinaASTFactory.createAnnotation({
+                fullPackageName: 'ballerina.net.http',
+                packageName: 'http',
+                identifier: 'GET',
+                uniqueIdentifier: 'httpMethod'
+            });
+            this.addChild(httpMethodAnnotation, 0);
+        }      
 
         return httpMethodAnnotation;
     }

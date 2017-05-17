@@ -47,25 +47,26 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '';
+        let constructedSourceSegment = '\n';
         _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString() + '\n';
+                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
             }
         });
 
-        var argumentsSrc = '';
-        _.forEach(connectorDefinition.getArguments(), function(argument, index){
-            argumentsSrc += argument.type + ' ';
-            argumentsSrc += argument.identifier;
+        let argumentsSrc = '';
+        _.forEach(connectorDefinition.getArguments(), function (argument, index) {
+            argumentsSrc += argument.getTypeName() + ' ';
+            argumentsSrc += argument.getName();
             if (connectorDefinition.getArguments().length - 1 !== index) {
                 argumentsSrc += ', ';
             }
         });
 
-        constructedSourceSegment += 'connector ' + connectorDefinition.getConnectorName() +
+        constructedSourceSegment += this.getIndentation() + 'connector ' + connectorDefinition.getConnectorName() +
             ' (' + argumentsSrc + ')' + ' {\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit Connector Definition');
     }
 
@@ -78,7 +79,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorDefinition} connectorDefinition - Connector Definition
      */
     endVisitConnectorDefinition(connectorDefinition) {
-        this.appendSource("}\n");
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Connector Definition');
     }
@@ -88,7 +90,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorAction} connectorAction
      */
     visitConnectorAction(connectorAction) {
-        var connectorActionVisitor = new ConnectorActionVisitor(this);
+        let connectorActionVisitor = new ConnectorActionVisitor(this);
         connectorAction.accept(connectorActionVisitor);
     }
 
@@ -97,7 +99,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorDeclaration} connectorDeclaration
      */
     visitConnectorDeclaration(connectorDeclaration) {
-        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        let connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 
@@ -106,7 +108,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {VariableDeclaration} variableDeclaration
      */
     visitVariableDeclaration(variableDeclaration) {
-        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        let variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
     }
 
@@ -115,11 +117,10 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {Statement} statement
      */
     visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        let statementVisitorFactory = new StatementVisitorFactory();
+        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 }
 
 export default ConnectorDefinitionVisitor;
-    

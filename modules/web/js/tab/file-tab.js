@@ -112,7 +112,6 @@ import alerts from 'alerts';
             }, this);
 
             fileEditor.on('design-view-activated', () => {
-                // const breakpoints = DebugManager.getDebugPoints(this._file.getName()) || [];
                 const breakpoints = fileEditor._sourceView.getBreakpoints() || [];
                 fileEditor._showDesignViewBreakpoints(breakpoints);
             }, this);
@@ -172,6 +171,15 @@ import alerts from 'alerts';
                 this.getHeader().setText('* ' + this.getTitle());
             } else {
                 this.getHeader().setText(this.getTitle());
+            }
+        },
+
+        /**
+         * Re-render current ballerina file.
+         */
+        reRender: function(){
+            if(this._fileEditor){
+                this._fileEditor.reRender();
             }
         },
 

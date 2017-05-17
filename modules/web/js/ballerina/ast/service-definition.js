@@ -28,7 +28,7 @@ import CommonUtils from '../utils/common-utils';
  */
 class ServiceDefinition extends ASTNode {
     constructor(args) {
-        super('Service');
+        super('ServiceDefinition');
         this._serviceName = _.get(args, 'serviceName');
 
         // TODO: All the types should be referred from the global constants

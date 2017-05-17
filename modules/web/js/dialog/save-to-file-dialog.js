@@ -101,10 +101,10 @@ import 'bootstrap';
                     "</div>" +
                     "<div class='form-group'>" +
                     "<div class='file-dialog-form-btn'>" +
-                    "<button id='saveButton' type='button' class='btn btn-file-dialog'>save" +
+                    "<button id='saveButton' type='button' class='btn btn-primary'>Save" +
                     "</button>" +
                     "<div class='divider'/>" +
-                    "<button type='cancelButton' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>" +
+                    "<button type='cancelButton' class='btn btn-default' data-dismiss='modal'>Cancel</button>" +
                     "</div>" +
                     "</div>" +
                     "</form>" +

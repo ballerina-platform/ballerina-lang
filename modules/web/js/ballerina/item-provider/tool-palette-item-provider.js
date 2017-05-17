@@ -65,6 +65,12 @@ class ToolPaletteItemProvider extends EventChannel {
             action: require('./../../../images/tool-icons/action.svg'),
         };
 
+        this.cssClass = {
+            function: "icon fw fw-function",
+            connector: "icon fw fw-connector",
+            action: "icon fw fw-dgm-action",
+        };
+
         this.icons = {};
         Object.keys(this.iconSrcs).forEach((iconName) => {
             var icon = document.createElement('img');
@@ -120,18 +126,33 @@ class ToolPaletteItemProvider extends EventChannel {
     /**
      * function to add imports. Packages will be converted to a ToolGroup and added to relevant arrays
      * @param pckg - package to be imported
+     * @param index -  index to add
+     * @returns {number} -1 if exisiting package and 1 otherwise
      */
     addImport(pckg, index) {
         if (pckg instanceof Package) {
             var group = this.getToolGroup(pckg);
-            if (_.isNil(index)) {
-                this._dynamicToolGroups.push(group);
-                this._toolGroups.push(group);
-            } else {
-                this._dynamicToolGroups.splice(index, 0, group);
-                this._toolGroups.splice(index, 0, group);
+
+            let exisitingPackageWithName = _.filter(this._dynamicToolGroups, function(pkg) {
+                return pkg.attributes.toolGroupName === pckg.getName();
+            });
+
+            /**
+             * Add the new package to the arrays, only if it doesn't exists already.
+             */
+            if (_.isEmpty(exisitingPackageWithName)) {
+                if (_.isNil(index)) {
+                    this._dynamicToolGroups.push(group);
+                    this._toolGroups.push(group);
+                } else {
+                    this._dynamicToolGroups.splice(index, 0, group);
+                    this._toolGroups.splice(index, 0, group);
+                }
+                return 1;
             }
         }
+
+        return -1;
     }
 
     /**
@@ -508,6 +529,14 @@ class ToolPaletteItemProvider extends EventChannel {
         }
         packageNames = _.sortBy(packageNames);
         return packageNames[_.sortedIndex(packageNames, newImportName)];
+    }
+
+    /**
+     * Get the package to import, via environment
+     * @param packageString
+     */
+    getPackageToImport(packageString) {
+        return Environment.searchPackage(packageString);
     }
 }
 

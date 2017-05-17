@@ -23,8 +23,8 @@ import ASTNode from '../node';
  * @constructor
  */
 class Statement extends ASTNode {
-    constructor() {
-        super('Statement');
+    constructor(type) {
+        super(type);
     }
 
     /**

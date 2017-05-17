@@ -19,8 +19,9 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
+import dagre from 'dagre';
 import alerts from 'alerts';
-import './type-mapper.css';
+import './transform-statement.css';
 /**
  * Renderer constructor for TypeMapper
  * @param {function} onConnectionCallback call back function when connection made
@@ -44,7 +45,7 @@ class TypeMapperRenderer {
         this.onConnection = onConnectionCallback;
         this.typeConverterView = typeConverterView;
         this.midpoint = 0.1;
-        this.midpointVariance = 0.05;
+        this.midpointVariance = 0.02;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
         this.connectionPool = [];
@@ -116,7 +117,7 @@ class TypeMapperRenderer {
 
 
         this.jsPlumbInstance.bind('connection', (info, ev) => {
-            self.reposition(self);
+            self.dagrePosition(self);
             //TODO: for multiple type mappers
             // self.processTypeMapperDropdown(info);
         });
@@ -134,7 +135,7 @@ class TypeMapperRenderer {
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
-        this.reposition(this);
+        this.dagrePosition(this);
         this.disconnectCallback(propertyConnection);
         // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
         // this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
@@ -330,7 +331,7 @@ class TypeMapperRenderer {
                 }
             });
             $("#" + typeId).remove();
-            this.reposition(this);
+            this.dagrePosition(this);
         }
     }
 
@@ -386,7 +387,7 @@ class TypeMapperRenderer {
                 target: targetId,
                 parameters: {id: connection.id}
             });
-            this.reposition(this);
+            this.dagrePosition(this);
 
         } else {
             this.connectionPool.push({
@@ -406,7 +407,7 @@ class TypeMapperRenderer {
     addSourceType(struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeType(struct, 50, 0, reference, "source");
+        this.makeType(struct, 250, 250, reference, "source");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)
@@ -428,7 +429,7 @@ class TypeMapperRenderer {
             });
             $("#" + jsTreeId).jstree('open_all');
             self.existingJsTrees.push(structId);
-            self.reposition(self);
+            self.dagrePosition(self);
             _.forEach(self.connectionPool, conPoolObj => {
                 if (!conPoolObj.connected && structId ==
                     conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
@@ -443,7 +444,7 @@ class TypeMapperRenderer {
                 }
             });
         }).on('after_open.jstree', (event, data) => {
-            self.reposition(self);
+            self.dagrePosition(self);
             var parentId = data.node.id;
             var sourceElements = $("#" + parentId).find('.jstree-anchor');
             _.forEach(sourceElements, element => {
@@ -451,7 +452,7 @@ class TypeMapperRenderer {
             });
             self.jsPlumbInstance.repaintEverything();
         }).on('after_close.jstree', (event, data) => {
-            self.reposition(self);
+            self.dagrePosition(self);
             self.jsPlumbInstance.repaintEverything();
         }).on('select_node.jstree', (event, data) => {
             data.instance.deselect_node(data.node);
@@ -495,7 +496,7 @@ class TypeMapperRenderer {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
-        var posY = placeHolderWidth - 400;
+        var posY = placeHolderWidth - (placeHolderWidth / 3);
         this.makeType(struct, 50, posY, reference, "target");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
@@ -515,9 +516,9 @@ class TypeMapperRenderer {
         var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
         var structName = $('<div>');
 
-//        structName.append(structIcon);
-//        structName.append($('<span>').text(struct.name));
-//        newStruct.append(structName);
+        structName.append(structIcon);
+        structName.append($('<span>').text(struct.name));
+        newStruct.append(structName);
         newStruct.css({
             'top': posX,
             'left': posY
@@ -607,7 +608,7 @@ class TypeMapperRenderer {
                 self.addSource(property, self, true);
             });
 
-            self.reposition(this);
+            self.dagrePosition(this);
         }
     }
 
@@ -723,7 +724,7 @@ class TypeMapperRenderer {
                 return isValidTypes;
             },
             onDrop: function () {
-                self.reposition(self);
+                self.dagrePosition(self);
             }
         })
         ;
@@ -875,55 +876,113 @@ class TypeMapperRenderer {
     }
 
     /**
-     * Reposition function nodes and redraw connections accordingly
+     * Position Nodes with dagre
      * @param {string} viewId type mapper view identifier
      * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
      */
-    reposition(self) {
-        var funcs = $("#" + self.placeHolderName + "> .func");
+    dagrePosition(self) {
+        // construct dagre graph from this.jsPlumbInstance graph
+        var graph = new dagre.graphlib.Graph();
+        var alignment = 'LR';
+        var nodes = []
+        var sourceIndex;
+        var targetIndex;
         var structs = $("#" + self.placeHolderName + "> .struct");
-        var xPointer = 600;
-        var yPointer = 20;
-        var bottomGap = 50;
-        var functionGap = 20;
-        var svgLines = $("#" + self.placeHolderName + "> svg");
-        var typeMapperHeight = 0;
-
-        //Traverse through all the connection svg lines
-         _.forEach(svgLines, svgLine => {
-             //Get bottom and right values relative to the type mapper parent div
-            var bottom = svgLine.getBoundingClientRect().bottom - $("#" + self.placeHolderName).offset().top + 10;
-            var right = svgLine.getBoundingClientRect().right - $("#" + self.placeHolderName).offset().left + 10;
-
-            //Calculate the yPointer value  based on the bottom value of the direct connections
-            if (bottom > yPointer && svgLine.getBoundingClientRect().width > 600) {
-                yPointer = bottom;
-            }
-        });
-
-        //Traverse through all the function divs
-        _.forEach(funcs, func => {
-            //Position functions and increase yPointer with gaps
-            $("#"+ func.id).css("left", xPointer+ "px");
-            $("#"+ func.id).css("top", yPointer + "px");
-            yPointer +=  $("#"+ func.id).height() + functionGap;
-
-        });
-
-        _.forEach(structs, struct => {
-            if (typeMapperHeight < $("#"+ struct.id).height() + bottomGap) {
-                typeMapperHeight = $("#"+ struct.id).height() + bottomGap;
-            }
-        });
-
-        if (typeMapperHeight < yPointer +  bottomGap) {
-            typeMapperHeight = yPointer +  bottomGap;
+        var funcs = $("#" + self.placeHolderName + "> .func");
+        if (self.jsPlumbInstance.getAllConnections() == 0) {
+            alignment = 'TD';
         }
 
-        $("#" + self.placeHolderName).height(typeMapperHeight);
+        graph.setGraph({ranksep: '100', rankdir: alignment, edgesep: '100', marginx: '0'});
+        graph.setDefaultEdgeLabel(() => ({}));
 
-        self.jsPlumbInstance.repaintEverything();
-        $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
+        if (structs.length > 1) {
+            if ($(structs[0]).attr("type") == "source") {
+                sourceIndex = 0;
+                targetIndex = 1;
+            } else {
+                sourceIndex = 1;
+                targetIndex = 0;
+            }
+
+            nodes.push(structs[sourceIndex]);
+            _.forEach(funcs, func => {
+                nodes.push(func);
+            });
+            nodes.push(structs[targetIndex]);
+        } else {
+            if (structs != null) {
+                nodes = structs;
+            }
+            _.forEach(funcs, func => {
+                nodes.push(func);
+            });
+        }
+
+        if (nodes.length > 0) {
+            var maxTypeHeight = 0;
+            var maxYPosition = 0;
+
+            _.forEach(nodes, n => {
+                var nodeContent = $("#" + n.id);
+                var height = nodeContent.height();
+
+                if ($("#" + n.id).attr('class').includes("struct")) {
+                    height = height + height / 2;
+                }
+
+                if (maxTypeHeight < height) {
+                    maxTypeHeight = height;
+                }
+
+                graph.setNode(n.id, {width: nodeContent.width(), height: height});
+            });
+            var edges = self.jsPlumbInstance.getAllConnections();
+
+            _.forEach(edges, edge => {
+                var source = edge.source.id.split(self.idNameSeperator)[0];
+                var target = edge.target.id.split(self.idNameSeperator)[0];
+                var sourceId;
+                var targetId;
+
+                //checks whether target and source is a generic type or a function
+                if (source.includes(self.jsTreePrefix)) {
+                    sourceId = source.split(self.viewIdSeperator)[1] + self.viewIdSeperator
+                        + source.split(self.viewIdSeperator)[2];
+                } else {
+                    sourceId = source;
+                }
+
+                if (target.includes(self.jsTreePrefix)) {
+                    targetId = target.split(self.viewIdSeperator)[1]
+                        + self.viewIdSeperator + target.split(self.viewIdSeperator)[2];
+                } else {
+                    targetId = target;
+                }
+
+                graph.setEdge(sourceId, targetId);
+            });
+            // calculate the layout (i.e. node positions)
+            dagre.layout(graph);
+
+            // Applying the calculated layout
+            _.forEach(graph.nodes(), dagreNode => {
+                if (funcs.length > 0) {
+                    var node = $("#" + dagreNode);
+                    node.css("left", graph.node(dagreNode).x + "px");
+                    node.css("top", graph.node(dagreNode).y + "px");
+
+                    if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
+                        maxYPosition = graph.node(dagreNode).y;
+                    }
+
+                }
+            });
+
+            $("#" + self.placeHolderName).height(maxTypeHeight + maxYPosition + 55);
+            self.jsPlumbInstance.repaintEverything();
+            $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
+        }
     }
 
     /**

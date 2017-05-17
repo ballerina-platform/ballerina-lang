@@ -35,25 +35,28 @@ requireAll(require.context('ace', false, /theme-/));
 var mode = ace.acequire('ace/mode/ballerina');
 var langTools = ace.acequire("ace/ext/language_tools");
 
-
 class ExpressionEditor{
 
-    constructor(editorWrapper, wrapperClass, property, packageScope , callback) {
-        this._property = property;
-        this.default_with = $(editorWrapper).width();
-        var propertyWrapper = $("<div/>", {
-            "class": wrapperClass
-        }).appendTo(editorWrapper);
+    constructor( bBox, container , callback , props , packageScope ) {
+        this.props = props;
+        let expression = _.isNil(props.getterMethod.call(props.model)) ? "" : props.getterMethod.call(props.model);
+        // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
+        this.removed = false;
 
-        var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
-        var propertyInputValue = $("<div class='expression_editor'>").appendTo(propertyWrapper);
-        var editorContainer = $("<div class='expression_editor_container'>").appendTo(propertyInputValue);
-        $(propertyInputValue).css('border', '2px solid #333333');
-        $(propertyInputValue).css('padding-top', '6px');
-        $(propertyInputValue).css('background', 'white');
+        this.expressionEditor = $("<div class='expression_editor'>");
+        this.expressionEditor.width(bBox.w + 2);
+        this.expressionEditor.height(bBox.h + 2);
+        this.expressionEditor.offset({ top: bBox.y-1 , left: bBox.x-1 });
+        this.expressionEditor.css('border', '2px solid #333333');
+        this.expressionEditor.css('padding-top', '6px');
+        this.expressionEditor.css('background', 'white');      
+        this.expressionEditor.css('position', 'absolute');
+        this.expressionEditor.css('min-width', bBox.w + 2);
+        container.append(this.expressionEditor);
+
+        var editorContainer = $("<div class='expression_editor_container'>").appendTo(this.expressionEditor);
         $(editorContainer).css('height', '22px');
-        $(editorContainer).text(propertyValue);
-
+        $(editorContainer).text(expression);
         this._editor =  ace.edit(editorContainer[0]);
 
         var mode = ace.acequire("ace/mode/ballerina").Mode;
@@ -70,8 +73,8 @@ class ExpressionEditor{
         }else{
             this._editor.setFontSize("12pt");
         }
-
-        let completers = completerFactory.getCompleters(property.key, packageScope);
+        
+        let completers = completerFactory.getCompleters(props.key, packageScope);
         if(completers){
             langTools.setCompleters(completers);
         }
@@ -86,13 +89,13 @@ class ExpressionEditor{
         this._editor.focus();
 
         //we need to place the cursor at the end of the text
-        this._editor.gotoLine(1, propertyValue.length);
+        this._editor.gotoLine(1, expression.length);
 
         // resize the editor to the text width.
-        $(propertyInputValue).css("width", this.getNecessaryWidth(propertyValue));
-        $(propertyInputValue).focus();
+        this.expressionEditor.css("width", this.getNecessaryWidth(expression));
+        this.expressionEditor.focus();
         this._editor.resize();
-
+        
         //bind auto complete to key press
         this._editor.commands.on('afterExec', (event) =>  {
             if (event.command.name === 'insertstring'&&/^[\w.]$/.test(event.args)) {
@@ -108,18 +111,33 @@ class ExpressionEditor{
         // when enter is pressed we will commit the change.
         this._editor.commands.bindKey("Enter|Shift-Enter", (e)=>{
             let text = this._editor.getSession().getValue();
-            property.model.trigger('update-property-text', text , property.key);
-            property.model.trigger('focus-out');
+            props.setterMethod.call(props.model, text);
+            props.model.trigger('update-property-text', text , props.key);
+            props.model.trigger('focus-out');
+            this.distroy();
             if(_.isFunction(callback)){
-                callback();
+                callback(text);
             }
         });
 
         // When the user is typing text we will resize the editor.
         this._editor.on('change', (event) => {
             var text = this._editor.getSession().getValue();
-            $(propertyInputValue).css("width" , this.getNecessaryWidth(text));
+            $(this.expressionEditor).css("width" , this.getNecessaryWidth(text));
             this._editor.resize();
+        });
+
+        this._editor.on('blur', (event) => {  
+            let text = this._editor.getSession().getValue();
+            props.setterMethod.call(props.model, text);
+            props.model.trigger('update-property-text', text , props.key);
+            props.model.trigger('focus-out');
+            if(!this.removed){         
+                this.distroy();
+            }            
+            if(_.isFunction(callback)){
+                callback(text);
+            }
         });
 
         // following snipet is to handle adding ";" at the end of statement.
@@ -130,11 +148,14 @@ class ExpressionEditor{
                 // get the value and append ';' to get the end result of the key action
                 let curser = this._editor.selection.getCursor().column;
                 let text = this._editor.getSession().getValue();
-                text = [text.slice(0, curser), ";" , text.slice(curser)].join('');
-                if(this.end_check.exec(text)){
-                    //close the expression editor
+                let textWithSemicolon = [text.slice(0, curser), ";" , text.slice(curser)].join('');
+                if(this.end_check.exec(textWithSemicolon)){
+                    props.setterMethod.call(props.model, text);
+                    props.model.trigger('update-property-text', text , props.key);
+                    props.model.trigger('focus-out');
+                    this.distroy();
                     if(_.isFunction(callback)){
-                        callback();
+                        callback(text);
                     }
                 }else{
                     this._editor.insert(";");
@@ -145,11 +166,15 @@ class ExpressionEditor{
     }
 
     distroy(){
-        //commit if there are any changes
-        let text = this._editor.getSession().getValue();
-        this._property.model.trigger('update-property-text', text , this._property.key);
-        //distroy the editor
-        //this._editor.distroy();
+        if(!this.removed){
+            this.removed = true;
+            //commit if there are any changes
+            let text = this._editor.getSession().getValue();
+            this.props.model.trigger('update-property-text', text , this.props.key);
+            //distroy the editor
+            //this._editor.distroy();
+            this.expressionEditor.remove();
+        }
     }
 
     getNecessaryWidth(text) {

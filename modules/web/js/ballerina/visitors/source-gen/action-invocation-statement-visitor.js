@@ -25,6 +25,10 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         super(parent);
     }
 
+    canVisitActionInvocationExpression(actionInvocation) {
+        return true;
+    }
+
     canVisitActionInvocationStatement(actionInvocationStatement) {
         return true;
     }
@@ -34,7 +38,7 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     endVisitActionInvocationStatement(action) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";");
     }
 }
 

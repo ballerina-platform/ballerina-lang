@@ -39,10 +39,6 @@ class TypeMapperFunctionInvocationExpressionVisitor extends AbstractStatementSou
         return true && this._generatedSource === "";
     }
 
-    canVisitExpression(expression) {
-        return !this.getGeneratedSource();
-    }
-
     beginVisitFuncInvocationExpression(functionInvocation) {
         var source = "";
         if (!_.isNil(functionInvocation.getPackageName()) && !_.isEmpty(functionInvocation.getPackageName())

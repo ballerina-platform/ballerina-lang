@@ -36,7 +36,7 @@ class WorkerReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitWorkerReplyStatement(workerReplyStatement) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
         log.debug('End Visit Worker Receive Statement');
     }
 }

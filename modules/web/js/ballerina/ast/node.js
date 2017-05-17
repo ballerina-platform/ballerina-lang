@@ -19,6 +19,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
 import BallerinaAstFactory from './ballerina-ast-factory';
+import SimpleBBox from './simple-bounding-box';
 
 /**
  * Constructor for the ASTNode
@@ -47,7 +48,26 @@ class ASTNode extends EventChannel {
         });
 
         this._generateUniqueIdentifiers = undefined;
-        this._whitespaceTokens = [];
+        this.whiteSpaceDescriptor = {};
+        this.shouldCalculateIndentation = true;
+
+        /**
+         * View State Object to keep track of the model's view properties
+         * @type {{bBox: SimpleBBox, components: {}, dimensionsSynced: boolean}}
+         */
+        this.viewState = {
+            bBox: new SimpleBBox(),
+            components: {},
+            dimensionsSynced: false
+        }
+    }
+
+    /**
+     * Get the node's view state
+     * @return {{bBox: BBox}} node's view state
+     */
+    getViewState(){
+        return this.viewState;
     }
 
     getParent() {
@@ -184,15 +204,15 @@ class ASTNode extends EventChannel {
     accept(visitor) {
         if (visitor.canVisit(this)) {
             visitor.beginVisit(this);
-            var self = this;
+            visitor.visit(this);
             _.forEach(this.children, function (child) {
                 if (child) {
-                    // visit current child
                     visitor.visit(child);
-                    self.trigger("child-visited", child);
                     // forward visitor down the hierarchy to visit children of current child
                     // if visitor doesn't support visiting children of current child, it will break
-                    child.accept(visitor);
+                    if(visitor.canVisit(child)) {
+                        child.accept(visitor);
+                    }
                 }
             });
             visitor.endVisit(this);
@@ -244,13 +264,24 @@ class ASTNode extends EventChannel {
     filterChildren(predicateFunction) {
         return _.filter(this.getChildren(), predicateFunction);
     }
-    
+
     /**
      * Find matching child from the predicate function+
      * @param predicateFunction a function returning a boolean to match find condition from children
      */
     findChild(predicateFunction) {
         return _.find(this.getChildren(), predicateFunction);
+    }
+
+    /**
+     * Remove matching child from the predicate function
+     * @param predicateFunction a function returning a boolean to match remove condition from children
+     * @param name of child to remove
+     */
+    removeChildByName(predicateFunction, name) {
+        _.remove(this.getChildren(), function (child) {
+            return predicateFunction && (child.getName() === name);
+        });
     }
 
     /**
@@ -414,6 +445,22 @@ class ASTNode extends EventChannel {
         }
     }
 
+    addBreakpoint() {
+        this.isBreakpoint = true;
+    }
+
+    removeBreakpoint() {
+        this.isBreakpoint = false;
+    }
+
+    addDebugHit() {
+        this.setAttribute('isDebugHit', true);
+    }
+
+    removeDebugHit() {
+        this.setAttribute('isDebugHit', false);
+    }
+
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
     }
@@ -427,52 +474,12 @@ class ASTNode extends EventChannel {
      */
     generateUniqueIdentifiers() {}
 
-    /**
-     * Returned array will contain all the whitespace tokens associated with this particular node. Each token's position in
-     * the array is mapped to the index of possible whitespace region for the language construct - which is represented
-     * by this particular node - as defined in ballerina grammar.
-     *
-     * For example, take a look at possible whitespace regions in a package declaration
-     *        package<-0->org.ballerina.sample<-1->;<-2->//until next token start
-     *
-     *        It has three possible regions as below
-     *        0 - whitespace between 'package' keyword and package name start
-     *        1 - whitespace between package name end and semicolon
-     *        2 - whitespace between semicolon and next token start
-     *
-     * All nodes will carry whitespace tokens from it's end position to next token's start position. The very first node
-     * of AST will contain the whitespace from the beginning of the file to start position of node.
-     *
-     * @return {Array} The array of whitespace tokens associated with this node
-     */
-    getWhitespaceTokens() {
-        return this._whitespaceTokens;
+    getWhiteSpaceDescriptor() {
+        return this.whiteSpaceDescriptor;
     }
 
-    /**
-     * Sets whitespace tokens related to this particular node
-     *
-     * @param tokens {Array}
-     *                      This array should contain all the whitespace tokens associated with this particular node. Each token's position in
-     *                      the array is mapped to the index of possible whitespace region for the language construct - which is represented
-     *                      by this particular node - as defined in ballerina grammar.
-     *
-     *                      For example, take a look at possible whitespace regions in a package declaration
-     *                             package<-0->org.ballerina.sample<-1->;<-2->//until next token start
-     *
-     *                             It has three possible regions as below
-     *                             0 - whitespace between 'package' keyword and package name start
-     *                             1 - whitespace between package name end and semicolon
-     *                             2 - whitespace between semicolon and next token start
-     *
-     *                      As explained above, in addition to whitespace tokens inside it's own structure, all nodes will carry whitespace
-     *                      tokens from it's end position to next token's start position.   The very first node
-     *                      of AST will contain the whitespace from the beginning of the file to start position of node.
-     *
-     * @param options
-     */
-    setWhitespaceTokens(tokens, options) {
-        this.setAttribute('_whitespaceTokens', tokens, options);
+    setWhiteSpaceDescriptor(whiteSpaceDescriptor, options) {
+        this.setAttribute('whiteSpaceDescriptor', whiteSpaceDescriptor, options);
     }
 
     /** Gets the children of a specific type.
@@ -514,6 +521,22 @@ class ASTNode extends EventChannel {
             returnNode = returnNode.getChildren()[index];
         });
         return returnNode;
+    }
+
+    /**
+     * This returns the top level parent (should be Resource, action definition, function definition or worker declaration
+     * @returns {ASTNode} Parent Node
+     */
+    getTopLevelParent() {
+        const parent = this.getParent();
+        if (BallerinaAstFactory.isResourceDefinition(parent) || BallerinaAstFactory.isResourceDefinition(parent) ||
+            BallerinaAstFactory.isConnectorAction(parent) || BallerinaAstFactory.isFunctionDefinition(parent) ||
+            BallerinaAstFactory.isWorkerDeclaration(parent)) {
+
+            return parent;
+        } else {
+            return parent.getTopLevelParent();
+        }
     }
 }
 

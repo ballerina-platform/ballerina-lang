@@ -309,16 +309,16 @@ class WorkspaceManager {
                 var undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
                 if (undoManager.hasUndo() && undoManager.undoStackTop().canUndo()) {
                     undoMenuItem.enable();
-                    undoMenuItem.addLabelSuffix(
-                        undoManager.undoStackTop().getTitle());
+                    // undoMenuItem.addLabelSuffix(
+                    //     undoManager.undoStackTop().getTitle());
                 } else {
                     undoMenuItem.disable();
                     undoMenuItem.clearLabelSuffix();
                 }
                 if (undoManager.hasRedo() && undoManager.redoStackTop().canRedo()) {
                     redoMenuItem.enable();
-                    redoMenuItem.addLabelSuffix(
-                        undoManager.redoStackTop().getTitle());
+                    // redoMenuItem.addLabelSuffix(
+                    //     undoManager.redoStackTop().getTitle());
                 } else {
                     redoMenuItem.disable();
                     redoMenuItem.clearLabelSuffix();

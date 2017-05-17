@@ -31,29 +31,30 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitElseStatement(elseStatement) {
+        this.node = elseStatement;
         /**
         * set the configuration start for the if statement definition language construct
         * If we need to add additional parameters which are dynamically added to the configuration start
         * that particular source generation has to be constructed here
         */
-        this.appendSource('else {');
+        this.appendSource(' else {\n');
+        this.indent();
         log.debug('Begin visit Else Statement Definition');
     }
 
-    visitElseStatement(elseStatement) {
-        log.debug('Visit Else Statement Definition');
+    visitStatement(statement) {
+        if(!_.isEqual(this.node, statement)) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 
     endVisitElseStatement(elseStatement) {
-        this.appendSource("}\n");
+        this.outdent();
+        this.appendSource(this.getIndentation() + "}");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Else Statement Definition');
-    }
-
-    visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
     }
 }
 

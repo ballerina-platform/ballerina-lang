@@ -1,0 +1,8 @@
+.inner-drop-zone.active {
+    fill: green;
+    fill-opacity: 0.2;
+}
+
+.inner-drop-zone.active.block {
+    fill: red;
+}

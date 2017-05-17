@@ -17,7 +17,9 @@ let config = {
             btnWrap1: "btn-wrap"
         },
         samples: ["resources/samples/echoService.bal", "resources/samples/helloWorld.bal",
-            "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal"]
+            "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal",
+            "resources/samples/ATMLocatorService.bal", "resources/samples/ecommerceService.bal",
+            "resources/samples/tweetMediumFeed.bal", "resources/samples/SimpleWorker.bal"]
     },
     // you can overide service urls by uncommenting the following.
     // if the following are not set they will be taken automatically from the composer file server.
@@ -38,7 +40,7 @@ let config = {
             endpoint: "http://localhost:8289/ballerina/validate"
         },
         launcher: {
-            endpoint: "ws://localhost:9097/launch"
+            endpoint: "ws://localhost:8290/launch"
         }
     },*/
     alerts: {
@@ -388,7 +390,7 @@ if(PRODUCTION != undefined && PRODUCTION){
     configUrl = "/config";
 }else{
     //following is to support development mode where we will have static config for services.
-    configUrl = "http://127.0.0.1:9091/config"
+    configUrl = "http://localhost:9091/config"
 }
 
 // lets overide configs sent from the server

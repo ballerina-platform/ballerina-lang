@@ -30,7 +30,7 @@ import ToolView from './tool-view';
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
 
-        render: function (parent, toolOrderVertical, addToTop, collapsed, gridConfig) {
+        render: function (parent, toolOrderVertical, addToTop, collapsed) {
             var self = this;
             var groupDiv = $('<div></div>');
 
@@ -56,9 +56,26 @@ import ToolView from './tool-view';
             groupHeaderDiv.append(groupCollapseIcon);
             groupCollapseIcon.attr('class', "collapse-icon fw fw-up");
 
+            var groupBodyDiv = $("<div></div>");
+            groupDiv.append(groupBodyDiv);
+            groupBodyDiv.attr('class', "tool-group-body tool-group-body-list");
+            this._$toolGroupBody = groupBodyDiv;
+
             if(this.model.attributes.gridConfig){
+                var toolsViewModeControlsDiv = $("<div class='tools-view-modes-controls clearfix'></div>");
+                groupBodyDiv.append(toolsViewModeControlsDiv);
+
+                var groupTilesIcon = $("<a class='tool-group-tiles-view'></a>");
+                toolsViewModeControlsDiv.append(groupTilesIcon);
+                groupTilesIcon.attr('class', "collapse-icon fw fw-tiles");
+                groupTilesIcon.click(function(){
+                    $(this).parents('.tool-group').find('.tool-group-body')
+                        .attr("class", "tool-group-body tool-group-body-tiles");
+                    return false;
+                });
+
                 var groupGridIcon = $("<a class='tool-group-action-grid'></a>");
-                groupHeaderDiv.append(groupGridIcon);
+                toolsViewModeControlsDiv.append(groupGridIcon);
                 groupGridIcon.attr('class', "collapse-icon fw fw-grid");
                 groupGridIcon.click(function(){
                     $(this).parents('.tool-group').find('.tool-group-body')
@@ -66,17 +83,8 @@ import ToolView from './tool-view';
                     return false;
                 });
 
-                var groupTilesIcon = $("<a class='tool-group-tiles-view'></a>");
-                groupHeaderDiv.append(groupTilesIcon);
-                groupTilesIcon.attr('class', "collapse-icon fw fw-tiles");
-                groupTilesIcon.click(function(){
-                    $(this).parents('.tool-group').find('.tool-group-body')
-                        .attr("class", "tool-group-body tool-group-body-tiles");
-                    return false;
-                });                
-
                 var groupListIcon = $("<a class='tool-group-list-view'></a>");
-                groupHeaderDiv.append(groupListIcon);
+                toolsViewModeControlsDiv.append(groupListIcon);
                 groupListIcon.attr('class', "collapse-icon fw fw-list");
                 groupListIcon.click(function(){
                     $(this).parents('.tool-group').find('.tool-group-body')
@@ -84,11 +92,6 @@ import ToolView from './tool-view';
                     return false;
                 });                
             }
-
-            var groupBodyDiv = $("<div></div>");
-            groupDiv.append(groupBodyDiv);
-            groupBodyDiv.attr('class', "tool-group-body");
-            this._$toolGroupBody = groupBodyDiv;
 
             if(collapsed) {
                 groupBodyDiv.hide();
@@ -160,7 +163,6 @@ import ToolView from './tool-view';
             });
             this.model.on('tool-added', this.onToolAdded, this);
             this.model.on('tool-removed', this.onToolRemoved, this);
-
             return this;
         },
 

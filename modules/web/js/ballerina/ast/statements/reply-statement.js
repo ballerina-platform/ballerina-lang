@@ -60,6 +60,12 @@ class ReplyStatement extends Statement {
     getReplyExpression() {
         return "reply " + this.getReplyMessage();
     }
+
+    messageDrawTargetAllowed(target) {
+        return this.getFactory().isResourceDefinition(target)
+            || this.getFactory().isConnectorAction(target)
+            || this.getFactory().isFunctionDefinition(target);
+    }
 }
 
 export default ReplyStatement;

@@ -27,10 +27,8 @@ class CompleterFactory{
         switch (key) {
             case "VariableDefinition":
                 return this.getVariableDefinitionCompleters();
-                break;
             case "Function":
                 return this.getFunctionCompleters(packageScope);
-                break;
             default:
                 return false;
         }

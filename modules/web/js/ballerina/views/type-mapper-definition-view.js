@@ -146,206 +146,225 @@ class TypeMapperDefinitionView extends SVGCanvas {
         var dataMapperContainerId = "data-mapper-container___" + this._model.id;
         var sourceId = 'sourceStructs' + this.getModel().id;
         var targetId = 'targetStructs' + this.getModel().id;
-        var sourceContent = $('<div class="leftType">' +
+        var selectorContainer = $('<div class="selector">' +
             '<div class="source-view">' +
+            '<span>Source :</span>' +
             '<select id="' + sourceId + '" class="type-mapper-combo">' +
             '<option value="-1">--Select--</option>' +
             '</select>' +
-            '</div></div>');
-
-        var targetContent = $('<div class="rightType">' +
+            '</div>' +
             '<div class="target-view">' +
+            '<span>Target :</span>' +
             '<select id="' + targetId + '" class="type-mapper-combo">' +
             '<option value="-1">--Select--</option>' +
             '</select>' +
-            '</div></div>');
+            '</div>' +
+            '</div>');
 
         var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container">'
-                                            +'<div id ="typeMapperContextMenu" class ="typeMapperContextMenu"></div>');
+                                  +'<div id ="typeMapperContextMenu" class ="typeMapperContextMenu"></div></div> ');
 
-        dataMapperContainer.append(sourceContent);
-        dataMapperContainer.append(targetContent);
-        currentContainer.find('svg').parent().append(dataMapperContainer);
+        currentContainer.find('svg').parent().append(selectorContainer).append(dataMapperContainer);
         currentContainer.find('svg').remove();
 
+        this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
-        $(document).ready(function() {
+        $(".type-mapper-combo").select2();
+        $("#" + targetId).on("select2:open", function () {
+            var predefinedStructs = self._package.getStructDefinitions();
+            if (predefinedStructs.length > 0) {
+                $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
+                self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
+                self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
+                $("#" + targetId).val(-1).change();
+            }
+        });
 
-            self.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
+        $("#" + sourceId).on("select2:open", function () {
+            var predefinedStructs = self._package.getStructDefinitions();
+            if (predefinedStructs.length > 0) {
+                $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
+                self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
+                $("#" + sourceId).val(-1).change();
+            }
+        });
 
-            $(".type-mapper-combo").select2();
-            $("#" + targetId).on("select2:open", function () {
-                var predefinedStructs = self._package.getStructDefinitions();
-                if (predefinedStructs.length > 0) {
-                    $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
-                    self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
-                    self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
-                    $("#" + targetId).val(-1).change();
-                }
-            });
+        $(currentContainer).find("#" + sourceId).change(function () {
+            var sourceDropDown = $("#" + sourceId + " option:selected");
+            var selectedNewStructNameForSource = sourceDropDown.text();
 
-            $("#" + sourceId).on("select2:open", function () {
-                var predefinedStructs = self._package.getStructDefinitions();
-                if (predefinedStructs.length > 0) {
-                    $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
-                    self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
-                    self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
-                    $("#" + sourceId).val(-1).change();
-                }
-            });
+//                if (selectedNewStructNameForSource != self.getSelectedTargetStruct()) {
+//                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
+//                    self.setSelectedSourceStruct(selectedNewStructNameForSource);
+//                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+//                        self.getModel().removeResourceParameter();
+//                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
+//                    }
+//                } else {
+//                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
+//                }
 
-            $(currentContainer).find("#" + sourceId).change(function () {
-                var sourceDropDown = $("#" + sourceId + " option:selected");
-                var selectedNewStructNameForSource = sourceDropDown.text();
-                if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedNewStructNameForSource
-                    != self.getSelectedSourceStruct()) {
-                    if(selectedNewStructNameForSource == self.getSelectedTargetStruct()){
+            if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedNewStructNameForSource
+                != self.getSelectedSourceStruct()) {
+                if(selectedNewStructNameForSource == self.getSelectedTargetStruct()){
 
-                        self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
-                        self.getModel().removeReturnType();
-                        self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
-                        self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
-
-                    }else{
-                        self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
-                    }
-                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-                    self.getModel().removeResourceParameter();
-                    self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
-                }else if(selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
-                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
-                }
-            });
-
-            $(currentContainer).find("#" + targetId).change(function () {
-                var targetDropDown = $("#" + targetId + " option:selected");
-                var selectedStructNameForTarget = targetDropDown.text();
-                if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedStructNameForTarget
-                    != self.getSelectedTargetStruct()) {
-                    if(selectedStructNameForTarget == self.getSelectedSourceStruct()){
-
-                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = true;
-                        self.getModel().removeResourceParameter();
-                        self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
-                        self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
-
-                    }else{
-                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
-                    }
-                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
+                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
                     self.getModel().removeReturnType();
-                    self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
-                    self.getModel().fillReturnStatement("x");
-                    self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
-                }else if(selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+                    self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                     self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
+
+                }else{
+                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
                 }
-            });
+                self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
+                self.getModel().removeResourceParameter();
+                self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
+            }else if(selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+                self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
+            }
+        });
 
-            self.getModel().accept(self);
-                self.getModel().on('child-added', function (child) {
-                self.visit(child);
-            });
+        $(currentContainer).find("#" + targetId).change(function () {
+            var targetDropDown = $("#" + targetId + " option:selected");
+            var selectedStructNameForTarget = targetDropDown.text();
 
-            var dropActiveClass = _.get(self._viewOptions, 'cssClass.design_view_drop');
+//                if (selectedStructNameForTarget != self.getSelectedSourceStruct()) {
+//                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
+//                    self.setSelectedTargetStruct(selectedStructNameForTarget);
+//                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+//                        self.getModel().removeReturnType();
+//                        self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
+//                        self.getModel().fillReturnStatement("x");
+//                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
+//                    }
+//                } else {
+//                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
+//                }
 
+            if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedStructNameForTarget
+                != self.getSelectedTargetStruct()) {
+                if(selectedStructNameForTarget == self.getSelectedSourceStruct()){
 
-                self._container.mouseover(function (event) {
-                if (self.toolPalette.dragDropManager.isOnDrag()) {
-                    if (_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)) {
-                        return;
-                    }
-                    // register self as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
-                    // tool view will use self to provide feedback on impossible drop zones
-                    self.toolPalette.dragDropManager.setActivatedDropTarget(self.getModel().getBlockStatement(), function (nodeBeingDragged) {
-                            if (self.getTypeMapperRenderer()) {
-                                if (BallerinaASTFactory.isAssignmentStatement(nodeBeingDragged)) {
-                                    var children = nodeBeingDragged.getChildren();
-                                    var functionInvocationExp = children[1].getChildren()[0];
-                                    var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
-                                    if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
-                                        alerts.error('The function needs to have atleast one input and output parameter, to be dragged and dropped in to the type mapper!');
-                                        return false;
-                                    } else {
-                                        return true;
-                                    }
-                                } else if (BallerinaASTFactory.isFunctionInvocationStatement(nodeBeingDragged)) {
-                                    var functionInvocationExp = nodeBeingDragged.getChildren()[0];
-                                    var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
-                                    if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
-                                        alerts.error('The function needs to have atleast one input and output parameter to be dragged and dropped in to the type mapper!');
-                                        return false;
-                                    } else {
-                                        return true;
-                                    }
-                                } else {
-                                    return false;
-                                }
-                            } else {
-                                return false;
-                            }
-                        },
-                        function (nodeBeingDragged) {
+                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = true;
+                    self.getModel().removeResourceParameter();
+                    self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
+                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
+
+                }else{
+                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
+                }
+                self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
+                self.getModel().removeReturnType();
+                self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
+                self.getModel().fillReturnStatement("x");
+                self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
+            }else if(selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+                self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
+            }
+        });
+
+        this.getModel().accept(this);
+        this.getModel().on('child-added', function (child) {
+            self.visit(child);
+        });
+
+        var dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
+
+        this._container.mouseover(function (event) {
+            if (self.toolPalette.dragDropManager.isOnDrag()) {
+                if (_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)) {
+                    return;
+                }
+                // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                // tool view will use this to provide feedback on impossible drop zones
+                self.toolPalette.dragDropManager.setActivatedDropTarget(self.getModel().getBlockStatement(), function (nodeBeingDragged) {
+                        if (self.getTypeMapperRenderer()) {
                             if (BallerinaASTFactory.isAssignmentStatement(nodeBeingDragged)) {
                                 var children = nodeBeingDragged.getChildren();
                                 var functionInvocationExp = children[1].getChildren()[0];
                                 var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
-                                var leftOperand = nodeBeingDragged.getChildren()[0];
-                                _.forEach(functionSchema.returnType, function (aReturnType) {
-                                    var structFieldAccessExp = BallerinaASTFactory.createStructFieldAccessExpression();
-                                    leftOperand.addChild(structFieldAccessExp);
-                                });
-                                leftOperand.setLeftOperandExpressionString('');
-                                leftOperand.setLeftOperandType('');
-                                var rightOperand = nodeBeingDragged.getChildren()[1];
-                                _.forEach(functionSchema.parameters, function (params) {
-                                    var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-                                    variableRefExp.setVariableName('');
-                                    functionInvocationExp.addChild(variableRefExp);
-                                });
-                                rightOperand.setRightOperandExpressionString('');
-                                rightOperand.getChildren()[0].setParams('');
-                                return _.findLastIndex(self.getModel().getBlockStatement().getChildren());
+                                if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
+                                    alerts.error('The function needs to have atleast one input and output parameter, to be dragged and dropped in to the type mapper!');
+                                    return false;
+                                } else {
+                                    return true;
+                                }
                             } else if (BallerinaASTFactory.isFunctionInvocationStatement(nodeBeingDragged)) {
                                 var functionInvocationExp = nodeBeingDragged.getChildren()[0];
                                 var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
-                                _.forEach(functionSchema.parameters, function (params) {
-                                    var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-                                    variableRefExp.setVariableName('');
-                                    functionInvocationExp.addChild(variableRefExp);
-                                });
+                                if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
+                                    alerts.error('The function needs to have atleast one input and output parameter to be dragged and dropped in to the type mapper!');
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            } else {
+                                return false;
                             }
-                        });
-
-
-                    // indicate drop area
-                    self._container.addClass(dropActiveClass);
-
-                    // reset ui feed back on drop target change
-                    self.toolPalette.dragDropManager.once("drop-target-changed", function () {
-                        self._container.removeClass(dropActiveClass);
+                        } else {
+                            return false;
+                        }
+                    },
+                    function (nodeBeingDragged) {
+                        if (BallerinaASTFactory.isAssignmentStatement(nodeBeingDragged)) {
+                            var children = nodeBeingDragged.getChildren();
+                            var functionInvocationExp = children[1].getChildren()[0];
+                            var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
+                            var leftOperand = nodeBeingDragged.getChildren()[0];
+                            _.forEach(functionSchema.returnType, function (aReturnType) {
+                                var structFieldAccessExp = BallerinaASTFactory.createStructFieldAccessExpression();
+                                leftOperand.addChild(structFieldAccessExp);
+                            });
+                            leftOperand.setLeftOperandExpressionString('');
+                            leftOperand.setLeftOperandType('');
+                            var rightOperand = nodeBeingDragged.getChildren()[1];
+                            _.forEach(functionSchema.parameters, function (params) {
+                                var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
+                                variableRefExp.setVariableName('');
+                                functionInvocationExp.addChild(variableRefExp);
+                            });
+                            rightOperand.setRightOperandExpressionString('');
+                            rightOperand.getChildren()[0].setParams('');
+                            return _.findLastIndex(self.getModel().getBlockStatement().getChildren());
+                        } else if (BallerinaASTFactory.isFunctionInvocationStatement(nodeBeingDragged)) {
+                            var functionInvocationExp = nodeBeingDragged.getChildren()[0];
+                            var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
+                            _.forEach(functionSchema.parameters, function (params) {
+                                var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
+                                variableRefExp.setVariableName('');
+                                functionInvocationExp.addChild(variableRefExp);
+                            });
+                        }
                     });
+
+
+                // indicate drop area
+                self._container.addClass(dropActiveClass);
+
+                // reset ui feed back on drop target change
+                self.toolPalette.dragDropManager.once("drop-target-changed", function () {
+                    self._container.removeClass(dropActiveClass);
+                });
+            }
+            event.stopPropagation();
+        }).mouseout(function (event) {
+            // reset ui feed back on hover out
+            if (self.toolPalette.dragDropManager.isOnDrag()) {
+                if (_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self.getModel().getBlockStatement())) {
+                    self.toolPalette.dragDropManager.clearActivatedDropTarget();
                 }
-                event.stopPropagation();
-            }).mouseout(function (event) {
-                // reset ui feed back on hover out
-                if (self.toolPalette.dragDropManager.isOnDrag()) {
-                    if (_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self.getModel().getBlockStatement())) {
-                        self.toolPalette.dragDropManager.clearActivatedDropTarget();
-                    }
-                }
-                event.stopPropagation();
-            });
-
-                self._model.on('after-remove', function (child) {
-                    self.stopListening();
-            },self);
-
-                self._model.on('after-remove', function (child) {
-                    self.stopListening();
-            },self);
-
+            }
+            event.stopPropagation();
         });
+
+        this._model.on('after-remove', function (child) {
+            this.stopListening();
+        },this);
+
+        this._model.on('after-remove', function (child) {
+            this.stopListening();
+        },this);
     }
 
     /**

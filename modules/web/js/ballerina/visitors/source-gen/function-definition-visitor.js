@@ -50,16 +50,17 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
             functionReturnTypesSource = '(' + functionDefinition.getReturnTypesAsString() + ') ';
         }
 
-        let constructedSourceSegment = '';
+        let constructedSourceSegment = '\n';
         _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString() + '\n';
             }
         });
 
-        constructedSourceSegment += 'function ' + functionDefinition.getFunctionName() + '(' +
-            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{';
+        constructedSourceSegment += this.getIndentation() + 'function ' + functionDefinition.getFunctionName() + '(' +
+            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{\n';
         this.appendSource(constructedSourceSegment);
+        this.indent();
         log.debug('Begin Visit FunctionDefinition');
     }
 
@@ -68,8 +69,9 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitFunctionDefinition(functionDefinition) {
-        this.appendSource("} \n");
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.outdent();
+        this.appendSource("}\n");
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }
 
@@ -106,4 +108,3 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
 }
 
 export default FunctionDefinitionVisitor;
-    

@@ -36,6 +36,7 @@ import ResourceDefinition from './resource-definition';
 import ReturnStatement from './statements/return-statement';
 import ServiceDefinition from './service-definition';
 import AnnotationDefinition from './annotation-definition';
+import AnnotationAttributeDefinition from './annotation-attribute-definition';
 import Statement from './statements/statement';
 import ThrowStatement from './statements/throw-statement';
 import TypeDefinition from './type-definition';
@@ -48,6 +49,7 @@ import PackageDefinition from './package-definition';
 import ImportDeclaration from './import-declaration';
 import Assignment from './assignment';
 import AssignmentStatement from './statements/assignment-statement';
+import TransformStatement from './statements/transform-statement';
 import FunctionInvocation from './statements/function-invocation-statement';
 import ActionInvocationExpression from './expressions/action-invocation-expression';
 import BallerinaASTDeserializer from './ballerina-ast-deserializer';
@@ -96,6 +98,7 @@ import AnnotationEntryArray from './annotations/annotation-entry-array';
             ReturnStatement: ReturnStatement,
             ServiceDefinition: ServiceDefinition,
             AnnotationDefinition: AnnotationDefinition,
+            AnnotationAttributeDefinition: AnnotationAttributeDefinition,
             Statement: Statement,
             ThrowStatement: ThrowStatement,
             TypeDefinition: TypeDefinition,
@@ -108,6 +111,7 @@ import AnnotationEntryArray from './annotations/annotation-entry-array';
             ImportDeclaration: ImportDeclaration,
             Assignment: Assignment,
             AssignmentStatement: AssignmentStatement,
+            TransformStatement: TransformStatement,
             LeftOperandExpression: LeftOperandExpression,
             RightOperandExpression: RightOperandExpression,
             FunctionInvocation: FunctionInvocation,
@@ -134,4 +138,5 @@ import AnnotationEntryArray from './annotations/annotation-entry-array';
             AnnotationEntry : AnnotationEntry,
             AnnotationEntryArray : AnnotationEntryArray
         }
+    
 

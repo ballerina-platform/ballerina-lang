@@ -185,13 +185,13 @@ class ActionInvocationExpression extends Expression {
             }
 
             if (itr !== args.length - 1) {
-                argsString += ' , ';
+                argsString += ', ';
             }
         }
 
         if (!_.isUndefined(this.getConnector()) && !_.isNil(this.getConnector())) {
             if (!_.isEmpty(argsString)) {
-                argsString = this.getConnector().getConnectorVariable() + " , " + argsString;
+                argsString = this.getConnector().getConnectorVariable() + ", " + argsString;
             } else {
                 argsString = this.getConnector().getConnectorVariable();
             }
@@ -214,7 +214,10 @@ class ActionInvocationExpression extends Expression {
     getExpression() {
         return this._expression;
     }
+
+    messageDrawTargetAllowed(target) {
+        return this.getFactory().isConnectorDeclaration(target);
+    }
 }
 
 export default ActionInvocationExpression;
-

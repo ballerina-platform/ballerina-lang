@@ -56,14 +56,18 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
@@ -71,13 +75,13 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -90,6 +94,8 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -667,7 +673,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
     
     @Override
-    public void visit(MapStructInitKeyValueExpr arrayMapAccessExpr) {
+    public void visit(KeyValueExpr keyValueExpr) {
         //TODO
     }
     
@@ -710,12 +716,12 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(MapInitExpr mapInitExpr) {
         
     }
-    
+
     @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
+    public void visit(FieldAccessExpr fieldAccessExpr) {
         //TODO
     }
-    
+
     @Override
     public void visit(ModExpression modExpression) {
         
@@ -728,6 +734,36 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(GlobalVariableDef globalVariableDef) {
+
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt) {
+
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+
+    }
+
+    @Override
+    public void visit(JSONInitExpr jsonInitExpr) {
+
+    }
+
+    @Override
+    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+
+    }
+
+    @Override
+    public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
 
     }
     

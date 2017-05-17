@@ -175,7 +175,7 @@ class SourceView extends EventChannel {
         if(doSilently){
             this._inSilentMode = true;
         }
-        this._fomatter.beautify(this._editor.getSession());
+        //this._fomatter.beautify(this._editor.getSession()); TODO: removing tokenizer based formatting temperaly
         if(doSilently){
             this._inSilentMode = false;
             this.markClean();
@@ -198,8 +198,7 @@ class SourceView extends EventChannel {
         var row = e.getDocumentPosition().row;
         if(_.isUndefined(breakpoints[row])){
             e.editor.session.setBreakpoint(row);
-        }
-        else{
+        } else {
             this._editor.getSession().removeMarker(this._markers[row]);
             e.editor.session.clearBreakpoint(row);
         }

@@ -44,7 +44,11 @@ import org.wso2.msf4j.MicroservicesRunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Workspace Service Entry point.
@@ -72,8 +76,8 @@ public class WorkspaceServiceRunner {
         try {
             jcomander.parse(args);
         } catch (ParameterException e) {
-            PrintStream err = System.err;
-            err.println("Invalid argument passed.");
+            PrintStream out = System.out;
+            out.println("Invalid argument passed.");
             printUsage();
             return;
         }
@@ -90,6 +94,7 @@ public class WorkspaceServiceRunner {
         String apiPath = null;
         String launcherPath = null;
         String debuggerPath = null;
+        String[] rootDirectoriesArray = null;
         // reading configurations from workspace-service-config.yaml. Users are expected to drop the
         // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
         // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
@@ -102,6 +107,7 @@ public class WorkspaceServiceRunner {
                 apiPath = workspaceServiceConfig.getApiPath();
                 launcherPath = workspaceServiceConfig.getLauncherPath();
                 debuggerPath = workspaceServiceConfig.getDebuggerPath();
+                rootDirectoriesArray = workspaceServiceConfig.getRootDirectories().split(",");
             } catch (IOException e) {
                 logger.error("Error while reading workspace-service-config.yaml");
             }
@@ -117,30 +123,28 @@ public class WorkspaceServiceRunner {
         int fileServerPort = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
         //if a custom port is given give priority to that.
         if (null != composer.fileServerPort) {
-            //if the file server port is set to 0 we will
-            if (composer.fileServerPort.equals(0)) {
-                fileServerPort = WorkspaceUtils.getAvailablePort(fileServerPort);
-            } else {
-                fileServerPort = composer.fileServerPort.intValue();
-            }
+            fileServerPort = Integer.parseInt(composer.fileServerPort);
         }
-
         if (!WorkspaceUtils.available(fileServerPort)) {
-            PrintStream err = System.err;
-            err.println("Error: Looks like you may be running the Ballerina composer already ?");
-            err.println(String.format("In any case, it appears someone is already using port %d, " +
+            PrintStream out = System.out;
+            out.println("Looks like you may be running the Ballerina composer already ?");
+            out.println(String.format("In any case, it appears someone is already using port %d, " +
                     "please kick them out or tell me a different port to use.", fileServerPort));
             printUsage();
-            System.exit(1);
+            return;
         }
 
         //find free ports for API ports.
         int apiPort = Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT);
-        apiPort = WorkspaceUtils.getAvailablePort(apiPort);
+        while (!WorkspaceUtils.available(apiPort)) {
+            apiPort++;
+        }
 
         //find free port for launch service.
         int launcherPort = apiPort + 1;
-        launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
+        while (!WorkspaceUtils.available(launcherPort)) {
+            launcherPort++;
+        }
 
         // find free port for debugger
         int debuggerPort = LaunchUtils.getFreePort();
@@ -148,12 +152,23 @@ public class WorkspaceServiceRunner {
         boolean isCloudMode = Boolean.getBoolean(Constants.SYS_WORKSPACE_ENABLE_CLOUD);
 
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
+        WorkspaceService workspaceService = injector.getInstance(WorkspaceService.class);
+
+        // set list of root directories provided in workspace-service-config.yaml configuration file
+        if (rootDirectoriesArray != null && rootDirectoriesArray.length > 0) {
+            List<Path> rootDirs = new ArrayList<Path>();
+            Stream.of(rootDirectoriesArray).forEach((rootDirectory) -> {
+                rootDirs.add(Paths.get(rootDirectory));
+            });
+            workspaceService.setRootPaths(rootDirs);
+        }
+
         new MicroservicesRunner(apiPort)
                 .addExceptionMapper(new SemanticExceptionMapper())
                 .addExceptionMapper(new ParseCancellationExceptionMapper())
                 .addExceptionMapper(new FileNotFoundExceptionMapper())
                 .addExceptionMapper(new DefaultExceptionMapper())
-                .deploy(injector.getInstance(WorkspaceService.class))
+                .deploy(workspaceService)
                 .deploy(new BLangFileRestService())
                 .deploy(new PackagesApi())
                 .deploy(ServicesApiServiceFactory.getServicesApi())
@@ -198,7 +213,7 @@ public class WorkspaceServiceRunner {
         private boolean helpFlag = false;
 
         @Parameter(names = "--port", description = "Specify a custom port for file server to start.")
-        private Integer fileServerPort;
+        private String fileServerPort;
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;

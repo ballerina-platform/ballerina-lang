@@ -1,0 +1,181 @@
+.panel {
+    & .panel-header {
+        & > rect {
+            fill: $panel-header-bgcolor;
+            stroke: $panel-header-border-color;
+            stroke-width: 2px;
+        }
+
+        & > text {
+            fill: $panel-header-color;
+        }
+
+        & > .panel-heading-decorator {
+            width: 3px;
+            fill: #3498db;
+            stroke-width: 0;
+        }
+    }
+
+    & .panel-body {
+        & .panel-body-rect {
+            fill: $panel-body-bgcolor;
+            fill-opacity: 0.4;
+            stroke-width: 2px;
+            //shape-rendering: crispEdges;
+            stroke: $panel-body-border-color;
+
+            &.rect.drop-zone {
+               fill: $panel-body-dropzone-bgcolor;
+               fill-opacity: 0;
+            }
+        }
+    }
+}
+
+
+
+.default-worker-life-line {
+    stroke: $default-worker-lifeline-color;
+    stroke-width: 2;
+    cursor: pointer;
+}
+.default-worker-life-line-polygon{
+    fill: $default-worker-lifeline-color;
+    stroke-width: 0;
+}
+
+.worker-life-line {
+    cursor: pointer;
+    stroke: $worker-lifeline-color;
+    stroke-width: 2;
+}
+
+.worker-life-line-polygon{
+    fill: $worker-lifeline-color;
+    stroke-width: 0;
+}
+
+.connector-life-line {
+    cursor: pointer;
+    stroke: $connector-lifeline-color;
+    stroke-width: 2;
+}
+.connector-life-line-polygon {
+    fill: $connector-lifeline-color;
+    stroke-width: 0;
+}
+
+.life-line-text{
+    fill: #f1f1f1;
+    stroke: #f1f1f1;
+    stroke-width: 0.5;
+}
+
+.import-definition-decorator {
+    width: 3px;
+    fill: #f39c12;
+}
+
+.global-definition-decorator {
+    width: 3px;
+    fill: #9b59b6;
+}
+
+.global-badge {
+    fill: #9b59b6;
+}
+
+.global-badge-text {
+    fill: #fff;
+}
+
+.import-badge {
+    fill: #f39c12;
+}
+
+.import-badge-text {
+    fill: #fff;
+}
+
+.package-declaration-item,
+.global-definition-item {
+    & .background,
+    & .delete-background {
+        fill: #eee;
+    }
+}
+
+.add-import-button-background,
+.add-import-button,
+.add-global-button-background,
+.add-global-button {
+    fill: #eee;
+}
+
+
+.package-definition-header {
+    fill: $package-configs-bgcolor;
+    cursor: pointer;
+}
+
+.package-definition-label {
+    dominant-baseline: central;
+    fill: $package-definition-color;
+}
+
+.annotation-container {
+    background: #f4f4f4;
+    overflow: auto;
+    padding: 7px;
+}
+
+.annotation-table td {
+    height: 20px;
+    line-height: 20px;
+}
+
+.annotation-key .package-name {
+    font-weight: 500;
+    color: #ea940c;
+}
+
+.react-autosuggest__suggestions-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.react-autosuggest__suggestion {
+    padding: 4px;
+}
+
+.react-autosuggest__suggestion.react-autosuggest__suggestion--highlighted,
+.react-autosuggest__suggestion:hover {
+    background: #333;
+    color: #eee;
+    cursor: pointer;
+}
+
+.annotationRect {
+    fill: $annotation-wrapper-bgcolor;
+    shape-rendering: crispEdges;
+    stroke: #ccc;
+    stroke-width: 0.5;
+}
+
+.annotation-text {
+    font-size: 0.90em;
+    fill: $annotation-wrapper-text-color;
+}
+
+.action-dash-line{
+    stroke: $primary-line-bgcolor;
+    fill: $primary-line-bgcolor;
+    stroke-dasharray: 5,5;
+}
+.action-arrow,
+.action-arrow-head{
+    stroke: $primary-line-bgcolor;
+    fill: $primary-line-bgcolor;
+}

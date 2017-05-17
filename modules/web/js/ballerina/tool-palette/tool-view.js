@@ -26,11 +26,11 @@ import D3Utils from 'd3utils';
     var toolView = Backbone.View.extend({
 
         toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
-            "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon.getAttribute(\"src\")%>\" " +
-            "class=\"tool-image\"  /><span class=\"tool-title-wrap\" ><p class=\"tool-title\"><%=name%></p></span></div>"),
+            "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <i class=\"<%=cssClass%>\"></i> " +
+            "<span class=\"tool-title-wrap\" ><p class=\"tool-title\"><%=name%></p></span></div>"),
         toolTemplateVertical: _.template("<div id=\"<%=id%>-tool\" class=\"tool-block tool-container-vertical " +
             "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
-            "data-toggle=\"tooltip\" title='<%=title%>'><img src=\"<%=icon.getAttribute(\"src\")%>\" class=\"tool-image\"  />" +
+            "data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon.getAttribute(\"src\")%>\" class=\"tool-image\"  />" +
             "</div><div class=\"tool-container-vertical-title\" data-placement=\"bottom\" data-toggle=\"tooltip\" " +
             "title='<%=title%>'><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
 

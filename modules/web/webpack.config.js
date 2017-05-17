@@ -1,10 +1,17 @@
 var path = require('path');
 var webpack = require("webpack");
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
+
+var extractThemes = new ExtractTextPlugin('./themes/[name].css');
+var extractCSSBundle = new ExtractTextPlugin('./bundle.css');
 
 var config = {
     entry: {
-      bundle: './index.js',
-      'worker-ballerina': './js/ballerina/utils/ace-worker.js'
+        bundle: './index.js',
+        'worker-ballerina': './js/ballerina/utils/ace-worker.js',
+        default: './scss/themes/default.scss',
+        light: './scss/themes/light.scss',
+        dark: './scss/themes/dark.scss',
     },
     output: {
         filename: '[name].js',
@@ -18,7 +25,7 @@ var config = {
             {
               loader: 'babel-loader',
               query: {
-                  presets: ['es2015']
+                  presets: ['es2015', 'react']
               }
             }
           ]
@@ -30,22 +37,63 @@ var config = {
             }]
         },
         {
+            test: /\.scss$/,
+            use: extractThemes.extract({
+                fallback: "style-loader",
+                use: [{
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }, {
+                    loader: "sass-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }]
+            })
+        },
+        {
             test: /\.css$/,
-            use: [ 'style-loader', 'css-loader' ]
+            use: extractCSSBundle.extract({
+                fallback: "style-loader",
+                use: [{
+                    loader: "css-loader",
+                    options: {
+                        sourceMap: true
+                    }
+                }]
+            })
         },
         {
             test: /\.(png|jpg|svg|cur|gif)$/,
             use: [ 'url-loader' ]
+        },
+        {
+            test: /\.jsx$/,
+            exclude: /(node_modules|modules\/web\/lib)/,
+            use: [
+              {
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015', 'react']
+                }
+              }
+            ]
         }
       ]
     },
-    plugins: [],
+    plugins: [
+        extractCSSBundle,
+        extractThemes
+    ],
     devServer: {
       publicPath: '/dist/'
     },
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
+        extensions: [".js", ".json", ".jsx"],
         modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules'), path.resolve(__dirname)],
         alias: {
             /////////////////////////

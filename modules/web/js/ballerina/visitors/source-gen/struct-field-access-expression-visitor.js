@@ -39,7 +39,7 @@ class SructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisit
     }
 
     endVisitStructFieldAccessExpression(structFieldAccessExpression) {
-        this.getParent().appendSource(this.getGeneratedSource());
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Struct Field Access Expression');
     }
 }

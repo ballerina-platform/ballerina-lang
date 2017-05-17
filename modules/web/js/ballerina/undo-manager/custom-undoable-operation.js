@@ -36,16 +36,18 @@ class CustomUndoableOperation extends UndoableOperation {
     undo() {
         if(this.canUndo()){
             this._undoCallBack.call(this._callBackContext);
+            this.getEditor().trigger('content-modified');
+            this.getEditor().trigger('update-diagram');
         }
     }
 
     redo() {
         if(this.canRedo()) {
             this._redoCallBack.call(this._callBackContext);
+            this.getEditor().trigger('content-modified');
+            this.getEditor().trigger('update-diagram');
         }
     }
 }
 
 export default CustomUndoableOperation;
-    
-
