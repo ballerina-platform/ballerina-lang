@@ -135,6 +135,9 @@ class SwaggerView extends EventChannel {
         this._currentEditingServiceDefinition = this._swaggerData[0].serviceDefinitionAST;
 
         this._swaggerAceEditor.getSession().on('change', (e) => {
+            //@todo - set a dirty state in the model. need to refactor.
+            this.swaggerDirty = true;
+
             try {
                 if (this._manualUpdate === false) {
                     //log.info(e);
@@ -161,12 +164,16 @@ class SwaggerView extends EventChannel {
      * Merge the updated YAMLs to the service definitions.
      */
     updateServices() {
-        _.forEach(this._swaggerData, swaggerDataEntry => {
-            if (swaggerDataEntry.hasModified) {
-                let swaggerParser = new SwaggerParser(swaggerDataEntry.swagger, false);
-                swaggerParser.mergeToService(swaggerDataEntry.serviceDefinitionAST);
-            }
-        });
+        //we do not update the dom if swagger is not edited.
+        debugger;
+        if(this.swaggerDirty){
+            _.forEach(this._swaggerData, swaggerDataEntry => {
+                if (swaggerDataEntry.hasModified) {
+                    let swaggerParser = new SwaggerParser(swaggerDataEntry.swagger, false);
+                    swaggerParser.mergeToService(swaggerDataEntry.serviceDefinitionAST);
+                }
+            });
+        }
     }
 
     getServicesForDropdown (swaggerInfos) {

@@ -65,14 +65,13 @@ export default class GlobalExpanded extends React.Component {
         const globalInputHeight = 40;
         const globalDeclarationWidth = 310;
         const leftPadding = 10;
-        const topGutter = 10;
         const topBarHeight = 25;
         const iconSize = 20;
         const globalElements = [];
 
         const topBarBbox = {
             x: bBox.x,
-            y: bBox.y + topGutter
+            y: bBox.y
         }
 
         let lastGlobalElementY = topBarBbox.y + topBarHeight;
@@ -128,7 +127,7 @@ export default class GlobalExpanded extends React.Component {
                 <g onClick={this.handleAddGlobalClick}>
                     <rect x={ bBox.x + 7 } y={ lastGlobalElementY + 7 } height={globalInputHeight - 14} width={globalDeclarationWidth - 14}
                         className="add-global-button" />
-                    <text x={ bBox.x + 14 } y={ lastGlobalElementY + globalInputHeight/2 } className="add-global-button-text" >{'+ Add Global'}</text>
+                    <text x={ bBox.x + 14 } y={ lastGlobalElementY + globalInputHeight/2 } className="add-global-button-text" >{this.props.addText}</text>
                 </g>
             </g>
         );
