@@ -1,6 +1,13 @@
 # Exception Handling
 
-Ballerina supports throwing and catching exceptions using a simple exception handling model. This is supported by the `exception` type and the constructs `try-catch` and `throw`.
+In any programming language, there are three ways to respond to an anomalous situation:
+- Abort the current execution scope and inform the upstream caller about the problem that occurred.
+- Attempt to correct the problem by doing something different.
+- Ignore it. 
+
+Java uses exceptions to handle all these cases. Go uses a combination of returnable first class errors and panic/recover (similar to exceptions) for this. C uses just out of range normal values to indicate error statuses.
+
+The Ballerina approach is to introduce a first class error concept that can both be returned as yet another return value (and thereby processed by the caller as it deems fit) or be thrown. Thrown errors are just like exceptions and cause the call stack to be unwound until a matching catcher is found.
 
 ## Behavior
 
