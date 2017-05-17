@@ -300,8 +300,9 @@ class StatementDecorator extends React.Component {
 		});
 
 		messageManager.startDrawMessage(function (source, destination) {
-			source.setConnector(destination, {doSilently: true});
+			source.setConnector(destination);
 			model.generateStatementString();
+			model.trigger('tree-modified', {type:'custom', title:'action set'});
 		});
 	}
 
@@ -314,7 +315,7 @@ class StatementDecorator extends React.Component {
 		let options = this.props.editorOptions;
 		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
 		if(options){
-			new ExpressionEditor( this.statementBox , this.context.container , 
+			new ExpressionEditor( this.statementBox , this.context.container ,
 				(text) => this.onUpdate(text), options , packageScope );
 		}
 	}

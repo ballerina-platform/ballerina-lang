@@ -16,11 +16,7 @@
     cursor: pointer;
 }
 
-.parameter-space {
-    fill: #dcdcdc;
-}
-
-.annotation-input {
+.annotation-input{
     fill: #eee;
     stroke: #b5b5b5;
     stroke-width: 1;

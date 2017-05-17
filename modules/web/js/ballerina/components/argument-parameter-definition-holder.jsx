@@ -139,8 +139,8 @@ class ArgumentParameterDefinitionHolder extends React.Component {
                 closingBracket: this.props.model.parent.getViewState().components.closingParameter
             },
             prefixView: this.props.model.parent.getViewState().components.parametersPrefixContainer,
-            openingBracketClassName: 'parameter-opening-brack-text',
-            closingBracketClassName: 'parameter-closing-brack-text',
+            openingBracketClassName: 'parameter-bracket-text',
+            closingBracketClassName: 'parameter-bracket-text',
             prefixTextClassName: 'parameter-prefix-text'
         };
         let children = getComponentForNodeArray(model.getChildren());

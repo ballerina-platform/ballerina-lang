@@ -34,6 +34,7 @@ class MessageManager extends EventChannel{
     constructor(args) {
         super();
         log.debug('Initialising Message Manager');
+        this._fileEditor = args.fileEditor;
         this._typeBeingDragged = undefined;
         this._isOnDrag = false;
         this._source = undefined;
@@ -153,7 +154,7 @@ class MessageManager extends EventChannel{
     startDrawMessage(mouseUpCallback, targetValidationCallback) {
 
         var self = this,
-            container = d3.select('.svg-container');
+            container = d3.select(self._fileEditor._$canvasContainer.find('.svg-container').get(0));
 
         container.on('mousemove', function (e) {
             self.trigger('message-draw-start');

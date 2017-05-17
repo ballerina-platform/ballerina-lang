@@ -39,6 +39,9 @@ class AnnotationDefinitionAttachment extends React.Component {
             <text x={viewState.components.deleteIcon.x + 10} y={viewState.components.deleteIcon.y + 16} width="14"
                    height="14" className="parameter-delete-icon"
                   onClick={() => this.props.onDelete(this.state.value)}>x</text>
+            <rect x={viewState.components.deleteIcon.x + viewState.components.deleteIcon.w + 4}
+                  y={viewState.components.deleteIcon.y + 4} width={1} height={viewState.h - 2} rx="0" ry="0"
+                  className="parameter-space"/>
         </g>);
     }
 }
