@@ -93,6 +93,7 @@ public enum SemanticErrors {
     INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
     DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
     STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
+    CANNOT_ASSIGN_VALUE_ARRAY_LENGTH("cannot.assign.value.array.length", "SEMANTIC_0071"),
     MISSING_RETURN_STATEMENT("missing.return.statement", "SEMANTIC_0071"),
     TRANSFORM_STATEMENT_NO_BODY("transform.statement.no.body", "SEMANTIC_0072"),
     TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output", "SEMANTIC_0073"),

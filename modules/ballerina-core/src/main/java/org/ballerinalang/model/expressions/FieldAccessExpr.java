@@ -211,6 +211,11 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      */
     public void setLHSExpr(boolean isLhsExpr) {
         isLHSExpr = isLhsExpr;
+
+        // Set the property recursively
+        if (fieldRefExpr != null) {
+            fieldRefExpr.setLHSExpr(isLhsExpr);
+        }
     }
 
     /**
