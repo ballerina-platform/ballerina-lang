@@ -580,7 +580,7 @@ class SizingUtil {
                 height = height + ( annotation.children.length * 20 )
             }
         });
-        
+
         //add padding
         height = height + 7 * 2;
         // add a gap for add new annotation.
@@ -591,6 +591,11 @@ class SizingUtil {
 
     getConnectorLevelVariablesHeight(node) {
         let height = 65;
+
+        if(!node.viewState.variablesExpanded){
+            return 35;
+        }
+
         const variables = node.filterChildren(function (child) {
             return ASTFactory.isVariableDefinitionStatement(child);
         });
