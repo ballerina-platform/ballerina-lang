@@ -40,12 +40,6 @@ class AnnotationContainer extends React.Component {
         let annotations = getComponentForNodeArray(this.props.model.annotations);
         return <div style={style} className="annotation-container">
                     {annotations}
-                    { this.state.annotationSelect ? 
-                        <input autoFocus type="text" defaultValue="another" onBlur={this.onBlurHandle.bind(this)}/> 
-                        :
-                        <div className="annotation-add"  
-                            onClick={this.addAnnotation.bind(this)}> + Add Annotation</div>
-                    }
                </div>;
     }
 
