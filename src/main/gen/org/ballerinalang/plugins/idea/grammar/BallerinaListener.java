@@ -728,16 +728,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#rollbackClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#rollbackClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -935,6 +925,18 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

@@ -31,10 +31,9 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
             "function", "connector", "struct", "typemapper", "annotation");
     private static final List<String> ANY_TYPE = Collections.singletonList("any");
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
-    private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "xml", "json", "exception", "map",
-            "datatable");
+    private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "xml", "json", "map", "datatable");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transform", "transaction", "abort", "aborted");
+            "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
     private static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
@@ -447,19 +446,19 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testFunctionBodyWithCommonKeywords() {
         List<String> expectedLookups = new LinkedList<>();
-        expectedLookups.add("exception");
         expectedLookups.add("int");
         expectedLookups.add("if");
         expectedLookups.add("string");
         expectedLookups.add("join");
         expectedLookups.add("timeout");
         expectedLookups.add("transaction");
+        expectedLookups.add("finally");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
         doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
-                "abort", "aborted");
+                "abort", "aborted", "try");
     }
 
     public void testInvokingFunctionInDifferentFile1() {

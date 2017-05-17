@@ -101,7 +101,6 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder MESSAGE;
     private static final LookupElementBuilder XML;
     private static final LookupElementBuilder JSON;
-    private static final LookupElementBuilder EXCEPTION;
     private static final LookupElementBuilder MAP;
     private static final LookupElementBuilder DATATABLE;
 
@@ -121,6 +120,9 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRANSACTION;
     private static final LookupElementBuilder ABORT;
     private static final LookupElementBuilder ABORTED;
+    private static final LookupElementBuilder TRY;
+    private static final LookupElementBuilder CATCH;
+    private static final LookupElementBuilder FINALLY;
 
 
     static {
@@ -148,7 +150,6 @@ public class BallerinaCompletionUtils {
         MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
         XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
         JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
-        EXCEPTION = createTypeLookupElement("exception", AddSpaceInsertHandler.INSTANCE);
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
         DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
 
@@ -167,6 +168,9 @@ public class BallerinaCompletionUtils {
         TRANSACTION = createKeywordLookupElement("transaction", AddSpaceInsertHandler.INSTANCE);
         ABORT = createKeywordLookupElement("abort", AddSpaceInsertHandler.INSTANCE);
         ABORTED = createKeywordLookupElement("aborted", AddSpaceInsertHandler.INSTANCE);
+        TRY = createKeywordLookupElement("try", AddSpaceInsertHandler.INSTANCE);
+        CATCH = createKeywordLookupElement("catch", AddSpaceInsertHandler.INSTANCE);
+        FINALLY = createKeywordLookupElement("finally", AddSpaceInsertHandler.INSTANCE);
     }
 
     private BallerinaCompletionUtils() {
@@ -254,7 +258,6 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(EXCEPTION, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_PRIORITY));
     }
@@ -329,6 +332,9 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, TRANSACTION, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, ABORT, KEYWORDS_PRIORITY);
         addKeywordAsLookup(resultSet, ABORTED, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, TRY, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, CATCH, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, FINALLY, KEYWORDS_PRIORITY);
     }
 
     /**

@@ -442,12 +442,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#rollbackClause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRollbackClause(BallerinaParser.RollbackClauseContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#abortStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -563,6 +557,13 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
