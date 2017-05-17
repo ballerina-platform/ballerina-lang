@@ -71,7 +71,8 @@ class AnnotationDefinition extends React.Component {
 
         let tagController = (<TagController key={model.getID()} model={model} setter={this.addAttachmentPoint}
                                             validateInput={this.validateInput} modelComponents={attachments}
-                                            componentData={componentData}/>);
+                                            componentData={componentData} isSelectBox={true}
+                                            suggestions={this.getAnnotationAttachmentPointsForSuggestions()}/>);
         let titleComponentData = [{
             isNode: false,
             model: tagController
@@ -126,6 +127,18 @@ class AnnotationDefinition extends React.Component {
     getTypeDropdownValues() {
         const {renderingContext} = this.context;
         return renderingContext.environment.getAnnotationAttachmentTypes();
+    }
+
+    getAnnotationAttachmentPointsForSuggestions() {
+        const {renderingContext} = this.context;
+        let suggestions = [];
+        for (let i = 0; i < renderingContext.environment.getAnnotationAttachmentTypes().length; i++) {
+            let suggestion = {
+                name: renderingContext.environment.getAnnotationAttachmentTypes()[i]
+            };
+            suggestions.push(suggestion);
+        }
+        return suggestions;
     }
 
     /**

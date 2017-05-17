@@ -1,5 +1,5 @@
 .attribute-content-operations-wrapper {
-    fill: #b9b9b9;
+    fill: #615c5c;
     shape-rendering: crispEdges;
     height: 25px;
 }
@@ -43,4 +43,9 @@
 }
 .annotation-attribute-wrapper-text{
     fill:#333;
+}
+
+.panel-label{
+    left: 10px;
+    fill: #252525
 }

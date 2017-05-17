@@ -133,7 +133,7 @@ svg use svg {
     fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
-    shape-rendering: crispEdges; 
+    shape-rendering: crispEdges;
 }
 
 .client rect {
@@ -291,7 +291,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-delete {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#statementDeleteIcon);
 }
 
@@ -302,7 +302,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-breakpoint {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#addBreakpointIcon);
 }
 
@@ -318,7 +318,7 @@ text-anchor: start;
 }
 
 .property-pane-action-button-jump {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(/#statementJumpIcon);
 }
 
@@ -412,7 +412,6 @@ text-anchor: start;
 
 .statement-container .inner-drop-zone{
     fill-opacity: 0;
-    fill: #008000;
     stroke-width: 0;
 }
 
@@ -518,6 +517,11 @@ text-anchor: start;
     fill: #b9b9b9;
     shape-rendering: crispEdges;
     padding: 13px;
+}
+
+.parameter-space{
+    fill: #dcdcdc;
+    shape-rendering: crispEdges;
 }
 
 .parameter-delete-icon {
