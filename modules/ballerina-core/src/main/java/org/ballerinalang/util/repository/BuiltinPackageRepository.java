@@ -20,7 +20,6 @@ package org.ballerinalang.util.repository;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -166,7 +165,7 @@ public class BuiltinPackageRepository extends PackageRepository {
             Files.walkFileTree(rootPathInArchive, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attributes) throws IOException {
-                    if (filePath.toString().matches(File.separator + pkgRelPath + "((?!/).)*\\" + BAL_FILE_EXT)) {
+                    if (filePath.toString().matches("/" + pkgRelPath + "((?!/).)*\\" + BAL_FILE_EXT)) {
                         if (skipNatives && filePath.endsWith(NATIVE_BAL_FILE)) {
                             return FileVisitResult.CONTINUE;
                         }
