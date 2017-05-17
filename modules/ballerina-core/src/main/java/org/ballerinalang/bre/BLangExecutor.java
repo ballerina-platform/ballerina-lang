@@ -314,16 +314,16 @@ public class BLangExecutor implements NodeExecutor {
 
     private BStruct generateStackTrace() {
 
-        if (stackTraceItemDef == null) {
+        if (stackTraceDef == null) {
             stackTraceItemDef = (StructDef) parentScope.resolve(new SymbolName("StackTraceItem",
                     "ballerina.lang.errors"));
             stackTraceDef = (StructDef) parentScope.resolve(new SymbolName("StackTrace",
                     "ballerina.lang.errors"));
-            if (stackTraceItemDef == null) {
+            if (stackTraceDef == null) {
                 throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:StackTraceItem");
             }
         }
-        BArray<BStruct> bArray = new BArray<>(BStruct.class);
+        BArray<BStruct> bArray = stackTraceDef.getFieldDefStmts()[0].getVariableDef().getType().getEmptyValue();
         Stack<StackFrame> stack = bContext.getControlStack().getStack();
         BStruct stackTrace = new BStruct(stackTraceDef, new BValue[]{bArray});
         for (int i = stack.size(); i > 0; i--) {
