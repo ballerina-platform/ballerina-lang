@@ -114,6 +114,7 @@
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>org.wso2.ballerina.connectors:connectors:jar</include>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
