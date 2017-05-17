@@ -9,13 +9,6 @@
     margin: auto;
     padding: 10px;
 }
-.source-view {
-    width: 50%;
-    float: left;
-}
-.target-view {
-    margin-left: 70%;
-}
 
 .data-mapper-container {
     position: relative;

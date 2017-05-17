@@ -706,15 +706,9 @@ addTarget(element, self) {
             if (isValidTypes) {
                 self.midpoint = self.midpoint + self.midpointVariance;
                 self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
-                self.onConnection(connection);
-                return self.hasFunction(connection, self);
-                // self.disableParentsJsTree(params.sourceId, self);
-                // self.disableParentsJsTree(params.targetId, self);
+                connection.id = self.onConnection(connection);
             }
             return isValidTypes;
-        },
-        onDrop: function () {
-            self.reposition(self);
         }
     })
     ;
@@ -873,13 +867,13 @@ return connections;
 reposition(self) {
     var offset = 60;
     var typeMapperHeight = 0;
-    self.jsPlumbInstance.repaintEverything();
     var structs = $(".struct");
     _.forEach(structs, struct => {
         if (typeMapperHeight < $("#"+ struct.id).height() + offset) {
         typeMapperHeight = $("#"+ struct.id).height() + offset;
     }
     $(".leftType, .rightType").height(typeMapperHeight);
+    self.jsPlumbInstance.repaintEverything();
 });
 }
 

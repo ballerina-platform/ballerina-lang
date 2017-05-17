@@ -230,9 +230,8 @@ class TransformStatementDecorator extends React.Component {
                assignmentStmt.addChild(leftOperand);
                assignmentStmt.addChild(rightOperand);
                self.props.model.addChild(assignmentStmt);
-               connection.id = assignmentStmt.id;
 
-               self.mapper.addConnection(connection);
+               return assignmentStmt.id;
            };
 
            var onDisconnectionCallback = function(connection) {
