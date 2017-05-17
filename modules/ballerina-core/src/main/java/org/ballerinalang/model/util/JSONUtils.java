@@ -278,6 +278,7 @@ public class JSONUtils {
      * 
      * @param json JSON object to set the element
      * @param elementName Name of the element to be set
+     * @param element json element
      */
     public static void setElement(BJSON json, String elementName, BJSON element) {
         JsonNode jsonNode = json.value();

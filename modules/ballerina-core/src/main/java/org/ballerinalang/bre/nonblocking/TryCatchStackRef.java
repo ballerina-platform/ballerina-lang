@@ -25,20 +25,20 @@ import org.ballerinalang.model.statements.TryCatchStmt;
  */
 public class TryCatchStackRef {
 
-    public TryCatchStmt.CatchBlock catchBlock;
+    public TryCatchStmt tryCatchStmt;
     public StackFrame stackFrame;
 
-    public TryCatchStackRef(TryCatchStmt.CatchBlock catchBlock, StackFrame stackFrame) {
-        this.catchBlock = catchBlock;
+    public TryCatchStackRef(TryCatchStmt tryCatchStmt, StackFrame stackFrame) {
+        this.tryCatchStmt = tryCatchStmt;
         this.stackFrame = stackFrame;
     }
 
-    public TryCatchStmt.CatchBlock getCatchBlock() {
-        return catchBlock;
+    public TryCatchStmt getTryCatchStmt() {
+        return tryCatchStmt;
     }
 
-    public void setCatchBlock(TryCatchStmt.CatchBlock catchBlock) {
-        this.catchBlock = catchBlock;
+    public void setTryCatchStmt(TryCatchStmt tryCatchStmt) {
+        this.tryCatchStmt = tryCatchStmt;
     }
 
     public StackFrame getStackFrame() {

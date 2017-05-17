@@ -337,8 +337,11 @@ public class BLangModelBuilder {
     /**
      * Add a field definition. Field definition can be a child of {@code StructDef} or {@code AnnotationDef}.
      *
-     * @param location  Location of the field in the source file
+     * @param location Location of the field in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param typeName Type name of the field definition
      * @param fieldName Name of the field in the {@link StructDef}
+     * @param defaultValueAvailable has a default value or not
      */
     public void addFieldDefinition(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                    SimpleTypeName typeName, String fieldName, boolean defaultValueAvailable) {
@@ -378,6 +381,7 @@ public class BLangModelBuilder {
     /**
      * Creates a {@link StructDef}.
      *
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param name Name of the {@link StructDef}
      */
     public void addStructDef(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
@@ -431,6 +435,7 @@ public class BLangModelBuilder {
      * Start an annotation definition.
      * 
      * @param location Location of the annotation definition in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      */
     public void startAnnotationDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         annotationDefBuilder = new AnnotationDef.AnnotationDefBuilder(location, currentScope);
@@ -442,6 +447,7 @@ public class BLangModelBuilder {
      * Creates a {@code AnnotationDef}.
      * 
      * @param location Location of this {@code AnnotationDef} in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param name Name of the {@code AnnotationDef}
      */
     public void addAnnotationtDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
@@ -468,6 +474,7 @@ public class BLangModelBuilder {
      * Add a target to the annotation.
      * 
      * @param location Location of the target in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param attachmentPoint Point to which this annotation can be attached
      */
     public void addAnnotationtAttachmentPoint(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -484,6 +491,7 @@ public class BLangModelBuilder {
      * Create a literal type attribute value.
      * 
      * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      */
     public void createLiteralTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression expr = exprStack.pop();
@@ -502,6 +510,7 @@ public class BLangModelBuilder {
      * Create an annotation type attribute value.
      * 
      * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      */
     public void createAnnotationTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         AnnotationAttachment value = annonAttachmentStack.pop();
@@ -513,6 +522,7 @@ public class BLangModelBuilder {
      * Create an array type attribute value.
      * 
      * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      */
     public void createArrayTypeAttributeValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         SimpleTypeName valueType = new SimpleTypeName(null, true, 1);
@@ -531,8 +541,12 @@ public class BLangModelBuilder {
      * Set the even function to get the value from the function arguments with the correct index.
      * Store the reference in the symbol table.
      *
-     * @param paramName name of the function parameter
      * @param location  Location of the parameter in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param typeName Type name of the parameter
+     * @param paramName name of the function parameter
+     * @param annotationCount number of annotations
+     * @param isReturnParam return parameter or not
      */
     public void addParam(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
                          String paramName, int annotationCount, boolean isReturnParam) {
@@ -596,6 +610,7 @@ public class BLangModelBuilder {
      * </ol>
      *
      * @param location Location of the variable reference expression in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param nameReference  nameReference of the variable
      */
     public void createVarRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -610,6 +625,7 @@ public class BLangModelBuilder {
      * <p>Create map array variable reference expression.</p>
      *
      * @param location location of the variable reference expression in the source file.
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param nameReference nameReference of the variable.
      * @param dimensions dimensions of map array.
      */
@@ -1797,9 +1813,10 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Create an expression for accessing fields, represented in the form of '<identifier>.<identifier>'.
+     * Create an expression for accessing fields, represented in the form of 'identifier.identifier'.
      *
      * @param location Source location of the ballerina file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      */
     public void createFieldRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         if (exprStack.size() < 2) {
