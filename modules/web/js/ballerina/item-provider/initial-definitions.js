@@ -217,7 +217,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createWorkerInvocationStatementTool = {
             id: "WorkerInvocation",
-            name: "Worker Invoke",
+            name: "Send",
             iconSrc: require("./../../../images/tool-icons/worker-invoke.svg"),
             cssClass: "icon fw fw-worker-invoke",
             title: "Worker Invocation",
@@ -226,7 +226,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
         var createWorkerReplyStatementTool = {
             id: "WorkerReply",
-            name: "Worker Reply",
+            name: "Receive",
             iconSrc: require("./../../../images/tool-icons/worker-reply.svg"),
             cssClass: "icon fw fw-worker-reply",
             title: "Worker Receive",
