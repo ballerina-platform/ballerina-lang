@@ -21,6 +21,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -30,6 +31,7 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,18 +50,46 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
         // cause issues when using find usage, etc.
         if (element.getParent() instanceof NameReferenceNode) {
+
             VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
                     VariableReferenceNode.class);
             if (variableReferenceNode == null) {
+
+                PsiElement prevToken = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                        .getContainingFile(), element.getTextOffset());
+
+                if (prevToken instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
+                    if (elementType == BallerinaTypes.DOT) {
+
+                        PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                                .getContainingFile(), prevToken.getTextOffset());
+
+                        return resolveField(element, prevSibling);
+
+                    }
+                }
                 return null;
             }
-            PsiElement prevSibling = variableReferenceNode.getPrevSibling();
-            if (prevSibling != null) {
-                if (prevSibling instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
-                    if (elementType == BallerinaTypes.DOT) {
-                        return null;
+
+            while (variableReferenceNode != null) {
+
+                PsiElement prevSibling = variableReferenceNode.getPrevSibling();
+                if (prevSibling != null) {
+
+                    if (prevSibling instanceof LeafPsiElement) {
+                        IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                        if (elementType == BallerinaTypes.DOT) {
+                            return null;
+                        }
                     }
+                }
+
+                PsiElement variableReferenceNodeParent = variableReferenceNode.getParent();
+                if (variableReferenceNodeParent instanceof VariableReferenceNode) {
+                    variableReferenceNode = ((VariableReferenceNode) variableReferenceNodeParent);
+                } else {
+                    variableReferenceNode = null;
                 }
             }
 
@@ -76,6 +106,35 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         } else if (element.getParent() instanceof TypeNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//connectorDefinition/Identifier");
+        }
+        return null;
+    }
+
+    private PsiElement resolveField(PsiNamedElement element, PsiElement prevSibling) {
+        if (prevSibling == null) {
+            return null;
+        }
+
+        PsiReference reference = prevSibling.getReference();
+        if (reference == null) {
+            return null;
+        }
+
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+
+        PsiElement resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement);
+
+        if (resolvedStruct == null) {
+            resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement.getParent());
+        }
+        if (resolvedStruct == null) {
+            return null;
+        }
+        if (resolvedStruct.getParent() instanceof StructDefinitionNode) {
+            return ((StructDefinitionNode) resolvedStruct.getParent()).resolve(element);
         }
         return null;
     }

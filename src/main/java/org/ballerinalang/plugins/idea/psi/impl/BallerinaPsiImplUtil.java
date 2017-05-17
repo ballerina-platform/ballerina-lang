@@ -55,6 +55,7 @@ import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
+import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
@@ -792,6 +793,7 @@ public class BallerinaPsiImplUtil {
             PsiDirectory parentDirectory = element.getContainingFile().getParent();
             if (parentDirectory == null) {
                 return null;
+                //                return resolveElement((BallerinaFile) element.getContainingFile(), element, xpaths);
             }
             // Iterate through all xpaths.
             for (String xpath : xpaths) {
@@ -1003,5 +1005,33 @@ public class BallerinaPsiImplUtil {
             }
         }
         return results;
+    }
+
+    @Nullable
+    public static PsiElement resolveStruct(PsiElement resolvedVariableDefElement) {
+        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(resolvedVariableDefElement, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return null;
+        }
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(typeNameNode, NameReferenceNode.class);
+        if (nameReferenceNode == null) {
+            return null;
+        }
+        PsiElement nameIdentifier = nameReferenceNode.getNameIdentifier();
+        if (nameIdentifier == null) {
+            return null;
+        }
+        PsiReference typeNameNodeReference = nameIdentifier.getReference();
+        if (typeNameNodeReference == null) {
+            return null;
+        }
+        PsiElement resolvedDefElement = typeNameNodeReference.resolve();
+        if (resolvedDefElement == null) {
+            return null;
+        }
+        if (!(resolvedDefElement.getParent() instanceof StructDefinitionNode)) {
+            return null;
+        }
+        return resolvedDefElement;
     }
 }

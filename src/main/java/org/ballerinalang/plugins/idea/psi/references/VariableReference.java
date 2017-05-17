@@ -163,33 +163,33 @@ public class VariableReference extends BallerinaElementReference {
         if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
             definitionElement = definitionElement.getParent();
         }
-        if (isDefinitionNode(definitionElement)) {
-            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
-            String defName = id != null ? id.getText() : null;
-
-            if (definitionElement instanceof ParameterNode) {
-                if (!(myElement.getParent() instanceof VariableReferenceNode)) {
-                    return false;
-                }
-                // If the common context is file, that means the myElement is not in the scope where the
-                // definitionElement is defined in.
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof FunctionDefinitionNode || commonContext instanceof ResourceDefinitionNode
-                        || commonContext instanceof ConnectorDefinitionNode || commonContext instanceof ActionDefinitionNode
-                        || commonContext instanceof TypeMapperNode)) {
-                    return false;
-                }
-            } else if (definitionElement instanceof VariableDefinitionNode) {
-                // If the common context is file, that means the myElement is not in the scope where the
-                // definitionElement is defined in.
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof CallableUnitBodyNode || commonContext instanceof ConnectorBodyNode
-                        || commonContext instanceof TypeMapperBodyNode)) {
-                    return false;
-                }
-            }
-            return refName != null && defName != null && refName.equals(defName);
-        }
+//        if (isDefinitionNode(definitionElement)) {
+//            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
+//            String defName = id != null ? id.getText() : null;
+//
+//            if (definitionElement instanceof ParameterNode) {
+//                if (!(myElement.getParent() instanceof VariableReferenceNode)) {
+//                    return false;
+//                }
+//                // If the common context is file, that means the myElement is not in the scope where the
+//                // definitionElement is defined in.
+//                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
+//                if (!(commonContext instanceof FunctionDefinitionNode || commonContext instanceof ResourceDefinitionNode
+//                        || commonContext instanceof ConnectorDefinitionNode || commonContext instanceof ActionDefinitionNode
+//                        || commonContext instanceof TypeMapperNode)) {
+//                    return false;
+//                }
+//            } else if (definitionElement instanceof VariableDefinitionNode) {
+//                // If the common context is file, that means the myElement is not in the scope where the
+//                // definitionElement is defined in.
+//                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
+//                if (!(commonContext instanceof CallableUnitBodyNode || commonContext instanceof ConnectorBodyNode
+//                        || commonContext instanceof TypeMapperBodyNode)) {
+//                    return false;
+//                }
+//            }
+//            return refName != null && defName != null && refName.equals(defName);
+//        }
         return false;
     }
 }

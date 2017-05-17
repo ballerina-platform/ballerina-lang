@@ -19,17 +19,23 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.file.PsiJavaDirectoryImpl;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PackageNameReference extends BallerinaElementReference {
@@ -40,7 +46,7 @@ public class PackageNameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof PsiDirectory;
+        return def instanceof PsiDirectory || def instanceof AliasNode;
     }
 
     @NotNull
@@ -124,12 +130,25 @@ public class PackageNameReference extends BallerinaElementReference {
 
     @Override
     public boolean isReferenceTo(PsiElement definitionElement) {
-        String refName = myElement.getName();
+
         if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
             definitionElement = definitionElement.getParent();
         }
         // Check whether the definition element is a definition node (PsiDirectory).
         if (isDefinitionNode(definitionElement)) {
+            PsiReference reference = myElement.getReference();
+            if (reference == null) {
+                return false;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
+                return false;
+            }
+
+            if (!resolvedElement.equals(definitionElement)) {
+                return false;
+            }
+
             String defName;
             // If the definitionElement is a instanceof PsiJavaDirectoryImpl, the directory name will be taken as
             // defName. Otherwise the text of the node is taken as the defName.
@@ -139,6 +158,7 @@ public class PackageNameReference extends BallerinaElementReference {
                 defName = definitionElement.getText();
             }
             // Check whether the refName and defName are equal to find a match.
+            String refName = myElement.getName();
             return (refName != null) && (defName != null) && refName.equals(defName);
         }
         return false;

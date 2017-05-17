@@ -19,12 +19,14 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +40,8 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof NameReferenceNode) {
+        if (element.getParent() instanceof NameReferenceNode
+                || element.getParent() instanceof StatementNode) {
             PsiElement definition = BallerinaPsiImplUtil.resolveElement(this, element,
                     "//functionDefinition/Identifier", "//connectorDefinition/Identifier",
                     "//structDefinition/Identifier");
@@ -48,6 +51,16 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
             VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
                     VariableReferenceNode.class);
             if (variableReferenceNode == null) {
+                PsiElement prevToken = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                        .getContainingFile(), element.getTextOffset());
+                if (prevToken instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
+                    if (elementType == BallerinaTypes.DOT) {
+                        PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                                .getContainingFile(), prevToken.getTextOffset());
+                        return resolveField(element, prevSibling);
+                    }
+                }
                 return null;
             }
             PsiElement prevSibling = variableReferenceNode.getPrevSibling();
@@ -55,8 +68,43 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
                 if (prevSibling instanceof LeafPsiElement) {
                     IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
                     if (elementType == BallerinaTypes.DOT) {
-                        return null;
+                        PsiElement prevPrevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
+                                .getContainingFile(), prevSibling.getTextOffset());
+                        return resolveField(element, prevPrevSibling);
                     }
+                }
+            }
+
+            PsiElement nextSibling = variableReferenceNode.getNextSibling();
+            if (nextSibling != null) {
+                if (nextSibling instanceof LeafPsiElement) {
+                    IElementType elementType = ((LeafPsiElement) nextSibling).getElementType();
+                    if (elementType == BallerinaTypes.DOT) {
+                        PsiElement parent = variableReferenceNode.getParent();
+                        if (parent instanceof VariableReferenceNode) {
+                            prevSibling = parent.getPrevSibling();
+                            if (prevSibling instanceof LeafPsiElement) {
+                                elementType = ((LeafPsiElement) nextSibling).getElementType();
+                                if (elementType == BallerinaTypes.DOT) {
+                                    PsiElement prevPrevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement
+                                            (element
+                                                    .getContainingFile(), prevSibling.getTextOffset());
+                                    return resolveField(element, prevPrevSibling);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            VariableDefinitionNode variableDefinitionNode =
+                    PsiTreeUtil.getParentOfType(element, VariableDefinitionNode.class);
+            if (variableDefinitionNode != null) {
+
+                PsiElement resolvedStruct = BallerinaPsiImplUtil.resolveStruct(variableDefinitionNode);
+
+                if (resolvedStruct != null && resolvedStruct.getParent() instanceof StructDefinitionNode) {
+                    return ((StructDefinitionNode) resolvedStruct.getParent()).resolve(element);
                 }
             }
 
@@ -66,13 +114,42 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
                     return null;
                 }
             }
-            
+
             return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof TypeNameNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
                     "//connectorDefinition/Identifier");
+        }
+        return null;
+    }
+
+    private PsiElement resolveField(PsiNamedElement element, PsiElement prevSibling) {
+        if (prevSibling == null) {
+            return null;
+        }
+
+        PsiReference reference = prevSibling.getReference();
+        if (reference == null) {
+            return null;
+        }
+
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+
+        PsiElement resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement);
+
+        if (resolvedStruct == null) {
+            resolvedStruct = BallerinaPsiImplUtil.resolveStruct(resolvedElement.getParent());
+        }
+        if (resolvedStruct == null) {
+            return null;
+        }
+        if (resolvedStruct.getParent() instanceof StructDefinitionNode) {
+            return ((StructDefinitionNode) resolvedStruct.getParent()).resolve(element);
         }
         return null;
     }

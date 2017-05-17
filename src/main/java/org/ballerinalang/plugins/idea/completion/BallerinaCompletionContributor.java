@@ -1082,7 +1082,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 resolvedVariableDefElement = resolvedVariableDefElement.getParent();
             }
         }
-        PsiElement structDefinitionNode = resolveStruct(resolvedVariableDefElement);
+        PsiElement structDefinitionNode = BallerinaPsiImplUtil.resolveStruct(resolvedVariableDefElement);
         if (structDefinitionNode == null) {
             return;
         }
@@ -1123,33 +1123,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         return resolvedVariableDefElement;
     }
 
-    @Nullable
-    private PsiElement resolveStruct(PsiElement resolvedVariableDefElement) {
-        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(resolvedVariableDefElement, TypeNameNode.class);
-        if (typeNameNode == null) {
-            return null;
-        }
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(typeNameNode, NameReferenceNode.class);
-        if (nameReferenceNode == null) {
-            return null;
-        }
-        PsiElement nameIdentifier = nameReferenceNode.getNameIdentifier();
-        if (nameIdentifier == null) {
-            return null;
-        }
-        PsiReference typeNameNodeReference = nameIdentifier.getReference();
-        if (typeNameNodeReference == null) {
-            return null;
-        }
-        PsiElement resolvedDefElement = typeNameNodeReference.resolve();
-        if (resolvedDefElement == null) {
-            return null;
-        }
-        if (!(resolvedDefElement.getParent() instanceof StructDefinitionNode)) {
-            return null;
-        }
-        return resolvedDefElement;
-    }
+
 
     private void suggestElementsFromAPackage(@NotNull CompletionParameters parameters,
                                              @NotNull CompletionResultSet resultSet, PsiElement packageElement,
