@@ -502,12 +502,6 @@ text-anchor: start;
     stroke-width: 0;
 }
 
-.parameter-wrapper {
-    fill: #b9b9b9;
-    shape-rendering: crispEdges;
-    height: 25px;
-}
-
 .parameter-text-wrapper {
     fill: #bdbdbd;
     shape-rendering: crispEdges;
@@ -560,14 +554,6 @@ text-anchor: start;
 
 .return-type-delete-icon:hover {
     opacity: 1;
-}
-.parameter-opening-brack-text .parameter-closing-brack-text{
-        color:#b9b9b9;
-    }
-
-.parameter-opening-brack-text, .parameter-closing-brack-text, .parameter-prefix-text, .parameter-text{
-    dominant-baseline: text-before-edge;
-
 }
 
 .return-types-opening-brack-text, .return-types-closing-brack-text, .return-types-prefix-text, .return-type-text {

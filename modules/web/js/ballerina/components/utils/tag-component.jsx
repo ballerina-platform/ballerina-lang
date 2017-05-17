@@ -110,10 +110,10 @@ class TagController extends React.Component {
                     this.onSelectClick()
                 }}>
                     <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y} width={90} height={25}
+                          y={componentData.components.closingBracket.y} width={90} height={20}
                           className="text-placeholder"/>
                     <text x={componentData.components.closingBracket.x - 98}
-                          y={componentData.components.closingBracket.y + 17}
+                          y={componentData.components.closingBracket.y + 20}
                           className="tag-component-attachment-text">
                         + Add Value
                     </text>

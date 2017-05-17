@@ -187,8 +187,7 @@
 }
 
 .struct-type-dropdown-wrapper,
-.struct-input-value-wrapper
-{
+.struct-input-value-wrapper {
     fill: #f5f5f5;
     stroke-width: 1.5;
     stroke: #ccc;
@@ -196,46 +195,65 @@
     stroke-dasharray: 3,3;
 }
 
-.struct-add-icon-wrapper{
+.struct-add-icon-wrapper {
     cursor:pointer;
     opacity: 0.5;
 }
 
-.struct-add-icon-wrapper:hover{
+.struct-add-icon-wrapper:hover {
     cursor:pointer;
     opacity: 1;
 }
 
-.struct-input-text{
+.struct-input-text {
     dominant-baseline: middle;
     fill: #707276;
-    opacity: 0.5;
 }
 
-.truct-input-text:hover{
+.struct-input-text:hover {
     dominant-baseline: middle;
     fill:#333;
-    opacity: 1;
 }
 
-.struct-added-value-wrapper{
+.struct-added-value-wrapper {
     fill: #f3f3f3;
     stroke-width: 0.5;
     stroke: #dfdfdf;
     shape-rendering: crispEdges;
 }
 
-.struct-delete-icon-wrapper{
-
-}
-
-.parameter-delete-icon-wrapper{
+.parameter-delete-icon-wrapper {
     fill: #b9b9b9;
     shape-rendering: crispEdges;
     padding: 13px;
     opacity: 0.3;
 }
 
-.parameter-delete-icon-wrapper:hover{
+.parameter-delete-icon-wrapper:hover {
     opacity: 1;
 }
+
+.argument-parameter-group,
+.annotation-attachment-group {
+    fill: $argument-parameter-group-wrapper-bgcolor;
+}
+
+.parameter-bracket-text{
+    fill: #999;
+    dominant-baseline: text-before-edge;
+}
+
+.parameter-prefix-text, .parameter-text {
+    dominant-baseline: text-before-edge;
+}
+
+.parameter-space {
+    fill: #9a9a9a;
+}
+
+.parameter-wrapper {
+    fill: $argument-parameter-group-wrapper-bgcolor;
+    shape-rendering: crispEdges;
+    height: 25px;
+}
+
