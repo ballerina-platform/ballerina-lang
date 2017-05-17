@@ -119,9 +119,7 @@
             "samples/tweetMediumFeed/tweetMediumFeed.bal",
             "samples/tweetOpenPR/tweetOpenPR.bal",
             "samples/twitterConnector/twitterConnector.bal",
-            "typemappers/complex-inner-mapping.bal",
-            "typemappers/complex-mapping.bal",
-            "typemappers/simple-mapping.bal"
+            "transformers/simple-mapping.bal"
         ]
     }
 }
