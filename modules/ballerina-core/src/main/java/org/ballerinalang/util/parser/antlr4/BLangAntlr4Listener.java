@@ -1699,10 +1699,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
         modelBuilder.createTypeCastExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop());
     }
 
-
     @Override
     public void enterTypeConversionExpression(TypeConversionExpressionContext ctx) {
     }
+    
     @Override
     public void exitTypeConversionExpression(TypeConversionExpressionContext ctx) {
         if (ctx.exception != null) {

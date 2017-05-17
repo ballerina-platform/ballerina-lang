@@ -84,6 +84,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -1088,6 +1089,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         }
     }
 
+    @Override
+    public void visit(TypeConversionExpression typeConversionExpression) {
+        // TODO
+    }
+    
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         calculateTempOffSet(arrayMapAccessExpr);

@@ -97,6 +97,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -2119,6 +2120,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             linkTypeMapper(typeCastExpression, sourceType, targetType);
         }
+    }
+    
+
+    @Override
+    public void visit(TypeConversionExpression typeConversionExpression) {
+        System.out.println();
+        // TODO
     }
 
     @Override
