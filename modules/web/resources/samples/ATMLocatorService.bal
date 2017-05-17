@@ -5,30 +5,30 @@ import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.lang.jsons;
 
-@http:BasePath{value: "/ABCBank"}
+@http:BasePath {value:"/ABCBank"}
 service ATMLocator {
 
     @http:POST{}
-    @http:Path{value: "/locator"}
-    resource locator() {
+    @http:Path {value:"/locator"}
+    resource locator (message m) {
         http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo");
         http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator");
         message backendServiceReq = {};
-        json jsonLocatorReq = messages:getJsonPayload(undefined);
-        string zipCode = jsons:getString(undefined, "$.ATMLocator.ZipCode");
-        system:println("Zip Code " + undefined);
-        json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
-        jsons:set(undefined, "$.BranchLocator.ZipCode", undefined);
-        messages:setJsonPayload(undefined, undefined);
-        message response = http:ClientConnector.post("", undefined);
-        json branchLocatorRes = messages:getJsonPayload(undefined);
-        string branchCode = jsons:getString(undefined, "$.ABCBank.BranchCode");
-        system:println("Branch Code " + undefined);
-        json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
-        jsons:set(undefined, "$.BranchInfo.BranchCode", undefined);
-        messages:setJsonPayload(undefined, undefined);
-        undefined = http:ClientConnector.post("", undefined);
-
+        json jsonLocatorReq = messages:getJsonPayload(m);
+        string zipCode = jsons:getString(jsonLocatorReq, "$.ATMLocator.ZipCode");
+        system:println("Zip Code " + zipCode);
+        json branchLocatorReq = {"BranchLocator": {"ZipCode":""}};
+        jsons:set(branchLocatorReq, "$.BranchLocator.ZipCode", zipCode);
+        messages:setJsonPayload(backendServiceReq, branchLocatorReq);
+        message response = http:ClientConnector.post(branchLocatorService, "", backendServiceReq);
+        json branchLocatorRes = messages:getJsonPayload(response);
+        string branchCode = jsons:getString(branchLocatorRes, "$.ABCBank.BranchCode");
+        system:println("Branch Code " + branchCode);
+        json bankInfoReq = {"BranchInfo": {"BranchCode":""}};
+        jsons:set(bankInfoReq, "$.BranchInfo.BranchCode", branchCode);
+        messages:setJsonPayload(backendServiceReq, bankInfoReq);
+        response = http:ClientConnector.post(bankInfoService, "", backendServiceReq);
         reply response;
+
     }
 }

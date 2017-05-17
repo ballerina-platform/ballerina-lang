@@ -1,28 +1,26 @@
-
-function testSimpleWorker() {
+function testSimpleWorker(message msg)(message) {
     message result;
-    //message msg = {};;
+    //message msg = {};
     int x = 100;
     float y;
-    undefined,undefined -> sampleWorker;
+    msg, x ->sampleWorker;
     system:println("Worker calling function test started");
-    undefined,undefined <- sampleWorker;
-    string s = messages:getStringPayload(undefined);
-    system:println(undefined);
-    system:println("Value received from worker is " + undefined);
+    y, result <-sampleWorker;
+    string s = messages:getStringPayload(result);
+    system:println(s);
+    system:println("Value received from worker is " + y);
+    return result;
 
-
-    return undefined;
     worker sampleWorker {
         message result;
         message m;
         int a;
         float b = 12.34;
-        undefined,undefined <- default;
-        system:println("passed in value is " + undefined);
+        m, a <-default;
+        system:println("passed in value is " + a);
         json j;
-        undefined = `{"name":"chanaka"}`;
-        messages:setJsonPayload(undefined, undefined);
-        undefined,undefined -> default;
-}
+        j = `{"name":"chanaka"}`;
+        messages:setJsonPayload(m, j);
+        b, m ->default;
+    }
 }
