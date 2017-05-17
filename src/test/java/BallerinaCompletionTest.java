@@ -1385,7 +1385,31 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 '@', "TEST");
     }
 
-    // todo - add struct fields tests
+    public void testSingleLevelStructInSameFile() {
+        doCheckResult("test.bal", "struct Name { string firstName; } function test(){ Name name = { f<caret> }; }",
+                "struct Name { string firstName; } function test(){ Name name = { firstName: }; }", null);
+    }
+
+    public void testSingleLevelStructInSameFileValue() {
+        doTest("struct Name { string firstName; } function test(){ string name=\"\"; Name name = { " +
+                "firstName:<caret> }; }", "name", "test");
+    }
+
+    public void testMultiLevelStructInSameFile() {
+        doCheckResult("test.bal", "struct Name { string firstName; } struct User { Name name; }" +
+                " function test(){ User user = { n<caret> }; }", "struct Name { string firstName; } struct User { " +
+                "Name name; } function test(){ User user = { name: }; }", null);
+    }
+
+    public void testMultiLevelStructInSameFileLevel1() {
+        doTest("struct Name { string firstName; } struct User { Name name; }" +
+                " function test(){ User user = { }; user.<caret> }", "name");
+    }
+
+    public void testMultiLevelStructInSameFileLevel2() {
+        doTest("struct Name { string firstName; } struct User { Name name; } function test(){ User user = { }; user" +
+                ".name.<caret> }", "firstName");
+    }
 
     /**
      * Test typemapper level lookups.

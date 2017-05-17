@@ -504,7 +504,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             addStructFields(parameters, resultSet, element);
                         } else {
                             addTypeNamesAsLookups(resultSet);
-                            addLookups(resultSet, originalFile, true, true, true, true);
+                            addLookups(resultSet, originalFile, true, true, true, false);
                             addVariableTypesAsLookups(resultSet, originalFile, element);
                         }
                     } else if (isExpressionSeparator(elementType)) {
@@ -558,9 +558,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 if (prevSibling != null && prevSibling.getText().matches(".+:.+")) {
                     // Eg: User user = { name: utils:<caret> }
                     PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                    suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, true);
+                    suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, false, true);
                 } else {
-                    addLookups(resultSet, originalFile, true, true, true, true);
+                    addLookups(resultSet, originalFile, true, true, true, false);
                     addVariableTypesAsLookups(resultSet, originalFile, element);
                 }
             } else {
@@ -588,7 +588,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addStructFields(parameters, resultSet, element);
             } else {
                 addTypeNamesAsLookups(resultSet);
-                addLookups(resultSet, originalFile, true, true, true, true);
+                addLookups(resultSet, originalFile, true, true, true, false);
                 addVariableTypesAsLookups(resultSet, originalFile, element);
             }
         } else if (isExpressionSeparator(elementType)) {
@@ -878,7 +878,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                     addStructFields(parameters, resultSet, null, structDefinitionNode, true, true);
                                 }
                             } else {
-                                addLookups(resultSet, originalFile, true, true, false, true);
+                                addLookups(resultSet, originalFile, true, true, true, false);
                                 addVariableTypesAsLookups(resultSet, originalFile, element);
                             }
                         }
@@ -907,7 +907,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                 addStructFields(parameters, resultSet, null, structDefinitionNode, true, true);
                             }
                         } else {
-                            addLookups(resultSet, originalFile, true, true, false, false);
+                            addLookups(resultSet, originalFile, true, true, true, false);
                             addVariableTypesAsLookups(resultSet, originalFile, element);
                         }
                     }

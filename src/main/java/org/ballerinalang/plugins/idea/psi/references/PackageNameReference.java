@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.file.PsiJavaDirectoryImpl;
@@ -28,14 +27,11 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 public class PackageNameReference extends BallerinaElementReference {
@@ -105,7 +101,6 @@ public class PackageNameReference extends BallerinaElementReference {
         // Get all imported packages in the file.
         List<PsiElement> packages =
                 BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(identifierElement.getContainingFile());
-        // Todo - Show packages which are not imported as well.
         for (PsiElement pack : packages) {
             // For all packages, check whether the identifier is equal to the package name. If they are equal,
             // that means that the current element is what we are looking for.
