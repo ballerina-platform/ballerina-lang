@@ -31,7 +31,7 @@ class AnnotationDefinitionAttachment extends React.Component {
         return (<g>
             <rect x={viewState.bBox.x + 7} y={viewState.bBox.y} width={viewState.w + 5} height={25} rx="0" ry="0"
                   className="parameter-wrapper"/>
-            <text x={viewState.bBox.x + 7} y={viewState.bBox.y + 3}
+            <text x={viewState.bBox.x + 10} y={viewState.bBox.y + 3}
                   className="parameter-text">{this.state.value}</text>
             <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y}
                   width={viewState.components.deleteIcon.w + 2} height={viewState.components.deleteIcon.h + 7} rx="0" ry="0"
