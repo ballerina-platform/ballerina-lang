@@ -64,8 +64,8 @@ class AnnotationDefinition extends React.Component {
                 closingBracket: this.props.model.getViewState().components.closingParameter
             },
             prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
-            openingBracketClassName: 'parameter-opening-brack-text',
-            closingBracketClassName: 'parameter-closing-brack-text',
+            openingBracketClassName: 'parameter-bracket-text',
+            closingBracketClassName: 'parameter-bracket-text',
             prefixTextClassName: 'parameter-prefix-text'
         };
 
