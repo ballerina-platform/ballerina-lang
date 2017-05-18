@@ -19,7 +19,6 @@ package org.wso2.siddhi.annotation;
 
 import org.wso2.siddhi.annotation.util.DataType;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -46,7 +45,7 @@ import java.lang.annotation.Target;
  * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({})
 public @interface ReturnAttribute {
     String name() default "";
 
