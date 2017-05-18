@@ -226,9 +226,12 @@ public class JsonSourceMapperTestCase {
                             Assert.assertEquals(null, event.getData(1));
                             break;
                         case 3:
-                            Assert.assertEquals(56.0f, event.getData(1));
+                            Assert.assertEquals(null, event.getData(0));
                             break;
                         case 4:
+                            Assert.assertEquals(56.0f, event.getData(1));
+                            break;
+                        case 5:
                             Assert.assertEquals(57.6f, event.getData(1));
                             break;
                         default:
@@ -263,6 +266,12 @@ public class JsonSourceMapperTestCase {
                 " }");
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
+                "         \"price\":56,\n" +
+                "         \"volume\":100\n" +
+                "      }\n" +
+                " }");
+        InMemoryBroker.publish("stock", " {\n" +
+                "      \"event\":{\n" +
                 "         \"symbol\":\"WSO2\",\n" +
                 "         \"price\":57.6,\n" +
                 "         \"volume\":100\n" +
@@ -271,7 +280,7 @@ public class JsonSourceMapperTestCase {
         Thread.sleep(100);
 
         //assert event count
-        Assert.assertEquals("Number of events", 4, count.get());
+        Assert.assertEquals("Number of events", 5, count.get());
         executionPlanRuntime.shutdown();
     }
 
@@ -589,7 +598,10 @@ public class JsonSourceMapperTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "@source(type='inMemory', topic='stock', " +
-                "@map(type='json', fail.on.missing.attribute='true'))\n" +
+                "@map(type='json', fail.on.missing.attribute='true', " +
+                "@attributes(symbol = \"event.symbol\", price = \"event.price\", " +
+                "volume = \"event.volume\") " +
+                "))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
