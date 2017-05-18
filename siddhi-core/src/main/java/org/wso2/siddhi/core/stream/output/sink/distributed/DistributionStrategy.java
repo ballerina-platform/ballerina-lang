@@ -36,8 +36,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class DistributionStrategy {
 
-    protected static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
-    protected List<Integer> destinationIds = new CopyOnWriteArrayList<>();
+    static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
+    List<Integer> destinationIds = new CopyOnWriteArrayList<>();
 
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.

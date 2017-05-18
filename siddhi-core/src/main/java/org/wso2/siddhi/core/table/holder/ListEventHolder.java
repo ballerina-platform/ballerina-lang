@@ -32,6 +32,7 @@ import java.util.LinkedList;
  */
 public class ListEventHolder extends LinkedList<StreamEvent> implements EventHolder {
 
+    private static final long serialVersionUID = 4695745058501269511L;
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
 

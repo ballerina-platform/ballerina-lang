@@ -21,12 +21,13 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * The converter class that converts the events into StreamEvent
  */
-public class SelectiveStreamEventConverter implements StreamEventConverter {
+public class SelectiveStreamEventConverter implements StreamEventConverter, Serializable {
 
     private List<ConversionMapping> conversionMappings;       //List to hold information needed for conversion
 

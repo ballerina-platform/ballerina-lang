@@ -36,6 +36,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_IN
  */
 public class StreamEvent implements ComplexEvent {
 
+    private static final long serialVersionUID = 8427059374772140103L;
     protected long timestamp = -1;
     protected Object[] outputData;              //Attributes to sent as output
     //    protected boolean isExpired = false;

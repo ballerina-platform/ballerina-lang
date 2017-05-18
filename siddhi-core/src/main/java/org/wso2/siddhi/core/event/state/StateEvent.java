@@ -41,6 +41,7 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_INDEX_IN_CH
  */
 public class StateEvent implements ComplexEvent {
 
+    private static final long serialVersionUID = -4298551180747630402L;
     protected StreamEvent[] streamEvents;
     protected StateEvent next;
     protected long timestamp = -1;

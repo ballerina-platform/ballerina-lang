@@ -25,6 +25,7 @@ import java.io.Serializable;
  */
 public class StreamEventPool implements Serializable {
 
+    private static final long serialVersionUID = -1743558131917334571L;
     private StreamEventFactory eventFactory;
     private int size;
     private int index = 0;

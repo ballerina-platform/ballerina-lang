@@ -26,6 +26,7 @@ import java.io.Serializable;
  */
 public class StreamEventFactory implements EventFactory<StreamEvent>, Serializable {
 
+    private static final long serialVersionUID = -7980961535196721919L;
     private int beforeWindowDataSize;
     private int onAfterWindowDataSize;
     private int outputDataSize;

@@ -23,6 +23,7 @@ package org.wso2.siddhi.core.event;
  */
 public class GroupedComplexEvent implements ComplexEvent {
 
+    private static final long serialVersionUID = 3654677405648232168L;
     private final ComplexEvent complexEvent;
     private String groupKey;
     private ComplexEvent next;

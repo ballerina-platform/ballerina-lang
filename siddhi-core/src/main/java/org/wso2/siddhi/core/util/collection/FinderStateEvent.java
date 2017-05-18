@@ -25,6 +25,8 @@ import org.wso2.siddhi.core.event.state.StateEvent;
  */
 public class FinderStateEvent extends StateEvent {
 
+    private static final long serialVersionUID = -6442877320125223084L;
+
     public FinderStateEvent(int streamEventsSize, int outputSize) {
         super(streamEventsSize, outputSize);
     }
