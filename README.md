@@ -1,7 +1,5 @@
 # Ballerina Container Support
-Container support for Ballerina provides the implementation for the following functionality.
-
-1. Package Ballerina programs with Docker using `ballerina docker` command.
+Container support for Ballerina provides the implementation for packaging Ballerina programs with Docker using `ballerina docker` command.
 
 This is available as part of the Ballerina Tools distribution.
 

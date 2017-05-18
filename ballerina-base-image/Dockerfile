@@ -21,6 +21,7 @@ LABEL maintainer "tryballerina@gmail.com"
 ARG BALLERINA_DIST
 ARG BUILD_DATE
 ARG VCS_REF
+ARG BUILD_VERSION
 
 # Labels.
 LABEL org.label-schema.schema-version="1.0"
@@ -31,8 +32,8 @@ LABEL org.label-schema.url="http://ballerinalang.org/"
 LABEL org.label-schema.vcs-url="https://github.com/ballerinalang/container-support"
 LABEL org.label-schema.vcs-ref=$VCS_REF
 LABEL org.label-schema.vendor="WSO2"
-LABEL org.label-schema.version="0.8.1-SNAPSHOT"
-LABEL org.label-schema.docker.cmd="docker run -v ~/ballerina/packages:/ballerina/files -e 'SVC_MODE=true' -p 9090:9090 -d ballerina:latest"
+LABEL org.label-schema.version=$BUILD_VERSION
+LABEL org.label-schema.docker.cmd="docker run -v ~/ballerina/packages:/ballerina/files -e 'SVC_MODE=true' -p 9090:9090 -d ballerinalang/ballerina"
 LABEL org.label-schema.docker.params="SVC_MODE=true if packages to be run are Ballerina Services, false if they are Ballerina main programs"
 
 
