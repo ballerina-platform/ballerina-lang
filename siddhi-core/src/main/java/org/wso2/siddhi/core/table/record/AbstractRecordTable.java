@@ -49,8 +49,6 @@ public abstract class AbstractRecordTable implements Table {
 
     private TableDefinition tableDefinition;
     private StreamEventPool storeEventPool;
-    private StreamEventCloner storeEventCloner;
-    private ExecutionPlanContext executionPlanContext;
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
@@ -58,8 +56,6 @@ public abstract class AbstractRecordTable implements Table {
                              executionPlanContext) {
         this.tableDefinition = tableDefinition;
         this.storeEventPool = storeEventPool;
-        this.storeEventCloner = storeEventCloner;
-        this.executionPlanContext = executionPlanContext;
         init(tableDefinition, configReader);
     }
 

@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * Event that is used external to Siddhi
@@ -31,7 +30,6 @@ public class Event {
     protected long id = -1;
     protected Object[] data;
     protected boolean isExpired = false;
-    private Map<String, Object> arbitraryDataMap;
 
     public Event(long timestamp, Object[] data) {
         this.timestamp = timestamp;

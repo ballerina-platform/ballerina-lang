@@ -36,7 +36,6 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
     private final int matchingStreamIndex;
     private Table table;
     private final CompiledCondition compiledCondition;
-    private Table eventTable;
     private FinderStateEvent finderStateEvent;
 
     public InConditionExpressionExecutor(Table table, CompiledCondition compiledCondition, int
