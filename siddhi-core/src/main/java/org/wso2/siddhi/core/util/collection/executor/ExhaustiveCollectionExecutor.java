@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.table.holder.IndexedEventHolder;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -65,8 +64,7 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
     public Collection<StreamEvent> findEvents(StateEvent matchingEvent, Collection<StreamEvent>
             preProcessedstoreEvents) {
         HashSet<StreamEvent> streamEvents = new HashSet<StreamEvent>();
-        for (Iterator<StreamEvent> iterator = preProcessedstoreEvents.iterator(); iterator.hasNext(); ) {
-            StreamEvent storeEvent = iterator.next();
+        for (StreamEvent storeEvent : preProcessedstoreEvents) {
             matchingEvent.setEvent(storeEventIndex, storeEvent);
             if ((Boolean) expressionExecutor.execute(matchingEvent)) {
                 streamEvents.add(storeEvent);
