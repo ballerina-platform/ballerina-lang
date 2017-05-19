@@ -28,9 +28,8 @@ import java.util.regex.Pattern;
 
 /**
  * Parent class for extension annotation validation processors.
- * <p>
  * CORE_PACKAGE_PATTERN: regex pattern for check the core package name while validation.
- * PARAMETER_NAME_PATTERN: regex pattern for check the @Extension -> @Parameters -> name format validation.
+ * PARAMETER_NAME_PATTERN: regex pattern for check the @Extension / @Parameters / name format validation.
  * extensionClassFullName: holds the extension class full name.
  * CAMEL_CASE_PATTERN: regex pattern for check the camelCase naming convention.
  */
@@ -77,7 +76,7 @@ public class AbstractAnnotationProcessor {
     }
 
     /**
-     * This method uses for validate @Extension -> @Parameter element.
+     * This method uses for validate @Extension / @Parameter element.
      *
      * @param parameters parameter array which needs to be validate.
      * @throws AnnotationValidationException whenever if the validate rule violate, throws the annotation validate
@@ -112,7 +111,7 @@ public class AbstractAnnotationProcessor {
     }
 
     /**
-     * This method uses for validate @Extension -> @ReturnAttribute elements.
+     * This method uses for validate @Extension / @ReturnAttribute elements.
      *
      * @param returnAttributes returnA attributes array which needs to be validate.
      * @throws AnnotationValidationException whenever if the validate rule violate, throws the annotation validate
@@ -148,7 +147,7 @@ public class AbstractAnnotationProcessor {
     }
 
     /**
-     * This method uses for validate @Extension -> @SystemParameter elements.
+     * This method uses for validate @Extension / @SystemParameter elements.
      *
      * @param systemParameters system property array which needs to be validate.
      * @throws AnnotationValidationException whenever if the validate rule violate, throws the annotation validate
@@ -185,7 +184,7 @@ public class AbstractAnnotationProcessor {
     }
 
     /**
-     * This method uses for validate @Extension -> @Example elements.
+     * This method uses for validate @Extension / @Example elements.
      *
      * @param examples examples array which needs to be validate.
      * @throws AnnotationValidationException whenever if the validate rule violate, throws the annotation validate

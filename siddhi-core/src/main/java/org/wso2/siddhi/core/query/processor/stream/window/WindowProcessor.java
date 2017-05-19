@@ -52,7 +52,7 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
      *
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param configReader                 the config reader of window
-     * @param outputExpectsExpiredEvents
+     * @param outputExpectsExpiredEvents   is expired event out put or not
      * @param executionPlanContext         the context of the execution plan
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,

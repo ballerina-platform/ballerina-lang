@@ -69,9 +69,13 @@ public class QueryParser {
      * @param executionPlanContext associated Execution Plan context.
      * @param streamDefinitionMap  keyvalue containing user given stream definitions.
      * @param tableDefinitionMap   keyvalue containing table definitions.
-     * @param tableMap        keyvalue containing event tables.
-     * @param eventSourceMap
-     * @param eventSinkMap         @return queryRuntime.
+     * @param windowDefinitionMap  keyvalue containing window definition map.
+     * @param tableMap             keyvalue containing event tables.
+     * @param eventWindowMap       keyvalue containing event window map.
+     * @param eventSourceMap       keyvalue containing event source map.
+     * @param eventSinkMap         keyvalue containing event sink map.
+     * @param lockSynchronizer     Lock synchronizer for sync the lock across queries.
+     * @return queryRuntime
      */
     public static QueryRuntime parse(Query query, ExecutionPlanContext executionPlanContext,
                                      Map<String, AbstractDefinition> streamDefinitionMap,
@@ -88,7 +92,8 @@ public class QueryParser {
         LatencyTracker latencyTracker = null;
         LockWrapper lockWrapper = null;
         try {
-            nameElement = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
+            nameElement = AnnotationHelper.getAnnotationElement("info", "name",
+                    query.getAnnotations());
             String queryName = null;
             if (nameElement != null) {
                 queryName = nameElement.getValue();
@@ -116,7 +121,8 @@ public class QueryParser {
                 outputExpectsExpiredEvents = true;
             }
             StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
+                    executionPlanContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap,
+                    eventWindowMap, executors, latencyTracker, outputExpectsExpiredEvents, queryName);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
                     executionPlanContext, streamRuntime.getMetaComplexEvent(), tableMap, executors, queryName);
             boolean isWindow = query.getInputStream() instanceof JoinInputStream;
@@ -129,11 +135,12 @@ public class QueryParser {
                 }
             }
 
-            Element synchronizedElement = AnnotationHelper.getAnnotationElement("synchronized", null, query
-                    .getAnnotations());
+            Element synchronizedElement = AnnotationHelper.getAnnotationElement("synchronized",
+                    null, query.getAnnotations());
             if (synchronizedElement != null) {
                 if (!("false".equalsIgnoreCase(synchronizedElement.getValue()))) {
-                    lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since it will
+                    lockWrapper = new LockWrapper(""); // Query LockWrapper does not need a unique
+                    // id since it will
                     // not be passed to the LockSynchronizer.
                     lockWrapper.setLock(new ReentrantLock());   // LockWrapper does not have a default lock
                 }
@@ -172,7 +179,8 @@ public class QueryParser {
                                     .getLock();
                         } else {
                             // Join does not contain any Window
-                            lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique id since
+                            lockWrapper = new LockWrapper("");  // Query LockWrapper does not need a unique
+                            // id since
                             // it will not be passed to the LockSynchronizer.
                             lockWrapper.setLock(new ReentrantLock());   // LockWrapper does not have a default lock
                         }

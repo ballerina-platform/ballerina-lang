@@ -63,7 +63,7 @@ public abstract class AbstractRecordTable implements Table {
      * Initializing the Record Table
      *
      * @param tableDefinition definintion of the table with annotations if any
-     * @param configReader
+     * @param configReader this hold the {@link AbstractRecordTable} configuration reader.
      */
     protected abstract void init(TableDefinition tableDefinition, ConfigReader configReader);
 

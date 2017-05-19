@@ -119,6 +119,7 @@ public class Window implements FindableProcessor, Snapshotable {
      * @param tableMap  map of {@link Table}s
      * @param eventWindowMap map of EventWindows
      * @param latencyTracker to rack the latency if statistic of underlying {@link WindowProcessor} is required
+     * @param queryName name of the query window belongs to.
      */
     public void init(Map<String, Table> tableMap, Map<String, Window> eventWindowMap, LatencyTracker
             latencyTracker, String queryName) {

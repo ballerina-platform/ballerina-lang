@@ -48,7 +48,7 @@ public abstract class DistributedTransport extends Sink {
      * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
      * @param optionHolder           Option holder containing static and dynamic options related to the
      * {@link Sink}
-     * @param sinkConfigReader
+     * @param sinkConfigReader this hold the {@link Sink} extensions configuration reader.
      * @param executionPlanContext   Context of the execution plan which this output sink belongs to
      */
     @Override

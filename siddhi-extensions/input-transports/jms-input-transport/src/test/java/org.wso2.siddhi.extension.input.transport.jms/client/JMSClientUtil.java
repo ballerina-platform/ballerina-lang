@@ -41,6 +41,7 @@ public class JMSClientUtil {
      * Messages will be read from the given filepath and stored in the array list (messagesList)
      *
      * @param filePath Text file to be read
+     * @return messagesList
      */
     public static List<String> readFile(String filePath) {
         BufferedReader bufferedReader = null;

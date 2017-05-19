@@ -162,7 +162,7 @@ public class ExecutionPlanRuntime {
     /**
      * Get the names of the available queries.
      *
-     * @return {@link Set<String>} of query names.
+     * @return string set of query names.
      */
     public Set<String> getQueryNames() {
         return queryProcessorMap.keySet();

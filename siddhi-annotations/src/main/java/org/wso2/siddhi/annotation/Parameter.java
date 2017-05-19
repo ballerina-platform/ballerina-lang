@@ -25,7 +25,6 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for storing the parameters of a Siddhi Extension.
- * <p>
  * <pre><code>
  * eg:-
  *      {@literal @}Extension(
