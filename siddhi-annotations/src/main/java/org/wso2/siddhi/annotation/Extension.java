@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for specifying it as a Siddhi Extension.
- * <p>
  * <pre><code>
  * eg:-
  *      {@literal @}Extension(

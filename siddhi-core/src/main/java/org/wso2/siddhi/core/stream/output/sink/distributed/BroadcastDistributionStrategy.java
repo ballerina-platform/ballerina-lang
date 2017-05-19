@@ -49,9 +49,10 @@ public class BroadcastDistributionStrategy extends DistributionStrategy {
      * Initialize the Distribution strategy with the information it will require to make decisions.
      *  @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
      * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
-     * @param distributionOptionHolder
+     * @param distributionOptionHolder Option holder containing static and dynamic options related to the
+     *                                 distribution strategy.
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
-     * @param configReader
+     * @param configReader This hold the {@link BroadcastDistributionStrategy} extensions configuration reader.
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder

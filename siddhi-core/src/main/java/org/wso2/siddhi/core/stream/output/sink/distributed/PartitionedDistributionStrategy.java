@@ -62,7 +62,7 @@ public class PartitionedDistributionStrategy extends DistributionStrategy {
      *  @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
      * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
-     * @param configReader
+     * @param configReader This hold the {@link PartitionedDistributionStrategy} configuration reader.
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,

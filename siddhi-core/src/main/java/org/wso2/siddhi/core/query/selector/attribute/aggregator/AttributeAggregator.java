@@ -114,7 +114,7 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
      * The initialization method for FunctionExecutor
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader
+     * @param configReader this hold the {@link AttributeAggregator} extensions configuration reader.
      * @param executionPlanContext         Execution plan runtime context
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,

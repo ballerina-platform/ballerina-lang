@@ -49,11 +49,14 @@ public class InputStreamParser {
      * @param executionPlanContext       associated siddhi executionPlanContext
      * @param streamDefinitionMap        map containing user given stream definitions
      * @param tableDefinitionMap         table definition map
-     * @param tableMap              Table Map
+     * @param windowDefinitionMap        window definition map
+     * @param tableMap                   Table Map
+     * @param eventWindowMap             event window map
      * @param executors                  List to hold VariableExpressionExecutors to update after query parsing
      * @param latencyTracker             latency tracker
      * @param outputExpectsExpiredEvents is output expects ExpiredEvents
-     * @return StreamRuntime Stream Runtime
+     * @param queryName                  query name of input stream belongs to.
+     * @return  StreamRuntime
      */
     public static StreamRuntime parse(InputStream inputStream, ExecutionPlanContext executionPlanContext,
                                       Map<String, AbstractDefinition> streamDefinitionMap,
@@ -73,16 +76,21 @@ public class InputStreamParser {
                                                                                     latencyTracker, queryName);
             processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                                                            executionPlanContext, executors, streamDefinitionMap, null, windowDefinitionMap, tableMap,
-                                                            new MetaStreamEvent(), processStreamReceiver, true, outputExpectsExpiredEvents, queryName);
+                                                            executionPlanContext, executors, streamDefinitionMap,
+                    null, windowDefinitionMap, tableMap,
+                                                            new MetaStreamEvent(), processStreamReceiver,
+                    true, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof JoinInputStream) {
             return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), executionPlanContext,
-                                                          streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, eventWindowMap,
-                                                          executors, latencyTracker, outputExpectsExpiredEvents, queryName);
+                                                          streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
+                    tableMap, eventWindowMap,
+                                                          executors, latencyTracker, outputExpectsExpiredEvents,
+                    queryName);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), executionPlanContext,
-                                                           metaStateEvent, streamDefinitionMap, null, null, tableMap, executors, latencyTracker,
+                                                           metaStateEvent, streamDefinitionMap, null,
+                    null, tableMap, executors, latencyTracker,
                                                            queryName);
         } else {
             throw new OperationNotSupportedException();

@@ -57,8 +57,9 @@ public class SelectorParser {
      * @param outputStream                output stream
      * @param executionPlanContext        query to be parsed
      * @param metaComplexEvent            Meta event used to collect execution info of stream associated with query
-     * @param tableMap               Table Map
+     * @param tableMap                    Table Map
      * @param variableExpressionExecutors variable expression executors
+     * @param queryName                   query name of selector belongs to.
      * @return QuerySelector
      */
     public static QuerySelector parse(Selector selector, OutputStream outputStream, ExecutionPlanContext

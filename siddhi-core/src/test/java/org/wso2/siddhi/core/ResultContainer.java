@@ -43,6 +43,7 @@ public class ResultContainer {
      * Wait for other threads to post results and then return aggregated result.
      *
      * @return isThrottled
+     * @throws InterruptedException throw exception if interrupted.
      */
     public Boolean isThrottled() throws InterruptedException {
         this.latch.await();

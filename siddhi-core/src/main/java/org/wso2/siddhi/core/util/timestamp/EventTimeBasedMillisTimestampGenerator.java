@@ -74,7 +74,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * Create an EventBasedTimeMillisTimestampGenerator.
      *
-     * @param scheduledExecutorService
+     * @param scheduledExecutorService  the schedule service to be executed for produce heartbeat.
      */
     public EventTimeBasedMillisTimestampGenerator(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;
@@ -94,7 +94,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * Set the timestamp to the {@link EventTimeBasedMillisTimestampGenerator} and notify the interested listeners.
      *
-     * @param timestamp
+     * @param timestamp the timestamp to the {@link EventTimeBasedMillisTimestampGenerator}
      */
     public void setCurrentTimestamp(long timestamp) {
         if (timestamp >= this.lastEventTimestamp) {
@@ -131,7 +131,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
      * The {@link ScheduledExecutorService} waits until idleTime from the timestamp of last event
      * and if there are no new events arrived within that period, it will inject a new timestamp.
      *
-     * @param idleTime
+     * @param idleTime the ideal time for wait until from the timestamp of last event.
      */
     public void setIdleTime(long idleTime) {
         this.idleTime = idleTime;
@@ -140,7 +140,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * Set by how many milliseconds, the event timestamp should be increased.
      *
-     * @param incrementInMilliseconds
+     * @param incrementInMilliseconds the timestamp incremental value.
      */
     public void setIncrementInMilliseconds(long incrementInMilliseconds) {
         this.incrementInMilliseconds = incrementInMilliseconds;
@@ -149,7 +149,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * This method must be called within a synchronized block to avoid multiple schedulers from running simultaneously.
      *
-     * @param duration
+     * @param duration delay the time from now to delay execution
      */
     private void notifyAfter(long duration) {
         if (!heartbeatRunning && idleTime != -1) {

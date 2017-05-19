@@ -98,7 +98,7 @@ public abstract class SinkMapper implements Snapshotable {
      *  @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder un mapped payload for reference
-     * @param mapperConfigReader
+     * @param mapperConfigReader this hold the {@link SinkMapper} extensions configuration reader.
      */
     public abstract void init(StreamDefinition streamDefinition,
                               OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader
