@@ -90,10 +90,11 @@ fork (MessageName) {
 Note that if the `join` clause is missing, it is equivalent to waiting for all workers to complete and ignorning the results.
 
 The `JoinCondition` is one of the following:
+
 - `any IntegerValue [(WorkerNameList)]`: wait for any k (i.e., the IntegerValue) of the given workers or any of the workers
 - `all [(WorkerNameList)]`: wait for all given workers or all of the workers
 
-where `WorkerNameList` is a list of comma-separated names of workers.
+In this scenario, `WorkerNameList` is a list of comma-separated names of workers.
 
 > **Note:** The join condition "any k" where k != 1 is not yet implemented.
 
