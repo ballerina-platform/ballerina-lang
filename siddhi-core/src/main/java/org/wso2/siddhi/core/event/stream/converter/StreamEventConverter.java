@@ -21,6 +21,8 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+import java.io.Serializable;
+
 /**
  * The converter that converts data of the events into StreamEvents
  */
@@ -64,7 +66,8 @@ public interface StreamEventConverter {
     /**
      * Element to hold information about event conversion
      */
-    class ConversionMapping {
+    class ConversionMapping implements Serializable {
+        private static final long serialVersionUID = 4986399180249934830L;
         private int fromPosition;               //position in StreamEvent/data[]
         private int[] toPosition = new int[2];  //new position in StreamEvent
 

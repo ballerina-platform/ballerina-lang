@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class SelectiveStreamEventConverter implements StreamEventConverter, Serializable {
 
+    private static final long serialVersionUID = 5728843379822962369L;
     private List<ConversionMapping> conversionMappings;       //List to hold information needed for conversion
 
     public SelectiveStreamEventConverter(List<ConversionMapping> conversionMappings) {

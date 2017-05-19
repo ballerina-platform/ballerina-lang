@@ -30,7 +30,7 @@ public class ReferenceHolder {
         //empty constructor to facilitate singleton.
     }
 
-    public static ReferenceHolder getInstance(){
+    public static ReferenceHolder getInstance() {
         return instance;
     }
 
