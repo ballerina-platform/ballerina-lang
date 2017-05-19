@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
@@ -35,11 +36,13 @@ public class JSONFieldAccessExpr extends FieldAccessExpr {
      * Creates a JSON field access expression.
      * 
      * @param location File name and the line number of the field access expression
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param varRefExpr Variable reference represented by the current field
      * @param fieldExpr Reference to the child field of the current field
      */
-    public JSONFieldAccessExpr(NodeLocation location, Expression varRefExpr, FieldAccessExpr fieldExpr) {
-        super(location, varRefExpr, fieldExpr);
+    public JSONFieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression varRefExpr,
+                               FieldAccessExpr fieldExpr) {
+        super(location, whiteSpaceDescriptor, varRefExpr, fieldExpr);
     }
     
     /**

@@ -106,6 +106,8 @@ import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExp
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeFunctionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeTypeMapperNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONArrayInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
@@ -118,8 +120,10 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -132,6 +136,8 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -200,6 +206,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     // Function/Action Statement stack related to break.
     private Stack<BlockStmt> returningBlockStmtStack;
     private Stack<OffSetCounter> offSetCounterStack;
+    private Stack<Statement> abortTransactionStack;
     private Resource currentResource;
 
     public BLangExecutionFlowBuilder() {
@@ -207,6 +214,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         returningBlockStmtStack = new Stack<>();
         offSetCounterStack = new Stack<>();
         offSetCounterStack.push(new OffSetCounter());
+        abortTransactionStack =  new Stack<>();
         nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
@@ -591,7 +599,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         TryCatchStmtEndNode endNode = new TryCatchStmtEndNode(tryCatchStmt);
         Statement tryBlock = tryCatchStmt.getTryBlock();
-        Statement catchBlock = tryCatchStmt.getCatchBlock().getCatchBlockStmt();
         // Visit Try Catch block.
         tryBlock.setParent(tryCatchStmt);
         tryCatchStmt.setNext(tryBlock);
@@ -600,8 +607,13 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         endNode.setNext(findNext(tryCatchStmt));
 
         // Visit Catch Block.
-        catchBlock.setParent(tryCatchStmt);
-        catchBlock.accept(this);
+        for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            catchBlock.getCatchBlockStmt().setParent(tryCatchStmt);
+            catchBlock.getCatchBlockStmt().accept(this);
+        }
+
+        tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().setParent(tryCatchStmt);
+        tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
     }
 
     @Override
@@ -654,6 +666,29 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        TransactionRollbackStmtEndNode endNode = new TransactionRollbackStmtEndNode(transactionRollbackStmt);
+        Statement transactionBlock = transactionRollbackStmt.getTransactionBlock();
+        Statement rollbackBlock = transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt();
+        // Visit Transaction block.
+        transactionBlock.setParent(transactionRollbackStmt);
+        transactionRollbackStmt.setNext(transactionBlock);
+        transactionBlock.setNextSibling(endNode);
+        abortTransactionStack.push(transactionRollbackStmt);
+        transactionBlock.accept(this);
+        abortTransactionStack.pop();
+        endNode.setNext(findNext(transactionRollbackStmt));
+        // Visit Rollback Block.
+        rollbackBlock.setParent(transactionRollbackStmt);
+        rollbackBlock.accept(this);
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        abortStmt.setNext(findNext(abortTransactionStack.peek()));
+    }
+
+    @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
         workerInvocationStmt.setNext(findNext(workerInvocationStmt));
     }
@@ -661,6 +696,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
         workerReplyStmt.setNext(findNext(workerReplyStmt));
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt) {
+
     }
 
     @Override
@@ -1072,72 +1112,73 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(FieldAccessExpr structFieldAccessExpr) {
+    public void visit(FieldAccessExpr fieldAccessExpr) {
         // TODO: Simplify this logic.
-        calculateTempOffSet(structFieldAccessExpr);
-        StructFieldAccessExprEndNode endNode = new StructFieldAccessExprEndNode(structFieldAccessExpr);
-        endNode.setParent(structFieldAccessExpr);
-        Expression firstReferenceExpr = structFieldAccessExpr.getVarRef();
-        structFieldAccessExpr.setNext(firstReferenceExpr);
-        firstReferenceExpr.setParent(structFieldAccessExpr);
-        FieldAccessExpr current = structFieldAccessExpr.getFieldExpr();
-        firstReferenceExpr.setNextSibling(current);
-        firstReferenceExpr.accept(this);
-        LinkedNode lastLinkedNode = current;
-        while (current != null) {
-            calculateTempOffSet(current);
-            Expression varRefExpr = current.getVarRef();
+        StructFieldAccessExprEndNode endNode = new StructFieldAccessExprEndNode(fieldAccessExpr);
+        endNode.setParent(fieldAccessExpr);
+        Expression rootVarRefExpr = fieldAccessExpr.getVarRef();
+        fieldAccessExpr.setNext(rootVarRefExpr);
+        rootVarRefExpr.setParent(fieldAccessExpr);
+        FieldAccessExpr fieldExpr = fieldAccessExpr.getFieldExpr();
+        rootVarRefExpr.setNextSibling(fieldExpr);
+        rootVarRefExpr.accept(this);
+        LinkedNode lastLinkedNode = fieldExpr;
+        
+        while (fieldExpr != null) {
+            Expression varRefExpr = fieldExpr.getVarRef();
             if (varRefExpr instanceof ArrayMapAccessExpr) {
                 Expression[] indexExprs = ((ArrayMapAccessExpr) varRefExpr).getIndexExprs();
                 lastLinkedNode.setNext(indexExprs[0]);
                 for (int i = 1; i < indexExprs.length; i++) {
-                    indexExprs[i - 1].setParent(structFieldAccessExpr);
+                    indexExprs[i - 1].setParent(fieldAccessExpr);
                     indexExprs[i - 1].setNextSibling(indexExprs[i]);
                 }
                 // Last Index.
-                indexExprs[indexExprs.length - 1].setParent(structFieldAccessExpr);
-                if (current.getFieldExpr() != null) {
-                    indexExprs[indexExprs.length - 1].setNextSibling(current.getFieldExpr());
-                    lastLinkedNode = current.getFieldExpr();
+                indexExprs[indexExprs.length - 1].setParent(fieldAccessExpr);
+                if (fieldExpr.getFieldExpr() != null) {
+                    indexExprs[indexExprs.length - 1].setNextSibling(fieldExpr.getFieldExpr());
+                    lastLinkedNode = fieldExpr.getFieldExpr();
                 } else {
-                    if (structFieldAccessExpr.isLHSExpr()) {
+                    if (fieldAccessExpr.isLHSExpr()) {
                         lastLinkedNode = null;
                     } else {
                         indexExprs[indexExprs.length - 1].setNextSibling(endNode);
                         lastLinkedNode = endNode;
                     }
                 }
-                for (Expression indexExpr: indexExprs) {
+                for (Expression indexExpr : indexExprs) {
                     indexExpr.accept(this);
                 }
-            } else if (varRefExpr instanceof JSONFieldAccessExpr) { 
-                // TODO
             } else {
-                if (current.getFieldExpr() != null) {
-                    lastLinkedNode.setNext(current.getFieldExpr());
-                    lastLinkedNode = current.getFieldExpr();
+                FieldAccessExpr childFieldExpr = fieldExpr.getFieldExpr();
+                lastLinkedNode.setNext(varRefExpr);
+                lastLinkedNode = varRefExpr;
+                varRefExpr.setParent(fieldAccessExpr);
+                if (childFieldExpr != null) {
+                    lastLinkedNode.setNextSibling(childFieldExpr);
+                    lastLinkedNode = childFieldExpr;
                 } else {
-                    if (!structFieldAccessExpr.isLHSExpr()) {
-                        lastLinkedNode.setNext(endNode);
+                    if (!fieldAccessExpr.isLHSExpr()) {
+                        lastLinkedNode.setNextSibling(endNode);
                         lastLinkedNode = endNode;
                     }
                 }
+                varRefExpr.accept(this);
             }
-            current = current.getFieldExpr();
-            if (current != null) {
-                current.setParent(structFieldAccessExpr);
+            
+            fieldExpr = fieldExpr.getFieldExpr();
+            if (fieldExpr != null) {
+                fieldExpr.setParent(fieldAccessExpr);
             }
         }
+        
         if (lastLinkedNode != null) {
-            lastLinkedNode.setNext(findNext(structFieldAccessExpr));
+            lastLinkedNode.setNext(findNext(fieldAccessExpr));
         }
-
     }
     
     @Override
     public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
@@ -1228,9 +1269,14 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(JSONInitExpr jsonInitExpr) {
-//        visitInitExpression(jsonInitExpr, null);
+        visitInitExpression(jsonInitExpr, new JSONInitExprEndNode(jsonInitExpr));
     }
 
+    @Override
+    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+        visitInitExpression(jsonArrayInitExpr, new JSONArrayInitExprEndNode(jsonArrayInitExpr));
+    }
+    
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         calculateTempOffSet(connectorInitExpr);
@@ -1522,6 +1568,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         this.returningBlockStmtStack.clear();
         this.currentResource = null;
         this.offSetCounterStack.clear();
+        this.abortTransactionStack.clear();
     }
 
     /**
@@ -1629,7 +1676,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 if (previous != null) {
                     previous.setNextSibling(arg);
                 }
-
                 previous = arg;
             }
             if (previous != null) {
@@ -1642,14 +1688,5 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             }
         }
         endNode.setNext(findNext(endNode));
-    }
-
-    /* (non-Javadoc)
-     * @see org.ballerinalang.model.NodeVisitor#visit(org.ballerinalang.model.expressions.JSONArrayInitExpr)
-     */
-    @Override
-    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
-        // TODO Auto-generated method stub
-        
     }
 }

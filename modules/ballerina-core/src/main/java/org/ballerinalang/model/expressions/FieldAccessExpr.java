@@ -21,6 +21,7 @@ import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
@@ -77,15 +78,22 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     private boolean isStaticField = false;
 
     /**
+     * Flag indicating whether the expression is an array or not.
+     */
+    private boolean isArrayIndexExpr = false;
+
+    /**
      * Creates a field access expression.
      *
      * @param location location of the expression in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param symbolName Symbol Name of the current field
      * @param varRefExpr Variable reference represented by the current field
      */
     @Deprecated
-    public FieldAccessExpr(NodeLocation location, SymbolName symbolName, Expression varRefExpr) {
-        super(location, null, varRefExpr);
+    public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName,
+                           Expression varRefExpr) {
+        super(location, whiteSpaceDescriptor, null, varRefExpr);
         this.symbolName = symbolName;
         this.varRefExpr = varRefExpr;
     }
@@ -94,10 +102,11 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * Creates a field access expression.
      * 
      * @param location Location of the expression in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param varRefExpr Variable reference represented by the current field
      */
-    public FieldAccessExpr(NodeLocation location, Expression varRefExpr) {
-        super(location, null, varRefExpr);
+    public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression varRefExpr) {
+        super(location, whiteSpaceDescriptor, null, varRefExpr);
         this.varRefExpr = varRefExpr;
         
         if (varRefExpr instanceof ReferenceExpr) {
@@ -105,9 +114,9 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
         }
     }
 
-    public FieldAccessExpr(NodeLocation location, SymbolName symbolName, String pkgName, String pkgPath,
-                                 ReferenceExpr structVarRefExpr) {
-        super(location, null, structVarRefExpr);
+    public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName,
+                           String pkgName, String pkgPath, ReferenceExpr structVarRefExpr) {
+        super(location, whiteSpaceDescriptor, null, structVarRefExpr);
         this.symbolName = symbolName;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
@@ -118,11 +127,13 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * Creates a field access expression.
      *
      * @param location File name and the line number of the field access expression
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param varRefExpr Variable reference represented by the current field
      * @param fieldRefExpr Reference to the child field of the current field
      */
-    public FieldAccessExpr(NodeLocation location, Expression varRefExpr, FieldAccessExpr fieldRefExpr) {
-        super(location, null, fieldRefExpr);
+    public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression varRefExpr,
+                           FieldAccessExpr fieldRefExpr) {
+        super(location, whiteSpaceDescriptor, null, fieldRefExpr);
         this.varRefExpr = varRefExpr;
         this.fieldRefExpr = fieldRefExpr;
         
@@ -138,9 +149,19 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * @param varRefExpr Variable reference represented by the current field
      * @param fieldRefExpr Reference to the child field of the current field
      */
-    public FieldAccessExpr(NodeLocation location, String pkgName, String pkgPath, Expression varRefExpr, 
+    /**
+     *
+     * @param location File name and the line number of the field access expression
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param pkgName package name of the expression
+     * @param pkgPath package path the expression
+     * @param varRefExpr Variable reference represented by the current field
+     * @param fieldRefExpr Reference to the child field of the current field
+     */
+    public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String pkgName,
+                           String pkgPath, Expression varRefExpr,
             FieldAccessExpr fieldRefExpr) {
-        super(location, null, fieldRefExpr);
+        super(location, whiteSpaceDescriptor, null, fieldRefExpr);
         this.varRefExpr = varRefExpr;
         this.fieldRefExpr = fieldRefExpr;
         this.pkgName = pkgName;
@@ -202,6 +223,11 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      */
     public void setLHSExpr(boolean isLhsExpr) {
         isLHSExpr = isLhsExpr;
+
+        // Set the property recursively
+        if (fieldRefExpr != null) {
+            fieldRefExpr.setLHSExpr(isLhsExpr);
+        }
     }
 
     /**
@@ -301,5 +327,13 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     
     public boolean isStaticField() {
         return isStaticField;
+    }
+
+    public boolean isArrayIndexExpr() {
+        return isArrayIndexExpr;
+    }
+
+    public void setIsArrayIndexExpr(boolean isArrayIndexExpr) {
+        this.isArrayIndexExpr = isArrayIndexExpr;
     }
 }

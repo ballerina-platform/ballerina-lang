@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValueType;
@@ -41,8 +42,9 @@ public class ModExpression extends BinaryArithmeticExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> MOD_FLOAT_FUNC =
             (lVal, rVal) -> new BFloat(lVal.floatValue() % rVal.floatValue());
 
-    public ModExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, MOD, rExpr);
+    public ModExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                         Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, MOD, rExpr);
     }
 
     @Override

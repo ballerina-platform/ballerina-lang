@@ -121,11 +121,6 @@ function testReturnNullLiteral() (any) {
 }
 
 function testNullInWorker() (any) {
-    worker worker1(message m){
-        message resp;
-        reply resp;
-    }
-
     message request;
     request -> worker1;
     
@@ -133,17 +128,23 @@ function testNullInWorker() (any) {
     result <- worker1;
     
     return result;
+
+    worker worker1 {
+    message resp;
+    resp <- default;
+    resp -> default;
+    }
 }
 
 function testNullInForkJoin() (message, message) {
     message m = null;
-    fork (m) {
-        worker foo (message m) {
+    fork {
+        worker foo {
             message resp1 = null;
             reply resp1;
         }
 
-        worker bar (message m) {
+        worker bar {
             message resp2 = {};
             reply resp2;
         }

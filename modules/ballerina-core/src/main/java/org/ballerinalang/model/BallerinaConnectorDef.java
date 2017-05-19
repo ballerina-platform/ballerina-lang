@@ -45,8 +45,10 @@ import java.util.Map;
  */
 public class BallerinaConnectorDef extends BType implements Connector, CompilationUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
+    protected Identifier identifier;
     protected boolean isPublic;
     protected boolean isNative;
     private AnnotationAttachment[] annotations;
@@ -129,6 +131,15 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
@@ -145,6 +156,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     @Override
     public String getName() {
         return typeName;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -219,9 +235,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
         public BallerinaConnectorDef buildConnector() {
             this.connectorDef.location = this.location;
-            this.connectorDef.typeName = this.name;
+            this.connectorDef.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
+            this.connectorDef.identifier = this.identifier;
+            this.connectorDef.typeName = this.identifier.getName();
             this.connectorDef.pkgPath = this.pkgPath;
-            this.connectorDef.symbolName = new SymbolName(name, pkgPath);
+            this.connectorDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             this.connectorDef.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);

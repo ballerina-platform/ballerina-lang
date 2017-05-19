@@ -22,7 +22,7 @@ import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
+import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.BLangPackage;
@@ -30,7 +30,10 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
+import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -38,6 +41,7 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.AbstractMap;
 
@@ -114,18 +118,38 @@ public class BLangProgramRunner {
                 debugManager.waitTillClientConnect();
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
                 debugManager.setDebugger(debugger);
+                debugger.setParentScope(mainFunction);
                 bContext.setExecutor(debugger);
                 debugger.continueExecution(mainFunction.getCallableUnitBody());
                 debugManager.holdON();
-            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-                bContext.setExecutor(executor);
-                executor.continueExecution(mainFunction.getCallableUnitBody());
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-                mainFunction.getCallableUnitBody().execute(executor);
-            }
+                executor.setParentScope(mainFunction);
 
+                if (mainFunction.getWorkers().length > 0) {
+                    // TODO: Fix this properly.
+                    Expression[] exprs = new Expression[args.length];
+                    for (int i = 0; i < args.length; i++) {
+                        VariableRefExpr variableRefExpr = new VariableRefExpr(mainFunction.getNodeLocation(), null,
+                                new SymbolName("arg" + i));
+
+                        variableRefExpr.setVariableDef(mainFunction.getParameterDefs()[i]);
+                        StackVarLocation location = new StackVarLocation(i);
+                        variableRefExpr.setMemoryLocation(location);
+                        exprs[i] = variableRefExpr;
+                    }
+                    // Start the workers defined within the function
+                    for (Worker worker : mainFunction.getWorkers()) {
+                        executor.executeWorker(worker, exprs);
+                    }
+                }
+                mainFunction.getCallableUnitBody().execute(executor);
+                if (executor.isErrorThrown && executor.thrownError != null) {
+                    String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                            executor.thrownError.getValue(0).stringValue() + "}";
+                    throw new BallerinaException(errorMsg);
+                }
+            }
             bContext.getControlStack().popFrame();
         } catch (Throwable ex) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);

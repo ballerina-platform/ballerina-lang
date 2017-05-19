@@ -33,7 +33,6 @@ public enum TypeEnum {
     MAP("map"),
     ARRAY("arrays"),
     CONNECTOR("connector"),
-    EXCEPTION("exception"),
     DATATABLE("datatable"),
     STRUCT("struct"),
     EMPTY(""),

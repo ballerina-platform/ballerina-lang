@@ -275,24 +275,11 @@ public class NativeCastMapper {
     };
     
     /**
-     * Function to cast a given struct to another.
-     * A struct can be cast to another struct if and only if, source struct has at least the set of fields 
-     * (matching both in name and type) that the target struct expects, in the same order.
+     * Function to cast a given struct to another. The compatibility is checked during the semantic analyzer phase.
+     * Therefore the same value is returned as is, maintaining its originated type ({@link StructDef}) as meta info.
      */
     public static final BiFunction<BValue, BType, BValue> STRUCT_TO_STRUCT_FUNC = (rVal, targetType) -> {
-        if (rVal == null) {
-            return null;
-        }
-        BStruct struct = (BStruct) rVal;
-        StructDef targetStructDef = (StructDef) targetType;
-        int noOfFields = targetStructDef.getStructMemorySize();
-        BValue[] structMemoryBlock = new BValue[noOfFields];
-        
-        for (int i = 0; i < noOfFields; i++) {
-            structMemoryBlock[i] = struct.getValue(i);;
-        }
-        
-        return new BStruct(targetStructDef, structMemoryBlock);
+        return rVal;
     };
     
     /**
@@ -372,8 +359,6 @@ public class NativeCastMapper {
 
     public static final BiFunction<BValue, BType, BValue> CONNECTOR_TO_ANY_FUNC = (rVal, targetType) -> rVal;
 
-    public static final BiFunction<BValue, BType, BValue> EXCEPTION_TO_ANY_FUNC = (rVal, targetType) -> rVal;
-    
     public static final BiFunction<BValue, BType, BValue> MAP_TO_ANY_FUNC = (rVal, targetType) -> rVal;
     
     public static final BiFunction<BValue, BType, BValue> STRUCT_TO_ANY_FUNC = (rVal, targetType) -> rVal;
@@ -480,17 +465,6 @@ public class NativeCastMapper {
             rVal.getType(), BTypes.typeConnector);
     };
 
-    public static final BiFunction<BValue, BType, BValue> ANY_TO_EXCEPTION_FUNC = (rVal, targetType) -> {
-        if (rVal == null) {
-            return null;
-        }
-        if (rVal.getType() == BTypes.typeException) {
-            return rVal;
-        }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-            rVal.getType(), BTypes.typeException);
-    };
-
     public static final BiFunction<BValue, BType, BValue> ANY_TO_MAP_FUNC = (rVal, targetType) -> {
         if (rVal == null) {
             return null;
@@ -499,7 +473,7 @@ public class NativeCastMapper {
             return rVal;
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
-            rVal.getType(), BTypes.typeException);
+            rVal.getType(), BTypes.typeMap);
     };
     
     public static final BiFunction<BValue, BType, BValue> ANY_TO_STRUCT_FUNC = (rVal, targetType) -> {

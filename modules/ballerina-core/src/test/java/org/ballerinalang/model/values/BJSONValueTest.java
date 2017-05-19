@@ -296,7 +296,7 @@ public class BJSONValueTest   {
     public void testGetNestedJsonElement() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetNestedJsonElement");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "Colombo");
+        Assert.assertEquals(returns[0].stringValue(), "Colombo");
         
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "Colombo");

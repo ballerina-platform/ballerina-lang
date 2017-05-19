@@ -17,8 +17,6 @@ function returnStmtBranch1(int value, int b) (int) {
 
         return 500;
     }
-
-    return 1;
 }
 
 function returnStmtBranch2(int value, int b) (int) {

@@ -22,6 +22,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.TypeMapper;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
@@ -47,14 +48,16 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
-    public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
-        super(location);
+    public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
+                              BType targetType) {
+        super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.targetType = targetType;
     }
 
-    public TypeCastExpression(NodeLocation location, SimpleTypeName typeName, Expression rExpr) {
-        super(location);
+    public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
+                              Expression rExpr) {
+        super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.typeName = typeName;
     }
