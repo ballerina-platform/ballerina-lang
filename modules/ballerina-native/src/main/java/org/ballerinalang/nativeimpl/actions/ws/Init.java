@@ -20,11 +20,14 @@ package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.osgi.service.component.annotations.Component;
+
+import java.util.UUID;
 
 /**
  * Initialize the WebSocket client connector.
@@ -46,6 +49,13 @@ import org.osgi.service.component.annotations.Component;
 public class Init extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
+        BConnector bconnector = (BConnector) getArgument(context, 0);
+        String remoteUrl = bconnector.getValue(0).stringValue();
+        String clientServiceName = bconnector.getValue(1).stringValue();
+        String parentServiceName = context.getServiceInfo().getName();
+        String connectorID = UUID.randomUUID().toString();
+        ConnectorControllerRegistry.getInstance().addConnectorController(bconnector, connectorID, parentServiceName,
+                                                                         clientServiceName, remoteUrl);
         return null;
     }
 }
