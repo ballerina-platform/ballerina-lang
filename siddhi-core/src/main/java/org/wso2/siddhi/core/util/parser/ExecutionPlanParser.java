@@ -181,7 +181,7 @@ public class ExecutionPlanParser {
         defineTableDefinitions(executionPlanRuntimeBuilder, executionPlan.getTableDefinitionMap());
         defineWindowDefinitions(executionPlanRuntimeBuilder, executionPlan.getWindowDefinitionMap());
         defineFunctionDefinitions(executionPlanRuntimeBuilder, executionPlan.getFunctionDefinitionMap());
-        defineAggregationDefinitions(executionPlanRuntimeBuilder, executionPlan.getAggregationDefinitionMap());
+        defineAggregationDefinitions(executionPlanRuntimeBuilder, executionPlan.getAggregationDefinitionMap(), executionPlanContext);
         for (Window window : executionPlanRuntimeBuilder.getEventWindowMap().values()) {
             String metricName =
                     executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
@@ -268,9 +268,10 @@ public class ExecutionPlanParser {
     }
 
     private static void defineAggregationDefinitions(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder,
-                                                     Map<String, AggregationDefinition> aggregationDefinitionMap) {
+                                                     Map<String, AggregationDefinition> aggregationDefinitionMap,
+                                                     ExecutionPlanContext executionPlanContext) {
         for(AggregationDefinition definition : aggregationDefinitionMap.values()){
-            executionPlanRuntimeBuilder.defineAggregation(definition);
+            executionPlanRuntimeBuilder.defineAggregation(definition, executionPlanContext);
         }
 
     }

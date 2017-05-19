@@ -7,6 +7,9 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AggregatorSelector;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AggregatorSelectorParse;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
@@ -14,6 +17,7 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
+import org.wso2.siddhi.core.util.parser.helper.AggregationDefinitionParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
@@ -21,7 +25,9 @@ import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
@@ -73,11 +79,11 @@ public class AggregationParser {
         AggregationRuntime aggregationRuntime = null;
         try {
             nameElement = AnnotationHelper.getAnnotationElement("info", "name", definition.getAnnotations()); // TODO: 5/9/17 this gives null
-            String queryName = null; // TODO: 5/9/17 queryName or aggregatorName? Should Aggregator be accessible like this?
+            String aggregatorName = null; // TODO: 5/9/17 queryName or aggregatorName? Should Aggregator be accessible like this?
             if (nameElement != null) {
-                queryName = nameElement.getValue();
+                aggregatorName = nameElement.getValue();
             } else {
-                queryName = "aggregator_" + UUID.randomUUID().toString(); // TODO: 5/9/17 "query_" or "aggregator_"
+                aggregatorName = "aggregator_" + UUID.randomUUID().toString(); // TODO: 5/9/17 "query_" or "aggregator_"
             }
 
             if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
@@ -88,7 +94,7 @@ public class AggregationParser {
                                     SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
                                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_QUERIES +
-                                    SiddhiConstants.METRIC_DELIMITER + queryName;
+                                    SiddhiConstants.METRIC_DELIMITER + aggregatorName;
                     latencyTracker = executionPlanContext.getSiddhiContext()
                             .getStatisticsConfiguration()
                             .getFactory()
@@ -99,7 +105,9 @@ public class AggregationParser {
             InputStream inputStream = definition.getInputStream();
             StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, executionPlanContext,
                     streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap,
-                    executors, latencyTracker, false, queryName);
+                    executors, latencyTracker, false, aggregatorName);
+//            AggregatorSelector selector = AggregatorSelectorParse.parse(definition.getSelector(), definition.getOutputStream(), // TODO: 5/16/17 instead of getOutputStream create output stream with symbol, sum_price...
+//                    executionPlanContext, streamRuntime.getMetaComplexEvent(), tableMap, executors, aggregatorName);
             MetaComplexEvent metaComplexEvent = streamRuntime.getMetaComplexEvent();
 
             List<OutputAttribute> outputAttributes = definition.getSelector().getSelectionList(); // TODO: 3/15/17 null checking ...
@@ -116,21 +124,29 @@ public class AggregationParser {
 
             IncrementalExecutor child = build(functionsAttributes, incrementalDurations.get(incrementalDurations.size() - 1), null,
                     metaComplexEvent, 0, tableMap, executors, executionPlanContext,
-                    true, 0, queryName, groupByVar);
-            IncrementalExecutor root = child;
+                    true, 0, aggregatorName, groupByVar);
+            IncrementalExecutor root;
             for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
                 root = build(functionsAttributes, incrementalDurations.get(i), child, metaComplexEvent, 0,
                         tableMap, executors, executionPlanContext, true, 0,
-                        queryName, groupByVar);
+                        aggregatorName, groupByVar);
                 child = root;
             }
 
-            aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, metaComplexEvent);
-            aggregationRuntime.setIncrementalExecutor(child); // TODO: 5/9/17 How to set incremental executor?
 
+            SingleInputStream singleInputStream = (SingleInputStream) inputStream;
+            ExecuteStreamReceiver executeStreamReceiver = new ExecuteStreamReceiver(singleInputStream.getStreamId(), latencyTracker, aggregatorName);
+
+            aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, metaComplexEvent, executeStreamReceiver);
+            aggregationRuntime.setIncrementalExecutor(child);
+
+            AggregationDefinitionParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
+            AggregationDefinitionParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);
+            AggregationDefinitionParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent(), lockWrapper, aggregatorName, aggregationRuntime);
         } catch (RuntimeException ex) {
             throw ex; // TODO: 5/12/17 should we log?
         }
+
         return aggregationRuntime;
     }
 

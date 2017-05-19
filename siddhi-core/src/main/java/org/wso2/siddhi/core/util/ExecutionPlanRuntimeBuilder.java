@@ -20,6 +20,7 @@ package org.wso2.siddhi.core.util;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -28,6 +29,7 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -35,6 +37,8 @@ import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
+import org.wso2.siddhi.core.util.parser.AggregationParser;
+import org.wso2.siddhi.core.util.parser.AggregationRuntime;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.*;
@@ -105,11 +109,23 @@ public class ExecutionPlanRuntimeBuilder {
         DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap, executionPlanContext);
     }
 
-    public void defineAggregation(AggregationDefinition aggregationDefinition) {
+    public void defineAggregation(AggregationDefinition aggregationDefinition, ExecutionPlanContext executionPlanContext) {
         DefinitionParserHelper.validateDefinition(aggregationDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap, aggregationDefinitionConcurrentMap);
         aggregationDefinitionConcurrentMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
         // TODO: 3/21/17 : review this and are we missing something
+        AggregationRuntime aggregationRuntime = AggregationParser.parse(aggregationDefinition, executionPlanContext,
+                getStreamDefinitionMap(),
+                getTableDefinitionMap(),
+                getWindowDefinitionMap(),
+                getTableMap(),
+                getEventWindowMap(),
+                getEventSourceMap(),
+                getEventSinkMap(),
+                getLockSynchronizer());
+
+        ExecuteStreamReceiver executeStreamReceiver = aggregationRuntime.getExecuteStreamReceiver();
+        streamJunctionMap.get(executeStreamReceiver.getStreamId()).subscribe(executeStreamReceiver);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {

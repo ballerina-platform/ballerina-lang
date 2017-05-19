@@ -18,17 +18,17 @@ public class InMemoryIncrementalStore implements IncrementalStore {
     }
 
     @Override
-    public void add(Object data, AttributeAggregator aggregator) {
+    public void add(long timestamp, Object data) {
 
     }
 
     @Override
-    public Object get(AttributeAggregator aggregator) {
+    public Object get() {
         return null;
     }
 
     @Override
-    public void reset(AttributeAggregator aggregator) {
+    public void reset() {
 
     }
 }

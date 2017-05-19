@@ -2,6 +2,7 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
+import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -16,7 +17,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class IncrementalExecutor {
+public class IncrementalExecutor implements Executor{
     // compositeAggregators contains a map of CompositeAggregator
     private List<CompositeAggregator> compositeAggregators;
     // basicExecutorDetails contains basic executors such as sum, count, and etc
@@ -28,10 +29,11 @@ public class IncrementalExecutor {
     private long nextEmitTime = -1;
     private long startTime = 0;
     private TimePeriod.Duration duration;
-    private IncrementalExecutor child;
+    public IncrementalExecutor child;
     // For each unique value of the the "group by" attribute
     // we initialize this array and keep function values.
     private ConcurrentMap<String, ConcurrentMap<String, Object>> storeAggregatorFunctions;
+    private IncrementalExecutor next;
 
 
     private IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child,
@@ -49,6 +51,7 @@ public class IncrementalExecutor {
                 executorList, executionPlanContext, defaultStreamEventIndex, queryName);
         storeAggregatorFunctions = new ConcurrentHashMap<>();
         this.executionPlanContext = executionPlanContext;
+        setNextExecutor();
     }
 
     private List<CompositeAggregator> createIncrementalAggregators(List<AttributeFunction> functionAttributes) {
@@ -65,7 +68,7 @@ public class IncrementalExecutor {
     }
 
     private List<Object> calculateAggregators(String groupBy) {
-        // TODO: 5/11/17 This returns  
+        // TODO: 5/11/17 This returns the actual aggregate by using base aggregates (eg. avg=sum/count)
         List<Object> aggregatorValues = new ArrayList<>();
         for (CompositeAggregator compositeAggregator : this.compositeAggregators) {
             // key will be attribute name + function name, examples price+ave, age+count etc
@@ -151,47 +154,45 @@ public class IncrementalExecutor {
     }
 
 
-    public void execute(ComplexEvent event) {
-        if (nextEmitTime == -1) {
-            long currentTime = this.executionPlanContext.getTimestampGenerator().currentTime();
-            nextEmitTime = getNextEmitTime(currentTime);
-        }
-        boolean sendEvents;
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-        if (currentTime >= nextEmitTime) {
-            nextEmitTime += 1000; // TODO: 3/29/17 :
-            sendEvents = true;
-        } else {
-            sendEvents = false;
-        }
+    @Override
+    public void execute(ComplexEventChunk complexEventChunk) {
 
         // TODO: 3/27/17 Based on the output type correctly pass this
         // TODO: 3/29/17 Handle multiple group by clauses
-        String groupByOutput = (String) this.groupByExecutor.execute(event);
-        for (ExpressionExecutorDetails executorDTO : basicExecutorDetails) {
-            ExpressionExecutor expressionExecutor = executorDTO.getExecutor();
-            Object value = expressionExecutor.execute(event);
-            String functionName = executorDTO.getExecutorName();
-            if (storeAggregatorFunctions.containsKey(groupByOutput)) {
-                ConcurrentMap<String, Object> individualMap = storeAggregatorFunctions.get(groupByOutput);
-                if (individualMap.containsKey(functionName)) {
-                    double newValue = (Double) individualMap.get(functionName) + (Double) value; // TODO: 3/28/17 correct this
-                    individualMap.put(functionName, newValue);
-                } else {
-                    individualMap.put(functionName, value);
-                }
-            } else {
-                ConcurrentMap<String, Object> individualMap = new ConcurrentHashMap<>();
-                individualMap.put(functionName, value);
-                storeAggregatorFunctions.put(groupByOutput, individualMap);
-            }
-        }
 
-        if (sendEvents) {
+            String groupByOutput = (String) this.groupByExecutor.execute(complexEventChunk.getFirst()); // TODO: 5/17/17 this is wrong. Change
+            for (ExpressionExecutorDetails executorDTO : basicExecutorDetails) {
+                ExpressionExecutor expressionExecutor = executorDTO.getExecutor();
+                Object value = expressionExecutor.execute(complexEventChunk.getFirst()); // TODO: 5/17/17 Wrong. Change
+                String functionName = executorDTO.getExecutorName();
+                if (storeAggregatorFunctions.containsKey(groupByOutput)) {
+                    ConcurrentMap<String, Object> individualMap = storeAggregatorFunctions.get(groupByOutput);
+                    if (individualMap.containsKey(functionName)) {
+                        if (value instanceof Double) {
+                            double newValue = (double)individualMap.get(functionName) +  (double)value; // TODO: 3/28/17 correct this
+                            individualMap.put(functionName, newValue);
+                        } else if (value instanceof Integer) {
+                            int newValue = (int)individualMap.get(functionName) +  (int)value; // TODO: 3/28/17 correct this
+                            individualMap.put(functionName, newValue);
+                        }
+
+                    } else {
+                        individualMap.put(functionName, value);
+                    }
+                } else {
+                    ConcurrentMap<String, Object> individualMap = new ConcurrentHashMap<>();
+                    individualMap.put(functionName, value);
+                    storeAggregatorFunctions.put(groupByOutput, individualMap);
+                }
+            }
+
+            //if (sendEvents) {
             // 1. Extract relevant data from HashMap. Create an event and send it
-                  // calculateAggregators(groupBy)
+            // calculateAggregators(groupBy)
             // 2. Update the child
-        }
+            //}
+
+
     }
 
     public static IncrementalExecutor second(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -273,6 +274,32 @@ public class IncrementalExecutor {
         return new IncrementalExecutor(TimePeriod.Duration.YEARS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
                 defaultStreamEventIndex, queryName, groupByVariable);
+    }
+
+
+
+    @Override
+    public Executor getNextExecutor() {
+        return next;
+    }
+
+    @Override
+    public void setNextExecutor() {
+        if (this.child != null) {
+            next = this.child;
+        }
+    }
+
+    @Override
+    public void setToLast(Executor executor) { // TODO: 5/18/17 do we need this?
+        if (((IncrementalExecutor)executor).child == null) {
+            setToLast(executor);
+        }
+    }
+
+    @Override
+    public Executor cloneExecutor(String key) {
+        return null;
     }
 
     private class ExpressionExecutorDetails {
