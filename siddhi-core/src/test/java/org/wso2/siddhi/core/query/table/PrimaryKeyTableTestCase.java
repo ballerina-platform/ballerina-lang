@@ -2261,23 +2261,24 @@ public class PrimaryKeyTableTestCase {
             executionPlanRuntime.start();
 
             long startTime = System.currentTimeMillis();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
-            stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+            for (int i = 0; i < 10; i++) {
+                stockStream.send(new Object[]{"WSO2" + i, 55.6f, 100L});
+            }
             for (int i = 0; i < 1000000; i++) {
-                checkStockStream.send(new Object[]{"IBM", 100L});
-                checkStockStream.send(new Object[]{"WSO2", 100L});
+                checkStockStream.send(new Object[]{"WSO20", 100L});
+                checkStockStream.send(new Object[]{"WSO21", 100L});
             }
             long timeDiff = System.currentTimeMillis() - startTime;
 
             long startTime1 = System.currentTimeMillis();
-            stockStream1.send(new Object[]{"WSO2", 55.6f, 100L});
-            stockStream1.send(new Object[]{"IBM", 55.6f, 100L});
+            for (int i = 0; i < 10; i++) {
+                stockStream1.send(new Object[]{"WSO2" + i, 55.6f, 100L});
+            }
             for (int i = 0; i < 1000000; i++) {
-                checkStockStream1.send(new Object[]{"IBM", 100L});
-                checkStockStream1.send(new Object[]{"WSO2", 100L});
+                checkStockStream1.send(new Object[]{"WSO20", 100L});
+                checkStockStream1.send(new Object[]{"WSO21", 100L});
             }
             long timeDiff1 = System.currentTimeMillis() - startTime1;
-
 
             Assert.assertEquals("Indexing is faster", true, timeDiff1 < timeDiff);
             Assert.assertEquals("Event arrived", true, eventArrived);
