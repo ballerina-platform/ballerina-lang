@@ -72,7 +72,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(SERVICE).spaceIf(true)
                 .after(STRUCT).spaceIf(true)
                 .after(THROW).spaceIf(true)
-                .around(THROWS).spaceIf(true)
                 .around(TIMEOUT).spaceIf(true)
                 .after(TRY).spaceIf(true)
                 .after(TYPEMAPPER).spaceIf(true)

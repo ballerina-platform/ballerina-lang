@@ -450,7 +450,6 @@ SERVICE         : 'service';
 SOME            : 'some';
 STRUCT          : 'struct';
 THROW           : 'throw';
-THROWS          : 'throws';
 TIMEOUT         : 'timeout';
 TRANSACTION     : 'transaction';
 TRANSFORM       : 'transform';

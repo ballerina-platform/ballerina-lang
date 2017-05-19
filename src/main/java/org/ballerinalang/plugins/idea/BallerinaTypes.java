@@ -117,7 +117,6 @@ public class BallerinaTypes {
     public static TokenIElementType SERVICE = tokenIElementTypes.get(BallerinaLexer.SERVICE);
     public static TokenIElementType STRUCT = tokenIElementTypes.get(BallerinaLexer.STRUCT);
     public static TokenIElementType THROW = tokenIElementTypes.get(BallerinaLexer.THROW);
-    public static TokenIElementType THROWS = tokenIElementTypes.get(BallerinaLexer.THROWS);
     public static TokenIElementType TIMEOUT = tokenIElementTypes.get(BallerinaLexer.TIMEOUT);
     public static TokenIElementType TRANSACTION = tokenIElementTypes.get(BallerinaLexer.TRANSACTION);
     public static TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
