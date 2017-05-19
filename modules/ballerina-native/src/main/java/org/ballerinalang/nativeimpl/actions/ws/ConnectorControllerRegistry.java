@@ -18,13 +18,13 @@
 
 package org.ballerinalang.nativeimpl.actions.ws;
 
+import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.values.BConnector;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.websocket.Session;
 
 /**
  * This manage all the connectors for Incoming and outgoing WebSocket messages.
@@ -34,9 +34,9 @@ public class ConnectorControllerRegistry {
     private static final ConnectorControllerRegistry CONNECTOR_MANAGER = new ConnectorControllerRegistry();
 
     // Map <serviceName, List<BConnector>>
-    Map<String, List<BConnector>> serviceToBConnectorListMap = new ConcurrentHashMap<>();
+    Map<String, List<BConnector>> serviceNameToConnectorListMap = new ConcurrentHashMap<>();
     // Map <BConnector, connectorID>
-    Map<BConnector, String>  bConnectorToConnectorIDMap= new ConcurrentHashMap<>();
+    Map<BConnector, String> connectorToConnectorIDMap = new ConcurrentHashMap<>();
     // Map <connectorID, ConnectorController>
     Map<String, ConnectorController> connectorIDToConnectorControllerMap= new ConcurrentHashMap<>();
 
@@ -47,33 +47,50 @@ public class ConnectorControllerRegistry {
         return CONNECTOR_MANAGER;
     }
 
-    public void addConnectorController(BConnector bConnector, String connectorID, String parentServiceName) {
-        connectorIDToConnectorControllerMap.put(
-                connectorID, new ConnectorController(bConnector, connectorID, parentServiceName));
-        bConnectorToConnectorIDMap.put(bConnector, connectorID);
+    public void addConnectorController(BConnector bConnector, String connectorID,
+                                       String parentServiceName, String clientServiceName, String url) {
+        // Mapping connector ID to connector controller
+        connectorIDToConnectorControllerMap.put(connectorID,
+                                                new ConnectorController(bConnector, connectorID,
+                                                                        parentServiceName, clientServiceName, url));
 
-        if (serviceToBConnectorListMap.containsKey(parentServiceName)) {
-            serviceToBConnectorListMap.get(parentServiceName).add(bConnector);
+        // Mapping connector to connector ID
+        connectorToConnectorIDMap.put(bConnector, connectorID);
+
+        // Adding connector to the list of connectors against there parent service
+        if (serviceNameToConnectorListMap.containsKey(parentServiceName)) {
+            serviceNameToConnectorListMap.get(parentServiceName).add(bConnector);
         } else {
             List<BConnector> connectors = new LinkedList<>();
             connectors.add(bConnector);
-            serviceToBConnectorListMap.put(parentServiceName, connectors);
+            serviceNameToConnectorListMap.put(parentServiceName, connectors);
         }
     }
 
-    public void addConnectionToConnectorController(String parentServiceName, Session session) {
-        serviceToBConnectorListMap.get(parentServiceName).forEach(
-                bConnector -> {
-                    getConnectorController(bConnector).addConnection(session);
-                }
-        );
-    }
-
-    public ConnectorController removeConnectorController(BConnector bConnector) {
-        return connectorIDToConnectorControllerMap.remove(bConnectorToConnectorIDMap.remove(bConnector));
+    public List<ConnectorController> getConnectorControllersForService(String serviceName) {
+        if (!serviceNameToConnectorListMap.containsKey(serviceName)) {
+            return null;
+        } else {
+            List<ConnectorController> connectorControllers = new LinkedList<>();
+            for (BConnector connector: serviceNameToConnectorListMap.get(serviceName)) {
+                connectorControllers.add(connectorIDToConnectorControllerMap.
+                        get(connectorToConnectorIDMap.get(connector)));
+            }
+            return connectorControllers;
+        }
     }
 
     public ConnectorController getConnectorController(BConnector bConnector) {
-        return connectorIDToConnectorControllerMap.get(bConnectorToConnectorIDMap.get(bConnector));
+        return connectorIDToConnectorControllerMap.get(connectorToConnectorIDMap.get(bConnector));
     }
+
+    public ConnectorController getConnectorController(String clientID) {
+        String connectorID = Utils.getConnectorIDFromClientID(clientID);
+        return connectorIDToConnectorControllerMap.get(connectorID);
+    }
+
+    public ConnectorController removeConnectorController(BConnector bConnector) {
+        return connectorIDToConnectorControllerMap.remove(connectorToConnectorIDMap.remove(bConnector));
+    }
+
 }
