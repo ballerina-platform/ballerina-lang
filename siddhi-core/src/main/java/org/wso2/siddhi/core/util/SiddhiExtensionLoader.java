@@ -44,7 +44,7 @@ public class SiddhiExtensionLoader {
      */
     public static void loadSiddhiExtensions(Map<String, Class> siddhiExtensionsMap) {
         loadLocalExtensions(siddhiExtensionsMap);
-        BundleContext bundleContext = SiddhiManagerComponent.getBundleContext();
+        BundleContext bundleContext = ReferenceHolder.getInstance().getBundleContext();
         if (bundleContext != null) {
             loadExtensionOSGI(bundleContext, siddhiExtensionsMap);
         }

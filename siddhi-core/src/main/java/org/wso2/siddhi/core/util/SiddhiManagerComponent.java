@@ -32,17 +32,7 @@ import org.osgi.service.component.annotations.Component;
         immediate = true
 )
 public class SiddhiManagerComponent {
-    private static BundleContext bundleContext;
     private ServiceRegistration serviceRegistration;
-
-    /**
-     * This is the bundle access method offered by the service component.
-     *
-     * @return bundleContext the bundle context instance of this bundle.
-     */
-    public static BundleContext getBundleContext() {
-        return bundleContext;
-    }
 
     /**
      * This is the activation method of SiddhiManagerService. This will be initilize the Siddhi Manager and register the
@@ -53,12 +43,13 @@ public class SiddhiManagerComponent {
      */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
-        SiddhiManagerComponent.bundleContext = bundleContext;
+        ReferenceHolder.getInstance().setBundleContext(bundleContext);
         serviceRegistration = bundleContext.registerService(SiddhiComponentActivator.class.getName(),
                 new SiddhiComponentActivator(), null);
     }
 
     protected void stop() throws Exception {
+        ReferenceHolder.getInstance().setBundleContext(null);
         serviceRegistration.unregister();
     }
 }
