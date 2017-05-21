@@ -147,14 +147,20 @@ var config = {
 };
 
 if (process.env.NODE_ENV === 'production') {
+    config.plugins.push(new webpack.DefinePlugin({
+      PRODUCTION: JSON.stringify(true),
+
+      // React does some optimizations to it if NODE_ENV is set to 'production'
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
+    }));
+
   // Add UglifyJsPlugin only when we build for production.
   // uglyfying slows down webpack build so we avoid in when in development
-  /*config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    sourceMap: true
-  }));*/
-
-  config.plugins.push(new webpack.DefinePlugin({
-    PRODUCTION: JSON.stringify(true)
+  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    sourceMap: true,
+    mangle: { keep_fnames: true}
   }));
 
 }else{
