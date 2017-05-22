@@ -91,7 +91,6 @@ class BallerinaFileEditor extends BallerinaView {
         } else {
             let generatedSource = this.generateSource();
             this._sourceView.setContent(generatedSource);
-            this._sourceView.format(true);
             return this._sourceView.getContent();
         }
     }
@@ -293,6 +292,7 @@ class BallerinaFileEditor extends BallerinaView {
         _.set(sourceViewOpts, 'content', '');
         _.set(sourceViewOpts, 'debugger', this._debugger);
         _.set(sourceViewOpts, 'storage', this._file._storage);
+        _.set(sourceViewOpts, 'fileEditor', this);
         this._sourceView = new SourceView(sourceViewOpts);
 
         this._sourceView.on('modified', function (changeEvent) {
@@ -367,7 +367,6 @@ class BallerinaFileEditor extends BallerinaView {
             const generatedSource = this.generateSource();
             if(this._file.isDirty()){
                 this._sourceView.setContent(generatedSource);
-                this._sourceView.format(true);
             } else {
                 this._sourceView.setContent(this._file.getContent());
             }

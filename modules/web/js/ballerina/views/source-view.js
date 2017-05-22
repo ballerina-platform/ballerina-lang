@@ -18,7 +18,9 @@
 import log from 'log';
 import _ from 'lodash';
 import $ from 'jquery';
+import alerts from 'alerts';
 import EventChannel from 'event_channel';
+import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
@@ -53,6 +55,7 @@ class SourceView extends EventChannel {
         }
         this._container = _.get(args, 'container');
         this._content = _.get(args, 'content');
+        this._fileEditor = _.get(args, 'fileEditor');
         this._debugger = _.get(args, 'debugger', undefined);
         this._markers = {};
         this._gutter = 25;
@@ -172,14 +175,23 @@ class SourceView extends EventChannel {
     }
 
     format(doSilently) {
-        if(doSilently){
-            this._inSilentMode = true;
+        let  parserRes = this._fileEditor.parserBackend.parse(this._editor.getSession().getValue());
+        if (parserRes.error && !_.isEmpty(parserRes.message)) {
+            alerts.error('Cannot format due to syntax errors : ' + parserRes.message);
+            return;
         }
-        //this._fomatter.beautify(this._editor.getSession()); TODO: removing tokenizer based formatting temperaly
-        if(doSilently){
-            this._inSilentMode = false;
-            this.markClean();
-        }
+        let ast = this._fileEditor.deserializer.getASTModel(parserRes);
+        let sourceGenVisitor = new SourceGenVisitor();
+        ast.accept(sourceGenVisitor);
+        let formattedContent =  sourceGenVisitor.getGeneratedSource();
+        // if(doSilently){
+        //     this._inSilentMode = true;
+        // }
+        this._editor.getSession().setValue(formattedContent);
+        // if(doSilently){
+        //     this._inSilentMode = false;
+        //     this.markClean();
+        // }
     }
 
     //dbeugger related functions.
