@@ -95,7 +95,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -126,7 +126,7 @@ public class BLangExecutor implements NodeExecutor {
     private boolean isForkJoinTimedOut;
     private boolean isBreakCalled;
     private boolean isAbortCalled;
-    private ExecutorService executor;
+    //private ExecutorService executor;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -1637,7 +1637,8 @@ public class BLangExecutor implements NodeExecutor {
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
 
-        ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+        //ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
         executor.submit(workerRunner);
 //        Future<BMessage> future = executor.submit(workerRunner);

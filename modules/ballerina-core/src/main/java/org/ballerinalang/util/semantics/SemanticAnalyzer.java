@@ -137,7 +137,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.typemappers.NativeCastMapper;
-import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -146,6 +146,7 @@ import org.ballerinalang.util.exceptions.SemanticException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -270,7 +271,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             compilationUnit.accept(this);
         }
 
-        resolveWorkerInteractions(bLangPackage.getWorkerInteractionDataHolders());
+        //resolveWorkerInteractions(bLangPackage.getWorkerInteractionDataHolders());
         // Complete the package init function
         ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
@@ -422,6 +423,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.accept(this);
 
+        resolveWorkerInteractions(resource);
+
         int sizeOfStackFrame = stackFrameOffset + 1;
         resource.setStackFrameSize(sizeOfStackFrame);
 
@@ -431,11 +434,156 @@ public class SemanticAnalyzer implements NodeVisitor {
         closeScope();
     }
 
+    private void buildWorkerInteractions (CallableUnit callableUnit, Worker[] workers, boolean isWorkerInWorker) {
+        // This map holds the worker data channels against the respective source and target workers
+        Map<String, WorkerDataChannel> workerDataChannels = new HashMap<>();
+        boolean statementCompleted = false;
+        List<Statement> processedStatements = new ArrayList<>();
+
+        if (!callableUnit.getWorkerInteractionStatements().isEmpty()) {
+            String sourceWorkerName;
+            String targetWorkerName;
+            for (Statement statement : callableUnit.getWorkerInteractionStatements()) {
+                if (statement instanceof WorkerInvocationStmt) {
+                    targetWorkerName = ((WorkerInvocationStmt) statement).getName();
+                    if (callableUnit instanceof Worker) {
+                        sourceWorkerName = callableUnit.getName();
+                    } else {
+                        sourceWorkerName = "default";
+                    }
+                    // Find a matching worker reply statment
+                    for (Worker worker : workers) {
+                        if (worker.getWorkerInteractionStatements().peek() instanceof WorkerReplyStmt) {
+                            String complimentSourceWorkerName = ((WorkerReplyStmt) worker.
+                                    getWorkerInteractionStatements().peek()).getWorkerName();
+                            String complimentTargetWorkerName = worker.getName();
+                            if (sourceWorkerName.equals(complimentSourceWorkerName)
+                                    && targetWorkerName.equals(complimentTargetWorkerName)) {
+                                // Statements are matching for their names. Check the parameters
+                                // Check for number of variables send and received
+                                Expression[] invokeParams = ((WorkerInvocationStmt) statement).getExpressionList();
+                                Expression[] receiveParams = ((WorkerReplyStmt) worker.
+                                        getWorkerInteractionStatements().peek()).getExpressionList();
+                                if (invokeParams.length != receiveParams.length) {
+                                    break;
+                                } else {
+                                    int i = 0;
+                                    for (Expression invokeParam : invokeParams) {
+                                        if (!(receiveParams[i++].getType().equals(invokeParam.getType()))) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                // Nothing wrong with the statements. Now create the data channel and pop the statement.
+                                String interactionName = sourceWorkerName + "->" + targetWorkerName;
+                                WorkerDataChannel workerDataChannel;
+                                if (!workerDataChannels.containsKey(interactionName)) {
+                                    workerDataChannel = new
+                                            WorkerDataChannel(sourceWorkerName, targetWorkerName);
+                                    workerDataChannels.put(interactionName, workerDataChannel);
+                                } else {
+                                    workerDataChannel = workerDataChannels.get(interactionName);
+                                }
+
+                                ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
+                                ((WorkerReplyStmt) worker.getWorkerInteractionStatements().peek()).
+                                        setWorkerDataChannel(workerDataChannel);
+
+                                worker.getWorkerInteractionStatements().remove();
+                                processedStatements.add(statement);
+                                statementCompleted = true;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    sourceWorkerName = ((WorkerReplyStmt) statement).getWorkerName();
+                    if (callableUnit instanceof Worker) {
+                        targetWorkerName = callableUnit.getName();
+                    } else {
+                        targetWorkerName = "default";
+                    }
+                    // Find a matching worker invocation statment
+                    for (Worker worker : callableUnit.getWorkers()) {
+                        if (worker.getWorkerInteractionStatements().peek() instanceof WorkerInvocationStmt) {
+                            String complimentTargetWorkerName = ((WorkerInvocationStmt) worker.
+                                    getWorkerInteractionStatements().peek()).getName();
+                            String complimentSourceWorkerName = worker.getName();
+                            if (sourceWorkerName.equals(complimentSourceWorkerName) &&
+                                    targetWorkerName.equals(complimentTargetWorkerName)) {
+                                // Statements are matching for their names. Check the parameters
+                                // Check for number of variables send and received
+                                Expression[] invokeParams = ((WorkerReplyStmt) statement).getExpressionList();
+                                Expression[] receiveParams = ((WorkerInvocationStmt) worker.
+                                        getWorkerInteractionStatements().peek()).getExpressionList();
+                                if (invokeParams.length != receiveParams.length) {
+                                    break;
+                                } else {
+                                    int i = 0;
+                                    for (Expression invokeParam : invokeParams) {
+                                        if (!(receiveParams[i++].getType().equals(invokeParam.getType()))) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                // Nothing wrong with the statements. Now create the data channel and pop the statement.
+                                String interactionName = sourceWorkerName + "->" + targetWorkerName;
+                                WorkerDataChannel workerDataChannel;
+                                if (!workerDataChannels.containsKey(interactionName)) {
+                                    workerDataChannel = new
+                                            WorkerDataChannel(sourceWorkerName, targetWorkerName);
+                                    workerDataChannels.put(interactionName, workerDataChannel);
+                                } else {
+                                    workerDataChannel = workerDataChannels.get(interactionName);
+                                }
+
+                                ((WorkerReplyStmt) statement).setWorkerDataChannel(workerDataChannel);
+                                ((WorkerInvocationStmt) worker.getWorkerInteractionStatements().peek()).
+                                        setWorkerDataChannel(workerDataChannel);
+
+                                worker.getWorkerInteractionStatements().remove();
+                                processedStatements.add(statement);
+                                statementCompleted = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!statementCompleted && !isWorkerInWorker) {
+                    // TODO: Need to have a specific error message
+                    BLangExceptionHelper.throwSemanticError(statement,
+                            SemanticErrors.WORKER_INTERACTION_NOT_VALID);
+                }
+            }
+            callableUnit.getWorkerInteractionStatements().removeAll(processedStatements);
+        }
+    }
+
+    private void resolveWorkerInteractions(CallableUnit callableUnit) {
+        //CallableUnit callableUnit = function;
+        boolean isWorkerInWorker = callableUnit instanceof Worker ? true : false;
+        Worker[] workers = callableUnit.getWorkers();
+        if (workers.length > 0) {
+            Worker[] tempWorkers = new Worker[workers.length];
+            System.arraycopy(workers, 0, tempWorkers, 0, tempWorkers.length);
+            int i = 0;
+            do {
+                buildWorkerInteractions(callableUnit, tempWorkers, isWorkerInWorker);
+                callableUnit = workers[i];
+                System.arraycopy(workers, i + 1, tempWorkers, 0, workers.length - (i + 1));
+                i++;
+            } while (i < workers.length - 1);
+        }
+    }
+
     @Override
     public void visit(BallerinaFunction function) {
         // Open a new symbol scope
         openScope(function);
         currentCallableUnit = function;
+
+        //resolveWorkerInteractions(function.gerWorkerInteractions());
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
@@ -474,6 +622,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(function, SemanticErrors.MISSING_RETURN_STATEMENT);
             }
         }
+
+        resolveWorkerInteractions(function);
+
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
@@ -594,6 +745,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(action, SemanticErrors.MISSING_RETURN_STATEMENT);
             }
         }
+        resolveWorkerInteractions(action);
 
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -618,6 +770,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentScope = worker;
         parentCallableUnit.push(currentCallableUnit);
         currentCallableUnit = worker;
+
+        //resolveWorkerInteractions(worker.gerWorkerInteractions());
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
@@ -650,6 +804,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BlockStmt blockStmt = worker.getCallableUnitBody();
         blockStmt.accept(this);
 
+        resolveWorkerInteractions(worker);
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
@@ -1207,6 +1362,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
+
+
         Expression[] expressions = workerInvocationStmt.getExpressionList();
         for (Expression expression : expressions) {
             expression.accept(this);
@@ -3303,51 +3460,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             
             currentScope.define(symbolName, annotationDef);
-        }
-    }
-
-    private void resolveWorkerInteractions(WorkerInteractionDataHolder[] workerInteractionDataHolders) {
-        for (WorkerInteractionDataHolder workerInteraction : workerInteractionDataHolders) {
-            if (workerInteraction.getSourceWorker() == null || workerInteraction.getWorkerReplyStmt() == null) {
-                // Invalid worker reply statement
-                // TODO: Need to have a specific error message
-                BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerInvocationStmt(),
-                        SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-            }
-
-            if (workerInteraction.getTargetWorker() == null || workerInteraction.getWorkerInvocationStmt() == null) {
-                // Invalid worker invocation statement
-                // TODO: Need to have a specific error message
-                BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
-                        SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-            }
-
-            if (workerInteraction.getSourceWorker() == workerInteraction.getTargetWorker()) {
-                // Worker cannot invoke itself.
-                // TODO: Need to have a specific error message
-                    BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
-                            SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-            }
-
-            if (workerInteraction.getWorkerReplyStmt() != null && workerInteraction.getWorkerInvocationStmt() != null) {
-                // Check for number of variables send and received
-                Expression[] invokeParams = workerInteraction.getWorkerInvocationStmt().getExpressionList();
-                Expression[] receiveParams = workerInteraction.getWorkerReplyStmt().getExpressionList();
-                if (invokeParams.length != receiveParams.length) {
-                    // TODO: Need to have a specific error message
-                    BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
-                            SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-                } else {
-                    int i = 0;
-                    for (Expression invokeParam : invokeParams) {
-                        if (!(receiveParams[i++].getType().equals(invokeParam.getType()))) {
-                            // TODO: Need to have a specific error message
-                            BLangExceptionHelper.throwSemanticError(workerInteraction.getWorkerReplyStmt(),
-                                    SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-                        }
-                    }
-                }
-            }
         }
     }
 
