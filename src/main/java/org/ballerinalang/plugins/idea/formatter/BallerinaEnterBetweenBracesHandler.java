@@ -48,16 +48,16 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
     }
 
     private boolean isInsideABlock(PsiFile file, Editor editor) {
-        // Get the offset of the caret
-        int offset = editor.getCaretModel().getOffset();
-        // Get the element at the offset
-        PsiElement element = file.findElementAt(offset);
+        // Get the offset of the caret.
+        int caretOffset = editor.getCaretModel().getOffset();
+        // Get the element at the offset.
+        PsiElement element = file.findElementAt(caretOffset);
         if (element == null) {
             return false;
         }
 
         // Check whether the previous non whitespace element is '{'. If so, that means the caret is within a block.
-        int tempOffset = offset;
+        int tempOffset = caretOffset;
         PsiElement tempElement = element;
         while ((tempElement instanceof PsiWhiteSpace || tempElement instanceof PsiComment) && tempOffset > 0) {
             tempElement = file.findElementAt(--tempOffset);
@@ -67,13 +67,13 @@ public class BallerinaEnterBetweenBracesHandler extends EnterBetweenBracesHandle
         }
 
         // Check whether the next non whitespace element is '}'. If so, that means the caret is within a block.
-        tempOffset = offset;
+        tempOffset = caretOffset;
         tempElement = element;
         while ((tempElement instanceof PsiWhiteSpace || tempElement instanceof PsiComment) &&
                 tempOffset < file.getTextLength()) {
             tempElement = file.findElementAt(++tempOffset);
         }
-        if (tempElement != null && "}".equals(tempElement.getText())) {
+        if (tempOffset > caretOffset && tempElement != null && "}".equals(tempElement.getText())) {
             return true;
         }
         // Return false if the above conditions are not satisfied.
