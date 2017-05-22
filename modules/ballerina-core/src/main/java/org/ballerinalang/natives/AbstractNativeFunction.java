@@ -35,7 +35,6 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -129,10 +128,10 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
                 }
             }
         } catch (RuntimeException e) {
-            BException exception = new BException(e.getMessage());
+//            BException exception = new BException(e.getMessage());
             // TODO : Fix this once we remove Blocking executor
             if (context.getExecutor() != null) {
-                context.getExecutor().handleBException(exception);
+//                context.getExecutor().handleBException(exception);
             } else {
                 throw e;
             }

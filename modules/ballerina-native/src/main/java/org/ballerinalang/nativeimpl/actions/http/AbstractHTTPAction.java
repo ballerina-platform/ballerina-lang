@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.actions.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -193,18 +192,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             BMessage bMsg = (BMessage) valueRef;
             if (bMsg.value() == null) {
                 String msg = "Received unknown message for the action invocation";
-                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                throw new BallerinaException(msg, exception);
+                throw new BallerinaException(msg);
             }
             if (bMsg.value().getMessagingException() != null) {
                 String msg = bMsg.value().getMessagingException().getMessage();
-                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                throw new BallerinaException(msg, exception);
+                throw new BallerinaException(msg);
             }
         } else {
             String msg = "Invalid message received for the action invocation";
-            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-            throw new BallerinaException(msg, exception);
+            throw new BallerinaException(msg);
         }
     }
 

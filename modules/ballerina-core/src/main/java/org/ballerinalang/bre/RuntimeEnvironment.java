@@ -59,6 +59,7 @@ public class RuntimeEnvironment {
                 bContext.getControlStack().pushFrame(currentStackFrame);
 
                 BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+                bLangExecutor.setParentScope(initFunction.getSymbolScope());
                 initFunction.getCallableUnitBody().execute(bLangExecutor);
             }
         }
@@ -82,6 +83,7 @@ public class RuntimeEnvironment {
         bContext.getControlStack().pushFrame(currentStackFrame);
 
         BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+        bLangExecutor.setParentScope(pkgInitFunction.getSymbolScope());
         pkgInitFunction.getCallableUnitBody().execute(bLangExecutor);
         //bLangPackage.setPkgInitialized(true);
     }
@@ -104,6 +106,7 @@ public class RuntimeEnvironment {
             bContext.getControlStack().pushFrame(currentStackFrame);
 
             BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+            bLangExecutor.setParentScope(initFunction.getSymbolScope());
             initFunction.getCallableUnitBody().execute(bLangExecutor);
         }
 

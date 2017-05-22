@@ -37,6 +37,7 @@ public class BStructType extends BType {
      * @param typeName string name of the type
      * @param pkgPath package of the struct
      * @param symbolScope symbol scope of the struct
+     * @param identifier identifier with string name
      */
     public BStructType(String typeName, String pkgPath, SymbolScope symbolScope, Identifier identifier) {
         super(typeName, pkgPath, symbolScope, BStruct.class);

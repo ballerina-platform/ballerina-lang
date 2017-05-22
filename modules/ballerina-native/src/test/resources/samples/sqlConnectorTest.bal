@@ -1,5 +1,6 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
+import ballerina.lang.errors;
 
 function testInsertTableData() (int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
@@ -570,15 +571,19 @@ function testTransactonRollback () (int, int) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     int returnVal = 0;
     sql:Parameter[] parameters = [];
-    transaction {
-        sql:ClientConnector.update(testDB, "Insert into Customers
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
-                                   parameters);
-        sql:ClientConnector.update(testDB, "Insert into Customers2
-                (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
-                                   parameters);
-    } aborted {
-        returnVal = - 1;
+    try{
+        transaction {
+            sql:ClientConnector.update(testDB, "Insert into Customers
+                    (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
+                                       parameters);
+            sql:ClientConnector.update(testDB, "Insert into Customers2
+                    (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
+                                       parameters);
+        } aborted {
+            returnVal = - 1;
+        }
+    } catch (errors:Error e){
+        // ignore.
     }
     //check whether update action is performed
     int count;
@@ -623,6 +628,76 @@ function testTransactonAbort () (int, int) {
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return returnVal, count;
+}
+
+function testTransactonErrorThrow () (int, int, int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    int returnVal = 0;
+    int catchValue = 0;
+    sql:Parameter[] parameters = [];
+    try{
+        transaction {
+            int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
+                            (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')",
+                                                                 parameters);
+            int i = 0;
+            if (i == 0) {
+                errors:Error err = { msg : "error" };
+                throw err;
+            }
+        } aborted {
+            returnVal = - 1;
+        }
+    }catch(errors:Error err){
+        catchValue = -1;
+    }
+    //check whether update action is performed
+    int count;
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 260",
+        parameters);
+    while (datatables:next(dt)) {
+        count = datatables:getInt(dt, 1);
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return returnVal, catchValue, count;
+}
+
+function testTransactionErrorThrowAndCatch () (int, int, int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    int returnVal = 0;
+    int catchValue = 0;
+    sql:Parameter[] parameters = [];
+    transaction {
+        int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
+                        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')",
+                                                             parameters);
+        int i = 0;
+        try{
+            if (i == 0) {
+                errors:Error err = { msg : "error" };
+                throw err;
+            }
+        } catch(errors:Error err){
+            catchValue = -1;
+        }
+    } aborted {
+        returnVal = - 1;
+    }
+    //check whether update action is performed
+    int count;
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 250",
+        parameters);
+    while (datatables:next(dt)) {
+        count = datatables:getInt(dt, 1);
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return returnVal, catchValue, count;
 }
 
 function testDateTimeInParameters() (int[]) {

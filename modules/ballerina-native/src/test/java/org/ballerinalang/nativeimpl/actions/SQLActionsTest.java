@@ -361,6 +361,22 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testTransactonThrow() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTransactonErrorThrow");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testTransactonThrowAndCatch() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTransactionErrorThrowAndCatch");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testInsertTimeData() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDateTimeInParameters");
         BArray retValue = (BArray) returns[0];

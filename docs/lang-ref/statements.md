@@ -70,6 +70,8 @@ break;
 
 ## Fork/Join
 
+Workers are independent actors that do not necessarily need to know about the existence of each other. However, there are some situations where you need to execute workers so that they work on pieces of a given task and complete it as a unit to fullfill the entire task. Fork-Join construct is built for this kind of scenario where you need to wait until all the workers have completed their tasks or have timed out. 
+
 A `fork` statement allows you to replicate a message to any number of parallel workers and have them independently operate on the copies of the message. The `join` part of the `fork` statement allows you to define how the caller of `fork` will wait for the parallel workers to complete. 
 
 ```

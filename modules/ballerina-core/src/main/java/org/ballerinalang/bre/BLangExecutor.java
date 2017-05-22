@@ -28,10 +28,12 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -77,12 +79,12 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.util.BValueUtils;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -97,13 +99,14 @@ import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -126,7 +129,13 @@ public class BLangExecutor implements NodeExecutor {
     private boolean isForkJoinTimedOut;
     private boolean isBreakCalled;
     private boolean isAbortCalled;
-    //private ExecutorService executor;
+    public BStruct thrownError;
+    public boolean isErrorThrown;
+    private boolean inFinalBlock;
+    private boolean inRollbackBlock;
+
+    private StructDef error, stackTraceItemDef, stackTraceDef;
+    private SymbolScope parentScope;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -134,11 +143,19 @@ public class BLangExecutor implements NodeExecutor {
         this.controlStack = bContext.getControlStack();
     }
 
+    public void setParentScope(SymbolScope parentScope) {
+        this.parentScope = parentScope;
+    }
+
     @Override
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (returnedOrReplied || isBreakCalled || isAbortCalled) {
+            if (isBreakCalled || isAbortCalled) {
+                break;
+            }
+            if (inFinalBlock || inRollbackBlock) {
+            } else if (isErrorThrown || returnedOrReplied) {
                 break;
             }
             stmt.execute(this);
@@ -186,6 +203,9 @@ public class BLangExecutor implements NodeExecutor {
             Expression lExpr = lExprs[i];
             BValue rValue = rValues[i];
             if (lExpr instanceof VariableRefExpr) {
+                if ("_".equals(((VariableRefExpr) lExpr).getVarName())) {
+                    continue;
+                }
                 assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
             } else if (lExpr instanceof ArrayMapAccessExpr) {
                 assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
@@ -229,7 +249,11 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-            if (returnedOrReplied || isBreakCalled) {
+            if (isBreakCalled || isAbortCalled) {
+                break;
+            }
+            if (inFinalBlock || inRollbackBlock) {
+            } else if (isErrorThrown || returnedOrReplied) {
                 break;
             }
             // Now evaluate the condition again to decide whether to continue the loop or not.
@@ -245,43 +269,72 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
-        // Note: This logic is based on Java exception and hence not recommended.
-        // This is added only to make it work with blocking executor. and will be removed in a future release.
         StackFrame current = bContext.getControlStack().getCurrentFrame();
         try {
             tryCatchStmt.getTryBlock().execute(this);
-        } catch (BallerinaException be) {
-            BException exception;
-            if (be.getBException() != null) {
-                exception = be.getBException();
-            } else {
-                exception = new BException(be.getMessage());
-            }
-            exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-            while (bContext.getControlStack().getCurrentFrame() != current) {
-                if (controlStack.getStack().size() > 0) {
-                    controlStack.popFrame();
-                } else {
-                    // Throw this to handle at root error handler.
-                    throw new BallerinaException(be);
+        } catch (RuntimeException be) {
+            createBErrorFromException(be);
+        }
+        // Engage Catch statement.
+        if (isErrorThrown) {
+            TryCatchStmt.CatchBlock equalCatchType = null;
+            TryCatchStmt.CatchBlock equivalentCatchBlock = null;
+            for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+                if (thrownError.getType().equals(catchBlock.getParameterDef().getType())) {
+                    equalCatchType = catchBlock;
+                    break;
+                }
+                if (equivalentCatchBlock == null && (TypeLattice.getExplicitCastLattice().getEdgeFromTypes
+                        (thrownError.getType(), catchBlock.getParameterDef().getType(), null) != null)) {
+                    equivalentCatchBlock = catchBlock;
                 }
             }
-            MemoryLocation memoryLocation = tryCatchStmt.getCatchBlock().getParameterDef().getMemoryLocation();
-            if (memoryLocation instanceof StackVarLocation) {
-                int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
-                controlStack.setValue(stackFrameOffset, exception);
+            if (equalCatchType != null || equivalentCatchBlock != null) {
+                handleError(equalCatchType != null ? equalCatchType : equivalentCatchBlock, current);
             }
-            tryCatchStmt.getCatchBlock().getCatchBlockStmt().execute(this);
+        }
+        // Invoke Finally Block.
+        TryCatchStmt.FinallyBlock finallyBlock = tryCatchStmt.getFinallyBlock();
+        if (finallyBlock != null) {
+            inFinalBlock = true;
+            finallyBlock.getFinallyBlockStmt().execute(this);
+            inFinalBlock = false;
         }
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
-        // Note: This logic is based on Java exception and hence not recommended.
-        // This is added only to make it work with blocking executor. and will be removed in a future release.
-        BException exception = (BException) throwStmt.getExpr().execute(this);
-        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-        throw new BallerinaException(exception);
+        thrownError = (BStruct) throwStmt.getExpr().execute(this);
+        thrownError.setStackTrace(generateStackTrace());
+        isErrorThrown = true;
+    }
+
+    private BStruct generateStackTrace() {
+
+        if (stackTraceDef == null) {
+            stackTraceItemDef = (StructDef) parentScope.resolve(new SymbolName("StackTraceItem",
+                    "ballerina.lang.errors"));
+            stackTraceDef = (StructDef) parentScope.resolve(new SymbolName("StackTrace",
+                    "ballerina.lang.errors"));
+            if (stackTraceDef == null) {
+                throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:StackTraceItem");
+            }
+        }
+        BArray<BStruct> bArray = stackTraceDef.getFieldDefStmts()[0].getVariableDef().getType().getEmptyValue();
+        Stack<StackFrame> stack = bContext.getControlStack().getStack();
+        BStruct stackTrace = new BStruct(stackTraceDef, new BValue[]{bArray});
+        for (int i = stack.size(); i > 0; i--) {
+            StackFrame currentFrame = stack.get(i - 1);
+            BValue[] structInfo = {
+                    new BString(currentFrame.getNodeInfo().getName()),
+                    new BString(currentFrame.getNodeInfo().getPackage()),
+                    new BString(currentFrame.getNodeInfo().getNodeLocation().getFileName()),
+                    new BInteger(currentFrame.getNodeInfo().getNodeLocation().getLineNumber()),
+            };
+            BStruct frameItem = new BStruct(stackTraceItemDef, structInfo);
+            bArray.add((stack.size() - i), frameItem);
+        }
+        return stackTrace;
     }
 
     @Override
@@ -297,7 +350,6 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
 
-        // Evaluate the argument expression
         Expression[] expressions = workerInvocationStmt.getExpressionList();
         // Extract the outgoing expressions
         BValue[] arguments = new BValue[expressions.length];
@@ -477,6 +529,7 @@ public class BLangExecutor implements NodeExecutor {
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+            workerExecutor.setParentScope(worker);
             WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
             workerRunnerList.add(workerRunner);
             triggeredWorkers.put(worker.getName(), workerRunner);
@@ -563,9 +616,12 @@ public class BLangExecutor implements NodeExecutor {
         ballerinaTransactionManager.beginTransactionBlock();
         try {
             transactionRollbackStmt.getTransactionBlock().execute(this);
+            if (isErrorThrown) {
+                ballerinaTransactionManager.setTransactionError(true);
+            }
             ballerinaTransactionManager.commitTransactionBlock();
         } catch (Exception e) {
-            ballerinaTransactionManager.setTransactionError(true);
+            createBErrorFromException(e);
             while (bContext.getControlStack().getCurrentFrame() != current) {
                 if (controlStack.getStack().size() > 0) {
                     controlStack.popFrame();
@@ -579,11 +635,13 @@ public class BLangExecutor implements NodeExecutor {
         try {
             if (ballerinaTransactionManager.isTransactionError()) {
                 ballerinaTransactionManager.rollbackTransactionBlock();
+                inRollbackBlock = true;
                 transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
             }
         } catch (Exception e) {
             throw new BallerinaException(e);
         } finally {
+            inRollbackBlock = false;
             ballerinaTransactionManager.endTransactionBlock();
             if (ballerinaTransactionManager.isOuterTransaction()) {
                 bContext.setBallerinaTransactionManager(null);
@@ -1261,6 +1319,14 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(FieldAccessExpr fieldAccessExpr) {
         Expression varRef = fieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
+
+        if (value instanceof BArray) {
+            FieldAccessExpr childFieldExpr = fieldAccessExpr.getFieldExpr();
+            if (childFieldExpr != null && childFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+                return new BInteger(((BArray) value).size());
+            }
+        }
+        
         return getFieldExprValue(fieldAccessExpr, value);
     }
 
@@ -1446,6 +1512,9 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         BValue value = currentStructVal.getValue(fieldLocation);
+        if (value instanceof BArray && nestedFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+            return new BInteger(((BArray) value).size());
+        }
 
         // Recursively travel through the struct and get the value
         return getFieldExprValue(fieldExpr, value);
@@ -1636,7 +1705,6 @@ public class BLangExecutor implements NodeExecutor {
         WorkerCallback workerCallback = new WorkerCallback(workerContext);
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
-
         //ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
@@ -1723,5 +1791,42 @@ public class BLangExecutor implements NodeExecutor {
             jsonElement = JSONUtils.getElement(json, elementIndex.stringValue());
         }
         setJSONElementValue(jsonElement, childField, rValue);
+    }
+
+    private void handleError(TryCatchStmt.CatchBlock catchBlock, StackFrame tryCatchScope) {
+        while (bContext.getControlStack().getCurrentFrame() != tryCatchScope) {
+            if (controlStack.getStack().size() > 0) {
+                controlStack.popFrame();
+            } else {
+                // Something wrong. This shouldn't execute.
+                throw new BallerinaException("fatal : unexpected error occurred. No stack frame found.");
+            }
+        }
+        // Assign Exception value.
+        MemoryLocation memoryLocation = catchBlock.getParameterDef().getMemoryLocation();
+        if (memoryLocation instanceof StackVarLocation) {
+            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+            controlStack.setValue(stackFrameOffset, thrownError);
+        }
+        thrownError = null;
+        isErrorThrown = false;
+        // Invoke Catch Block.
+        catchBlock.getCatchBlockStmt().execute(this);
+    }
+
+    private void createBErrorFromException(Throwable t) {
+        if (error == null) {
+            error = (StructDef) parentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+            if (error == null) {
+                throw new BLangRuntimeException("Unresolved type Error");
+            }
+        }
+        BString msg = new BString(t.getMessage());
+        thrownError = new BStruct(error, new BValue[]{msg});
+        thrownError.setStackTrace(generateStackTrace());
+        isErrorThrown = true;
+        if (bContext.isInTransaction()) {
+            bContext.getBallerinaTransactionManager().setTransactionError(true);
+        }
     }
 }

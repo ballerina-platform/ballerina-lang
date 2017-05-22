@@ -62,6 +62,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -121,7 +122,6 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BExceptionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BNullType;
@@ -1324,30 +1324,69 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
         tryCatchStmt.getTryBlock().accept(this);
-        tryCatchStmt.getCatchBlock().getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-        tryCatchStmt.getCatchBlock().getParameterDef().accept(this);
-        tryCatchStmt.getCatchBlock().getCatchBlockStmt().accept(this);
+
+        BLangSymbol error = currentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+        Set<BType> definedTypes = new HashSet<>();
+        if (tryCatchStmt.getCatchBlocks().length != 0) {
+            // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
+            if (error == null || !(error instanceof StructDef)) {
+                throw new SemanticException("could not resolve ballerina.lang.errors:Error struct");
+            }
+        }
+        for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            catchBlock.getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            catchBlock.getParameterDef().accept(this);
+            // Validation for error type.
+            if (!error.equals(catchBlock.getParameterDef().getType()) &&
+                    (!(catchBlock.getParameterDef().getType() instanceof StructDef) ||
+                            TypeLattice.getImplicitCastLattice().getEdgeFromTypes(catchBlock.getParameterDef()
+                                    .getType(), error, null) == null)) {
+                throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                        catchBlock.getCatchBlockStmt().getNodeLocation(),
+                        SemanticErrors.ONLY_ERROR_TYPE_ALLOWED_HERE));
+            }
+            // Validation for duplicate catch.
+            if (!definedTypes.add(catchBlock.getParameterDef().getType())) {
+                throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                        catchBlock.getCatchBlockStmt().getNodeLocation(),
+                        SemanticErrors.DUPLICATED_ERROR_CATCH, catchBlock.getParameterDef().getTypeName()));
+            }
+            catchBlock.getCatchBlockStmt().accept(this);
+        }
+
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+        }
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
         throwStmt.getExpr().accept(this);
-        if (throwStmt.getExpr() instanceof VariableRefExpr) {
-            if (throwStmt.getExpr().getType() instanceof BExceptionType) {
-                throwStmt.setAlwaysReturns(true);
-                return;
-            }
-        } else {
+        BType expressionType = null;
+        if (throwStmt.getExpr() instanceof VariableRefExpr && throwStmt.getExpr().getType() instanceof StructDef) {
+            expressionType = throwStmt.getExpr().getType();
+        } else if (throwStmt.getExpr() instanceof FunctionInvocationExpr) {
             FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) throwStmt.getExpr();
-            if (!funcIExpr.isMultiReturnExpr() && funcIExpr.getTypes().length > 0
-                    && funcIExpr.getTypes()[0] instanceof BExceptionType) {
+            if (!funcIExpr.isMultiReturnExpr() && funcIExpr.getTypes().length == 1 && funcIExpr.getTypes()[0]
+                    instanceof StructDef) {
+                expressionType = funcIExpr.getTypes()[0];
+            }
+        }
+        if (expressionType != null) {
+            BLangSymbol error = currentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+            // TODO : Fix this.
+            // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
+            if (error == null) {
+                throw new SemanticException("could not resolve ballerina.lang.errors:Error struct");
+            }
+            if (error.equals(expressionType) || TypeLattice.getImplicitCastLattice().getEdgeFromTypes
+                    (expressionType, error, null) != null) {
                 throwStmt.setAlwaysReturns(true);
                 return;
             }
         }
-        throw new SemanticException(throwStmt.getNodeLocation().getFileName() + ":" +
-                throwStmt.getNodeLocation().getLineNumber() +
-                ": only a variable reference of type 'exception' is allowed in throw statement");
+        throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                throwStmt.getNodeLocation(), SemanticErrors.ONLY_ERROR_TYPE_ALLOWED_HERE));
     }
 
     @Override
@@ -2471,8 +2510,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (int i = 0; i < lExprs.length; i++) {
             Expression lExpr = lExprs[i];
             BType returnType = returnTypes[i];
+            String varName = getVarNameFromExpression(lExpr);
+            if ("_".equals(varName)) {
+                continue;
+            }
             if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
-                String varName = getVarNameFromExpression(lExpr);
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT, returnType, varName, lExpr.getType());
             }
@@ -2483,8 +2525,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         // This set data structure is used to check for repeated variable names in the assignment statement
         Set<String> varNameSet = new HashSet<>();
 
+        int ignoredCount = 0;
         for (Expression lExpr : lExprs) {
             String varName = getVarNameFromExpression(lExpr);
+            if (varName.equals("_")) {
+                ignoredCount++;
+                continue;
+            }
             if (!varNameSet.add(varName)) {
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
@@ -2502,6 +2549,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Check whether someone is trying to change the values of a constant
             checkForConstAssignment(assignStmt, lExpr);
+        }
+        if (ignoredCount == lExprs.length) {
+            throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                    assignStmt.getNodeLocation(), SemanticErrors.IGNORED_ASSIGNMENT));
         }
     }
 
@@ -2995,15 +3046,40 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private void visitArrayAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
             BType exprType, SymbolScope enclosingScope) {
+
+        if (fieldExpr.getVarRef() instanceof BasicLiteral) {
+            String value = ((BasicLiteral) fieldExpr.getVarRef()).getBValue().stringValue();
+            if (value.equals("length")) {
+
+                if (parentExpr.isLHSExpr()) {
+                    //cannot assign a value to array length
+                    BLangExceptionHelper.throwSemanticError(fieldExpr, SemanticErrors.CANNOT_ASSIGN_VALUE_ARRAY_LENGTH);
+                }
+
+                if (fieldExpr.getFieldExpr() != null) {
+                    BLangExceptionHelper.throwSemanticError(fieldExpr,
+                            SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, BTypes.typeInt);
+                }
+
+                ArrayLengthExpression arrayLengthExpr = new ArrayLengthExpression(
+                        parentExpr.getNodeLocation(), null, varRefExpr);
+                arrayLengthExpr.setType(BTypes.typeInt);
+                FieldAccessExpr childFAExpr = new FieldAccessExpr(parentExpr.getNodeLocation(),
+                        null, arrayLengthExpr, null);
+                parentExpr.setFieldExpr(childFAExpr);
+                return;
+            }
+        }
+
         int dimensions = ((BArrayType) exprType).getDimensions();
-        List<Expression> indexExprs = new ArrayList<Expression>();
+        List<Expression> indexExprs = new ArrayList<>();
 
         for (int i = 0; i < dimensions; i++) {
             if (fieldExpr == null) {
                 break;
             }
             indexExprs.add(fieldExpr.getVarRef());
-            fieldExpr = (FieldAccessExpr) fieldExpr.getFieldExpr();
+            fieldExpr = fieldExpr.getFieldExpr();
         }
         Collections.reverse(indexExprs);
 

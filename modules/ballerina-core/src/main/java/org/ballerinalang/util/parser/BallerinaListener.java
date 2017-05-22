@@ -642,6 +642,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#catchClauses}.
+	 * @param ctx the parse tree
+	 */
+	void enterCatchClauses(BallerinaParser.CatchClausesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#catchClauses}.
+	 * @param ctx the parse tree
+	 */
+	void exitCatchClauses(BallerinaParser.CatchClausesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#catchClause}.
 	 * @param ctx the parse tree
 	 */
@@ -651,6 +661,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCatchClause(BallerinaParser.CatchClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#finallyClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#finallyClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#throwStatement}.
 	 * @param ctx the parse tree
