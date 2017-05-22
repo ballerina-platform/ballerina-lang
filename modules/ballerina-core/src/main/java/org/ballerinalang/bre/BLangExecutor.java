@@ -489,7 +489,10 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(ForkJoinStmt forkJoinStmt) {
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
         List<BMessage> resultMsgs = new ArrayList<>();
-        long timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
+        long timeout = 120; // Default value is 2 minutes for timeout
+        if (forkJoinStmt.getTimeout().getTimeoutExpression() != null) {
+            timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
+        }
 
         Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();

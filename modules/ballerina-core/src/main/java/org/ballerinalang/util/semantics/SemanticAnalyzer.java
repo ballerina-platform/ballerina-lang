@@ -1465,44 +1465,54 @@ public class SemanticAnalyzer implements NodeVisitor {
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
         openScope(join);
         ParameterDef parameter = join.getJoinResult();
-        parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-        parameter.accept(this);
-        join.define(parameter.getSymbolName(), parameter);
+        if (parameter != null) {
+            parameter.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            parameter.accept(this);
+            join.define(parameter.getSymbolName(), parameter);
 
-        if (!(parameter.getType() instanceof BArrayType &&
-                (((BArrayType) parameter.getType()).getElementType() == BTypes.typeMessage))) {
-            throw new SemanticException("Incompatible types: expected a message[] in " +
-                    parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
+            if (!(parameter.getType() instanceof BArrayType &&
+                    (((BArrayType) parameter.getType()).getElementType() == BTypes.typeMessage))) {
+                throw new SemanticException("Incompatible types: expected a message[] in " +
+                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
+            }
         }
 
         // Visit join body
         Statement joinBody = join.getJoinBlock();
-        joinBody.accept(this);
-        stmtReturns &= joinBody.isAlwaysReturns();
+        if (joinBody != null) {
+            joinBody.accept(this);
+            stmtReturns &= joinBody.isAlwaysReturns();
+        }
         closeScope();
 
         // Visit timeout condition
         ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
         openScope(timeout);
         Expression timeoutExpr = timeout.getTimeoutExpression();
-        timeoutExpr.accept(this);
+        if (timeoutExpr != null) {
+            timeoutExpr.accept(this);
+        }
 
         ParameterDef timeoutParam = timeout.getTimeoutResult();
-        timeoutParam.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
-        timeoutParam.accept(this);
-        timeout.define(timeoutParam.getSymbolName(), timeoutParam);
+        if (timeoutParam != null) {
+            timeoutParam.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+            timeoutParam.accept(this);
+            timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
-        if (!(timeoutParam.getType() instanceof BArrayType &&
-                (((BArrayType) timeoutParam.getType()).getElementType() == BTypes.typeMessage))) {
-            throw new SemanticException("Incompatible types: expected a message[] in " +
-                    timeoutParam.getNodeLocation().getFileName() + ":" +
-                    timeoutParam.getNodeLocation().getLineNumber());
+            if (!(timeoutParam.getType() instanceof BArrayType &&
+                    (((BArrayType) timeoutParam.getType()).getElementType() == BTypes.typeMessage))) {
+                throw new SemanticException("Incompatible types: expected a message[] in " +
+                        timeoutParam.getNodeLocation().getFileName() + ":" +
+                        timeoutParam.getNodeLocation().getLineNumber());
+            }
         }
 
         // Visit timeout body
         Statement timeoutBody = timeout.getTimeoutBlock();
-        timeoutBody.accept(this);
-        stmtReturns &= timeoutBody.isAlwaysReturns();
+        if (timeoutBody != null) {
+            timeoutBody.accept(this);
+            stmtReturns &= timeoutBody.isAlwaysReturns();
+        }
         closeScope();
 
         forkJoinStmt.setAlwaysReturns(stmtReturns);
