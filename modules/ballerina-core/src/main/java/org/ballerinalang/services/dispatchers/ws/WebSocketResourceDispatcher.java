@@ -68,6 +68,8 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                             Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
                         Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
                         WebSocketConnectionManager.getInstance().addConnectionToBroadcast(service.getName(), session);
+                        ConnectorControllerRegistry.getInstance().getConnectorControllersForService(service.getName())
+                                .forEach(connectorController -> connectorController.addConnection(session));
                         return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                     }
                 }

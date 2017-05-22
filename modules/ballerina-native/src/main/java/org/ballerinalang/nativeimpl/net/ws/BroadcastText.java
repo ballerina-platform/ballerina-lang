@@ -26,8 +26,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
+import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
+import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.io.IOException;
 import java.util.List;
@@ -60,6 +64,19 @@ public class BroadcastText extends AbstractNativeFunction {
 
         String text = getStringArgument(context, 0);
         String serviceName = context.getServiceInfo().getName();
+        CarbonMessage carbonMessage = context.getCarbonMessage();
+        if (WebSocketServicesRegistry.getInstance().isClientService(serviceName)) {
+            String clientID = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
+            String parentServiceName = ConnectorControllerRegistry.getInstance().
+                    getConnectorController(clientID).getParentServiceName();
+            broadcast(text, context, parentServiceName);
+        } else {
+            broadcast(text, context, serviceName);
+        }
+        return VOID_RETURN;
+    }
+
+    private void broadcast(String text, Context context, String serviceName) {
         List<Session> sessions = WebSocketConnectionManager.getInstance().getBroadcastConnectionList(serviceName);
         if (sessions == null) {
             throw new BallerinaException("Cannot find a broadcast list for the service: " + serviceName);
@@ -73,6 +90,5 @@ public class BroadcastText extends AbstractNativeFunction {
                     }
                 }
         );
-        return VOID_RETURN;
     }
 }

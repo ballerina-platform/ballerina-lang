@@ -22,12 +22,18 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.ws.WebSocketClientConnector;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
+import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.TextCarbonMessage;
+
+import javax.websocket.Session;
 
 /**
  * Push Text to the server.
@@ -35,26 +41,39 @@ import org.wso2.carbon.messaging.TextCarbonMessage;
 @BallerinaAction(
         packageName = "ballerina.net.ws",
         actionName = "pushText",
-        connectorName = WebSocketClientConnector.CONNECTOR_NAME,
+        connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "text", type = TypeEnum.STRING),
-        }
-)
+        },
+        connectorArgs = {
+                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "callbackService", type = TypeEnum.STRING)
+        })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
                                               value = "Push text to the server.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-                                                                        value = "A WebSocket Client Connector") })
+                                                                        value = "WebSocket Client Connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "text",
                                                                         value = "text which should be sent") })
+@Component(
+        name = "action.net.ws.pushText",
+        immediate = true,
+        service = AbstractNativeAction.class)
 public class PushText extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getArgument(context, 0);
         String text = getArgument(context, 1).stringValue();
         TextCarbonMessage textCarbonMessage = new TextCarbonMessage(text);
-        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, getClientID(context, bconnector));
+        Session session = getSession(context);
+        if (session == null) {
+            throw new BallerinaException("Internal error occurred. Cannot find a connection");
+        }
+        String clientID =
+                ConnectorControllerRegistry.getInstance().getConnectorController(bconnector).getClientID(session);
+        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientID);
         pushMessage(textCarbonMessage);
         return null;
     }

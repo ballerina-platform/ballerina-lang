@@ -16,9 +16,8 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.actions.ws;
+package org.ballerinalang.services.dispatchers.ws;
 
-import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.values.BConnector;
 
 import java.util.LinkedList;
@@ -38,7 +37,7 @@ public class ConnectorControllerRegistry {
     // Map <BConnector, connectorID>
     Map<BConnector, String> connectorToConnectorIDMap = new ConcurrentHashMap<>();
     // Map <connectorID, ConnectorController>
-    Map<String, ConnectorController> connectorIDToConnectorControllerMap= new ConcurrentHashMap<>();
+    Map<String, ConnectorController> connectorIDToConnectorControllerMap = new ConcurrentHashMap<>();
 
     private ConnectorControllerRegistry() {
     }
@@ -67,9 +66,14 @@ public class ConnectorControllerRegistry {
         }
     }
 
+    public boolean contains(BConnector bConnector) {
+        return connectorToConnectorIDMap.containsKey(bConnector);
+    }
+
     public List<ConnectorController> getConnectorControllersForService(String serviceName) {
         if (!serviceNameToConnectorListMap.containsKey(serviceName)) {
-            return null;
+            List<ConnectorController> tempList = new LinkedList<>();
+            return tempList;
         } else {
             List<ConnectorController> connectorControllers = new LinkedList<>();
             for (BConnector connector: serviceNameToConnectorListMap.get(serviceName)) {
