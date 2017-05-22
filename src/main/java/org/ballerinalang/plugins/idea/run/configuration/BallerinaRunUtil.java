@@ -22,7 +22,6 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.ide.scratch.ScratchFileType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.FileIndexFacade;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
@@ -72,7 +71,21 @@ public class BallerinaRunUtil {
     }
 
     @Nullable
-    public static PsiElement getContextElement(@Nullable ConfigurationContext context) {
+    public static PsiFile findServiceFileInDirectory(@NotNull VirtualFile packageDirectory, @NotNull Project project) {
+        for (VirtualFile file : packageDirectory.getChildren()) {
+            if (file == null) {
+                continue;
+            }
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+            if (hasServices(psiFile)) {
+                return psiFile;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    static PsiElement getContextElement(@Nullable ConfigurationContext context) {
         if (context == null) {
             return null;
         }
@@ -94,21 +107,19 @@ public class BallerinaRunUtil {
 
     public static void installBallerinaWithMainFileChooser(Project project,
                                                            @NotNull TextFieldWithBrowseButton fileField) {
-        installFileChooser(project, fileField, false, false, file -> {
-            if (file.getFileType() != BallerinaFileType.INSTANCE) {
-                return false;
-            }
-            return isMainBallerinaFile(PsiManager.getInstance(project).findFile(file));
-        });
+        installFileChooser(project, fileField, file ->
+                isMainBallerinaFile(PsiManager.getInstance(project).findFile(file)));
     }
 
     @Contract("null -> false")
-    public static boolean isMainBallerinaFile(@Nullable PsiFile psiFile) {
+    private static boolean isMainBallerinaFile(@Nullable PsiFile psiFile) {
         return hasMainFunction(psiFile);
     }
 
-    public static boolean hasMainFunction(PsiFile file) {
-        Collection<FunctionDefinitionNode> functionNodes = PsiTreeUtil.findChildrenOfType(file, FunctionDefinitionNode.class);
+    @Contract("null -> false")
+    static boolean hasMainFunction(PsiFile file) {
+        Collection<FunctionDefinitionNode> functionNodes = PsiTreeUtil.findChildrenOfType(file,
+                FunctionDefinitionNode.class);
         for (FunctionDefinitionNode functionNode : functionNodes) {
             if (isMainFunction(functionNode)) {
                 return true;
@@ -124,7 +135,7 @@ public class BallerinaRunUtil {
      * @return {@code true} if the provided node is a main function, {@code false} otherwise.
      */
     @Contract("null -> false")
-    public static boolean isMainFunction(FunctionDefinitionNode functionDefinitionNode) {
+    static boolean isMainFunction(FunctionDefinitionNode functionDefinitionNode) {
         // Get the function name.
         PsiElement functionName = functionDefinitionNode.getNameIdentifier();
         if (functionName == null) {
@@ -135,7 +146,8 @@ public class BallerinaRunUtil {
             return false;
         }
         // Get the ParameterListNode which contains all the parameters in the function.
-        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionDefinitionNode, ParameterListNode.class);
+        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(functionDefinitionNode, ParameterListNode
+                .class);
         if (parameterListNode == null) {
             return false;
         }
@@ -175,30 +187,19 @@ public class BallerinaRunUtil {
     }
 
     @Contract("null -> false")
-    public static boolean hasServices(PsiFile file) {
+    static boolean hasServices(PsiFile file) {
         Collection<ServiceDefinitionNode> serviceDefinitionNodes =
                 PsiTreeUtil.findChildrenOfType(file, ServiceDefinitionNode.class);
         return !serviceDefinitionNodes.isEmpty();
     }
 
-    public static void installFileChooser(@NotNull Project project, @NotNull ComponentWithBrowseButton field,
-                                          boolean directory) {
-        installFileChooser(project, field, directory, false);
-    }
-
-    public static void installFileChooser(@NotNull Project project, @NotNull ComponentWithBrowseButton field,
-                                          boolean directory, boolean showFileSystemRoots) {
-        installFileChooser(project, field, directory, showFileSystemRoots, null);
-    }
-
-    public static void installFileChooser(@NotNull Project project, @NotNull ComponentWithBrowseButton field,
-                                          boolean directory, boolean showFileSystemRoots,
-                                          @Nullable Condition<VirtualFile> fileFilter) {
-        FileChooserDescriptor chooseDirectoryDescriptor = directory
-                ? FileChooserDescriptorFactory.createSingleFolderDescriptor()
-                : FileChooserDescriptorFactory.createSingleLocalFileDescriptor();
+    private static void installFileChooser(@NotNull Project project, @NotNull ComponentWithBrowseButton field,
+                                           @Nullable Condition<VirtualFile> fileFilter) {
+        FileChooserDescriptor chooseDirectoryDescriptor =
+                FileChooserDescriptorFactory.createSingleFileDescriptor(BallerinaFileType.INSTANCE);
         chooseDirectoryDescriptor.setRoots(project.getBaseDir());
-        chooseDirectoryDescriptor.setShowFileSystemRoots(showFileSystemRoots);
+        chooseDirectoryDescriptor.setShowFileSystemRoots(false);
+        chooseDirectoryDescriptor.withShowHiddenFiles(false);
         chooseDirectoryDescriptor.withFileFilter(fileFilter);
         if (field instanceof TextFieldWithBrowseButton) {
             ((TextFieldWithBrowseButton) field).addBrowseFolderListener(
@@ -206,8 +207,7 @@ public class BallerinaRunUtil {
         } else {
             //noinspection unchecked
             field.addBrowseFolderListener(project, new ComponentWithBrowseButton.BrowseFolderActionListener(null,
-                    null, field, project,
-                    chooseDirectoryDescriptor,
+                    null, field, project, chooseDirectoryDescriptor,
                     TextComponentAccessor.TEXT_FIELD_WITH_HISTORY_WHOLE_TEXT));
         }
     }
@@ -221,12 +221,12 @@ public class BallerinaRunUtil {
     }
 
     @Nullable
-    public static VirtualFile findByPath(@NotNull String path, @NotNull Project project, @Nullable Module module) {
-        path = FileUtil.toSystemIndependentName(path);
+    public static VirtualFile findByPath(@NotNull String path, @NotNull Project project) {
+        String systemIndependentPath = FileUtil.toSystemIndependentName(path);
         VirtualFile projectBaseDir = project.getBaseDir();
-        if (path.isEmpty()) {
+        if (systemIndependentPath.isEmpty()) {
             return projectBaseDir;
         }
-        return projectBaseDir.findFileByRelativePath(path);
+        return projectBaseDir.findFileByRelativePath(systemIndependentPath);
     }
 }

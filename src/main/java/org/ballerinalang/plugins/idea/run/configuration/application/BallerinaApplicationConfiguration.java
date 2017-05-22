@@ -47,8 +47,8 @@ public class BallerinaApplicationConfiguration
     @NotNull
     private String myPackage = "";
 
-    public BallerinaApplicationConfiguration(Project project, String name,
-                                             @NotNull ConfigurationType configurationType) {
+    BallerinaApplicationConfiguration(Project project, String name,
+                                      @NotNull ConfigurationType configurationType) {
         super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
     }
 
@@ -96,24 +96,30 @@ public class BallerinaApplicationConfiguration
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        checkBaseConfiguration();
+        super.checkBaseConfiguration();
+        super.checkFileConfiguration();
         Module module = getConfigurationModule().getModule();
         assert module != null;
 
-        if (StringUtil.isEmptyOrSpaces(myPackage)) {
-            throw new RuntimeConfigurationError("Package is not specified");
+        if (StringUtil.isEmptyOrSpaces(myPackage) && StringUtil.isEmptyOrSpaces(getFilePath())) {
+            throw new RuntimeConfigurationError("Both file path and package are not specified. Need to specify at " +
+                    "least one.");
         }
-        VirtualFile packageDirectory = BallerinaRunUtil.findByPath(myPackage, module.getProject(), module);
+        VirtualFile packageDirectory = BallerinaRunUtil.findByPath(myPackage, module.getProject());
         if (packageDirectory == null || !packageDirectory.isDirectory()) {
-            throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'");
+            throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'.");
         }
-        switch (myRunKind) {
-            case MAIN:
-                if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
-                    throw new RuntimeConfigurationError("Cannot find a Ballerina file with main in '" +
-                            myPackage + "' package");
-                }
-                break;
+
+        if (myRunKind == RunConfigurationKind.MAIN) {
+            if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
+                throw new RuntimeConfigurationError("Cannot find a Ballerina file with main in '" + myPackage +
+                        "' package.");
+            }
+        } else if (myRunKind == RunConfigurationKind.SERVICE) {
+            if (BallerinaRunUtil.findServiceFileInDirectory(packageDirectory, getProject()) == null) {
+                throw new RuntimeConfigurationError("Cannot find a Ballerina file with any services in '" + myPackage +
+                        "' package.");
+            }
         }
     }
 

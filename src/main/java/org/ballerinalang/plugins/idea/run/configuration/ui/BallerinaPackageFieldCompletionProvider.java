@@ -20,20 +20,18 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Producer;
 import com.intellij.util.TextFieldCompletionProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-
 public class BallerinaPackageFieldCompletionProvider extends TextFieldCompletionProvider {
 
     @NotNull
     private final Producer<Module> myModuleProducer;
-    private static String projectRoot;
 
-    public BallerinaPackageFieldCompletionProvider(@NotNull Producer<Module> moduleProducer) {
+    BallerinaPackageFieldCompletionProvider(@NotNull Producer<Module> moduleProducer) {
         myModuleProducer = moduleProducer;
     }
 
@@ -43,22 +41,24 @@ public class BallerinaPackageFieldCompletionProvider extends TextFieldCompletion
         Module module = myModuleProducer.produce();
         if (module != null) {
             Project project = module.getProject();
-            VirtualFile projectBaseDir = project.getBaseDir();
-            projectRoot = projectBaseDir.getPath();
-            addDirectories(result, projectBaseDir);
+            VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+            for (VirtualFile contentRoot : contentRoots) {
+                addDirectories(result, contentRoot.getPath(), contentRoot);
+            }
         }
     }
 
-    private void addDirectories(CompletionResultSet result, VirtualFile directory) {
+    private void addDirectories(@NotNull CompletionResultSet result, @NotNull String root,
+                                @NotNull VirtualFile directory) {
         VirtualFile[] children = directory.getChildren();
         for (VirtualFile child : children) {
             if (child.isDirectory()) {
                 if (child.getName().startsWith(".")) {
                     continue;
                 }
-                String relativePath = child.getPath().replaceFirst(projectRoot + File.separator, "");
+                String relativePath = child.getPath().replaceFirst(root + "/", "");
                 result.addElement(LookupElementBuilder.create(relativePath));
-                addDirectories(result, child);
+                addDirectories(result, root, child);
             }
         }
     }
