@@ -17,6 +17,7 @@
 
 package org.ballerinalang.natives.annotation.processor;
 
+import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.NativeScope;
@@ -79,17 +80,21 @@ public class ConstructProviderClassBuilder {
     private String balSourceDir;
     private String nativeUnitClass = NativeUnit.class.getSimpleName();
     private String symbolNameClass = SymbolName.class.getSimpleName();
+    private String actionSymbolNameClass = ActionSymbolName.class.getSimpleName();
     private String functionSymbolNameClass = FunctionSymbolName.class.getSimpleName();
     private String nativeProxyClass = NativeUnitProxy.class.getSimpleName();
     private String pkgProxyClass = NativePackageProxy.class.getSimpleName();
     private String pkgClass = BLangPackage.class.getSimpleName();
+    private enum MethodCheck { ACTION, TYPE, OTHER }
     
     private Map<String, PackageHolder> nativePackages;
     private String symbolNameStr = "new %s(\"%s\")";
-    private String functionSymbolNameStr = "new %s(\"%s\", \"%s\", %d)";
+    private String actionSymbolNameStr = "new %s(\"%s\", \"%s\")";
+    private String functionSymbolNameStr = "new %s(\"%s\", \"%s\", \"%s\", %d)";
     private final String importPkg = "import " + NativeScope.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnitProxy.class.getCanonicalName() + ";\n" + 
                                      "import " + SymbolName.class.getCanonicalName() + ";\n" + 
+                                     "import " + ActionSymbolName.class.getCanonicalName() + ";\n" +
                                      "import " + FunctionSymbolName.class.getCanonicalName() + ";\n" +
                                      "import " + NativeConstructLoader.class.getCanonicalName() + ";\n" +
                                      "import " + SimpleTypeName.class.getCanonicalName() + ";\n" +
@@ -336,7 +341,7 @@ public class ConstructProviderClassBuilder {
             String typeMapperAddStr = getConstructInsertStr(NATIVE_SCOPE, DEFINE_METHOD, typeMapperPkgName,
                 typeMapper.typeMapperName(), typeMapperQualifiedName, null, null, typeMapperClassName, 
                 typeMapper.args(), typeMapper.returnType(), "nativeTypeMapper", null, nativeUnitClass, 
-                "nativeTypeMapperClass", null, null);
+                "nativeTypeMapperClass", null, null, MethodCheck.TYPE);
             try {
                 sourceFileWriter.write(typeMapperAddStr);
             } catch (IOException e) {
@@ -364,7 +369,7 @@ public class ConstructProviderClassBuilder {
                 String actionAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, actionPkgName,
                     balAction.actionName(), actionQualifiedName, null, null, actionClassName, balAction.args(),
                     balAction.returnType(), "nativeAction", null, nativeUnitClass, "nativeActionClass",
-                        balAction.connectorName(),  balAction.packageName());
+                        balAction.connectorName(),  balAction.packageName(), MethodCheck.ACTION);
                 strBuilder.append(actionAddStr);
             }
 
@@ -424,9 +429,16 @@ public class ConstructProviderClassBuilder {
             String constructQualifiedName, String constructArgType, String constructArg, String constructImplClassName,
             Argument[] arguments, ReturnType[] returnTypes, String constructVarName,
             String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
-            String enclosingScopePkg) {
-        String createSymbolStr = String.format(symbolNameStr, symbolNameClass, constructQualifiedName);
-        String retrunTypesArrayStr = getReturnTypes(returnTypes);
+            String enclosingScopePkg, MethodCheck methodCheck) {
+        String createSymbolStr = "";
+
+        if (methodCheck == MethodCheck.ACTION) {
+            createSymbolStr = String.format(actionSymbolNameStr, actionSymbolNameClass,
+                                            constructQualifiedName, enclosingScopePkg);
+        } else {
+            createSymbolStr = String.format(symbolNameStr, symbolNameClass, constructQualifiedName);
+        }
+        String returnTypesArrayStr = getReturnTypes(returnTypes);
         String argsNamesArrayStr = getArgNames(arguments);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
         String supplierInsertStr = getConstructSuplierInsertionStr(constructVarName, nativeUnitClassVarName, 
@@ -442,7 +454,7 @@ public class ConstructProviderClassBuilder {
         }
         return String.format(supplierInsertStr, scope, addMethod, createSymbolStr, nativeProxyClass, nativeUnitClass,
                 constructImplClassName, nativeUnitClass, constructArgType, constructArg, argsNamesArrayStr, 
-                argsTypesArrayStr, retrunTypesArrayStr, arguments.length, createSymbolStr, scopeElements, 
+                argsTypesArrayStr, returnTypesArrayStr, arguments.length, createSymbolStr, scopeElements,
                 NativeException.class.getSimpleName());
     }
 
@@ -474,7 +486,7 @@ public class ConstructProviderClassBuilder {
                 String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
                 String enclosingScopePkg) {
         String createSymbolStr = String.format(functionSymbolNameStr, functionSymbolNameClass, constructQualifiedName,
-                                               constructName, arguments.length);
+                                               constructName, constructPkgName, arguments.length);
         String returnTypesArrayStr = getReturnTypes(returnTypes);
         String argsNamesArrayStr = getArgNames(arguments);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
