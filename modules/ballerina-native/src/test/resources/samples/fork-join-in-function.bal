@@ -166,3 +166,22 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
             return results;
         }
 }
+
+function testForkJoinWithoutTimeoutExpression()(map m) {
+    m = {"name":"Abhaya", "era":"Anuradhapura"};
+    fork {
+    worker W1 {
+    system:println(m["name"]);
+    m["time"] = "120 BC";
+    }
+    worker W2 {
+    system:println(m["name"]);
+    m["period"] = "30 years";
+    }
+    } join (all) (message[] results) {
+    system:println(m["time"]);
+    system:println(m["period"]);
+    }
+    system:println("After the fork-join statement");
+    return m;
+}

@@ -97,7 +97,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -129,7 +129,6 @@ public class BLangExecutor implements NodeExecutor {
     private boolean isForkJoinTimedOut;
     private boolean isBreakCalled;
     private boolean isAbortCalled;
-    private ExecutorService executor;
     public BStruct thrownError;
     public boolean isErrorThrown;
     private boolean inFinalBlock;
@@ -490,7 +489,10 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(ForkJoinStmt forkJoinStmt) {
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
         List<BMessage> resultMsgs = new ArrayList<>();
-        long timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
+        long timeout = 120; // Default value is 2 minutes for timeout
+        if (forkJoinStmt.getTimeout().getTimeoutExpression() != null) {
+            timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
+        }
 
         Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
@@ -1706,8 +1708,8 @@ public class BLangExecutor implements NodeExecutor {
         WorkerCallback workerCallback = new WorkerCallback(workerContext);
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
-        workerExecutor.setParentScope(worker);
-        ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+        //ExecutorService executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
+        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
         executor.submit(workerRunner);
 //        Future<BMessage> future = executor.submit(workerRunner);
