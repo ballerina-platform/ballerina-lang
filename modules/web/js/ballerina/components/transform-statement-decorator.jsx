@@ -157,8 +157,9 @@ class TransformStatementDecorator extends React.Component {
                                 struct.properties = [];
                                 _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
                                      var property = {};
-                                     property.name  = stmt.children[0].children[0].getName();
-                                     property.type  = stmt.children[0].children[0].getTypeName();
+                                     var structPopInfo = stmt.getLeftExpression().split(" ");
+                                     property.name  = structPopInfo[1];
+                                     property.type  = structPopInfo[0];
                                      struct.properties.push(property);
                                 });
                                 self.predefinedStructs.push(struct);
