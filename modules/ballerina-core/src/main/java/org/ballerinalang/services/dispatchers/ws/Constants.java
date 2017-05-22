@@ -23,6 +23,14 @@ package org.ballerinalang.services.dispatchers.ws;
  */
 public class Constants {
 
+    // Common constants
+    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String TO = "TO";
+
+    // WebSocket constants
+    public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
+    public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
+
     public static final String PROTOCOL_WEBSOCKET = "ws";
     public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
     public static final String ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE = "ClientService";

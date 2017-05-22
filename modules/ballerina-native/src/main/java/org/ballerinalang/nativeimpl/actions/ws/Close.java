@@ -22,11 +22,15 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.ws.WebSocketClientConnector;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.services.dispatchers.ws.ConnectorController;
+import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
+import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
 
 /**
@@ -35,16 +39,23 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 @BallerinaAction(
         packageName = "ballerina.net.ws",
         actionName = "close",
-        connectorName = WebSocketClientConnector.CONNECTOR_NAME,
+        connectorName = Constants.CONNECTOR_NAME,
         args = {
                 @Argument(name = "c", type = TypeEnum.CONNECTOR)
-        }
-)
+        },
+        connectorArgs = {
+                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "callbackService", type = TypeEnum.STRING)
+        })
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = {@Attribute(name = "value",
                                               value = "Closing the connection with server.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
-                                                                        value = "A WebSocket Client Connector") })
+                                                                        value = "WebSocket Client Connector") })
+@Component(
+        name = "action.net.ws.close",
+        immediate = true,
+        service = AbstractNativeAction.class)
 public class Close extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {

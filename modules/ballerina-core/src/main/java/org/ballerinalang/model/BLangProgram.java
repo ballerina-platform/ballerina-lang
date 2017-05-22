@@ -73,6 +73,10 @@ public class BLangProgram implements SymbolScope, Node {
         return programCategory;
     }
 
+    public List<BLangPackage> getServicePackageList() {
+        return servicePackageList;
+    }
+
     public void addLibraryPackage(BLangPackage bLangPackage) {
         libraryPackageList.add(bLangPackage);
     }

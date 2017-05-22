@@ -18,11 +18,15 @@
 
 package org.ballerinalang.nativeimpl.actions.ws;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+
+import javax.websocket.Session;
 
 /**
  * Abstract class for WebSocket native actions.
@@ -37,5 +41,10 @@ public abstract class AbstractWebSocketAction extends AbstractNativeAction {
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Error occurred when pushing the message");
         }
+    }
+
+    protected Session getSession(Context context) {
+        CarbonMessage carbonMessage = context.getCarbonMessage();
+        return (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
     }
 }

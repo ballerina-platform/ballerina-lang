@@ -19,12 +19,19 @@
 package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.Connector;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
+import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.UUID;
@@ -40,8 +47,14 @@ import java.util.UUID;
                 @Argument(name = "c", type = TypeEnum.CONNECTOR),
         },
         connectorArgs = {
-                @Argument(name = "serviceUri", type = TypeEnum.STRING)
+                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "callbackService", type = TypeEnum.STRING)
         })
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = {@Attribute(name = "value",
+                                              value = "Initialize the connection") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
+                                                                        value = "WebSocket Client Connector") })
 @Component(
         name = "action.net.ws.init",
         immediate = true,
@@ -50,12 +63,21 @@ public class Init extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getArgument(context, 0);
-        String remoteUrl = bconnector.getValue(0).stringValue();
-        String clientServiceName = bconnector.getValue(1).stringValue();
-        String parentServiceName = context.getServiceInfo().getName();
-        String connectorID = UUID.randomUUID().toString();
-        ConnectorControllerRegistry.getInstance().addConnectorController(bconnector, connectorID, parentServiceName,
-                                                                         clientServiceName, remoteUrl);
+        ConnectorControllerRegistry controllerRegistry = ConnectorControllerRegistry.getInstance();
+        if (!controllerRegistry.contains(bconnector)) {
+            String remoteUrl = bconnector.getValue(0).stringValue();
+            String clientServiceName = bconnector.getValue(1).stringValue();
+            Connector connector = bconnector.value();
+            SymbolScope enclosingScope = connector.getEnclosingScope();
+            while (!(enclosingScope instanceof BLangProgram)) {
+                enclosingScope = enclosingScope.getEnclosingScope();
+            }
+            String parentServiceName = ((BLangProgram) enclosingScope).
+                    getServicePackageList().get(0).getServices()[0].getName();
+            String connectorID = UUID.randomUUID().toString();
+            controllerRegistry.addConnectorController(bconnector, connectorID, parentServiceName,
+                                                                             clientServiceName, remoteUrl);
+        }
         return null;
     }
 }

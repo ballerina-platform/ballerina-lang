@@ -22,15 +22,14 @@ package org.ballerinalang.nativeimpl.net.ws;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.ws.Utils;
-import org.ballerinalang.nativeimpl.actions.ws.ConnectorControllerRegistry;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
 import org.ballerinalang.services.dispatchers.ws.Constants;
-import org.ballerinalang.services.dispatchers.ws.WebSocketClientServicesRegistry;
+import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -65,11 +64,10 @@ public class PushText extends AbstractNativeFunction {
         try {
             Session session;
             CarbonMessage carbonMessage = context.getCarbonMessage();
-            if (WebSocketClientServicesRegistry.getInstance().serviceExists(context.getServiceInfo().getName())) {
+            if (WebSocketServicesRegistry.getInstance().isClientService(context.getServiceInfo().getName())) {
                 String clientID = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
                 session = ConnectorControllerRegistry.getInstance().
-                        getConnectorController(Utils.getConnectorIDFromClientID(clientID)).
-                        getConnectionFromClientID(clientID);
+                        getConnectorController(clientID).getConnection(clientID);
                 if (session == null) {
                     throw new BallerinaException("pushing text from client service is not supported. " +
                                     "This is only supported for WebSocket to WebSocket mediation");

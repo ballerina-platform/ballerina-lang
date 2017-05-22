@@ -34,6 +34,8 @@ public class WebSocketServicesRegistry {
 
     // Map<interface, Map<uri, service>>
     private final Map<String, Map<String, Service>> serviceEndpoints = new ConcurrentHashMap<>();
+    // Map<clientServiceName, ClientService>
+    private final Map<String, Service> clientServices = new ConcurrentHashMap<>();
 
     private WebSocketServicesRegistry() {
     }
@@ -64,7 +66,7 @@ public class WebSocketServicesRegistry {
                 throw new BallerinaException(
                         "Cannot define any other service annotation with WebSocket Client service");
             } else {
-                WebSocketClientServicesRegistry.getInstance().addService(service);
+                clientServices.put(service.getName(), service);
             }
         }
     }
@@ -91,6 +93,14 @@ public class WebSocketServicesRegistry {
      */
     public Service getServiceEndpoint(String listenerInterface, String uri) {
         return serviceEndpoints.get(listenerInterface).get(uri);
+    }
+
+    public Service getClientService(String serviceName) {
+        return clientServices.get(serviceName);
+    }
+
+    public boolean isClientService(String serviceName) {
+        return clientServices.containsKey(serviceName);
     }
 
 
