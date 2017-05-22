@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -26,7 +26,7 @@ import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
 import ballerina from 'ballerina';
 var ace = global.ace;
-var Range = ace.acequire('ace/range');
+var Range = ace.acequire('ace/range').Range;
 
 // require possible themes
 function requireAll(requireContext) {
@@ -184,14 +184,9 @@ class SourceView extends EventChannel {
         let sourceGenVisitor = new SourceGenVisitor();
         ast.accept(sourceGenVisitor);
         let formattedContent =  sourceGenVisitor.getGeneratedSource();
-        // if(doSilently){
-        //     this._inSilentMode = true;
-        // }
-        this._editor.getSession().setValue(formattedContent);
-        // if(doSilently){
-        //     this._inSilentMode = false;
-        //     this.markClean();
-        // }
+        let session = this._editor.getSession();
+        let contentRange = new Range(0, 0, session.getLength(), session.getRowLength(session.getLength()));
+        session.replace(contentRange, formattedContent);
     }
 
     //dbeugger related functions.
@@ -219,7 +214,7 @@ class SourceView extends EventChannel {
     }
 
     debugHit(position) {
-        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.lineNumber - 1, 0, position.lineNumber - 1, 2000), 'debug-point-hit', 'line', true);
+        this.debugPointMarker = this._editor.getSession().addMarker(new Range(position.lineNumber - 1, 0, position.lineNumber - 1, 2000), 'debug-point-hit', 'line', true);
     }
 
     clearExistingDebugHit() {
