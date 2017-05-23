@@ -78,8 +78,7 @@ public class LaunchManager {
         }
 
         // set URL to invoke the started service.
-        this.startedServiceURL = (startedServiceURL != null) ? startedServiceURL :
-                LauncherConstants.DEFAULT_STARTED_SERVICE_URL;
+        this.startedServiceURL = startedServiceURL;
     }
     
     private void run(Command command) {
@@ -141,7 +140,8 @@ public class LaunchManager {
             String line = "";
             while ((line = reader.readLine()) != null) {
                 // improve "server connector started" log message to have the service URL in it.
-                if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.matches(line)) {
+                if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.matches(line)
+                        && startedServiceURL != null) {
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
                 }
                 pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);

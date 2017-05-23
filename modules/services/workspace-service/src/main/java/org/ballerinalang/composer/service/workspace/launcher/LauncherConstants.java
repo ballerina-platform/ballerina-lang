@@ -59,7 +59,6 @@ public class LauncherConstants {
     public static final String SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG = "ballerina: started server " +
                                                                                     "connector http-9090";
     public static final String SERVER_CONNECTOR_STARTED_LOG = "ballerina: started server connector";
-    public static final String DEFAULT_STARTED_SERVICE_URL = "http://localhost:9090";
     public static final String TERMINATE_MESSAGE = "Program Terminated.";
     
     /**
