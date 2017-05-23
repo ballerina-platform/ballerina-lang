@@ -47,8 +47,8 @@ public class BallerinaApplicationConfiguration
     @NotNull
     private String myPackage = "";
 
-    BallerinaApplicationConfiguration(Project project, String name,
-                                      @NotNull ConfigurationType configurationType) {
+    public BallerinaApplicationConfiguration(Project project, String name,
+                                             @NotNull ConfigurationType configurationType) {
         super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
     }
 

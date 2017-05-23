@@ -56,6 +56,7 @@ public class BallerinaPackageFieldCompletionProvider extends TextFieldCompletion
                 if (child.getName().startsWith(".")) {
                     continue;
                 }
+                // Path delimiter will be '/' on Linux and Windows OS.
                 String relativePath = child.getPath().replaceFirst(root + "/", "");
                 result.addElement(LookupElementBuilder.create(relativePath));
                 addDirectories(result, root, child);

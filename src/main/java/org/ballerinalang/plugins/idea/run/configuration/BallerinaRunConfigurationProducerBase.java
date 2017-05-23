@@ -132,7 +132,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
     @Override
     public boolean isConfigurationFromContext(@NotNull T configuration, ConfigurationContext context) {
         BallerinaFile file = getFileFromContext(context);
-        return (file != null) && FileUtil.pathsEqual(configuration.getFilePath(), file.getVirtualFile().getPath());
+        return file != null && FileUtil.pathsEqual(configuration.getFilePath(), file.getVirtualFile().getPath());
     }
 
     @Nullable
