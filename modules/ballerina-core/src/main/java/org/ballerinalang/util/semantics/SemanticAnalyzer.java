@@ -40,6 +40,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.GlobalVariableDef;
@@ -55,6 +56,7 @@ import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.TypeConversionExpr;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
@@ -97,7 +99,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
-import org.ballerinalang.model.expressions.TypeConversionExpression;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -137,9 +139,10 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.typemappers.NativeCastMapper;
+import org.ballerinalang.natives.typemappers.NativeTransformMapper;
 import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -175,7 +178,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
     private static final Pattern compiledPattern = Pattern.compile(patternString);
-
+    private static final String ERRORS_PACKAGE = "ballerina.lang.errors";
+    private static final String CAST_ERROR = "CastError";
+    
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
     private SymbolScope currentScope;
@@ -1020,6 +1025,13 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
         
+        if (lExprs.length > 1 && (rExpr instanceof TypeCastExpression || rExpr instanceof NativeTransformExpression )) {
+            ((TypeConversionExpr) rExpr).setMultiReturnAvailable(true);
+            rExpr.accept(this);
+            checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
+            return;
+        }
+        
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
         BType lExprType = lExpr.getType();
@@ -1185,7 +1197,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Validation for error type.
             if (!error.equals(catchBlock.getParameterDef().getType()) &&
                     (!(catchBlock.getParameterDef().getType() instanceof StructDef) ||
-                            TypeLattice.getImplicitCastLattice().getEdgeFromTypes(catchBlock.getParameterDef()
+                            TypeLattice.getExplicitCastLattice().getEdgeFromTypes(catchBlock.getParameterDef()
                                     .getType(), error, null) == null)) {
                 throw new SemanticException(BLangExceptionHelper.constructSemanticError(
                         catchBlock.getCatchBlockStmt().getNodeLocation(),
@@ -1225,7 +1237,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (error == null) {
                 throw new SemanticException("could not resolve ballerina.lang.errors:Error struct");
             }
-            if (error.equals(expressionType) || TypeLattice.getImplicitCastLattice().getEdgeFromTypes
+            if (error.equals(expressionType) || TypeLattice.getExplicitCastLattice().getEdgeFromTypes
                     (expressionType, error, null) != null) {
                 throwStmt.setAlwaysReturns(true);
                 return;
@@ -1493,7 +1505,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
                 BType targetType = returnParamsOfCU[i].getType();
-                if (NativeCastMapper.isCompatible(returnParamsOfCU[i].getType(), typesOfReturnExprs[i])) {
+                if (NativeTransformMapper.isCompatible(returnParamsOfCU[i].getType(), typesOfReturnExprs[i])) {
                     continue;
                 }
 
@@ -1856,7 +1868,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // check the type compatibility of the value.
             BType argType = argExpr.getType();
-            if (BTypes.isValueType(argType) || NativeCastMapper.isCompatible(BTypes.typeJSON, argType)) {
+            if (BTypes.isValueType(argType) || NativeTransformMapper.isCompatible(BTypes.typeJSON, argType)) {
                 continue;
             }
             TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, argExpr);
@@ -1925,7 +1937,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             visitSingleValueExpr(argExpr);
 
-            if (NativeCastMapper.isCompatible(expectedElementType, argExpr.getType())) {
+            if (NativeTransformMapper.isCompatible(expectedElementType, argExpr.getType())) {
                 continue;
             }
             TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExpr);
@@ -1984,7 +1996,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             valueExpr.accept(this);
 
-            if (!NativeCastMapper.isCompatible(structFieldType, valueExpr.getType())) {
+            if (!NativeTransformMapper.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
@@ -2102,10 +2114,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = typeCastExpression.getRExpr();
         visitSingleValueExpr(rExpr);
         BType sourceType = rExpr.getType();
-        BType targetType = typeCastExpression.getTargetType();
+        BType targetType = typeCastExpression.getType();
         if (targetType == null) {
             targetType = BTypes.resolveType(typeCastExpression.getTypeName(), currentScope, null);
-            typeCastExpression.setTargetType(targetType);
+            typeCastExpression.setType(targetType);
         }
         
         // casting a null literal is not supported.
@@ -2114,19 +2126,71 @@ public class SemanticAnalyzer implements NodeVisitor {
                 sourceType, targetType);
         }
         
-        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+        boolean isMultiReturn = typeCastExpression.isMultiReturnExpr();
+        
+        // Find the eval function from explicit casting lattice
+        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null, isMultiReturn);
         if (newEdge != null) {
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else {
-            linkTypeMapper(typeCastExpression, sourceType, targetType);
+            // FIXME: Print a suggestion
+            BLangExceptionHelper.throwSemanticError(typeCastExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
+                    sourceType, targetType);
         }
+        
+        if (!isMultiReturn) {
+            return;
+        }
+        
+        // If this is a multi-value return conversion expression, set the return types. 
+        BLangSymbol error = currentScope.resolve(new SymbolName(CAST_ERROR, ERRORS_PACKAGE));
+        if (error == null || !(error instanceof StructDef)) {
+            throw new SemanticException("could not resolve ballerina.lang.errors:Error struct");
+        }
+        typeCastExpression.setTypes(new BType[] { targetType, (BType) error });
     }
     
 
     @Override
-    public void visit(TypeConversionExpression typeConversionExpression) {
-        System.out.println();
-        // TODO
+    public void visit(NativeTransformExpression typeConversionExpression) {
+        // Evaluate the expression and set the type
+        Expression rExpr = typeConversionExpression.getRExpr();
+        visitSingleValueExpr(rExpr);
+        BType sourceType = rExpr.getType();
+        BType targetType = typeConversionExpression.getType();
+        if (targetType == null) {
+            targetType = BTypes.resolveType(typeConversionExpression.getTypeName(), currentScope, null);
+            typeConversionExpression.setType(targetType);
+        }
+        
+        // casting a null literal is not supported.
+        if (rExpr instanceof NullLiteral) {
+            BLangExceptionHelper.throwSemanticError(typeConversionExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
+                sourceType, targetType);
+        }
+        
+        boolean isMultiReturn = typeConversionExpression.isMultiReturnExpr();
+        
+        // Find the eval function from the conversion lattice
+        TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null, isMultiReturn);
+        if (newEdge != null) {
+            typeConversionExpression.setEvalFunc(newEdge.getTypeMapperFunction());
+        } else {
+            // FIXME: Print a suggestion
+            BLangExceptionHelper.throwSemanticError(typeConversionExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
+                    sourceType, targetType);
+        }
+
+        if (!isMultiReturn) {
+            return;
+        }
+        
+        // If this is a multi-value return conversion expression, set the return types. 
+        BLangSymbol error = currentScope.resolve(new SymbolName(CAST_ERROR, ERRORS_PACKAGE));
+        if (error == null || !(error instanceof StructDef)) {
+             throw new SemanticException("could not resolve ballerina.lang.errors:Error struct");
+        }
+        typeConversionExpression.setTypes(new BType[] { targetType, (BType) error });
     }
 
     @Override
@@ -2372,6 +2436,34 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+    private void checkForMultiValuedCastingErrors(AssignStmt assignStmt, Expression[] lExprs,
+            ExecutableMultiReturnExpr rExpr) {
+        
+//        if (lExprs.length != 2) {
+//            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, lExprs.length,
+//                2);
+//        }
+        
+        BType[] returnTypes = rExpr.getTypes();
+        if (lExprs.length != returnTypes.length) {
+            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, lExprs.length,
+                returnTypes.length);
+        }
+
+        for (int i = 0; i < lExprs.length; i++) {
+            Expression lExpr = lExprs[i];
+            BType returnType = returnTypes[i];
+            String varName = getVarNameFromExpression(lExpr);
+            if ("_".equals(varName)) {
+                continue;
+            }
+            if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
+                BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT,
+                    varName, returnType, lExpr.getType());
+            }
+        }
+    }
+    
     private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
         // This set data structure is used to check for repeated variable names in the assignment statement
         Set<String> varNameSet = new HashSet<>();
@@ -2949,88 +3041,88 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitField(parentExpr, enclosingScope);
     }
 
-    private void linkTypeMapper(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
-        TypeEdge newEdge = null;
-        TypeMapper typeMapper;
-        // First check on this package
-        newEdge = packageTypeLattice.getEdgeFromTypes(sourceType, targetType, currentPkg);
-        if (newEdge != null) {
-            typeMapper = newEdge.getTypeMapper();
-            if (typeMapper != null) {
-                typeCastExpression.setCallableUnit(typeMapper);
-            }
-        } else {
-            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
-            if (newEdge != null) {
-                typeMapper = newEdge.getTypeMapper();
-                if (typeMapper != null) {
-                    typeCastExpression.setCallableUnit(typeMapper);
-                }
-            } else {
-                newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
-                if (newEdge != null) {
-                    typeMapper = newEdge.getTypeMapper();
-                    if (typeMapper != null) {
-                        typeCastExpression.setCallableUnit(typeMapper);
-                    }
-                } else {
-                    String pkgPath = typeCastExpression.getPackagePath();
-
-                    Expression[] exprs = typeCastExpression.getArgExprs();
-                    BType[] paramTypes = new BType[exprs.length];
-                    for (int i = 0; i < exprs.length; i++) {
-                        paramTypes[i] = exprs[i].getType();
-                    }
-
-                    SymbolName symbolName = LangModelUtils.getTypeMapperSymName(pkgPath,
-                            sourceType, targetType);
-                    BLangSymbol typeMapperSymbol = nativeScope.resolve(symbolName);
-                    if (typeMapperSymbol == null) {
-                        BLangExceptionHelper.throwSemanticError(typeCastExpression,
-                                SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
-                    }
-
-                    if (typeMapperSymbol instanceof NativeUnitProxy) {
-                        // TODO We need to find a way to load input parameter types
-
-                        // Loading return parameter types of this native function
-                        NativeUnit nativeUnit = ((NativeUnitProxy) typeMapperSymbol).load();
-                        SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
-                        BType[] returnTypes = new BType[returnParamTypeNames.length];
-                        for (int i = 0; i < returnParamTypeNames.length; i++) {
-                            SimpleTypeName typeName = returnParamTypeNames[i];
-                            BType bType = BTypes.resolveType(typeName, currentScope,
-                                    typeCastExpression.getNodeLocation());
-                            returnTypes[i] = bType;
-                        }
-                        
-                        if (!(nativeUnit instanceof TypeMapper)) {
-                            BLangExceptionHelper.throwSemanticError(typeCastExpression, 
-                                    SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, symbolName);
-                        }
-                        typeMapper = (TypeMapper) nativeUnit;
-                        typeMapper.setReturnParamTypes(returnTypes);
-
-                    } else {
-                        if (!(typeMapperSymbol instanceof TypeMapper)) {
-                            BLangExceptionHelper.throwSemanticError(typeCastExpression, 
-                                    SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, symbolName);
-                        }
-                        typeMapper = (TypeMapper) typeMapperSymbol;
-                    }
-
-                    if (typeMapper != null) {
-                        typeMapper.setParameterTypes(paramTypes);
-                        // Link the function with the function invocation expression
-                        typeCastExpression.setCallableUnit(typeMapper);
-                    } else {
-                        BLangExceptionHelper.throwSemanticError(typeCastExpression,
-                                SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
-                    }
-                }
-            }
-        }
-    }
+//    private void linkTypeMapper(TypeCastExpression typeCastExpression, BType sourceType, BType targetType) {
+//        TypeEdge newEdge = null;
+//        TypeMapper typeMapper;
+//        // First check on this package
+//        newEdge = packageTypeLattice.getEdgeFromTypes(sourceType, targetType, currentPkg);
+//        if (newEdge != null) {
+//            typeMapper = newEdge.getTypeMapper();
+//            if (typeMapper != null) {
+//                typeCastExpression.setCallableUnit(typeMapper);
+//            }
+//        } else {
+//            newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, currentPkg);
+//            if (newEdge != null) {
+//                typeMapper = newEdge.getTypeMapper();
+//                if (typeMapper != null) {
+//                    typeCastExpression.setCallableUnit(typeMapper);
+//                }
+//            } else {
+//                newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+//                if (newEdge != null) {
+//                    typeMapper = newEdge.getTypeMapper();
+//                    if (typeMapper != null) {
+//                        typeCastExpression.setCallableUnit(typeMapper);
+//                    }
+//                } else {
+//                    String pkgPath = typeCastExpression.getPackagePath();
+//
+//                    Expression[] exprs = typeCastExpression.getArgExprs();
+//                    BType[] paramTypes = new BType[exprs.length];
+//                    for (int i = 0; i < exprs.length; i++) {
+//                        paramTypes[i] = exprs[i].getType();
+//                    }
+//
+//                    SymbolName symbolName = LangModelUtils.getTypeMapperSymName(pkgPath,
+//                            sourceType, targetType);
+//                    BLangSymbol typeMapperSymbol = nativeScope.resolve(symbolName);
+//                    if (typeMapperSymbol == null) {
+//                        BLangExceptionHelper.throwSemanticError(typeCastExpression,
+//                                SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
+//                    }
+//
+//                    if (typeMapperSymbol instanceof NativeUnitProxy) {
+//                        // TODO We need to find a way to load input parameter types
+//
+//                        // Loading return parameter types of this native function
+//                        NativeUnit nativeUnit = ((NativeUnitProxy) typeMapperSymbol).load();
+//                        SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+//                        BType[] returnTypes = new BType[returnParamTypeNames.length];
+//                        for (int i = 0; i < returnParamTypeNames.length; i++) {
+//                            SimpleTypeName typeName = returnParamTypeNames[i];
+//                            BType bType = BTypes.resolveType(typeName, currentScope,
+//                                    typeCastExpression.getNodeLocation());
+//                            returnTypes[i] = bType;
+//                        }
+//                        
+//                        if (!(nativeUnit instanceof TypeMapper)) {
+//                            BLangExceptionHelper.throwSemanticError(typeCastExpression, 
+//                                    SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, symbolName);
+//                        }
+//                        typeMapper = (TypeMapper) nativeUnit;
+//                        typeMapper.setReturnParamTypes(returnTypes);
+//
+//                    } else {
+//                        if (!(typeMapperSymbol instanceof TypeMapper)) {
+//                            BLangExceptionHelper.throwSemanticError(typeCastExpression, 
+//                                    SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, symbolName);
+//                        }
+//                        typeMapper = (TypeMapper) typeMapperSymbol;
+//                    }
+//
+//                    if (typeMapper != null) {
+//                        typeMapper.setParameterTypes(paramTypes);
+//                        // Link the function with the function invocation expression
+//                        typeCastExpression.setCallableUnit(typeMapper);
+//                    } else {
+//                        BLangExceptionHelper.throwSemanticError(typeCastExpression,
+//                                SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
         BType rhsType = rhsExpr.getType();
@@ -3533,7 +3625,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // for JSON init expr, check the type compatibility of the value.
             BType valueType = valueExpr.getType();
-            if (BTypes.isValueType(valueType) || NativeCastMapper.isCompatible(BTypes.typeJSON, valueType)) {
+            if (BTypes.isValueType(valueType) || NativeTransformMapper.isCompatible(BTypes.typeJSON, valueType)) {
                 continue;
             }
             TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);

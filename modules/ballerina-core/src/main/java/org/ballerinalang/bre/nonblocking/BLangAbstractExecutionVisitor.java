@@ -69,7 +69,7 @@ import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
-import org.ballerinalang.model.expressions.TypeConversionExpression;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.EndNode;
@@ -635,10 +635,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
-    public void visit(TypeConversionExpression typeConversionExpression) {
+    public void visit(NativeTransformExpression typeConversionExpression) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing typeConversion {}->{}", typeConversionExpression.getType(), 
-                    typeConversionExpression.getTargetType());
+                    typeConversionExpression.getType());
         }
         next = typeConversionExpression.next;
     }
@@ -1311,12 +1311,16 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     typeCastExpression.getTargetType(), typeCastExpression.getRExpr() != null);
         }
         next = typeCastExpressionEndNode.next;
+        
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
             BValue result = (BValue) getTempValue(typeCastExpression.getRExpr());
+            // FIXME
             setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result,
-                    typeCastExpression.getTargetType()));
-        } else {
+                    typeCastExpression.getTargetType(), typeCastExpression.isMultiReturnExpr())[0]);
+        }
+        
+        /* else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
 
             int sizeOfValueArray = typeMapper.getStackFrameSize();
@@ -1350,7 +1354,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             if (typeCastExpression.hasGotoBranchID()) {
                 branchIDStack.push(typeCastExpression.getGotoBranchID());
             }
-        }
+        }*/
     }
 
     @Override

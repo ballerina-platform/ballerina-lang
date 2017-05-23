@@ -29,24 +29,24 @@ import org.testng.annotations.Test;
 public class TypeMapperImportTest {
     private BLangProgram bLangProgram;
 
-    @BeforeClass
-    public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/mappers/default");
-    }
-
-    @Test
-    public void testStructMapper() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
-        Assert.assertTrue(returns[0] instanceof BString);
-        String expected = "Jack";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testStructMapperLocal() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapperLocal");
-        Assert.assertTrue(returns[0] instanceof BString);
-        String expected = "Jill";
-        Assert.assertEquals(expected, returns[0].stringValue());
-    }
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("lang/expressions/mappers/default");
+//    }
+//
+//    @Test
+//    public void testStructMapper() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
+//        Assert.assertTrue(returns[0] instanceof BString);
+//        String expected = "Jack";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
+//
+//    @Test
+//    public void testStructMapperLocal() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapperLocal");
+//        Assert.assertTrue(returns[0] instanceof BString);
+//        String expected = "Jill";
+//        Assert.assertEquals(expected, returns[0].stringValue());
+//    }
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.typemappers.TriFunction;
 
 import java.util.function.BiFunction;
 
@@ -27,15 +28,18 @@ import java.util.function.BiFunction;
  */
 public class TypeEdge {
     private TypeVertex source, target;
-    private BiFunction<BValue, BType, BValue> typeMapperFunction;
+    private TriFunction<BValue, BType, Boolean, BValue[]> typeMapperFunction;
     private TypeMapper typeMapper;
     private String packageName;
+    private boolean forcedMapping;
 
-    public TypeEdge(TypeVertex source, TypeVertex target, BiFunction<BValue, BType, BValue> typeMapperFunction) {
+    public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean, 
+            BValue[]> typeMapperFunction, boolean forcedMapping) {
         this.source = source;
         this.target = target;
         this.typeMapperFunction = typeMapperFunction;
         this.packageName = TypeConstants.NATIVE_PACKAGE;
+        this.forcedMapping = forcedMapping;
     }
 
     public TypeEdge(TypeVertex source, TypeVertex target, TypeMapper typeMapper, String packageName) {
@@ -61,7 +65,7 @@ public class TypeEdge {
         this.target = target;
     }
 
-    public BiFunction<BValue, BType, BValue> getTypeMapperFunction() {
+    public TriFunction<BValue, BType, Boolean, BValue[]> getTypeMapperFunction() {
         return typeMapperFunction;
     }
 
@@ -84,7 +88,7 @@ public class TypeEdge {
      * @return int The hash code for this Edge
      */
     public int hashCode() {
-        return (source.toString() + target.toString() + packageName).hashCode();
+        return (source.toString() + target.toString() + packageName + forcedMapping).hashCode();
     }
 
     /**
@@ -100,7 +104,8 @@ public class TypeEdge {
         if (typeMapperFunction != null) {
             return e.source.equals(this.source) && e.target.equals(this.target)
                     && e.packageName.equals(this.packageName)
-                    && e.typeMapperFunction.equals(this.typeMapperFunction);
+                    && e.typeMapperFunction.equals(this.typeMapperFunction)
+                    && e.forcedMapping == this.forcedMapping;
         } else {
             return e.source.equals(this.source) && e.target.equals(this.target)
                     && e.packageName.equals(this.packageName)

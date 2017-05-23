@@ -84,7 +84,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
-import org.ballerinalang.model.expressions.TypeConversionExpression;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -1017,14 +1017,13 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         calculateTempOffSet(castExpression);
         Expression rExpr = castExpression.getRExpr();
         TypeCastExpressionEndNode endLink = new TypeCastExpressionEndNode(castExpression);
-        if (castExpression.getEvalFunc() != null) {
-            castExpression.setNext(rExpr);
-            rExpr.setParent(castExpression);
-            rExpr.setNextSibling(endLink);
-            endLink.setParent(castExpression);
-            rExpr.accept(this);
-            endLink.setNext(findNext(castExpression));
-        } else {
+        castExpression.setNext(rExpr);
+        rExpr.setParent(castExpression);
+        rExpr.setNextSibling(endLink);
+        endLink.setParent(castExpression);
+        rExpr.accept(this);
+        endLink.setNext(findNext(castExpression));
+        /*else {
             Expression[] argExprs = castExpression.getArgExprs();
             LinkedNode previous = null;
             if (argExprs.length > 0) {
@@ -1086,11 +1085,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             // Visiting each Argument.
             Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
             callableUnitEndLink.setNext(findNext(castExpression));
-        }
+        }*/
     }
 
     @Override
-    public void visit(TypeConversionExpression typeConversionExpression) {
+    public void visit(NativeTransformExpression typeConversionExpression) {
         // TODO
     }
     

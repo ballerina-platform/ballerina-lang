@@ -11,7 +11,7 @@ struct Person {
     int[] marks;
 }
 
-function testCastToStructInDifferentPkg() (Person) {
+function testCastToStructInDifferentPkg() (bar:Student) {
     Person p1 = { name:"aaa",
                   age:25, 
                   parent:{ name:"bbb", 
@@ -23,6 +23,6 @@ function testCastToStructInDifferentPkg() (Person) {
                  };
     string statusKey = "status";
     
-    bar:Student s = p1;
-
+    bar:Student s = (bar:Student)p1;
+    return s;
 }

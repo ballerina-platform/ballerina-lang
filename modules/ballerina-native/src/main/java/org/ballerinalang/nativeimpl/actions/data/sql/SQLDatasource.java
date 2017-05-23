@@ -251,6 +251,12 @@ public class SQLDatasource implements BValue {
         return null;
     }
 
+    @Override
+    public BValue copy() {
+        // FIXME
+        return null;
+    }
+    
     private boolean isXADataSource() {
         try {
             if (hikariDataSource.isWrapperFor(XADataSource.class)) {

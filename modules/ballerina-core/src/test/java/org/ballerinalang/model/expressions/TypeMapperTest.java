@@ -32,19 +32,19 @@ import org.testng.annotations.Test;
  */
 public class TypeMapperTest {
 
-    private BLangProgram bLangProgram;
-
-    @BeforeClass
-    public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/ballerina-type-mapper.bal");
-    }
-
-    @Test
-    public void testJSONToXML() {
-        BValue[] args = { new BJSON("{\"name\":\"chanaka\"}") };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBalMapper", args);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<name>chanaka</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
+//    private BLangProgram bLangProgram;
+//
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("lang/expressions/ballerina-type-mapper.bal");
+//    }
+//
+//    @Test
+//    public void testJSONToXML() {
+//        BValue[] args = { new BJSON("{\"name\":\"chanaka\"}") };
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBalMapper", args);
+//        Assert.assertTrue(returns[0] instanceof BXML);
+//        final String expected = "<name>chanaka</name>";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
 }

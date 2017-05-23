@@ -322,7 +322,8 @@ function testStructWithIncompatibleInnerMapToStruct() (Employee) {
                info:{status:"single"},
                marks:[98,47,5]
              };
-    return d;
+    Employee e = <Employee> d;
+    return e;
 }
 
 function testMapWithXmlToJson() (json) {

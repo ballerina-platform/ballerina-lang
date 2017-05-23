@@ -29,16 +29,16 @@ import org.testng.annotations.Test;
 public class NativeTypeMapperOverrideTest {
     private BLangProgram bLangProgram;
 
-    @BeforeClass
-    public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/native-typemapper-override.bal");
-    }
-
-    @Test
-    public void testStructMapper() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "nativeMapperOverrideTest");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        String expected = "<test>hello</test>";
-        Assert.assertEquals(expected, returns[0].stringValue());
-    }
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("lang/expressions/native-typemapper-override.bal");
+//    }
+//
+//    @Test
+//    public void testStructMapper() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "nativeMapperOverrideTest");
+//        Assert.assertTrue(returns[0] instanceof BXML);
+//        String expected = "<test>hello</test>";
+//        Assert.assertEquals(expected, returns[0].stringValue());
+//    }
 }

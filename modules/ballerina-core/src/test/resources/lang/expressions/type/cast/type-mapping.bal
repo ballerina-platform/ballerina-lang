@@ -1,3 +1,5 @@
+import ballerina.lang.errors;
+
 function floattoint(float value)(int) {
     int result;
     result = (int)value;
@@ -102,7 +104,7 @@ function testStructToStruct() (Student) {
                  info:{status:"single"},
                  marks:[24, 81]
                };
-    return p;
+    return (Student) p;
 }
 
 function testJsonIntToString() (string) {
@@ -162,7 +164,7 @@ function testNullJsonToBoolean() (boolean) {
 
 function testNullStructToStruct() (Student) {
     Person p;
-    return p;
+    return (Student) p;
 }
 
 function testAnyIntToJson() (json) {
@@ -278,4 +280,35 @@ function testStructToAnyExplicit() (any) {
 function testMapToAnyExplicit() (any) {
     map m = {name:"supun"};
     return (any) m;
+}
+
+struct A {
+    string x;
+    int y;
+}
+
+struct B {
+    string x;
+}
+
+function testCompatibleStructForceCasting()(A, errors:CastError) {
+    A a = {x: "x-valueof-a", y:4};
+    B b = {x: "x-valueof-b"};
+    A c;
+    
+    b = (B) a;
+    errors:CastError err;
+    c, err = (A) b;
+    
+    a.x = "updated-x-valueof-a";
+    return c, err;
+}
+
+function testInCompatibleStructForceCasting()(A, errors:CastError) {
+    B b = {x: "x-valueof-b"};
+    A a;
+    errors:CastError err;
+    a, err = (A) b;
+    
+    return a, err;
 }

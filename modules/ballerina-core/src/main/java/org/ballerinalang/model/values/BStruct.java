@@ -96,4 +96,9 @@ public final class BStruct implements BRefType<StructDef> {
     public void setStackTrace(BStruct stackTrace) {
         this.stackTrace = stackTrace;
     }
+    
+    @Override
+    public BValue copy() {
+        return new BStruct(structDef, structMemBlock);
+    }
 }

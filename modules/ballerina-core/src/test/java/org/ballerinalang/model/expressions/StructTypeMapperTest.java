@@ -36,27 +36,27 @@ import org.testng.annotations.Test;
 public class StructTypeMapperTest {
     private BLangProgram bLangProgram;
 
-    @BeforeClass
-    public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/struct-type-mapper.bal");
-    }
-
-    @Test
-    public void testStructMapper() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct bStruct = (BStruct) returns[0];
-        final String expectedName = "Jack";
-        Assert.assertEquals(bStruct.getValue(0).stringValue(), expectedName);
-        Assert.assertTrue(bStruct.getValue(1) instanceof BMap);
-        final BMap<BString, BValue> resultMap = (BMap<BString, BValue>) bStruct.getValue(1);
-        Assert.assertEquals(resultMap.get(new BString("country")).stringValue(), "USA");
-        Assert.assertEquals(resultMap.get(new BString("state")).stringValue(), "CA");
-        Assert.assertTrue(bStruct.getValue(2) instanceof BInteger);
-        final String expectedAge = "25";
-        Assert.assertEquals(bStruct.getValue(2).stringValue(), expectedAge);
-
-    }
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("lang/expressions/struct-type-mapper.bal");
+//    }
+//
+//    @Test
+//    public void testStructMapper() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
+//        Assert.assertTrue(returns[0] instanceof BStruct);
+//        BStruct bStruct = (BStruct) returns[0];
+//        final String expectedName = "Jack";
+//        Assert.assertEquals(bStruct.getValue(0).stringValue(), expectedName);
+//        Assert.assertTrue(bStruct.getValue(1) instanceof BMap);
+//        final BMap<BString, BValue> resultMap = (BMap<BString, BValue>) bStruct.getValue(1);
+//        Assert.assertEquals(resultMap.get(new BString("country")).stringValue(), "USA");
+//        Assert.assertEquals(resultMap.get(new BString("state")).stringValue(), "CA");
+//        Assert.assertTrue(bStruct.getValue(2) instanceof BInteger);
+//        final String expectedAge = "25";
+//        Assert.assertEquals(bStruct.getValue(2).stringValue(), expectedAge);
+//
+//    }
 
 
 }

@@ -89,7 +89,7 @@ typemapper json2xml (json j) (xml) {
     return x;
 }
 
-function testCastingNull(json j) (xml) {
+function testCastingNull(any j) (xml) {
     xml x = (xml) j;
     
     return x;

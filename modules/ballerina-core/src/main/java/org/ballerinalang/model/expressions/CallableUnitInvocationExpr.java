@@ -59,20 +59,6 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
      */
     void setCallableUnit(T callableUnit);
 
-    /**
-     * Returns an arrays of argument types of this callable unit invocation expression.
-     *
-     * @return an arrays of argument types
-     */
-    BType[] getTypes();
-
-    /**
-     * Sets an arrays of argument types.
-     *
-     * @param types arrays of argument types
-     */
-    void setTypes(BType[] types);
-
     int getGotoBranchID();
 
     void setGotoBranchID(int retuningBranchID);
