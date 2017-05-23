@@ -39,7 +39,6 @@ public class ArrayLengthAccessExprTest {
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/array-length-access-expr.bal");
-        //System.setProperty(Constants.SYS_PROP_ENABLE_NONBLOCKING, "true");
     }
 
     @Test(description = "Test array length access expression")
