@@ -160,15 +160,15 @@ Library functions for manipulating XML documents and elements are in the package
 
 ### Type: `json`
 
-A variable of type `json` can hold any JSON document. Ballerina also understands JSON Schema and allows one to declare that a JSON document must conform to a particular schema.
+JSON is a textual format for representing a collection of values: a simple value (string, number, “true”, “false”, “null”), an array of values or an object. Ballerina also understands JSON Schema and allows one to declare that a JSON document must conform to a particular schema.
 
-JSON variables are declared in either of the following ways:
+Ballerina has a single type named “json” that can represent any JSON value. Thus it is a built-in union type in Ballerina whose value can be any one of a string, a float, a boolean, an array of any or a map of any. We provide utility functions to read a JSON document to create a JSON typed value. The lexical representation of a value of that type is JSON, thus simply printing a JSON typed variable results in a JSON string.
+
+JSON variables are declared in the following way:
 ```
 json VariableName;
-json<SchemaName> VariableName;
 ```
-
-The first is a variable which may hold any JSON document. The second is a variable whose value is a document which is of the indicated JSON Schema.
+This is a variable that may hold any JSON document.
 
 Ballerina will not always perform runtime schema validation as that will inhibit performance - instead a library function will allow that to be done on demand. For better performance a Ballerina implementation is expected to stream the contents of JSON documents and only load into memory what is needed based on how the document is used in the program.
 
@@ -177,16 +177,32 @@ Ballerina will not always perform runtime schema validation as that will inhibit
 Literal JSON values can be assigned to `json` typed variables as follows:
 
 ```
-json VariableName = `{"PropertyName" : "Value", "PropertyName": "Value", ...}`;
+json VariableName = {"PropertyName" : "Value", "PropertyName": "Value", ...};
 ```
 
-Within the literal JSON expression (enclosed within back quote characters), other in-scope variables can be referred to use the syntax `${VariableName}` and that will be replaced by the value of the variable.
+Within the literal JSON expression, other in-scope variables can be referred to use the syntax `VariableName` and that is replaced by the value of the variable.
 
 > NOTE: We are considering allowing the value of a property to be an expression.
 
-Library functions for manipulating XML documents and elements are in the package `ballerina.lang.jsons`.
+A field of any of these three types can be accessed by using “.” or using array indexing:
 
-> NOTE: We are considering a deeper marriage of JSON types and structs. This is because a JSON document with its properties can be viewed as being analogous to a struct with fields. Some of the deeper integration we are considering is the ability to use dot notation (similar to the syntax for accessing fields of a struct) to navigate through a JSON document, instead of the current approach of using a library function.
+```
+struct address {
+  string city;
+  string country;
+}
+
+address a1 = { city : “Colombo”, “country” : “Sri Lanka” };
+json j = { city : “Colombo”, “country” : “Sri Lanka” };
+map m = { city : “Colombo”, “country” : “Sri Lanka” };
+
+system:println (a1.city, a1[“country”]);
+system:println (j.city, j[“country”]);
+system:println (m.city, m[“country”]);
+
+```
+
+If the accessed field does not exist, in the case of a struct there will be a compile-time error, while the other cases will result in a null value being returned.
 
 ### Type: `datatable`
 

@@ -1,4 +1,5 @@
-#JMS Client Connector
+# JMS Client Connector
+
 The JMS client connector can be used to send/publish JMS messages to a JMS broker. Given below is a diagram that represents a high-level view of the connector.
 
 ![JMS_Client_Connector](../images/jms_client_connector.png)
