@@ -266,6 +266,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         defineServices(bLangPackage.getServices());
         defineAnnotations(bLangPackage.getAnnotationDefs());
 
+        arrangeCompilationUnits(bLangPackage);
+
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
@@ -280,6 +282,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         bLangPackage.setInitFunction(initFunction);
 
         bLangPackage.setSymbolsDefined(true);
+    }
+
+    private void arrangeCompilationUnits(BLangPackage bLangPackage) {
+        ExpressionAnalyzer expressionAnalyzer = new ExpressionAnalyzer(currentPkg, currentScope);
+        bLangPackage.accept(expressionAnalyzer);
     }
 
     @Override
