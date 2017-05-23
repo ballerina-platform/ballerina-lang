@@ -87,7 +87,12 @@ var config = {
     plugins: [
         extractCSSBundle,
         extractThemes,
-        new UnusedFilesWebpackPlugin({pattern: '**/*.js'})
+        new UnusedFilesWebpackPlugin({
+            pattern: 'js/**/*.*',
+            globOptions: {
+                ignore: 'js/tests/**/*.*'
+            }
+        })
     ],
     devServer: {
       publicPath: '/dist/'
