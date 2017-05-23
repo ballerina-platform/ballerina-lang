@@ -479,15 +479,12 @@ repaintAll(jsTreeId) {
 addComplexProperty(parentId, struct) {
     var self = this;
     _.forEach(struct.properties, property => {
-//        var buildInTypes = self.typeConverterView.getTypes();
-//    if (buildInTypes.includes(property.type)) {
+    if (property.innerType != null && property.innerType.properties.length > 0) {
+        var complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type);
+        self.addComplexProperty(complexStructEl.attr('id'), property.innerType)
+    } else {
         self.makeProperty($('#' + parentId), property.name, property.type);
-//    } else {
-//        var complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type);
-//        var allStructDefn = self.typeConverterView.getPackage().getStructDefinitions();
-//        var structIndex = _.findIndex(allStructDefn, aStruct => aStruct.getStructName() === property.type);
-//        self.addComplexProperty(complexStructEl.attr('id'), allStructDefn[structIndex].getAttributesArray())
-//    }
+    }
 });
 }
 

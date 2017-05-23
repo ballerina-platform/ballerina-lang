@@ -152,16 +152,7 @@ class TransformStatementDecorator extends React.Component {
                if(currentIndex < transformIndex) {
                    _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
                           if (structInfo[0] ==  predefinedStruct.getStructName()) {
-                                var struct = {};
-                                struct.name = structInfo[1];
-                                struct.properties = [];
-                                _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
-                                     var property = {};
-                                     var structPopInfo = stmt.getLeftExpression().split(" ");
-                                     property.name  = structPopInfo[1];
-                                     property.type  = structPopInfo[0];
-                                     struct.properties.push(property);
-                                });
+                                var struct = self.createType(structInfo[1], predefinedStruct);
                                 self.predefinedStructs.push(struct);
                                 self.loadSchemaToComboBox(sourceId, struct.name);
                                 self.loadSchemaToComboBox(targetId, struct.name);
@@ -225,9 +216,9 @@ class TransformStatementDecorator extends React.Component {
            var onConnectionCallback = function(connection) {
                var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
                var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
-               leftOperand.addChild(self.getStructAccessNode(connection.targetStruct, connection.targetProperty[0]));
+               leftOperand.addChild(self.getStructAccessNode(connection.targetStruct, connection.targetProperty));
                var rightOperand = BallerinaASTFactory.createRightOperandExpression();
-               rightOperand.addChild(self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty[0]));
+               rightOperand.addChild(self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty));
                assignmentStmt.addChild(leftOperand);
                assignmentStmt.addChild(rightOperand);
                self.props.model.addChild(assignmentStmt);
@@ -273,6 +264,28 @@ class TransformStatementDecorator extends React.Component {
             });
 
 
+	}
+
+	createType(name, predefinedStruct) {
+        var struct = {};
+        struct.name = name;
+        struct.properties = [];
+
+        _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
+             var property = {};
+             var structPopInfo = stmt.getLeftExpression().split(" ");
+             property.name  = structPopInfo[1];
+             property.type  = structPopInfo[0];
+
+             if (property.type == "ppl") {
+                 var innerStruct = _.find(self._package.getStructDefinitions(), { _structName:property.type});
+                 property.innerType = self.createType(property.type, innerStruct);
+             }
+
+             struct.properties.push(property);
+        });
+
+        return struct;
 	}
 
 	render() {
@@ -490,18 +503,37 @@ class TransformStatementDecorator extends React.Component {
         $("#" + comboBoxId).append('<option value="' + name + '">' + name + '</option>');
     }
 
+
+    createAccessNode(name, property) {
+        var structExpression = BallerinaASTFactory.createFieldAccessExpression();
+
+        var structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
+        var structProperty = BallerinaASTFactory.createBasicLiteralExpression({basicLiteralType:'string', basicLiteralValue:property});
+
+        if(name != "complex") {
+            var structName =  BallerinaASTFactory.createVariableReferenceExpression();
+            structName.setVariableName(name);
+            structExpression.addChild(structName);
+            structPropertyHolder.addChild(structProperty);
+            structExpression.addChild(structPropertyHolder);
+        } else {
+             structExpression.addChild(structProperty);
+        }
+
+        return structExpression;
+    }
+
     getStructAccessNode(name, property) {
-    	var structExpression = BallerinaASTFactory.createFieldAccessExpression();
-    	var structName =  BallerinaASTFactory.createVariableReferenceExpression();
-    	var structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
-		var structProperty = BallerinaASTFactory.createBasicLiteralExpression({basicLiteralType:'string', basicLiteralValue:property});
+        var structExpression;
 
-    	structName.setVariableName(name);
-
-    	structPropertyHolder.addChild(structProperty);
-    	structExpression.addChild(structName);
-    	structExpression.addChild(structPropertyHolder);
-    	return structExpression;
+        _.forEach(property, prop => {
+            if (structExpression == null) {
+                 structExpression = self.createAccessNode(name, prop);
+            } else {
+                structExpression.children[1].addChild(self.createAccessNode("complex", prop));
+            }
+        });
+        return structExpression;
     }
 
     setSource(currentSelection, predefinedStructs) {
