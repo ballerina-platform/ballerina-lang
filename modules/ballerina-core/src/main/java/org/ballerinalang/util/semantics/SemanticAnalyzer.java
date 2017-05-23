@@ -3548,4 +3548,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             blockStmtBuilder.addStmt(funcIStmt);
         }
     }
+
+    @Override
+    public void visit(ArrayLengthExpression expression) {
+    }
 }
