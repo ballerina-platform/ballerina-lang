@@ -1552,12 +1552,83 @@ public class SemanticAnalyzer implements NodeVisitor {
     // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
-        Expression[] exprs = actionIExpr.getArgExprs();
-        for (Expression expr : exprs) {
-            visitSingleValueExpr(expr);
-        }
 
-        linkAction(actionIExpr);
+        String pkgPath = actionIExpr.getPackagePath();
+        String connectorName = actionIExpr.getConnectorName();
+
+        // First look for the connectors
+        SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
+        BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
+
+        if (connectorSymbol instanceof BallerinaConnectorDef) {
+
+            Expression[] exprs = actionIExpr.getArgExprs();
+            BType[] paramTypes = new BType[exprs.length];
+            for (int i = 0; i < exprs.length; i++) {
+                visitSingleValueExpr(exprs[i]);
+                paramTypes[i] = exprs[i].getType();
+            }
+
+            // When getting the action symbol name, Package name for the action is set to null, since the action is
+            // registered under connector, and connecter contains the package
+            SymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
+                    actionIExpr.getPackagePath(), actionIExpr.getConnectorName(), paramTypes);
+
+            // Now check whether there is a matching action
+            BLangSymbol actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(actionSymbolName);
+
+            if ((actionSymbol instanceof BallerinaAction) && (actionSymbol.isNative())) {
+                actionSymbol = ((BallerinaAction) actionSymbol).getNativeAction();
+            }
+
+            if (actionSymbol == null) {
+                BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.UNDEFINED_ACTION,
+                        actionIExpr.getName(), connectorSymbol.getSymbolName());
+            }
+
+            // Load native action
+            Action action = null;
+            if (actionSymbol instanceof NativeUnitProxy) {
+                // Loading return parameter types of this native function
+                NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
+                SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+                BType[] returnTypes = new BType[returnParamTypeNames.length];
+                for (int i = 0; i < returnParamTypeNames.length; i++) {
+                    SimpleTypeName typeName = returnParamTypeNames[i];
+                    BType bType = BTypes.resolveType(typeName, currentScope, actionIExpr.getNodeLocation());
+                    returnTypes[i] = bType;
+                }
+
+                if (!(nativeUnit instanceof Action)) {
+                    BLangExceptionHelper.throwSemanticError(actionIExpr,
+                            SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, actionSymbolName);
+                }
+                action = (Action) nativeUnit;
+                action.setReturnParamTypes(returnTypes);
+
+            } else if (actionSymbol instanceof Action) {
+                action = (Action) actionSymbol;
+            } else {
+                BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
+                        actionSymbolName);
+            }
+
+            // Link the action with the action invocation expression
+            actionIExpr.setCallableUnit(action);
+        } else {
+            Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
+            VariableRefExpr variableRefExpr = (VariableRefExpr) actionIExpr.getVarRefExpr();
+            exprs[0] = variableRefExpr;
+            visitSingleValueExpr(variableRefExpr);
+            for (int i = 0; i < actionIExpr.getArgExprs().length; i++) {
+                exprs[i + 1] = actionIExpr.getArgExprs()[i];
+                visitSingleValueExpr(exprs[i + 1]);
+            }
+            actionIExpr.setArgExprs(exprs);
+            actionIExpr.setConnectorName(variableRefExpr.getVariableDef().getTypeName().getName());
+
+            linkAction(actionIExpr);
+        }
 
         //Find the return types of this function invocation expression.
         BType[] returnParamTypes = actionIExpr.getCallableUnit().getReturnParamTypes();

@@ -40,6 +40,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private BType[] types = new BType[0];
     private int retuningBranchID;
     private boolean hasReturningBranch;
+    private Expression varRefExpr;
 
     public ActionInvocationExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -47,17 +48,22 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
                                 String pkgName,
                                 String pkgPath,
                                 String connectorName,
-                                Expression[] exprs) {
+                                Expression[] exprs, Expression varRefExpr) {
         super(location, whiteSpaceDescriptor);
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
         this.connectorName = connectorName;
         this.exprs = exprs;
+        this.varRefExpr = varRefExpr;
     }
 
     public String getConnectorName() {
         return connectorName;
+    }
+
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     @Override
@@ -78,6 +84,10 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public Expression[] getArgExprs() {
         return exprs;
+    }
+
+    public void setArgExprs(Expression[] exprs) {
+        this.exprs = exprs;
     }
 
     @Override
@@ -140,4 +150,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         this.hasReturningBranch = hasReturningBranch;
     }
 
+    public Expression getVarRefExpr() {
+        return varRefExpr;
+    }
 }

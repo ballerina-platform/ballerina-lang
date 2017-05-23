@@ -39,6 +39,7 @@ class CallableUnitInvocationExprBuilder {
     protected String pkgPath;
     protected String connectorName;
     protected List<Expression> expressionList = new ArrayList<>();
+    protected Expression varRefExpr;
 
     void setNodeLocation(NodeLocation location) {
         this.location = location;
@@ -68,6 +69,10 @@ class CallableUnitInvocationExprBuilder {
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 
+    public void setVarRefExpr(Expression varRefExpr) {
+        this.varRefExpr = varRefExpr;
+    }
+
     FunctionInvocationExpr buildFuncInvocExpr() {
         return new FunctionInvocationExpr(
                 location,
@@ -86,6 +91,6 @@ class CallableUnitInvocationExprBuilder {
                 pkgName,
                 pkgPath,
                 connectorName,
-                expressionList.toArray(new Expression[expressionList.size()]));
+                expressionList.toArray(new Expression[expressionList.size()]), varRefExpr);
     }
 }
