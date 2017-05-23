@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin
 
 var extractThemes = new ExtractTextPlugin('./themes/[name].css');
 var extractCSSBundle = new ExtractTextPlugin('./bundle.css');
@@ -85,7 +86,8 @@ var config = {
     },
     plugins: [
         extractCSSBundle,
-        extractThemes
+        extractThemes,
+        new UnusedFilesWebpackPlugin({pattern: '**/*.js'})
     ],
     devServer: {
       publicPath: '/dist/'
