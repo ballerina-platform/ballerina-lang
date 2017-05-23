@@ -97,6 +97,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.symbolName = new SymbolName(pkgPath);
     }
 
+    public void setCompilationUnits(CompilationUnit[] compilationUnits) {
+        this.compilationUnits = compilationUnits;
+    }
+
     public BallerinaFile[] getBallerinaFiles() {
         return ballerinaFiles;
     }
@@ -343,17 +347,17 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         }
 
         public void addFunction(BallerinaFunction function) {
-            this.compilationUnitList.add(function);
+//            this.compilationUnitList.add(function);
             this.functionList.add(function);
         }
 
         public void addService(Service service) {
-            this.compilationUnitList.add(service);
+//            this.compilationUnitList.add(service);
             this.serviceList.add(service);
         }
 
         public void addConnector(BallerinaConnectorDef connector) {
-            this.compilationUnitList.add(connector);
+//            this.compilationUnitList.add(connector);
             this.connectorList.add(connector);
         }
 
@@ -362,27 +366,27 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         }
 
         public void addConst(ConstDef constant) {
-            this.compilationUnitList.add((constant));
+//            this.compilationUnitList.add((constant));
             this.constList.add(constant);
         }
 
         public void addGlobalVar(GlobalVariableDef globalVariableDef) {
-            this.compilationUnitList.add(globalVariableDef);
+//            this.compilationUnitList.add(globalVariableDef);
             this.globalVarList.add(globalVariableDef);
         }
 
         public void addTypeMapper(TypeMapper typeMapper) {
-            this.compilationUnitList.add((BTypeMapper) typeMapper);
+//            this.compilationUnitList.add((BTypeMapper) typeMapper);
             typeMapperList.add(typeMapper);
         }
 
         public void addStruct(StructDef structDef) {
-            this.compilationUnitList.add(structDef);
+//            this.compilationUnitList.add(structDef);
             this.structDefList.add(structDef);
         }
 
         public void addAnnotationDef(AnnotationDef annotationDef) {
-            this.compilationUnitList.add(annotationDef);
+//            this.compilationUnitList.add(annotationDef);
             this.annotationDefList.add(annotationDef);
         }
 
@@ -399,7 +403,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         }
 
         public BLangPackage build() {
-            bLangPackage.compilationUnits = this.compilationUnitList.toArray(new CompilationUnit[0]);
+//            bLangPackage.compilationUnits = this.compilationUnitList.toArray(new CompilationUnit[0]);
             bLangPackage.functions = this.functionList.toArray(new Function[0]);
             bLangPackage.services = this.serviceList.toArray(new Service[0]);
             bLangPackage.connectors = this.connectorList.toArray(new BallerinaConnectorDef[0]);
