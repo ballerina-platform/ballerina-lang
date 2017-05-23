@@ -22,6 +22,7 @@ package org.ballerinalang.composer.service.workspace.app;
  * launcherPath: ws://localhost:8290
  * debuggerPath: ws://localhost:5006
  * rootDirectories: /Users/ballerina/Desktop
+ * tryServiceURL: http://localhost:9090
  */
 public class WorkspaceServiceConfig {
 
@@ -33,6 +34,8 @@ public class WorkspaceServiceConfig {
     private String debuggerPath;
     // we can mount any given directory path as composer workspace root. This property is to provide that directory path
     private String rootDirectories;
+    // URL to invoke the started services by composer
+    private String tryServiceURL;
 
     public String getApiPath() {
         return apiPath;
@@ -64,6 +67,14 @@ public class WorkspaceServiceConfig {
 
     public void setRootDirectories(String rootDirectories) {
         this.rootDirectories = rootDirectories;
+    }
+
+    public String getTryServiceURL() {
+        return tryServiceURL;
+    }
+
+    public void setTryServiceURL(String tryServiceURL) {
+        this.tryServiceURL = tryServiceURL;
     }
 
 

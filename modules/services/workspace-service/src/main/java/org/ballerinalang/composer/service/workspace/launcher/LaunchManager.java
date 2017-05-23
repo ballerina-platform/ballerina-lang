@@ -45,6 +45,8 @@ public class LaunchManager {
     private LaunchSession launchSession;
     
     private Command command;
+
+    private String startedServiceURL;
     
     /**
      * Instantiates a new Debug manager.
@@ -68,12 +70,16 @@ public class LaunchManager {
     }
     
     
-    public void init(int port) {
+    public void init(int port, String startedServiceURL) {
         // start the debug server if it is not started yet.
         if (this.launchServer == null) {
             this.launchServer = new LaunchServer(port);
             this.launchServer.startServer();
         }
+
+        // set URL to invoke the started service.
+        this.startedServiceURL = (startedServiceURL != null) ? startedServiceURL :
+                LauncherConstants.DEFAULT_STARTED_SERVICE_URL;
     }
     
     private void run(Command command) {
@@ -134,6 +140,10 @@ public class LaunchManager {
                     .defaultCharset()));
             String line = "";
             while ((line = reader.readLine()) != null) {
+                // improve "server connector started" log message to have the service URL in it.
+                if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.matches(line)) {
+                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
+                }
                 pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
             }
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED, LauncherConstants.INFO,
