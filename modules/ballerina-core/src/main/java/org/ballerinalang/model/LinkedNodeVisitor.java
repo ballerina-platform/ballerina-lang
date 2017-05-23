@@ -25,13 +25,13 @@ import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -47,11 +47,14 @@ import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeFunctionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeTypeMapperNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONArrayInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
@@ -64,8 +67,10 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -77,6 +82,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -116,6 +122,10 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     void visit(WhileStmt whileStmt);
 
+    void visit(TransactionRollbackStmt transactionRollbackStmt);
+
+    void visit(AbortStmt abortStmt);
+
     /* Expression Nodes */
 
     void visit(ActionInvocationExpr actionInvocationExpr);
@@ -140,13 +150,13 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     void visit(MapInitExpr mapInitExpr);
 
-    void visit(MapStructInitKeyValueExpr mapStructInitKeyValueExpr);
+    void visit(KeyValueExpr mapStructInitKeyValueExpr);
 
     void visit(RefTypeInitExpr refTypeInitExpr);
 
     void visit(ResourceInvocationExpr resourceInvocationExpr);
 
-    void visit(StructFieldAccessExpr structFieldAccessExpr);
+    void visit(FieldAccessExpr structFieldAccessExpr);
 
     void visit(StructInitExpr structInitExpr);
 
@@ -182,7 +192,11 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     void visit(VariableDefStmtEndNode variableDefStmtEndNode);
 
+    void visit(TransactionRollbackStmtEndNode transactionRollbackStmtEndNode);
+
     /* Node Fragments - Expressions */
+
+    void visit(ConnectorInitActionStartNode connectorInitActionStartNode);
 
     void visit(ActionInvocationExprStartNode actionInvocationExprStartNode);
 
@@ -209,15 +223,19 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(InvokeNativeTypeMapperNode invokeNativeTypeMapperNode);
 
     void visit(MapInitExprEndNode mapInitExprEndNode);
-
+    
+    void visit(JSONInitExprEndNode jsonInitExprEndNode);
+    
+    void visit(JSONArrayInitExprEndNode jsonArrayInitExprEndNode);
+    
     void visit(RefTypeInitExprEndNode refTypeInitExprEndNode);
-
-    void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode);
 
     void visit(StructInitExprEndNode structInitExprEndNode);
     
     void visit(StructInitExprStartNode structInitExprStartNode);
-
+    
+    void visit(StructFieldAccessExprEndNode structFieldAccessExprEndNode);
+    
     void visit(TypeCastExpressionEndNode typeCastExpressionEndNode);
 
     void visit(UnaryExpressionEndNode unaryExpressionEndNode);

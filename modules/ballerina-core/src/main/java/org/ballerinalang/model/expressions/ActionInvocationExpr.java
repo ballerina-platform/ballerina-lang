@@ -21,6 +21,7 @@ import org.ballerinalang.model.Action;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
@@ -43,12 +44,13 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private int[] offsets;
 
     public ActionInvocationExpr(NodeLocation location,
+                                WhiteSpaceDescriptor whiteSpaceDescriptor,
                                 String name,
                                 String pkgName,
                                 String pkgPath,
                                 String connectorName,
                                 Expression[] exprs) {
-        super(location);
+        super(location, whiteSpaceDescriptor);
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;

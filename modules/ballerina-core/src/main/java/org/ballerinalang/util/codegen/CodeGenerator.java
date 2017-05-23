@@ -19,6 +19,7 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
@@ -37,6 +38,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
@@ -59,14 +61,18 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
@@ -75,13 +81,13 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -94,6 +100,8 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -162,7 +170,7 @@ public class CodeGenerator implements NodeVisitor {
     private int currentPkgCPIndex = -1;
     private PackageInfo currentPkgInfo;
 
-    private ServiceInfo currentServiceInfo; 
+    private ServiceInfo currentServiceInfo;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -395,6 +403,11 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
+    public void visit(GlobalVariableDef globalVar) {
+
+    }
+
+    @Override
     public void visit(Service service) {
 //        BallerinaFunction initFunction = connectorDef.getInitFunction();
 //        visit(initFunction);
@@ -574,6 +587,8 @@ public class CodeGenerator implements NodeVisitor {
         if (rhsExpr != null) {
             rhsExpr.accept(this);
             rhsExprRegIndex = rhsExpr.getTempOffset();
+        } else {
+            // TODO get the default value;
         }
 
         MemoryLocation stackVarLocation;
@@ -582,7 +597,7 @@ public class CodeGenerator implements NodeVisitor {
         MemoryLocation memoryLocation = varDefStmt.getVariableDef().getMemoryLocation();
         if (memoryLocation instanceof StackVarLocation) {
             OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableDef.getType().getTag(),
-                    InstructionCodes.istore, lvIndexes);
+                    InstructionCodes.ISTORE, lvIndexes);
             opcode = opcodeAndIndex.opcode;
             lvIndex = opcodeAndIndex.index;
             stackVarLocation = new StackVarLocation(lvIndex);
@@ -621,7 +636,7 @@ public class CodeGenerator implements NodeVisitor {
                 arrayAssignment = true;
                 lExpr.accept(this);
                 arrayAssignment = false;
-            } else if (lExpr instanceof StructFieldAccessExpr) {
+            } else if (lExpr instanceof FieldAccessExpr) {
                 structAssignment = true;
                 lExpr.accept(this);
                 structAssignment = false;
@@ -666,7 +681,7 @@ public class CodeGenerator implements NodeVisitor {
         ifElseStmt.getThenBody().accept(this);
 
         // Check whether this then block is the last block of code
-        gotoInstruction = new Instruction(InstructionCodes.goto_, 0);
+        gotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
         emit(gotoInstruction);
         gotoInstructionList.add(gotoInstruction);
 
@@ -681,7 +696,7 @@ public class CodeGenerator implements NodeVisitor {
             emit(ifInstruction);
 
             elseIfBlock.getElseIfBody().accept(this);
-            gotoInstruction = new Instruction(InstructionCodes.goto_, 0);
+            gotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
             emit(gotoInstruction);
             gotoInstructionList.add(gotoInstruction);
             ifInstruction.setOperand(1, nextIP());
@@ -715,13 +730,13 @@ public class CodeGenerator implements NodeVisitor {
 
         FunctionReturnCPEntry funcRetCPEntry = new FunctionReturnCPEntry(regIndexes);
         int funcRetCPEntryIndex = currentPkgInfo.addCPEntry(funcRetCPEntry);
-        emit(InstructionCodes.ret, funcRetCPEntryIndex);
+        emit(InstructionCodes.RET, funcRetCPEntryIndex);
     }
 
     @Override
     public void visit(WhileStmt whileStmt) {
         Expression conditionExpr = whileStmt.getCondition();
-        Instruction gotoInstruction = new Instruction(InstructionCodes.goto_, nextIP());
+        Instruction gotoInstruction = new Instruction(InstructionCodes.GOTO, nextIP());
 
         conditionExpr.accept(this);
         int opcode = getIfOpcode(conditionExpr);
@@ -774,6 +789,21 @@ public class CodeGenerator implements NodeVisitor {
 
     }
 
+    @Override
+    public void visit(TransformStmt transformStmt) {
+
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+
+    }
+
 
     // Expressions
 
@@ -787,12 +817,12 @@ public class CodeGenerator implements NodeVisitor {
                 basicLiteral.setTempOffset(++regIndexes[INT_OFFSET]);
                 long intVal = basicLiteral.getBValue().intValue();
                 if (intVal >= 0 && intVal <= 5) {
-                    opcode = InstructionCodes.iconst_0 + (int) intVal;
+                    opcode = InstructionCodes.ICONST_0 + (int) intVal;
                     emit(opcode, basicLiteral.getTempOffset());
                 } else {
                     IntegerCPEntry intCPEntry = new IntegerCPEntry(basicLiteral.getBValue().intValue());
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(intCPEntry);
-                    emit(InstructionCodes.iconst, intCPEntryIndex, basicLiteral.getTempOffset());
+                    emit(InstructionCodes.ICONST, intCPEntryIndex, basicLiteral.getTempOffset());
                 }
                 break;
 
@@ -801,12 +831,12 @@ public class CodeGenerator implements NodeVisitor {
                 double floatVal = basicLiteral.getBValue().floatValue();
                 if (floatVal == 0 || floatVal == 1 || floatVal == 2 ||
                         floatVal == 3 || floatVal == 4 || floatVal == 5) {
-                    opcode = InstructionCodes.fconst_0 + (int) floatVal;
+                    opcode = InstructionCodes.FCONST_0 + (int) floatVal;
                     emit(opcode, basicLiteral.getTempOffset());
                 } else {
                     FloatCPEntry floatCPEntry = new FloatCPEntry(basicLiteral.getBValue().floatValue());
                     int floatCPEntryIndex = currentPkgInfo.addCPEntry(floatCPEntry);
-                    emit(InstructionCodes.fconst, floatCPEntryIndex, basicLiteral.getTempOffset());
+                    emit(InstructionCodes.FCONST, floatCPEntryIndex, basicLiteral.getTempOffset());
                 }
                 break;
 
@@ -819,16 +849,16 @@ public class CodeGenerator implements NodeVisitor {
                 StringCPEntry stringCPEntry = new StringCPEntry(stringValCPIndex, strValue);
                 int strCPIndex = currentPkgInfo.addCPEntry(stringCPEntry);
 
-                emit(InstructionCodes.sconst, strCPIndex, basicLiteral.getTempOffset());
+                emit(InstructionCodes.SCONST, strCPIndex, basicLiteral.getTempOffset());
                 break;
 
             case TypeTags.BOOLEAN_TAG:
                 basicLiteral.setTempOffset(++regIndexes[BOOL_OFFSET]);
                 boolean booleanVal = basicLiteral.getBValue().booleanValue();
                 if (!booleanVal) {
-                    opcode = InstructionCodes.bconst_0;
+                    opcode = InstructionCodes.BCONST_0;
                 } else {
-                    opcode = InstructionCodes.bconst_1;
+                    opcode = InstructionCodes.BCONST_1;
                 }
                 emit(opcode, basicLiteral.getTempOffset());
                 break;
@@ -844,27 +874,27 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AddExpression addExpr) {
-        emitBinaryArithmeticExpr(addExpr, InstructionCodes.iadd);
+        emitBinaryArithmeticExpr(addExpr, InstructionCodes.IADD);
     }
 
     @Override
     public void visit(SubtractExpression subtractExpr) {
-        emitBinaryArithmeticExpr(subtractExpr, InstructionCodes.isub);
+        emitBinaryArithmeticExpr(subtractExpr, InstructionCodes.ISUB);
     }
 
     @Override
     public void visit(MultExpression multExpr) {
-        emitBinaryArithmeticExpr(multExpr, InstructionCodes.imul);
+        emitBinaryArithmeticExpr(multExpr, InstructionCodes.IMUL);
     }
 
     @Override
     public void visit(DivideExpr divideExpr) {
-        emitBinaryArithmeticExpr(divideExpr, InstructionCodes.idiv);
+        emitBinaryArithmeticExpr(divideExpr, InstructionCodes.IDIV);
     }
 
     @Override
     public void visit(ModExpression modExpr) {
-        emitBinaryArithmeticExpr(modExpr, InstructionCodes.imod);
+        emitBinaryArithmeticExpr(modExpr, InstructionCodes.IMOD);
     }
 
 
@@ -885,12 +915,12 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpr) {
-        emitBinaryCompareAndEqualityExpr(equalExpr, InstructionCodes.icmp);
+        emitBinaryCompareAndEqualityExpr(equalExpr, InstructionCodes.ICMP);
     }
 
     @Override
     public void visit(NotEqualExpression notEqualExpr) {
-        emitBinaryCompareAndEqualityExpr(notEqualExpr, InstructionCodes.icmp);
+        emitBinaryCompareAndEqualityExpr(notEqualExpr, InstructionCodes.ICMP);
     }
 
 
@@ -898,22 +928,22 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpr) {
-        emitBinaryCompareAndEqualityExpr(greaterEqualExpr, InstructionCodes.icmp);
+        emitBinaryCompareAndEqualityExpr(greaterEqualExpr, InstructionCodes.ICMP);
     }
 
     @Override
     public void visit(GreaterThanExpression greaterThanExpr) {
-        emitBinaryCompareAndEqualityExpr(greaterThanExpr, InstructionCodes.icmp);
+        emitBinaryCompareAndEqualityExpr(greaterThanExpr, InstructionCodes.ICMP);
     }
 
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
-        emitBinaryCompareAndEqualityExpr(lessEqualExpr, InstructionCodes.icmp);
+        emitBinaryCompareAndEqualityExpr(lessEqualExpr, InstructionCodes.ICMP);
     }
 
     @Override
     public void visit(LessThanExpression lessThanExpr) {
-        emitBinaryCompareAndEqualityExpr(lessThanExpr, InstructionCodes.icmp);
+        emitBinaryCompareAndEqualityExpr(lessThanExpr, InstructionCodes.ICMP);
     }
 
 
@@ -932,7 +962,7 @@ public class CodeGenerator implements NodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
 
         int funcCallIndex = getCallableUnitCallCPIndex(funcIExpr);
-        emit(InstructionCodes.call, funcRefCPIndex, funcCallIndex);
+        emit(InstructionCodes.CALL, funcRefCPIndex, funcCallIndex);
     }
 
     @Override
@@ -953,7 +983,7 @@ public class CodeGenerator implements NodeVisitor {
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
 
         int actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
-        emit(InstructionCodes.acall, actionRefCPIndex, actionCallIndex);
+        emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
     }
 
     @Override
@@ -984,7 +1014,7 @@ public class CodeGenerator implements NodeVisitor {
         BType elementType = ((BArrayType) arrayInitExpr.getType()).getElementType();
 
         // Emit create array instruction
-        int opcode = getOpcode(elementType.getTag(), InstructionCodes.inewarray);
+        int opcode = getOpcode(elementType.getTag(), InstructionCodes.INEWARRAY);
         int arrayVarRegIndex = ++regIndexes[REF_OFFSET];
         arrayInitExpr.setTempOffset(arrayVarRegIndex);
         emit(opcode, arrayVarRegIndex);
@@ -995,11 +1025,12 @@ public class CodeGenerator implements NodeVisitor {
             Expression argExpr = argExprs[i];
             argExpr.accept(this);
 
-            BasicLiteral indexLiteral = new BasicLiteral(arrayInitExpr.getNodeLocation(), new BInteger(i));
+            BasicLiteral indexLiteral = new BasicLiteral(arrayInitExpr.getNodeLocation(),
+                    null, new BInteger(i));
             indexLiteral.setType(BTypes.typeInt);
             indexLiteral.accept(this);
 
-            opcode = getOpcode(argExpr.getType().getTag(), InstructionCodes.iastore);
+            opcode = getOpcode(argExpr.getType().getTag(), InstructionCodes.IASTORE);
             emit(opcode, arrayVarRegIndex, indexLiteral.getTempOffset(), argExpr.getTempOffset());
         }
     }
@@ -1023,7 +1054,7 @@ public class CodeGenerator implements NodeVisitor {
 
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes[REF_OFFSET];
-        emit(InstructionCodes.newconnector, structureRefCPIndex, connectorRegIndex);
+        emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
         connectorInitExpr.setTempOffset(connectorRegIndex);
 
         // Set all the connector arguments
@@ -1035,7 +1066,7 @@ public class CodeGenerator implements NodeVisitor {
             ParameterDef paramDef = connectorDef.getParameterDefs()[i];
             int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
 
-            int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.ifieldstore);
+            int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.getTempOffset());
         }
 
@@ -1052,7 +1083,7 @@ public class CodeGenerator implements NodeVisitor {
         FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
         int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
 
-        emit(InstructionCodes.call, initFuncRefCPIndex, initFuncCallIndex);
+        emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
     }
 
     @Override
@@ -1069,18 +1100,18 @@ public class CodeGenerator implements NodeVisitor {
 
         //Emit an instruction to create a new struct.
         int structRegIndex = ++regIndexes[REF_OFFSET];
-        emit(InstructionCodes.newstruct, structCPEntryIndex, structRegIndex);
+        emit(InstructionCodes.NEWSTRUCT, structCPEntryIndex, structRegIndex);
         structInitExpr.setTempOffset(structRegIndex);
 
         for (Expression expr : structInitExpr.getArgExprs()) {
-            MapStructInitKeyValueExpr keyValueExpr = (MapStructInitKeyValueExpr) expr;
+            KeyValueExpr keyValueExpr = (KeyValueExpr) expr;
             VariableRefExpr varRefExpr = (VariableRefExpr) keyValueExpr.getKeyExpr();
             int fieldIndex = ((StructVarLocation) varRefExpr.getMemoryLocation()).getStructMemAddrOffset();
 
             Expression valueExpr = keyValueExpr.getValueExpr();
             valueExpr.accept(this);
 
-            int opcode = getOpcode(varRefExpr.getType().getTag(), InstructionCodes.ifieldstore);
+            int opcode = getOpcode(varRefExpr.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, structRegIndex, fieldIndex, valueExpr.getTempOffset());
         }
     }
@@ -1091,7 +1122,17 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
-    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
+    public void visit(JSONInitExpr jsonInitExpr) {
+
+    }
+
+    @Override
+    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+
+    }
+
+    @Override
+    public void visit(KeyValueExpr keyValueExpr) {
 
     }
 
@@ -1099,11 +1140,11 @@ public class CodeGenerator implements NodeVisitor {
     // Variable reference expressions
 
     @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        StructFieldAccessExpr childSFAccessExpr = structFieldAccessExpr;
+    public void visit(FieldAccessExpr fieldAccessExpr) {
+        FieldAccessExpr childSFAccessExpr = fieldAccessExpr;
 
         while (true) {
-            ReferenceExpr referenceExpr = childSFAccessExpr.getVarRef();
+            ReferenceExpr referenceExpr = (ReferenceExpr) childSFAccessExpr.getVarRef();
             boolean isAssignment = childSFAccessExpr.getFieldExpr() == null && structAssignment;
             if (referenceExpr instanceof VariableRefExpr) {
                 varAssignment = isAssignment;
@@ -1117,7 +1158,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             if (isAssignment || childSFAccessExpr.getFieldExpr() == null) {
-                structFieldAccessExpr.setTempOffset(referenceExpr.getTempOffset());
+                fieldAccessExpr.setTempOffset(referenceExpr.getTempOffset());
                 break;
             }
             childSFAccessExpr = childSFAccessExpr.getFieldExpr();
@@ -1138,20 +1179,25 @@ public class CodeGenerator implements NodeVisitor {
                 // Here we assume that the array reference is stored in the current reference register;
                 int arrayIndex = regIndexes[REF_OFFSET];
                 if (arrayAssignment) {
-                    int opcode = getOpcode(arrayMapAccessExpr.getType().getTag(), InstructionCodes.iastore);
+                    int opcode = getOpcode(arrayMapAccessExpr.getType().getTag(), InstructionCodes.IASTORE);
                     emit(opcode, arrayIndex, indexExpr.getTempOffset(), rhsExprRegIndex);
                 } else {
                     OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayMapAccessExpr.getType().getTag(),
-                            InstructionCodes.iaload, regIndexes);
+                            InstructionCodes.IALOAD, regIndexes);
                     arrayMapAccessExpr.setTempOffset(opcodeAndIndex.index);
                     emit(opcodeAndIndex.opcode, arrayIndex, indexExpr.getTempOffset(), opcodeAndIndex.index);
                 }
             } else {
                 // reg, index, reg
-                emit(InstructionCodes.raload, regIndexes[REF_OFFSET],
+                emit(InstructionCodes.RALOAD, regIndexes[REF_OFFSET],
                         indexExpr.getTempOffset(), ++regIndexes[REF_OFFSET]);
             }
         }
+    }
+
+    @Override
+    public void visit(JSONFieldAccessExpr jsonPathExpr) {
+
     }
 
     @Override
@@ -1164,12 +1210,12 @@ public class CodeGenerator implements NodeVisitor {
             int lvIndex = ((StackVarLocation) memoryLocation).getStackFrameOffset();
             if (varAssignment) {
                 opcode = getOpcode(variableRefExpr.getType().getTag(),
-                        InstructionCodes.istore);
+                        InstructionCodes.ISTORE);
 
                 emit(opcode, rhsExprRegIndex, lvIndex);
             } else {
                 OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
-                        InstructionCodes.iload, regIndexes);
+                        InstructionCodes.ILOAD, regIndexes);
                 opcode = opcodeAndIndex.opcode;
                 exprRegIndex = opcodeAndIndex.index;
                 emit(opcode, lvIndex, exprRegIndex);
@@ -1185,11 +1231,11 @@ public class CodeGenerator implements NodeVisitor {
 
             if (varAssignment) {
                 opcode = getOpcode(variableRefExpr.getType().getTag(),
-                        InstructionCodes.ifieldstore);
+                        InstructionCodes.IFIELDSTORE);
                 emit(opcode, structRegIndex, fieldIndex, rhsExprRegIndex);
             } else {
                 OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
-                        InstructionCodes.ifieldload, regIndexes);
+                        InstructionCodes.IFIELDLOAD, regIndexes);
                 opcode = opcodeAndIndex.opcode;
                 exprRegIndex = opcodeAndIndex.index;
 
@@ -1204,15 +1250,15 @@ public class CodeGenerator implements NodeVisitor {
             //  reference register index.
             int connectorRegIndex = ++regIndexes[REF_OFFSET];
             // The connector is always the first parameter of the action
-            emit(InstructionCodes.rload, 0, connectorRegIndex);
+            emit(InstructionCodes.RLOAD, 0, connectorRegIndex);
 
             if (varAssignment) {
                 opcode = getOpcode(variableRefExpr.getType().getTag(),
-                        InstructionCodes.ifieldstore);
+                        InstructionCodes.IFIELDSTORE);
                 emit(opcode, connectorRegIndex, fieldIndex, rhsExprRegIndex);
             } else {
                 OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
-                        InstructionCodes.ifieldload, regIndexes);
+                        InstructionCodes.IFIELDLOAD, regIndexes);
                 opcode = opcodeAndIndex.opcode;
                 exprRegIndex = opcodeAndIndex.index;
 
@@ -1232,6 +1278,11 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
 
     }
 
@@ -1398,17 +1449,17 @@ public class CodeGenerator implements NodeVisitor {
     private int getIfOpcode(Expression expr) {
         int opcode;
         if (expr instanceof EqualExpression) {
-            opcode = InstructionCodes.ifne;
+            opcode = InstructionCodes.IFNE;
         } else if (expr instanceof NotEqualExpression) {
-            opcode = InstructionCodes.ifeq;
+            opcode = InstructionCodes.IFEQ;
         } else if (expr instanceof LessThanExpression) {
-            opcode = InstructionCodes.ifge;
+            opcode = InstructionCodes.IFGE;
         } else if (expr instanceof LessEqualExpression) {
-            opcode = InstructionCodes.ifgt;
+            opcode = InstructionCodes.IFGT;
         } else if (expr instanceof GreaterThanExpression) {
-            opcode = InstructionCodes.ifle;
+            opcode = InstructionCodes.IFLE;
         } else {
-            opcode = InstructionCodes.iflt;
+            opcode = InstructionCodes.IFLT;
         }
 
         return opcode;
@@ -1489,7 +1540,7 @@ public class CodeGenerator implements NodeVisitor {
             case TypeSignature.SIG_ANY:
                 return BTypes.typeAny;
             case TypeSignature.SIG_STRUCT:
-                return new BStructType(typeSig.getName(), typeSig.getPkgPath());
+                return new BStructType(typeSig.getName(), typeSig.getPkgPath(), null, null);
             case TypeSignature.SIG_CONNECTOR:
                 return new BConnectorType(typeSig.getName(), typeSig.getPkgPath());
             case TypeSignature.SIG_ARRAY:

@@ -21,11 +21,13 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
 
@@ -41,10 +43,11 @@ import java.util.List;
  */
 public class CallableUnitBuilder {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected SymbolScope currentScope;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
@@ -64,8 +67,8 @@ public class CallableUnitBuilder {
         this.location = location;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(Identifier identifier) {
+        this.identifier = identifier;
     }
 
     public void setPkgPath(String pkgPath) {
@@ -122,5 +125,9 @@ public class CallableUnitBuilder {
     
     public void setNative(boolean isNative) {
         this.isNative = isNative;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 }

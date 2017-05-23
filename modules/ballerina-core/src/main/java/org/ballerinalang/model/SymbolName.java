@@ -58,8 +58,9 @@ public class SymbolName {
 
         // If both package paths are null or both package paths are not null,
         //    then check their names. If not return false
-        return (this.pkgPath == null && other.getPkgPath() == null ||
-                this.pkgPath != null && other.getPkgPath() != null) && namesEqual;
+        return ((this.pkgPath == null && other.getPkgPath() == null && namesEqual) ||
+                (this.pkgPath != null && other.getPkgPath() != null
+                        && this.pkgPath.equals(other.getPkgPath()) && namesEqual));
     }
 
     @Override
@@ -80,6 +81,6 @@ public class SymbolName {
     }
 
     public String toString() {
-        return (pkgPath == null) ? name : pkgPath + ":" + name;
+        return (pkgPath == null || pkgPath.equals(".")) ? name : pkgPath + ":" + name;
     }
 }

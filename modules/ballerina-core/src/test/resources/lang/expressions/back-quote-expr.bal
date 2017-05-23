@@ -1,6 +1,5 @@
-function getProduct() (json) {
-    message m;
-    json payload;
-    payload = `{"Product": {"ID": "123456", "Name": "XYZ","Description": "Sample product."}}`;
+function getProduct() (xml) {
+    xml payload;
+    payload = `<Product><ID>1234</ID><Name>XYZ</Name><Description>Sample Product</Description></Product>`;
     return payload;
 }

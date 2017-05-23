@@ -17,7 +17,7 @@
 
 package org.ballerinalang.natives;
 
-import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NativeScope;
 
 /**
  * Interface class to be extended by all native constructs tables. {@link NativeConstructLoader} contains 
@@ -28,8 +28,8 @@ public interface NativeConstructLoader {
     /**
      * Load constructs to the provided Symbol Scope.
      * 
-     * @param globalScope  Symbol scope to load construct symbols
+     * @param nativeScope  Symbol scope to load construct symbols
      */
-    public void load(GlobalScope globalScope);
+    public void load(NativeScope nativeScope);
 
 }

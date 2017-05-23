@@ -20,8 +20,13 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@code WorkerReplyStmt} Class to hold data related to worker reply statement.
@@ -32,13 +37,16 @@ import org.ballerinalang.model.expressions.VariableRefExpr;
  */
 public class WorkerReplyStmt extends AbstractStatement {
     private String workerName;
-    private VariableRefExpr receiveExpr;
-    Worker worker;
+    protected List<Expression> expressionList = new ArrayList<>();
+    private Worker worker;
+    private WorkerDataChannel workerDataChannel;
 
-    public WorkerReplyStmt(VariableRefExpr receiveExpr, String workerName, NodeLocation nodeLocation) {
+    public WorkerReplyStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation,
+                           WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocation);
-        this.receiveExpr = receiveExpr;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.workerName = workerName;
+        this.expressionList = expressionList;
     }
 
     public String getWorkerName() {
@@ -49,12 +57,8 @@ public class WorkerReplyStmt extends AbstractStatement {
         this.workerName = workerName;
     }
 
-    public VariableRefExpr getReceiveExpr() {
-        return receiveExpr;
-    }
-
-    public void setReceiveExpr(VariableRefExpr receiveExpr) {
-        this.receiveExpr = receiveExpr;
+    public Expression[] getExpressionList() {
+        return expressionList.toArray(new Expression[expressionList.size()]);
     }
 
     public Worker getWorker() {
@@ -63,6 +67,14 @@ public class WorkerReplyStmt extends AbstractStatement {
 
     public void setWorker(Worker worker) {
         this.worker = worker;
+    }
+
+    public WorkerDataChannel getWorkerDataChannel() {
+        return workerDataChannel;
+    }
+
+    public void setWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+        this.workerDataChannel = workerDataChannel;
     }
 
     @Override

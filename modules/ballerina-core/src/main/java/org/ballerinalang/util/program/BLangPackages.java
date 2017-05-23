@@ -23,15 +23,19 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +59,7 @@ public class BLangPackages {
 
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
+
         if (pkgSource.getSourceFileStreamMap().isEmpty()) {
             throw new RuntimeException("no bal files in the package: " + packagePath.toString());
         }
@@ -144,35 +149,13 @@ public class BLangPackages {
         for (ImportPackage importPackage : parentPackage.getImportPackages()) {
 
             // Check whether this package is already resolved.
-            BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(importPackage.getSymbolName());
             Path packagePath = getPathFromPackagePath(importPackage.getSymbolName().getName());
 
-            if (dependentPkg != null && dependentPkg instanceof NativePackageProxy) {
-                dependentPkg = ((NativePackageProxy) dependentPkg).load();
-                PackageRepository.PackageSource pkgSource =
-                        dependentPkg.getPackageRepository().loadPackage(packagePath);
+            BLangPackage dependentPkg = (BLangPackage) bLangProgram.resolve(importPackage.getSymbolName());
 
-                BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(dependentPkg);
-                dependentPkg = loadPackageInternal(pkgSource, packageBuilder, bLangProgram, currentDepPath);
-
-            } else if (dependentPkg == null) {
-
-                // Remove redundant stuff using the Paths and Files API
-                // This builder or loader should throw an error if the package cannot be found.
-                // 1) If the parent package is loaded from the program repository (current directory), then follow this
-                //    search order:
-                //      i) Search the program repository
-                //      ii) Search the system repository
-                //      iii) Search the personal/user repository
-                // 2) If the parent is loaded from the system directory, then all the children should be
-                //    available in the system repository.  DO NOT Search other repositories.
-                // 3) If the parent is loaded from the personal/user repository, then use following search order:
-                //      i) Search the system repository
-                //      ii) Search the personal/user repository
-                // 4) None of the above applies if the package name starts with 'ballerina'
+            if (dependentPkg == null) {
                 dependentPkg = loadPackage(packagePath, parentPackage.getPackageRepository(),
                         bLangProgram, currentDepPath);
-
             }
 
             // Define package in the program scope
@@ -198,6 +181,29 @@ public class BLangPackages {
         // add the last node
         builder.append("->" + targetPack.getSymbolName().toString());
         return builder.toString();
+    }
+
+    public static String[] getBuiltinPackageNames() {
+        Iterator<BuiltinPackageRepository> providerIterator =
+                ServiceLoader.load(BuiltinPackageRepository.class).iterator();
+        List<BuiltinPackageRepository> nameProviders = new ArrayList<>();
+        while (providerIterator.hasNext()) {
+            BuiltinPackageRepository constructLoader = providerIterator.next();
+            nameProviders.add(constructLoader);
+        }
+        HashSet<String> pkgSet = new HashSet<>();
+        if (!nameProviders.isEmpty()) {
+            for (BuiltinPackageRepository provider : nameProviders) {
+                String[] pkgs = provider.loadPackageNames();
+                if (pkgs != null && pkgs.length > 0) {
+                    for (String pkg : pkgs) {
+                        pkgSet.add(pkg);
+                    }
+                }
+            }
+        }
+        String[] pkgArray = new String[pkgSet.size()];
+        return pkgSet.toArray(pkgArray);
     }
 
 }

@@ -20,12 +20,16 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@code WorkerInvocationStmt} Class to hold data related to worker invocation statement.
@@ -38,21 +42,33 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
 
     private String workerName;
     private Worker calleeWorker;
-    private VariableRefExpr inMsg;
     private BType[] types = new BType[0];
     private int retuningBranchID;
     private boolean hasReturningBranch;
+    protected List<Expression> expressionList = new ArrayList<>();
+    private WorkerDataChannel workerDataChannel;
 
     private int[] offsets;
 
-    public WorkerInvocationStmt(String workerName, NodeLocation nodeLocation) {
+    public WorkerInvocationStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation,
+                                WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocation);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.workerName = workerName;
+        this.expressionList = expressionList;
     }
-
 
     public String getCallableUnitName() {
         return workerName;
+    }
+
+
+    public WorkerDataChannel getWorkerDataChannel() {
+        return workerDataChannel;
+    }
+
+    public void setWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+        this.workerDataChannel = workerDataChannel;
     }
 
     @Override
@@ -133,12 +149,8 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
         return null;
     }
 
-    public VariableRefExpr getInMsg() {
-        return inMsg;
-    }
-
-    public void setInMsg(VariableRefExpr inMsg) {
-        this.inMsg = inMsg;
+    public Expression[] getExpressionList() {
+        return expressionList.toArray(new Expression[expressionList.size()]);
     }
 
     @Override

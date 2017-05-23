@@ -36,10 +36,21 @@ import java.util.stream.Collectors;
  * @since 0.8.0
  */
 public abstract class PackageRepository {
+    protected BuiltinPackageRepository[] builtinPackageRepositories;
+    protected PackageRepository internalPkgRepo;
 
     public abstract PackageSource loadPackage(Path packageDirPath);
 
     public abstract PackageSource loadFile(Path filePath);
+
+    //TODO implement proper fix to expose ballerina only native repo
+    public PackageRepository getInternalPkgRepo() {
+        return internalPkgRepo;
+    }
+
+    public void setInternalPkgRepo(PackageRepository internalPkgRepo) {
+        this.internalPkgRepo = internalPkgRepo;
+    }
 
     protected PackageSource loadPackageFromDirectory(Path packageDirPath, Path baseDirPath) {
         Map<String, InputStream> fileStreamMap;
@@ -66,6 +77,17 @@ public abstract class PackageRepository {
         return new PackageSource(Paths.get("."), fileStreamMap, this);
     }
 
+    protected PackageSource loadPackageFromBuiltinRepositories(Path packageDirPath) {
+        for (BuiltinPackageRepository pkgRepository : builtinPackageRepositories) {
+            PackageSource packageSource = pkgRepository.loadPackage(packageDirPath);
+            if (packageSource != null && !packageSource.getSourceFileStreamMap().isEmpty()) {
+                return packageSource;
+            }
+        }
+
+        return null;
+    }
+
     private InputStream getInputStream(Path filePath) {
         try {
             return Files.newInputStream(filePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
@@ -73,21 +95,6 @@ public abstract class PackageRepository {
             throw new RuntimeException("error reading from file: " + filePath +
                     " reason: " + e.getMessage(), e);
         }
-    }
-
-    // TODO Remove duplicates
-    private static String replaceDelimiterWithDots(Path path) {
-        if (path.getNameCount() == 1) {
-            return path.toString();
-        }
-
-        StringBuilder strBuilder = new StringBuilder();
-        for (int i = 0; i < path.getNameCount() - 1; i++) {
-            strBuilder.append(path.getName(i)).append(".");
-        }
-
-        strBuilder.append(path.getName(path.getNameCount() - 1));
-        return strBuilder.toString();
     }
 
     /**

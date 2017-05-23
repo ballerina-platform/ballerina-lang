@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.symbols;
 
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 
@@ -28,6 +29,8 @@ import org.ballerinalang.model.SymbolScope;
 public interface BLangSymbol {
 
     String getName();
+
+    Identifier getIdentifier();
 
     String getPackagePath();
 

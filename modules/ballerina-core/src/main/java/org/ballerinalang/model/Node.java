@@ -39,4 +39,11 @@ public interface Node {
      * @return location of this node
      */
     NodeLocation getNodeLocation();
+
+    /**
+     * Get information about whitespace associated with this particular node in source file.
+     *
+     * @return whitespace descriptor
+     */
+    WhiteSpaceDescriptor getWhiteSpaceDescriptor();
 }

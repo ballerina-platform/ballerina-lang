@@ -142,7 +142,8 @@ public class ConnectorActionTest {
     
     @Test(description = "Test invoking an undefined action",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "undefined-actions.bal:14: undefined action 'TestConnector.foo'")
+            expectedExceptionsMessageRegExp = "undefined-actions.bal:14: undefined action 'foo' in " +
+                    "connector 'TestConnector'")
     public void testUndefinedAction() {
         BTestUtils.parseBalFile("lang/connectors/undefined-actions.bal");
     }
@@ -160,11 +161,11 @@ public class ConnectorActionTest {
     public void testDuplicateAction() {
         BTestUtils.parseBalFile("lang/connectors/duplicate-action.bal");
     }
-    
+
     @Test(description = "Test incorrect action invocation",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: incompatible types: expected a " +
-            "connector name, found 'cal'")
+            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: incompatible types: " +
+                    "expected a connector name, found 'cal'")
     public void testIncorrectActionInvocation() {
         BTestUtils.parseBalFile("lang/connectors/incorrect-action-invocation.bal");
     }

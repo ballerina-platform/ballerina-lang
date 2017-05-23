@@ -36,20 +36,20 @@ public class ParameterDef extends VariableDef implements Node {
     private List<AnnotationAttachment> annotations;
 
     public ParameterDef(BType type, SymbolName symbolName) {
-        super(null, null, null, null, null);
+        super(null, null, null, null, null, null);
         this.type = type;
         this.symbolName = symbolName;
-        this.annotations = new ArrayList<AnnotationAttachment>();
+        this.annotations = new ArrayList<>();
     }
 
     public ParameterDef(NodeLocation location,
-                        String name,
+                        WhiteSpaceDescriptor whiteSpaceDescriptor,
+                        Identifier identifier,
                         SimpleTypeName typeName,
                         SymbolName symbolName,
                         SymbolScope symbolScope) {
-
-        super(location, name, typeName, symbolName, symbolScope);
-        this.annotations = new ArrayList<AnnotationAttachment>();
+        super(location, whiteSpaceDescriptor, identifier, typeName, symbolName, symbolScope);
+        this.annotations = new ArrayList<>();
     }
     
     /**

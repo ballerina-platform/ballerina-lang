@@ -38,7 +38,9 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class StructDef extends BType implements CompilationUnit, SymbolScope, StructuredUnit {
+    private Identifier identifier;
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
     private AnnotationAttachment[] annotations;
     private VariableDefStmt[] fields;
     private int structMemorySize;
@@ -54,6 +56,15 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
     /**
@@ -126,6 +137,11 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
 
     // Methods in BLangSymbol interface
+
+    @Override
+    public Identifier getIdentifier() {
+        return null;
+    }
 
     @Override
     public SymbolName getSymbolName() {
@@ -207,7 +223,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
      */
     public static class StructBuilder {
         private NodeLocation location;
-        private String name;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
+        private Identifier identifier;
         private String pkgPath;
         private List<VariableDefStmt> fields = new ArrayList<VariableDefStmt>();
         private List<AnnotationAttachment> annotationList = new ArrayList<>();
@@ -218,17 +235,16 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
             this.location = location;
         }
 
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public SymbolScope getCurrentScope() {
             return structDef;
         }
 
-        /**
-         * Set the symbol name of this struct.
-         *
-         * @param name Symbol name of this struct
-         */
-        public void setName(String name) {
-            this.name = name;
+        public void setIdentifier(Identifier identifier) {
+            this.identifier = identifier;
         }
 
         public void setPackagePath(String pkgPath) {
@@ -255,12 +271,14 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
          */
         public StructDef build() {
             this.structDef.location = location;
-            this.structDef.typeName = name;
+            this.structDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
+            this.structDef.identifier = identifier;
+            this.structDef.typeName = identifier.getName();
             this.structDef.pkgPath = pkgPath;
             this.structDef.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);
             this.structDef.fields = fields.toArray(new VariableDefStmt[fields.size()]);
-            this.structDef.symbolName = new SymbolName(name, pkgPath);
+            this.structDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             return structDef;
         }

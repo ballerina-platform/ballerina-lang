@@ -4,9 +4,9 @@ function backtickXMLTest (string name)(xml) {
     return msg;
 }
 
-function backtickJSONTest (string name)(json) {
+function testJSONInit (string name)(json) {
     json msg;
-    msg = `{"name":"John"}`;
+    msg = {"name":"John"};
     return msg;
 }
 
@@ -17,48 +17,42 @@ function backtickVariableAccessXML(string variable) (xml) {
 }
 
 
-function backtickStringVariableAccessJSON(string variable) (json) {
+function testStringVariableAccessInJSONInit(string variable) (json) {
     json backTickMessage;
-    backTickMessage = `{"name":${variable}}`;
+    backTickMessage = {"name":variable};
     return backTickMessage;
 }
 
-function backtickIntegerVariableAccessJSON(int variable) (json) {
+function testIntegerVariableAccessInJSONInit(int variable) (json) {
     json backTickMessage;
-    backTickMessage = `{"age":${variable}}`;
+    backTickMessage = {"age":variable};
     return backTickMessage;
 }
 
-function backticJSONEnrichFullJSON(int variable) (json) {
+function testEnrichFullJSON(int variable) (json) {
     json msg;
     json backTickMessage;
-    msg = `{"name":"John"}`;
-    backTickMessage = `${msg}`;
+    msg = {"name":"John"};
+    backTickMessage = msg;
     return backTickMessage;
 }
 
-function backticJSONMultipleVariables(string fname, string lname) (json) {
+function testMultipleVariablesInJSONInit(string fname, string lname) (json) {
     json msg;
     json backTickMessage;
-    msg = `{"name":{"first_name":${fname}, "last_name":${lname}}}`;
-    backTickMessage = `${msg}`;
+    msg = {"name":{"first_name":fname, "last_name":lname}};
+    backTickMessage = msg;
     return backTickMessage;
 }
 
-function backticJSONParts(string firstSection, string secondSection) (json) {
-    json backTickMessage;
-    backTickMessage = `${firstSection}${secondSection}`;
-    return backTickMessage;
-}
-
-function backtickJSONArrayVariableAccess()(json) {
+function testArrayVariableAccessInJSONInit()(json) {
     json msg;
     string[] stringArray;
     int[] intArray;
 
     stringArray = ["value0", "value1", "value2"];
     intArray = [0, 1, 2];
-    msg = `{"strIndex0":${stringArray[0]},"intIndex2":${intArray[2]},"strIndex2":${stringArray[2]}}`;
+    msg = {"strIndex0":stringArray[0],"intIndex2":intArray[2],"strIndex2":stringArray[2]};
     return msg;
 }
 
@@ -73,12 +67,12 @@ function backtickXMLArrayVariableAccess()(xml) {
     return msg;
 }
 
-function backtickJSONMapVariableAccess()(json) {
+function testMapVariableAccessInJSONInit()(json) {
     json msg;
     map myMap;
 
     myMap = {"stirngVal" : "value0" , "intVal" : 1};
-    msg = `{"val1":${myMap["stirngVal"]},"val2":${myMap["intVal"]}}`;
+    msg = {"val1":(string)myMap["stirngVal"],"val2": (int)myMap["intVal"]};
     return msg;
 }
 
@@ -91,13 +85,13 @@ function backtickXMLMapVariableAccess()(xml) {
     return msg;
 }
 
-function backtickJSONBooleanIntegerValuesAsStrings()(json) {
+function testBooleanIntegerValuesAsStringsInJSONInit()(json) {
     json msg;
     string[] intStrArray;
     string[] boolStrArray;
 
     intStrArray = ["0", "1"];
     boolStrArray = ["true", "false"];
-    msg = `{"intStrIndex0":${intStrArray[0]},"intStrIndex1":${intStrArray[1]},"boolStrIndex0":${boolStrArray[0]}, "boolStrIndex1":${boolStrArray[1]}}`;
+    msg = {"intStrIndex0":intStrArray[0],"intStrIndex1":intStrArray[1], "boolStrIndex0":boolStrArray[0], "boolStrIndex1":boolStrArray[1]};
     return msg;
 }

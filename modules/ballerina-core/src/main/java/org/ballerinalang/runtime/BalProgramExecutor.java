@@ -24,7 +24,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.AnnotationAttachment;
@@ -43,6 +42,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.DebugManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -70,9 +70,10 @@ public class BalProgramExecutor {
         for (ParameterDef parameter : resource.getParameterDefs()) {
             NodeLocation nodeLocation = parameter.getNodeLocation();
             String parameterName = parameter.getName();
-            VariableRefExpr variableRefExpr = new VariableRefExpr(nodeLocation, parameterName);
+            VariableRefExpr variableRefExpr = new VariableRefExpr(nodeLocation, null, parameterName);
             StackVarLocation location = new StackVarLocation(locationCounter);
-            VariableDef variableDef = new VariableDef(nodeLocation, parameter.getType(), new SymbolName(parameterName));
+            VariableDef variableDef = new VariableDef(nodeLocation, null, parameter.getType(),
+                    new SymbolName(parameterName));
             variableRefExpr.setVariableDef(variableDef);
             variableRefExpr.setMemoryLocation(location);
             variableRefExpr.setType(parameter.getType());
@@ -117,27 +118,30 @@ public class BalProgramExecutor {
             // Only start the debugger if there is an active client (debug session).
             if (debugManager.isDebugSessionActive()) {
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
+                debugger.setParentScope(resource);
                 debugManager.setDebugger(debugger);
                 balContext.setExecutor(debugger);
                 debugger.execute(new ResourceInvocationExpr(resource, exprs));
             } else {
-                // repeated code to make sure debugger have no impact in none debug mode.
-                if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-                    balContext.setExecutor(executor);
-                    executor.execute(new ResourceInvocationExpr(resource, exprs));
-                } else {
-                    BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-                    new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+                executor.setParentScope(resource);
+                new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                if (executor.isErrorThrown && executor.thrownError != null) {
+                    String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                            executor.thrownError.getValue(0).stringValue() + "}";
+                    throw new BallerinaException(errorMsg);
                 }
+                balContext.getControlStack().popFrame();
             }
-        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-            balContext.setExecutor(executor);
-            executor.execute(new ResourceInvocationExpr(resource, exprs));
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+            executor.setParentScope(resource);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+            if (executor.isErrorThrown && executor.thrownError != null) {
+                String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                        executor.thrownError.getValue(0).stringValue() + "}";
+                throw new BallerinaException(errorMsg);
+            }
             balContext.getControlStack().popFrame();
         }
     }

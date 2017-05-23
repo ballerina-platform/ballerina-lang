@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.Identifier;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
@@ -27,14 +29,19 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BStructType extends BType {
 
+    private Identifier identifier;
+
     /**
-     * Create a {@code BStructType} which represents a Struct type.
+     * Create a {@code BStructType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
      * @param pkgPath package of the struct
+     * @param symbolScope symbol scope of the struct
+     * @param identifier identifier with string name
      */
-    public BStructType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, null, BStruct.class);
+    public BStructType(String typeName, String pkgPath, SymbolScope symbolScope, Identifier identifier) {
+        super(typeName, pkgPath, symbolScope, BStruct.class);
+        this.identifier = identifier;
     }
 
     @Override
@@ -56,6 +63,15 @@ public class BStructType extends BType {
     @Override
     public int getTag() {
         return TypeTags.STRUCT_TAG;
+    }
+
+    public String getName() {
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 }
 

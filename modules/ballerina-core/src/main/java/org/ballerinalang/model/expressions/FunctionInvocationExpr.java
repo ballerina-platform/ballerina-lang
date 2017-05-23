@@ -21,6 +21,7 @@ import org.ballerinalang.model.Function;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
@@ -42,11 +43,12 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     private int[] offsets;
 
     public FunctionInvocationExpr(NodeLocation location,
+                                  WhiteSpaceDescriptor whiteSpaceDescriptor,
                                   String name,
                                   String pkgName,
                                   String pkgPath,
                                   Expression[] exprs) {
-        super(location);
+        super(location, whiteSpaceDescriptor);
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;

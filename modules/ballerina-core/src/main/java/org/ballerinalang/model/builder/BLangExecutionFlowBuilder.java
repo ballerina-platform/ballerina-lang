@@ -19,6 +19,7 @@ package org.ballerinalang.model.builder;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -37,6 +38,7 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.ConnectorDcl;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.Node;
@@ -60,23 +62,25 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -96,11 +100,14 @@ import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeFunctionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeTypeMapperNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONArrayInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
@@ -113,8 +120,10 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -127,6 +136,8 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -135,7 +146,6 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Arrays;
@@ -196,6 +206,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     // Function/Action Statement stack related to break.
     private Stack<BlockStmt> returningBlockStmtStack;
     private Stack<OffSetCounter> offSetCounterStack;
+    private Stack<Statement> abortTransactionStack;
     private Resource currentResource;
 
     public BLangExecutionFlowBuilder() {
@@ -203,6 +214,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         returningBlockStmtStack = new Stack<>();
         offSetCounterStack = new Stack<>();
         offSetCounterStack.push(new OffSetCounter());
+        abortTransactionStack =  new Stack<>();
         nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
@@ -224,6 +236,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constant) {
+    }
+
+    @Override
+    public void visit(GlobalVariableDef globalVar) {
+
     }
 
     /**
@@ -335,7 +352,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Link Last expression with VariableDefStmtEndNode to perform the variable assignment. .
         VariableDefStmtEndNode endNode = new VariableDefStmtEndNode(varDefStmt);
         // Array,Map,Struct Field Access Expressions can have sub expressions to calculate index.
-        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof StructFieldAccessExpr) {
+        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof FieldAccessExpr) {
             if (rExpr == null) {
                 varDefStmt.setNext(lExpr);
             } else {
@@ -356,7 +373,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             rExpr.accept(this);
         }
         // LHS variableRef expressions are not required to visit.
-        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof StructFieldAccessExpr) {
+        if (lExpr instanceof ArrayMapAccessExpr || lExpr instanceof FieldAccessExpr) {
             lExpr.accept(this);
         }
         endNode.setNext(findNext(varDefStmt));
@@ -374,7 +391,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         Expression[] lExprs = assignStmt.getLExprs();
         for (Expression expression : lExprs) {
             // Array,Map,Struct Field Access Expressions can have sub expressions to calculate index.
-            if (expression instanceof ArrayMapAccessExpr || expression instanceof StructFieldAccessExpr) {
+            if (expression instanceof ArrayMapAccessExpr || expression instanceof FieldAccessExpr) {
                 expression.setParent(assignStmt);
                 previous.setNextSibling(expression);
                 previous = expression;
@@ -389,7 +406,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         rExpr.accept(this);
         // LHS variableRef expressions are not required to visit.
         Arrays.stream(lExprs).filter(expression -> expression instanceof ArrayMapAccessExpr
-                || expression instanceof StructFieldAccessExpr).forEach(expression -> expression.accept(this));
+                || expression instanceof FieldAccessExpr).forEach(expression -> expression.accept(this));
         // Finally find AssignmentStat end node's next.
         endNode.setNext(findNext(assignStmt));
     }
@@ -582,7 +599,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         TryCatchStmtEndNode endNode = new TryCatchStmtEndNode(tryCatchStmt);
         Statement tryBlock = tryCatchStmt.getTryBlock();
-        Statement catchBlock = tryCatchStmt.getCatchBlock().getCatchBlockStmt();
         // Visit Try Catch block.
         tryBlock.setParent(tryCatchStmt);
         tryCatchStmt.setNext(tryBlock);
@@ -591,8 +607,13 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         endNode.setNext(findNext(tryCatchStmt));
 
         // Visit Catch Block.
-        catchBlock.setParent(tryCatchStmt);
-        catchBlock.accept(this);
+        for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            catchBlock.getCatchBlockStmt().setParent(tryCatchStmt);
+            catchBlock.getCatchBlockStmt().accept(this);
+        }
+
+        tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().setParent(tryCatchStmt);
+        tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
     }
 
     @Override
@@ -645,6 +666,29 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        TransactionRollbackStmtEndNode endNode = new TransactionRollbackStmtEndNode(transactionRollbackStmt);
+        Statement transactionBlock = transactionRollbackStmt.getTransactionBlock();
+        Statement rollbackBlock = transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt();
+        // Visit Transaction block.
+        transactionBlock.setParent(transactionRollbackStmt);
+        transactionRollbackStmt.setNext(transactionBlock);
+        transactionBlock.setNextSibling(endNode);
+        abortTransactionStack.push(transactionRollbackStmt);
+        transactionBlock.accept(this);
+        abortTransactionStack.pop();
+        endNode.setNext(findNext(transactionRollbackStmt));
+        // Visit Rollback Block.
+        rollbackBlock.setParent(transactionRollbackStmt);
+        rollbackBlock.accept(this);
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        abortStmt.setNext(findNext(abortTransactionStack.peek()));
+    }
+
+    @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
         workerInvocationStmt.setNext(findNext(workerInvocationStmt));
     }
@@ -652,6 +696,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
         workerReplyStmt.setNext(findNext(workerReplyStmt));
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt) {
+
     }
 
     @Override
@@ -1063,64 +1112,73 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
+    public void visit(FieldAccessExpr fieldAccessExpr) {
         // TODO: Simplify this logic.
-        calculateTempOffSet(structFieldAccessExpr);
-        StructFieldAccessExprEndNode endNode = new StructFieldAccessExprEndNode(structFieldAccessExpr);
-        endNode.setParent(structFieldAccessExpr);
-        ReferenceExpr firstReferenceExpr = structFieldAccessExpr.getVarRef();
-        structFieldAccessExpr.setNext(firstReferenceExpr);
-        firstReferenceExpr.setParent(structFieldAccessExpr);
-        StructFieldAccessExpr current = structFieldAccessExpr.getFieldExpr();
-        firstReferenceExpr.setNextSibling(current);
-        firstReferenceExpr.accept(this);
-        LinkedNode lastLinkedNode = current;
-        while (current != null) {
-            calculateTempOffSet(current);
-            ReferenceExpr varRefExpr = current.getVarRef();
+        StructFieldAccessExprEndNode endNode = new StructFieldAccessExprEndNode(fieldAccessExpr);
+        endNode.setParent(fieldAccessExpr);
+        Expression rootVarRefExpr = fieldAccessExpr.getVarRef();
+        fieldAccessExpr.setNext(rootVarRefExpr);
+        rootVarRefExpr.setParent(fieldAccessExpr);
+        FieldAccessExpr fieldExpr = fieldAccessExpr.getFieldExpr();
+        rootVarRefExpr.setNextSibling(fieldExpr);
+        rootVarRefExpr.accept(this);
+        LinkedNode lastLinkedNode = fieldExpr;
+        
+        while (fieldExpr != null) {
+            Expression varRefExpr = fieldExpr.getVarRef();
             if (varRefExpr instanceof ArrayMapAccessExpr) {
                 Expression[] indexExprs = ((ArrayMapAccessExpr) varRefExpr).getIndexExprs();
                 lastLinkedNode.setNext(indexExprs[0]);
                 for (int i = 1; i < indexExprs.length; i++) {
-                    indexExprs[i - 1].setParent(structFieldAccessExpr);
+                    indexExprs[i - 1].setParent(fieldAccessExpr);
                     indexExprs[i - 1].setNextSibling(indexExprs[i]);
                 }
                 // Last Index.
-                indexExprs[indexExprs.length - 1].setParent(structFieldAccessExpr);
-                if (current.getFieldExpr() != null) {
-                    indexExprs[indexExprs.length - 1].setNextSibling(current.getFieldExpr());
-                    lastLinkedNode = current.getFieldExpr();
+                indexExprs[indexExprs.length - 1].setParent(fieldAccessExpr);
+                if (fieldExpr.getFieldExpr() != null) {
+                    indexExprs[indexExprs.length - 1].setNextSibling(fieldExpr.getFieldExpr());
+                    lastLinkedNode = fieldExpr.getFieldExpr();
                 } else {
-                    if (structFieldAccessExpr.isLHSExpr()) {
+                    if (fieldAccessExpr.isLHSExpr()) {
                         lastLinkedNode = null;
                     } else {
                         indexExprs[indexExprs.length - 1].setNextSibling(endNode);
                         lastLinkedNode = endNode;
                     }
                 }
-                for (Expression indexExpr: indexExprs) {
+                for (Expression indexExpr : indexExprs) {
                     indexExpr.accept(this);
                 }
             } else {
-                if (current.getFieldExpr() != null) {
-                    lastLinkedNode.setNext(current.getFieldExpr());
-                    lastLinkedNode = current.getFieldExpr();
+                FieldAccessExpr childFieldExpr = fieldExpr.getFieldExpr();
+                lastLinkedNode.setNext(varRefExpr);
+                lastLinkedNode = varRefExpr;
+                varRefExpr.setParent(fieldAccessExpr);
+                if (childFieldExpr != null) {
+                    lastLinkedNode.setNextSibling(childFieldExpr);
+                    lastLinkedNode = childFieldExpr;
                 } else {
-                    if (!structFieldAccessExpr.isLHSExpr()) {
-                        lastLinkedNode.setNext(endNode);
+                    if (!fieldAccessExpr.isLHSExpr()) {
+                        lastLinkedNode.setNextSibling(endNode);
                         lastLinkedNode = endNode;
                     }
                 }
+                varRefExpr.accept(this);
             }
-            current = current.getFieldExpr();
-            if (current != null) {
-                current.setParent(structFieldAccessExpr);
+            
+            fieldExpr = fieldExpr.getFieldExpr();
+            if (fieldExpr != null) {
+                fieldExpr.setParent(fieldAccessExpr);
             }
         }
+        
         if (lastLinkedNode != null) {
-            lastLinkedNode.setNext(findNext(structFieldAccessExpr));
+            lastLinkedNode.setNext(findNext(fieldAccessExpr));
         }
-
+    }
+    
+    @Override
+    public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
     }
 
     @Override
@@ -1201,42 +1259,24 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
-        calculateTempOffSet(refTypeInitExpr);
-        RefTypeInitExprEndNode endNode = new RefTypeInitExprEndNode(refTypeInitExpr);
-        Expression rExp = refTypeInitExpr.getRExpr();
-        Expression[] argExprs = refTypeInitExpr.getArgExprs();
-        LinkedNode previous = null;
-        if (rExp != null) {
-            refTypeInitExpr.setNext(rExp);
-            rExp.setParent(refTypeInitExpr);
-            rExp.setNextSibling(endNode);
-            rExp.accept(this);
-            previous = rExp;
-        }
-        endNode.setParent(refTypeInitExpr);
-        if (argExprs != null && argExprs.length > 0) {
-            if (refTypeInitExpr.next == null) {
-                refTypeInitExpr.setNext(argExprs[0]);
-            }
-            for (Expression arg : argExprs) {
-                if (previous != null) {
-                    previous.setNextSibling(arg);
-                }
-
-                previous = arg;
-            }
-            if (previous != null) {
-                previous.setNextSibling(endNode);
-            }
-            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
-        } else {
-            if (refTypeInitExpr.next == null) {
-                refTypeInitExpr.setNext(endNode);
-            }
-        }
-        endNode.setNext(findNext(endNode));
+        visitInitExpression(refTypeInitExpr, new RefTypeInitExprEndNode(refTypeInitExpr));
+    }
+    
+    @Override
+    public void visit(MapInitExpr mapInitExpr) {
+        visitInitExpression(mapInitExpr, new MapInitExprEndNode(mapInitExpr));
     }
 
+    @Override
+    public void visit(JSONInitExpr jsonInitExpr) {
+        visitInitExpression(jsonInitExpr, new JSONInitExprEndNode(jsonInitExpr));
+    }
+
+    @Override
+    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+        visitInitExpression(jsonArrayInitExpr, new JSONArrayInitExprEndNode(jsonArrayInitExpr));
+    }
+    
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         calculateTempOffSet(connectorInitExpr);
@@ -1273,35 +1313,43 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             }
         }
         Connector connector = (Connector) connectorInitExpr.getType();
-        if (connector instanceof AbstractNativeConnector) {
-            endNode.setNext(findNext(connectorInitExpr));
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+        BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
+        endNode.setNext(blockStmt);
+        CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
+        blockStmt.setNextSibling(callableUnitEndNode);
+        GotoNode gotoNode;
+        // Setup MultiLink Statement for this block Statement.
+        if (blockStmt.getGotoNode() != null) {
+            gotoNode = blockStmt.getGotoNode();
         } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-            BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
-            endNode.setNext(blockStmt);
-            CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
-            blockStmt.setNextSibling(callableUnitEndNode);
-            GotoNode gotoNode;
-            // Setup MultiLink Statement for this block Statement.
-            if (blockStmt.getGotoNode() != null) {
-                gotoNode = blockStmt.getGotoNode();
-            } else {
-                gotoNode = new GotoNode();
-                blockStmt.setGotoNode(gotoNode);
-                blockStmt.setNextSibling(gotoNode);
-            }
-            // Get Branching ID for above multi link.
-            int branchID = gotoNode.addNext(callableUnitEndNode);
-            endNode.setHasGotoBranchID(true);
-            endNode.setGotoBranchID(branchID);
-            if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
-                returningBlockStmtStack.push(blockStmt);
-                offSetCounterStack.push(new OffSetCounter());
-                connectorDef.getInitFunction().setFlowBuilderVisited(true);
-                blockStmt.accept(this);
-                connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
-                returningBlockStmtStack.pop();
-            }
+            gotoNode = new GotoNode();
+            blockStmt.setGotoNode(gotoNode);
+            blockStmt.setNextSibling(gotoNode);
+        }
+        // Get Branching ID for above multi link.
+        int branchID = gotoNode.addNext(callableUnitEndNode);
+        endNode.setHasGotoBranchID(true);
+        endNode.setGotoBranchID(branchID);
+        if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
+            returningBlockStmtStack.push(blockStmt);
+            offSetCounterStack.push(new OffSetCounter());
+            connectorDef.getInitFunction().setFlowBuilderVisited(true);
+            blockStmt.accept(this);
+            connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+            returningBlockStmtStack.pop();
+        }
+        if (connectorDef.getInitAction() != null) {
+            ConnectorInitActionStartNode actionStartNode = new ConnectorInitActionStartNode(connectorInitExpr);
+            callableUnitEndNode.setNext(actionStartNode);
+            InvokeNativeActionNode nativeActionNode =
+                    new InvokeNativeActionNode((AbstractNativeAction) connectorDef.getInitAction());
+            actionStartNode.setNext(nativeActionNode);
+            CallableUnitEndNode callableUnitActionEndNode = new CallableUnitEndNode(connectorInitExpr);
+            callableUnitActionEndNode.setNativeInvocation(true);
+            nativeActionNode.setNext(callableUnitActionEndNode);
+            callableUnitActionEndNode.setNext(findNext(connectorInitExpr));
+        } else {
             callableUnitEndNode.setNext(findNext(connectorInitExpr));
         }
     }
@@ -1365,46 +1413,46 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         endNode.setNext(findNext(endNode));
     }
 
-    @Override
-    public void visit(MapInitExpr mapInitExpr) {
-        calculateTempOffSet(mapInitExpr);
-        MapInitExprEndNode endNode = new MapInitExprEndNode(mapInitExpr);
-        Expression rExp = mapInitExpr.getRExpr();
-        Expression[] argExprs = mapInitExpr.getArgExprs();
-        LinkedNode previous = null;
-        if (rExp != null) {
-            mapInitExpr.setNext(rExp);
-            rExp.setParent(mapInitExpr);
-            rExp.setNextSibling(endNode);
-            rExp.accept(this);
-            previous = rExp;
-        }
-        endNode.setParent(mapInitExpr);
-        if (argExprs != null && argExprs.length > 0) {
-            if (mapInitExpr.next == null) {
-                mapInitExpr.setNext(argExprs[0]);
-            }
-            for (Expression arg : argExprs) {
-                if (previous != null) {
-                    previous.setNextSibling(arg);
-                }
+//    @Override
+//    public void visit(MapInitExpr mapInitExpr) {
+//        calculateTempOffSet(mapInitExpr);
+//        MapInitExprEndNode endNode = new MapInitExprEndNode(mapInitExpr);
+//        Expression rExp = mapInitExpr.getRExpr();
+//        Expression[] argExprs = mapInitExpr.getArgExprs();
+//        LinkedNode previous = null;
+//        if (rExp != null) {
+//            mapInitExpr.setNext(rExp);
+//            rExp.setParent(mapInitExpr);
+//            rExp.setNextSibling(endNode);
+//            rExp.accept(this);
+//            previous = rExp;
+//        }
+//        endNode.setParent(mapInitExpr);
+//        if (argExprs != null && argExprs.length > 0) {
+//            if (mapInitExpr.next == null) {
+//                mapInitExpr.setNext(argExprs[0]);
+//            }
+//            for (Expression arg : argExprs) {
+//                if (previous != null) {
+//                    previous.setNextSibling(arg);
+//                }
+//
+//                previous = arg;
+//            }
+//            if (previous != null) {
+//                previous.setNextSibling(endNode);
+//            }
+//            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
+//        } else {
+//            if (mapInitExpr.next == null) {
+//                mapInitExpr.setNext(endNode);
+//            }
+//        }
+//        endNode.setNext(findNext(endNode));
+//    }
 
-                previous = arg;
-            }
-            if (previous != null) {
-                previous.setNextSibling(endNode);
-            }
-            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
-        } else {
-            if (mapInitExpr.next == null) {
-                mapInitExpr.setNext(endNode);
-            }
-        }
-        endNode.setNext(findNext(endNode));
-    }
-
     @Override
-    public void visit(MapStructInitKeyValueExpr keyValueExpr) {
+    public void visit(KeyValueExpr keyValueExpr) {
         calculateTempOffSet(keyValueExpr);
         // Handle this as non-blocking manner.
         Expression keyExpr = keyValueExpr.getKeyExpr();
@@ -1440,6 +1488,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
 
     }
 
@@ -1515,6 +1568,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         this.returningBlockStmtStack.clear();
         this.currentResource = null;
         this.offSetCounterStack.clear();
+        this.abortTransactionStack.clear();
     }
 
     /**
@@ -1599,5 +1653,40 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             return count + 1;
         }
     }
-
+    
+    private void visitInitExpression(RefTypeInitExpr refTypeInitExpr, AbstractLinkedNode endNode) {
+        calculateTempOffSet(refTypeInitExpr);
+        
+        Expression rExp = refTypeInitExpr.getRExpr();
+        Expression[] argExprs = refTypeInitExpr.getArgExprs();
+        LinkedNode previous = null;
+        if (rExp != null) {
+            refTypeInitExpr.setNext(rExp);
+            rExp.setParent(refTypeInitExpr);
+            rExp.setNextSibling(endNode);
+            rExp.accept(this);
+            previous = rExp;
+        }
+        endNode.setParent(refTypeInitExpr);
+        if (argExprs != null && argExprs.length > 0) {
+            if (refTypeInitExpr.next == null) {
+                refTypeInitExpr.setNext(argExprs[0]);
+            }
+            for (Expression arg : argExprs) {
+                if (previous != null) {
+                    previous.setNextSibling(arg);
+                }
+                previous = arg;
+            }
+            if (previous != null) {
+                previous.setNextSibling(endNode);
+            }
+            Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
+        } else {
+            if (refTypeInitExpr.next == null) {
+                refTypeInitExpr.setNext(endNode);
+            }
+        }
+        endNode.setNext(findNext(endNode));
+    }
 }

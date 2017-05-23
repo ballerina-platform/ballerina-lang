@@ -23,12 +23,14 @@ import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.ControlStack;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
+import org.ballerinalang.bre.WorkerExecutor;
 import org.ballerinalang.bre.WorkerRunner;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
@@ -41,6 +43,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -52,15 +55,18 @@ import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
@@ -76,11 +82,14 @@ import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitActionStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeFunctionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeTypeMapperNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONArrayInitExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.JSONInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.RefTypeInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.StructFieldAccessExprEndNode;
@@ -93,8 +102,10 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
@@ -107,6 +118,8 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -114,11 +127,12 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.util.BValueUtils;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -128,14 +142,12 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.FlowBuilderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,6 +156,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -169,7 +182,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private ExecutorService executor;
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
     private boolean completed;
-    private BValue[] structMemBlock;
+
+    public BStruct thrownError;
+    private StructDef error, stackTraceItemDef, stackTraceDef;
+    private SymbolScope parentScope;
+
+    /**
+     * struct memory block stack to temporarily hold nested struct init values.
+     */
+    private Stack<BValue[]> structMemBlockStack = new Stack<BValue[]>();
 
     public BLangAbstractExecutionVisitor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -177,6 +198,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         this.controlStack = bContext.getControlStack();
         this.branchIDStack = new Stack<>();
         this.tryCatchStackRefs = new Stack<>();
+    }
+
+    public void setParentScope(SymbolScope parentScope) {
+        this.parentScope = parentScope;
     }
 
     /* Statement nodes. */
@@ -280,8 +305,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TryCatchStmt {}", getNodeLocation(tryCatchStmt.getNodeLocation()));
         }
-        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt.getCatchBlock(),
-                bContext.getControlStack().getCurrentFrame()));
+        this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt, controlStack.getCurrentFrame()));
         next = tryCatchStmt.next;
     }
 
@@ -305,18 +329,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         int sizeOfValueArray = worker.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
+        // Get values for all the worker arguments
+        int valueCounter = 0;
         // Evaluate the argument expression
-        BValue argValue = getTempValue(workerInvocationStmt.getInMsg());
-
-        if (argValue instanceof BMessage) {
-            argValue = ((BMessage) argValue).clone();
+        Expression[] expressions = workerInvocationStmt.getExpressionList();
+        for (Expression expression : expressions) {
+            localVals[valueCounter++] = getTempValue(expression);
         }
 
-        // Setting argument value in the stack frame
-        localVals[0] = argValue;
-
-        // Get values for all the worker arguments
-        int valueCounter = 1;
 
         for (ParameterDef returnParam : worker.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
@@ -344,11 +364,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         WorkerCallback workerCallback = new WorkerCallback(workerContext);
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
-
+        workerExecutor.setParentScope(worker);
         executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
-        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
-        Future<BMessage> future = executor.submit(workerRunner);
-        worker.setResultFuture(future);
+        WorkerExecutor workerRunner = new WorkerExecutor(workerExecutor, workerContext, worker);
+        executor.submit(workerRunner);
+//        Future<BMessage> future = executor.submit(workerRunner);
+//        worker.setResultFuture(future);
     }
 
     @Override
@@ -361,8 +382,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Future<BMessage> future = worker.getResultFuture();
         try {
             BMessage result = future.get(60, TimeUnit.SECONDS);
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
+            Expression[] expressions = workerReplyStmt.getExpressionList();
+            for (Expression expression: expressions) {
+                assignValueToVarRefExpr(result, (VariableRefExpr) expression);
+            }
             executor.shutdown();
             if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
@@ -370,8 +393,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } catch (Exception e) {
             // If there is an exception in the worker, set an empty value to the return variable
             BMessage result = BTypes.typeMessage.getEmptyValue();
-            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
-            assignValueToVarRefExpr(result, variableRefExpr);
+            Expression[] expressions = workerReplyStmt.getExpressionList();
+            for (Expression expression: expressions) {
+                assignValueToVarRefExpr(result, (VariableRefExpr) expression);
+            }
+
         } finally {
             // Finally, try again to shutdown if not done already
             executor.shutdownNow();
@@ -384,6 +410,31 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing WhileStmt {}", getNodeLocation(whileStmt.getNodeLocation()));
         }
         next = whileStmt.next;
+    }
+
+    @Override
+    public void visit(TransformStmt transformStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TransformStmt {}", getNodeLocation(transformStmt.getNodeLocation()));
+        }
+        next = transformStmt.next;
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TransactionRollbackStmt {}",
+                    getNodeLocation(transactionRollbackStmt.getNodeLocation()));
+        }
+        next = transactionRollbackStmt.next;
+    }
+
+    @Override
+    public void visit(AbortStmt abortStmt) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing AbortStmt {}", getNodeLocation(abortStmt.getNodeLocation()));
+        }
+        next = abortStmt.next;
     }
 
     /* Expression nodes */
@@ -482,7 +533,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
-    public void visit(MapStructInitKeyValueExpr expr) {
+    public void visit(KeyValueExpr expr) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing MapStructInitKeyValueExpr {}", getNodeLocation(expr.getNodeLocation()));
         }
@@ -495,6 +546,22 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing RefTypeInitExpr {}", getNodeLocation(refTypeInitExpr.getNodeLocation()));
         }
         next = refTypeInitExpr.next;
+    }
+
+    @Override
+    public void visit(JSONInitExpr jsonInitExpr) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing JSONInitExpr {}", getNodeLocation(jsonInitExpr.getNodeLocation()));
+        }
+        next = jsonInitExpr.next;
+    }
+
+    @Override
+    public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing JSONArrayInitExpr {}", getNodeLocation(jsonArrayInitExpr.getNodeLocation()));
+        }
+        next = jsonArrayInitExpr.next;
     }
 
     @Override
@@ -534,11 +601,20 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
-    public void visit(StructFieldAccessExpr accessExpr) {
+    public void visit(FieldAccessExpr accessExpr) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing StructFieldAccessExpr {}", getNodeLocation(accessExpr.getNodeLocation()));
         }
         next = accessExpr.next;
+    }
+
+    @Override
+    public void visit(JSONFieldAccessExpr jsonPathExpr) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing JSONPathExpr {}", getNodeLocation(jsonPathExpr.getNodeLocation()));
+        }
+        next = jsonPathExpr.next;
+
     }
 
     @Override
@@ -611,6 +687,16 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing ServiceVarLocation");
         }
         int offset = serviceVarLocation.getStaticMemAddrOffset();
+        RuntimeEnvironment.StaticMemory staticMemory = runtimeEnv.getStaticMemory();
+        return staticMemory.getValue(offset);
+    }
+
+    @Override
+    public BValue access(GlobalVarLocation globalVarLocation) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ServiceVarLocation");
+        }
+        int offset = globalVarLocation.getStaticMemAddrOffset();
         RuntimeEnvironment.StaticMemory staticMemory = runtimeEnv.getStaticMemory();
         return staticMemory.getValue(offset);
     }
@@ -755,6 +841,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+            workerExecutor.setParentScope(worker);
             WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
             workerRunnerList.add(workerRunner);
             triggeredWorkers.put(worker.getName(), workerRunner);
@@ -867,9 +954,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ThrowStmt - EndNode");
         }
-        BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
-        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-        this.handleBException(exception);
+        BStruct error = (BStruct) getTempValue(throwStmtEndNode.getStatement().getExpr());
+        error.setStackTrace(generateStackTrace());
+        handleBException();
     }
 
     @Override
@@ -1072,7 +1159,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryExpressionEndNode.next;
         } catch (RuntimeException e) {
-            handleBException(new BException(e.getMessage()));
+            createBErrorFromException(e, null);
+            handleBException();
         }
     }
 
@@ -1099,7 +1187,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             setTempValue(binaryExpr.getTempOffset(), binaryExprRslt);
             next = binaryEqualityExpressionEndNode.next;
         } catch (RuntimeException e) {
-            handleBException(new BException(e.getMessage()));
+            createBErrorFromException(e, null);
+            handleBException();
         }
     }
     
@@ -1152,7 +1241,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing StructFieldAccess - EndNode");
         }
         next = structFieldAccessExprEndNode.next;
-        StructFieldAccessExpr structFieldAccessExpr = structFieldAccessExprEndNode.getExpression();
+        FieldAccessExpr structFieldAccessExpr = structFieldAccessExprEndNode.getExpression();
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = getTempValue(varRef);
         setTempValue(structFieldAccessExpr.getTempOffset(), getFieldExprValue(structFieldAccessExpr, value));
@@ -1166,7 +1255,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         
         StructInitExpr structInitExpr = structInitExprStartNode.getExpression();
         StructDef structDef = (StructDef) structInitExpr.getType();
-        structMemBlock = new BValue[structDef.getStructMemorySize()];
+        structMemBlockStack.push(new BValue[structDef.getStructMemorySize()]);
 
         // Invoke the <init> function
         Function initFunction = structDef.getInitFunction();
@@ -1174,7 +1263,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             initFunction.getNodeLocation());
         BValue[] returnValues = new BValue[0];
         BValue[] cacheValues = new BValue[initFunction.getTempStackFrameSize() + 1];
-        StackFrame stackFrame = new StackFrame(structMemBlock, returnValues, cacheValues, functionInfo);
+        StackFrame stackFrame = new StackFrame(structMemBlockStack.peek(), returnValues, cacheValues, functionInfo);
         controlStack.pushFrame(stackFrame);
         
         if (structInitExprStartNode.hasGotoBranchID()) {
@@ -1191,18 +1280,17 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         StructInitExpr structInitExpr = structInitExprEndNode.getExpression();
         StructDef structDef = (StructDef) structInitExpr.getType();
-        
+        BValue[] structMemBlock = structMemBlockStack.pop();
         // Iterate through initialize values and re-populate the memory block
         Expression[] argExprs = structInitExpr.getArgExprs();
         for (int i = 0; i < argExprs.length; i++) {
-            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
+            KeyValueExpr expr = (KeyValueExpr) argExprs[i];
             VariableRefExpr varRefExpr = (VariableRefExpr) expr.getKeyExpr();
             StructVarLocation structVarLoc = (StructVarLocation) (varRefExpr).getVariableDef().getMemoryLocation();
             structMemBlock[structVarLoc.getStructMemAddrOffset()] = getTempValue(expr.getValueExpr());
         }
         setTempValue(structInitExpr.getTempOffset(), new BStruct(structDef, structMemBlock));
         next = structInitExprEndNode.next;
-        structMemBlock = null;
     }
 
     @Override
@@ -1216,7 +1304,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
             BValue result = (BValue) getTempValue(typeCastExpression.getRExpr());
-            setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result));
+            setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result,
+                    typeCastExpression.getTargetType()));
         } else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
 
@@ -1303,64 +1392,69 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue[] connectorMemBlock;
         Connector connector = (Connector) connectorInitExpr.getType();
 
-        if (connector instanceof AbstractNativeConnector) {
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
 
-            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-            Expression[] argExpressions = connectorInitExpr.getArgExprs();
-            connectorMemBlock = new BValue[argExpressions.length];
-            for (int j = 0; j < argExpressions.length; j++) {
-                connectorMemBlock[j] = getTempValue(argExpressions[j]);
-            }
-
-            nativeConnector.init(connectorMemBlock);
-            bConnector = new BConnector(nativeConnector, connectorMemBlock);
-
-//            //TODO Fix Issue#320
-//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
-//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
-//            Expression[] argExpressions = connectorDcl.getArgExprs();
-//            connectorMemBlock = new BValue[argExpressions.length];
-//
-//            for (int j = 0; j < argExpressions.length; j++) {
-//                connectorMemBlock[j] = argExpressions[j].execute(this);
-//            }
-//
-//            nativeConnector.init(connectorMemBlock);
-//            connector = nativeConnector;
-            setTempValue(connectorInitExpr.getTempOffset(), bConnector);
-        } else {
-            BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
-
-            int offset = 0;
-            connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
-            for (Expression expr : connectorInitExpr.getArgExprs()) {
-                connectorMemBlock[offset] = getTempValue(expr);
-                offset++;
-            }
-
-            bConnector = new BConnector(connector, connectorMemBlock);
-            setTempValue(connectorInitExpr.getTempOffset(), bConnector);
-            // Create the Stack frame
-            Function initFunction = connectorDef.getInitFunction();
-            BValue[] localVals = new BValue[1];
-            localVals[0] = bConnector;
-
-            // Create an arrays in the stack frame to hold return values;
-            BValue[] returnVals = new BValue[0];
-
-            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-            // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
-                    initFunction.getNodeLocation());
-
-            BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize() + 1];
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
-            controlStack.pushFrame(stackFrame);
-            if (connectorInitExprEndNode.hasGotoBranchID()) {
-                branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());
-            }
+        int offset = 0;
+        connectorMemBlock = new BValue[connectorDef.getSizeOfConnectorMem()];
+        for (Expression expr : connectorInitExpr.getArgExprs()) {
+            connectorMemBlock[offset] = getTempValue(expr);
+            offset++;
         }
 
+        bConnector = new BConnector(connector, connectorMemBlock);
+        setTempValue(connectorInitExpr.getTempOffset(), bConnector);
+        // Create the Stack frame
+        Function initFunction = connectorDef.getInitFunction();
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        // Create an arrays in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[0];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
+                initFunction.getNodeLocation());
+
+        BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize() + 1];
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
+        controlStack.pushFrame(stackFrame);
+        if (connectorInitExprEndNode.hasGotoBranchID()) {
+            branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());
+        }
+
+    }
+
+    @Override
+    public void visit(ConnectorInitActionStartNode connectorInitActionStartNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ConnectorInitAction - StartNode");
+        }
+        next = connectorInitActionStartNode.next;
+        ConnectorInitExpr connectorInitExpr = connectorInitActionStartNode.getExpression();
+        BConnector bConnector = (BConnector) getTempValue(connectorInitExpr);
+        Connector connector = (Connector) connectorInitExpr.getType();
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
+        Action action = connectorDef.getInitAction();
+
+        BValue[] localVals = new BValue[1];
+        localVals[0] = bConnector;
+
+        BValue[] returnVals = new BValue[0];
+
+        CallableUnitInfo functionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
+                action.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        controlStack.pushFrame(stackFrame);
+    }
+
+    @Override
+    public void visit(TransactionRollbackStmtEndNode transactionRollbackStmtEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TransactionRollbackStmt - EndNode");
+        }
+        next = transactionRollbackStmtEndNode.next;
     }
 
     @Override
@@ -1379,8 +1473,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 next = invokeNativeActionNode.next;
             }
         } catch (RuntimeException e) {
-            BException bException = new BException(e.getMessage());
-            handleBException(bException);
+            createBErrorFromException(e, null);
+            handleBException();
         }
     }
 
@@ -1406,16 +1500,17 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(MapInitExprEndNode mapInitExprEndNode) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing MapInitExprEndNode - EndNode");
+            logger.debug("Executing MapInitExpr - EndNode");
         }
         next = mapInitExprEndNode.next;
         Expression[] argExprs = mapInitExprEndNode.getExpression().getArgExprs();
+        BType exprType = mapInitExprEndNode.getExpression().getType();
 
         // Creating a new arrays
-        BMap bMap = mapInitExprEndNode.getExpression().getType().getEmptyValue();
+        BMap bMap = exprType.getEmptyValue();
 
         for (int i = 0; i < argExprs.length; i++) {
-            MapStructInitKeyValueExpr expr = (MapStructInitKeyValueExpr) argExprs[i];
+            KeyValueExpr expr = (KeyValueExpr) argExprs[i];
             BValue keyVal = getTempValue(expr.getKeyExpr());
             BValue value = getTempValue(expr.getValueExpr());
             bMap.put(keyVal, value);
@@ -1423,35 +1518,141 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         setTempValue(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
     }
 
-    /**
-     * Util method handle Ballerina exception. Native implementations <b>Must</b> use method to handle errors.
-     *
-     * @param bException Exception to handle
-     */
-    public void handleBException(BException bException) {
-        // SaveStack current StackTrace.
-        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+//    @Override
+//    public void visit(JSONInitExprEndNode jsonInitExprEndNode) {
+//        if (logger.isDebugEnabled()) {
+//            logger.debug("Executing JSONInitExprEndNode - EndNode");
+//        }
+//        next = jsonInitExprEndNode.next;
+//        Expression[] argExprs = jsonInitExprEndNode.getExpression().getArgExprs();
+//
+//        BType exprType = jsonInitExprEndNode.getExpression().getType();
+//
+//        StringJoiner sj = new StringJoiner(",", "{", "}");
+//        for (int i = 0; i < argExprs.length; i++) {
+//            KeyValueExpr expr = (KeyValueExpr) argExprs[i];
+//            BValue keyVal = getTempValue(expr.getKeyExpr());
+//            BValue value = getTempValue(expr.getValueExpr());
+//            String stringVal;
+//            if (value instanceof BString) {
+//                stringVal = "\"" + value.stringValue() + "\"";
+//            } else {
+//                stringVal = value.stringValue();
+//            }
+//            sj.add("\"" + keyVal.stringValue() + "\" : " + stringVal + "");
+//        }
+//        setTempValue(jsonInitExprEndNode.getExpression().getTempOffset(), new BJSON(sj.toString()));
+//    }
+
+    @Override
+    public void visit(JSONInitExprEndNode jsonInitExprEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing JSONInitExpr - EndNode");
+        }
+        next = jsonInitExprEndNode.next;
+        Expression[] argExprs = jsonInitExprEndNode.getExpression().getArgExprs();
+
+        StringJoiner stringJoiner = new StringJoiner(",", "{", "}");
+        for (int i = 0; i < argExprs.length; i++) {
+            KeyValueExpr expr = (KeyValueExpr) argExprs[i];
+            BValue keyVal = getTempValue(expr.getKeyExpr());
+            BValue value = getTempValue(expr.getValueExpr());
+            String stringVal;
+            if (value == null) {
+                stringVal = null;
+            } else if (value instanceof BString) {
+                stringVal = "\"" + value.stringValue() + "\"";
+            } else {
+                stringVal = value.stringValue();
+            }
+            stringJoiner.add("\"" + keyVal.stringValue() + "\" : " + stringVal + "");
+        }
+        setTempValue(jsonInitExprEndNode.getExpression().getTempOffset(), new BJSON(stringJoiner.toString()));
+    }
+    
+    @Override
+    public void visit(JSONArrayInitExprEndNode jsonInitExprEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing JSONArrayInitExpr - EndNode");
+        }
+        next = jsonInitExprEndNode.next;
+        Expression[] argExprs = jsonInitExprEndNode.getExpression().getArgExprs();
+        
+        StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
+        for (int i = 0; i < argExprs.length; i++) {
+            BValue value = getTempValue(argExprs[i]);
+            String stringVal;
+            if (value == null) {
+                stringVal = null;
+            } else if (value instanceof BString) {
+                stringVal = "\"" + value.stringValue() + "\"";
+            } else {
+                stringVal = value.stringValue();
+            }
+            stringJoiner.add(stringVal);
+        }
+        setTempValue(jsonInitExprEndNode.getExpression().getTempOffset(), new BJSON(stringJoiner.toString()));
+    }
+
+    public void handleBException() {
         if (tryCatchStackRefs.size() == 0) {
             // There is no tryCatch block to handle this exception. Pass this to handle at root.
-            throw new BallerinaException(bException.value().getMessage().stringValue());
+            String errorMsg = "uncaught error: " + thrownError.getType().getName() + "{ msg : " +
+                    thrownError.getValue(0).stringValue() + "}";
+            throw new BallerinaException(errorMsg);
         }
-        TryCatchStackRef ref = tryCatchStackRefs.pop();
-        // unwind stack till we found the current frame.
-        while (controlStack.getCurrentFrame() != ref.stackFrame) {
-            if (controlStack.getStack().size() > 0) {
-                controlStack.popFrame();
+        TryCatchStmt.CatchBlock equalCatchType = null;
+        TryCatchStmt.CatchBlock equivalentCatchBlock = null;
+        TryCatchStackRef ref = null;
+        whileBlock:
+        while (equivalentCatchBlock == null && equalCatchType == null) {
+            if (tryCatchStackRefs.size() > 0) {
+                ref = tryCatchStackRefs.pop();
             } else {
-                // Something has gone wrong. No StackFrame to pop ? this shouldn't be executed.
-                throw new FlowBuilderException("Not handle catch statement in execution builder phase");
+                break;
+            }
+            for (TryCatchStmt.CatchBlock catchBlock : ref.getTryCatchStmt().getCatchBlocks()) {
+                if (thrownError.getType().equals(catchBlock.getParameterDef().getType())) {
+                    equalCatchType = catchBlock;
+                    break whileBlock;
+                }
+                if (equivalentCatchBlock == null && (TypeLattice.getExplicitCastLattice().getEdgeFromTypes
+                        (thrownError.getType(), catchBlock.getParameterDef().getType(), null) != null)) {
+                    equivalentCatchBlock = catchBlock;
+                }
+            }
+            // TODO : Invoke finally block.
+        }
+        if (ref != null) {
+            // unwind stack till we found the current frame.
+            while (controlStack.getCurrentFrame() != ref.stackFrame) {
+                if (controlStack.getStack().size() > 0) {
+                    controlStack.popFrame();
+                } else {
+                    throw new BallerinaException("Not handle catch statement in execution builder phase");
+                }
+            }
+            if (equalCatchType != null || equivalentCatchBlock != null) {
+                MemoryLocation memoryLocation;
+                // Execute Catch block.
+                if (equalCatchType != null) {
+                    memoryLocation = equalCatchType.getParameterDef().getMemoryLocation();
+                    next = equalCatchType.getCatchBlockStmt();
+                } else {
+                    memoryLocation = equivalentCatchBlock.getParameterDef().getMemoryLocation();
+                    next = equivalentCatchBlock.getCatchBlockStmt();
+                }
+                if (memoryLocation instanceof StackVarLocation) {
+                    int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+                    controlStack.setValue(stackFrameOffset, thrownError);
+                }
+            } else {
+                next = null;
+                String errorMsg = "uncaught error: " + thrownError.getType().getName() + "{ msg : " +
+                        thrownError.getValue(0).stringValue() + "}";
+                throw new BallerinaException(errorMsg);
             }
         }
-        MemoryLocation memoryLocation = ref.getCatchBlock().getParameterDef().getMemoryLocation();
-        if (memoryLocation instanceof StackVarLocation) {
-            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
-            controlStack.setValue(stackFrameOffset, bException);
-        }
-        // Execute Catch block.
-        next = ref.getCatchBlock().getCatchBlockStmt();
     }
 
     // Private methods
@@ -1500,8 +1701,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
         } else if (lExpr instanceof ArrayMapAccessExpr) {
             assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
-        } else if (lExpr instanceof StructFieldAccessExpr) {
-            assignValueToStructFieldAccessExpr(rValue, (StructFieldAccessExpr) lExpr);
+        } else if (lExpr instanceof FieldAccessExpr) {
+            assignValueToStructFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
         }
     }
 
@@ -1550,17 +1751,26 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } else if (memoryLocation instanceof StructVarLocation) {
             int structMemOffset = ((StructVarLocation) memoryLocation).getStructMemAddrOffset();
             controlStack.setValue(structMemOffset, rValue);
+        } else if (memoryLocation instanceof GlobalVarLocation) {
+            int globalMemOffset = ((GlobalVarLocation) memoryLocation).getStaticMemAddrOffset();
+            runtimeEnv.getStaticMemory().setValue(globalMemOffset, rValue);
         }
     }
 
     /**
-     * Assign a value to a field of a struct, represented by a {@link StructFieldAccessExpr}.
+     * Assign a value to a field of a struct, represented by a {@link FieldAccessExpr}.
      *
      * @param rValue Value to be assigned
-     * @param lExpr  {@link StructFieldAccessExpr} which represents the field of the struct
+     * @param lExpr  {@link FieldAccessExpr} which represents the field of the struct
      */
-    private void assignValueToStructFieldAccessExpr(BValue rValue, StructFieldAccessExpr lExpr) {
+    private void assignValueToStructFieldAccessExpr(BValue rValue, FieldAccessExpr lExpr) {
         Expression lExprVarRef = lExpr.getVarRef();
+
+        if (lExprVarRef instanceof ArrayMapAccessExpr) {
+            assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExprVarRef);
+            return;
+        }
+
         BValue value = getTempValue(lExprVarRef);
         setFieldValue(rValue, lExpr, value);
     }
@@ -1568,35 +1778,34 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     /**
      * Recursively traverse and set the value of the access expression of a field of a struct.
      *
-     * @param rValue     Value to be set
-     * @param expr       StructFieldAccessExpr of the current field
+     * @param rValue Value to be set
+     * @param currentExpr StructFieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      */
-    private void setFieldValue(BValue rValue, StructFieldAccessExpr expr, BValue currentVal) {
-        // currentVal is a BStruct or arrays/map of BStruct. hence get the element value of it.
-        BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
+    private void setFieldValue(BValue rValue, FieldAccessExpr currentExpr, BValue currentVal) {
+        // currentVal is a unitValue or a array/map. hence get the element value of it.
+        BValue unitVal = getUnitValue(currentVal, currentExpr);
+        
+        if (unitVal == null) {
+            throw new BallerinaException("field '" + currentExpr.getSymbolName() + "' is null");
+        }
+        
+        if (currentExpr.getRefVarType() == BTypes.typeJSON) {
+            setJSONElementValue((BJSON) unitVal, currentExpr.getFieldExpr(), rValue);
+            return;
+        }
 
-        StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
+        BStruct currentStructVal = (BStruct) unitVal;
+        FieldAccessExpr fieldExpr = (FieldAccessExpr) currentExpr.getFieldExpr();
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
         if (fieldExpr.getFieldExpr() == null) {
-            if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-            }
-            setUnitValue(rValue, currentStructVal, fieldLocation, fieldExpr);
+            setStructFieldValue(rValue, currentStructVal, fieldLocation, fieldExpr);
             return;
         }
 
         // At this point, field of the field is not null. Means current element,
-        // and its field are both struct types.
-
-        if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-        }
-
-        // get the unit value of the struct field,
+        // and its field are both complex (struct/map/json) types.
         BValue value = currentStructVal.getValue(fieldLocation);
 
         setFieldValue(rValue, fieldExpr, value);
@@ -1617,8 +1826,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         // If the expression is a struct-field-access-expression, then get the memory location of the variable
         // referenced by the struct-field-access-expression
-        if (expression instanceof StructFieldAccessExpr) {
-            return getMemoryLocation(((StructFieldAccessExpr) expression).getVarRef());
+        if (expression instanceof FieldAccessExpr) {
+            return getMemoryLocation(((FieldAccessExpr) expression).getVarRef());
         }
 
         // Set the memory location of the variable-reference-expression
@@ -1626,7 +1835,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     /**
-     * Set the unit value of the current value.
+     * Set the unit value of the struct field.
      * <br/>
      * i.e: Value represented by a field-access-expression can be one of:
      * <ul>
@@ -1643,36 +1852,36 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * @param memoryLocation Location of the field to be set, in the struct 'lExprValue'
      * @param fieldExpr      Field Access Expression of the current field
      */
-    private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation,
-                              StructFieldAccessExpr fieldExpr) {
+    private void setStructFieldValue(BValue rValue, BStruct lExprValue, int memoryLocation,
+                              FieldAccessExpr fieldExpr) {
 
-        Expression[] exprs;
-        if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
-        } else {
-            // If the lExprValue value is not a struct arrays/map, then set the value to the struct
+        if (!(fieldExpr.getVarRef() instanceof ArrayMapAccessExpr)) {
+            // If the lExprValue value is not a struct array/map, then set the value to the struct field
             lExprValue.setValue(memoryLocation, rValue);
             return;
         }
 
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        Expression[] indexExprs = varRef.getIndexExprs();
+        
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
         if (arrayMapValue == null) {
-            throw new BallerinaException("field '" + fieldExpr.getVarRef().getSymbolName() + " is null");
+            throw new BallerinaException("field '" + varRef.getSymbolName() + " is null");
         }
-        
+
         // Set the value to arrays/map's index location
-        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+
         if (varRef.getRExpr().getType() == BTypes.typeMap) {
-            BValue indexValue = getTempValue(exprs[0]);
+            BValue indexValue = getTempValue(indexExprs[0]);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
             BArray arrayVal = (BArray) arrayMapValue;
-            if (exprs.length > 1) {
-                arrayVal = retrieveArray(arrayVal, exprs);
+            if (indexExprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, indexExprs);
             }
 
-            BInteger indexVal = (BInteger) getTempValue(exprs[0]);
+            BInteger indexVal = (BInteger) getTempValue(indexExprs[0]);
             arrayVal.add(indexVal.intValue(), rValue);
         }
     }
@@ -1680,35 +1889,52 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     /**
      * Recursively traverse and get the value of the access expression of a field of a struct.
      *
-     * @param expr       StructFieldAccessExpr of the current field
+     * @param currentExpr       StructFieldAccessExpr of the current field
      * @param currentVal Value of the expression evaluated so far.
      * @return Value of the expression after evaluating the current field.
      */
-    private BValue getFieldExprValue(StructFieldAccessExpr expr, BValue currentVal) {
-        // currentVal is a BStruct or arrays/map of BStruct. hence get the element value of it.
-        BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
+    private BValue getFieldExprValue(FieldAccessExpr currentExpr, BValue currentVal) {
+        FieldAccessExpr fieldExpr = currentExpr.getFieldExpr();
+        if (fieldExpr == null) {
+            return currentVal;
+        }
+        
+        if (currentExpr.getRefVarType() == BTypes.typeJSON) {
+            return getJSONElementValue((BJSON) currentVal, fieldExpr);
+        } 
+        
+        // currentVal could be a value type or a array/map. Hence get the single element value of it.
+        BValue unitVal = getUnitValue(currentVal, currentExpr);
+        
+        if (unitVal == null) {
+            throw new BallerinaException("field '" + currentExpr.getVarName() + "' is null");
+        }
 
-        StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
+        // if fieldExpr exist means this is a struct.
+        BStruct currentStructVal = (BStruct) unitVal;
+
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
         // If this is the last field, return the value from memory location
-        if (fieldExpr.getFieldExpr() == null) {
-            if (currentStructVal.value() == null) {
-                throw new BallerinaException("variable '" + fieldExpr.getParent().getSymbolName().getName() + 
-                    "' is null");
-            }
-            // Value stored in the struct can be also an arrays. Hence if its an arrray access,
-            // get the aray element value
+        FieldAccessExpr nestedFieldExpr = fieldExpr.getFieldExpr();
+        if (nestedFieldExpr == null) {
+            // Value stored in the struct can be also an array. Hence if its an array access,
+            // get the array element value
             return getUnitValue(currentStructVal.getValue(fieldLocation), fieldExpr);
         }
 
-        if (currentStructVal.value() == null) {
-            throw new BallerinaException("variable '" + fieldExpr.getParent().getSymbolName().getName() + "' is null");
-        }
         BValue value = currentStructVal.getValue(fieldLocation);
 
         // Recursively travel through the struct and get the value
         return getFieldExprValue(fieldExpr, value);
+    }
+
+    private SymbolName generateErrorSymbolName(SymbolName symbolName) {
+        if (symbolName.getPkgPath() != null && symbolName.getPkgPath().equals(".")) {
+            return new SymbolName(symbolName.getName());
+        } else {
+            return symbolName;
+        }
     }
 
     /**
@@ -1717,52 +1943,50 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * i.e: Value represented by a field-access-expression can be one of:
      * <ul>
      * <li>A variable</li>
-     * <li>An element of an arrays/map variable.</li>
+     * <li>An element of an array/map variable.</li>
      * </ul>
      * But the value stored in memory (<b>currentVal</b>) contains the entire variable. This methods
      * retrieves the unit value (either the complete arrays/map or the referenced element of an arrays/map),
      * using the index expression of the 'fieldExpr'.
      *
      * @param currentVal Value of the field expression evaluated so far
-     * @param fieldExpr  Field access expression for the current value
+     * @param currentExpr  Field access expression for the current value
      * @return Unit value of the current value
      */
-    private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
-        ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
-        if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName() + "' is null");
-        }
+    private BValue getUnitValue(BValue currentVal, FieldAccessExpr currentExpr) {
+        ReferenceExpr currentVarRefExpr = (ReferenceExpr) currentExpr.getVarRef();
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
             return currentVal;
         }
 
-        // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
-        Expression[] indexExpr;
+        // If the lExprValue value is not a array/map, then the unit value is same as the struct
+        Expression[] indexExprs;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
+            indexExprs = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
         } else {
             return currentVal;
         }
 
+        // Evaluate the index expression and get the value
         BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
-        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) fieldExpr.getVarRef();
+        ArrayMapAccessExpr varRef = (ArrayMapAccessExpr) currentExpr.getVarRef();
         if (varRef.getRExpr().getType() == BTypes.typeMap) {
-            indexValue = getTempValue(indexExpr[0]);
+            indexValue = getTempValue(indexExprs[0]);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
             BArray bArray = (BArray) currentVal;
-            for (int i = indexExpr.length - 1; i >= 1; i--) {
-                indexValue = getTempValue(indexExpr[i]);
+            for (int i = indexExprs.length - 1; i >= 1; i--) {
+                indexValue = getTempValue(indexExprs[i]);
                 bArray = (BArray) bArray.get(((BInteger) indexValue).intValue());
             }
-            indexValue = getTempValue(indexExpr[0]);
+            indexValue = getTempValue(indexExprs[0]);
             unitVal = bArray.get(((BInteger) indexValue).intValue());
         }
 
-        if (unitVal == null) {
+        if (unitVal == null && currentExpr.getFieldExpr() != null) {
             throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
                     indexValue.stringValue() + "]' is null");
         }
@@ -1779,6 +2003,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private BValue getTempValue(Expression expression) {
         if (expression.hasTemporaryValues()) {
             return bContext.getControlStack().getCurrentFrame().tempValues[expression.getTempOffset()];
+        } else if (expression instanceof FieldAccessExpr)  {
+            FieldAccessExpr fieldAccessExpr = ((FieldAccessExpr) expression);
+            Expression varRef = fieldAccessExpr.getVarRef();
+            BValue value = getTempValue(varRef);
+            return getFieldExprValue(fieldAccessExpr, value);
         } else {
             MemoryLocation memoryLocation = ((VariableRefExpr) expression).getVariableDef().getMemoryLocation();
             return memoryLocation.access(this);
@@ -1832,5 +2061,103 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         return arrayVal;
+    }
+
+    public void createBErrorFromException(Throwable t, String message) {
+        if (error == null) {
+            error = (StructDef) parentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+            if (error == null) {
+                throw new BLangRuntimeException("Unresolved type Error");
+            }
+        }
+        BString msg = new BString(message != null ? message : t.getMessage());
+        thrownError = new BStruct(error, new BValue[]{msg});
+        thrownError.setStackTrace(generateStackTrace());
+    }
+
+    public BStruct generateStackTrace() {
+        if (stackTraceDef == null) {
+            stackTraceItemDef = (StructDef) parentScope.resolve(new SymbolName("StackTraceItem",
+                    "ballerina.lang.errors"));
+            stackTraceDef = (StructDef) parentScope.resolve(new SymbolName("StackTrace",
+                    "ballerina.lang.errors"));
+            if (stackTraceDef == null) {
+                throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:StackTraceItem");
+            }
+        }
+        BArray<BStruct> bArray = stackTraceDef.getFieldDefStmts()[0].getVariableDef().getType().getEmptyValue();
+        Stack<StackFrame> stack = bContext.getControlStack().getStack();
+        BStruct stackTrace = new BStruct(stackTraceDef, new BValue[]{bArray});
+        for (int i = stack.size(); i > 0; i--) {
+            StackFrame currentFrame = stack.get(i - 1);
+            BValue[] structInfo = {
+                    new BString(currentFrame.getNodeInfo().getName()),
+                    new BString(currentFrame.getNodeInfo().getPackage()),
+                    new BString(currentFrame.getNodeInfo().getNodeLocation().getFileName()),
+                    new BInteger(currentFrame.getNodeInfo().getNodeLocation().getLineNumber()),
+            };
+            BStruct frameItem = new BStruct(stackTraceItemDef, structInfo);
+            bArray.add((stack.size() - i), frameItem);
+        }
+        return stackTrace;
+    }
+    
+    /**
+     * Get the value of element from a given json object.
+     * 
+     * @param json JSON to get the value
+     * @param fieldExpr Field expression represent the element of the json to be extracted
+     * @return value of the element represented by the field expression
+     */
+    private BValue getJSONElementValue(BJSON json, FieldAccessExpr fieldExpr) {
+        if (fieldExpr == null) {
+            return json;
+        }
+        
+        BJSON jsonElement;
+        BValue elementIndex = getTempValue(fieldExpr.getVarRef());
+        if (json == null) {
+            throw new BallerinaException("cannot get '" + elementIndex.stringValue() + "' from null");
+        }
+        
+        if (elementIndex.getType() == BTypes.typeInt) {
+            jsonElement = JSONUtils.getArrayElement(json, ((BInteger) elementIndex).intValue());
+        } else {
+            jsonElement = JSONUtils.getElement(json, elementIndex.stringValue());
+        }
+        return getJSONElementValue(jsonElement, fieldExpr.getFieldExpr());
+    }
+    
+    /**
+     * Recursively traverse and set the value of the access expression of a field of a json.
+     * 
+     * @param json JSON to set the value
+     * @param fieldExpr Expression represents the field
+     * @param rValue Value to be set
+     */
+    private void setJSONElementValue(BJSON json, FieldAccessExpr fieldExpr, BValue rValue) {
+        BValue elementIndex = getTempValue(fieldExpr.getVarRef());
+        if (json == null) {
+            throw new BallerinaException("cannot set '" + elementIndex.stringValue() + "' of null");
+        }
+        
+        FieldAccessExpr childField = fieldExpr.getFieldExpr();
+        BJSON jsonElement;
+        
+        if (childField == null) {
+            if (elementIndex.getType() == BTypes.typeInt) {
+                JSONUtils.setArrayElement(json, ((BInteger) elementIndex).intValue(), (BJSON) rValue);
+            } else {
+                JSONUtils.setElement(json, elementIndex.stringValue(), (BJSON) rValue);
+            }
+            return;
+        }
+        
+        if (elementIndex.getType() == BTypes.typeInt) {
+            jsonElement = JSONUtils.getArrayElement(json, ((BInteger) elementIndex).intValue());
+        } else {
+            jsonElement = JSONUtils.getElement(json, elementIndex.stringValue());
+        }
+        setJSONElementValue(jsonElement, childField, rValue);
     }
 }

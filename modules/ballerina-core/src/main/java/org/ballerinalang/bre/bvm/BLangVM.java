@@ -82,8 +82,8 @@ public class BLangVM {
         ip = mainFuncInfo.getCodeAttributeInfo().getCodeAddrs();
 
         exec();
-
     }
+
 
     /**
      * Act as a virtual CPU
@@ -118,278 +118,278 @@ public class BLangVM {
             StackFrame sf = stackFrames[fp];
 
             switch (opcode) {
-                case InstructionCodes.iconst:
+                case InstructionCodes.ICONST:
                     cpIndex = operands[0];
                     i = operands[1];
                     sf.longRegs[i] = ((IntegerCPEntry) constPool[cpIndex]).getValue();
                     break;
-                case InstructionCodes.fconst:
+                case InstructionCodes.FCONST:
                     cpIndex = operands[0];
                     i = operands[1];
                     sf.doubleRegs[i] = ((FloatCPEntry) constPool[cpIndex]).getValue();
                     break;
-                case InstructionCodes.sconst:
+                case InstructionCodes.SCONST:
                     cpIndex = operands[0];
                     i = operands[1];
                     sf.stringRegs[i] = ((StringCPEntry) constPool[cpIndex]).getValue();
                     break;
-                case InstructionCodes.iconst_0:
+                case InstructionCodes.ICONST_0:
                     i = operands[0];
                     sf.longRegs[i] = 0;
                     break;
-                case InstructionCodes.iconst_1:
+                case InstructionCodes.ICONST_1:
                     i = operands[0];
                     sf.longRegs[i] = 1;
                     break;
-                case InstructionCodes.iconst_2:
+                case InstructionCodes.ICONST_2:
                     i = operands[0];
                     sf.longRegs[i] = 2;
                     break;
-                case InstructionCodes.iconst_3:
+                case InstructionCodes.ICONST_3:
                     i = operands[0];
                     sf.longRegs[i] = 3;
                     break;
-                case InstructionCodes.iconst_4:
+                case InstructionCodes.ICONST_4:
                     i = operands[0];
                     sf.longRegs[i] = 4;
                     break;
-                case InstructionCodes.iconst_5:
+                case InstructionCodes.ICONST_5:
                     i = operands[0];
                     sf.longRegs[i] = 5;
                     break;
-                case InstructionCodes.fconst_0:
+                case InstructionCodes.FCONST_0:
                     i = operands[0];
                     sf.doubleRegs[i] = 0;
                     break;
-                case InstructionCodes.fconst_1:
+                case InstructionCodes.FCONST_1:
                     i = operands[0];
                     sf.doubleRegs[i] = 1;
                     break;
-                case InstructionCodes.fconst_2:
+                case InstructionCodes.FCONST_2:
                     i = operands[0];
                     sf.doubleRegs[i] = 2;
                     break;
-                case InstructionCodes.fconst_3:
+                case InstructionCodes.FCONST_3:
                     i = operands[0];
                     sf.doubleRegs[i] = 3;
                     break;
-                case InstructionCodes.fconst_4:
+                case InstructionCodes.FCONST_4:
                     i = operands[0];
                     sf.doubleRegs[i] = 4;
                     break;
-                case InstructionCodes.fconst_5:
+                case InstructionCodes.FCONST_5:
                     i = operands[0];
                     sf.doubleRegs[i] = 5;
                     break;
-                case InstructionCodes.bconst_0:
+                case InstructionCodes.BCONST_0:
                     i = operands[0];
                     sf.intRegs[i] = 0;
                     break;
-                case InstructionCodes.bconst_1:
+                case InstructionCodes.BCONST_1:
                     i = operands[0];
                     sf.intRegs[i] = 1;
                     break;
-                case InstructionCodes.iload:
+                case InstructionCodes.ILOAD:
                     lvIndex = operands[0];
                     i = operands[1];
                     sf.longRegs[i] = sf.longLocalVars[lvIndex];
                     break;
-                case InstructionCodes.sload:
+                case InstructionCodes.SLOAD:
                     lvIndex = operands[0];
                     i = operands[1];
                     sf.stringRegs[i] = sf.stringLocalVars[lvIndex];
                     break;
-                case InstructionCodes.rload:
+                case InstructionCodes.RLOAD:
                     lvIndex = operands[0];
                     i = operands[1];
                     sf.bValueRegs[i] = sf.bValueLocalVars[lvIndex];
                     break;
-                case InstructionCodes.iaload:
+                case InstructionCodes.IALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bIntArray = (BIntArray) sf.bValueRegs[i];
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
                     break;
-                case InstructionCodes.faload:
+                case InstructionCodes.FALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bFloatArray = (BFloatArray) sf.bValueRegs[i];
                     sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
                     break;
-                case InstructionCodes.saload:
+                case InstructionCodes.SALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bStringArray = (BStringArray) sf.bValueRegs[i];
                     sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
                     break;
-                case InstructionCodes.baload:
+                case InstructionCodes.BALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bBooleanArray = (BBooleanArray) sf.bValueRegs[i];
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                     break;
-                case InstructionCodes.raload:
+                case InstructionCodes.RALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bArray = (BRefValueArray) sf.bValueRegs[i];
                     sf.bValueRegs[k] = bArray.get(sf.longRegs[j]);
                     break;
-                case InstructionCodes.istore:
+                case InstructionCodes.ISTORE:
                     i = operands[0];
                     lvIndex = operands[1];
                     sf.longLocalVars[lvIndex] = sf.longRegs[i];
                     break;
-                case InstructionCodes.sstore:
+                case InstructionCodes.SSTORE:
                     i = operands[0];
                     lvIndex = operands[1];
                     sf.stringLocalVars[lvIndex] = sf.stringRegs[i];
                     break;
-                case InstructionCodes.rstore:
+                case InstructionCodes.RSTORE:
                     i = operands[0];
                     lvIndex = operands[1];
                     sf.bValueLocalVars[lvIndex] = sf.bValueRegs[i];
                     break;
-                case InstructionCodes.iastore:
+                case InstructionCodes.IASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bIntArray = (BIntArray) sf.bValueRegs[i];
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                     break;
-                case InstructionCodes.fastore:
+                case InstructionCodes.FASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bFloatArray = (BFloatArray) sf.bValueRegs[i];
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                     break;
-                case InstructionCodes.sastore:
+                case InstructionCodes.SASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bStringArray = (BStringArray) sf.bValueRegs[i];
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                     break;
-                case InstructionCodes.bastore:
+                case InstructionCodes.BASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bBooleanArray = (BBooleanArray) sf.bValueRegs[i];
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                     break;
-                case InstructionCodes.rastore:
+                case InstructionCodes.RASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bArray = (BRefValueArray) sf.bValueRegs[i];
                     bArray.add(sf.longRegs[j], sf.bValueRegs[k]);
                     break;
-                case InstructionCodes.ifieldload:
+                case InstructionCodes.IFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     sf.longRegs[j] = structureType.getIntField(fieldIndex);
                     break;
-                case InstructionCodes.ffieldload:
+                case InstructionCodes.FFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     sf.doubleRegs[j] = structureType.getFloatField(fieldIndex);
                     break;
-                case InstructionCodes.sfieldload:
+                case InstructionCodes.SFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     sf.stringRegs[j] = structureType.getStringField(fieldIndex);
                     break;
-                case InstructionCodes.bfieldload:
+                case InstructionCodes.BFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     sf.intRegs[j] = structureType.getBooleanField(fieldIndex);
                     break;
-                case InstructionCodes.rfieldload:
+                case InstructionCodes.RFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     sf.bValueRegs[j] = structureType.getRefField(fieldIndex);
                     break;
-                case InstructionCodes.ifieldstore:
+                case InstructionCodes.IFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     structureType.setIntField(fieldIndex, sf.longRegs[j]);
                     break;
-                case InstructionCodes.ffieldstore:
+                case InstructionCodes.FFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     structureType.setFloatField(fieldIndex, sf.doubleRegs[j]);
                     break;
-                case InstructionCodes.sfieldstore:
+                case InstructionCodes.SFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     structureType.setStringField(fieldIndex, sf.stringRegs[j]);
                     break;
-                case InstructionCodes.bfieldstore:
+                case InstructionCodes.BFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     structureType.setBooleanField(fieldIndex, sf.intRegs[j]);
                     break;
-                case InstructionCodes.rfieldstore:
+                case InstructionCodes.RFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.bValueRegs[i];
                     structureType.setRefField(fieldIndex, sf.bValueRegs[j]);
                     break;
-                case InstructionCodes.iadd:
+                case InstructionCodes.IADD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     sf.longRegs[k] = sf.longRegs[i] + sf.longRegs[j];
                     break;
-                case InstructionCodes.fadd:
+                case InstructionCodes.FADD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     sf.doubleRegs[k] = sf.doubleRegs[i] + sf.doubleRegs[j];
                     break;
-                case InstructionCodes.sadd:
+                case InstructionCodes.SADD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
                     break;
-                case InstructionCodes.imul:
+                case InstructionCodes.IMUL:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     sf.longRegs[k] = sf.longRegs[i] * sf.longRegs[j];
                     break;
-                case InstructionCodes.isub:
+                case InstructionCodes.ISUB:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     sf.longRegs[k] = sf.longRegs[i] - sf.longRegs[j];
                     break;
-                case InstructionCodes.icmp:
+                case InstructionCodes.ICMP:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
@@ -401,53 +401,53 @@ public class BLangVM {
                         sf.intRegs[k] = -1;
                     }
                     break;
-                case InstructionCodes.ifeq:
+                case InstructionCodes.IFEQ:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] == 0) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.ifne:
+                case InstructionCodes.IFNE:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] != 0) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.iflt:
+                case InstructionCodes.IFLT:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] < 0) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.ifge:
+                case InstructionCodes.IFGE:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] >= 0) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.ifgt:
+                case InstructionCodes.IFGT:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] > 0) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.ifle:
+                case InstructionCodes.IFLE:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] <= 0) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.goto_:
+                case InstructionCodes.GOTO:
                     i = operands[0];
                     ip = i;
                     break;
-                case InstructionCodes.call:
+                case InstructionCodes.CALL:
                     cpIndex = operands[0];
                     FunctionRefCPEntry funcCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
                     FunctionInfo functionInfo = funcCPEntry.getFunctionInfo();
@@ -456,7 +456,7 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.acall:
+                case InstructionCodes.ACALL:
                     cpIndex = operands[0];
                     ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
                     ActionInfo actionInfo = actionRefCPEntry.getActionInfo();
@@ -465,32 +465,32 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(actionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.ret:
+                case InstructionCodes.RET:
                     cpIndex = operands[0];
                     FunctionReturnCPEntry funcRetCPEntry = (FunctionReturnCPEntry) constPool[cpIndex];
                     handleReturn(funcRetCPEntry.getRegIndexes());
                     break;
-                case InstructionCodes.inewarray:
+                case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.bValueRegs[i] = new BIntArray();
                     break;
-                case InstructionCodes.fnewarray:
+                case InstructionCodes.FNEWARRAY:
                     i = operands[0];
                     sf.bValueRegs[i] = new BFloatArray();
                     break;
-                case InstructionCodes.snewarray:
+                case InstructionCodes.SNEWARRAY:
                     i = operands[0];
                     sf.bValueRegs[i] = new BStringArray();
                     break;
-                case InstructionCodes.bnewarray:
+                case InstructionCodes.BNEWARRAY:
                     i = operands[0];
                     sf.bValueRegs[i] = new BBooleanArray();
                     break;
-                case InstructionCodes.rnewarray:
+                case InstructionCodes.RNEWARRAY:
                     i = operands[0];
                     sf.bValueRegs[i] = new BRefValueArray();
                     break;
-                case InstructionCodes.newstruct:
+                case InstructionCodes.NEWSTRUCT:
                     cpIndex = operands[0];
                     i = operands[1];
                     structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
@@ -499,7 +499,7 @@ public class BLangVM {
                     bStruct.init(fieldCount);
                     sf.bValueRegs[i] = bStruct;
                     break;
-                case InstructionCodes.newconnector:
+                case InstructionCodes.NEWCONNECTOR:
                     cpIndex = operands[0];
                     i = operands[1];
                     structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];

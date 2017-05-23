@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import static org.ballerinalang.nativeimpl.connectors.http.Constants.HTTP_METHOD;
+import static org.ballerinalang.nativeimpl.actions.http.Constants.HTTP_METHOD;
 
 /**
  * Get HTTP Method from the message.

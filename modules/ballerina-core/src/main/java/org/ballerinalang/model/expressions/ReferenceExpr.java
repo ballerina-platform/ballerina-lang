@@ -43,4 +43,8 @@ public interface ReferenceExpr extends Expression {
     boolean isLHSExpr();
 
     void setLHSExpr(boolean lhsExpr);
+
+    String getPkgName();
+
+    String getPkgPath();
 }

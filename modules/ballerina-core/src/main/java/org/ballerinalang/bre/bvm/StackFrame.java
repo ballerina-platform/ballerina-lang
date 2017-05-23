@@ -56,7 +56,13 @@ public class StackFrame {
 
         this.longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         this.doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+
         this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        // Setting the zero values for strings
+        for (int i = 0; i < stringLocalVars.length; i++) {
+            this.stringLocalVars[i] = "";
+        }
+
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.bValueLocalVars = new BRefType[codeAttribInfo.getMaxBValueLocalVars()];
 
