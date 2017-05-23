@@ -11,4 +11,5 @@ public interface CompositeAggregator {
     public Object aggregate(Object... results);
 
     public Expression[] getBaseAggregators();
+
 }

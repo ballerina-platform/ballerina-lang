@@ -9,6 +9,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
@@ -19,21 +20,23 @@ import java.util.concurrent.ConcurrentMap;
 
 public class IncrementalExecutor implements Executor{
     // compositeAggregators contains a map of CompositeAggregator
-    private List<CompositeAggregator> compositeAggregators;
+    public List<CompositeAggregator> compositeAggregators;
     // basicExecutorDetails contains basic executors such as sum, count, and etc
     // we need to build composite aggregates.
-    private List<ExpressionExecutorDetails> basicExecutorDetails;
-    private ExecutionPlanContext executionPlanContext;
+    public List<ExpressionExecutorDetails> basicExecutorDetails;
+    public ExecutionPlanContext executionPlanContext;
     // groupByExecutor is used to get the value of group by clause
-    private ExpressionExecutor groupByExecutor;
-    private long nextEmitTime = -1;
-    private long startTime = 0;
-    private TimePeriod.Duration duration;
+    public ExpressionExecutor groupByExecutor;
+    public long nextEmitTime = -1;
+    public long startTime = 0;
+    public TimePeriod.Duration duration;
     public IncrementalExecutor child;
     // For each unique value of the the "group by" attribute
     // we initialize this array and keep function values.
-    private ConcurrentMap<String, ConcurrentMap<String, Object>> storeAggregatorFunctions;
-    private IncrementalExecutor next;
+    public ConcurrentMap<String, ConcurrentMap<String, Object>> storeAggregatorFunctions;
+    public IncrementalExecutor next;
+    public Variable groupByVariable;
+    public List<Attribute> FilteredAttributes;
 
 
     private IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child,
@@ -51,15 +54,19 @@ public class IncrementalExecutor implements Executor{
                 executorList, executionPlanContext, defaultStreamEventIndex, queryName);
         storeAggregatorFunctions = new ConcurrentHashMap<>();
         this.executionPlanContext = executionPlanContext;
+        this.groupByVariable = groupByVariable;
         setNextExecutor();
     }
 
-    private List<CompositeAggregator> createIncrementalAggregators(List<AttributeFunction> functionAttributes) {
+    public List<CompositeAggregator> createIncrementalAggregators(List<AttributeFunction> functionAttributes) {
         List<CompositeAggregator> compositeAggregators = new ArrayList<>();
         for (AttributeFunction function : functionAttributes) {
             if (function.getName().equals("avg")) {
                 AvgIncrementalAttributeAggregator average = new AvgIncrementalAttributeAggregator(function);
                 compositeAggregators.add(average);
+            }else if (function.getName().equals("sum")) {
+                SumIncrementalAttributeAggregator sum = new SumIncrementalAttributeAggregator(function);
+                compositeAggregators.add(sum);
             } else {
                 // TODO: 3/10/17 add other Exceptions
             }
@@ -67,7 +74,7 @@ public class IncrementalExecutor implements Executor{
         return compositeAggregators;
     }
 
-    private List<Object> calculateAggregators(String groupBy) {
+    public List<Object> calculateAggregators(String groupBy) {
         // TODO: 5/11/17 This returns the actual aggregate by using base aggregates (eg. avg=sum/count)
         List<Object> aggregatorValues = new ArrayList<>();
         for (CompositeAggregator compositeAggregator : this.compositeAggregators) {
@@ -86,7 +93,7 @@ public class IncrementalExecutor implements Executor{
         return aggregatorValues;
     }
 
-    private void resetAggregatorStore(){
+    public void resetAggregatorStore(){
         this.storeAggregatorFunctions = new ConcurrentHashMap<>();
     }
 
@@ -101,7 +108,7 @@ public class IncrementalExecutor implements Executor{
      * @param queryName
      * @return
      */
-    private ExpressionExecutor generateGroupByExecutor(Variable groupByClause, MetaComplexEvent metaEvent,
+    public ExpressionExecutor generateGroupByExecutor(Variable groupByClause, MetaComplexEvent metaEvent,
                                                        int currentState, Map<String, Table> tableMap,
                                                        List<VariableExpressionExecutor> executorList,
                                                        ExecutionPlanContext executionPlanContext,
@@ -126,7 +133,7 @@ public class IncrementalExecutor implements Executor{
      * @param queryName
      * @return
      */
-    private List<ExpressionExecutorDetails> basicFunctionExecutors(MetaComplexEvent metaEvent,
+    public List<ExpressionExecutorDetails> basicFunctionExecutors(MetaComplexEvent metaEvent,
                                                                    int currentState, Map<String, Table> tableMap,
                                                                    List<VariableExpressionExecutor> executorList,
                                                                    ExecutionPlanContext executionPlanContext, boolean groupBy,
@@ -302,7 +309,7 @@ public class IncrementalExecutor implements Executor{
         return null;
     }
 
-    private class ExpressionExecutorDetails {
+    public class ExpressionExecutorDetails {
         private ExpressionExecutor executor;
         private String executorName;
 
@@ -367,7 +374,7 @@ public class IncrementalExecutor implements Executor{
         }
     }
 
-    private long getNextEmitTime(long currentTime) {
+    public long getNextEmitTime(long currentTime) {
         // returns the next emission time based on system clock round time values.
         long elapsedTimeSinceLastEmit = (currentTime - startTime) % 1000;
         long emitTime = currentTime + (1000 - elapsedTimeSinceLastEmit);

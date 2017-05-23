@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.event.stream.converter.AggregatorEventConverterFactory;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
@@ -32,7 +33,9 @@ import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ExecuteStreamReceiver implements StreamJunction.Receiver {
 
@@ -166,12 +169,20 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timestamp, Object[] data) {
+
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         streamEventConverter.convertData(timestamp, data, borrowedEvent);
         // Send to debugger
         if (siddhiDebugger != null) {
             siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, borrowedEvent);
         }
+//        ComplexEventChunk complexEventChunk = new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed);
+
+        /*Map temp = new HashMap();
+        for (IncrementalExecutor.ExpressionExecutorDetails expressionExecutor : ((IncrementalExecutor)next).basicExecutorDetails) {
+            temp.put(expressionExecutor.getExecutorName(), expressionExecutor.getExecutor().execute(complexEventChunk.getFirst()));
+        }
+        borrowedEvent.getOnAfterWindowData();*/
         execute(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed));
     }
 
@@ -205,7 +216,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     }
 
     public void init() {
-        streamEventConverter = StreamEventConverterFactory.constructEventConverter(metaStreamEvent);
+        streamEventConverter = AggregatorEventConverterFactory.constructEventConverter(metaStreamEvent);
     }
 
     public void addStatefulProcessor(PreStateProcessor stateProcessor) {

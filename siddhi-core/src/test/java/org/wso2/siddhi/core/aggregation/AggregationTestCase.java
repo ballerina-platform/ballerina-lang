@@ -80,7 +80,7 @@ public class AggregationTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
         String query = " define aggregation test " +
                 "from cseEventStream " +
-                "select symbol, avg(price1) as avgPrice " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1 " +
                 "group by symbol " +
                 "aggregate every sec, min ;";
         //String query = " @info(name = 'query1') from cseEventStream select symbol, sum(volume) as vol group by symbol insert into outputStream; ";

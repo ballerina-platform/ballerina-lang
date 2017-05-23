@@ -18,7 +18,7 @@ public class InMemoryIncrementalStore implements IncrementalStore {
     }
 
     @Override
-    public void add(long timestamp, Object data) {
+    public void add(long timestamp, String groupByAttribute, Object data) {
 
     }
 

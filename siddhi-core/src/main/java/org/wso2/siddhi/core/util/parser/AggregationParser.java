@@ -3,12 +3,13 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.MetaStateEvent;
+import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
+import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AggregatorSelector;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AggregatorSelectorParse;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -24,6 +25,7 @@ import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -134,19 +136,76 @@ public class AggregationParser {
             }
 
 
+
+
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
             ExecuteStreamReceiver executeStreamReceiver = new ExecuteStreamReceiver(singleInputStream.getStreamId(), latencyTracker, aggregatorName);
 
             aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, metaComplexEvent, executeStreamReceiver);
             aggregationRuntime.setIncrementalExecutor(child);
 
-            AggregationDefinitionParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
-            AggregationDefinitionParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);
-            AggregationDefinitionParserHelper.initStreamRuntime(streamRuntime, streamRuntime.getMetaComplexEvent(), lockWrapper, aggregatorName, aggregationRuntime);
+            /***Following is related to new MetaStreamEvent creation***/
+            //Get the groupByAttribute name and type // TODO: 5/22/17 check whether there's a better way to get groupBy name, type
+            Attribute groupByAttributeNameType = null;
+            AbstractDefinition inputDefinition = streamDefinitionMap.get(singleInputStream.getStreamId());
+            for (Attribute attribute:inputDefinition.getAttributeList()) {
+                if (attribute.getName().equals(groupByVar.getAttributeName())) {
+                    groupByAttributeNameType = attribute;
+                }
+            }
+
+            List<Attribute> attributeList = new ArrayList<>();
+
+            //Create new metaStreamEvent corresponding to groupBy attribute and base aggregators
+            MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+
+            metaStreamEvent.addInputDefinition(inputDefinition);
+
+            //Add groupBy attribute as output data
+//            metaStreamEvent.addOutputData(groupByAttributeNameType);// TODO: 5/23/17 data added to onAfterWindow
+
+            metaStreamEvent.initializeAfterWindowData();
+            metaStreamEvent.addData(groupByAttributeNameType);
+            attributeList.add(groupByAttributeNameType); // TODO: 5/23/17 no need of a new VariableExpressionExecutor coz it's from original?
+
+
+            //Add base aggregator attributes
+            /*for (IncrementalExecutor.ExpressionExecutorDetails basicExecutor : aggregationRuntime.getIncrementalExecutor().basicExecutorDetails) {
+                Attribute  attribute = new Attribute(basicExecutor.getExecutorName(),basicExecutor.getExecutor().getReturnType());
+                metaStreamEvent.addOutputData(attribute);
+                attributeList.add(attribute);
+            }*/
+            // TODO: 5/23/17 change following
+            IncrementalExecutor.ExpressionExecutorDetails basicExecutor = aggregationRuntime.getIncrementalExecutor().basicExecutorDetails.get(0);
+            Attribute  attribute = new Attribute(basicExecutor.getExecutorName(), Attribute.Type.FLOAT);
+            metaStreamEvent.addData(attribute);
+            attributeList.add(attribute);
+            VariableExpressionExecutor varExpExec1 = new VariableExpressionExecutor(attribute,-1,0); // TODO: 5/23/17 param?
+            executors.add(varExpExec1);
+
+
+            basicExecutor = aggregationRuntime.getIncrementalExecutor().basicExecutorDetails.get(1);
+            attribute = new Attribute(basicExecutor.getExecutorName(), Attribute.Type.FLOAT);
+            metaStreamEvent.addData(attribute);
+            attributeList.add(attribute);
+            VariableExpressionExecutor varExpExec2 = new VariableExpressionExecutor(attribute,-1,0); // TODO: 5/23/17 param?
+            executors.add(varExpExec2);
+
+
+            // TODO: 5/23/17 populate here?
+            StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,0,attributeList);
+            /*******************************************/
+
+            AggregationDefinitionParserHelper.reduceMetaComplexEvent(metaStreamEvent);
+            AggregationDefinitionParserHelper.updateVariablePosition(metaStreamEvent, executors); // TODO: 5/22/17 change this logic
+            AggregationDefinitionParserHelper.initStreamRuntime(streamRuntime, metaStreamEvent, lockWrapper, aggregatorName, aggregationRuntime);
         } catch (RuntimeException ex) {
             throw ex; // TODO: 5/12/17 should we log?
         }
 
+
+//        MetaStreamEvent m=  new MetaStreamEvent();
+//        new ComEve
         return aggregationRuntime;
     }
 

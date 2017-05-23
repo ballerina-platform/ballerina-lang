@@ -43,7 +43,11 @@ public class SelectiveStreamEventConverter implements StreamEventConverter {
                     borrowedEvent.setBeforeWindowData(data[fromPosition], position[1]);
                     break;
                 case 1:
-                    borrowedEvent.setOnAfterWindowData(data[fromPosition], position[1]);
+                    if (fromPosition != -1) { // TODO: 5/23/17 ok to change this?
+                        borrowedEvent.setOnAfterWindowData(data[fromPosition], position[1]);
+                    } else {
+                        borrowedEvent.setOnAfterWindowData(1, position[1]);
+                    }
                     break;
                 case 2:
                     borrowedEvent.setOutputData(data[fromPosition], position[1]);
