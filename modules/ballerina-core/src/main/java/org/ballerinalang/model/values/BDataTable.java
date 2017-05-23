@@ -38,12 +38,10 @@ import java.util.Map;
 public class BDataTable implements BRefType<Object> {
 
     private DataIterator iterator;
-    private Map<String, Object> properties;
     private List<ColumnDefinition> columnDefs;
 
-    public BDataTable(DataIterator dataIterator, Map<String, Object> properties, List<ColumnDefinition> columnDefs) {
+    public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
-        this.properties = properties;
         this.columnDefs = columnDefs;
     }
 
