@@ -27,6 +27,10 @@ import java.util.List;
 
 public class BallerinaTypes {
 
+    private BallerinaTypes() {
+
+    }
+
     public static List<RuleIElementType> ruleIElementTypes =
             PSIElementTypeFactory.getRuleIElementTypes(BallerinaLanguage.INSTANCE);
 
@@ -64,6 +68,7 @@ public class BallerinaTypes {
     public static RuleIElementType TRY_CATCH_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_tryCatchStatement);
     public static RuleIElementType TYPE_MAPPER_BODY = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperBody);
     public static RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(BallerinaParser.RULE_workerDeclaration);
+    public static RuleIElementType WORKER_BODY = ruleIElementTypes.get(BallerinaParser.RULE_workerBody);
     public static RuleIElementType FORK_JOIN_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_forkJoinStatement);
     public static RuleIElementType TRANSACTION_STATEMENT = ruleIElementTypes.get(BallerinaParser
             .RULE_transactionStatement);
@@ -76,8 +81,11 @@ public class BallerinaTypes {
     public static RuleIElementType PARAMETER_LIST = ruleIElementTypes.get(BallerinaParser.RULE_parameterList);
     public static RuleIElementType ANNOTATION_ATTACHMENT =
             ruleIElementTypes.get(BallerinaParser.RULE_annotationAttachment);
+    public static RuleIElementType ATTACHMENT_POINT = ruleIElementTypes.get(BallerinaParser.RULE_attachmentPoint);
     public static RuleIElementType ANNOTATION_ATTRIBUTE_LIST =
             ruleIElementTypes.get(BallerinaParser.RULE_annotationAttributeList);
+    public static RuleIElementType MAP_STRUCT_LITERAL = ruleIElementTypes.get(BallerinaParser.RULE_mapStructLiteral);
+    public static RuleIElementType MAP_STRUCT_KEY_VALUE = ruleIElementTypes.get(BallerinaParser.RULE_mapStructKeyValue);
 
     public static RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(BallerinaParser.RULE_expressionList);
     public static RuleIElementType RETURN_TYPE_LIST = ruleIElementTypes.get(BallerinaParser.RULE_returnTypeList);
@@ -110,6 +118,7 @@ public class BallerinaTypes {
     public static TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.JSON);
     public static TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.MAP);
     public static TokenIElementType MESSAGE = tokenIElementTypes.get(BallerinaLexer.MESSAGE);
+    public static TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
     public static TokenIElementType PACKAGE = tokenIElementTypes.get(BallerinaLexer.PACKAGE);
     public static TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
     public static TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);

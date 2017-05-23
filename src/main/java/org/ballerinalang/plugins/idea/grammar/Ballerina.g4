@@ -55,7 +55,7 @@ resourceDefinition
     ;
 
 callableUnitBody
-    :   workerDeclaration* statement*
+    :    statement* workerDeclaration*
     ;
 
 functionDefinition
@@ -123,7 +123,11 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   'worker' Identifier '(' 'message' Identifier ')'  '{' statement* '}'
+    :   'worker' Identifier '{' workerBody '}'
+    ;
+
+workerBody
+    :   statement* workerDeclaration*
     ;
 
 typeName
@@ -276,9 +280,9 @@ breakStatement
     :   'break' ';'
     ;
 
-// below typeName is only 'message[]'
+// typeName is only message
 forkJoinStatement
-    :   'fork' '(' variableReference ')' '{' workerDeclaration* '}'
+    :   'fork' '{' workerDeclaration* '}'
         ('join' ('(' joinConditions ')')? '(' typeName Identifier ')' '{' statement* '}')?
         ('timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}')?
     ;
@@ -289,7 +293,7 @@ joinConditions
     ;
 
 tryCatchStatement
-    :   'try' '{' statement* '}' (( 'catch' '(' typeName Identifier ')' '{' statement* '}' )+ ( 'finally' '{' statement* '}' )? | ( 'finally' '{' statement* '}' ))
+    :   'try' '{' statement* '}' (( 'catch' '(' typeName Identifier ')' '{' statement* '}' )+ ( 'finally' '{' statement* '}' )?) | ( 'finally' '{' statement* '}' )
     ;
 
 throwStatement

@@ -40,13 +40,13 @@ public class BallerinaBlock extends AbstractBlock {
     private SpacingBuilder spacingBuilder;
 
     @NotNull
-    private final ASTNode myNode;
+    private final ASTNode node;
     @Nullable
-    private final Alignment myAlignment;
+    private final Alignment alignment;
     @Nullable
-    private final Indent myIndent;
+    private final Indent indent;
     @Nullable
-    private final Wrap myWrap;
+    private final Wrap wrap;
     @NotNull
     private final CodeStyleSettings mySettings;
     @NotNull
@@ -59,10 +59,10 @@ public class BallerinaBlock extends AbstractBlock {
             Wrap wrap, @NotNull CodeStyleSettings settings, SpacingBuilder spacingBuilder) {
         super(node, wrap, alignment);
 
-        this.myNode = node;
-        this.myAlignment = alignment;
-        this.myIndent = indent;
-        this.myWrap = wrap;
+        this.node = node;
+        this.alignment = alignment;
+        this.indent = indent;
+        this.wrap = wrap;
         this.mySettings = settings;
         this.mySpacingBuilder = spacingBuilder;
         this.spacingBuilder = spacingBuilder;
@@ -71,8 +71,8 @@ public class BallerinaBlock extends AbstractBlock {
     @Override
     protected List<Block> buildChildren() {
         List<Block> blocks = new ArrayList<>();
-        ASTNode child = myNode.getFirstChildNode();
-        IElementType parentElementType = myNode.getElementType();
+        ASTNode child = node.getFirstChildNode();
+        IElementType parentElementType = node.getElementType();
 
         while (child != null) {
             IElementType childElementType = child.getElementType();
@@ -113,13 +113,16 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == FORK_JOIN_STATEMENT) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else {
-                    if (childElementType == TRANSFORM_STATEMENT_BODY) {
-                        if (parentElementType == TRANSFORM_STATEMENT) {
-                            indent = Indent.getSpaceIndent(4);
-                        }
+                } else if (childElementType == TRANSFORM_STATEMENT_BODY) {
+                    if (parentElementType == TRANSFORM_STATEMENT) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
+                } else if (childElementType == WORKER_BODY) {
+                    if (parentElementType == WORKER_DECLARATION) {
+                        indent = Indent.getSpaceIndent(4);
                     }
                 }
+
                 // If the child node text is empty, the IDEA core will throw an exception.
                 if (!child.getText().isEmpty()) {
                     Block block = new BallerinaBlock(
@@ -140,7 +143,7 @@ public class BallerinaBlock extends AbstractBlock {
 
     @Override
     public Indent getIndent() {
-        return myIndent;
+        return indent;
     }
 
     @Nullable
@@ -151,6 +154,6 @@ public class BallerinaBlock extends AbstractBlock {
 
     @Override
     public boolean isLeaf() {
-        return myNode.getFirstChildNode() == null;
+        return node.getFirstChildNode() == null;
     }
 }
