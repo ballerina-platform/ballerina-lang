@@ -26,25 +26,38 @@ class EditableText extends React.Component {
             editing: false
         };
 
+        const textBoxPadding = 3;
+        const textBoxBorderSz = 2;
+
+        this.inputStyles = {
+            position: 'absolute',
+            paddingLeft: textBoxPadding,
+            borderWidth: textBoxBorderSz
+        }
+
         this.renderTextBox = this.renderTextBox.bind(this);
     }
 
     renderTextBox() {
         const {
             x, y, width, height = 25, onChange, onBlur, onKeyDown, children = "",
-            inputClass = 'text-input', placeholder
+            inputClass='editable-text-input', placeholder
         } = this.props;
-        const inputStyle = {
-            position: 'absolute',
+
+        const inputPositionStyles = {
             top: y - height / 2,
             left: x,
             width: width,
-            height: height
+            height: height,
         };
 
+        const styles = {}
+
         if (!this.props.editing) {
-            inputStyle.display = 'none';
+            styles.display = 'none';
         }
+
+        Object.assign(styles, this.inputStyles, inputPositionStyles)
 
         const inputProps = {
             ref: input => {
@@ -52,7 +65,7 @@ class EditableText extends React.Component {
                     input.focus();
                 }
             },
-            style: inputStyle,
+            style: styles,
             onChange,
             onKeyDown,
             onBlur,
@@ -81,15 +94,21 @@ class EditableText extends React.Component {
     }
 
     render() {
-        let {x, y, onClick} = this.props;
-        x = x + 10;
+        let {
+            x, y, onClick, labelClass='editable-text-label', displayText, children
+        } = this.props;
+
+        // This takes the label to left so that when the textInput is rendered over it
+        // it does not make it look like the text just jumped to the right
+        x += this.inputStyles.borderWidth + this.inputStyles.paddingLeft;
+
         const textProps = {x, y, onClick};
         textProps.style = {
             dominantBaseline: 'central'
         };
 
         return (
-            <text {...textProps} className={this.props.labelClass}>{ this.props.displayText || this.props.children }</text>
+            <text {...textProps} className={labelClass}>{ displayText || children }</text>
         );
     }
 }
