@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import ASTVisitor from './../visitors/ast-visitor';
-import BBox from './bounding-box';
 
 /**
  * An abstract class which consists functions of moving or resizing views.
@@ -42,7 +41,6 @@ class BallerinaView extends ASTVisitor {
         this._container = _.get(args, 'container');
         this._viewOptions = _.get(args, 'viewOptions', {});
         this._backendEndpointsOptions = _.get(args, 'backendEndpointsOptions', {});
-        this._boundingBox = new BBox();
         this.toolPalette = _.get(args, 'toolPalette');
         this.messageManager =  _.get(args, 'messageManager');
         this.diagramRenderingContext = _.get(args, 'diagramRenderContext');
@@ -71,10 +69,6 @@ class BallerinaView extends ASTVisitor {
 
     getContainer() {
         return this._container;
-    }
-
-    getBoundingBox() {
-        return this._boundingBox;
     }
 
     setToolPalette(toolPalette) {

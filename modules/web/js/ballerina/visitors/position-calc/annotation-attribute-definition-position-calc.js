@@ -19,7 +19,6 @@
 import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import AST from './../../ast/module';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 
 class AnnotationAttributePositionCalcVisitor {
@@ -36,7 +35,7 @@ class AnnotationAttributePositionCalcVisitor {
         let bBox = viewState.bBox;
 
         let attributes = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.AnnotationAttributeDefinition;
+            return ASTFactory.isAnnotationAttributeDefinition(child);
         });
 
         let x, y;

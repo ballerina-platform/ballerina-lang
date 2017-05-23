@@ -17,10 +17,7 @@
  */
 
 import log from 'log';
-import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import AST from './../../ast/module';
-import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as PositioningUtils from './utils';
 import { util } from './../sizing-utils';
 
@@ -69,12 +66,12 @@ class ResourceDefinitionPositionCalcVisitor {
 
     /**
      * Sets positioning for a parameter.
-     * 
+     *
      * @param {object} parameter - The resource parameter node.
      * @param {number} x - The x position
      * @param {number} y - The y position
      * @returns The x position of the next parameter node.
-     * 
+     *
      * @memberof ResourceDefinitionPositionCalcVisitor
      */
     createPositioningForParameter(parameter, x, y) {
@@ -86,7 +83,7 @@ class ResourceDefinitionPositionCalcVisitor {
         // Positioning the delete icon
         viewState.components.deleteIcon.x = x + viewState.w;
         viewState.components.deleteIcon.y = y;
-        
+
         return viewState.components.deleteIcon.x + viewState.components.deleteIcon.w;
     }
 }

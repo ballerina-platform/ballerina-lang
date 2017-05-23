@@ -16,9 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
-import AST from '../../ast/module';
+import ASTFactory from '../../ast/ballerina-ast-factory';
 import FunctionInvocationVisitor from './function-invocation-visitor';
 import StructFieldAccessExpressionVisitor from './struct-field-access-expression-visitor';
 import VariableReferenceExpressionVisitor from './variable-reference-expression-visitor';
@@ -28,19 +26,18 @@ import TypeCastExpressionVisitor from './type-cast-expression-visitor';
 class ExpressionViewFactory {
     getExpressionView(args) {
         var expression  = _.get(args, "model");
-        if (expression instanceof AST.FunctionInvocation) {
+        if (ASTFactory.isFunctionInvocation(expression)) {
             return new FunctionInvocationVisitor(_.get(args, "parent"));
-        } else if (expression instanceof AST.StructFieldAccessExpression) {
+        } else if (ASTFactory.isStructFieldAccessExpression(expression)) {
             return new StructFieldAccessExpressionVisitor(_.get(args, "parent"));
-        } else if (expression instanceof AST.VariableReferenceExpression) {
+        } else if (ASTFactory.isVariableReferenceExpression(expression)) {
             return new VariableReferenceExpressionVisitor(_.get(args, "parent"));
-        } else if (expression instanceof AST.ReferenceTypeInitExpression) {
+        } else if (ASTFactory.isReferenceTypeInitExpression(expression)) {
             return new ReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
-        } else if (expression instanceof AST.TypeCastExpression) {
+        } else if (ASTFactory.isTypeCastExpression(expression)) {
             return new TypeCastExpressionVisitor(_.get(args, "parent"));
         }
     }
 }
 
 export default ExpressionViewFactory;
-    

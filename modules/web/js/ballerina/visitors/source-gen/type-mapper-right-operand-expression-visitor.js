@@ -17,9 +17,7 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import AST from '../../ast/module';
 import TypeMapperExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
 import FunctionInvocationExpressionVisitor from './type-mapper-function-invocation-expression-visitor';
 import StatementVisitorFactory from './type-mapper-statement-visitor-factory';

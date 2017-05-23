@@ -19,7 +19,8 @@ import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
 import Tab from './tab';
-import Ballerina from 'ballerina';
+import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import File from '../workspace/file';
 import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
 import Backend from 'ballerina/views/backend';
@@ -44,7 +45,6 @@ import alerts from 'alerts';
             this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
             this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
             this.deserializer = BallerinaASTDeserializer;
-            Ballerina.env.Environment.initialize({app: this.app});
         },
 
         getTitle: function(){
@@ -91,7 +91,7 @@ import alerts from 'alerts';
             var backendEndpointsOptions = _.get(this.options, 'application.config.services');
             var diagramRenderingContext = new DiagramRenderContext();
 
-            var fileEditor = new Ballerina.views.BallerinaFileEditor({
+            var fileEditor = new BallerinaFileEditor({
                 model: astRoot,
                 parseFailed: parseFailed,
                 file: self._file,
@@ -185,7 +185,6 @@ import alerts from 'alerts';
 
         createEmptyBallerinaRoot: function() {
 
-            var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
             var ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
 
             //package definition

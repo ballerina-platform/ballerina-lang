@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import AST from '../../ast/module';
+import ASTFactory from '../../ast/ballerina-ast-factory';
 import FunctionInvocationVisitor from './function-invocation-visitor';
 import TransformAssignmentStatementVisitor from './transform-assignment-statement-visitor';
 import TypeMapperFunctionInvocationExpressionVisitor from './type-mapper-function-invocation-expression-visitor';
@@ -25,21 +25,20 @@ import TypeMapperVariableDefinitionStatement from './type-mapper-variable-defini
 
 class TransformStatementVisitorFactory {
     getStatementVisitor(statement, parent) {
-        if (statement instanceof AST.AssignmentStatement) {
+        if (ASTFactory.isAssignmentStatement(statement)) {
             return new TransformAssignmentStatementVisitor(parent);
-        } else if (statement instanceof AST.FunctionInvocation) {
+        } else if (ASTFactory.isFunctionInvocation(statement)) {
             return new FunctionInvocationVisitor(parent);
-        }else if (statement instanceof AST.FunctionInvocationExpression) {
+        }else if (ASTFactory.isFunctionInvocationExpression(statement)) {
             return new TypeMapperFunctionInvocationExpressionVisitor(parent);
-        } else if (statement instanceof AST.LeftOperandExpression) {
+        } else if (ASTFactory.isLeftOperandExpression(statement)) {
             return new TypeMapperLeftOperandExpressionVisitor(parent);
-        } else if (statement instanceof AST.RightOperandExpression) {
+        } else if (ASTFactory.isRightOperandExpression(statement)) {
             return new TypeMapperRightOperandExpressionVisitor(parent);
-        } else if (statement instanceof AST.VariableDefinitionStatement) {
+        } else if (ASTFactory.isisVariableDefinitionStatement(statement)) {
             return new TypeMapperVariableDefinitionStatement(parent);
         }
     }
 }
 
 export default TransformStatementVisitorFactory;
-

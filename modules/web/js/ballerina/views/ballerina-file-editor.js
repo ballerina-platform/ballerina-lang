@@ -32,7 +32,6 @@ import Backend from './backend';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvironment from './../env/environment';
-import ConstantsDefinitionsPaneView from './constant-definitions-pane-view';
 import ToolPaletteItemProvider from './../item-provider/tool-palette-item-provider';
 import alerts from 'alerts';
 import 'typeahead.js';

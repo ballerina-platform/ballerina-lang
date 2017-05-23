@@ -766,12 +766,30 @@ BallerinaASTFactory.isStatement = function (child) {
 };
 
 /**
+ * instanceof check for while Statement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isWhileStatement = function (child) {
+    return child instanceof whileStatement;
+};
+
+/**
  * instanceof check for Block Statement
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
 BallerinaASTFactory.isBlockStatement = function (child) {
     return child instanceof blockStatement;
+};
+
+/**
+ * instanceof check for break Statement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isBreakStatement = function (child) {
+    return child instanceof breakStatement;
 };
 
 /**

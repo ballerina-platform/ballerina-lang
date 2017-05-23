@@ -24,7 +24,6 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
-import ballerina from 'ballerina';
 var ace = global.ace;
 var Range = ace.acequire('ace/range').Range;
 
@@ -59,7 +58,6 @@ class SourceView extends EventChannel {
         this._debugger = _.get(args, 'debugger', undefined);
         this._markers = {};
         this._gutter = 25;
-        this._fomatter = ballerina.utils.AceFormatter;
         this._storage = _.get(args, 'storage');
     }
 

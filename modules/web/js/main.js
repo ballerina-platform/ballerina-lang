@@ -20,18 +20,17 @@
 import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
-import Backbone from 'backbone';
 import MenuBar from './menu-bar/menu-bar';
 import BreadcrumbController from './breadcrumbs/breadcrumbs';
-import FileBrowser from './file-browser/file-browser';
 import TabController from './tab/file-tab-list';
 import CommandManager from './command/command';
-import Workspace from './workspace/module';
+import BrowserStorage from './workspace/browser-storage';
+import WorkspaceManager from './workspace/manager';
+import WorkspaceExplorer from './workspace/explorer';
 import Debugger from './debugger/module';
 import DebugManager from './debugger/debug-manager';
 import LaunchManager from './launcher/launch-manager';
 import Launcher from './launcher/launcher';
-import Console from 'console';
 import BallerinaEnvironment from './ballerina/env/environment';
 // importing for side effects only
 import 'jquery-ui/ui/widgets/draggable';
@@ -60,7 +59,7 @@ class Application {
         // init command manager
         this.commandManager = new CommandManager(this);
 
-        this.browserStorage = new Workspace.BrowserStorage('ballerinaAppTempStorage');
+        this.browserStorage = new BrowserStorage('ballerinaAppTempStorage');
 
         //init menu bar
         var menuBarOpts = _.get(this.config, "menu_bar");
@@ -68,7 +67,7 @@ class Application {
         this.menuBar = new MenuBar(menuBarOpts);
 
         //init workspace manager
-        this.workspaceManager = new Workspace.Manager(this);
+        this.workspaceManager = new WorkspaceManager(this);
 
         var breadCrumbsOpts = _.get(this.config, "breadcrumbs");
         _.set(breadCrumbsOpts, 'application', this);
@@ -86,7 +85,7 @@ class Application {
         //init workspace explorer
         var workspaceExplorerOpts = _.get(this.config, "workspace_explorer");
         _.set(workspaceExplorerOpts, 'application', this);
-        this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
+        this.workspaceExplorer = new WorkspaceExplorer(workspaceExplorerOpts);
 
         //init launcher
         var launcherOpts = _.get(this.config, "launcher");

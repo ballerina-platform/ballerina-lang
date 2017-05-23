@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
 import ASTVisitor from './ast-visitor';
-import AST from '../ast/module';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 class StatementVisitor extends ASTVisitor {
     constructor(args) {
@@ -354,53 +352,53 @@ class StatementVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     visitStatement(node) {
-        if (node instanceof AST.WhileStatement) {
+        if (ASTFactory.isWhileStatement(node)) {
             return this.visitWhileStatement(node);
-        } else if (node instanceof AST.BreakStatement) {
+        } else if (ASTFactory.isBreakStatement(node)) {
             return this.visitBreakStatement(node);
-        } else if (node instanceof AST.IfElseStatement) {
+        } else if (ASTFactory.isIfElseStatement(node)) {
             return this.visitIfElseStatement(node);
-        } else if (node instanceof AST.IfStatement) {
+        } else if (ASTFactory.isIfStatement(node)) {
             return this.visitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
+        } else if (ASTFactory.isElseStatement(node)) {
             return this.visitElseStatement(node);
-        }  else if (node instanceof AST.ElseIfStatement) {
+        }  else if (ASTFactory.isElseIfStatement(node)) {
             return this.visitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
+        } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.visitTryCatchStatement(node);
-        } else if (node instanceof AST.TryStatement) {
+        } else if (ASTFactory.isTryStatement(node)) {
             return this.visitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
+        } else if (ASTFactory.isCatchStatement(node)) {
             return this.visitCatchStatement(node);
-        } else if (node instanceof AST.AssignmentStatement) {
+        } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.visitAssignmentStatement(node);
-        } else if (node instanceof AST.Assignment) {
+        } else if (ASTFactory.isAssignment(node)) {
             return this.visitAssignment(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
+        } else if (ASTFactory.isActionInvocationStatement(node)) {
             return this.visitActionInvocationStatement(node);
-        } else if (node instanceof AST.Expression) {
+        } else if (ASTFactory.isExpression(node)) {
             return this.visitExpression(node);
-        } else if (node instanceof AST.ReplyStatement) {
+        } else if (ASTFactory.isReplyStatement(node)) {
             return this.visitReplyStatement(node);
-        } else if (node instanceof AST.ReturnStatement) {
+        } else if (ASTFactory.isReturnStatement(node)) {
             return this.visitReturnStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
+        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.visitFuncInvocationStatement(node);
-        }  else if (node instanceof AST.FunctionInvocationExpression) {
+        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.visitFuncInvocationExpression(node);
-        }  else if (node instanceof AST.LeftOperandExpression) {
+        }  else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.visitLeftOperandExpression(node);
-        }  else if (node instanceof AST.RightOperandExpression) {
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
             return this.visitRightOperandExpression(node);
-        }  else if (node instanceof AST.VariableDefinitionStatement) {
+        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.visitVariableDefinitionStatement(node);
-        }  else if (node instanceof AST.WorkerInvocationStatement) {
+        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.visitWorkerInvocationStatement(node);
-        }  else if (node instanceof AST.WorkerReplyStatement) {
+        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.visitWorkerReplyStatement(node);
-        }  else if (node instanceof AST.ThrowStatement) {
+        }  else if (ASTFactory.isThrowStatement(node)) {
             return this.visitThrowStatement(node);
-        }  else if (node instanceof AST.CommentStatement) {
+        }  else if (ASTFactory.isCommentStatement(node)) {
             return this.visitCommentStatement(node);
         }
     }
@@ -409,55 +407,55 @@ class StatementVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     canVisitStatement(node) {
-        if (node instanceof AST.WhileStatement) {
+        if (ASTFactory.isWhileStatement(node)) {
             return this.canVisitWhileStatement(node);
-        } else if (node instanceof AST.BreakStatement) {
+        } else if (ASTFactory.isBreakStatement(node)) {
             return this.canVisitBreakStatement(node);
-        } else if (node instanceof AST.IfElseStatement) {
+        } else if (ASTFactory.isIfElseStatement(node)) {
             return this.canVisitIfElseStatement(node);
-        } else if (node instanceof AST.IfStatement) {
+        } else if (ASTFactory.isIfStatement(node)) {
             return this.canVisitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
+        } else if (ASTFactory.isElseStatement(node)) {
             return this.canVisitElseStatement(node);
-        }  else if (node instanceof AST.ElseIfStatement) {
+        }  else if (ASTFactory.isElseIfStatement(node)) {
             return this.canVisitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
+        } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.canVisitTryCatchStatement(node);
-        } else if (node instanceof AST.TryStatement) {
+        } else if (ASTFactory.isTryStatement(node)) {
             return this.canVisitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
+        } else if (ASTFactory.isCatchStatement(node)) {
             return this.canVisitCatchStatement(node);
-        } else if (node instanceof AST.AssignmentStatement) {
+        } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.canVisitAssignmentStatement(node);
-        }  else if (node instanceof AST.Assignment) {
+        }  else if (ASTFactory.isAssignment(node)) {
             return this.canVisitAssignment(node);
-        } else if (node instanceof AST.TransformStatement) {
+        } else if (ASTFactory.isTransformStatement(node)) {
             return this.canVisitTransformStatement(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
+        } else if (ASTFactory.isActionInvocationStatement(node)) {
             return this.canVisitActionInvocationStatement(node);
-        } else if (node instanceof AST.Expression) {
+        } else if (ASTFactory.isExpression(node)) {
             return this.canVisitExpression(node);
-        } else if (node instanceof AST.ReplyStatement) {
+        } else if (ASTFactory.isReplyStatement(node)) {
             return this.canVisitReplyStatement(node);
-        } else if (node instanceof AST.ReturnStatement) {
+        } else if (ASTFactory.isReturnStatement(node)) {
             return this.canVisitReturnStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
+        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.canVisitFuncInvocationStatement(node);
-        }  else if (node instanceof AST.FunctionInvocationExpression) {
+        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.canVisitFuncInvocationExpression(node);
-        }  else if (node instanceof AST.LeftOperandExpression) {
+        }  else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.canVisitLeftOperandExpression(node);
-        }  else if (node instanceof AST.RightOperandExpression) {
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
             return this.canVisitRightOperandExpression(node);
-        }  else if (node instanceof AST.VariableDefinitionStatement) {
+        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.canVisitVariableDefinitionStatement(node);
-        }  else if (node instanceof AST.WorkerInvocationStatement) {
+        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.canVisitWorkerInvocationStatement(node);
-        }  else if (node instanceof AST.WorkerReplyStatement) {
+        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.canVisitWorkerReplyStatement(node);
-        }  else if (node instanceof AST.ThrowStatement) {
+        }  else if (ASTFactory.isThrowStatement(node)) {
             return this.canVisitThrowStatement(node);
-        }  else if (node instanceof AST.CommentStatement) {
+        }  else if (ASTFactory.isCommentStatement(node)) {
             return this.canVisitCommentStatement(node);
         }
     }
@@ -466,53 +464,53 @@ class StatementVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     beginVisitStatement(node) {
-        if (node instanceof AST.WhileStatement) {
+        if (ASTFactory.isWhileStatement(node)) {
             this.beginVisitWhileStatement(node);
-        } else if (node instanceof AST.BreakStatement) {
+        } else if (ASTFactory.isBreakStatement(node)) {
             return this.beginVisitBreakStatement(node);
-        } else if (node instanceof AST.IfElseStatement) {
+        } else if (ASTFactory.isIfElseStatement(node)) {
             return this.beginVisitIfElseStatement(node);
-        } else if (node instanceof AST.IfStatement) {
+        } else if (ASTFactory.isIfStatement(node)) {
             return this.beginVisitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
+        } else if (ASTFactory.isElseStatement(node)) {
             return this.beginVisitElseStatement(node);
-        }  else if (node instanceof AST.ElseIfStatement) {
+        }  else if (ASTFactory.isElseIfStatement(node)) {
             return this.beginVisitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
+        } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.beginVisitTryCatchStatement(node);
-        } else if (node instanceof AST.TryStatement) {
+        } else if (ASTFactory.isTryStatement(node)) {
             return this.beginVisitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
+        } else if (ASTFactory.isCatchStatement(node)) {
             return this.beginVisitCatchStatement(node);
-        } else if (node instanceof AST.AssignmentStatement) {
+        } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.beginVisitAssignmentStatement(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
+        } else if (ASTFactory.isActionInvocationStatement(node)) {
             return this.beginVisitActionInvocationStatement(node);
-        } else if (node instanceof AST.Expression) {
+        } else if (ASTFactory.isExpression(node)) {
             return this.beginVisitExpression(node);
-        } else if (node instanceof AST.ReplyStatement) {
+        } else if (ASTFactory.isReplyStatement(node)) {
             return this.beginVisitReplyStatement(node);
-        } else if (node instanceof AST.ReturnStatement) {
+        } else if (ASTFactory.isReturnStatement(node)) {
             return this.beginVisitReturnStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
+        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.beginVisitFuncInvocationStatement(node);
-        }  else if (node instanceof AST.FunctionInvocationExpression) {
+        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.beginVisitFuncInvocationExpression(node);
-        }  else if (node instanceof AST.LeftOperandExpression) {
+        }  else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.beginVisitLeftOperandExpression(node);
-        }  else if (node instanceof AST.RightOperandExpression) {
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
             return this.beginVisitRightOperandExpression(node);
-        }  else if (node instanceof AST.VariableDefinitionStatement) {
+        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.beginVisitVariableDefinitionStatement(node);
-        }  else if (node instanceof AST.WorkerInvocationStatement) {
+        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.beginVisitWorkerInvocationStatement(node);
-        }  else if (node instanceof AST.WorkerReplyStatement) {
+        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.beginVisitWorkerReplyStatement(node);
-        }  else if (node instanceof AST.ThrowStatement) {
+        }  else if (ASTFactory.isThrowStatement(node)) {
             return this.beginVisitThrowStatement(node);
-        }  else if (node instanceof AST.CommentStatement) {
+        }  else if (ASTFactory.isCommentStatement(node)) {
             return this.beginVisitCommentStatement(node);
-        }  else if (node instanceof AST.TransformStatement) {
+        }  else if (ASTFactory.isTransformStatement(node)) {
             return this.beginVisitTransformStatement(node);
         }
     }
@@ -521,59 +519,58 @@ class StatementVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     endVisitStatement(node) {
-        if (node instanceof AST.WhileStatement) {
+        if (ASTFactory.isWhileStatement(node)) {
             return this.endVisitWhileStatement(node);
-        } else if (node instanceof AST.BreakStatement) {
+        } else if (ASTFactory.isBreakStatement(node)) {
             return this.endVisitBreakStatement(node);
-        } else if (node instanceof AST.IfElseStatement) {
+        } else if (ASTFactory.isIfElseStatement(node)) {
             return this.endVisitIfElseStatement(node);
-        } else if (node instanceof AST.IfStatement) {
+        } else if (ASTFactory.isIfStatement(node)) {
             return this.endVisitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
+        } else if (ASTFactory.isElseStatement(node)) {
             return this.endVisitElseStatement(node);
-        }  else if (node instanceof AST.ElseIfStatement) {
+        }  else if (ASTFactory.isElseIfStatement(node)) {
             return this.endVisitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
+        } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.endVisitTryCatchStatement(node);
-        } else if (node instanceof AST.TryStatement) {
+        } else if (ASTFactory.isTryStatement(node)) {
             return this.endVisitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
+        } else if (ASTFactory.isCatchStatement(node)) {
             return this.endVisitCatchStatement(node);
-        } else if (node instanceof AST.AssignmentStatement) {
+        } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.endVisitAssignmentStatement(node);
-        }  else if (node instanceof AST.TransformStatement) {
+        }  else if (ASTFactory.isTransformStatement(node)) {
             return this.endVisitTransformStatement(node);
-        } else if (node instanceof AST.Assignment) {
+        } else if (ASTFactory.isAssignment(node)) {
             return this.endVisitAssignment(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
+        } else if (ASTFactory.isActionInvocationStatement(node)) {
             return this.endVisitActionInvocationStatement(node);
-        } else if (node instanceof AST.Expression) {
+        } else if (ASTFactory.isExpression(node)) {
             return this.endVisitExpression(node);
-        } else if (node instanceof AST.ReplyStatement) {
+        } else if (ASTFactory.isReplyStatement(node)) {
             return this.endVisitReplyStatement(node);
-        }  else if (node instanceof AST.ReturnStatement) {
+        }  else if (ASTFactory.isReturnStatement(node)) {
             return this.endVisitReturnStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
+        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.endVisitFuncInvocationStatement(node);
-        }  else if (node instanceof AST.FunctionInvocationExpression) {
+        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.endVisitFuncInvocationExpression(node);
-        }  else if (node instanceof AST.LeftOperandExpression) {
+        }  else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.endVisitLeftOperandExpression(node);
-        }  else if (node instanceof AST.RightOperandExpression) {
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
             return this.endVisitRightOperandExpression(node);
-        }  else if (node instanceof AST.VariableDefinitionStatement) {
+        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.endVisitVariableDefinitionStatement(node);
-        }  else if (node instanceof AST.WorkerInvocationStatement) {
+        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.endVisitWorkerInvocationStatement(node);
-        }  else if (node instanceof AST.WorkerReplyStatement) {
+        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.endVisitWorkerReplyStatement(node);
-        }  else if (node instanceof AST.ThrowStatement) {
+        }  else if (ASTFactory.isThrowStatement(node)) {
             return this.endVisitThrowStatement(node);
-        }  else if (node instanceof AST.CommentStatement) {
+        }  else if (node instanceof AST.CommentStatement(node)) {
             return this.endVisitCommentStatement(node);
         }
     }
 }
 
 export default StatementVisitor;
-

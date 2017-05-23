@@ -18,7 +18,7 @@
 
 import log from 'log';
 import _ from 'lodash';
-import AST from './../../ast/module';
+import WorkerDeclaration from './../../ast/worker-declaration';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class WorkerDeclarationPositionCalcVisitor {
@@ -35,7 +35,7 @@ class WorkerDeclarationPositionCalcVisitor {
         let parent = node.getParent();
         let parentViewState = parent.getViewState();
         let workers = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.WorkerDeclaration;
+            return child instanceof WorkerDeclaration;
         });
         let workerIndex = _.findIndex(workers, node);
         let x, y;
