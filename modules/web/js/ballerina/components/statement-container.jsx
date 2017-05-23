@@ -29,10 +29,8 @@ class StatementContainer extends React.Component {
     constructor(props, context) {
         super(props, context);
         const {dragDropManager, messageManager} = context;
-        dragDropManager.on('drag-start', this.startDropZones.bind(this));
-        dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
-		messageManager.on('message-draw-start', this.startDropZones.bind(this));
-		messageManager.on('message-draw-stop', this.stopDragZones.bind(this));
+        this.startDropZones = this.startDropZones.bind(this);
+        this.stopDragZones = this.stopDragZones.bind(this);
         this.state = {
             dropZoneExist: false,
             statementDropZoneActivated: false,
@@ -40,6 +38,21 @@ class StatementContainer extends React.Component {
         }
     }
 
+    componentDidMount() {
+        const { dragDropManager, messageManager } = this.context;
+        dragDropManager.on('drag-start', this.startDropZones);
+        dragDropManager.on('drag-stop', this.stopDragZones);
+		messageManager.on('message-draw-start', this.stopDragZones);
+		messageManager.on('message-draw-stop', this.stopDragZones);
+    }
+
+    componentWillUnmount() {
+        const { dragDropManager, messageManager } = this.context;
+        dragDropManager.off('drag-start', this.startDropZones);
+        dragDropManager.off('drag-stop', this.stopDragZones);
+        messageManager.off('message-draw-start', this.stopDragZones);
+        messageManager.off('message-draw-stop', this.stopDragZones);
+    }
 
     startDropZones() {
         this.setState({dropZoneExist: true});
