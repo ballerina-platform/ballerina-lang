@@ -26,35 +26,6 @@
         </context>
     </template>
 
-    <template name="fune" value="function $NAME$ ($ARGS$) throws exception {&#10;    $END$&#10;}"
-              description="Function Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
-    <template name="funre" value="function $NAME$ ($ARGS$) ($RETURN$) throws exception {&#10;    $END$&#10;}"
-              description="Function Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
-    <template name="funer" value="function $NAME$ ($ARGS$) ($RETURN$) throws exception {&#10;    $END$&#10;}"
-              description="Function Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="RETURN" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
     <template name="con" value="connector $NAME$ ($ARGS$) {&#10;    $END$&#10;}"
               description="Connector Template" toReformat="false" toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
