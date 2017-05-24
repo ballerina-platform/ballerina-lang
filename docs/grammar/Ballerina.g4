@@ -448,8 +448,8 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   IntegerLiteral
-    |   FloatingPointLiteral
+    :   ('-')? IntegerLiteral
+    |   ('-')? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral

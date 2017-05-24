@@ -123,3 +123,15 @@ function testNestedStructInit() (Person) {
     Person p1 = {name:"aaa", age:25, parent:{name:"bbb", age:50}};
     return p1;
 }
+
+struct NegativeValTest {
+    int negativeInt = -9;
+    int negativeSpaceInt = -  8;
+    float negativeFloat = -88.234;
+    float negativeSpaceFloat = -   24.99;
+}
+
+function getStructNegativeValues()(int, int, float, float) {
+    NegativeValTest tmp = {};
+    return tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat;
+}
