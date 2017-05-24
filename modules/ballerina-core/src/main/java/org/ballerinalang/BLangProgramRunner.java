@@ -66,8 +66,6 @@ public class BLangProgramRunner {
                 service.setBLangProgram(bLangProgram);
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
                         dispatcher.serviceRegistered(service));
-                // Build Flow for Non-Blocking execution.
-                service.accept(flowBuilder);
             }
         }
 
@@ -89,8 +87,6 @@ public class BLangProgramRunner {
         Context bContext = new Context();
         BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
-        // Build flow for Non-Blocking execution.
-        mainFunction.accept(new BLangExecutionFlowBuilder());
         try {
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
             BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
@@ -118,9 +114,9 @@ public class BLangProgramRunner {
                 debugManager.waitTillClientConnect();
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
                 debugManager.setDebugger(debugger);
-                debugger.setParentScope(mainFunction);
-                bContext.setExecutor(debugger);
-                debugger.continueExecution(mainFunction.getCallableUnitBody());
+//                debugger.setParentScope(mainFunction);
+//                bContext.setExecutor(debugger);
+//                debugger.continueExecution(mainFunction.getCallableUnitBody());
                 debugManager.holdON();
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);

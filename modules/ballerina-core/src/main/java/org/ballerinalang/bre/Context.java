@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.nonblocking.BLangAbstractExecutionVisitor;
 import org.ballerinalang.runtime.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -37,7 +36,6 @@ public class Context {
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
     private CallableUnitInfo serviceInfo;
-    private BLangAbstractExecutionVisitor executor;
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
 
@@ -84,14 +82,6 @@ public class Context {
 
     public void setServiceInfo(CallableUnitInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
-    }
-
-    public void setExecutor(BLangAbstractExecutionVisitor executor) {
-        this.executor = executor;
-    }
-
-    public BLangAbstractExecutionVisitor getExecutor() {
-        return executor;
     }
 
     public Object getServerConnectorProtocol() {

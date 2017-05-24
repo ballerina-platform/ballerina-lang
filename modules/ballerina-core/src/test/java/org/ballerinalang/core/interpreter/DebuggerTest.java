@@ -30,10 +30,8 @@ import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
-import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -204,7 +202,6 @@ public class DebuggerTest {
             Context bContext = new Context();
             BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
-            mainFunction.accept(new BLangExecutionFlowBuilder());
 
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
             BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
@@ -218,17 +215,12 @@ public class DebuggerTest {
                     mainFunction.getNodeLocation(), null, mainFunction.getName(), null, null, new Expression[0]);
             funcIExpr.setOffset(argValues.length);
             funcIExpr.setCallableUnit(mainFunction);
-            // Flow Building.
-            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
-            funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
-            funcIExpr.accept(flowBuilder);
 
             StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
             bContext.getControlStack().pushFrame(stackFrame);
 
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
             debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
-            debugger.setParentScope(bLangProgram);
         }
 
         public void startDebug() {

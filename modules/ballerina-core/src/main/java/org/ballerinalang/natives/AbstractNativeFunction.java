@@ -127,11 +127,11 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         } catch (RuntimeException e) {
 //            BException exception = new BException(e.getMessage());
             // TODO : Fix this once we remove Blocking executor
-            if (context.getExecutor() != null) {
-//                context.getExecutor().handleBException(exception);
-            } else {
+//            if (context.getExecutor() != null) {
+////                context.getExecutor().handleBException(exception);
+//            } else {
                 throw e;
-            }
+//            }
         }
     }
 
