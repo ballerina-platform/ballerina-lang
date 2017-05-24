@@ -44,7 +44,7 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
     public BallerinaRunConfigurationWithMain(String name, BallerinaModuleBasedConfiguration configurationModule,
                                              ConfigurationFactory factory) {
         super(name, configurationModule, factory);
-        myFilePath = getWorkingDirectory();
+        myFilePath = getFilePath();
     }
 
     @Override
@@ -66,19 +66,21 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
     protected void checkFileConfiguration() throws RuntimeConfigurationError {
         VirtualFile file = findFile(getFilePath());
         if (file == null) {
-            throw new RuntimeConfigurationError("Main file is not specified");
+            throw new RuntimeConfigurationError("Cannot find the specified main file.");
         }
         PsiFile psiFile = PsiManager.getInstance(getProject()).findFile(file);
         if (!(psiFile instanceof BallerinaFile)) {
-            throw new RuntimeConfigurationError("Main file is invalid");
+            throw new RuntimeConfigurationError("Main file is not a valid Ballerina file.");
         }
 
         if (myRunKind == RunConfigurationKind.MAIN &&
                 !BallerinaRunUtil.hasMainFunction(psiFile)) {
-            throw new RuntimeConfigurationError("Main file does not contain a main function.");
+            throw new RuntimeConfigurationError("Main run kind is selected, but the file does not contain a main " +
+                    "function.");
         }
         if (myRunKind == RunConfigurationKind.SERVICE && !BallerinaRunUtil.hasServices(psiFile)) {
-            throw new RuntimeConfigurationError("Main file does not contain any service.");
+            throw new RuntimeConfigurationError("Service run kind is selected, but the file does not contain any " +
+                    "services.");
         }
     }
 

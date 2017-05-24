@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class BallerinaRunningState<T extends BallerinaRunConfigurationBase<?>> extends CommandLineState {
 
     @NotNull
-    protected final Module myModule;
+    private final Module myModule;
 
     @NotNull
     public T getConfiguration() {

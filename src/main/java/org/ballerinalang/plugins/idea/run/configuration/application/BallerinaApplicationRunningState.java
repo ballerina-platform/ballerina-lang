@@ -26,18 +26,22 @@ import org.jetbrains.annotations.NotNull;
 
 public class BallerinaApplicationRunningState extends BallerinaRunningState<BallerinaApplicationConfiguration> {
 
-    public BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
-                                            @NotNull BallerinaApplicationConfiguration configuration) {
+    BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
+                                     @NotNull BallerinaApplicationConfiguration configuration) {
         super(env, module, configuration);
     }
 
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
         RunConfigurationKind kind = getConfiguration().getRunKind();
+        String parameters = myConfiguration.getPackage();
+        if (parameters.isEmpty()) {
+            parameters = myConfiguration.getFilePath();
+        }
         return executor
                 .withParameters("run")
                 .withParameters(kind.name().toLowerCase())
                 .withParameterString(myConfiguration.getBallerinaToolParams())
-                .withParameters(myConfiguration.getPackage());
+                .withParameters(parameters);
     }
 }
