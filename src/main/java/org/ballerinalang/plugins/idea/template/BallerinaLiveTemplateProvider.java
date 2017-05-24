@@ -31,6 +31,6 @@ public class BallerinaLiveTemplateProvider implements DefaultLiveTemplatesProvid
     @Nullable
     @Override
     public String[] getHiddenLiveTemplateFiles() {
-        return new String[0];
+        return new String[]{"/liveTemplates/BallerinaHidden"};
     }
 }
