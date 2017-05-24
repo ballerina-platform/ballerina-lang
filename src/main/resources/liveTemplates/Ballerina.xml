@@ -151,4 +151,13 @@
         </context>
     </template>
 
+    <template name="tran" value="transaction {&#10;    $END$&#10;} aborted {&#10;    &#10;}"
+              description="Transaction Template" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
 </templateSet>
