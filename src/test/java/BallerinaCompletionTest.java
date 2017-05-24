@@ -303,6 +303,42 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("string <caret>");
     }
 
+    public void testGlobalVariableFunctionValue() {
+        doCheckResult("test.bal", "string test = g<caret> function getValue()(string){return \"\";}",
+                "string test = getValue() function getValue()(string){return \"\";}", null);
+    }
+
+    public void testGlobalVariablePackageValue() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doTest("import org.test; string s = <caret> ", "test");
+    }
+
+    public void testGlobalVariablePackageValueCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doCheckResult("test.bal", "import org.test; string s = t<caret> ", "import org.test; string s = test: ", null);
+    }
+
+    public void testGlobalVariablePackageValueDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doTest("import org.test; string s = test:<caret> ", "getValue");
+    }
+
+    public void testGlobalVariablePackageValueCompletionDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doCheckResult("test.bal", "import org.test; string s = test:g<caret> ",
+                "import org.test; string s = test:getValue() ", null);
+    }
+
+    public void testGlobalVariablePackageValueDifferentFile() {
+        myFixture.addFileToProject("file.bal", "function getValue()(string){return \"\";}");
+        doTest("string s = <caret> ", "getValue");
+    }
+
+    public void testGlobalVariablePackageValueDifferentFileCompletion() {
+        myFixture.addFileToProject("file.bal", "function getValue()(string){return \"\";}");
+        doCheckResult("test.bal", "string s = g<caret>", "string s = getValue()", null);
+    }
+
     public void testGlobalVariableInSamePackageSameFile() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
@@ -332,6 +368,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         myFixture.addFileToProject("org/test/file.bal", "string S=\"\";");
         doTest("import org.test; function F(){ test:<caret> }", "S");
     }
+
 
     /**
      * Test function level lookups.
@@ -824,6 +861,19 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testConnectorInvocationInSamePackage() {
         doTest("function A(){ TestConnector.<caret> } connector TestConnector(){ action get(){} action post(){}}",
                 "get", "post");
+    }
+
+    public void testTypesAfterRBRACE() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.add("else");
+        expectedLookups.add("json");
+        expectedLookups.add("message");
+        expectedLookups.add("string");
+        expectedLookups.add("test");
+        expectedLookups.add("transaction");
+        expectedLookups.add("transform");
+        doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     /**
