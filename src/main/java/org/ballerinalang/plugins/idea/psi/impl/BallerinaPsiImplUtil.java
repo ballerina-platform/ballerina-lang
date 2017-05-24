@@ -732,8 +732,8 @@ public class BallerinaPsiImplUtil {
         }
     }
 
-    private static void handleVariableDefinition(PsiElement element, List<PsiElement> results, PsiElement
-            variableDefinition) {
+    private static void handleVariableDefinition(PsiElement element, List<PsiElement> results,
+                                                 PsiElement variableDefinition) {
         StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
         if (statementNode == null) {
             PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
@@ -757,14 +757,15 @@ public class BallerinaPsiImplUtil {
                                             StatementNode statementNode) {
         PsiElement prevSibling = statementNode.getPrevSibling();
         if (prevSibling != null && prevSibling.getText().isEmpty()) {
-            PsiElement prevPrevSibling = PsiTreeUtil.skipSiblingsBackward(prevSibling,
-                    PsiWhiteSpace.class);
+            PsiElement prevPrevSibling = PsiTreeUtil.skipSiblingsBackward(prevSibling, PsiWhiteSpace.class);
+            PsiElement parent = variableDefinition.getParent();
             if (prevPrevSibling == null) {
-                if (variableDefinition.getParent().getTextOffset() < prevSibling.getTextOffset()) {
+                if (parent.getTextOffset() < prevSibling.getTextOffset()) {
                     results.add(variableDefinition);
                 }
             } else {
-                if (variableDefinition.getParent().getTextOffset() <= prevPrevSibling.getTextOffset()) {
+                if ((parent != null && parent.getParent().equals(prevPrevSibling)) ||
+                        (parent != null && parent.getTextOffset() <= prevPrevSibling.getTextOffset())) {
                     results.add(variableDefinition);
                 }
             }

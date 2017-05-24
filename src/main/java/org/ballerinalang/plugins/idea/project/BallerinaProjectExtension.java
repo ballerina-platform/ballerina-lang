@@ -16,14 +16,18 @@
 
 package org.ballerinalang.plugins.idea.project;
 
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectExtension;
+import com.intellij.openapi.util.AsyncResult;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,11 +36,25 @@ public class BallerinaProjectExtension extends ProjectExtension {
 
     @Override
     public void projectSdkChanged(@Nullable Sdk sdk) {
-        super.projectSdkChanged(sdk);
-        Project project = ProjectManager.getInstance().getDefaultProject();
+        // First we get the date context from the focus (current project).
+        AsyncResult<DataContext> dataContextFromFocus = DataManager.getInstance().getDataContextFromFocus();
+        // Get the result from the data context.
+        DataContext result = dataContextFromFocus.getResult();
+        if (result == null) {
+            return;
+        }
+        // Get the current project.
+        Project project = DataKeys.PROJECT.getData(result);
+        if (project == null) {
+            return;
+        }
+        // Get all modules in the project.
         Module[] modules = ModuleManager.getInstance(project).getModules();
+        // Iterate through all modules.
         for (Module module : modules) {
-            if (module != null) {
+            // Check whether the module is a Ballerina module.
+            if (BallerinaSdkService.getInstance(project).isBallerinaModule(module)) {
+                // If it is a Ballerina module, inherit the project SDK.
                 WriteAction.run(() -> ModuleRootModificationUtil.setSdkInherited(module));
             }
         }
@@ -44,11 +62,11 @@ public class BallerinaProjectExtension extends ProjectExtension {
 
     @Override
     public void readExternal(@NotNull Element element) {
-
+        // We don't have any use of this method at the moment.
     }
 
     @Override
     public void writeExternal(@NotNull Element element) {
-
+        // We don't have any use of this method at the moment.
     }
 }
