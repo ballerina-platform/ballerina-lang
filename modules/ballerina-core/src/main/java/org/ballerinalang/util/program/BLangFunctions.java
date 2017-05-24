@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
@@ -38,6 +39,7 @@ import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
@@ -45,9 +47,14 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.util.codegen.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -72,16 +79,9 @@ public class BLangFunctions {
         return invoke(bLangProgram, functionName, args, new Context());
     }
 
-    /**
-     * Invokes a Ballerina function defined in the given language model.
-     *
-     * @param bLangProgram parsed, analyzed and linked object model
-     * @param functionName name of the function to be invoked
-     * @param args arguments for the function
-     * @return return values from the function
-     */
-    public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args) {
-        return invoke(bLangProgram, functionName, args, new Context());
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName) {
+        BValue[] args = {};
+        return invokeNew(bLangProgram, functionName, args, new Context());
     }
 
     /**
@@ -89,11 +89,27 @@ public class BLangFunctions {
      *
      * @param bLangProgram parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked
-     * @param args arguments for the function
-     * @param bContext ballerina context
+     * @param args         arguments for the function
      * @return return values from the function
      */
-    
+    public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args) {
+        return invoke(bLangProgram, functionName, args, new Context());
+    }
+
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args) {
+        return invokeNew(bLangProgram, functionName, args, new Context());
+    }
+
+    /**
+     * Invokes a Ballerina function defined in the given language model.
+     *
+     * @param bLangProgram parsed, analyzed and linked object model
+     * @param functionName name of the function to be invoked
+     * @param args         arguments for the function
+     * @param bContext     ballerina context
+     * @return return values from the function
+     */
+
     public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args, Context bContext) {
         Function function = getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, args);
         bLangProgram.setMainPackage(bLangProgram.getLibraryPackages()[0]);
@@ -195,6 +211,160 @@ public class BLangFunctions {
             }
             return returnValues;
         }
+    }
+
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args, Context bContext) {
+        PackageInfo packageInfo = bLangProgram.getPackageInfo(".");
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+
+        if (functionInfo == null) {
+            throw new RuntimeException("Function '" + functionName + "' is not defined");
+        }
+
+        if (functionInfo.getParamTypes().length != args.length) {
+            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
+        }
+
+        org.ballerinalang.bre.bvm.StackFrame[] stackFrames =
+                new org.ballerinalang.bre.bvm.StackFrame[BLangVM.DEFAULT_CONTROL_STACK_SIZE];
+
+        // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
+        // registers to hold function arguments as well as return values from the callee.
+        org.ballerinalang.bre.bvm.StackFrame callerSF =
+                new org.ballerinalang.bre.bvm.StackFrame(-1, new int[0]);
+        stackFrames[0] = callerSF;
+        // TODO Create registers to hold return values
+
+        int longRegCount = 0;
+        int doubleRegCount = 0;
+        int stringRegCount = 0;
+        int intRegCount = 0;
+        int refRegCount = 0;
+
+        // Calculate registers to store return values
+        BType[] retTypes = functionInfo.getRetParamTypes();
+        int[] retRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    retRegs[i] = longRegCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    retRegs[i] = doubleRegCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    retRegs[i] = stringRegCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    retRegs[i] = intRegCount++;
+                    break;
+                default:
+                    retRegs[i] = refRegCount++;
+                    break;
+            }
+        }
+
+        callerSF.setLongRegs(new long[longRegCount]);
+        callerSF.setDoubleRegs(new double[doubleRegCount]);
+        callerSF.setStringRegs(new String[stringRegCount]);
+        callerSF.setIntRegs(new int[intRegCount]);
+        callerSF.setRefRegs(new BRefType[refRegCount]);
+
+        // Now create callee's stackframe
+        org.ballerinalang.bre.bvm.StackFrame calleeSF =
+                new org.ballerinalang.bre.bvm.StackFrame(functionInfo, -1, retRegs);
+        stackFrames[1] = calleeSF;
+
+        int longParamCount = 0;
+        int doubleParamCount = 0;
+        int stringParamCount = 0;
+        int intParamCount = 0;
+        int refParamCount = 0;
+
+        CodeAttributeInfo codeAttribInfo = functionInfo.getCodeAttributeInfo();
+
+        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
+        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        // Setting the zero values for strings
+        for (int i = 0; i < stringLocalVars.length; i++) {
+            stringLocalVars[i] = "";
+        }
+
+        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+
+        for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
+            BType argType = functionInfo.getParamTypes()[i];
+            switch (argType.getTag()) {
+                case TypeTags.INT_TAG:
+                    longLocalVars[longParamCount] = ((BInteger) args[i]).intValue();
+                    longParamCount++;
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    doubleLocalVars[doubleParamCount] = ((BFloat) args[i]).floatValue();
+                    doubleParamCount++;
+                    break;
+                case TypeTags.STRING_TAG:
+                    stringLocalVars[stringParamCount] = args[i].stringValue();
+                    stringParamCount++;
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    intLocalVars[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                    intParamCount++;
+                    break;
+                default:
+                    refLocalVars[refParamCount] = (BRefType) args[i];
+                    refParamCount++;
+                    break;
+            }
+        }
+
+        calleeSF.setLongLocalVars(longLocalVars);
+        calleeSF.setDoubleLocalVars(doubleLocalVars);
+        calleeSF.setStringLocalVars(stringLocalVars);
+        calleeSF.setIntLocalVars(intLocalVars);
+        calleeSF.setRefLocalVars(refLocalVars);
+
+        BLangVM bLangVM = new BLangVM(bLangProgram);
+        bLangVM.execFunction(packageInfo, stackFrames, 1, functionInfo.getCodeAttributeInfo().getCodeAddrs());
+
+        longRegCount = 0;
+        doubleRegCount = 0;
+        stringRegCount = 0;
+        intRegCount = 0;
+        refRegCount = 0;
+        BValue[] returnValues = new BValue[retTypes.length];
+        for (int i = 0; i < returnValues.length; i++) {
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    returnValues[i] = new BInteger(callerSF.getLongRegs()[retRegs[i]]);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);
+                    break;
+                case TypeTags.STRING_TAG:
+                    returnValues[i] = new BString(callerSF.getStringRegs()[stringRegCount++]);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    boolean boolValue = callerSF.getIntRegs()[intRegCount++] == 1;
+                    returnValues[i] = new BBoolean(boolValue);
+                    break;
+                default:
+                    returnValues[i] = callerSF.getRefRegs()[refRegCount++];
+                    break;
+            }
+        }
+
+//        if (executor.isErrorThrown && executor.thrownError != null) {
+//            String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+//                    executor.thrownError.getValue(0).stringValue() + "}";
+//            throw new BallerinaException(errorMsg);
+//        }
+        return returnValues;
+
     }
 
     /**

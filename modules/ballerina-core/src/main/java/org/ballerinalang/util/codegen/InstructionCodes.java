@@ -97,6 +97,8 @@ public interface InstructionCodes {
     int FDIV = 78;
     int IMOD = 79;
     int FMOD = 80;
+    int INEG = 81;
+    int FNEG = 82;
 
     int ICMP = 100;
     int FCMP = 101;

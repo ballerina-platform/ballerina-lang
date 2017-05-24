@@ -83,7 +83,7 @@ public class CodeAttributeInfo implements AttributeInfo {
         this.maxStringLocalVars = maxStringLocalVars;
     }
 
-    public int getMaxBValueLocalVars() {
+    public int getMaxRefLocalVars() {
         return maxBValueLocalVars;
     }
 
@@ -123,7 +123,7 @@ public class CodeAttributeInfo implements AttributeInfo {
         this.maxStringRegs = maxStringRegs;
     }
 
-    public int getMaxBValueRegs() {
+    public int getMaxRefRegs() {
         return maxBValueRegs;
     }
 

@@ -43,6 +43,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * @since 0.87
@@ -84,6 +85,15 @@ public class BLangVM {
         exec();
     }
 
+    public void execFunction(PackageInfo packageInfo, StackFrame[] stackFrames, int fp, int ip) {
+        this.constPool = packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+        this.code = packageInfo.getInstructionList().toArray(new Instruction[0]);
+        this.stackFrames = stackFrames;
+        this.fp = fp;
+        this.ip = ip;
+
+        exec();
+    }
 
     /**
      * Act as a virtual CPU
@@ -109,7 +119,7 @@ public class BLangVM {
         FunctionCallCPEntry funcCallCPEntry;
 
         // TODO use HALT Instruction in the while condition
-        while (ip < code.length && fp >= 0) {
+        while (ip >= 0 && ip < code.length && fp >= 0) {
 
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
@@ -202,42 +212,42 @@ public class BLangVM {
                 case InstructionCodes.RLOAD:
                     lvIndex = operands[0];
                     i = operands[1];
-                    sf.bValueRegs[i] = sf.bValueLocalVars[lvIndex];
+                    sf.refRegs[i] = sf.refLocalVars[lvIndex];
                     break;
                 case InstructionCodes.IALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bIntArray = (BIntArray) sf.bValueRegs[i];
+                    bIntArray = (BIntArray) sf.refRegs[i];
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
                     break;
                 case InstructionCodes.FALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bFloatArray = (BFloatArray) sf.bValueRegs[i];
+                    bFloatArray = (BFloatArray) sf.refRegs[i];
                     sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
                     break;
                 case InstructionCodes.SALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bStringArray = (BStringArray) sf.bValueRegs[i];
+                    bStringArray = (BStringArray) sf.refRegs[i];
                     sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
                     break;
                 case InstructionCodes.BALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bBooleanArray = (BBooleanArray) sf.bValueRegs[i];
+                    bBooleanArray = (BBooleanArray) sf.refRegs[i];
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                     break;
                 case InstructionCodes.RALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bArray = (BRefValueArray) sf.bValueRegs[i];
-                    sf.bValueRegs[k] = bArray.get(sf.longRegs[j]);
+                    bArray = (BRefValueArray) sf.refRegs[i];
+                    sf.refRegs[k] = bArray.get(sf.longRegs[j]);
                     break;
                 case InstructionCodes.ISTORE:
                     i = operands[0];
@@ -252,113 +262,114 @@ public class BLangVM {
                 case InstructionCodes.RSTORE:
                     i = operands[0];
                     lvIndex = operands[1];
-                    sf.bValueLocalVars[lvIndex] = sf.bValueRegs[i];
+                    sf.refLocalVars[lvIndex] = sf.refRegs[i];
                     break;
                 case InstructionCodes.IASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bIntArray = (BIntArray) sf.bValueRegs[i];
+                    bIntArray = (BIntArray) sf.refRegs[i];
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
                     break;
                 case InstructionCodes.FASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bFloatArray = (BFloatArray) sf.bValueRegs[i];
+                    bFloatArray = (BFloatArray) sf.refRegs[i];
                     bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                     break;
                 case InstructionCodes.SASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bStringArray = (BStringArray) sf.bValueRegs[i];
+                    bStringArray = (BStringArray) sf.refRegs[i];
                     bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
                     break;
                 case InstructionCodes.BASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bBooleanArray = (BBooleanArray) sf.bValueRegs[i];
+                    bBooleanArray = (BBooleanArray) sf.refRegs[i];
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                     break;
                 case InstructionCodes.RASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    bArray = (BRefValueArray) sf.bValueRegs[i];
-                    bArray.add(sf.longRegs[j], sf.bValueRegs[k]);
+                    bArray = (BRefValueArray) sf.refRegs[i];
+                    bArray.add(sf.longRegs[j], sf.refRegs[k]);
                     break;
                 case InstructionCodes.IFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     sf.longRegs[j] = structureType.getIntField(fieldIndex);
                     break;
                 case InstructionCodes.FFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     sf.doubleRegs[j] = structureType.getFloatField(fieldIndex);
                     break;
                 case InstructionCodes.SFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     sf.stringRegs[j] = structureType.getStringField(fieldIndex);
                     break;
                 case InstructionCodes.BFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     sf.intRegs[j] = structureType.getBooleanField(fieldIndex);
                     break;
                 case InstructionCodes.RFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
-                    sf.bValueRegs[j] = structureType.getRefField(fieldIndex);
+                    structureType = (StructureType) sf.refRegs[i];
+                    sf.refRegs[j] = structureType.getRefField(fieldIndex);
                     break;
                 case InstructionCodes.IFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     structureType.setIntField(fieldIndex, sf.longRegs[j]);
                     break;
                 case InstructionCodes.FFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     structureType.setFloatField(fieldIndex, sf.doubleRegs[j]);
                     break;
                 case InstructionCodes.SFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     structureType.setStringField(fieldIndex, sf.stringRegs[j]);
                     break;
                 case InstructionCodes.BFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
+                    structureType = (StructureType) sf.refRegs[i];
                     structureType.setBooleanField(fieldIndex, sf.intRegs[j]);
                     break;
                 case InstructionCodes.RFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
-                    structureType = (StructureType) sf.bValueRegs[i];
-                    structureType.setRefField(fieldIndex, sf.bValueRegs[j]);
+                    structureType = (StructureType) sf.refRegs[i];
+                    structureType.setRefField(fieldIndex, sf.refRegs[j]);
                     break;
+
                 case InstructionCodes.IADD:
                     i = operands[0];
                     j = operands[1];
@@ -377,18 +388,89 @@ public class BLangVM {
                     k = operands[2];
                     sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
                     break;
-                case InstructionCodes.IMUL:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    sf.longRegs[k] = sf.longRegs[i] * sf.longRegs[j];
-                    break;
                 case InstructionCodes.ISUB:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     sf.longRegs[k] = sf.longRegs[i] - sf.longRegs[j];
                     break;
+                case InstructionCodes.FSUB:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.doubleRegs[k] = sf.doubleRegs[i] - sf.doubleRegs[j];
+                    break;
+                case InstructionCodes.IMUL:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.longRegs[k] = sf.longRegs[i] * sf.longRegs[j];
+                    break;
+                case InstructionCodes.FMUL:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.doubleRegs[k] = sf.doubleRegs[i] * sf.doubleRegs[j];
+                    break;
+                case InstructionCodes.IDIV:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    // TODO improve error handling in VM
+                    if (sf.longRegs[j] == 0) {
+                        throw new BallerinaException(" / by zero");
+                    }
+
+                    sf.longRegs[k] = sf.longRegs[i] / sf.longRegs[j];
+                    break;
+                case InstructionCodes.FDIV:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    // TODO improve error handling in VM
+                    if (sf.doubleRegs[j] == 0) {
+                        throw new BallerinaException(" / by zero");
+                    }
+
+                    sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
+                    break;
+                case InstructionCodes.IMOD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    // TODO improve error handling in VM
+                    if (sf.longRegs[j] == 0) {
+                        throw new BallerinaException(" / by zero");
+                    }
+
+                    sf.longRegs[k] = sf.longRegs[i] % sf.longRegs[j];
+                    break;
+                case InstructionCodes.FMOD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    // TODO improve error handling in VM
+                    if (sf.doubleRegs[j] == 0) {
+                        throw new BallerinaException(" / by zero");
+                    }
+
+                    sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
+                    break;
+                case InstructionCodes.INEG:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.longRegs[j] = -sf.longRegs[i];
+                    break;
+                case InstructionCodes.FNEG:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.doubleRegs[j] = -sf.doubleRegs[i];
+                    break;
+
                 case InstructionCodes.ICMP:
                     i = operands[0];
                     j = operands[1];
@@ -472,23 +554,23 @@ public class BLangVM {
                     break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
-                    sf.bValueRegs[i] = new BIntArray();
+                    sf.refRegs[i] = new BIntArray();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];
-                    sf.bValueRegs[i] = new BFloatArray();
+                    sf.refRegs[i] = new BFloatArray();
                     break;
                 case InstructionCodes.SNEWARRAY:
                     i = operands[0];
-                    sf.bValueRegs[i] = new BStringArray();
+                    sf.refRegs[i] = new BStringArray();
                     break;
                 case InstructionCodes.BNEWARRAY:
                     i = operands[0];
-                    sf.bValueRegs[i] = new BBooleanArray();
+                    sf.refRegs[i] = new BBooleanArray();
                     break;
                 case InstructionCodes.RNEWARRAY:
                     i = operands[0];
-                    sf.bValueRegs[i] = new BRefValueArray();
+                    sf.refRegs[i] = new BRefValueArray();
                     break;
                 case InstructionCodes.NEWSTRUCT:
                     cpIndex = operands[0];
@@ -497,7 +579,7 @@ public class BLangVM {
                     fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
                     BStruct bStruct = new BStruct();
                     bStruct.init(fieldCount);
-                    sf.bValueRegs[i] = bStruct;
+                    sf.refRegs[i] = bStruct;
                     break;
                 case InstructionCodes.NEWCONNECTOR:
                     cpIndex = operands[0];
@@ -506,7 +588,7 @@ public class BLangVM {
                     fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
                     BConnector bConnector = new BConnector();
                     bConnector.init(fieldCount);
-                    sf.bValueRegs[i] = bConnector;
+                    sf.refRegs[i] = bConnector;
                     break;
                 default:
                     throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
@@ -514,7 +596,7 @@ public class BLangVM {
         }
     }
 
-    private void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+    public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = stackFrames[fp];
@@ -555,7 +637,7 @@ public class BLangVM {
                     calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
                     break;
                 default:
-                    calleeSF.bValueLocalVars[++refRegIndex] = callerSF.bValueRegs[argReg];
+                    calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
             }
         }
     }
@@ -585,7 +667,7 @@ public class BLangVM {
                         callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[regIndex];
                         break;
                     default:
-                        callersSF.bValueRegs[callersRetRegIndex] = currentSF.bValueRegs[regIndex];
+                        callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[regIndex];
                 }
             }
         }

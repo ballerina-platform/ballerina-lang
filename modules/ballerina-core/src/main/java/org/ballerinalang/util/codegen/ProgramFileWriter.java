@@ -119,7 +119,7 @@ public class ProgramFileWriter {
             outputStream.writeInt(codeAttribute.getMaxIntRegs());
             outputStream.writeInt(codeAttribute.getMaxLongRegs());
             outputStream.writeInt(codeAttribute.getMaxStringRegs());
-            outputStream.writeInt(codeAttribute.getMaxBValueRegs());
+            outputStream.writeInt(codeAttribute.getMaxRefRegs());
             outputStream.writeInt(codeAttribute.getCodeAddrs());
         }
     }

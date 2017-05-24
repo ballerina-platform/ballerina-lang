@@ -31,13 +31,13 @@ public class StackFrame {
     String[] stringLocalVars;
     // These are used for array indexes and boolean values;
     int[] intLocalVars;
-    BRefType[] bValueLocalVars;
+    BRefType[] refLocalVars;
 
     long[] longRegs;
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
-    BRefType[] bValueRegs;
+    BRefType[] refRegs;
 
     // Return address of the caller
     int retAddrs;
@@ -48,6 +48,11 @@ public class StackFrame {
     CallableUnitInfo callableUnitInfo;
 
     PackageInfo packageInfo;
+
+    public StackFrame(int retAddrs, int[] retRegIndexes) {
+        this.retAddrs = retAddrs;
+        this.retRegIndexes = retRegIndexes;
+    }
 
     public StackFrame(CallableUnitInfo callableUnitInfo, int retAddrs, int[] retRegIndexes) {
         this.callableUnitInfo = callableUnitInfo;
@@ -64,15 +69,75 @@ public class StackFrame {
         }
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        this.bValueLocalVars = new BRefType[codeAttribInfo.getMaxBValueLocalVars()];
+        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.bValueRegs = new BRefType[codeAttribInfo.getMaxBValueRegs()];
+        this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
+    }
+
+    public long[] getLongRegs() {
+        return longRegs;
+    }
+
+    public double[] getDoubleRegs() {
+        return doubleRegs;
+    }
+
+    public String[] getStringRegs() {
+        return stringRegs;
+    }
+
+    public int[] getIntRegs() {
+        return intRegs;
+    }
+
+    public BRefType[] getRefRegs() {
+        return refRegs;
+    }
+
+    public void setLongLocalVars(long[] longLocalVars) {
+        this.longLocalVars = longLocalVars;
+    }
+
+    public void setDoubleLocalVars(double[] doubleLocalVars) {
+        this.doubleLocalVars = doubleLocalVars;
+    }
+
+    public void setStringLocalVars(String[] stringLocalVars) {
+        this.stringLocalVars = stringLocalVars;
+    }
+
+    public void setIntLocalVars(int[] intLocalVars) {
+        this.intLocalVars = intLocalVars;
+    }
+
+    public void setRefLocalVars(BRefType[] refLocalVars) {
+        this.refLocalVars = refLocalVars;
+    }
+
+    public void setLongRegs(long[] longRegs) {
+        this.longRegs = longRegs;
+    }
+
+    public void setDoubleRegs(double[] doubleRegs) {
+        this.doubleRegs = doubleRegs;
+    }
+
+    public void setStringRegs(String[] stringRegs) {
+        this.stringRegs = stringRegs;
+    }
+
+    public void setIntRegs(int[] intRegs) {
+        this.intRegs = intRegs;
+    }
+
+    public void setRefRegs(BRefType[] refRegs) {
+        this.refRegs = refRegs;
     }
 }

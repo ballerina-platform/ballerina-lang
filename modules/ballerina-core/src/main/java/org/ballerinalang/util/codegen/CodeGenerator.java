@@ -41,6 +41,7 @@ import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
@@ -869,6 +870,34 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(NullLiteral nullLiteral) {
     }
 
+    @Override
+    public void visit(UnaryExpression unaryExpr) {
+        Expression rExpr = unaryExpr.getRExpr();
+        rExpr.accept(this);
+
+        OpcodeAndIndex opcodeAndIndex;
+        int opcode;
+        int exprIndex;
+        if (Operator.SUB.equals(unaryExpr.getOperator())) {
+            opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
+                    InstructionCodes.INEG, regIndexes);
+            opcode = opcodeAndIndex.opcode;
+            exprIndex = opcodeAndIndex.index;
+            emit(opcode, rExpr.getTempOffset(), exprIndex);
+
+        } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
+
+            // TODO
+            exprIndex = rExpr.getTempOffset();
+        } else {
+            // "+" operator
+            // Nothing to do
+            exprIndex = rExpr.getTempOffset();
+        }
+
+        unaryExpr.setTempOffset(exprIndex);
+    }
+
 
     // Binary arithmetic expressions
 
@@ -988,11 +1017,6 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
-
-    }
-
-    @Override
-    public void visit(UnaryExpression unaryExpression) {
 
     }
 
