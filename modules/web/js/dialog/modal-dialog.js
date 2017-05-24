@@ -19,6 +19,7 @@
 import $ from 'jquery';
 import EventChannel from 'event_channel';
 import 'bootstrap';
+import './dialog.css';
 
 class ModalDialog extends EventChannel {
     constructor(options) {

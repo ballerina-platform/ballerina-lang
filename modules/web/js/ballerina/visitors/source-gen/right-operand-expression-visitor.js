@@ -17,11 +17,7 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import AST from '../../ast/module';
-import ExpressionVisitorFactory from './expression-visitor-factory';
-import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor';
 
 class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {

@@ -20,7 +20,6 @@ import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import {panel} from './../../configs/designer-defaults';
-import AST from './../../ast/module';
 import { util } from './../sizing-utils';
 
 function getSimpleStatementPosition(node) {
@@ -94,8 +93,8 @@ function getCompoundStatementChildPosition(node) {
         let bodyBBox = viewSate.components.body;
         let annotation = viewSate.components.annotation;
         let resources = _.filter(parent.getChildren(), function (child) {
-            return child instanceof AST.ResourceDefinition ||
-                   child instanceof AST.ConnectorAction;
+            return ASTFactory.isResourceDefinition(child) ||
+                   ASTFactory.isConnectorAction(child);
         });
         let x, y, headerX, headerY, bodyX, bodyY;
         var currentResourceIndex = _.findIndex(resources, node);

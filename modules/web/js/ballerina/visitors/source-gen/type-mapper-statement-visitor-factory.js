@@ -15,10 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
-import AST from '../../ast/module';
+import ASTFactory from '../../ast/ballerina-ast-factory';
 import TryCatchStatementVisitor from './try-catch-statement-visitor';
 import TryStatementVisitor from './try-statement-visitor';
 import CatchStatementVisitor from './catch-statement-visitor';
@@ -44,53 +41,52 @@ import ThrowStatementVisitor from './throw-statement-visitor';
 
 class TypeMapperStatementVisitorFactory {
     getStatementVisitor(statement, parent) {
-        if (statement instanceof AST.TryCatchStatement) {
+        if (ASTFactory.isTryCatchStatement(statement)) {
             return new TryCatchStatementVisitor(parent);
-        } else if (statement instanceof AST.TryStatement) {
+        } else if (ASTFactory.isTryStatement(statement)) {
             return new TryStatementVisitor(parent.getParent());
-        } else if (statement instanceof AST.CatchStatement) {
+        } else if (ASTFactory.isCatchStatement(statement)) {
             return new CatchStatementVisitor(parent.getParent());
-        } else if (statement instanceof AST.IfElseStatement) {
+        } else if (ASTFactory.isIfElseStatement(statement)) {
             return new IfElseStatementVisitor(parent);
-        } else if (statement instanceof AST.IfStatement) {
+        } else if (ASTFactory.isIfStatement(statement)) {
             return new IfStatementVisitor(parent.getParent());
-        } else if (statement instanceof AST.ElseStatement) {
+        } else if (ASTFactory.isElseStatement(statement)) {
             return new ElseStatementVisitor(parent.getParent());
-        } else if (statement instanceof AST.ElseIfStatement) {
+        } else if (ASTFactory.isElseIfStatement(statement)) {
             return new ElseIfStatementVisitor(parent.getParent());
-        } else if (statement instanceof AST.WhileStatement) {
+        } else if (ASTFactory.isWhileStatement(statement)) {
             return new WhileStatementVisitor(parent);
-        } else if (statement instanceof AST.AssignmentStatement) {
+        } else if (ASTFactory.isAssignmentStatement(statement)) {
             return new TypeMapperAssignmentStatementVisitor(parent);
-        } else if (statement instanceof AST.ReplyStatement) {
+        } else if (ASTFactory.isReplyStatement(statement)) {
             return new ReplyStatementVisitor(parent);
-        } else if (statement instanceof AST.ReturnStatement) {
+        } else if (ASTFactory.isReturnStatement(statement)) {
             return new TypeMapperReturnStatementVisitor(parent);
-        } else if (statement instanceof AST.FunctionInvocation) {
+        } else if (ASTFactory.isFunctionInvocation(statement)) {
             return new FunctionInvocationVisitor(parent);
-        }else if (statement instanceof AST.FunctionInvocationExpression) {
+        }else if (ASTFactory.isFunctionInvocationExpression(statement)) {
             return new TypeMapperFunctionInvocationExpressionVisitor(parent);
-        } else if(statement instanceof AST.Assignment){
+        } else if(ASTFactory.isAssignment(statement)){
             return new AssignmentVisitor(parent);
-        } else if (statement instanceof AST.LeftOperandExpression) {
+        } else if (ASTFactory.isLeftOperandExpression(statement)) {
             return new TypeMapperLeftOperandExpressionVisitor(parent);
-        } else if (statement instanceof AST.RightOperandExpression) {
+        } else if (ASTFactory.isRightOperandExpression(statement)) {
             return new TypeMapperRightOperandExpressionVisitor(parent);
-        } else if (statement instanceof AST.VariableDefinitionStatement) {
+        } else if (ASTFactory.isVariableDefinitionStatement(statement)) {
             return new TypeMapperVariableDefinitionStatement(parent);
-        } else if (statement instanceof AST.WorkerInvocationStatement) {
+        } else if (ASTFactory.isWorkerInvocationStatement(statement)) {
             return new WorkerInvocationStatement(parent);
-        }  else if (statement instanceof AST.WorkerReplyStatement) {
+        }  else if (ASTFactory.isWorkerReplyStatement(statement)) {
             return new WorkerReplyStatement(parent);
-        } else if (statement instanceof AST.ActionInvocationStatement) {
+        } else if (ASTFactory.isActionInvocationStatement(statement)) {
             return new ActionInvocationStatementVisitor(parent);
-        } else if (statement instanceof AST.BreakStatement) {
+        } else if (ASTFactory.isBreakStatement(statement)) {
             return new BreakStatementVisitor(parent);
-        } else if (statement instanceof AST.ThrowStatement) {
+        } else if (ASTFactory.isThrowStatement(statement)) {
             return new ThrowStatementVisitor(parent);
         }
     }
 }
 
 export default TypeMapperStatementVisitorFactory;
-

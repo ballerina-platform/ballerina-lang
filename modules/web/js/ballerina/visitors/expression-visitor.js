@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
 import ASTVisitor from './ast-visitor';
-import AST from '../ast/module';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 class ExpressionVisitor extends ASTVisitor {
     constructor(args) {
@@ -81,13 +79,13 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     visitExpression(node) {
-        if (node instanceof AST.StructFieldAccessExpression) {
+        if (ASTFactory.isStructFieldAccessExpression(node)) {
             return this.visitStructFieldAccessExpression(node);
-        } else if (node instanceof AST.VariableReferenceExpression) {
+        } else if (ASTFactory.isVariableReferenceExpression(node)) {
             return this.visitVariableReferenceExpression(node);
-        } else if (node instanceof AST.ReferenceTypeInitExpression) {
+        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
             return this.visitReferenceTypeInitExpression(node);
-        } else if (node instanceof AST.TypeCastExpression) {
+        } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.visitTypeCastExpression(node);
         }
     }
@@ -96,13 +94,13 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     canVisitExpression(node) {
-        if (node instanceof AST.StructFieldAccessExpression) {
+        if (ASTFactory.isStructFieldAccessExpression(node)) {
             return this.canVisitStructFieldAccessExpression(node);
-        } else if (node instanceof AST.VariableReferenceExpression) {
+        } else if (ASTFactory.isVariableReferenceExpression(node)) {
             return this.canVisitVariableReferenceExpression(node);
-        } else if (node instanceof AST.ReferenceTypeInitExpression) {
+        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
             return this.canVisitReferenceTypeInitExpression(node);
-        } else if (node instanceof AST.TypeCastExpression) {
+        } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.canVisitTypeCastExpression(node);
         }
     }
@@ -111,13 +109,13 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     beginVisitExpression(node) {
-        if (node instanceof AST.StructFieldAccessExpression) {
+        if (ASTFactory.isStructFieldAccessExpression(node)) {
             this.beginVisitStructFieldAccessExpression(node);
-        } else if (node instanceof AST.VariableReferenceExpression) {
+        } else if (ASTFactory.isVariableReferenceExpression(node)) {
             this.beginVisitVariableReferenceExpression(node);
-        } else if (node instanceof AST.ReferenceTypeInitExpression) {
+        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
             this.beginVisitReferenceTypeInitExpression(node);
-        } else if (node instanceof AST.TypeCastExpression) {
+        } else if (ASTFactory.isTypeCastExpression(node)) {
             this.beginVisitTypeCastExpression(node);
         }
     }
@@ -126,17 +124,16 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     endVisitExpression(node) {
-        if (node instanceof AST.StructFieldAccessExpression) {
+        if (ASTFactory.isStructFieldAccessExpression(node)) {
             return this.endVisitStructFieldAccessExpression(node);
-        } else if (node instanceof AST.VariableReferenceExpression) {
+        } else if (ASTFactory.isVariableReferenceExpression(node)) {
             return this.endVisitVariableReferenceExpression(node);
-        } else if (node instanceof AST.ReferenceTypeInitExpression) {
+        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
             return this.endVisitReferenceTypeInitExpression(node);
-        } else if (node instanceof AST.TypeCastExpression) {
+        } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.endVisitTypeCastExpression(node);
         }
     }
 }
 
 export default ExpressionVisitor;
-

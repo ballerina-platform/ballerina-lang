@@ -21,11 +21,12 @@ import $ from 'jquery';
 import log from 'log';
 import Backbone from 'backbone';
 import FileBrowser from 'file_browser';
-import Ballerina from 'ballerina';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
 import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
-import SourceView from 'ballerina/views/source-view';
 import File from 'workspace/file';
 import 'bootstrap';
+import './dialog.css';
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -61,7 +62,6 @@ import 'bootstrap';
                 var ballerinaEditorOptions = this.ballerina_editor;
                 // var sourceViewContainer =  this.source_view_container;
                 var diagramRenderingContext = new DiagramRenderContext();
-                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
                 var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
 
                 var packageDefinition = BallerinaASTFactory.createPackageDefinition();
@@ -200,7 +200,6 @@ import 'bootstrap';
                         dataType:"json",
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
-                                var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
                                 var root = BallerinaASTDeserializer.getASTModel(data);
                                 openConfigModal.modal('hide');
                                 var command = app.commandManager;

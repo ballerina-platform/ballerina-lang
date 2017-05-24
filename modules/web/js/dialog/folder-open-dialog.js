@@ -21,6 +21,7 @@ import log from 'log';
 import Backbone from 'backbone';
 import FileBrowser from 'file_browser';
 import 'bootstrap';
+import './dialog.css';
     var FolderOpenDialog = Backbone.View.extend(
         /** @lends FolderOpenDialog.prototype */
         {

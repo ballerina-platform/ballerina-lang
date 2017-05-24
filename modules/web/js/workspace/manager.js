@@ -18,9 +18,17 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import log from 'log';
-import Dialogs from 'dialog/module';
-import WelcomePages from 'welcome-page/module';
-import Tab from 'tab/module';
+import SaveFileDialog from 'dialog/save-to-file-dialog';
+import SettingsDialog from 'dialog/settings-dialog';
+import FolderOpenDialog from 'dialog/folder-open-dialog';
+import FileOpenDialog from 'dialog/open-file-dialog';
+import CloseConfirmDialog from 'dialog/close-confirm-dialog';
+import ReplaceConfirmDialog from 'dialog/replace-confirm-dialog';
+import NewItemDialog from 'dialog/new-item-dialog';
+import DeleteItemDialog from 'dialog/delete-item-dialog';
+import WelcomePage from 'welcome-page/first-launch-welcome';
+import Tab from 'tab/tab';
+import FileTab from 'tab/file-tab';
 import alerts from 'alerts';
 import ServiceClient from './service-client';
 import 'bootstrap';
@@ -100,27 +108,27 @@ class WorkspaceManager {
         if (!this.passedFirstLaunch()) {
             // create a generic tab - without ballerina editor components
             let tab = this.app.tabController.newTab({
-                tabModel: Tab.Tab,
+                tabModel: Tab,
                 tabOptions:{title: 'welcome-page'}
             });
             let opts = _.get(this.app.config, 'welcome');
             _.set(opts, 'application', this.app);
             _.set(opts, 'tab', tab);
-            this.welcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+            this.welcomePage = new WelcomePage(opts);
             this.welcomePage.render();
         } else {
             // user has no active tabs from last session
             if (!this.app.tabController.hasFilesInWorkingSet()) {
                 // create a generic tab - without ballerina editor components
                 let tab = this.app.tabController.newTab({
-                    tabModel: Tab.Tab,
+                    tabModel: Tab,
                     tabOptions:{title: 'welcome-page'}
                 });
                 // Showing FirstLaunchWelcomePage instead of regularWelcomePage
                 let opts = _.get(this.app.config, 'welcome');
                 _.set(opts, 'application', this.app);
                 _.set(opts, 'tab', tab);
-                this.welcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+                this.welcomePage = new WelcomePage(opts);
                 this.welcomePage.render();
             }
         }
@@ -143,14 +151,14 @@ class WorkspaceManager {
         if (_.isUndefined(existingWelcomeTab)) {
             // Creating a new welcome tab.
             var tab = this.app.tabController.newTab({
-                tabModel: Tab.Tab,
+                tabModel: Tab,
                 tabOptions:{title: 'welcome-page'}
             });
             // Showing FirstLaunchWelcomePage instead of regularWelcomePage
             var opts = _.get(this.app.config, 'welcome');
             _.set(opts, 'application', this.app);
             _.set(opts, 'tab', tab);
-            workspaceManager.welcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+            workspaceManager.welcomePage = new WelcomePage(opts);
             workspaceManager.welcomePage.render();
         } else {
             // Showing existing welcome tab.
@@ -163,7 +171,7 @@ class WorkspaceManager {
             this.openNativeFileSaveDialog(options);
         } else {
             if(_.isNil(this._saveFileDialog)){
-                this._saveFileDialog = new Dialogs.save_to_file_dialog(this.app);
+                this._saveFileDialog = new SaveFileDialog(this.app);
             }
             this._saveFileDialog.render();
 
@@ -227,7 +235,7 @@ class WorkspaceManager {
         if(_.isNil(this._openFileDialog)){
             var opts = _.cloneDeep(_.get(this.app.config, 'settings_dialog'));
             _.set(opts, 'application', this.app);
-            this._openSettingsDialog = new Dialogs.SettingsDialog(opts);
+            this._openSettingsDialog = new SettingsDialog(opts);
         }
         this._openSettingsDialog.render();
         this._openSettingsDialog.show();
@@ -240,7 +248,7 @@ class WorkspaceManager {
             if(_.isNil(this._folderOpenDialog)){
                 var opts = _.cloneDeep(_.get(this.app.config, 'open_folder_dialog'));
                 _.set(opts, 'application', this.app);
-                this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
+                this._folderOpenDialog = new FolderOpenDialog(opts);
             }
             this._folderOpenDialog.render();
             this._folderOpenDialog.show();
@@ -260,7 +268,7 @@ class WorkspaceManager {
             this.openNativeFileOpenDialog();
         } else {
             if(_.isNil(this._openFileDialog)){
-                this._openFileDialog = new Dialogs.open_file_dialog(this.app);
+                this._openFileDialog = new FileOpenDialog(this.app);
             }
             this._openFileDialog.render();
             this._openFileDialog.show();
@@ -277,7 +285,7 @@ class WorkspaceManager {
 
     openCloseFileConfirmDialog (options) {
         if(_.isNil(this._closeFileConfirmDialog)){
-            this._closeFileConfirmDialog = new Dialogs.CloseConfirmDialog();
+            this._closeFileConfirmDialog = new CloseConfirmDialog();
             this._closeFileConfirmDialog.render();
         }
         this._closeFileConfirmDialog.askConfirmation(options);
@@ -285,7 +293,7 @@ class WorkspaceManager {
 
     openReplaceFileConfirmDialog(options) {
         if(_.isNil(this._replaceFileConfirmDialog)){
-            this._replaceFileConfirmDialog = new Dialogs.ReplaceConfirmDialog();
+            this._replaceFileConfirmDialog = new ReplaceConfirmDialog();
         }
         // This dialog need to be re-rendered so that it comes on top of save file dialog.
         this._replaceFileConfirmDialog.render();
@@ -303,7 +311,7 @@ class WorkspaceManager {
             undoMenuItem = this.app.menuBar.getMenuItemByID('edit.undo'),
             redoMenuItem = this.app.menuBar.getMenuItemByID('edit.redo');
 
-        if(activeTab instanceof Tab.FileTab){
+        if(activeTab instanceof FileTab){
             var fileEditor = activeTab.getBallerinaFileEditor();
             if(!_.isUndefined(fileEditor)){
                 var undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
@@ -342,7 +350,7 @@ class WorkspaceManager {
         var activeTab = this.app.tabController.getActiveTab(),
             saveMenuItem = this.app.menuBar.getMenuItemByID('file.save'),
             saveAsMenuItem = this.app.menuBar.getMenuItemByID('file.saveAs');
-        if(activeTab instanceof Tab.FileTab){
+        if(activeTab instanceof FileTab){
             var file = activeTab.getFile();
             if(file.isDirty()){
                 saveMenuItem.enable();
@@ -359,7 +367,7 @@ class WorkspaceManager {
     updateCodeFormatMenu(){
         var activeTab = this.app.tabController.getActiveTab(),
             codeFormatMenuItem = this.app.menuBar.getMenuItemByID('code.format');
-        if(activeTab instanceof Tab.FileTab){
+        if(activeTab instanceof FileTab){
             var fileEditor = activeTab.getBallerinaFileEditor();
             if(!_.isNil(fileEditor) && fileEditor.isInSourceView()){
                 codeFormatMenuItem.enable();
@@ -391,7 +399,7 @@ class WorkspaceManager {
 
     handleSave(options) {
         var activeTab = this.app.tabController.getActiveTab();
-        if(activeTab instanceof Tab.FileTab){
+        if(activeTab instanceof FileTab){
             var file = activeTab.getFile();
             if(file.isPersisted()){
                 if(file.isDirty()){
@@ -414,7 +422,7 @@ class WorkspaceManager {
     }
 
     handleFormat() {
-        if(this.app.tabController.getActiveTab() instanceof Tab.FileTab){
+        if(this.app.tabController.getActiveTab() instanceof FileTab){
             this.app.tabController.getActiveTab().getBallerinaFileEditor().getSourceView().format();
         }
     }
@@ -430,7 +438,7 @@ class WorkspaceManager {
 
     handleCreateNewItemAtPath(data){
         if(_.isNil(this._newItemDialog)){
-            this._newItemDialog = new Dialogs.NewItemDialog({application: this.app});
+            this._newItemDialog = new NewItemDialog({application: this.app});
             this._newItemDialog.render();
         }
         this._newItemDialog.displayWizard(data);
@@ -438,7 +446,7 @@ class WorkspaceManager {
 
     handleRemoveFromDisk(data){
         if(_.isNil(this._deleteItemWizard)){
-            this._deleteItemWizard = new Dialogs.DeleteItemDialog({application: this.app});
+            this._deleteItemWizard = new DeleteItemDialog({application: this.app});
             this._deleteItemWizard.render();
         }
         this._deleteItemWizard.displayWizard(data);

@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 import TypeMapperVariableDefinitionVisitor from './type-mapper-variable-definition-visitor';
 

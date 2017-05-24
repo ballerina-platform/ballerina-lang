@@ -19,8 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import $ from 'jquery';
 import Backbone from 'backbone';
-import CommandManager from 'command';
-import Ballerina from 'ballerina';
+import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
 import alerts from 'alerts';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -105,7 +104,6 @@ var FirstLaunchWelcomePage = Backbone.View.extend({
                                             if (!_.isUndefined(data.errorMessage)) {
                                                 alerts.error("Unable to parse the source: " + data.errorMessage);
                                             } else {
-                                                var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
                                                 root = BallerinaASTDeserializer.getASTModel(data);
                                             }
                                         } else {

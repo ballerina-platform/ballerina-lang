@@ -18,8 +18,7 @@ import $ from 'jquery';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
-import '../ballerina/utils/ace-mode';
-import ballerina from 'ballerina';
+import '../ballerina/utils/ace-mode'
 import { completerFactory } from './completer-factory.js';
 var ace = global.ace;
 var Range = ace.acequire('ace/range');
@@ -49,7 +48,7 @@ class ExpressionEditor{
         this.expressionEditor.offset({ top: bBox.y-1 , left: bBox.x-1 });
         this.expressionEditor.css('border', '2px solid #333333');
         this.expressionEditor.css('padding-top', '6px');
-        this.expressionEditor.css('background', 'white');      
+        this.expressionEditor.css('background', 'white');
         this.expressionEditor.css('position', 'absolute');
         this.expressionEditor.css('min-width', bBox.w + 2);
         container.append(this.expressionEditor);
@@ -73,7 +72,7 @@ class ExpressionEditor{
         }else{
             this._editor.setFontSize("12pt");
         }
-        
+
         let completers = completerFactory.getCompleters(props.key, packageScope);
         if(completers){
             langTools.setCompleters(completers);
@@ -95,7 +94,7 @@ class ExpressionEditor{
         this.expressionEditor.css("width", this.getNecessaryWidth(expression));
         this.expressionEditor.focus();
         this._editor.resize();
-        
+
         //bind auto complete to key press
         this._editor.commands.on('afterExec', (event) =>  {
             if (event.command.name === 'insertstring'&&/^[\w.]$/.test(event.args)) {
@@ -127,14 +126,14 @@ class ExpressionEditor{
             this._editor.resize();
         });
 
-        this._editor.on('blur', (event) => {  
+        this._editor.on('blur', (event) => {
             let text = this._editor.getSession().getValue();
             props.setterMethod.call(props.model, text);
             props.model.trigger('update-property-text', text , props.key);
             props.model.trigger('focus-out');
-            if(!this.removed){         
+            if(!this.removed){
                 this.distroy();
-            }            
+            }
             if(_.isFunction(callback)){
                 callback(text);
             }

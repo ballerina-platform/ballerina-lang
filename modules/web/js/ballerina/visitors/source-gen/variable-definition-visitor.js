@@ -15,11 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
-import AST from '../../ast/module';
 
 class VariableDefinitionVisitor extends AbstractSourceGenVisitor {
     constructor(parent) {

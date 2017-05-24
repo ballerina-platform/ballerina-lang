@@ -20,6 +20,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import ModalDialog from './modal-dialog';
 import log from 'log';
+import './dialog.css';
 
 class DeleteItemDialog extends ModalDialog {
     constructor(options) {
