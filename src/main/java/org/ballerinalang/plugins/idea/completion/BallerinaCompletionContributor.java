@@ -1320,7 +1320,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleVariableReferenceNode(parameters, resultSet);
         } else if (superParent instanceof ForkJoinStatementNode) {
             handleStatementNode(parameters, resultSet);
-        } else {
+        } else if (superParent instanceof ValueTypeNameNode) {
+            addValueTypesAsLookups(resultSet);
+        }else {
             // Handle all other situations.
             if (parentPrevSibling == null) {
                 addFileLevelKeywordsAsLookups(resultSet, true, true);

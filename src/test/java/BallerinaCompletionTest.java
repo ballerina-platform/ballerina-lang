@@ -271,6 +271,10 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 "TEST");
     }
 
+    public void testConstantTypesBeforeGlobalVarDef() {
+        doTest("const <caret>\n string test =\"\";", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));
+    }
+
     /**
      * Test annotation level lookups.
      */
