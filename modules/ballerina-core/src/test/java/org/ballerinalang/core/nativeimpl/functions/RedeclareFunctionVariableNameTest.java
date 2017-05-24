@@ -47,7 +47,7 @@ public class RedeclareFunctionVariableNameTest {
 
         String result1 = "Hello World";
         BValue[] returnsStep1 = BLangFunctions.invoke(bLangProgram, redeclareStringFunctionName);
-        Assert.assertEquals(returnsStep1[0].stringValue(),result1);
+        Assert.assertEquals(returnsStep1[0].stringValue(), result1);
     }
 
     @Test(description = "Test for function name for same int variable name")
