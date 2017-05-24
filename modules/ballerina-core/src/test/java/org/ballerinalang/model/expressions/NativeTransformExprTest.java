@@ -39,13 +39,13 @@ import org.testng.annotations.Test;
 /**
  * Test Cases for type conversion.
  */
-public class TypeConversionExprTest {
+public class NativeTransformExprTest {
     private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/conversion/type-conversion.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/conversion/native-transform.bal");
     }
     
     @Test
@@ -385,5 +385,24 @@ public class TypeConversionExprTest {
     public void testNullStructToMap() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullStructToMap");
         Assert.assertEquals(returns[0], null);
+    }
+    
+    // transform with errors
+    
+    @Test
+    public void testIncompatibleJsonToStructWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIncompatibleJsonToStructWithErrors", 
+                new BValue[]{});
+        
+        // check whether struct is null
+        Assert.assertNull(returns[0]);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'json' to type '.:Person': error while mapping" +
+            " 'parent': incompatible types: expected 'json-object', found 'string'");
     }
 }

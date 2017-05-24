@@ -253,7 +253,6 @@ public class SQLDatasource implements BValue {
 
     @Override
     public BValue copy() {
-        // FIXME
         return null;
     }
     

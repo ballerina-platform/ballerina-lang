@@ -461,3 +461,39 @@ function testAnyXmlToJson() (json) {
     any a = x;
     return <json> a;
 }
+
+function testIncompatibleJsonToStructWithErrors() (Person, errors:CastError) {
+    json j = { name:"Child", 
+               age:25,
+               parent:{
+                    name:"Parent", 
+                    age:50,
+                    parent: "Parent",
+                    address:{"city":"Colombo", "country":"SriLanka"},
+                    info:null,
+                    marks:null
+               },
+               address:{"city":"Colombo", "country":"SriLanka"},
+               info:{status:"single"},
+               marks:[87,94,72]
+             };
+    errors:CastError err;
+    Person p;
+    p, err = <Person> j; 
+    return p, err;
+}
+
+struct PersonA {
+    string name;
+    int age;
+}
+
+function JsonToStructWithErrors() (PersonA, errors:CastError) {
+    errors:CastError err;
+    PersonA person;
+    json j = {name:"supun"};
+    
+    person, err = <PersonA> j; 
+    
+    return person, err;
+}

@@ -312,3 +312,84 @@ function testInCompatibleStructForceCasting()(A, errors:CastError) {
     
     return a, err;
 }
+
+function testAnyToStringWithErrors()(string, errors:CastError) {
+    any a = 5; 
+    string s;
+    errors:CastError err;
+    s, err = (string) a;
+    
+    return s, err;
+}
+
+function testAnyNullToStringWithErrors()(string, errors:CastError) {
+    any a = null; 
+    string s;
+    errors:CastError err;
+    s, err = (string) a;
+    
+    return s, err;
+}
+
+function testAnyToBooleanWithErrors()(boolean, errors:CastError) {
+    any a = 5; 
+    boolean b;
+    errors:CastError err;
+    b, err = (boolean) a;
+    
+    return b, err;
+}
+
+function testAnyNullToBooleanWithErrors()(boolean, errors:CastError) {
+    any a = null; 
+    boolean b;
+    errors:CastError err;
+    b, err = (boolean) a;
+    
+    return b, err;
+}
+
+function testAnyToIntWithErrors()(int, errors:CastError) {
+    any a = "foo"; 
+    int b;
+    errors:CastError err;
+    b, err = (int) a;
+    
+    return b, err;
+}
+
+function testAnyNullToIntWithErrors()(int, errors:CastError) {
+    any a = null; 
+    int b;
+    errors:CastError err;
+    b, err = (int) a;
+    
+    return b, err;
+}
+
+function testAnyToFloatWithErrors()(float, errors:CastError) {
+    any a = "foo"; 
+    float b;
+    errors:CastError err;
+    b, err = (float) a;
+    
+    return b, err;
+}
+
+function testAnyNullToFloatWithErrors()(float, errors:CastError) {
+    any a = null; 
+    float b;
+    errors:CastError err;
+    b, err = (float) a;
+    
+    return b, err;
+}
+
+function testAnyToMapWithErrors()(map, errors:CastError) {
+    any a = "foo"; 
+    map b;
+    errors:CastError err;
+    b, err = (map) a;
+    
+    return b, err;
+}

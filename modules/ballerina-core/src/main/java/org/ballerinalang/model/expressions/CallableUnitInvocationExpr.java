@@ -19,7 +19,6 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
-import org.ballerinalang.model.types.BType;
 
 /**
  * {@code CallableUnitInvocationExpr} represents a function, action or a resource invocation expression.

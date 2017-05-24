@@ -28,7 +28,7 @@ public interface TypeConversionExpr {
     /**
      * Set that this expression contains multiple returns.
      * 
-     * @param Flag indicating whether this expression contains multiple returns.
+     * @param multiReturnsAvailable Flag indicating whether this expression contains multiple returns.
      */
     void setMultiReturnAvailable(boolean multiReturnsAvailable);
 

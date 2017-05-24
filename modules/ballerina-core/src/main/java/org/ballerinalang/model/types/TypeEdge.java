@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.typemappers.TriFunction;
-
-import java.util.function.BiFunction;
 
 /**
  * One edge in the Type Lattice graph.
@@ -29,24 +26,16 @@ import java.util.function.BiFunction;
 public class TypeEdge {
     private TypeVertex source, target;
     private TriFunction<BValue, BType, Boolean, BValue[]> typeMapperFunction;
-    private TypeMapper typeMapper;
     private String packageName;
-    private boolean forcedMapping;
+    private boolean returnErrors;
 
     public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean, 
-            BValue[]> typeMapperFunction, boolean forcedMapping) {
+            BValue[]> typeMapperFunction, boolean returnErrors) {
         this.source = source;
         this.target = target;
         this.typeMapperFunction = typeMapperFunction;
         this.packageName = TypeConstants.NATIVE_PACKAGE;
-        this.forcedMapping = forcedMapping;
-    }
-
-    public TypeEdge(TypeVertex source, TypeVertex target, TypeMapper typeMapper, String packageName) {
-        this.source = source;
-        this.target = target;
-        this.typeMapper = typeMapper;
-        this.packageName = packageName;
+        this.returnErrors = returnErrors;
     }
 
     public TypeVertex getSource() {
@@ -69,26 +58,19 @@ public class TypeEdge {
         return typeMapperFunction;
     }
 
-    public TypeMapper getTypeMapper() {
-        return typeMapper;
-    }
-
-    public void setTypeMapper(TypeMapper typeMapper) {
-        this.typeMapper = typeMapper;
-    }
-
     /**
      * @return String A String representation of this Edge
      */
     public String toString() {
-        return "({" + source.toString() + ", " + target.toString() + "}" + ": " + packageName + ")";
+        return "({" + source.toString() + ", " + target.toString() + ", " + returnErrors + "}" + ": " + 
+                packageName + ")";
     }
 
     /**
      * @return int The hash code for this Edge
      */
     public int hashCode() {
-        return (source.toString() + target.toString() + packageName + forcedMapping).hashCode();
+        return (source.toString() + target.toString() + packageName + returnErrors).hashCode();
     }
 
     /**
@@ -105,12 +87,10 @@ public class TypeEdge {
             return e.source.equals(this.source) && e.target.equals(this.target)
                     && e.packageName.equals(this.packageName)
                     && e.typeMapperFunction.equals(this.typeMapperFunction)
-                    && e.forcedMapping == this.forcedMapping;
-        } else {
-            return e.source.equals(this.source) && e.target.equals(this.target)
-                    && e.packageName.equals(this.packageName)
-                    && e.typeMapper.equals(this.typeMapper);
+                    && e.returnErrors == this.returnErrors;
         }
+        
+        return false;
     }
 
     public String getPackageName() {

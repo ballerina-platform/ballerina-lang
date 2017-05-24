@@ -44,7 +44,7 @@ public class TypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/type-mapping.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/type-casting.bal");
     }
 
 //    @Test
@@ -280,8 +280,6 @@ public class TypeCastExprTest {
 //        Assert.assertEquals(addressNode.get("country").textValue(), "USA");
 //        Assert.assertEquals(addressNode.get("city").textValue(), "CA");
 //    }
-    
-//    
     
     @Test
     public void testStructToStruct() {
@@ -673,4 +671,139 @@ public class TypeCastExprTest {
         BTestUtils.parseBalFile("lang/expressions/type/cast/casting-with-too-many-returns.bal");
     }
     
+    
+    @Test
+    public void testAnyToStringWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToStringWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(returns[0].stringValue(), "");
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'int' to type 'string'");
+    }
+    
+    @Test
+    public void testAnyNullToStringWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToStringWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(returns[0].stringValue(), "");
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'string'");
+    }
+    
+    @Test
+    public void testAnyToBooleanWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToBooleanWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'int' to type 'boolean'");
+    }
+    
+    @Test
+    public void testAnyNullToBooleanWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToBooleanWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'boolean'");
+    }
+    
+    @Test
+    public void testAnyToIntWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToIntWithErrors", new BValue[]{});
+        
+        // check whether int is zero
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'int'");
+    }
+    
+    @Test
+    public void testAnyNullToIntWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToIntWithErrors", new BValue[]{});
+        
+        // check whether int is zero
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'int'");
+    }
+    
+    @Test
+    public void testAnyToFloatWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToFloatWithErrors", new BValue[]{});
+        
+        // check whether float is zero
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'float'");
+    }
+    
+    @Test
+    public void testAnyNullToFloatWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToFloatWithErrors", new BValue[]{});
+        
+        // check whether float is zero
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'float'");
+    }
+    
+    @Test
+    public void testAnyToMapWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToMapWithErrors", new BValue[]{});
+        
+        // check whether map is null
+        Assert.assertNull(returns[0]);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'map'");
+    }
 }

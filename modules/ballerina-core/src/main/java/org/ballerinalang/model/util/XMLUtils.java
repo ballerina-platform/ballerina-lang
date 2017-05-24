@@ -18,6 +18,12 @@
 
 package org.ballerinalang.model.util;
 
+import de.odysseus.staxon.json.JsonXMLConfig;
+import de.odysseus.staxon.json.JsonXMLConfigBuilder;
+import de.odysseus.staxon.json.JsonXMLInputFactory;
+import de.odysseus.staxon.json.JsonXMLOutputFactory;
+import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
+
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -43,16 +49,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 
-import de.odysseus.staxon.json.JsonXMLConfig;
-import de.odysseus.staxon.json.JsonXMLConfigBuilder;
-import de.odysseus.staxon.json.JsonXMLInputFactory;
-import de.odysseus.staxon.json.JsonXMLOutputFactory;
-import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
-
 /**
  * Common utility methods used for XML manipulation.
  * 
- * @since 0.87
+ * @since 0.88
  */
 public class XMLUtils {
     
@@ -100,7 +100,7 @@ public class XMLUtils {
     }
     
     
-    public static BXML JSONToXML(BJSON msg) {
+    public static BXML jsonToXML(BJSON msg) {
         InputStream input = new ByteArrayInputStream(msg.stringValue().getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).virtualRoot(XML_ROOT).build();

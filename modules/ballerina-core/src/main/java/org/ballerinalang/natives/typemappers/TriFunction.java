@@ -20,7 +20,15 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
 /**
+ * Functional interface class to implement functions which accepts three arguments
+ * and produces a single result.
+ *
+ * @param <A> Type of the first argument to the function
+ * @param <B> Type of the second argument to the function
+ * @param <C> Type of the third argument to the function
+ * @param <D> Type of the result of the function
  * 
+ * @since 0.88
  */
 @FunctionalInterface
 public interface TriFunction<A, B, C, D> {

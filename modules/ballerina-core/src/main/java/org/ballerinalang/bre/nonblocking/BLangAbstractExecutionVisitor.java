@@ -44,7 +44,6 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
@@ -63,13 +62,13 @@ import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
-import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.EndNode;
@@ -1308,16 +1307,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         TypeCastExpression typeCastExpression = typeCastExpressionEndNode.getExpression();
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TypeCastExpression - EndNode {}->{}, source-{}", typeCastExpression.getType(),
-                    typeCastExpression.getTargetType(), typeCastExpression.getRExpr() != null);
+                    typeCastExpression.getType(), typeCastExpression.getRExpr() != null);
         }
         next = typeCastExpressionEndNode.next;
         
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
             BValue result = (BValue) getTempValue(typeCastExpression.getRExpr());
-            // FIXME
             setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result,
-                    typeCastExpression.getTargetType(), typeCastExpression.isMultiReturnExpr())[0]);
+                    typeCastExpression.getType(), typeCastExpression.isMultiReturnExpr())[0]);
         }
         
         /* else {

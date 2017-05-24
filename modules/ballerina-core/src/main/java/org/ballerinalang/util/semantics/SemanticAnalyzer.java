@@ -57,7 +57,6 @@ import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeConversionExpr;
-import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -90,6 +89,7 @@ import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
@@ -99,7 +99,6 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
-import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -134,15 +133,13 @@ import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
-import org.ballerinalang.model.types.TypeVertex;
 import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.typemappers.NativeTransformMapper;
+import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -268,7 +265,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         defineConnectors(bLangPackage.getConnectors());
         resolveStructFieldTypes(bLangPackage.getStructDefs());
         defineFunctions(bLangPackage.getFunctions());
-        defineTypeMappers(bLangPackage.getTypeMappers());
         defineServices(bLangPackage.getServices());
         defineAnnotations(bLangPackage.getAnnotationDefs());
 
@@ -1025,7 +1021,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
         
-        if (lExprs.length > 1 && (rExpr instanceof TypeCastExpression || rExpr instanceof NativeTransformExpression )) {
+        if (lExprs.length > 1 && (rExpr instanceof TypeCastExpression || rExpr instanceof NativeTransformExpression)) {
             ((TypeConversionExpr) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
@@ -1505,7 +1501,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
                 BType targetType = returnParamsOfCU[i].getType();
-                if (NativeTransformMapper.isCompatible(returnParamsOfCU[i].getType(), typesOfReturnExprs[i])) {
+                if (NativeCastMapper.isCompatible(returnParamsOfCU[i].getType(), typesOfReturnExprs[i])) {
                     continue;
                 }
 
@@ -1868,7 +1864,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // check the type compatibility of the value.
             BType argType = argExpr.getType();
-            if (BTypes.isValueType(argType) || NativeTransformMapper.isCompatible(BTypes.typeJSON, argType)) {
+            if (BTypes.isValueType(argType) || NativeCastMapper.isCompatible(BTypes.typeJSON, argType)) {
                 continue;
             }
             TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, argExpr);
@@ -1937,7 +1933,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             visitSingleValueExpr(argExpr);
 
-            if (NativeTransformMapper.isCompatible(expectedElementType, argExpr.getType())) {
+            if (NativeCastMapper.isCompatible(expectedElementType, argExpr.getType())) {
                 continue;
             }
             TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExpr);
@@ -1996,7 +1992,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             valueExpr.accept(this);
 
-            if (!NativeTransformMapper.isCompatible(structFieldType, valueExpr.getType())) {
+            if (!NativeCastMapper.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
@@ -2129,11 +2125,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         boolean isMultiReturn = typeCastExpression.isMultiReturnExpr();
         
         // Find the eval function from explicit casting lattice
-        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null, isMultiReturn);
+        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null, 
+                isMultiReturn);
         if (newEdge != null) {
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else {
-            // FIXME: Print a suggestion
+            // TODO: print a suggestion
             BLangExceptionHelper.throwSemanticError(typeCastExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
                     sourceType, targetType);
         }
@@ -2165,20 +2162,21 @@ public class SemanticAnalyzer implements NodeVisitor {
         
         // casting a null literal is not supported.
         if (rExpr instanceof NullLiteral) {
-            BLangExceptionHelper.throwSemanticError(typeConversionExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
-                sourceType, targetType);
+            BLangExceptionHelper.throwSemanticError(typeConversionExpression, 
+                    SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
         }
         
         boolean isMultiReturn = typeConversionExpression.isMultiReturnExpr();
         
         // Find the eval function from the conversion lattice
-        TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null, isMultiReturn);
+        TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null, 
+                isMultiReturn);
         if (newEdge != null) {
             typeConversionExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else {
-            // FIXME: Print a suggestion
-            BLangExceptionHelper.throwSemanticError(typeConversionExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
-                    sourceType, targetType);
+            // TODO: print a suggestion
+            BLangExceptionHelper.throwSemanticError(typeConversionExpression, 
+                    SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
         }
 
         if (!isMultiReturn) {
@@ -2438,16 +2436,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void checkForMultiValuedCastingErrors(AssignStmt assignStmt, Expression[] lExprs,
             ExecutableMultiReturnExpr rExpr) {
-        
-//        if (lExprs.length != 2) {
-//            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, lExprs.length,
-//                2);
-//        }
-        
         BType[] returnTypes = rExpr.getTypes();
         if (lExprs.length != returnTypes.length) {
-            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, lExprs.length,
-                returnTypes.length);
+            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, 
+                    lExprs.length, returnTypes.length);
         }
 
         for (int i = 0; i < lExprs.length; i++) {
@@ -2458,8 +2450,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
             if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
-                BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT,
-                    varName, returnType, lExpr.getType());
+                BLangExceptionHelper.throwSemanticError(assignStmt, 
+                    SemanticErrors.INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT, varName, returnType, lExpr.getType());
             }
         }
     }
@@ -3209,53 +3201,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private void defineTypeMappers(TypeMapper[] typeMappers) {
-        for (TypeMapper typeMapper : typeMappers) {
-            NodeLocation location = typeMapper.getNodeLocation();
-
-            // Resolve input parameters
-            SimpleTypeName sourceType = typeMapper.getParameterDefs()[0].getTypeName();
-
-            BType sourceBType = BTypes.resolveType(sourceType, currentScope, location);
-            typeMapper.setParameterTypes(new BType[] { sourceBType });
-
-            // Resolve return parameters
-            SimpleTypeName targetType = typeMapper.getReturnParameters()[0].getTypeName();
-
-            BType targetBType = BTypes.resolveType(targetType, currentScope, location);
-
-            TypeVertex sourceV = new TypeVertex(sourceBType);
-            TypeVertex targetV = new TypeVertex(targetBType);
-            typeMapper.setReturnParamTypes(new BType[] { targetBType });
-
-            SymbolName symbolName = LangModelUtils
-                        .getTypeMapperSymName(typeMapper.getPackagePath(), sourceBType, targetBType);
-
-            typeMapper.setSymbolName(symbolName);
-            BLangSymbol typConvertorSymbol = currentScope.resolve(symbolName);
-
-
-            if (typeMapper.isNative() && typConvertorSymbol == null) {
-                BLangExceptionHelper
-                        .throwSemanticError(typeMapper, SemanticErrors.UNDEFINED_TYPE_MAPPER, typeMapper.getName());
-            }
-
-            if (!typeMapper.isNative()) {
-                if (typConvertorSymbol != null) {
-                    BLangExceptionHelper
-                            .throwSemanticError(typeMapper, SemanticErrors.REDECLARED_SYMBOL, typeMapper.getName());
-                }
-                currentScope.define(symbolName, typeMapper);
-            }
-
-            // Typemapper should be added to type lattice after it is defined in the symbol scope
-            packageTypeLattice.addVertex(sourceV, true);
-            packageTypeLattice.addVertex(targetV, true);
-            packageTypeLattice.addEdge(sourceV, targetV, typeMapper,
-                    typeMapper.getPackagePath() != null ? typeMapper.getPackagePath() : ".");
-        }
-    }
-
     private void defineConnectors(BallerinaConnectorDef[] connectorDefArray) {
         for (BallerinaConnectorDef connectorDef : connectorDefArray) {
             String connectorName = connectorDef.getName();
@@ -3625,7 +3570,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // for JSON init expr, check the type compatibility of the value.
             BType valueType = valueExpr.getType();
-            if (BTypes.isValueType(valueType) || NativeTransformMapper.isCompatible(BTypes.typeJSON, valueType)) {
+            if (BTypes.isValueType(valueType) || NativeCastMapper.isCompatible(BTypes.typeJSON, valueType)) {
                 continue;
             }
             TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);
