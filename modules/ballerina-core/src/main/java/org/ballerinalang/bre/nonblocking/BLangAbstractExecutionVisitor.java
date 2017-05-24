@@ -44,7 +44,6 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
@@ -63,6 +62,7 @@ import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
@@ -633,6 +633,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = typeCastExpression.next;
     }
 
+    @Override
+    public void visit(NativeTransformExpression typeConversionExpression) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing typeConversion {}->{}", typeConversionExpression.getType(), 
+                    typeConversionExpression.getType());
+        }
+        next = typeConversionExpression.next;
+    }
+    
     @Override
     public void visit(UnaryExpression unaryExpression) {
         if (logger.isDebugEnabled()) {
@@ -1298,15 +1307,18 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         TypeCastExpression typeCastExpression = typeCastExpressionEndNode.getExpression();
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TypeCastExpression - EndNode {}->{}, source-{}", typeCastExpression.getType(),
-                    typeCastExpression.getTargetType(), typeCastExpression.getRExpr() != null);
+                    typeCastExpression.getType(), typeCastExpression.getRExpr() != null);
         }
         next = typeCastExpressionEndNode.next;
+        
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
             BValue result = (BValue) getTempValue(typeCastExpression.getRExpr());
             setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result,
-                    typeCastExpression.getTargetType()));
-        } else {
+                    typeCastExpression.getType(), typeCastExpression.isMultiReturnExpr())[0]);
+        }
+        
+        /* else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
 
             int sizeOfValueArray = typeMapper.getStackFrameSize();
@@ -1340,7 +1352,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             if (typeCastExpression.hasGotoBranchID()) {
                 branchIDStack.push(typeCastExpression.getGotoBranchID());
             }
-        }
+        }*/
     }
 
     @Override

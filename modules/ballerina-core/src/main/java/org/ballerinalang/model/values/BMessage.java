@@ -281,4 +281,9 @@ public final class BMessage implements BRefType<CarbonMessage> {
     public Map<String, Object> getProperties() {
         return value.getProperties();
     }
+    
+    @Override
+    public BValue copy() {
+        return clone();
+    }
 }

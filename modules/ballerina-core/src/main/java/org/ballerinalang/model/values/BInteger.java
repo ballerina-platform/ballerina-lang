@@ -62,4 +62,9 @@ public final class BInteger extends BValueType {
     public boolean equals(Object obj) {
         return ((BInteger) obj).intValue() == value;
     }
+    
+    @Override
+    public BValue copy() {
+        return new BInteger(value);
+    }
 }

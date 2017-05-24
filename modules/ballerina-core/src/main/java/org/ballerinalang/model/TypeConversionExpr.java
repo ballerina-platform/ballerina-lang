@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,20 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.values;
-
-import org.ballerinalang.model.types.BType;
+package org.ballerinalang.model;
 
 /**
- * {@code BValue} represents any value in Ballerina.
+ * {@code TypeConversionExpr} interface makes an {@link org.ballerinalang.model.expressions.Expression}.
+ * which converts ballerina values to another.
  *
- * @since 0.8.0
+ * @since 0.88
  */
-public interface BValue {
+public interface TypeConversionExpr {
 
-    String stringValue();
+    /**
+     * Set that this expression contains multiple returns.
+     * 
+     * @param multiReturnsAvailable Flag indicating whether this expression contains multiple returns.
+     */
+    void setMultiReturnAvailable(boolean multiReturnsAvailable);
 
-    BType getType();
-    
-    BValue copy();
 }

@@ -39,6 +39,7 @@ import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
@@ -147,7 +148,9 @@ public interface NodeExecutor {
 
     BValue visit(VariableRefExpr variableRefExpr);
 
-    BValue visit(TypeCastExpression typeCastExpression);
+    BValue[] visit(TypeCastExpression typeCastExpression);
+    
+    BValue[] visit(NativeTransformExpression typeConversionExpression);
 
     BValue visit(BasicLiteral basicLiteral);
     

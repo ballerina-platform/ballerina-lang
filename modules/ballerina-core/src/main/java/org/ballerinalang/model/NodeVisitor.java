@@ -48,6 +48,7 @@ import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
+import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
@@ -203,6 +204,8 @@ public interface NodeVisitor {
     void visit(UnaryExpression unaryExpression);
 
     void visit(TypeCastExpression typeCastExpression);
+    
+    void visit(NativeTransformExpression typeConversionExpression);
 
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
     

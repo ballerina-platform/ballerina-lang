@@ -29,26 +29,27 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.typemappers.TriFunction;
 
 /**
- * Class to hold the data related to type casting expression.
+ * Class to hold the data related to type conversion expression.
  *
- * @since 0.8.0
+ * @since 0.88
  */
-public class TypeCastExpression extends AbstractExpression implements TypeConversionExpr, ExecutableMultiReturnExpr {
+public class NativeTransformExpression extends AbstractExpression implements TypeConversionExpr, 
+        ExecutableMultiReturnExpr {
 
     private SimpleTypeName typeName;
     private Expression rExpr;
     protected TriFunction<BValue, BType, Boolean, BValue[]> evalFunc;
     private BType[] types = new BType[0];
 
-    public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
+    public NativeTransformExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.type = targetType;
     }
 
-    public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
-                              Expression rExpr) {
+    public NativeTransformExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, 
+            SimpleTypeName typeName, Expression rExpr) {
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.typeName = typeName;
@@ -68,21 +69,6 @@ public class TypeCastExpression extends AbstractExpression implements TypeConver
 
     public SimpleTypeName getTypeName() {
         return typeName;
-    }
-
-    @Override
-    public BType getType() {
-        return type;
-    }
-
-    @Deprecated
-    public BType getTargetType() {
-        return getType();
-    }
-
-    @Deprecated
-    public void setTargetType(BType targetType) {
-        this.type = targetType;
     }
 
     @Override
@@ -130,7 +116,7 @@ public class TypeCastExpression extends AbstractExpression implements TypeConver
     public BValue[] executeMultiReturn(NodeExecutor executor) {
         return executor.visit(this);
     }
-
+    
     @Override
     public void setMultiReturnAvailable(boolean multiReturnsAvailable) {
         this.multipleReturnsAvailable = multiReturnsAvailable;
