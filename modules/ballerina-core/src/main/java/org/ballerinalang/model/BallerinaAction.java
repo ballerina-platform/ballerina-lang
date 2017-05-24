@@ -288,7 +288,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
             bAction.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             bAction.identifier = this.identifier;
             bAction.pkgPath = this.pkgPath;
-            bAction.symbolName = new SymbolName(identifier.getName(), pkgPath);
+            bAction.symbolName = new ActionSymbolName(identifier.getName(), pkgPath);
 
             bAction.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bAction.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);

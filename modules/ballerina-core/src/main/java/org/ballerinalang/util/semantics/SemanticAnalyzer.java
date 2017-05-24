@@ -25,6 +25,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
+import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
@@ -56,6 +57,7 @@ import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
+import org.ballerinalang.model.TypeSymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
@@ -688,7 +690,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AnnotationAttachment annotation) {
         AttachmentPoint attachedPoint = annotation.getAttachedPoint();
-        SymbolName annotationSymName = new SymbolName(annotation.getName(), annotation.getPkgPath());
+        TypeSymbolName annotationSymName = new TypeSymbolName(annotation.getName(), annotation.getPkgPath());
         BLangSymbol annotationSymbol = currentScope.resolve(annotationSymName);
         
         if (!(annotationSymbol instanceof AnnotationDef)) {
@@ -735,7 +737,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             SimpleTypeName attributeType = attributeDef.getTypeName();
             SimpleTypeName valueType = attributeValue.getType();
             BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
-            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(), 
+            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new TypeSymbolName(attributeType.getName(),
                     attributeType.getPackagePath()));
             
             if (attributeType.isArrayType()) {
@@ -818,7 +820,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                     SimpleTypeName attributeType = attributeDef.getTypeName();
                     BLangSymbol attributeTypeSymbol = annotationDef.resolve(
-                            new SymbolName(attributeType.getName(), attributeType.getPackagePath()));
+                            new TypeSymbolName(attributeType.getName(), attributeType.getPackagePath()));
                     if (attributeTypeSymbol instanceof AnnotationDef) {
                         populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
                     }
@@ -865,7 +867,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             BLangSymbol typeSymbol;
             if (fieldType.isArrayType()) {
-                typeSymbol = currentScope.resolve(new SymbolName(fieldType.getName(), fieldType.getPackagePath()));
+                typeSymbol = currentScope.resolve(new TypeSymbolName(fieldType.getName(), fieldType.getPackagePath()));
             } else {
                 typeSymbol = currentScope.resolve(fieldType.getSymbolName());
             }
@@ -1170,7 +1172,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         tryCatchStmt.getTryBlock().accept(this);
 
-        BLangSymbol error = currentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+        BLangSymbol error = currentScope.resolve(new TypeSymbolName("Error", "ballerina.lang.errors"));
         Set<BType> definedTypes = new HashSet<>();
         if (tryCatchStmt.getCatchBlocks().length != 0) {
             // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
@@ -1218,7 +1220,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
         if (expressionType != null) {
-            BLangSymbol error = currentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+            BLangSymbol error = currentScope.resolve(new TypeSymbolName("Error", "ballerina.lang.errors"));
             // TODO : Fix this.
             // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
             if (error == null) {
@@ -2617,7 +2619,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         String connectorName = actionIExpr.getConnectorName();
 
         // First look for the connectors
-        SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
+        TypeSymbolName connectorSymbolName = new TypeSymbolName(connectorName, pkgPath);
         BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
         if (connectorSymbol == null) {
             String connectorWithPkgName = (actionIExpr.getPackageName() != null) ? actionIExpr.getPackageName() +
@@ -2635,7 +2637,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // When getting the action symbol name, Package name for the action is set to null, since the action is 
         // registered under connector, and connecter contains the package
-        SymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
+        ActionSymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
                 actionIExpr.getPackagePath(), actionIExpr.getConnectorName(), paramTypes);
 
         // Now check whether there is a matching action
@@ -3161,7 +3163,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             String connectorName = connectorDef.getName();
 
             // Define ConnectorDef Symbol in the package scope..
-            SymbolName connectorSymbolName = new SymbolName(connectorName, connectorDef.getPackagePath());
+            TypeSymbolName connectorSymbolName = new TypeSymbolName(connectorName, connectorDef.getPackagePath());
             BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
             if (connectorSymbol != null) {
                 BLangExceptionHelper.throwSemanticError(connectorDef,
@@ -3186,7 +3188,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             connectorDef.setInitFunction(functionBuilder.buildFunction());
 
             BLangSymbol actionSymbol = null;
-            SymbolName name = new SymbolName("NativeAction." + connectorName
+            SymbolName name = new ActionSymbolName("NativeAction." + connectorName
                     + ".<init>", connectorDef.getPackagePath());
             actionSymbol = nativeScope.resolve(name);
             if (actionSymbol != null) {
@@ -3222,18 +3224,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         action.setParameterTypes(paramTypes);
-        SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
+        ActionSymbolName actionSymbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
                 connectorDef.getName(), paramTypes);
-        action.setSymbolName(symbolName);
+        action.setSymbolName(actionSymbolName);
 
-        BLangSymbol actionSymbol = currentScope.resolve(symbolName);
+        BLangSymbol actionSymbol = currentScope.resolve(actionSymbolName);
         if (actionSymbol != null) {
             BLangExceptionHelper.throwSemanticError(action, SemanticErrors.REDECLARED_SYMBOL, action.getName());
         }
-        currentScope.define(symbolName, action);
+        currentScope.define(actionSymbolName, action);
 
         if (action.isNative()) {
-            SymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
+            ActionSymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
                     connectorDef.getName(), action.getPackagePath(), paramTypes);
             BLangSymbol nativeAction = nativeScope.resolve(nativeActionSymName);
 
@@ -3317,7 +3319,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void defineStructs(StructDef[] structDefs) {
         for (StructDef structDef : structDefs) {
 
-            SymbolName symbolName = new SymbolName(structDef.getName(), structDef.getPackagePath());
+            TypeSymbolName symbolName = new TypeSymbolName(structDef.getName(), structDef.getPackagePath());
             // Check whether this constant is already defined.
             if (currentScope.resolve(symbolName) != null) {
                 BLangExceptionHelper.throwSemanticError(structDef,
@@ -3370,15 +3372,15 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private void defineAnnotations(AnnotationDef[] annotationDefs) {
         for (AnnotationDef annotationDef : annotationDefs) {
-            SymbolName symbolName = new SymbolName(annotationDef.getName(), currentPkg);
+            TypeSymbolName typeSymbolName = new TypeSymbolName(annotationDef.getName(), currentPkg);
 
             // Check whether this annotation is already defined.
-            if (currentScope.resolve(symbolName) != null) {
+            if (currentScope.resolve(typeSymbolName) != null) {
                 BLangExceptionHelper.throwSemanticError(annotationDef,
                         SemanticErrors.REDECLARED_SYMBOL, annotationDef.getSymbolName().getName());
             }
             
-            currentScope.define(symbolName, annotationDef);
+            currentScope.define(typeSymbolName, annotationDef);
         }
     }
 

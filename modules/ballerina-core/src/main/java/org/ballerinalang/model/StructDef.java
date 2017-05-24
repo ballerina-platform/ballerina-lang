@@ -265,7 +265,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
             this.structDef.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);
             this.structDef.fields = fields.toArray(new VariableDefStmt[fields.size()]);
-            this.structDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
+            this.structDef.symbolName = new TypeSymbolName(identifier.getName(), pkgPath);
 
             return structDef;
         }

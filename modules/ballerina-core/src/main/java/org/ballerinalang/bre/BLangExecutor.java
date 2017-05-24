@@ -30,6 +30,7 @@ import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
+import org.ballerinalang.model.TypeSymbolName;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
@@ -313,9 +314,9 @@ public class BLangExecutor implements NodeExecutor {
     private BStruct generateStackTrace() {
 
         if (stackTraceDef == null) {
-            stackTraceItemDef = (StructDef) parentScope.resolve(new SymbolName("StackTraceItem",
+            stackTraceItemDef = (StructDef) parentScope.resolve(new TypeSymbolName("StackTraceItem",
                     "ballerina.lang.errors"));
-            stackTraceDef = (StructDef) parentScope.resolve(new SymbolName("StackTrace",
+            stackTraceDef = (StructDef) parentScope.resolve(new TypeSymbolName("StackTrace",
                     "ballerina.lang.errors"));
             if (stackTraceDef == null) {
                 throw new BLangRuntimeException("Unresolved type ballerina.lang.errors:StackTraceItem");
@@ -1817,7 +1818,7 @@ public class BLangExecutor implements NodeExecutor {
 
     private void createBErrorFromException(Throwable t) {
         if (error == null) {
-            error = (StructDef) parentScope.resolve(new SymbolName("Error", "ballerina.lang.errors"));
+            error = (StructDef) parentScope.resolve(new TypeSymbolName("Error", "ballerina.lang.errors"));
             if (error == null) {
                 throw new BLangRuntimeException("Unresolved type Error");
             }

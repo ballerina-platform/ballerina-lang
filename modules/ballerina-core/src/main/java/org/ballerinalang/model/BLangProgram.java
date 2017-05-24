@@ -81,7 +81,7 @@ public class BLangProgram implements SymbolScope, Node {
     }
 
     public BallerinaFunction getMainFunction() {
-        mainFuncSymboleName = new SymbolName("main.string[]", mainPackage.getPackagePath());
+        mainFuncSymboleName = new FunctionSymbolName("main.string[]", "main", mainPackage.getPackagePath(), 1);
         BallerinaFunction mainFunction = (BallerinaFunction) mainPackage.resolveMembers(mainFuncSymboleName);
         if (mainFunction == null || mainFunction.getReturnParameters().length != 0) {
             throw new RuntimeException("cannot find main function");

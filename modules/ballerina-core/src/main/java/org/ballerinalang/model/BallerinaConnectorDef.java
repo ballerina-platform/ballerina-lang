@@ -180,7 +180,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     @Override
     public SymbolName getSymbolName() {
-        return symbolName;
+        return typeSymbolName;
     }
 
     @Override
@@ -239,7 +239,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
             this.connectorDef.identifier = this.identifier;
             this.connectorDef.typeName = this.identifier.getName();
             this.connectorDef.pkgPath = this.pkgPath;
-            this.connectorDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
+            this.connectorDef.typeSymbolName = new TypeSymbolName(identifier.getName(), pkgPath);
 
             this.connectorDef.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);
