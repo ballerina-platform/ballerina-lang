@@ -27,7 +27,7 @@ public class BFloatArray extends BNewArray {
     private double[] values;
 
     public BFloatArray() {
-        values = (double[]) newArrayInstance(Float.TYPE);
+        values = (double[]) newArrayInstance(Double.TYPE);
     }
 
     public void add(long index, double value) {
