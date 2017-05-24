@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.bre.nonblocking;
 
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
 class ForkJoinInvocationStatus {
 
     boolean timedOut = false;
-    List<BMessage> resultMsgs;
+    List<BValue> resultMsgs;
 
     ForkJoinInvocationStatus() {
         this.timedOut = false;

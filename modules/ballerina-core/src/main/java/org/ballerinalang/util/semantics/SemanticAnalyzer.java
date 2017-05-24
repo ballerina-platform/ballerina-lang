@@ -434,18 +434,29 @@ public class SemanticAnalyzer implements NodeVisitor {
         closeScope();
     }
 
-    private void buildWorkerInteractions (CallableUnit callableUnit, Worker[] workers, boolean isWorkerInWorker) {
+    private void buildWorkerInteractions (CallableUnit callableUnit, Worker[] workers, boolean isWorkerInWorker,
+                                          boolean isForkJoinStmt) {
         // This map holds the worker data channels against the respective source and target workers
         Map<String, WorkerDataChannel> workerDataChannels = new HashMap<>();
         boolean statementCompleted = false;
         List<Statement> processedStatements = new ArrayList<>();
 
-        if (!callableUnit.getWorkerInteractionStatements().isEmpty()) {
+        if (callableUnit.getWorkerInteractionStatements() != null &&
+                !callableUnit.getWorkerInteractionStatements().isEmpty()) {
             String sourceWorkerName;
             String targetWorkerName;
             for (Statement statement : callableUnit.getWorkerInteractionStatements()) {
                 if (statement instanceof WorkerInvocationStmt) {
                     targetWorkerName = ((WorkerInvocationStmt) statement).getName();
+                    if (targetWorkerName == null && isForkJoinStmt) {
+                        // This is a special worker invocation statement which returns data to the join block
+                        if (((WorkerInvocationStmt) statement).getExpressionList().length != 1) {
+                            // TODO: Need to have a specific error message
+                            BLangExceptionHelper.throwSemanticError(statement,
+                                    SemanticErrors.WORKER_INTERACTION_NOT_VALID);
+                        }
+                        break;
+                    }
                     if (callableUnit instanceof Worker) {
                         sourceWorkerName = callableUnit.getName();
                     } else {
@@ -563,13 +574,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void resolveWorkerInteractions(CallableUnit callableUnit) {
         //CallableUnit callableUnit = function;
         boolean isWorkerInWorker = callableUnit instanceof Worker ? true : false;
+        boolean isForkJoinStmt = callableUnit instanceof ForkJoinStmt ? true : false;
         Worker[] workers = callableUnit.getWorkers();
         if (workers.length > 0) {
             Worker[] tempWorkers = new Worker[workers.length];
             System.arraycopy(workers, 0, tempWorkers, 0, tempWorkers.length);
             int i = 0;
             do {
-                buildWorkerInteractions(callableUnit, tempWorkers, isWorkerInWorker);
+                buildWorkerInteractions(callableUnit, tempWorkers, isWorkerInWorker, isForkJoinStmt);
                 callableUnit = workers[i];
                 System.arraycopy(workers, i + 1, tempWorkers, 0, workers.length - (i + 1));
                 i++;
@@ -1408,7 +1420,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             expression.accept(this);
         }
 
-        if (!workerInvocationStmt.getCallableUnitName().equals("default")) {
+        if (workerInvocationStmt.getCallableUnitName() != null &&
+                !workerInvocationStmt.getCallableUnitName().equals("default")) {
             linkWorker(workerInvocationStmt);
 
             //Find the return types of this function invocation expression.
@@ -1471,8 +1484,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             join.define(parameter.getSymbolName(), parameter);
 
             if (!(parameter.getType() instanceof BArrayType &&
-                    (((BArrayType) parameter.getType()).getElementType() == BTypes.typeMessage))) {
-                throw new SemanticException("Incompatible types: expected a message[] in " +
+                    (((BArrayType) parameter.getType()).getElementType() == BTypes.typeAny))) {
+                throw new SemanticException("Incompatible types: expected any[] in " +
                         parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
             }
         }
@@ -1500,8 +1513,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
             if (!(timeoutParam.getType() instanceof BArrayType &&
-                    (((BArrayType) timeoutParam.getType()).getElementType() == BTypes.typeMessage))) {
-                throw new SemanticException("Incompatible types: expected a message[] in " +
+                    (((BArrayType) timeoutParam.getType()).getElementType() == BTypes.typeAny))) {
+                throw new SemanticException("Incompatible types: expected any[] in " +
                         timeoutParam.getNodeLocation().getFileName() + ":" +
                         timeoutParam.getNodeLocation().getLineNumber());
             }
@@ -1513,6 +1526,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             timeoutBody.accept(this);
             stmtReturns &= timeoutBody.isAlwaysReturns();
         }
+
+        resolveWorkerInteractions(forkJoinStmt);
         closeScope();
 
         forkJoinStmt.setAlwaysReturns(stmtReturns);

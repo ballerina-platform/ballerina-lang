@@ -851,14 +851,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                BMessage res = invokeAnyWorker(workerRunnerList, timeout);
+                BValue res = invokeAnyWorker(workerRunnerList, timeout);
                 forkJoinInvocationStatus.resultMsgs.add(res);
             } else {
                 List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                BMessage res = invokeAnyWorker(workerRunnersSpecified, timeout);
+                BValue res = invokeAnyWorker(workerRunnersSpecified, timeout);
                 forkJoinInvocationStatus.resultMsgs.add(res);
             }
         } else {
@@ -910,9 +910,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         forkJoinInvocationStatus = null;
     }
 
-    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
+    private BValue invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
-        BMessage result;
+        BValue result;
         try {
             result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException e) {
@@ -925,9 +925,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         return result;
     }
 
-    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
+    private List<BValue> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
-        List<BMessage> result = new ArrayList<>();
+        List<BValue> result = new ArrayList<>();
         try {
             allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
                 try {
@@ -940,7 +940,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     return null;
                 }
 
-            }).forEach((BMessage b) -> {
+            }).forEach((BValue b) -> {
                 result.add(b);
             });
         } catch (InterruptedException e) {

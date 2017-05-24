@@ -354,8 +354,11 @@ public class BLangExecutor implements NodeExecutor {
         // Extract the outgoing expressions
         BValue[] arguments = new BValue[expressions.length];
         populateArgumentValuesForWorker(expressions, arguments);
-
-        workerInvocationStmt.getWorkerDataChannel().putData(arguments);
+        if (workerInvocationStmt.getWorkerDataChannel() != null) {
+            workerInvocationStmt.getWorkerDataChannel().putData(arguments);
+        } else {
+            controlStack.setReturnValue(0, arguments[0]);
+        }
 
 //        // Create the Stack frame
 //        Worker worker = workerInvocationStmt.getCallableUnit();
@@ -488,7 +491,7 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
-        List<BMessage> resultMsgs = new ArrayList<>();
+        List<BValue> resultMsgs = new ArrayList<>();
         long timeout = 120; // Default value is 2 minutes for timeout
         if (forkJoinStmt.getTimeout().getTimeoutExpression() != null) {
             timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
@@ -542,14 +545,14 @@ public class BLangExecutor implements NodeExecutor {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                BMessage res = invokeAnyWorker(workerRunnerList, timeout);
+                BValue res = invokeAnyWorker(workerRunnerList, timeout);
                 resultMsgs.add(res);
             } else {
                 List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                BMessage res = invokeAnyWorker(workerRunnersSpecified, timeout);
+                BValue res = invokeAnyWorker(workerRunnersSpecified, timeout);
                 resultMsgs.add(res);
             }
         } else {
@@ -661,9 +664,9 @@ public class BLangExecutor implements NodeExecutor {
         }
     }
 
-    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
+    private BValue invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
-        BMessage result;
+        BValue result;
         try {
             result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException e) {
@@ -675,9 +678,9 @@ public class BLangExecutor implements NodeExecutor {
         return result;
     }
 
-    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
+    private List<BValue> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
-        List<BMessage> result = new ArrayList<>();
+        List<BValue> result = new ArrayList<>();
         try {
             allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
                 try {
@@ -690,7 +693,7 @@ public class BLangExecutor implements NodeExecutor {
                     return null;
                 }
 
-            }).forEach((BMessage b) -> {
+            }).forEach((BValue b) -> {
                 result.add(b);
             });
         } catch (InterruptedException e) {

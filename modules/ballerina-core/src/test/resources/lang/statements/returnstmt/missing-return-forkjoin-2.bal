@@ -10,9 +10,9 @@ function testNullInForkJoin () (message, message) {
             message resp2 = {};
             reply resp2;
         }
-    } join (all) (message[] allReplies) {
-        return allReplies[0], allReplies[1];
-    } timeout (30000) (message[] msgs) {
+    } join (all) (any[] allReplies) {
+        return (message)allReplies[0], (message)allReplies[1];
+    } timeout (30000) (any[] msgs) {
 
     }
 }

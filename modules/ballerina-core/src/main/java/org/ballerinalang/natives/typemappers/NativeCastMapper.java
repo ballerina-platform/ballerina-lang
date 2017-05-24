@@ -454,6 +454,17 @@ public class NativeCastMapper {
             rVal.getType(), BTypes.typeXML);
     };
 
+    public static final BiFunction<BValue, BType, BValue> ANY_TO_MESSAGE_FUNC = (rVal, targetType) -> {
+        if (rVal == null) {
+            return null;
+        }
+        if (rVal.getType() == BTypes.typeMessage) {
+            return rVal;
+        }
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                rVal.getType(), BTypes.typeXML);
+    };
+
     public static final BiFunction<BValue, BType, BValue> ANY_TO_CONNECTOR_FUNC = (rVal, targetType) -> {
         if (rVal == null) {
             return null;

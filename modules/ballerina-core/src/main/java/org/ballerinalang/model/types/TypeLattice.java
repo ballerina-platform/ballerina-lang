@@ -95,6 +95,7 @@ public class TypeLattice {
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex messageV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MESSAGE_TNAME)));
         
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(floatV, false);
@@ -104,6 +105,7 @@ public class TypeLattice {
         explicitCastLattice.addVertex(jsonV, false);
         explicitCastLattice.addVertex(anyV, false);
         explicitCastLattice.addVertex(connectorV, false);
+        explicitCastLattice.addVertex(messageV, false);
 
         explicitCastLattice.addEdge(intV, floatV, NativeCastMapper.INT_TO_FLOAT_FUNC);
         explicitCastLattice.addEdge(intV, stringV, NativeCastMapper.INT_TO_STRING_FUNC);
@@ -143,6 +145,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, connectorV, NativeCastMapper.ANY_TO_CONNECTOR_FUNC);
         explicitCastLattice.addEdge(anyV, anyV, NativeCastMapper.ANY_TO_ANY_FUNC);
         explicitCastLattice.addEdge(anyV, mapV, NativeCastMapper.ANY_TO_MAP_FUNC);
+        explicitCastLattice.addEdge(anyV, messageV, NativeCastMapper.ANY_TO_MESSAGE_FUNC);
 
         explicitCastLattice.addEdge(jsonV, anyV, NativeCastMapper.JSON_TO_ANY_FUNC);
         explicitCastLattice.addEdge(jsonV, stringV, NativeCastMapper.JSON_TO_STRING_FUNC);

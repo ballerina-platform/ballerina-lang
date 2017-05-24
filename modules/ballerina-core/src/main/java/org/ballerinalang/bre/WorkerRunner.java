@@ -19,6 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import java.util.concurrent.Callable;
  *
  * @since 0.8.0
  */
-public class WorkerRunner implements Callable<BMessage> {
+public class WorkerRunner implements Callable<BValue> {
 
     private static final Logger log = LoggerFactory.getLogger(WorkerRunner.class);
     private static PrintStream outStream = System.err;
@@ -51,10 +52,10 @@ public class WorkerRunner implements Callable<BMessage> {
 
 
     @Override
-    public BMessage call() throws BallerinaException {
+    public BValue call() throws BallerinaException {
         try {
             worker.getCallableUnitBody().execute(executor);
-            return (BMessage) bContext.getControlStack().getCurrentFrame().returnValues[0];
+            return bContext.getControlStack().getCurrentFrame().returnValues[0];
         } catch (RuntimeException throwable) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
             String stacktrace = ErrorHandlerUtils.getServiceStackTrace(bContext, throwable);
@@ -63,5 +64,9 @@ public class WorkerRunner implements Callable<BMessage> {
             outStream.println(errorWithTrace);
             return new BMessage(new DefaultCarbonMessage());
         }
+    }
+
+    public Worker getWorker() {
+        return worker;
     }
 }

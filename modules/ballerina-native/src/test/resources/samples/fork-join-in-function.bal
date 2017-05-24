@@ -3,7 +3,7 @@ import ballerina.lang.system;
 
 function testForkJoinAll(message m)(message[]) {
 
-        message[] results;
+        message[] results = [null, null];
         json error;
         int x = 100;
         float y = 1000.5;
@@ -23,7 +23,7 @@ function testForkJoinAll(message m)(message[]) {
                 //system:println(mm["name"]);
                 x = 234;
                 system:println(y);
-                reply m1;
+                m1 -> ;
             }
 
             worker XYZ_Airline {
@@ -32,16 +32,17 @@ function testForkJoinAll(message m)(message[]) {
                 x = 500;
                 system:println(x);
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
-        } join (all) (message[] airlineResponses) {
-            system:println(messages:getStringPayload(airlineResponses[0]));
-            system:println(messages:getStringPayload(airlineResponses[1]));
-            results = airlineResponses;
+        } join (all) (any[] airlineResponses) {
+            system:println((message)airlineResponses[0]);
+            system:println((message)airlineResponses[1]);
+            results[0] = (message) airlineResponses[0];
+            results[1] = (message) airlineResponses[1];
             system:println(mm["name"]);
             x = 999;
             //return airlineResponses;
-        } timeout (30000) (message[] airlineResponses) {
+        } timeout (30000) (any[] airlineResponses) {
             system:println("error occurred");
             error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
@@ -58,7 +59,7 @@ function testForkJoinAll(message m)(message[]) {
 
 function testForkJoinAny(message m)(message[]) {
 
-        message[] results;
+        message[] results = [null];
         json error;
         system:println("Airfare ");
         fork {
@@ -66,19 +67,20 @@ function testForkJoinAny(message m)(message[]) {
                 json payload;
                 payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
-        } join (some 1) (message[] airlineResponses) {
-            system:println(messages:getStringPayload(airlineResponses[0]));
-            return airlineResponses;
-        } timeout (30000) (message[] airlineResponses) {
+        } join (some 1) (any[] airlineResponses) {
+            system:println((message) airlineResponses[0]);
+            results[0] = (message) airlineResponses[0];
+            return results;
+        } timeout (30000) (any[] airlineResponses) {
             system:println("error occurred");
             error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
@@ -90,7 +92,7 @@ function testForkJoinAny(message m)(message[]) {
 
 function testForkJoinAllOfSpecific(message m)(message[]) {
 
-        message[] results;
+        message[] results = [null, null];
         json error;
         system:println("Airfare ");
         fork {
@@ -98,27 +100,29 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
                 json payload;
                 payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
 
             worker PQR_Airline {
                 json payload;
                 payload = {"name":"pqr"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
-        } join (all ABC_Airline, XYZ_Airline) (message[] airlineResponses) {
-            system:println(messages:getStringPayload(airlineResponses[0]));
-            system:println(messages:getStringPayload(airlineResponses[1]));
-            return airlineResponses;
-        } timeout (30000) (message[] airlineResponses) {
+        } join (all ABC_Airline, XYZ_Airline) (any[] airlineResponses) {
+            system:println((message) airlineResponses[0]);
+            system:println((message)airlineResponses[1]);
+            results[0] = (message) airlineResponses[0];
+            results[1] = (message) airlineResponses[1];
+            return results;
+        } timeout (30000) (any[] airlineResponses) {
             system:println("error occurred");
             error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
@@ -130,7 +134,7 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
 
 function testForkJoinAnyOfSpecific(message m)(message[]) {
 
-        message[] results;
+        message[] results = [null];
         json error;
         system:println("Airfare ");
         fork {
@@ -138,26 +142,27 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
                 json payload;
                 payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
 
             worker PQR_Airline {
                 json payload;
                 payload = {"name":"pqr"};
                 messages:setJsonPayload(m, payload);
-                reply m;
+                m -> ;
             }
-        } join (some 1 ABC_Airline, XYZ_Airline) (message[] airlineResponses) {
-            system:println(messages:getStringPayload(airlineResponses[0]));
-            return airlineResponses;
-        } timeout (30000) (message[] airlineResponses) {
+        } join (some 1 ABC_Airline, XYZ_Airline) (any[] airlineResponses) {
+            system:println((message)airlineResponses[0]);
+            results[0] = (message) airlineResponses[0];
+            return results;
+        } timeout (30000) (any[] airlineResponses) {
             system:println("error occurred");
             error = {"error":{"code":"500", "reason":"timed out"}};
             message res = {};
@@ -178,7 +183,7 @@ function testForkJoinWithoutTimeoutExpression()(map m) {
     system:println(m["name"]);
     m["period"] = "30 years";
     }
-    } join (all) (message[] results) {
+    } join (all) (any[] results) {
     system:println(m["time"]);
     system:println(m["period"]);
     }
