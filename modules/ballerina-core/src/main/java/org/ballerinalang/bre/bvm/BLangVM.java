@@ -204,10 +204,20 @@ public class BLangVM {
                     i = operands[1];
                     sf.longRegs[i] = sf.longLocalVars[lvIndex];
                     break;
+                case InstructionCodes.FLOAD:
+                    lvIndex = operands[0];
+                    i = operands[1];
+                    sf.doubleRegs[i] = sf.doubleLocalVars[lvIndex];
+                    break;
                 case InstructionCodes.SLOAD:
                     lvIndex = operands[0];
                     i = operands[1];
                     sf.stringRegs[i] = sf.stringLocalVars[lvIndex];
+                    break;
+                case InstructionCodes.BLOAD:
+                    lvIndex = operands[0];
+                    i = operands[1];
+                    sf.intRegs[i] = sf.intLocalVars[lvIndex];
                     break;
                 case InstructionCodes.RLOAD:
                     lvIndex = operands[0];
@@ -254,10 +264,20 @@ public class BLangVM {
                     lvIndex = operands[1];
                     sf.longLocalVars[lvIndex] = sf.longRegs[i];
                     break;
+                case InstructionCodes.FSTORE:
+                    i = operands[0];
+                    lvIndex = operands[1];
+                    sf.doubleLocalVars[lvIndex] = sf.doubleRegs[i];
+                    break;
                 case InstructionCodes.SSTORE:
                     i = operands[0];
                     lvIndex = operands[1];
                     sf.stringLocalVars[lvIndex] = sf.stringRegs[i];
+                    break;
+                case InstructionCodes.BSTORE:
+                    i = operands[0];
+                    lvIndex = operands[1];
+                    sf.intLocalVars[lvIndex] = sf.intRegs[i];
                     break;
                 case InstructionCodes.RSTORE:
                     i = operands[0];
