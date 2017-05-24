@@ -109,7 +109,7 @@ public abstract class BNewArray implements BRefType {
         }
     }
 
-    protected int size() {
+    public long size() {
         return size;
     }
 }
