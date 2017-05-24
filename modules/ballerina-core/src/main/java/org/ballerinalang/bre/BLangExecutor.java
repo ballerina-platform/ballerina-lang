@@ -357,7 +357,12 @@ public class BLangExecutor implements NodeExecutor {
         if (workerInvocationStmt.getWorkerDataChannel() != null) {
             workerInvocationStmt.getWorkerDataChannel().putData(arguments);
         } else {
-            controlStack.setReturnValue(0, arguments[0]);
+            BArray<BValue> bArray = new BArray<>(BValue.class);
+            for (int j = 0; j < arguments.length; j++) {
+                BValue returnVal = arguments[j];
+                bArray.add(j, returnVal);
+            }
+            controlStack.setReturnValue(0, bArray);
         }
 
 //        // Create the Stack frame
@@ -491,7 +496,7 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
-        List<BValue> resultMsgs = new ArrayList<>();
+        List<BValue[]> resultMsgs = new ArrayList<>();
         long timeout = 120; // Default value is 2 minutes for timeout
         if (forkJoinStmt.getTimeout().getTimeoutExpression() != null) {
             timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
@@ -545,14 +550,14 @@ public class BLangExecutor implements NodeExecutor {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                BValue res = invokeAnyWorker(workerRunnerList, timeout);
+                BValue[] res = invokeAnyWorker(workerRunnerList, timeout);
                 resultMsgs.add(res);
             } else {
                 List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                BValue res = invokeAnyWorker(workerRunnersSpecified, timeout);
+                BValue[] res = invokeAnyWorker(workerRunnersSpecified, timeout);
                 resultMsgs.add(res);
             }
         } else {
@@ -572,34 +577,39 @@ public class BLangExecutor implements NodeExecutor {
         if (isForkJoinTimedOut) {
             // Execute the timeout block
 
-            // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getEmptyValue();
+            int offsetTimeout = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
+                    getStackFrameOffset();
+            BArray<BArray> bbArray = new BArray<>(BArray.class);
 
             for (int i = 0; i < resultMsgs.size(); i++) {
-                BValue value = resultMsgs.get(i);
-                bArray.add(i, value);
+                BValue[] value = resultMsgs.get(i);
+                BArray<BValue> bArray = new BArray<>(BValue.class);
+                for (int j = 0; j < value.length; j++) {
+                    BValue returnVal = value[j];
+                    bArray.add(j, returnVal);
+                }
+                bbArray.add(i, bArray);
             }
-
-            int offsetJoin = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
-                    getStackFrameOffset();
-
-            controlStack.setValue(offsetJoin, bArray);
+            controlStack.setValue(offsetTimeout, bbArray);
             forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
             isForkJoinTimedOut = false;
 
         } else {
             // Assign values to join block message arrays
-
-            // Creating a new arrays
-            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getEmptyValue();
-            for (int i = 0; i < resultMsgs.size(); i++) {
-                BValue value = resultMsgs.get(i);
-                bArray.add(i, value);
-            }
-
             int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
                     getStackFrameOffset();
-            controlStack.setValue(offsetJoin, bArray);
+            BArray<BArray> bbArray = new BArray<>(BArray.class);
+
+            for (int i = 0; i < resultMsgs.size(); i++) {
+                BValue[] value = resultMsgs.get(i);
+                BArray<BValue> bArray = new BArray<>(BValue.class);
+                for (int j = 0; j < value.length; j++) {
+                    BValue returnVal = value[j];
+                    bArray.add(j, returnVal);
+                }
+                bbArray.add(i, bArray);
+            }
+            controlStack.setValue(offsetJoin, bbArray);
             forkJoinStmt.getJoin().getJoinBlock().execute(this);
         }
 
@@ -664,9 +674,9 @@ public class BLangExecutor implements NodeExecutor {
         }
     }
 
-    private BValue invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
+    private BValue[] invokeAnyWorker(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
-        BValue result;
+        BValue[] result;
         try {
             result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException e) {
@@ -678,9 +688,9 @@ public class BLangExecutor implements NodeExecutor {
         return result;
     }
 
-    private List<BValue> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
+    private List<BValue[]> invokeAllWorkers(List<WorkerRunner> workerRunnerList, long timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
-        List<BValue> result = new ArrayList<>();
+        List<BValue[]> result = new ArrayList<>();
         try {
             allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
                 try {
@@ -693,7 +703,7 @@ public class BLangExecutor implements NodeExecutor {
                     return null;
                 }
 
-            }).forEach((BValue b) -> {
+            }).forEach((BValue[] b) -> {
                 result.add(b);
             });
         } catch (InterruptedException e) {

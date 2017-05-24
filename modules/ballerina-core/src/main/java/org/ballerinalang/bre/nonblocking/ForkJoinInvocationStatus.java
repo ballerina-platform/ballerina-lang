@@ -28,7 +28,7 @@ import java.util.List;
 class ForkJoinInvocationStatus {
 
     boolean timedOut = false;
-    List<BValue> resultMsgs;
+    List<BValue[]> resultMsgs;
 
     ForkJoinInvocationStatus() {
         this.timedOut = false;

@@ -178,6 +178,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
+    private boolean isWithinWorker = false;
     private SymbolScope currentScope;
     private SymbolScope nativeScope;
 
@@ -450,11 +451,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                     targetWorkerName = ((WorkerInvocationStmt) statement).getName();
                     if (targetWorkerName == null && isForkJoinStmt) {
                         // This is a special worker invocation statement which returns data to the join block
-                        if (((WorkerInvocationStmt) statement).getExpressionList().length != 1) {
-                            // TODO: Need to have a specific error message
-                            BLangExceptionHelper.throwSemanticError(statement,
-                                    SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-                        }
                         break;
                     }
                     if (callableUnit instanceof Worker) {
@@ -814,7 +810,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
 
         BlockStmt blockStmt = worker.getCallableUnitBody();
+        isWithinWorker = true;
         blockStmt.accept(this);
+        isWithinWorker = false;
 
         resolveWorkerInteractions(worker);
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
@@ -1245,6 +1243,11 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
             }
 
+            if (stmt instanceof ReplyStmt && isWithinWorker) {
+                BLangExceptionHelper.throwSemanticError(stmt,
+                        SemanticErrors.REPLY_STMT_NOT_ALLOWED_HERE);
+            }
+
             if (stmt instanceof BreakStmt || stmt instanceof ReplyStmt || stmt instanceof AbortStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
@@ -1484,8 +1487,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             join.define(parameter.getSymbolName(), parameter);
 
             if (!(parameter.getType() instanceof BArrayType &&
-                    (((BArrayType) parameter.getType()).getElementType() == BTypes.typeAny))) {
-                throw new SemanticException("Incompatible types: expected any[] in " +
+                    (((BArrayType) parameter.getType()).getElementType() instanceof BArrayType) &&
+                    (((BArrayType) (((BArrayType) parameter.getType()).getElementType())).getElementType()
+                            == BTypes.typeAny))) {
+                throw new SemanticException("Incompatible types: expected any[][] in " +
                         parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
             }
         }
@@ -1513,10 +1518,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
             if (!(timeoutParam.getType() instanceof BArrayType &&
-                    (((BArrayType) timeoutParam.getType()).getElementType() == BTypes.typeAny))) {
-                throw new SemanticException("Incompatible types: expected any[] in " +
-                        timeoutParam.getNodeLocation().getFileName() + ":" +
-                        timeoutParam.getNodeLocation().getLineNumber());
+                    (((BArrayType) timeoutParam.getType()).getElementType() instanceof BArrayType) &&
+                    (((BArrayType) (((BArrayType) timeoutParam.getType()).getElementType())).getElementType()
+                            == BTypes.typeAny))) {
+                throw new SemanticException("Incompatible types: expected any[][] in " + timeoutParam.
+                        getNodeLocation().getFileName() + ":" + timeoutParam.getNodeLocation().getLineNumber());
             }
         }
 
