@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
 import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeVisitor;
@@ -50,8 +49,4 @@ public class ConnectorVarLocation extends MemoryLocation implements Node {
         return executor.visit(this);
     }
 
-    @Override
-    public BValue access(BLangExecutionVisitor executor) {
-        return executor.access(this);
-    }
 }

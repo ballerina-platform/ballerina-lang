@@ -118,9 +118,7 @@ public class BalProgramExecutor {
             // Only start the debugger if there is an active client (debug session).
             if (debugManager.isDebugSessionActive()) {
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
-                debugger.setParentScope(resource);
                 debugManager.setDebugger(debugger);
-                balContext.setExecutor(debugger);
                 debugger.execute(new ResourceInvocationExpr(resource, exprs));
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);

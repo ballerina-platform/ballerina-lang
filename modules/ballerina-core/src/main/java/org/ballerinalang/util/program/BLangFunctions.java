@@ -24,19 +24,14 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -143,7 +138,14 @@ public class BLangFunctions {
                 function.getNodeLocation());
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
 
-        if (ModeResolver.getInstance().isNonblockingEnabled()) {
+
+        StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
+        bContext.getControlStack().pushFrame(stackFrame);
+
+        // Invoke main function
+        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+        executor.setParentScope(function.getSymbolScope());
+        if (((BallerinaFunction) function).getWorkers().length > 0) {
             // TODO: Fix this properly.
             Expression[] exprs = new Expression[args.length];
             for (int i = 0; i < args.length; i++) {
@@ -155,62 +157,19 @@ public class BLangFunctions {
                 variableRefExpr.setMemoryLocation(location);
                 exprs[i] = variableRefExpr;
             }
-
-            // 3) Create a function invocation expression
-            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                    function.getNodeLocation(), null, functionName, null, null, exprs);
-            funcIExpr.setOffset(args.length);
-            funcIExpr.setCallableUnit(function);
-            // Linking.
-            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
-            funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
-            funcIExpr.accept(flowBuilder);
-            BValue[] cacheValues = new BValue[100];
-            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
-
-            // Invoke main function
-            BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-            nonBlockingExecutor.setParentScope(function.getSymbolScope());
-            nonBlockingExecutor.execute(funcIExpr);
-            int length = funcIExpr.getCallableUnit().getReturnParameters().length;
-            BValue[] result = new BValue[length];
-            for (int i = 0; i < length; i++) {
-                result[i] = bContext.getControlStack().getCurrentFrame().tempValues[funcIExpr.getTempOffset() + i];
+            // Start the workers if there is any
+            for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
+                executor.executeWorker(worker, exprs);
             }
-            return result;
-        } else {
-            StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
-
-            // Invoke main function
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-            executor.setParentScope(function.getSymbolScope());
-            if (((BallerinaFunction) function).getWorkers().length > 0) {
-                // TODO: Fix this properly.
-                Expression[] exprs = new Expression[args.length];
-                for (int i = 0; i < args.length; i++) {
-                    VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(), null,
-                            new SymbolName("arg" + i));
-
-                    variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
-                    StackVarLocation location = new StackVarLocation(i);
-                    variableRefExpr.setMemoryLocation(location);
-                    exprs[i] = variableRefExpr;
-                }
-                // Start the workers if there is any
-                for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
-                    executor.executeWorker(worker, exprs);
-                }
-            }
-            function.getCallableUnitBody().execute(executor);
-            if (executor.isErrorThrown && executor.thrownError != null) {
-                String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
-                        executor.thrownError.getValue(0).stringValue() + "}";
-                throw new BallerinaException(errorMsg);
-            }
-            return returnValues;
         }
+        function.getCallableUnitBody().execute(executor);
+        if (executor.isErrorThrown && executor.thrownError != null) {
+            String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                    executor.thrownError.getValue(0).stringValue() + "}";
+            throw new BallerinaException(errorMsg);
+        }
+        return returnValues;
+
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args, Context bContext) {

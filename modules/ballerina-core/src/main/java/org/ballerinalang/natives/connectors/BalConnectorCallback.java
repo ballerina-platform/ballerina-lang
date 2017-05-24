@@ -17,21 +17,15 @@
 package org.ballerinalang.natives.connectors;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.LinkedNode;
-import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.DefaultBalCallback;
-import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * A class used by connectors to receive response from external system and correlate request context with response.
  */
 public class BalConnectorCallback extends DefaultBalCallback {
-
-    private InvokeNativeActionNode actionNode;
 
     private Context context;
 
@@ -42,12 +36,6 @@ public class BalConnectorCallback extends DefaultBalCallback {
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
         this.context = context;
-    }
-
-    public BalConnectorCallback(Context context, InvokeNativeActionNode current) {
-        super(context.getBalCallback());
-        this.context = context;
-        this.actionNode = current;
     }
 
     public boolean isResponseArrived() {
@@ -65,14 +53,9 @@ public class BalConnectorCallback extends DefaultBalCallback {
         //context.getControlStack().setValue(4, valueRef);
         context.getControlStack().setReturnValue(0, valueRef);
         responseArrived = true;
-        if (isNonBlockingExecutor()) {
-            // spawn a new thread to continue execution.
-            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
-        } else {
-            // Release Thread.
-            synchronized (context) {
-                context.notifyAll();
-            }
+        // Release Thread.
+        synchronized (context) {
+            context.notifyAll();
         }
     }
 
@@ -80,16 +63,4 @@ public class BalConnectorCallback extends DefaultBalCallback {
         return context;
     }
 
-    public LinkedNode getCurrentNode() {
-        return this.actionNode;
-    }
-
-    public boolean isNonBlockingExecutor() {
-        // If actionNode is not null, then this is non-blocking execution.
-        return actionNode != null;
-    }
-
-    public InvokeNativeActionNode getActionNode() {
-        return actionNode;
-    }
 }
