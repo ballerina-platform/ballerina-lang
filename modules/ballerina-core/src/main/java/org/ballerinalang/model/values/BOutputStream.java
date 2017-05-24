@@ -3,9 +3,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 /**

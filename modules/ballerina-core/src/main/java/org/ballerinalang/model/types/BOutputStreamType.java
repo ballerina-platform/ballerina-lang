@@ -18,7 +18,6 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.values.BInputStream;
 import org.ballerinalang.model.values.BOutputStream;
 import org.ballerinalang.model.values.BValue;
 
