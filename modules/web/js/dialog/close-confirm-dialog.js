@@ -18,6 +18,7 @@
 
 import $ from 'jquery';
 import ModalDialog from './modal-dialog';
+import './dialog.css';
 
 class CloseConfirmDialog extends ModalDialog {
     constructor(options) {

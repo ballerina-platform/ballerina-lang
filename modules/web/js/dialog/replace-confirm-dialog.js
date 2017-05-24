@@ -18,6 +18,7 @@
 
 import $ from 'jquery';
 import ModalDialog from './modal-dialog';
+import './dialog.css';
 
 class ReplaceConfirmDialog extends ModalDialog {
     constructor(options) {

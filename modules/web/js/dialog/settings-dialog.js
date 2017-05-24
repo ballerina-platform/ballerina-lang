@@ -19,6 +19,7 @@
 import $ from 'jquery';
 import log from 'log';
 import Backbone from 'backbone';
+import './dialog.css';
     var SettingsDialog = Backbone.View.extend(
         /** @lends SettingsDialog.prototype */
         {

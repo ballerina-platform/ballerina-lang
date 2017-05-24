@@ -26,6 +26,7 @@ import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
 import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
 import File from 'workspace/file';
 import 'bootstrap';
+import './dialog.css';
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
