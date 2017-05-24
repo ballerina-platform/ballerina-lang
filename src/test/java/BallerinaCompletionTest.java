@@ -754,14 +754,38 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 "create", "A", "c", "test");
     }
 
+    public void testVariablesInitializationAfterDeclaration() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("s");
+        expectedLookups.add("A");
+        expectedLookups.add("any");
+        doTest("function A(){ string s; <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testVariablesLaterInitialization() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("s");
+        expectedLookups.add("s1");
+        expectedLookups.add("A");
+        expectedLookups.add("any");
+        doTest("function A(){ string s; string s1; <caret> }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
     public void testVariablesNoVarsAvailable() {
-        doTest("function A(){ string s1 = <caret> }",
-                "A", "create");
+        doTest("function A(){ string s1 = <caret> }", "A", "create");
     }
 
     public void testVariablesWhenSingleVariableAvailable() {
-        doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }",
-                "s1", "A", "create");
+        doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }", "s1", "A", "create");
     }
 
     public void testVariablesWhenSingleVariableAvailableWithPartialIdentifier() {
