@@ -822,6 +822,19 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 "get", "post");
     }
 
+    public void testTypesAfterRBRACE() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.add("else");
+        expectedLookups.add("json");
+        expectedLookups.add("message");
+        expectedLookups.add("string");
+        expectedLookups.add("test");
+        expectedLookups.add("transaction");
+        expectedLookups.add("transform");
+        doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
     /**
      * Test function parameter level lookups.
      */
