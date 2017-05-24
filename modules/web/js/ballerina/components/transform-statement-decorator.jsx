@@ -250,15 +250,13 @@ class TransformStatementDecorator extends React.Component {
                 var con = {};
                 con.id = assignments.id;
                 con.sourceStruct = assignments.getChildren()[1].getChildren()[0].getChildren()[0].getVariableName();
-                con.sourceProperty = [assignments.getChildren()[1].getChildren()[0].getChildren()[1].getChildren()[0].getBasicLiteralValue()];
-                var sourceStruct = _.find(self.predefinedStructs, { name:con.sourceStruct});
-                var sourceProp = _.find(sourceStruct.properties, { name:con.sourceProperty[0]});
-                con.sourceType = sourceProp.type;
+                var complexSourceProp = self.createComplexProp(con.sourceStruct, assignments.getChildren()[1].getChildren()[0].getChildren()[1].getChildren());
+                con.sourceType = complexSourceProp.types.reverse();
+                con.sourceProperty = complexSourceProp.names.reverse();
                 con.targetStruct = assignments.getChildren()[0].getChildren()[0].getChildren()[0].getVariableName();
-                con.targetProperty = [assignments.getChildren()[0].getChildren()[0].getChildren()[1].getChildren()[0].getBasicLiteralValue()];
-                var targetStruct = _.find(self.predefinedStructs, { name:con.targetStruct});
-                var targetProp = _.find(targetStruct.properties, { name:con.targetProperty[0]});
-                con.targetType = targetProp.type;
+                var complexTargetProp = self.createComplexProp(con.targetStruct, assignments.getChildren()[0].getChildren()[0].getChildren()[1].getChildren());
+                con.targetType = complexTargetProp.types.reverse();
+                con.targetProperty = complexTargetProp.names.reverse();
                 con.isComplexMapping = false;
                 self.mapper.addConnection(con);
             });
@@ -266,6 +264,29 @@ class TransformStatementDecorator extends React.Component {
 
 	}
 
+	createComplexProp(typeName, children)
+    {
+        var prop = {};
+        prop.names = [];
+        prop.types = [];
+
+        if (children.length == 1) {
+            var propName = children[0].getBasicLiteralValue();
+            var struct = _.find(self.predefinedStructs, { name:typeName});
+            var propType =  _.find(struct.properties, { name:propName}).type;
+            prop.types.push(propType);
+            prop.names.push(propName);
+        } else {
+            var propName = children[0].getBasicLiteralValue();
+            var struct = _.find(self.predefinedStructs, { name:typeName});
+            var propType =  _.find(struct.properties, { name:propName}).type;
+            prop = self.createComplexProp(propName, children[1].getChildren());
+            prop.types.push(propType);
+            prop.names.push(propName);
+        }
+
+        return prop;
+    }
 	createType(name, predefinedStruct) {
         var struct = {};
         struct.name = name;
@@ -277,8 +298,8 @@ class TransformStatementDecorator extends React.Component {
              property.name  = structPopInfo[1];
              property.type  = structPopInfo[0];
 
-             if (property.type == "ppl") {
-                 var innerStruct = _.find(self._package.getStructDefinitions(), { _structName:property.type});
+             var innerStruct = _.find(self._package.getStructDefinitions(), { _structName:property.type});
+             if (innerStruct != null) {
                  property.innerType = self.createType(property.type, innerStruct);
              }
 

@@ -370,7 +370,7 @@ addConnection(connection) {
     if (isSourceExists && isTargetExists) {
         for (var i = 0; i < connection.sourceProperty.length; i++) {
             sourceId += this.idNameSeperator
-                + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType;
+                + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
         }
         if (!connection.sourceFunction) {
             sourceId += anchorEnd;
@@ -378,7 +378,7 @@ addConnection(connection) {
 
         for (var i = 0; i < connection.targetProperty.length; i++) {
             targetId += this.idNameSeperator
-                + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType;
+                + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
         }
 
         if (!connection.targetFunction) {
@@ -402,6 +402,7 @@ addConnection(connection) {
         });
     }
 }
+
 
 /**
  * Add a source type in the mapper UI
