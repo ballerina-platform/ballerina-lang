@@ -165,8 +165,7 @@ ConnectorActionTest {
 
     @Test(description = "Test incorrect action invocation",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: incompatible types: " +
-                    "expected a connector name, found 'cal'")
+            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: undefined connector 'cal'")
     public void testIncorrectActionInvocation() {
         BTestUtils.parseBalFile("lang/connectors/incorrect-action-invocation.bal");
     }

@@ -18,6 +18,7 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.TypeSymbolName;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
@@ -30,7 +31,7 @@ public class SimpleTypeName {
     protected String name;
     protected String pkgName;
     protected String pkgPath;
-    protected SymbolName symbolName;
+    protected TypeSymbolName symbolName;
     protected boolean isArrayType;
     protected int dimensions = 1;
 
@@ -75,9 +76,8 @@ public class SimpleTypeName {
 
     public SymbolName getSymbolName() {
         if (symbolName == null) {
-            this.symbolName = new SymbolName(getNameWithArray(name), pkgPath);
+            this.symbolName = new TypeSymbolName(getNameWithArray(name), pkgPath);
         }
-
         return symbolName;
     }
 

@@ -23,6 +23,7 @@ import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
+import org.ballerinalang.model.TypeSymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
@@ -55,12 +56,12 @@ public class TypeLattice {
 
     public static void loadImplicitCastLattice(SymbolScope scope) {
 
-        TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
-        TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
-        TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
-        TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
-        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex intV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.INT_TNAME)));
+        TypeVertex floatV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.FLOAT_TNAME)));
+        TypeVertex stringV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.STRING_TNAME)));
+        TypeVertex booleanV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex mapV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.MAP_TNAME)));
         
         implicitCastLattice.addVertex(intV, false);
         implicitCastLattice.addVertex(floatV, false);
@@ -86,15 +87,15 @@ public class TypeLattice {
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
 
-        TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
-        TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
-        TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
-        TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
-        TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
-        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
-        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
-        TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
-        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex intV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.INT_TNAME)));
+        TypeVertex floatV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.FLOAT_TNAME)));
+        TypeVertex stringV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.STRING_TNAME)));
+        TypeVertex booleanV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex xmlV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.XML_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex anyV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex connectorV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.CONNECTOR_TNAME)));
+        TypeVertex mapV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.MAP_TNAME)));
         
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(floatV, false);
@@ -349,7 +350,7 @@ public class TypeLattice {
     
     private static void addExplicitEdges(StructDef structDef, SymbolScope scope) {
         TypeVertex structV = new TypeVertex(structDef);
-        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex anyV = new TypeVertex(scope.resolve(new TypeSymbolName(TypeConstants.ANY_TNAME)));
 //        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
 //        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         

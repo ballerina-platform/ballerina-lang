@@ -34,7 +34,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     private NodeLocation location;
     private WhiteSpaceDescriptor whiteSpaceDescriptor;
     private String[] attachmentPoints;
-    private SymbolName symbolName;
+    private TypeSymbolName symbolName;
     private AnnotationAttributeDef[] attributes;
     
     // Scope related variables
@@ -74,7 +74,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      * @param symbolName Symbol name of this annotation
      */
     public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
+        this.symbolName = (TypeSymbolName) symbolName;
     }
     
     /**
@@ -310,7 +310,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
             annotationDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
             annotationDef.identifier = identifier;
             annotationDef.attachmentPoints = attachmentPoints.toArray(new String[attachmentPoints.size()]);
-            annotationDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
+            annotationDef.symbolName = new TypeSymbolName(identifier.getName(), pkgPath);
             annotationDef.pkgName = pkgName;
             annotationDef.pkgPath = pkgPath;
             annotationDef.attributes = attributes.toArray(new AnnotationAttributeDef[attributes.size()]);

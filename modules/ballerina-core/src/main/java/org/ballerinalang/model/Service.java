@@ -221,7 +221,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
             this.service.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             this.service.identifier = this.identifier;
             this.service.pkgPath = this.pkgPath;
-            this.service.symbolName = new SymbolName(identifier.getName(), pkgPath);
+            this.service.symbolName = new TypeSymbolName(identifier.getName(), pkgPath);
 
             this.service.annotations = this.annotationList.toArray(
                     new AnnotationAttachment[this.annotationList.size()]);

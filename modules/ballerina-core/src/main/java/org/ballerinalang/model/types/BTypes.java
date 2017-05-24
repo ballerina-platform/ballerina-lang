@@ -19,8 +19,8 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.TypeSymbolName;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.util.exceptions.SemanticException;
 
@@ -108,7 +108,7 @@ public class BTypes {
 
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
         // First check for builtin types. They don't have a package path
-        BLangSymbol symbol = symbolScope.resolve(new SymbolName(typeName.getSymbolName().getName()));
+        BLangSymbol symbol = symbolScope.resolve(new TypeSymbolName(typeName.getSymbolName().getName()));
         if (symbol == null) {
             symbol = symbolScope.resolve(typeName.getSymbolName());
         }
@@ -124,9 +124,9 @@ public class BTypes {
 
         // Now check whether this is an array type
         if (typeName.isArrayType()) {
-            symbol = symbolScope.resolve(new SymbolName(typeName.getName()));
+            symbol = symbolScope.resolve(new TypeSymbolName(typeName.getName()));
             if (symbol == null) {
-                symbol = symbolScope.resolve(new SymbolName(typeName.getName(), typeName.getPackagePath()));
+                symbol = symbolScope.resolve(new TypeSymbolName(typeName.getName(), typeName.getPackagePath()));
             }
 
             if (symbol instanceof BType) {
@@ -140,7 +140,7 @@ public class BTypes {
             if (typeName.getDimensions() == 1) {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                         bType, bType.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName(),
+                bType.getSymbolScope().define(new TypeSymbolName(typeName.getSymbolName().getName(),
                         typeName.getSymbolName().getPkgPath()), bArrayType);
                 return bArrayType;
             } else {
@@ -151,7 +151,7 @@ public class BTypes {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                         BTypes.resolveType(childSimpleType, symbolScope, location), bType.getPackagePath(),
                         bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName(),
+                bType.getSymbolScope().define(new TypeSymbolName(typeName.getSymbolName().getName(),
                         typeName.getSymbolName().getPkgPath()), bArrayType);
 
                 return bArrayType;
