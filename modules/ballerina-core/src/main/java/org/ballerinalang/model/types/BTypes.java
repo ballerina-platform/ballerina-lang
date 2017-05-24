@@ -47,6 +47,10 @@ public class BTypes {
     public static BType typeAny;
     public static BType typeConnector;
     public static BType typeNull;
+    public static BType typeFile;
+    public static BType typeInputStream;
+    public static BType typeOutputStream;
+    public static BType typeReader;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -70,6 +74,10 @@ public class BTypes {
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
         globalScope.define(typeAny.getSymbolName(), typeAny);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
+        globalScope.define(typeFile.getSymbolName(), typeFile);
+        globalScope.define(typeInputStream.getSymbolName(), typeInputStream);
+        globalScope.define(typeOutputStream.getSymbolName(), typeOutputStream);
+        globalScope.define(typeReader.getSymbolName(), typeReader);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
         builtInTypeNames.add(TypeConstants.STRING_TNAME);
@@ -82,7 +90,10 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.DATATABLE_TNAME);
         builtInTypeNames.add(TypeConstants.CONNECTOR_TNAME);
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
-        builtInTypeNames.add(TypeConstants.ANY_TNAME);
+        builtInTypeNames.add(TypeConstants.FILE_TNAME);
+        builtInTypeNames.add(TypeConstants.INPUTSTREAM_TNAME);
+        builtInTypeNames.add(TypeConstants.OUTPUTSTREAM_TNAME);
+        builtInTypeNames.add(TypeConstants.READER_TNAME);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -103,6 +114,10 @@ public class BTypes {
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
+        typeFile = new BFileType(TypeConstants.FILE_TNAME, null, globalScope);
+        typeInputStream = new BInputStreamType(TypeConstants.INPUTSTREAM_TNAME, null, globalScope);
+        typeOutputStream = new BOutputStreamType(TypeConstants.OUTPUTSTREAM_TNAME, null, globalScope);
+        typeReader = new BReaderType(TypeConstants.READER_TNAME, null, globalScope);
         
         initialized = true;
     }

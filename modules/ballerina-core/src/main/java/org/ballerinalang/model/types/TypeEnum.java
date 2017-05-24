@@ -36,7 +36,11 @@ public enum TypeEnum {
     DATATABLE("datatable"),
     STRUCT("struct"),
     EMPTY(""),
-    ANY("any");
+    ANY("any"),
+    FILE("file"),
+    INPUTSTREAM("inputstream"),
+    OUTPUTSTREAM("outputstream"),
+    READER("reader");
 
     private String name;
 
