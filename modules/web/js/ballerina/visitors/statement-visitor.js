@@ -567,7 +567,7 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitWorkerReplyStatement(node);
         }  else if (ASTFactory.isThrowStatement(node)) {
             return this.endVisitThrowStatement(node);
-        }  else if (node instanceof AST.CommentStatement(node)) {
+        }  else if (ASTFactory.isCommentStatement(node)) {
             return this.endVisitCommentStatement(node);
         }
     }

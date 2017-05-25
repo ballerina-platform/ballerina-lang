@@ -37,8 +37,6 @@ class ASTVisitor extends EventChannel {
             return this.canVisitResourceDefinition(node);
         } else if(ASTFactory.isFunctionDefinition(node)){
             return this.canVisitFunctionDefinition(node);
-        } else if(ASTFactory.isCommentStatement(node)){
-            return this.canVisitCommentStatement(node);
         } else if (ASTFactory.isStatement(node)) {
             return this.canVisitStatement(node);
         } else if (ASTFactory.isPackageDefinition(node)) {
@@ -100,8 +98,6 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitResourceDefinition(node);
         } else if(ASTFactory.isFunctionDefinition(node)){
             return this.beginVisitFunctionDefinition(node);
-        } else if(ASTFactory.isCommentStatement(node)){
-            return this.beginVisitCommentStatement(node);
         } else if (ASTFactory.isStatement(node)) {
             return this.beginVisitStatement(node);
         } else if (ASTFactory.isPackageDefinition(node)) {
@@ -163,8 +159,6 @@ class ASTVisitor extends EventChannel {
             return this.visitResourceDefinition(node);
         } else if(ASTFactory.isFunctionDefinition(node)){
             return this.visitFunctionDefinition(node);
-        } else if(ASTFactory.isCommentStatement(node)){
-            return this.visitCommentStatement(node);
         } else if(ASTFactory.isStatement(node)){
             return this.visitStatement(node);
         } else if(ASTFactory.isPackageDefinition(node)){
@@ -227,8 +221,6 @@ class ASTVisitor extends EventChannel {
             return this.endVisitResourceDefinition(node);
         } else if(ASTFactory.isFunctionDefinition(node)){
             return this.endVisitFunctionDefinition(node);
-        } else if(ASTFactory.isCommentStatement(node)){
-            return this.endVisitCommentStatement(node);
         } else if(ASTFactory.isStatement(node)){
             return this.endVisitStatement(node);
         }  else if(ASTFactory.isPackageDefinition(node)){
@@ -617,19 +609,6 @@ class ASTVisitor extends EventChannel {
     }
 
     endVisitVariableDefinition(variableDefinition) {
-    }
-
-    canVisitCommentStatement(variableDefinition) {
-        return false;
-    }
-
-    beginVisitCommentStatement(variableDefinition) {
-    }
-
-    visitCommentStatement(variableDefinition) {
-    }
-
-    endVisitCommentStatement(variableDefinition) {
     }
 
     canVisitAnnotation(annotation){
