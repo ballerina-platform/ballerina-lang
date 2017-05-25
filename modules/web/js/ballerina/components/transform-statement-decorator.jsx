@@ -527,34 +527,29 @@ class TransformStatementDecorator extends React.Component {
 
     createAccessNode(name, property) {
         var structExpression = BallerinaASTFactory.createFieldAccessExpression();
-
         var structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
         var structProperty = BallerinaASTFactory.createBasicLiteralExpression({basicLiteralType:'string', basicLiteralValue:property});
+        var structName =  BallerinaASTFactory.createVariableReferenceExpression();
 
-        if(name != "complex") {
-            var structName =  BallerinaASTFactory.createVariableReferenceExpression();
-            structName.setVariableName(name);
-            structExpression.addChild(structName);
-            structPropertyHolder.addChild(structProperty);
-            structExpression.addChild(structPropertyHolder);
-        } else {
-             structExpression.addChild(structProperty);
-        }
+        structName.setVariableName(name);
+        structExpression.addChild(structName);
+        structPropertyHolder.addChild(structProperty);
+        structExpression.addChild(structPropertyHolder);
 
         return structExpression;
     }
 
     getStructAccessNode(name, property) {
-        var structExpression;
+        var structExpressions = [];
 
         _.forEach(property, prop => {
-            if (structExpression == null) {
-                 structExpression = self.createAccessNode(name, prop);
-            } else {
-                structExpression.children[1].addChild(self.createAccessNode("complex", prop));
-            }
+            structExpressions.push(self.createAccessNode(name, prop));
         });
-        return structExpression;
+
+        for (var i = structExpressions.length - 1; i > 0 ; i--) {
+            structExpressions[i-1].children[1].addChild(structExpressions[i].children[1]);
+        }
+        return structExpressions[0];
     }
 
     setSource(currentSelection, predefinedStructs) {
