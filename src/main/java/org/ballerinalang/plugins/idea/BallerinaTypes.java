@@ -61,6 +61,8 @@ public class BallerinaTypes {
             ruleIElementTypes.get(BallerinaParser.RULE_connectorDefinition);
     public static RuleIElementType ACTION_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_actionDefinition);
     public static RuleIElementType STRUCT_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_structDefinition);
+    public static RuleIElementType TYPE_MAPPER_DEFINTION =
+            ruleIElementTypes.get(BallerinaParser.RULE_typeMapperDefinition);
 
     public static RuleIElementType IF_ELSE_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_ifElseStatement);
     public static RuleIElementType ITERATE_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_iterateStatement);
@@ -91,8 +93,11 @@ public class BallerinaTypes {
     public static RuleIElementType RETURN_TYPE_LIST = ruleIElementTypes.get(BallerinaParser.RULE_returnTypeList);
     public static RuleIElementType TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_typeName);
     public static RuleIElementType EXPRESSION = ruleIElementTypes.get(BallerinaParser.RULE_expression);
+    public static RuleIElementType SIMPLE_EXPRESSION = ruleIElementTypes.get(BallerinaParser.RULE_simpleExpression);
     public static RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(BallerinaParser.RULE_returnParameters);
     public static RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_valueTypeName);
+    public static RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(BallerinaParser.RULE_actionInvocation);
+    public static RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_xmlNamespaceName);
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
@@ -171,6 +176,6 @@ public class BallerinaTypes {
     public static TokenIElementType MOD = tokenIElementTypes.get(BallerinaLexer.MOD);
     public static TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
 
-    public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, GT, LT, EQUAL, LE, GE, NOTEQUAL, AND, OR, ADD,
-            SUB, MUL, DIV, BITAND, BITOR, CARET, MOD);
+    public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
+            BITAND, BITOR, CARET, MOD);
 }
