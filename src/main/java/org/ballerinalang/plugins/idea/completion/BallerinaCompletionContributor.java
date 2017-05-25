@@ -513,6 +513,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             addTypeNamesAsLookups(resultSet);
                             addLookups(resultSet, originalFile, true, true, true, false);
                             addVariableTypesAsLookups(resultSet, originalFile, element);
+                            addCommonKeywords(resultSet);
                         }
                     } else if (isExpressionSeparator(elementType)) {
                         // Eg: int a = 10 + t<caret>
@@ -597,6 +598,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addTypeNamesAsLookups(resultSet);
                 addLookups(resultSet, originalFile, true, true, true, false);
                 addVariableTypesAsLookups(resultSet, originalFile, element);
+                addFunctionSpecificKeywords(parameters, resultSet);
+                addCommonKeywords(resultSet);
             }
         } else if (isExpressionSeparator(elementType)) {
             // Eg: int a = 10 +
