@@ -1334,7 +1334,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testConnectorBodyVariableDeclarationPackage() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doTest("import org.test; connector C(){ te<caret> }","test","aborted");
+        doTest("import org.test; connector C(){ te<caret> }", "test", "aborted");
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {
