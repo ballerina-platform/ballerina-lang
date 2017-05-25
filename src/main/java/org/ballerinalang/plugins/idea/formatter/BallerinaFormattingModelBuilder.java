@@ -138,6 +138,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(MAP_STRUCT_KEY_VALUE).spaceIf(false)
                 .between(XML, LT).spaceIf(false)
                 .around(XML_NAMESPACE_NAME).spaceIf(false)
+                .around(EXPRESSION_LIST).spaceIf(false)
                 .withinPairInside(IDENTIFIER, LBRACE, FUNCTION_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LBRACE, SERVICE_DEFINITION).spaceIf(true)
                 .withinPairInside(IDENTIFIER, LBRACE, RESOURCE_DEFINITION).spaceIf(true)
