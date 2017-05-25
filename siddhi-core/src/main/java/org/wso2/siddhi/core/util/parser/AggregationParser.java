@@ -108,13 +108,13 @@ public class AggregationParser {
             StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, executionPlanContext,
                     streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap,
                     executors, latencyTracker, false, aggregatorName);
-//            AggregatorSelector selector = AggregatorSelectorParse.parse(definition.getSelector(), definition.getOutputStream(), // TODO: 5/16/17 instead of getOutputStream create output stream with symbol, sum_price...
-//                    executionPlanContext, streamRuntime.getMetaComplexEvent(), tableMap, executors, aggregatorName);
-            MetaComplexEvent metaComplexEvent = streamRuntime.getMetaComplexEvent();
+
+            AbstractDefinition abstractDefinition = ((MetaStreamEvent) streamRuntime.getMetaComplexEvent()).getLastInputDefinition();
+
 
             List<OutputAttribute> outputAttributes = definition.getSelector().getSelectionList(); // TODO: 3/15/17 null checking ...
             List<AttributeFunction> functionsAttributes = new ArrayList<>();
-            for (int i = 0; i < outputAttributes.size(); i++) { // TODO: 3/15/17 this logic is wrong will be corrected later (changed)
+            for (int i = 0; i < outputAttributes.size(); i++) {
                 Expression expression = outputAttributes.get(i).getExpression();
                 if (expression instanceof AttributeFunction) {
                     functionsAttributes.add((AttributeFunction) expression);
@@ -124,12 +124,37 @@ public class AggregationParser {
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
             Variable groupByVar = getGroupByAttribute(definition.getSelector());
 
+
+            //Make list of new attributes
+            Set<Attribute> newMetaAttributes = createMetaAttributes(functionsAttributes, streamDefinitionMap, inputStream, groupByVar);
+
+            /***Following is related to new MetaStreamEvent creation***/
+
+            List<Attribute> attributeList = new ArrayList<>();
+
+            //Create new metaStreamEvent corresponding to groupBy attribute and base aggregators
+            MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+
+            metaStreamEvent.addInputDefinition(abstractDefinition);
+
+            metaStreamEvent.initializeAfterWindowData();
+            for (Attribute newMetaAttribute : newMetaAttributes) {
+                metaStreamEvent.addData(newMetaAttribute);
+                attributeList.add(newMetaAttribute); // TODO: 5/24/17 Is this correct?
+                executors.add(new VariableExpressionExecutor(newMetaAttribute,-1,0)); // TODO: 5/24/17 this adds new variable expression executor for groupBy too. but it's already there. Is it ok?
+            }
+
+            // TODO: 5/23/17 populate here?
+            StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,0,attributeList);
+            /*******************************************/
+
+
             IncrementalExecutor child = build(functionsAttributes, incrementalDurations.get(incrementalDurations.size() - 1), null,
-                    metaComplexEvent, 0, tableMap, executors, executionPlanContext,
+                    metaStreamEvent, 0, tableMap, executors, executionPlanContext,
                     true, 0, aggregatorName, groupByVar);
             IncrementalExecutor root;
             for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
-                root = build(functionsAttributes, incrementalDurations.get(i), child, metaComplexEvent, 0,
+                root = build(functionsAttributes, incrementalDurations.get(i), child, metaStreamEvent, 0,
                         tableMap, executors, executionPlanContext, true, 0,
                         aggregatorName, groupByVar);
                 child = root;
@@ -141,60 +166,10 @@ public class AggregationParser {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
             ExecuteStreamReceiver executeStreamReceiver = new ExecuteStreamReceiver(singleInputStream.getStreamId(), latencyTracker, aggregatorName);
 
-            aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, metaComplexEvent, executeStreamReceiver);
+            aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, metaStreamEvent, executeStreamReceiver);
             aggregationRuntime.setIncrementalExecutor(child);
 
-            /***Following is related to new MetaStreamEvent creation***/
-            //Get the groupByAttribute name and type // TODO: 5/22/17 check whether there's a better way to get groupBy name, type
-            Attribute groupByAttributeNameType = null;
-            AbstractDefinition inputDefinition = streamDefinitionMap.get(singleInputStream.getStreamId());
-            for (Attribute attribute:inputDefinition.getAttributeList()) {
-                if (attribute.getName().equals(groupByVar.getAttributeName())) {
-                    groupByAttributeNameType = attribute;
-                }
-            }
 
-            List<Attribute> attributeList = new ArrayList<>();
-
-            //Create new metaStreamEvent corresponding to groupBy attribute and base aggregators
-            MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-
-            metaStreamEvent.addInputDefinition(inputDefinition);
-
-            //Add groupBy attribute as output data
-//            metaStreamEvent.addOutputData(groupByAttributeNameType);// TODO: 5/23/17 data added to onAfterWindow
-
-            metaStreamEvent.initializeAfterWindowData();
-            metaStreamEvent.addData(groupByAttributeNameType);
-            attributeList.add(groupByAttributeNameType); // TODO: 5/23/17 no need of a new VariableExpressionExecutor coz it's from original?
-
-
-            //Add base aggregator attributes
-            /*for (IncrementalExecutor.ExpressionExecutorDetails basicExecutor : aggregationRuntime.getIncrementalExecutor().basicExecutorDetails) {
-                Attribute  attribute = new Attribute(basicExecutor.getExecutorName(),basicExecutor.getExecutor().getReturnType());
-                metaStreamEvent.addOutputData(attribute);
-                attributeList.add(attribute);
-            }*/
-            // TODO: 5/23/17 change following
-            IncrementalExecutor.ExpressionExecutorDetails basicExecutor = aggregationRuntime.getIncrementalExecutor().basicExecutorDetails.get(0);
-            Attribute  attribute = new Attribute(basicExecutor.getExecutorName(), Attribute.Type.FLOAT);
-            metaStreamEvent.addData(attribute);
-            attributeList.add(attribute);
-            VariableExpressionExecutor varExpExec1 = new VariableExpressionExecutor(attribute,-1,0); // TODO: 5/23/17 param?
-            executors.add(varExpExec1);
-
-
-            basicExecutor = aggregationRuntime.getIncrementalExecutor().basicExecutorDetails.get(1);
-            attribute = new Attribute(basicExecutor.getExecutorName(), Attribute.Type.FLOAT);
-            metaStreamEvent.addData(attribute);
-            attributeList.add(attribute);
-            VariableExpressionExecutor varExpExec2 = new VariableExpressionExecutor(attribute,-1,0); // TODO: 5/23/17 param?
-            executors.add(varExpExec2);
-
-
-            // TODO: 5/23/17 populate here?
-            StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent,0,attributeList);
-            /*******************************************/
 
             AggregationDefinitionParserHelper.reduceMetaComplexEvent(metaStreamEvent);
             AggregationDefinitionParserHelper.updateVariablePosition(metaStreamEvent, executors); // TODO: 5/22/17 change this logic
@@ -314,5 +289,58 @@ public class AggregationParser {
             }*/
         }
         return filledDurations;
+    }
+
+    private static Set<Attribute> createMetaAttributes(List<AttributeFunction> functionsAttributes, Map<String, AbstractDefinition> streamDefinitionMap, InputStream inputStream, Variable groupByVariable) {
+        Set<Attribute> newMetaAttributes = new HashSet<>(); //Set used since only one meta is created per baseAggregator+attribute
+        List<Attribute> currentAttributes = streamDefinitionMap.get(((SingleInputStream)inputStream).getStreamId()).getAttributeList();
+        String attributeName = null;
+
+        //Create map of current attribute names and types
+        Map currentAttributeNameType = new HashMap();
+        for (Attribute currentAttribute : currentAttributes) {
+            currentAttributeNameType.put(currentAttribute.getName(), currentAttribute.getType());
+        }
+
+        //Add group by attribute to newMetaAttributes
+        String groupByAttributeName = groupByVariable.getAttributeName();
+        newMetaAttributes.add(new Attribute(groupByAttributeName,
+                (Attribute.Type) currentAttributeNameType.get(groupByAttributeName)));
+
+        //Create and add attributes related to base aggregate functions
+        for (AttributeFunction attributeFunction: functionsAttributes) {
+            if (attributeFunction.getParameters() == null) {
+                throw new ExecutionPlanValidationException("Parameters cannot be null for an attribute function");
+            }
+            if (attributeFunction.getParameters().length != 1) {
+                throw new ExecutionPlanValidationException("Only one parameter allowed for attribute function");
+            }
+            if (attributeFunction.getParameters()[0] == null || !(attributeFunction.getParameters()[0] instanceof Variable)) {
+                throw new ExecutionPlanValidationException("Attribute function can only be executed on a variable");
+            }
+            attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
+
+
+            switch (attributeFunction.getName()) {
+                case "avg":
+                    newMetaAttributes.add(new Attribute("sum".concat(attributeName),
+                            (Attribute.Type) currentAttributeNameType.get(attributeName)));
+                    newMetaAttributes.add(new Attribute("count".concat(attributeName),
+                            (Attribute.Type) currentAttributeNameType.get(attributeName)));
+                    break;
+                case "sum":
+                    newMetaAttributes.add(new Attribute("sum".concat(attributeName),
+                            (Attribute.Type) currentAttributeNameType.get(attributeName)));
+                    break;
+                case "count":
+                    newMetaAttributes.add(new Attribute("count".concat(attributeName),
+                            (Attribute.Type) currentAttributeNameType.get(attributeName)));
+                    break;
+                    // TODO: 5/24/17 add other aggregates
+                default:
+                    throw new ExecutionPlanValidationException("Unknown attribute function");
+            }
+        }
+        return newMetaAttributes;
     }
 }
