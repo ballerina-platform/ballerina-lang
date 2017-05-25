@@ -101,7 +101,8 @@ public final class BStruct implements BRefType<StructDef> {
     public BValue copy() {
         BValue[] newStructMemBlock = new BValue[structMemBlock.length];
         for (int i = 0; i < structMemBlock.length; i++) {
-            newStructMemBlock[i] = structMemBlock[i].copy();
+            BValue value = structMemBlock[i];
+            newStructMemBlock[i] = value == null ? null : value.copy();
         }
         return new BStruct(structDef, newStructMemBlock);
     }
