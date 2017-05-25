@@ -61,13 +61,14 @@ public class BallerinaProgramContentProvider {
     private static final Logger logger = LoggerFactory.getLogger(BallerinaProgramContentProvider.class);
     private SymbolScope globalScope;
     private static BallerinaProgramContentProvider instance = null;
+    private static final Object lock = new Object();
 
     private BallerinaProgramContentProvider() {
         this.globalScope = BLangPrograms.populateGlobalScope();
     }
 
-    public static BallerinaProgramContentProvider getInstance() {
-        if (instance == null) {
+    public static synchronized BallerinaProgramContentProvider getInstance() {
+        if(instance == null){
             instance = new BallerinaProgramContentProvider();
         }
         return instance;
@@ -77,7 +78,7 @@ public class BallerinaProgramContentProvider {
      * Returns native types
      * @return JsonArray
      */
-    public JsonArray getNativeTypes() {
+    public JsonArray builtinTypes() {
         JsonArray nativeTypes = new JsonArray();
         globalScope.getSymbolMap().values().stream().forEach(symbol -> {
             if (symbol instanceof BType) {

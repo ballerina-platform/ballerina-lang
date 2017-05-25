@@ -36,5 +36,7 @@ public class SymbolKind {
 
     public static final int ACTION_DEF = 8;
 
-    public static final int VARIABLE_DEF = 8;
+    public static final int VARIABLE_DEF = 9;
+
+    public static final int BUILTIN_TYPE = 10;
 }

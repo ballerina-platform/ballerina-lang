@@ -16,10 +16,64 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util;
 
+import com.google.gson.JsonArray;
+import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
+import org.ballerinalang.composer.service.workspace.langserver.consts.SymbolKind;
+import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformationDTO;
+import org.ballerinalang.composer.service.workspace.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class WorkspaceSymbolProvider {
+
+    private static Logger logger = LoggerFactory.getLogger(WorkspaceSymbolProvider.class);
+    private static BallerinaProgramContentProvider contentProvider = BallerinaProgramContentProvider.getInstance();
 
     public WorkspaceSymbolProvider() {
     }
 
+    public SymbolInformationDTO[] getSymbols(String query) {
+        switch (query) {
+            case LangServerConstants.NATIVE_TYPES:
+                return getBuiltinTypes();
+            case LangServerConstants.PACKAGES:
+                return getPackages();
+            default:
+                logger.warn("Invalid symbol query found");
+                return new SymbolInformationDTO[0];
+        }
+    }
 
+    private SymbolInformationDTO[] getBuiltinTypes() {
+        JsonArray builtinTypes = contentProvider.builtinTypes();
+        ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();
+        for(int itr = 0; itr < builtinTypes.size(); itr ++) {
+            SymbolInformationDTO symbolInfo = new SymbolInformationDTO();
+            symbolInfo.setName(builtinTypes.get(itr).getAsString());
+            symbolInfo.setKind(SymbolKind.BUILTIN_TYPE);
+            symbolInformationArr.add(symbolInfo);
+        }
+
+        return symbolInformationArr.toArray(new SymbolInformationDTO[0]);
+    }
+
+    public SymbolInformationDTO[] getPackages() {
+        Map<String, ModelPackage> packages = contentProvider.getAllPackages();
+        ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();
+
+        for (Map.Entry<String, ModelPackage> entry : packages.entrySet()) {
+            System.out.println(entry.getKey() + "/" + entry.getValue());
+            SymbolInformationDTO symbolInfo = new SymbolInformationDTO();
+            symbolInfo.setName(entry.getKey());
+            symbolInfo.setKind(SymbolKind.PACKAGE_DEF);
+            symbolInformationArr.add(symbolInfo);
+        }
+
+        return symbolInformationArr.toArray(new SymbolInformationDTO[0]);
+    }
 }

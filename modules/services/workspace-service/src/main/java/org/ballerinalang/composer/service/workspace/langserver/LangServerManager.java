@@ -18,7 +18,6 @@ package org.ballerinalang.composer.service.workspace.langserver;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
@@ -31,10 +30,11 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.MessageDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessageDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseErrorDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseMessageDTO;
+import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformationDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentIdentifierDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentItemDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
-import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
+import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +61,8 @@ public class LangServerManager {
     private Map<String, TextDocumentItemDTO> closedDocumentSessions = new HashMap<>();
 
     private Gson gson;
+
+    private WorkspaceSymbolProvider symbolProvider = new WorkspaceSymbolProvider();
 
     /**
      * Private constructor
@@ -121,6 +123,9 @@ public class LangServerManager {
                 case LangServerConstants.SHUTDOWN:
                     this.shutdown(message);
                     break;
+                case LangServerConstants.WORKSPACE_SYMBOL:
+                    this.getWorkspaceSymbol(message);
+                    break;
                 default:
                     // Valid Method could not be found
                     this.invalidMethodFound(message);
@@ -147,9 +152,6 @@ public class LangServerManager {
                     break;
                 case LangServerConstants.TEXT_DOCUMENT_DID_CLOSE:
                     this.documentDidClose(message);
-                    break;
-                case LangServerConstants.WORKSPACE_SYMBOL:
-                    this.getWorkspaceSymbol(message);
                     break;
                 default:
                     // Valid Method could not be found
@@ -281,11 +283,11 @@ public class LangServerManager {
     private void getWorkspaceSymbol(MessageDTO message) {
         if (message instanceof RequestMessageDTO) {
             String query = (String) ((LinkedTreeMap) ((RequestMessageDTO) message).getParams()).get("query");
-            if (query.equals(LangServerConstants.WORKSPACE_SYMBOL)) {
-                BallerinaProgramContentProvider programContentProvider = BallerinaProgramContentProvider.getInstance();
-                JsonArray jsonArray = programContentProvider.getNativeTypes();
-                System.out.println(jsonArray);
-            }
+            SymbolInformationDTO[] symbolInformationDTOs = symbolProvider.getSymbols(query);
+            ResponseMessageDTO responseMessage = new ResponseMessageDTO();
+            responseMessage.setId(((RequestMessageDTO) message).getId());
+            responseMessage.setResult(symbolInformationDTOs);
+            pushMessageToClient(langServerSession, responseMessage);
         } else {
             logger.warn("Invalid Message type found");
         }
