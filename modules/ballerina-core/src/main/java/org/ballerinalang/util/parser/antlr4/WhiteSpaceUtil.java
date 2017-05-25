@@ -911,15 +911,45 @@ public class WhiteSpaceUtil {
 
     public static WhiteSpaceDescriptor getBinaryExprWS(CommonTokenStream tokenStream, ParserRuleContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_LEFT_EXP_TO_OPERATOR,
-                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_OPERATOR_TO_RIGHT_EXP,
-                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_FOLLOWING_WHITESPACE,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        ParserRuleContext leftExpr = getSubExpressionAt(ctx, 0);
+        ParserRuleContext rightExpr = getSubExpressionAt(ctx, 1);
+        if (leftExpr != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_PRECEDING_WHITESPACE,
+                    getWhitespaceToLeft(tokenStream, leftExpr.start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_LEFT_EXP_TO_OPERATOR,
+                    getWhitespaceToRight(tokenStream, leftExpr.stop.getTokenIndex()));
+        }
+        if (rightExpr != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_OPERATOR_TO_RIGHT_EXP,
+                    getWhitespaceToLeft(tokenStream, rightExpr.start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_FOLLOWING_WHITESPACE,
+                    getWhitespaceToRight(tokenStream, rightExpr.stop.getTokenIndex()));
+        }
         return ws;
+    }
+
+    private static ParserRuleContext getSubExpressionAt(ParserRuleContext ctx, int index) {
+        ParserRuleContext subExpr = null;
+        List<BallerinaParser.ExpressionContext> expressionContexts = null;
+        if (ctx instanceof BallerinaParser.BinaryAddSubExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryAddSubExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryAndExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryAndExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryCompareExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryCompareExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryDivMulModExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryDivMulModExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryEqualExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryEqualExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryOrExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryOrExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryPowExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryPowExpressionContext) ctx).expression();
+        }
+        if (expressionContexts != null && expressionContexts.size() > index + 1) {
+            subExpr = expressionContexts.get(index);
+        }
+        return subExpr;
     }
 
     public static WhiteSpaceDescriptor getTransformStmtWS(CommonTokenStream tokenStream,
