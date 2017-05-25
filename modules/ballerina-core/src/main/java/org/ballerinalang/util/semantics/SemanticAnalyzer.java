@@ -991,10 +991,23 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        BType rType = rExpr.getType();
+
+        // Generate type cast expression if the rhs type is a value type
         if (varBType == BTypes.typeAny) {
+            if (BTypes.isValueType(rExpr.getType())) {
+                TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
+                if (newExpr != null) {
+                    varDefStmt.setRExpr(newExpr);
+                } else {
+                    BLangExceptionHelper.throwSemanticError(varDefStmt,
+                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, rExpr.getType().getSymbolName(),
+                            varBType.getSymbolName());
+                }
+            }
             return;
         }
-        BType rType = rExpr.getType();
+
         if (rExpr instanceof TypeCastExpression && rType == null) {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
         }
@@ -1003,7 +1016,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
             if (newExpr != null) {
-                newExpr.accept(this);
                 varDefStmt.setRExpr(newExpr);
             } else {
                 BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
@@ -1047,10 +1059,23 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         visitSingleValueExpr(rExpr);
+        BType rType = rExpr.getType();
+
+        // Generate type cast expression if the rhs type is a value type
         if (lExprType == BTypes.typeAny) {
+            if (BTypes.isValueType(rExpr.getType())) {
+                TypeCastExpression newExpr = checkWideningPossible(lExprType, rExpr);
+                if (newExpr != null) {
+                    assignStmt.setRExpr(newExpr);
+                } else {
+                    BLangExceptionHelper.throwSemanticError(assignStmt,
+                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, rExpr.getType().getSymbolName(),
+                            lExprType.getSymbolName());
+                }
+            }
             return;
         }
-        BType rType = rExpr.getType();
+
         if (rExpr instanceof TypeCastExpression && rType == null) {
             rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
         }
@@ -1058,7 +1083,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (!lExprType.equals(rType)) {
             TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
             if (newExpr != null) {
-                newExpr.accept(this);
                 assignStmt.setRhsExpr(newExpr);
             } else {
                 BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
@@ -3542,7 +3566,18 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             valueExpr.accept(this);
 
+            // Generate type cast expression if the rhs type is a value type
             if (inheritedType == BTypes.typeMap) {
+                if (BTypes.isValueType(valueExpr.getType())) {
+                    TypeCastExpression newExpr = checkWideningPossible(BTypes.typeAny, valueExpr);
+                    if (newExpr != null) {
+                        keyValueExpr.setValueExpr(newExpr);
+                    } else {
+                        BLangExceptionHelper.throwSemanticError(keyValueExpr,
+                                SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, valueExpr.getType().getSymbolName(),
+                                inheritedType.getSymbolName());
+                    }
+                }
                 continue;
             }
 

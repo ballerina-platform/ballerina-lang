@@ -29,8 +29,8 @@ public class TypeSignature {
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ARRAY = "[";
-    public static final String SIG_VOID = "V";
     public static final String SIG_ANY = "A";
+    public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
 
     private String sigChar;
