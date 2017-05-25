@@ -86,6 +86,11 @@ public interface InstructionCodes {
     int BFIELDSTORE = 63;
     int RFIELDSTORE = 64;
 
+    // mapload map_reg_inde key_name_cp_index value_reg_index
+    int MAPLOAD = 65;
+    // mapstore map_reg_inde key_name_cp_index value_reg_index
+    int MAPSTORE = 66;
+
     int IADD = 70;
     int FADD = 71;
     int SADD = 72;
@@ -116,6 +121,35 @@ public interface InstructionCodes {
     int ACALL = 121;
     int RET = 125;
 
+    // Type Conversion
+    int I2F = 130;
+    int I2S = 131;
+    int I2B = 132;
+    int I2ANY = 141;
+    int F2I = 133;
+    int F2S = 134;
+    int F2ANY = 142;
+    int S2I = 135;
+    int S2F = 136;
+    int S2B = 137;
+    int S2ANY = 143;
+    int B2I = 139;
+    int B2S = 140;
+    int B2ANY = 144;
+    int R2ANY = 145;
+
+    // Type cast
+//    int I2ANY = 141;
+//    int F2ANY = 142;
+//    int S2ANY = 143;
+//    int B2ANY = 144;
+//    int R2ANY = 145;
+    int ANY2I = 146;
+    int ANY2F = 147;
+    int ANY2S = 148;
+    int ANY2B = 149;
+    int ANY2R = 150;
+
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
     int SNEWARRAY = 202;
@@ -124,6 +158,7 @@ public interface InstructionCodes {
 
     int NEWSTRUCT = 210;
     int NEWCONNECTOR = 211;
+    int NEWMAP = 212;
 
-    int INSTRUCTION_CODE_COUNT = 212;
+    int INSTRUCTION_CODE_COUNT = 213;
 }

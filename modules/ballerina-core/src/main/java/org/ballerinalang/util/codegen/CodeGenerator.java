@@ -1021,8 +1021,9 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
-    public void visit(TypeCastExpression typeCastExpression) {
-
+    public void visit(TypeCastExpression typeCastExpr) {
+        BType targetType = typeCastExpr.getType();
+        BType sourceType = typeCastExpr.getRExpr().getType();
     }
 
     @Override
@@ -1142,7 +1143,23 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(MapInitExpr mapInitExpr) {
+        int mapVarRegIndex = ++regIndexes[REF_OFFSET];
+        mapInitExpr.setTempOffset(mapVarRegIndex);
+        emit(InstructionCodes.NEWMAP, mapVarRegIndex);
 
+        // Handle Map init stuff
+        Expression[] argExprs = mapInitExpr.getArgExprs();
+        for (Expression argExpr : argExprs) {
+            KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
+
+            Expression keyExpr = keyValueExpr.getKeyExpr();
+            keyExpr.accept(this);
+
+            Expression valueExpr = keyValueExpr.getValueExpr();
+            valueExpr.accept(this);
+
+            emit(InstructionCodes.MAPSTORE, mapVarRegIndex, keyExpr.getTempOffset(), valueExpr.getTempOffset());
+        }
     }
 
     @Override

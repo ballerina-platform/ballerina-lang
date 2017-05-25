@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -38,10 +39,12 @@ import org.testng.annotations.Test;
 public class StructTest {
 
     private BLangProgram bLangProgram;
-    
+    private ProgramFile programFile;
+
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/structs/struct.bal");
+//        programFile = BTestUtils.getProgramFile("lang/structs/struct.bal");
     }
     
     @Test(description = "Test Basic struct operations")

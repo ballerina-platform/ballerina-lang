@@ -23,6 +23,8 @@ import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -114,9 +116,11 @@ public class BLangVM {
         BBooleanArray bBooleanArray;
         BRefValueArray bArray;
         StructureType structureType;
+        BMap<String, BRefType> bMap;
 
         StructureRefCPEntry structureRefCPEntry;
         FunctionCallCPEntry funcCallCPEntry;
+        StringCPEntry stringCPEntry;
 
         // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && fp >= 0) {
@@ -390,6 +394,21 @@ public class BLangVM {
                     structureType.setRefField(fieldIndex, sf.refRegs[j]);
                     break;
 
+                case InstructionCodes.MAPLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bMap = (BMap<String, BRefType>) sf.refRegs[i];
+                    sf.refRegs[k] = bMap.get(sf.stringRegs[j]);
+                    break;
+                case InstructionCodes.MAPSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bMap = (BMap<String, BRefType>) sf.refRegs[i];
+                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                    break;
+
                 case InstructionCodes.IADD:
                     i = operands[0];
                     j = operands[1];
@@ -610,6 +629,12 @@ public class BLangVM {
                     bConnector.init(fieldCount);
                     sf.refRegs[i] = bConnector;
                     break;
+
+                case InstructionCodes.NEWMAP:
+                    i = operands[0];
+                    sf.refRegs[i] = new BMap<String, BRefType>();
+                    break;
+
                 default:
                     throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
             }

@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -35,6 +36,7 @@ import static org.testng.Assert.assertEquals;
 public class BMapValueTest   {
 
     private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @Test
     public void testStandardJavaMap() {
@@ -82,6 +84,7 @@ public class BMapValueTest   {
     @Test
     void testGrammar() {
         bLangProgram = BTestUtils.parseBalFile("lang/values/map-value.bal");
+        programFile = BTestUtils.getProgramFile("lang/values/map-value.bal");
     }
 
     @Test(dependsOnMethods = "testGrammar")
@@ -160,7 +163,8 @@ public class BMapValueTest   {
     }
 
     @Test(description = "Testing map value access in binary expression", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types 'any' and 'int'")
+            expectedExceptionsMessageRegExp = "map-value-invalid3.bal:3: invalid operation: " +
+                    "operator \\+ not defined on 'any'")
     void testInvalidGrammar3() {
         BTestUtils.parseBalFile("lang/values/map-value-invalid3.bal");
     }
