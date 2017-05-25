@@ -345,7 +345,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             addKeywordAsLookup(resultSet, ATTACH, KEYWORDS_PRIORITY);
                         } else {
                             addTypeNamesAsLookups(resultSet);
-                            addLookups(resultSet, originalFile, true, false, true, true);
+                            if (parent.getTextOffset() == 0) {
+                                addFileLevelKeywordsAsLookups(resultSet, true, true);
+                            } else {
+                                addLookups(resultSet, originalFile, true, false, true, true);
+                            }
                         }
                     },
                     (p, r, prevElement) -> {
@@ -1331,7 +1335,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleStatementNode(parameters, resultSet);
         } else if (superParent instanceof ValueTypeNameNode) {
             addValueTypesAsLookups(resultSet);
-        }else {
+        } else {
             // Handle all other situations.
             if (parentPrevSibling == null) {
                 addFileLevelKeywordsAsLookups(resultSet, true, true);
