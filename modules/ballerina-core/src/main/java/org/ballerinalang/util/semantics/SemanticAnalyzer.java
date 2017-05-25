@@ -1243,9 +1243,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.ABORT_STMT_NOT_ALLOWED_HERE);
             }
 
-            if (stmt instanceof ReplyStmt && isWithinWorker) {
-                BLangExceptionHelper.throwSemanticError(stmt,
-                        SemanticErrors.REPLY_STMT_NOT_ALLOWED_HERE);
+            if (isWithinWorker) {
+                if (stmt instanceof ReplyStmt) {
+                    BLangExceptionHelper.throwSemanticError(stmt,
+                            SemanticErrors.REPLY_STMT_NOT_ALLOWED_HERE);
+                } else if (stmt instanceof ReturnStmt) {
+                    BLangExceptionHelper.throwSemanticError(stmt,
+                            SemanticErrors.RETURN_STMT_NOT_ALLOWED_HERE);
+                }
             }
 
             if (stmt instanceof BreakStmt || stmt instanceof ReplyStmt || stmt instanceof AbortStmt) {

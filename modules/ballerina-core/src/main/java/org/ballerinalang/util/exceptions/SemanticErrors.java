@@ -105,6 +105,7 @@ public enum SemanticErrors {
     RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
     IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
     REPLY_STMT_NOT_ALLOWED_HERE("reply.stmt.not.allowed.here", "SEMANTIC_0083"),
+    RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
     ;
 
     private String errorMsgKey;
