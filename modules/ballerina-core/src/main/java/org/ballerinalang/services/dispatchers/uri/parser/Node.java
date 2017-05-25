@@ -28,17 +28,13 @@ import java.util.Map;
 public abstract class Node {
 
     protected String token;
-    protected Node next;
+
     protected List<Node> childNodesList = new LinkedList<>();
 
     protected Resource resource;
 
     protected Node(String token) {
         this.token = token;
-    }
-
-    public void setNext(Node next) {
-        this.next = next;
     }
 
     public Node addChild(String segment, Node childNode) {
@@ -52,11 +48,6 @@ public abstract class Node {
 
         Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
 
-        // TODO: need to smartly decide which one is the best child
-        if (childNodesList != null) {
-            this.next = childNodesList.get(0);
-        }
-
         return node;
     }
 
@@ -65,68 +56,51 @@ public abstract class Node {
         if (matchLength < 0) {
             return null;
         } else if (matchLength < uriFragment.length()) {
-            // TODO: Check if we can improve this part of the logic
-            if (uriFragment.startsWith("/")) {
-                uriFragment = uriFragment.substring(matchLength);
-            } else if (uriFragment.contains("/")) {
-                uriFragment = uriFragment.substring(matchLength + 1);
-            } else {
-                uriFragment = uriFragment.substring(matchLength);
-            }
+            String subUriFragment = nextURIFragment(uriFragment, matchLength);
+            String subPath = nextSubPath(subUriFragment);
 
-            String segment;
-            if (uriFragment.contains("/")) {
-                segment = uriFragment.substring(0, uriFragment.indexOf("/"));
-            } else {
-                segment = uriFragment;
-            }
-
+            Resource resource;
             for (Node childNode : childNodesList) {
                 if (childNode instanceof Literal) {
                     String regex = childNode.getToken();
                     if (regex.equals("*")) {
                         regex = "." + regex;
-                        if (segment.matches(regex)) {
-                            next = childNode;
-                            return next.matchAll(uriFragment, variables, start + matchLength);
+                        if (subPath.matches(regex)) {
+                            resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                            if (resource != null) {
+                                return resource;
+                            }
                         }
                     } else {
-                        if (segment.contains(regex)) {
-                            next = childNode;
-                            return next.matchAll(uriFragment, variables, start + matchLength);
+                        if (subPath.contains(regex)) {
+                            resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                            if (resource != null) {
+                                return resource;
+                            }
                         }
                     }
                 } else {
-                    next = childNode;
-                    return next.matchAll(uriFragment, variables, start + matchLength);
+                    resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                    if (resource !=  null) {
+                        return resource;
+                    }
                 }
             }
 
             return null;
-
-        } else if (matchLength == uriFragment.length() && next != null) {
-            if(next.getToken().equalsIgnoreCase("*"))
-            {
-                return getTestResource();
-            }
-            if(next.getToken().equalsIgnoreCase("/*"))
-            {
-                return getTestResource();
-            }
-            // We have matched all the characters in the URI
-            // But there are some nodes left to be matched against
-            return null;
         }
-        else {
-            return getTestResource();
+        else if (matchLength == uriFragment.length()) {
+            return getResource();
+        } else {
+            return null;
         }
     }
 
-    public Resource getTestResource() {
+    public Resource getResource() {
         return this.resource;
     }
 
-    public void setTestResource(Resource resource) {
+    public void setResource(Resource resource) {
         this.resource = resource;
     }
 
@@ -160,5 +134,29 @@ public abstract class Node {
         } else {
             return 1;
         }
+    }
+
+    private String nextURIFragment(String uri, int matchLength) {
+        String uriFragment = uri;
+        if (uriFragment.startsWith("/")) {
+            uriFragment = uriFragment.substring(matchLength);
+        } else if (uriFragment.contains("/")) {
+            if (uriFragment.charAt(matchLength) == '/') {
+                uriFragment = uriFragment.substring(matchLength + 1);
+            } else {
+                uriFragment = uriFragment.substring(matchLength);
+            }
+        }
+        return uriFragment;
+    }
+
+    private String nextSubPath(String uriFragment) {
+        String subPath;
+        if (uriFragment.contains("/")) {
+            subPath = uriFragment.substring(0, uriFragment.indexOf("/"));
+        } else {
+            subPath = uriFragment;
+        }
+        return subPath;
     }
 }

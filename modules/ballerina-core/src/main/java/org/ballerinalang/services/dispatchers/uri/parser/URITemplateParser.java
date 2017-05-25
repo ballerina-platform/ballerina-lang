@@ -96,7 +96,7 @@ public class URITemplateParser {
             }
         }
 
-        this.currentNode.setTestResource(resource);
+        this.currentNode.setResource(resource);
 
         return syntaxTree;
     }
