@@ -99,6 +99,10 @@ public final class BStruct implements BRefType<StructDef> {
     
     @Override
     public BValue copy() {
-        return new BStruct(structDef, structMemBlock);
+        BValue[] newStructMemBlock = new BValue[structMemBlock.length];
+        for (int i = 0; i < structMemBlock.length; i++) {
+            newStructMemBlock[i] = structMemBlock[i].copy();
+        }
+        return new BStruct(structDef, newStructMemBlock);
     }
 }

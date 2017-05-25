@@ -68,12 +68,10 @@ public class TypeMappingUtils {
         throw new BallerinaException(errorMsg);
     }
     
-    
     private static BStruct createError(String message, BType sourceType, BType targetType) {
         BString msg = new BString(message);
         BString sourceTypeName = new BString(sourceType.getSymbolName().toString());
         BString targetTypeName = new BString(targetType.getSymbolName().toString());
         return new BStruct(castErrorStruct, new BValue[]{msg, sourceTypeName, targetTypeName});
     }
-    
 }
