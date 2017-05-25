@@ -95,6 +95,7 @@ public class WorkspaceServiceRunner {
         String launcherPath = null;
         String debuggerPath = null;
         String[] rootDirectoriesArray = null;
+        String tryServiceURL = null;
         // reading configurations from workspace-service-config.yaml. Users are expected to drop the
         // workspace-service-config.yaml file inside the $ballerina-tools-distribution/resources/composer/services
         // directory. Default configurations will be set if user hasn't provided workspace-service-config.yaml
@@ -107,7 +108,10 @@ public class WorkspaceServiceRunner {
                 apiPath = workspaceServiceConfig.getApiPath();
                 launcherPath = workspaceServiceConfig.getLauncherPath();
                 debuggerPath = workspaceServiceConfig.getDebuggerPath();
-                rootDirectoriesArray = workspaceServiceConfig.getRootDirectories().split(",");
+                if (workspaceServiceConfig.getRootDirectories() != null) {
+                    rootDirectoriesArray = workspaceServiceConfig.getRootDirectories().split(",");
+                }
+                tryServiceURL = workspaceServiceConfig.getTryServiceURL();
             } catch (IOException e) {
                 logger.error("Error while reading workspace-service-config.yaml");
             }
@@ -202,7 +206,7 @@ public class WorkspaceServiceRunner {
         //start the launcher service
         //The launcher service was implemented with netty since msf4j do not have websocket support yet.
         LaunchManager launchManager = LaunchManager.getInstance();
-        launchManager.init(launcherPort);
+        launchManager.init(launcherPort, tryServiceURL);
 
         if (!isCloudMode) {
             logger.info("Ballerina Composer URL: http://localhost:" + fileServerPort);

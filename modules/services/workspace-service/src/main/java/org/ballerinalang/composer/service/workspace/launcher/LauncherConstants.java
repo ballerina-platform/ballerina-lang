@@ -55,6 +55,10 @@ public class LauncherConstants {
     public static final String EXECUTION_TERMINATED = "EXECUTION_TERMINATED";
     public static final String SET_BAL_PATH_MESSAGE = "Please set BALLERINA_HOME environment variable pointing to " +
                                                       "ballerina runtime.";
+
+    public static final String SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG = "ballerina: started server " +
+                                                                                    "connector http-9090";
+    public static final String SERVER_CONNECTOR_STARTED_LOG = "ballerina: started server connector";
     public static final String TERMINATE_MESSAGE = "Program Terminated.";
     
     /**
