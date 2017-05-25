@@ -22,11 +22,12 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.TypeMapper;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Class to hold the data related to type casting expression.
@@ -43,28 +44,30 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private String packageName;
     private SymbolName typeMapperName;
     private TypeMapper typeMapper;
-    protected Function<BValue, BValue> evalFuncNewNew;
+    protected BiFunction<BValue, BType, BValue> evalFunc;
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
-    public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
-        super(location);
+    public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
+                              BType targetType) {
+        super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.targetType = targetType;
     }
 
-    public TypeCastExpression(NodeLocation location, SimpleTypeName typeName, Expression rExpr) {
-        super(location);
+    public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
+                              Expression rExpr) {
+        super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.typeName = typeName;
     }
 
-    public Function<BValue, BValue> getEvalFunc() {
-        return evalFuncNewNew;
+    public BiFunction<BValue, BType, BValue> getEvalFunc() {
+        return evalFunc;
     }
 
-    public void setEvalFunc(Function<BValue, BValue> evalFuncNewNew) {
-        this.evalFuncNewNew = evalFuncNewNew;
+    public void setEvalFunc(BiFunction<BValue, BType, BValue> evalFunc) {
+        this.evalFunc = evalFunc;
     }
 
     public Expression getRExpr() {

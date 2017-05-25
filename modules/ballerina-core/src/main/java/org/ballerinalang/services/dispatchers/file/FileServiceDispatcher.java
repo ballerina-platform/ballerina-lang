@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -35,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service dispatcher for File server connector.
@@ -66,34 +66,19 @@ public class FileServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(Service service) {
         for (AnnotationAttachment annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                Map<String, AnnotationAttributeValue> elementsMap = annotation.getAttributeNameValuePairs();
-
-                Object protocolObj = elementsMap.get(new SymbolName(Constants.ANNOTATION_PROTOCOL));
-                if (protocolObj == null) {
-                    return;
-                }
-                if (!(protocolObj instanceof String)) {
-                    throw new BallerinaException("Annotation element '" +
-                            Constants.ANNOTATION_PROTOCOL + "' in Service "
-                            + service.getSymbolName().getName() + "' should be of type string literal.");
-                }
-                String protocol = ((String) protocolObj);
-                if (!(protocol.equals(Constants.PROTOCOL_FILE))) {
-                    return;
-                }
-
+            if (annotation.getName().equals(Constants.ANNOTATION_FILE_SOURCE) &&
+                annotation.getPkgName().equals(Constants.PROTOCOL_FILE)) {
+                Map<String, String> elementsMap = annotation.getAttributeNameValuePairs().entrySet().stream().collect(
+                        Collectors.toMap(Entry::getKey, entry -> entry.getValue().getLiteralValue().stringValue()));
                 String serviceName = service.getSymbolName().getName();
-
-                ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance()
-                        .createServerConnector(Constants.PROTOCOL_FILE, serviceName);
-
+                ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
+                        Constants.PROTOCOL_FILE, serviceName, elementsMap);
                 try {
-                    fileServerConnector.start(getServerConnectorParamMap(elementsMap));
+                    fileServerConnector.start();
                     servicesMap.put(serviceName, service);
                 } catch (ServerConnectorException e) {
-                    throw new BallerinaException("Could not start File Server Connector for service: "
-                            + serviceName, e);
+                    throw new BallerinaException("Could not start File Server Connector for service: " +
+                                                 serviceName, e);
                 }
                 return;
             }

@@ -37,8 +37,8 @@ public class WorkerCallingFunction {
         bLangProgram = BTestUtils.parseBalFile("samples/worker-calling-function.bal");
     }
 
-    @Test(description = "Test worker declaration")
-    public void testWorkerDeclaration() {
+    @Test(description = "Test worker calling function")
+    public void testWorkerCallingFunction() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWorker");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);

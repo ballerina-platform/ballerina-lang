@@ -26,9 +26,11 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
@@ -46,6 +48,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -93,6 +96,7 @@ public class BLangFunctions {
     
     public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args, Context bContext) {
         Function function = getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, args);
+        bLangProgram.setMainPackage(bLangProgram.getLibraryPackages()[0]);
         if (function == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
@@ -114,7 +118,7 @@ public class BLangFunctions {
                 break;
             }
 
-            argValues[stackIndex] = returnParam.getType().getDefaultValue();
+            argValues[stackIndex] = returnParam.getType().getZeroValue();
             stackIndex++;
         }
 
@@ -127,7 +131,7 @@ public class BLangFunctions {
             // TODO: Fix this properly.
             Expression[] exprs = new Expression[args.length];
             for (int i = 0; i < args.length; i++) {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
+                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(), null,
                         new SymbolName("arg" + i));
 
                 variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
@@ -138,7 +142,7 @@ public class BLangFunctions {
 
             // 3) Create a function invocation expression
             FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                    function.getNodeLocation(), functionName, null, null, exprs);
+                    function.getNodeLocation(), null, functionName, null, null, exprs);
             funcIExpr.setOffset(args.length);
             funcIExpr.setCallableUnit(function);
             // Linking.
@@ -151,6 +155,7 @@ public class BLangFunctions {
 
             // Invoke main function
             BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+            nonBlockingExecutor.setParentScope(function.getSymbolScope());
             nonBlockingExecutor.execute(funcIExpr);
             int length = funcIExpr.getCallableUnit().getReturnParameters().length;
             BValue[] result = new BValue[length];
@@ -164,7 +169,30 @@ public class BLangFunctions {
 
             // Invoke main function
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+            executor.setParentScope(function.getSymbolScope());
+            if (((BallerinaFunction) function).getWorkers().length > 0) {
+                // TODO: Fix this properly.
+                Expression[] exprs = new Expression[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(), null,
+                            new SymbolName("arg" + i));
+
+                    variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
+                    StackVarLocation location = new StackVarLocation(i);
+                    variableRefExpr.setMemoryLocation(location);
+                    exprs[i] = variableRefExpr;
+                }
+                // Start the workers if there is any
+                for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
+                    executor.executeWorker(worker, exprs);
+                }
+            }
             function.getCallableUnitBody().execute(executor);
+            if (executor.isErrorThrown && executor.thrownError != null) {
+                String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                        executor.thrownError.getValue(0).stringValue() + "}";
+                throw new BallerinaException(errorMsg);
+            }
             return returnValues;
         }
     }

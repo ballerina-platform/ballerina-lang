@@ -31,6 +31,7 @@ definition
     |   typeMapperDefinition
     |   constantDefinition
     |   annotationDefinition
+    |   globalVariableDefinition
     ;
 
 serviceDefinition
@@ -46,7 +47,7 @@ resourceDefinition
     ;
 
 callableUnitBody
-    : '{' workerDeclaration* statement* '}'
+    : '{' statement* workerDeclaration* '}'
     ;
 
 functionDefinition
@@ -55,7 +56,7 @@ functionDefinition
     ;
 
 callableUnitSignature
-    :   Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')?
+    :   Identifier '(' parameterList? ')' returnParameters?
     ;
 
 connectorDefinition
@@ -81,6 +82,10 @@ structBody
 
 annotationDefinition
     : 'annotation' Identifier ('attach' attachmentPoint (',' attachmentPoint)*)? annotationBody
+    ;
+
+globalVariableDefinition
+    :   typeName Identifier ('=' expression )? ';'
     ;
 
 attachmentPoint
@@ -118,7 +123,11 @@ constantDefinition
     ;
 
 workerDeclaration
-    :   'worker' Identifier '(' 'message' Identifier ')'  '{' statement* '}'
+    :   workerDefinition '{' statement* workerDeclaration*'}'
+    ;
+
+workerDefinition
+    :   'worker' Identifier
     ;
 
 typeName
@@ -143,7 +152,6 @@ valueTypeName
 builtInReferenceTypeName
     :   'message'
     |   'map' ('<' typeName '>')?
-    |   'exception'
     |   'xml' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
@@ -200,6 +208,27 @@ statement
     |   commentStatement
     |   actionInvocationStatement
     |   functionInvocationStatement
+    |   transformStatement
+    |   transactionStatement
+    |   abortStatement
+    ;
+
+transformStatement
+    :   'transform' '{' transformStatementBody* '}'
+    ;
+
+transformStatementBody
+    :   expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
+    |   transformStatement
+    ;
+
+expressionAssignmentStatement
+    :   variableReferenceList '=' expression ';'
+    ;
+
+expressionVariableDefinitionStatement
+    :   typeName Identifier '=' expression ';'
     ;
 
 variableDefinitionStatement
@@ -265,7 +294,7 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    : 'fork' '(' variableReference ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
+    : 'fork' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
@@ -284,11 +313,20 @@ timeoutClause
     ;
 
 tryCatchStatement
-    :   'try' '{' statement* '}' catchClause
+    :   'try' '{' statement* '}' catchClauses
+    ;
+
+catchClauses
+    : catchClause+ finallyClause?
+    | finallyClause
     ;
 
 catchClause
-    :   'catch' '(' 'exception' Identifier ')' '{' statement* '}'
+    :  'catch' '(' typeName Identifier ')' '{' statement* '}'
+    ;
+
+finallyClause
+    : 'finally' '{' statement* '}'
     ;
 
 throwStatement
@@ -311,12 +349,12 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   Identifier '->' Identifier ';'
+    :   expressionList '->' Identifier? ';'
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   Identifier '<-' Identifier ';'
+    :   expressionList '<-' Identifier? ';'
     ;
 
 commentStatement
@@ -324,8 +362,8 @@ commentStatement
     ;
 
 variableReference
-    :   Identifier                                  # simpleVariableIdentifier// simple identifier
-    |   Identifier ('['expression']')+              # mapArrayVariableIdentifier// arrays and map reference
+    :   nameReference                               # simpleVariableIdentifier// simple identifier
+    |   nameReference ('['expression']')+           # mapArrayVariableIdentifier// arrays and map reference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 
@@ -340,6 +378,18 @@ functionInvocationStatement
 actionInvocationStatement
     :   actionInvocation ';'
     |   variableReferenceList '=' actionInvocation ';'
+    ;
+
+transactionStatement
+    :   'transaction' '{' statement* '}' rollbackClause
+    ;
+
+rollbackClause
+    :   'aborted' '{' statement* '}'
+    ;
+
+abortStatement
+    :   'abort' ';'
     ;
 
 actionInvocation
@@ -670,12 +720,13 @@ NullLiteral
     ;
 
 Identifier
-    :   Letter LetterOrDigit*
+    :   ( Letter LetterOrDigit* )
+    |   IdentifierLiteral
     ;
 
 fragment
 Letter
-    :   [a-zA-Z$_] // these are the "letters" below 0x7F
+    :   [a-zA-Z_] // these are the "letters" below 0x7F
     |   // covers all characters above 0x7F which are not a surrogate
         ~[\u0000-\u007F\uD800-\uDBFF]
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
@@ -684,7 +735,7 @@ Letter
 
 fragment
 LetterOrDigit
-    :   [a-zA-Z0-9$_] // these are the "letters or digits" below 0x7F
+    :   [a-zA-Z0-9_] // these are the "letters or digits" below 0x7F
     |   // covers all characters above 0x7F which are not a surrogate
         ~[\u0000-\u007F\uD800-\uDBFF]
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
@@ -695,9 +746,30 @@ LetterOrDigit
 // Whitespace and comments
 //
 
-WS  :  [ \t\r\n\u000C]+ -> skip
+WS  :  [ \t]+ -> channel(HIDDEN)
+    ;
+NEW_LINE  :  [\r\n\u000C]+ -> channel(HIDDEN)
     ;
 
 LINE_COMMENT
     :   '//' ~[\r\n]*
     ;
+
+
+fragment
+IdentifierLiteral
+    : '|' IdentifierLiteralChar+ '|' ;
+
+fragment
+IdentifierLiteralChar
+    : ~[|\\\b\f\n\r\t]
+    | IdentifierLiteralEscapeSequence
+    ;
+
+fragment
+IdentifierLiteralEscapeSequence
+    : '\\' [|"\\/]
+    | '\\\\' [btnfr]
+    | UnicodeEscape
+    ;
+

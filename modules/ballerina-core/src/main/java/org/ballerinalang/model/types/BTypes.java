@@ -22,8 +22,6 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.HashSet;
@@ -45,10 +43,10 @@ public class BTypes {
     public static BType typeJSON;
     public static BType typeMessage;
     public static BType typeMap;
-    public static BType typeException;
     public static BType typeDatatable;
     public static BType typeAny;
     public static BType typeConnector;
+    public static BType typeNull;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -69,7 +67,6 @@ public class BTypes {
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
         globalScope.define(typeMap.getSymbolName(), typeMap);
-        globalScope.define(typeException.getSymbolName(), typeException);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
         globalScope.define(typeAny.getSymbolName(), typeAny);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
@@ -79,7 +76,6 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.FLOAT_TNAME);
         builtInTypeNames.add(TypeConstants.BOOLEAN_TNAME);
         builtInTypeNames.add(TypeConstants.MESSAGE_TNAME);
-        builtInTypeNames.add(TypeConstants.EXCEPTION_TNAME);
         builtInTypeNames.add(TypeConstants.XML_TNAME);
         builtInTypeNames.add(TypeConstants.JSON_TNAME);
         builtInTypeNames.add(TypeConstants.MAP_TNAME);
@@ -101,25 +97,24 @@ public class BTypes {
         typeXML = new BXMLType(TypeConstants.XML_TNAME, null, globalScope);
         typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
-        typeException = new BExceptionType(TypeConstants.EXCEPTION_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
+        typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
+        
         initialized = true;
     }
 
-    public static BArrayType getArrayType(String elementTypeName) {
-        return null;
-    }
-
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
+        // First check for builtin types. They don't have a package path
+        BLangSymbol symbol = symbolScope.resolve(new SymbolName(typeName.getSymbolName().getName()));
+        if (symbol == null) {
+            symbol = symbolScope.resolve(typeName.getSymbolName());
+        }
+
         BType bType = null;
-        BLangSymbol symbol = symbolScope.resolve(typeName.getSymbolName());
-        if (symbol instanceof NativeUnitProxy) {
-            AbstractNativeConnector connector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
-            bType = connector;
-        } else if (symbol instanceof BType) {
+        if (symbol instanceof BType) {
             bType = (BType) symbol;
         }
 
@@ -127,12 +122,15 @@ public class BTypes {
             return bType;
         }
 
-        // Now check whether this is an arrays type
+        // Now check whether this is an array type
         if (typeName.isArrayType()) {
-            BLangSymbol bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(), 
-                    typeName.getPackagePath()));
-            if (bTypeSymbol instanceof BType) {
-                bType = (BType) bTypeSymbol;
+            symbol = symbolScope.resolve(new SymbolName(typeName.getName()));
+            if (symbol == null) {
+                symbol = symbolScope.resolve(new SymbolName(typeName.getName(), typeName.getPackagePath()));
+            }
+
+            if (symbol instanceof BType) {
+                bType = (BType) symbol;
             }
         }
 
@@ -141,8 +139,9 @@ public class BTypes {
         if (bType != null) {
             if (typeName.getDimensions() == 1) {
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
-                        bType, typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+                        bType, bType.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
+                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName(),
+                        typeName.getSymbolName().getPkgPath()), bArrayType);
                 return bArrayType;
             } else {
                 SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(),
@@ -150,15 +149,15 @@ public class BTypes {
                 childSimpleType.setArrayType(typeName.getDimensions() - 1);
 
                 BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
-                        BTypes.resolveType(childSimpleType, symbolScope, location), typeName.getPackagePath(),
+                        BTypes.resolveType(childSimpleType, symbolScope, location), bType.getPackagePath(),
                         bType.getSymbolScope(), typeName.getDimensions());
-                bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+                bType.getSymbolScope().define(new SymbolName(typeName.getSymbolName().getName(),
+                        typeName.getSymbolName().getPkgPath()), bArrayType);
 
                 return bArrayType;
             }
         }
-
-
+        
         throw new SemanticException(getNodeLocationStr(location) + "undefined type '" + typeName + "'");
     }
 

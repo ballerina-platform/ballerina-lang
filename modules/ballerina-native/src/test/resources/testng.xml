@@ -34,7 +34,7 @@ under the License.
     <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
-            <package name="org.ballerinalang.nativeimpl.functions.*"/>
+            <!--<package name="org.ballerinalang.nativeimpl.functions.*"/>-->
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
@@ -43,9 +43,13 @@ under the License.
 
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false"/>
         <packages>
-            <package name="org.ballerinalang.nativeimpl.connectors"/>
+            <package name="org.ballerinalang.nativeimpl.actions"/>
         </packages>
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
     </test>
 
     <!-- Native TypeConvertors Related Test Cases -->
@@ -81,13 +85,12 @@ under the License.
     <test name="ballerina-core-worker-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
-            <package name="org.ballerinalang.core.lang.worker"/>
+            <!--<package name="org.ballerinalang.core.lang.worker"/>-->
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
-
 
     <!-- Service Related Test Cases -->
     <test name="ballerina-service-unit-tests-non-blocking" preserve-order="true" parallel="false">
@@ -122,6 +125,60 @@ under the License.
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
             <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-global-var-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test>
+
+    <!-- WebSocket Test Cases -->
+    <test name="websocket-test-cases" parallel="false">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>
+            <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>
+            <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>
+        </classes>
+    </test>
+
+    <!-- Non Blocking Test Cases -->
+    <test name="ballerina-global-var-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-identifier-literal-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
+        </classes>
+    </test>
+    <!-- Non Blocking Test Cases -->
+    <test name="ballerina-identifier-literal-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
+        </classes>
+    </test>
+    <test name="ballerina-error-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.core.lang.error.TestErrorReturn"/>
+            <class name="org.ballerinalang.core.lang.error.TryCatchThrowStmtTest"/>
+            <class name="org.ballerinalang.core.lang.error.TestFinallyBlock"/>
         </classes>
     </test>
 </suite>

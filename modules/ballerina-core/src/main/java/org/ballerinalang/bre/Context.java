@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
+import org.ballerinalang.bre.nonblocking.BLangAbstractExecutionVisitor;
 import org.ballerinalang.runtime.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -37,8 +37,9 @@ public class Context {
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
     private CallableUnitInfo serviceInfo;
-    private BLangExecutionVisitor executor;
+    private BLangAbstractExecutionVisitor executor;
     private Object serverConnectorProtocol;
+    private BallerinaTransactionManager ballerinaTransactionManager;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -85,11 +86,11 @@ public class Context {
         this.serviceInfo = serviceInfo;
     }
 
-    public void setExecutor(BLangExecutionVisitor executor) {
+    public void setExecutor(BLangAbstractExecutionVisitor executor) {
         this.executor = executor;
     }
 
-    public BLangExecutionVisitor getExecutor() {
+    public BLangAbstractExecutionVisitor getExecutor() {
         return executor;
     }
 
@@ -99,5 +100,17 @@ public class Context {
 
     public void setServerConnectorProtocol(Object serverConnectorProtocol) {
         this.serverConnectorProtocol = serverConnectorProtocol;
+    }
+
+    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
+        this.ballerinaTransactionManager = ballerinaTransactionManager;
+    }
+
+    public BallerinaTransactionManager getBallerinaTransactionManager() {
+        return this.ballerinaTransactionManager;
+    }
+
+    public boolean isInTransaction() {
+        return this.ballerinaTransactionManager != null;
     }
 }

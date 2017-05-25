@@ -39,8 +39,13 @@ public class BConnectorType extends BType {
         super(typeName, pkgPath, symbolScope, BConnector.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    @Override
+    public <V extends BValue> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
         return (V) new BConnector();
     }
 }

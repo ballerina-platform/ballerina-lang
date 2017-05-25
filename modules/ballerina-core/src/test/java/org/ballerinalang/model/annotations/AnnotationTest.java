@@ -137,7 +137,8 @@ public class AnnotationTest {
         AnnotationAttributeValue[] annotationArray = annottations[0].getAttribute("queryParamValue").getValueArray();
         Assert.assertEquals(annotationArray.length, 3, "Wrong annotation array length");
         
-        String attributeValue = annotationArray[0].getAnnotationValue().getAttribute("name").getLiteralValue().stringValue();
+        String attributeValue = annotationArray[0].getAnnotationValue().getAttribute("name").getLiteralValue()
+                .stringValue();
         Assert.assertEquals(attributeValue, "paramName");
         
         attributeValue = annotationArray[1].getAnnotationValue().getAttribute("name").getLiteralValue().stringValue();
@@ -147,7 +148,7 @@ public class AnnotationTest {
         Assert.assertEquals(attributeValue, "paramName3");
         
     }
-    
+
     // Negative tests
     
     @Test(description = "Test child annotation from a wrong package",
@@ -157,7 +158,7 @@ public class AnnotationTest {
     public void testInvalidChildAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-child-annotation.bal");
     }
-    
+
     @Test(description = "Test array value for a non-array type attribute",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "invalid-array-valued-attribute.bal:3: incompatible types: expected" +

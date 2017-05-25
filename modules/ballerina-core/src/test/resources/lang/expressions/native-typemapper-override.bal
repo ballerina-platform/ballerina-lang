@@ -1,5 +1,5 @@
 function nativeMapperOverrideTest()(xml) {
-    json j = `{"name":"chanaka"}`;
+    json j = {"name":"chanaka"};
     xml x = (xml)j;
     return x;
 }

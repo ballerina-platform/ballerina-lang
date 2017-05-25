@@ -18,7 +18,7 @@ function stringtoxml(string value)(xml) {
 
 function stringtojson(string value)(json) {
     json result;
-    result = (json)value;
+    result = (json) value;
     return result;
 }
 

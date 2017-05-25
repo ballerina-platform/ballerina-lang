@@ -78,7 +78,7 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             ReturnType arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType(), "", arg.arrayDimensions()));
+            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType(), arg.arrayDimensions()));
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -187,7 +187,13 @@ public class Utils {
      * @return Qualified name of a ballerina native action
      */
     public static String getActionQualifiedName(BallerinaAction balAction, String connectorName, String connectorPkg) {
-        StringBuilder actionNameBuilder = new StringBuilder(balAction.connectorName() + "." + balAction.actionName());
+        if (balAction.actionName().equals("init")) {
+            StringBuilder actionNameBuilder =
+                    new StringBuilder(Constants.NON_CALLABLE_NATIVE_ACTION_INIT.replace("$name", connectorName));
+            return actionNameBuilder.toString();
+        }
+        StringBuilder actionNameBuilder = new StringBuilder(Constants.NATIVE_ACTION_PREFIX + "."
+                + balAction.connectorName() + "." + balAction.actionName());
         Argument[] args = balAction.args();
         for (Argument arg : args) {
             if (arg.type() == TypeEnum.CONNECTOR) {
@@ -202,7 +208,7 @@ public class Utils {
                 }
             } else {
                 if (arg.type() == TypeEnum.STRUCT) {
-                    actionNameBuilder.append("." + arg.structType());
+                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType());
                 } else {
                     actionNameBuilder.append("." + arg.type().getName());
                 }
@@ -235,6 +241,8 @@ public class Utils {
             if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
                 String arraySuffix = createArraySuffix(arg.arrayDimensions());
                 funcNameBuilder.append("." + arg.elementType().getName() + arraySuffix);
+            } else if (arg.type() == TypeEnum.STRUCT) {
+                funcNameBuilder.append("." + arg.structPackage() + ":" + arg.structType());
             } else {
                 funcNameBuilder.append("." + arg.type().getName());
             }

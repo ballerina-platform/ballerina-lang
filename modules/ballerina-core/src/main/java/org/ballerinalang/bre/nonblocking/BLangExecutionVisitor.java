@@ -19,6 +19,7 @@ package org.ballerinalang.bre.nonblocking;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
@@ -34,6 +35,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.LinkedNodeVisitor;
@@ -60,7 +62,6 @@ import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.invokers.MainInvoker;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -75,6 +76,8 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract BValue access(ServiceVarLocation serviceVarLocation);
 
+    public abstract BValue access(GlobalVarLocation globalVarLocation);
+
     public abstract BValue access(StackVarLocation stackVarLocation);
 
     public abstract BValue access(StructVarLocation structVarLocation);
@@ -85,7 +88,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract void execute(FunctionInvocationExpr functionInvocationExpr);
 
-    public abstract void handleBException(BException exception);
+    public abstract void handleBException();
 
     public abstract void continueExecution(LinkedNode linkedNode);
 
@@ -110,6 +113,11 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(ConstDef constant) {
+    }
+
+    @Override
+    public void visit(GlobalVariableDef globalVar) {
+
     }
 
     @Override
@@ -238,6 +246,10 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     }
 
     @Override
+    public void visit(GlobalVarLocation globalVarLocation) {
+    }
+
+    @Override
     public void visit(ConnectorVarLocation connectorVarLocation) {
     }
 
@@ -262,7 +274,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
         try {
             this.visit(expression);
         } catch (RuntimeException e) {
-            handleBException(new BException(e.getMessage()));
+//            handleBException(new BException(e.getMessage()));
         }
     }
 }

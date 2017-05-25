@@ -43,4 +43,13 @@ public class WorkerInActionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
     }
+
+    @Test(description = "Test TestConnector action2")
+    public void testConnectorAction2() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMessage);
+        final String expected = "{\"name\":\"chanaka\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
 }

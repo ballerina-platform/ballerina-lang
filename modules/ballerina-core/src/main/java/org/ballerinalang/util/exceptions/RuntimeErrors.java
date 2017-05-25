@@ -25,8 +25,19 @@ public enum RuntimeErrors {
 
     CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE("casting.any.to.wrong.value.type", "RUNTIME_0001"),
     CASTING_ANY_TYPE_WITHOUT_INIT("casting.any.without.init", "RUNTIME_0002"),
-    INDEX_NUMBER_TOO_LARGE("index.number.too.large", "RUNTIME_0003");
-
+    INDEX_NUMBER_TOO_LARGE("index.number.too.large", "RUNTIME_0003"),
+    ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range", "RUNTIME_0004"),
+    INCOMPATIBLE_TYPE_FOR_CASTING("incompatible.types", "RUNTIME_0005"),
+    CASTING_WITHOUT_REQUIRED_FIELD("casting.without.required.field", "RUNTIME_0006"),
+    CASTING_FAILED_WITH_CAUSE("casting.failed.with.cause", "RUNTIME_0007"),
+    MISSING_FIELD("missing.field", "RUNTIME_0008"),
+    CANNOT_SET_VALUE_INCOMPATIBLE_TYPES("cannot.set.value.incompatible.types", "RUNTIME_0009"),
+    CANNOT_GET_VALUE_INCOMPATIBLE_TYPES("cannot.get.value.incompatible.types", "RUNTIME_0010"),
+    INCOMPATIBLE_FIELD_TYPE_FOR_CASTING("incompatible.field.type.for.casting", "RUNTIME_0011"),
+    INCOMPATIBLE_TYPE_FOR_CASTING_JSON("incompatible.types.in.json", "RUNTIME_0012"),
+    JSON_SET_ERROR("json.set.error", "RUNTIME_0013"),
+    JSON_GET_ERROR("json.get.error", "RUNTIME_0014");
+    
     private String errorMsgKey;
     private String errorCode;
 

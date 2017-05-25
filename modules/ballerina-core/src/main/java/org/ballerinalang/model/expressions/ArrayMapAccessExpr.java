@@ -21,6 +21,7 @@ import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -33,27 +34,52 @@ import org.ballerinalang.model.values.BValue;
  */
 public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr {
     private String varName;
+    private String pkgName;
+    private String pkgPath;
     private SymbolName symbolName;
     private Expression[] indexExprs;
     private boolean isLHSExpr;
 
-    private ArrayMapAccessExpr(NodeLocation location, SymbolName symbolName,
+    private ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName,
                                Expression arrayVarRefExpr, Expression[] indexExprs) {
-        super(location, null, arrayVarRefExpr);
-        this.symbolName = symbolName;
+        super(location, whiteSpaceDescriptor, null, arrayVarRefExpr);
+        this.symbolName = new SymbolName(varName);
+        this.varName = varName;
         this.indexExprs = indexExprs;
     }
 
-    private ArrayMapAccessExpr(NodeLocation location, String varName,
-                               Expression arrayVarRefExpr, Expression[] indexExprs) {
-        super(location, null, arrayVarRefExpr);
+    private ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName,
+                               String pkgName, String pkgPath, Expression arrayVarRefExpr, Expression[] indexExprs) {
+        super(location, whiteSpaceDescriptor, null, arrayVarRefExpr);
         this.varName = varName;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.symbolName = new SymbolName(varName, pkgPath);
+        this.indexExprs = indexExprs;
+    }
+
+    private ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName,
+                               String pkgName, String pkgPath, Expression arrayVarRefExpr, Expression[] indexExprs) {
+        super(location, whiteSpaceDescriptor, null, arrayVarRefExpr);
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
+        this.symbolName = symbolName;
         this.indexExprs = indexExprs;
     }
 
     @Override
     public String getVarName() {
         return varName;
+    }
+
+    @Override
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     public SymbolName getSymbolName() {
@@ -88,7 +114,11 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
      */
     public static class ArrayMapAccessExprBuilder {
         private NodeLocation location;
-        private SymbolName varName;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
+        private String varName;
+        private String pkgName;
+        private String pkgPath;
+        private SymbolName symbolName;
         private Expression arrayMapVarRefExpr;
         private Expression[] indexExprs;
 
@@ -96,8 +126,24 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
             this.location = location;
         }
 
-        public void setVarName(SymbolName varName) {
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
+        public void setVarName(String varName) {
             this.varName = varName;
+        }
+
+        public void setPkgName(String pkgName) {
+            this.pkgName = pkgName;
+        }
+
+        public void setPkgPath(String pkgPath) {
+            this.pkgPath = pkgPath;
+        }
+
+        public void setSymbolName(SymbolName symbolName) {
+            this.symbolName = symbolName;
         }
 
         public void setArrayMapVarRefExpr(Expression arrayMapVarRefExpr) {
@@ -109,7 +155,13 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         }
 
         public ArrayMapAccessExpr build() {
-            return new ArrayMapAccessExpr(location, varName, arrayMapVarRefExpr, indexExprs);
+            return new ArrayMapAccessExpr(location, whiteSpaceDescriptor, varName, pkgName, pkgPath, arrayMapVarRefExpr,
+                    indexExprs);
+        }
+
+        public ArrayMapAccessExpr buildWithSymbol() {
+            return new ArrayMapAccessExpr(location, whiteSpaceDescriptor, symbolName, pkgName, pkgPath,
+                    arrayMapVarRefExpr, indexExprs);
         }
     }
 }

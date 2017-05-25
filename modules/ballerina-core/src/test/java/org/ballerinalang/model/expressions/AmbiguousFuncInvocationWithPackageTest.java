@@ -37,11 +37,12 @@ public class AmbiguousFuncInvocationWithPackageTest {
 
 
     @Test(description = "Test invoking ambiguous functions with package name",
-          expectedExceptions = {SemanticException.class },
-          expectedExceptionsMessageRegExp = "lang/expressions/pkg/main/ambiguous-func-invocation-with-package.bal:7:" +
-                                            " function reference 'ambiguousFunc' is ambiguous, functions " +
-                                            "'lang.expressions.pkg.func:ambiguousFunc\\((float|any)\\)' and " +
-                                            "'lang.expressions.pkg.func:ambiguousFunc\\((float|any)\\)' matches")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp =
+                    "lang[/\\\\]expressions[/\\\\]pkg[/\\\\]main[/\\\\]ambiguous-func-invocation-with-package.bal:7:" +
+                    " function reference 'ambiguousFunc' is ambiguous, functions " +
+                    "'lang.expressions.pkg.func:ambiguousFunc\\((float|any)\\)' and " +
+                    "'lang.expressions.pkg.func:ambiguousFunc\\((float|any)\\)' matches")
     public void testFuncInvocationWithAmbiguousFunction() {
         BTestUtils.parseBalFile("lang/expressions/pkg/main/");
     }

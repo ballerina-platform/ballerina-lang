@@ -25,3 +25,23 @@ function arrayReturnTest() (string[]) {
     return animals;
 }
 
+function testNestedArrayInit() (int[][]) {
+    int[][] array = [[1,2,3], [6,7,8,9]];
+            
+    return array;
+}
+
+function testArrayOfMapsInit() (map[]) {
+    map[] array = [
+                     {address:{city:"Colombo", "country":"SriLanka"}},
+                     {address:{city:"Kandy", "country":"SriLanka"}},
+                     {address:{city:"Galle", "country":"SriLanka"}}
+                  ];
+            
+    return array;
+}
+
+function testAnyAsArray() (any) {
+    any array = [1,2,3];
+    return array;
+}

@@ -4,7 +4,7 @@ Now that you know [a little bit about Ballerina](index.md), let's take it for a 
 
 ## Install Ballerina
 
-1. Go to http://www.ballerinalang.org and click **Download**. 
+1. Go to [http://www.ballerinalang.org](www.ballerinalang.org) and click **Download**. 
 1. Download the Ballerina Tools distribution and unzip it on your computer. Ballerina Tools includes the Ballerina runtime plus the visual editor (Composer) and other tools. 
 1. Add the `<ballerina_home>/bin` directory to your $PATH environment variable so that you can run the Ballerina commands from anywhere. 
 
@@ -61,7 +61,7 @@ Pretty simple and straightforward, right? Now, let's look at something a little 
 
 Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
 
-Also notice in the lower right corner the **Source View** and **Swagger View** buttons. 
+Also notice the **Source View** and **Swagger View** buttons in the lower right corner. 
    
 1. Click **Source View**. 
 
@@ -73,8 +73,10 @@ Also notice in the lower right corner the **Source View** and **Swagger View** b
 
     ![alt text](images/EchoSwagger.png "Swagger view")
 
-    This editor allows you to write Swagger definitions to create services.
+    This editor allows you to write Swagger definitions to create services. 
 
 1. Click **Design View** to return to the visual editor. 
+
+1. Click the "x" to the right of "untitled" in the tab title to close this sample, and click **Don't Save** when prompted.
 
 Now that you've had a look around, it's time to take the leap and [write your first Ballerina program](tutorials/first-program.md).

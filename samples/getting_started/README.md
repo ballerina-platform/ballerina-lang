@@ -10,3 +10,5 @@
 8. [RESTful Service](restfulService)
 9. [Service Chaining](serviceChaining)
 10. [Twitter Connector](twitterConnector)
+11. [Send and receive JMS messages](jms)
+12. [WebSocket samples](websocket)
