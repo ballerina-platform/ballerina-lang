@@ -653,6 +653,14 @@ public class TypeCastExprTest {
         BValue errorMsg = error.getValue(0);
         Assert.assertTrue(errorMsg instanceof BString);
         Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected '.:A', found '.:B'");
+        
+        BValue sourceType = error.getValue(2);
+        Assert.assertTrue(sourceType instanceof BString);
+        Assert.assertEquals(sourceType.stringValue(), "B");
+        
+        BValue targetType = error.getValue(3);
+        Assert.assertTrue(targetType instanceof BString);
+        Assert.assertEquals(targetType.stringValue(), "A");
     }
     
     @Test(description = "Test returning a mismatching error when casting",

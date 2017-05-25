@@ -72,6 +72,6 @@ public class TypeMappingUtils {
         BString msg = new BString(message);
         BString sourceTypeName = new BString(sourceType.getSymbolName().toString());
         BString targetTypeName = new BString(targetType.getSymbolName().toString());
-        return new BStruct(castErrorStruct, new BValue[]{msg, sourceTypeName, targetTypeName});
+        return new BStruct(castErrorStruct, new BValue[]{msg, null, sourceTypeName, targetTypeName});
     }
 }
