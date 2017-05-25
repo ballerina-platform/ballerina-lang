@@ -101,7 +101,7 @@ public enum SemanticErrors {
     RETURN_CANNOT_USED_IN_TRANSACTION("return.cannot.used.in.transaction",  "SEMANTIC_0075"),
     WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076"),
     INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT("incompatible.types.in.multiple.assignment", "SEMANTIC_0077"),
-    TOO_MANY_ARGUMENTS_IN_CAST("too.many.arguments.in.cast", "SEMANTIC_0078"),
+    CANNOT_RESOLVE_STRUCT("cannot.resolve.struct", "SEMANTIC_0078"),
     
     DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
     RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),

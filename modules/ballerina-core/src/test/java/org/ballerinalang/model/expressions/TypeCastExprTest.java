@@ -806,4 +806,20 @@ public class TypeCastExprTest {
         Assert.assertTrue(errorMsg instanceof BString);
         Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'map'");
     }
+    
+    // TODO: 
+/*    @Test
+    public void testErrorInForceCasting() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testErrorInForceCasting", new BValue[]{});
+        
+        // check whether float is zero
+        Assert.assertNull(returns[0]);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected '.:A', found '.:B'");
+    }*/
 }

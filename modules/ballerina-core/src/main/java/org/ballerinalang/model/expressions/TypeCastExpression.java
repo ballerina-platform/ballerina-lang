@@ -21,7 +21,6 @@ import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.TypeConversionExpr;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -33,7 +32,7 @@ import org.ballerinalang.natives.typemappers.TriFunction;
  *
  * @since 0.8.0
  */
-public class TypeCastExpression extends AbstractExpression implements TypeConversionExpr, ExecutableMultiReturnExpr {
+public class TypeCastExpression extends AbstractExpression implements ExecutableMultiReturnExpr {
 
     private SimpleTypeName typeName;
     private Expression rExpr;

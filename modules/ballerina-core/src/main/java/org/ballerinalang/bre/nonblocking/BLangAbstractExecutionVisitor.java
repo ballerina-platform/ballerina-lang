@@ -62,13 +62,13 @@ import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.EndNode;
@@ -634,7 +634,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
-    public void visit(NativeTransformExpression typeConversionExpression) {
+    public void visit(TypeConversionExpr typeConversionExpression) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing typeConversion {}->{}", typeConversionExpression.getType(), 
                     typeConversionExpression.getType());

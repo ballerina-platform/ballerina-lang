@@ -21,7 +21,6 @@ import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.TypeConversionExpr;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -33,22 +32,21 @@ import org.ballerinalang.natives.typemappers.TriFunction;
  *
  * @since 0.88
  */
-public class NativeTransformExpression extends AbstractExpression implements TypeConversionExpr, 
-        ExecutableMultiReturnExpr {
+public class TypeConversionExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
 
     private SimpleTypeName typeName;
     private Expression rExpr;
     protected TriFunction<BValue, BType, Boolean, BValue[]> evalFunc;
     private BType[] types = new BType[0];
 
-    public NativeTransformExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
+    public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.type = targetType;
     }
 
-    public NativeTransformExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, 
+    public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, 
             SimpleTypeName typeName, Expression rExpr) {
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;

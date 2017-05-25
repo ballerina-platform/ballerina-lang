@@ -393,3 +393,17 @@ function testAnyToMapWithErrors()(map, errors:CastError) {
     
     return b, err;
 }
+
+function testErrorInForceCasting()(A, errors:Error) {
+    B b = {x: "x-valueof-b"};
+    A a;
+    errors:CastError castError;
+    a, castError = (A) b;
+    
+    errors:Error error;
+    if (castError != null) {
+        error = (errors:Error) castError;
+    }
+    
+    return a, error;
+}

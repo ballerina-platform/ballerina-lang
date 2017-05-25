@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -36,9 +35,10 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * For converting across native types.
  */
 public class NativeCastMapper {
-    
-    private static StructDef errorStructDef;
-    
+
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> JSON_TO_JSON_FUNC =
+            (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
+            
     /**
      * Function to cast a given JSON to a map.
      * All the fields in the JSON will be stored in the map, as is.
@@ -53,10 +53,13 @@ public class NativeCastMapper {
             } catch (BallerinaException e) {
                 String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeMap, e.getMessage());
-                return getError(returnErrors, errorMsg, targetType);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
             }
         };
-    
+        
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> MAP_TO_MAP_FUNC =
+        (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
+                
     /**
      * Function to cast a given map to a JSON.
      * If the map contains reference type fields, those will be converted to their corresponding JSON
@@ -73,10 +76,10 @@ public class NativeCastMapper {
             } catch (BallerinaException e) {
                 String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeMap, BTypes.typeJSON, e.getMessage());
-                return getError(returnErrors, errorMsg, targetType);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeMap, targetType);
             }
         };
-
+        
     /**
      * Function to cast a given struct to another. The compatibility is checked during the semantic analyzer phase.
      * Therefore the same value is returned as is, maintaining its originated type ({@link StructDef}) as meta info.
@@ -88,7 +91,7 @@ public class NativeCastMapper {
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                 targetType, rVal.getType());
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
     
     /**
@@ -107,7 +110,7 @@ public class NativeCastMapper {
             } catch (BallerinaException e) {
                 String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     rVal.getType(), BTypes.typeJSON, e.getMessage());
-                return getError(returnErrors, errorMsg, targetType);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
             }
         };
     
@@ -156,14 +159,14 @@ public class NativeCastMapper {
             if (rVal == null) {
                 String errorMsg =
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeInt);
-                return getError(returnErrors, errorMsg, targetType);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeAny, targetType);
             }
             if (rVal.getType() == BTypes.typeInt) {
                 return new BValue[] { rVal, null };
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeInt);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
     /**
@@ -176,14 +179,14 @@ public class NativeCastMapper {
             if (rVal == null) {
                 String errorMsg =
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeFloat);
-                return getError(returnErrors, errorMsg, targetType);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeAny, targetType);
             }
             if (rVal.getType() == BTypes.typeFloat) {
                 return new BValue[] { rVal, null };
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeFloat);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
     /**
@@ -196,14 +199,14 @@ public class NativeCastMapper {
             if (rVal == null) {
                 String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
                     BTypes.typeString);
-                return getError(returnErrors, errorMsg, targetType);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeAny, targetType);
             }
             if (rVal.getType() == BTypes.typeString) {
                 return new BValue[] { rVal, null };
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeString);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
     /**
@@ -216,14 +219,14 @@ public class NativeCastMapper {
             if (rVal == null) {
                 String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
                     BTypes.typeBoolean);
-                return getError(returnErrors, errorMsg, targetType);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeAny, targetType);
             }
             if (rVal.getType() == BTypes.typeBoolean) {
                 return new BValue[] { rVal, null };
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeBoolean);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
     /**
@@ -241,7 +244,7 @@ public class NativeCastMapper {
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeJSON);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
     /**
@@ -259,7 +262,7 @@ public class NativeCastMapper {
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeXML);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
     /**
@@ -277,7 +280,7 @@ public class NativeCastMapper {
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeConnector);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
     /**
@@ -295,7 +298,7 @@ public class NativeCastMapper {
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType(), BTypes.typeMap);
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
     
     /**
@@ -313,45 +316,10 @@ public class NativeCastMapper {
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
                 rVal.getType().getSymbolName(), targetType.getSymbolName());
-            return getError(returnErrors, errorMsg, targetType);
+            return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
 
-    /**
-     * Check whether a given source type can be assigned to a destination type.
-     * 
-     * @param lType Destination type
-     * @param rType Source Type
-     * @return Flag indicating whether the given source type can be assigned to the destination type.
-     */
-    public static boolean isCompatible(BType lType, BType rType) {
-        if (lType == rType) {
-            return true;
-        }
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> XML_TO_XML_FUNC =
+        (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
 
-        if (lType == BTypes.typeAny) {
-            return true;
-        }
-
-        if (!BTypes.isValueType(lType) && (rType == BTypes.typeNull)) {
-            return true;
-        }
-
-        return false;
-    }
-    
-    public static void setErrorStruct(StructDef error) {
-        errorStructDef = error;
-    }
-    
-    private static BStruct createError(String message) {
-        BString msg = new BString(message);
-        return new BStruct(errorStructDef, new BValue[]{msg});
-    }
-    
-    private static BValue[] getError(boolean returnErrors, String errorMsg, BType targetType) {
-        if (returnErrors) {
-            return new BValue[] { targetType.getZeroValue(), createError(errorMsg) };
-        }
-        throw new BallerinaException(errorMsg);
-    }
 }

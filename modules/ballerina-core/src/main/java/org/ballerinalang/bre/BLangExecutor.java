@@ -48,13 +48,13 @@ import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -1047,63 +1047,10 @@ public class BLangExecutor implements NodeExecutor {
         BValue result = (BValue) typeCastExpression.getRExpr().execute(this);
         return typeCastExpression.getEvalFunc().apply(result, typeCastExpression.getType(), 
                 typeCastExpression.isMultiReturnExpr());
-            
-      /*else {
-            TypeMapper typeMapper = typeCastExpression.getCallableUnit();
-
-            int sizeOfValueArray = typeMapper.getStackFrameSize();
-            BValue[] localVals = new BValue[sizeOfValueArray];
-
-            // Get values for all the function arguments
-            int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
-
-//            // Create default values for all declared local variables
-//            for (VariableDef variableDef : typeMapper.getVariableDefs()) {
-//                localVals[valueCounter] = variableDef.getType().getDefaultValue();
-//                valueCounter++;
-//            }
-
-            for (ParameterDef returnParam : typeMapper.getReturnParameters()) {
-                // Check whether these are unnamed set of return types.
-                // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-                if (returnParam.getName() == null) {
-                    break;
-                }
-
-                localVals[valueCounter] = returnParam.getType().getZeroValue();
-                valueCounter++;
-            }
-
-            // Create an arrays in the stack frame to hold return values;
-            BValue[] returnVals = new BValue[1];
-
-            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-            // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
-                    typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
-
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
-            controlStack.pushFrame(stackFrame);
-
-            // Check whether we are invoking a native function or not.
-            if (typeMapper instanceof BTypeMapper) {
-                BTypeMapper bTypeMapper = (BTypeMapper) typeMapper;
-                bTypeMapper.getCallableUnitBody().execute(this);
-            } else {
-                AbstractNativeTypeMapper nativeTypeMapper = (AbstractNativeTypeMapper) typeMapper;
-                nativeTypeMapper.convertNative(bContext);
-            }
-
-            controlStack.popFrame();
-
-            // Setting return values to function invocation expression
-            returnedOrReplied = false;
-            return returnVals;
-        }*/
     }
 
     @Override
-    public BValue[] visit(NativeTransformExpression nativeTransformExpression) {
+    public BValue[] visit(TypeConversionExpr nativeTransformExpression) {
         BValue result = (BValue) nativeTransformExpression.getRExpr().execute(this);
         return nativeTransformExpression.getEvalFunc().apply(result, nativeTransformExpression.getType(),
                 nativeTransformExpression.isMultiReturnExpr());

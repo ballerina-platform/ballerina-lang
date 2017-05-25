@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,13 +40,13 @@ import org.testng.annotations.Test;
 /**
  * Test Cases for type conversion.
  */
-public class NativeTransformExprTest {
+public class NativeConversionTest {
     private static final double DELTA = 0.01;
     private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/conversion/native-transform.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/conversion/native-conversion.bal");
     }
     
     @Test
@@ -204,7 +205,15 @@ public class NativeTransformExprTest {
         Assert.assertEquals(marks.get(2).intValue(), 72);
     }
     
-    @Test(description = "Test casting a map with missing field to a struct", 
+    @Test(description = "Test converting a struct to a struct", 
+            expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "struct-to-struct-conversion.bal:26: incompatible types: '.:Person' " +
+            "cannot be converted to '.:Student'")
+    public void testStructToStruct() {
+        BTestUtils.parseBalFile("lang/expressions/type/conversion/struct-to-struct-conversion.bal");
+    }
+    
+    @Test(description = "Test converting a map with missing field to a struct", 
             expectedExceptions = { BallerinaException.class },
             expectedExceptionsMessageRegExp = "cannot cast 'map' to type '.:Person: error while mapping 'parent': no" +
             " such field found")
@@ -212,7 +221,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testIncompatibleMapToStruct");
     }
 
-    @Test(description = "Test casting a map with incompatible inner array to a struct", 
+    @Test(description = "Test converting a map with incompatible inner array to a struct", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'map' to type '.:Person: error while mapping 'marks': " +
             "incompatible types: expected 'int\\[\\]', found 'float\\[\\]'")
@@ -220,7 +229,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testMapWithIncompatibleArrayToStruct");
     }
 
-    @Test(description = "Test casting a map with incompatible inner struct to a struct", 
+    @Test(description = "Test converting a map with incompatible inner struct to a struct", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'map' to type '.:Employee: error while mapping 'partner':" +
             " incompatible types: expected '.:Person', found '.:Student'")
@@ -228,7 +237,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testMapWithIncompatibleStructToStruct");
     }
 
-    @Test(description = "Test casting a incompatible JSON to a struct", 
+    @Test(description = "Test converting a incompatible JSON to a struct", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping 'parent': " +
             "no such field found")
@@ -236,7 +245,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testIncompatibleJsonToStruct");
     }
 
-    @Test(description = "Test casting a JSON with incompatible inner map to a struct", 
+    @Test(description = "Test converting a JSON with incompatible inner map to a struct", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping " +
             "'address': incompatible types: expected 'json-object', found 'string'")
@@ -244,7 +253,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleMapToStruct");
     }
 
-    @Test(description = "Test casting a JSON with incompatible inner struct to a struct", 
+    @Test(description = "Test converting a JSON with incompatible inner struct to a struct", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping 'parent': " +
             "incompatible types: expected 'json-object', found 'string'")
@@ -252,7 +261,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleStructToStruct");
     }
 
-    @Test(description = "Test casting a JSON array to a struct", 
+    @Test(description = "Test converting a JSON array to a struct", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': incompatible types: expected " +
             "'json-object', found 'json-array'")
@@ -260,7 +269,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testJsonArrayToStruct");
     }
 
-    @Test(description = "Test casting a JSON with incompatible inner type to a struct", 
+    @Test(description = "Test converting a JSON with incompatible inner type to a struct", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping 'age': " +
             "incompatible types: expected 'int', found 'float' in json")
@@ -268,7 +277,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleTypeToStruct");
     }
 
-    @Test(description = "Test casting a struct with inner XML to a JSON", 
+    @Test(description = "Test converting a struct with inner XML to a JSON", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast '.:Info' to type 'json': error while mapping 'name': " +
             "incompatible types: expected 'json', found 'xml'")
@@ -276,7 +285,7 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testStructWithXmlToJson");
     }
 
-    @Test(description = "Test casting a JSON array to any array")
+    @Test(description = "Test converting a JSON array to any array")
     public void testJsonToAnyArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToAnyArray");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -292,7 +301,7 @@ public class NativeTransformExprTest {
         Assert.assertEquals(array.get(6), null);
     }
 
-    @Test(description = "Test casting a JSON array to int array")
+    @Test(description = "Test converting a JSON array to int array")
     public void testJsonToIntArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToIntArray");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -305,7 +314,7 @@ public class NativeTransformExprTest {
         Assert.assertEquals(((BInteger) array.get(2)).intValue(), 9);
     }
 
-    @Test(description = "Test casting a JSON string array to string array")
+    @Test(description = "Test converting a JSON string array to string array")
     public void testJsonToStringArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToStringArray");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -318,7 +327,7 @@ public class NativeTransformExprTest {
         Assert.assertEquals(((BString) array.get(2)).stringValue(), "c");
     }
 
-    @Test(description = "Test casting a JSON integer array to string array")
+    @Test(description = "Test converting a JSON integer array to string array")
     public void testJsonIntArrayToStringArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonIntArrayToStringArray");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -331,7 +340,7 @@ public class NativeTransformExprTest {
         Assert.assertEquals(((BString) array.get(2)).stringValue(), "9");
     }
 
-    @Test(description = "Test casting a JSON array to xml array", 
+    @Test(description = "Test converting a JSON array to xml array", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:XmlArray': error while mapping 'a': " +
             "incompatible types: expected 'xml', found 'string'")
@@ -339,13 +348,13 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testJsonToXmlArray");
     }
 
-    @Test(description = "Test casting a JSON integer array to string array")
+    @Test(description = "Test converting a JSON integer array to string array")
     public void testNullJsonToArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullJsonToArray");
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test(description = "Test casting a JSON null to string array")
+    @Test(description = "Test converting a JSON null to string array")
     public void testNullJsonArrayToArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullJsonArrayToArray");
         Assert.assertTrue(returns[0] instanceof BStruct);
@@ -355,7 +364,7 @@ public class NativeTransformExprTest {
         Assert.assertEquals(array, null);
     }
 
-    @Test(description = "Test casting a JSON string to string array", 
+    @Test(description = "Test converting a JSON string to string array", 
             expectedExceptions = { BallerinaException.class }, 
             expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:StringArray': error while mapping 'a': " +
             "incompatible types: expected 'json-array', found 'string'")
@@ -363,25 +372,25 @@ public class NativeTransformExprTest {
         BLangFunctions.invoke(bLangProgram, "testNonArrayJsonToArray");
     }
 
-    @Test(description = "Test casting a null JSON to struct")
+    @Test(description = "Test converting a null JSON to struct")
     public void testNullJsonToStruct() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullJsonToStruct");
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test(description = "Test casting a null map to Struct")
+    @Test(description = "Test converting a null map to Struct")
     public void testNullMapToStruct() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullMapToStruct");
         Assert.assertEquals(returns[0], null);
     }
     
-    @Test(description = "Test casting a null Struct to json")
+    @Test(description = "Test converting a null Struct to json")
     public void testNullStructToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullStructToJson");
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test(description = "Test casting a null Struct to map")
+    @Test(description = "Test converting a null Struct to map")
     public void testNullStructToMap() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullStructToMap");
         Assert.assertEquals(returns[0], null);

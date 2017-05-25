@@ -86,7 +86,7 @@ public class BTypes {
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
-        TypeLattice.loadTransformLattice(globalScope);
+        TypeLattice.loadConversionLattice(globalScope);
 
     }
 

@@ -96,18 +96,6 @@ function testJsonToStruct() (Person) {
     return p;
 }
 
-function testStructToStruct() (Student) {
-    Person p = { name:"Supun", 
-                 age:25, 
-                 parent:{name:"Parent", age:50}, 
-                 address:{"city":"Kandy", "country":"SriLanka"}, 
-                 info:{status:"single"},
-                 marks:[24, 81]
-               };
-    Student s = <Student> p ;
-    return s;
-}
-
 function testIncompatibleMapToStruct() (Person) {
     int[] marks = [87,94,72];
     map m = { name:"Child", 
@@ -390,12 +378,6 @@ function testNullMapToStruct() (Person) {
     return p;
 }
 
-function testNullStructToStruct() (Student) {
-    Person p;
-    Student s = <Student> p;
-    return s;
-}
-
 function testNullStructToJson() (json) {
     Person p;
     json j = <json> p;
@@ -406,60 +388,6 @@ function testNullStructToMap() (map) {
     Person p;
     map m = <map> p;
     return m;
-}
-
-function testAnyIntToJson() (json) {
-    any a = 8;
-    return (json) a;
-}
-
-function testAnyStringToJson() (json) {
-    any a = "Supun";
-    return <json> a;
-}
-
-function testAnyBooleanToJson() (json) {
-    any a = true;
-    return <json> a;
-}
-
-function testAnyFloatToJson() (json) {
-    any a = 8.73;
-    return <json> a;
-}
-
-function testAnyMapToJson() (json) {
-    map m = {name:"supun"};
-    any a = m;
-    return <json> a;
-}
-
-function testAnyStructToJson() (json) {
-    Address adrs = {city:"CA"};
-    any a = adrs;
-    return <json> a;
-}
-
-function testAnyNullToJson() (json) {
-    any a = null;
-    return <json> a;
-}
-
-function testAnyJsonToJson() (json) {
-    json j = {home:"SriLanka"};
-    any a = j;
-    return <json> a;
-}
-
-function testAnyArrayToJson() (json) {
-    any a = [8,4,6];
-    return <json> a;
-}
-
-function testAnyXmlToJson() (json) {
-    xml x = `<name>Supun<name>`;
-    any a = x;
-    return <json> a;
 }
 
 function testIncompatibleJsonToStructWithErrors() (Person, errors:CastError) {
