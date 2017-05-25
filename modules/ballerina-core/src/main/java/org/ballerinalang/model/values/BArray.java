@@ -132,7 +132,8 @@ public final class BArray<V extends BValue> implements BRefType {
     public BValue copy() {
         BArray array = new BArray<>(this.valueClass);
         for (int i = 0; i < size; i++) {
-            array.add(i, this.get(i).copy());
+            BValue value = this.get(i);
+            array.add(i, value == null ? null : value.copy());
         }
         return array;
     }
