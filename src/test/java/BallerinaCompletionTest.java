@@ -585,6 +585,8 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("args");
         expectedLookups.add("test");
         expectedLookups.add("main");
@@ -1324,15 +1326,15 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.add("C");
         expectedLookups.add("any");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testConnectorBodyVariableDeclarationPackageAutoCompletion() {
+    public void testConnectorBodyVariableDeclarationPackage() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doCheckResult("test.bal", "import org.test; connector C(){ te<caret> }",
-                "import org.test; connector C(){ test: }", null);
+        doTest("import org.test; connector C(){ te<caret> }","test","aborted");
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {
