@@ -56,6 +56,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testEmptyFilePackageKeyword() {
+        doTest("p<caret>", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileImportKeyword() {
+        doTest("i<caret>", "annotation", "function", "import", "service", "int", "string");
+    }
+
     public void testEmptyFileWithSpaceBeforeCaret() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -63,6 +71,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("\n<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testEmptyFileWithSpaceBeforeCaretPackageKeyword() {
+        doTest("\np<caret>", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileWithSpaceBeforeCaretImportKeyword() {
+        doTest("\ni<caret>", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testEmptyFileWithSpaceAfterCaret() {
@@ -74,6 +90,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testEmptyFileWithSpaceAfterCaretPackageKeyword() {
+        doTest("p<caret>\n", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileWithSpaceAfterCaretImportKeyword() {
+        doTest("i<caret>\n", "annotation", "function", "import", "service", "int", "string");
+    }
+
     public void testEmptyFileWithSpaces() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -81,6 +105,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("\n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testEmptyFileWithSpacesPackageKeyword() {
+        doTest("\np<caret>\n", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileWithSpacesImportKeyword() {
+        doTest("\ni<caret>\n", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testImportAfterPackage() {
@@ -99,6 +131,10 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("package test; \n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testImportAfterPackagePartialIdentifier() {
+        doTest("package test; \ni<caret>\n", "annotation", "function", "import", "service", "int", "string");
+    }
+
     public void testImportAfterPackageBeforeFunction() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(ANY_TYPE);
@@ -115,6 +151,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("package test; \n<caret>\nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testImportAfterPackageBeforeFunctionPartialIdentifier() {
+        doTest("package test; \ni<caret>\nfunction A(){}", "annotation", "function", "import", "service", "int",
+                "string");
+    }
+
     public void testPackageBeforeImport() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -124,6 +165,10 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testPackageBeforeImportPartialIdentifier() {
+        doTest("p<caret>\nimport test; \nfunction A(){}", "import", "package", "typemapper", "map");
+    }
+
     public void testImportBeforeImport() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -131,6 +176,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testImportBeforeImportPartialIdentifier() {
+        doTest("i<caret>\nimport test; \nfunction A(){}", "annotation", "function", "import", "service", "int",
+                "string");
     }
 
     public void testImportAfterImport() {
@@ -148,6 +198,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("annotation");
         expectedLookups.add("test");
         doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testImportAfterImportPartialIdentifier() {
+        doTest("import test; \ni<caret> \nfunction A(){}", "annotation", "function", "import", "service", "int",
+                "string");
     }
 
     /**
@@ -271,6 +326,10 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 "TEST");
     }
 
+    public void testConstantTypesBeforeGlobalVarDef() {
+        doTest("const <caret>\n string test =\"\";", DATA_TYPES.toArray(new String[DATA_TYPES.size()]));
+    }
+
     /**
      * Test annotation level lookups.
      */
@@ -297,6 +356,42 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
      */
     public void testGlobalVariableIdentifier() {
         doTest("string <caret>");
+    }
+
+    public void testGlobalVariableFunctionValue() {
+        doCheckResult("test.bal", "string test = g<caret> function getValue()(string){return \"\";}",
+                "string test = getValue() function getValue()(string){return \"\";}", null);
+    }
+
+    public void testGlobalVariablePackageValue() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doTest("import org.test; string s = <caret> ", "test");
+    }
+
+    public void testGlobalVariablePackageValueCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doCheckResult("test.bal", "import org.test; string s = t<caret> ", "import org.test; string s = test: ", null);
+    }
+
+    public void testGlobalVariablePackageValueDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doTest("import org.test; string s = test:<caret> ", "getValue");
+    }
+
+    public void testGlobalVariablePackageValueCompletionDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "function getValue()(string){return \"\";}");
+        doCheckResult("test.bal", "import org.test; string s = test:g<caret> ",
+                "import org.test; string s = test:getValue() ", null);
+    }
+
+    public void testGlobalVariablePackageValueDifferentFile() {
+        myFixture.addFileToProject("file.bal", "function getValue()(string){return \"\";}");
+        doTest("string s = <caret> ", "getValue");
+    }
+
+    public void testGlobalVariablePackageValueDifferentFileCompletion() {
+        myFixture.addFileToProject("file.bal", "function getValue()(string){return \"\";}");
+        doCheckResult("test.bal", "string s = g<caret>", "string s = getValue()", null);
     }
 
     public void testGlobalVariableInSamePackageSameFile() {
@@ -328,6 +423,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         myFixture.addFileToProject("org/test/file.bal", "string S=\"\";");
         doTest("import org.test; function F(){ test:<caret> }", "S");
     }
+
 
     /**
      * Test function level lookups.
@@ -489,6 +585,8 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("args");
         expectedLookups.add("test");
         expectedLookups.add("main");
@@ -754,14 +852,38 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 "create", "A", "c", "test");
     }
 
+    public void testVariablesInitializationAfterDeclaration() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("s");
+        expectedLookups.add("A");
+        expectedLookups.add("any");
+        doTest("function A(){ string s; <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testVariablesLaterInitialization() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("s");
+        expectedLookups.add("s1");
+        expectedLookups.add("A");
+        expectedLookups.add("any");
+        doTest("function A(){ string s; string s1; <caret> }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
     public void testVariablesNoVarsAvailable() {
-        doTest("function A(){ string s1 = <caret> }",
-                "A", "create");
+        doTest("function A(){ string s1 = <caret> }", "A", "create");
     }
 
     public void testVariablesWhenSingleVariableAvailable() {
-        doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }",
-                "s1", "A", "create");
+        doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }", "s1", "A", "create");
     }
 
     public void testVariablesWhenSingleVariableAvailableWithPartialIdentifier() {
@@ -820,6 +942,19 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testConnectorInvocationInSamePackage() {
         doTest("function A(){ TestConnector.<caret> } connector TestConnector(){ action get(){} action post(){}}",
                 "get", "post");
+    }
+
+    public void testTypesAfterRBRACE() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.add("else");
+        expectedLookups.add("json");
+        expectedLookups.add("message");
+        expectedLookups.add("string");
+        expectedLookups.add("test");
+        expectedLookups.add("transaction");
+        expectedLookups.add("transform");
+        doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     /**
@@ -1191,15 +1326,15 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.add("C");
         expectedLookups.add("any");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
-    public void testConnectorBodyVariableDeclarationPackageAutoCompletion() {
+    public void testConnectorBodyVariableDeclarationPackage() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doCheckResult("test.bal", "import org.test; connector C(){ te<caret> }",
-                "import org.test; connector C(){ test: }", null);
+        doTest("import org.test; connector C(){ te<caret> }","test","aborted");
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {

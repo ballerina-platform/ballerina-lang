@@ -161,6 +161,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#workerBody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWorkerBody(BallerinaParser.WorkerBodyContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -345,7 +345,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             addKeywordAsLookup(resultSet, ATTACH, KEYWORDS_PRIORITY);
                         } else {
                             addTypeNamesAsLookups(resultSet);
-                            addLookups(resultSet, originalFile, true, false, true, true);
+                            if (parent.getTextOffset() == 0) {
+                                addFileLevelKeywordsAsLookups(resultSet, true, true);
+                            } else {
+                                addLookups(resultSet, originalFile, true, false, true, true);
+                            }
                         }
                     },
                     (p, r, prevElement) -> {
@@ -355,21 +359,28 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             addTypeNamesAsLookups(resultSet);
                             addLookups(resultSet, originalFile, true, false, true, true);
                         } else if (elementType == BallerinaTypes.COLON) {
-                            if (element.getParent().getText().matches("@.*")) {
-                                String type = getAttachmentType(parameters);
-                                if (type == null) {
-                                    return;
+                            PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
+                            if (packageNode != null) {
+                                PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile,
+                                        packageNode.getTextOffset());
+                                if ("@".equals(previousNonEmptyElement.getText())) {
+                                    String type = getAttachmentType(parameters);
+                                    if (type == null) {
+                                        return;
+                                    }
+                                    suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
+                                } else {
+                                    suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true,
+                                            true, true);
                                 }
-                                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                                suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
-                            } else {
-                                PsiElement packageNode = originalFile.findElementAt(prevElement.getTextOffset() - 2);
-                                suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true,
-                                        true, false);
                             }
                         } else if (elementType == BallerinaTypes.RBRACE || prevElement instanceof PsiWhiteSpace) {
                             addFileLevelKeywordsAsLookups(resultSet, true, true);
                             addTypeNamesAsLookups(resultSet);
+                        } else if (elementType == BallerinaTypes.ASSIGN || isExpressionSeparator(elementType)) {
+                            addLookups(resultSet, originalFile, true, true, false, false);
+                        } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
+                            addLookups(resultSet, originalFile, true, true, true, false);
                         }
                     },
                     (p, r, prevElement) -> {
@@ -506,6 +517,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             addTypeNamesAsLookups(resultSet);
                             addLookups(resultSet, originalFile, true, true, true, false);
                             addVariableTypesAsLookups(resultSet, originalFile, element);
+                            addCommonKeywords(resultSet);
                         }
                     } else if (isExpressionSeparator(elementType)) {
                         // Eg: int a = 10 + t<caret>
@@ -590,6 +602,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addTypeNamesAsLookups(resultSet);
                 addLookups(resultSet, originalFile, true, true, true, false);
                 addVariableTypesAsLookups(resultSet, originalFile, element);
+                addFunctionSpecificKeywords(parameters, resultSet);
+                addCommonKeywords(resultSet);
             }
         } else if (isExpressionSeparator(elementType)) {
             // Eg: int a = 10 +
@@ -1003,7 +1017,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addActionSpecificKeywords(parameters, resultSet);
                 addCommonKeywords(resultSet);
             }
-            if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.SEMI) {
+
+            if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.RBRACE
+                    || elementType == BallerinaTypes.SEMI) {
                 addTypeNamesAsLookups(resultSet);
             }
         } else {
@@ -1320,6 +1336,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleVariableReferenceNode(parameters, resultSet);
         } else if (superParent instanceof ForkJoinStatementNode) {
             handleStatementNode(parameters, resultSet);
+        } else if (superParent instanceof ValueTypeNameNode) {
+            addValueTypesAsLookups(resultSet);
         } else {
             // Handle all other situations.
             if (parentPrevSibling == null) {

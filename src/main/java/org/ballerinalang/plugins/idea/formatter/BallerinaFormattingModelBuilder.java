@@ -49,6 +49,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
         return new SpacingBuilder(settings, BallerinaLanguage.INSTANCE)
                 .around(OPERATORS).spaceIf(true)
                 .before(ALL).spaceIf(false)
+                .after(ACTION).spaceIf(true)
                 .after(ALL).spaceIf(true)
                 .before(ANY).spaceIf(false)
                 .after(ANY).spaceIf(true)
@@ -66,13 +67,13 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(IMPORT).spaceIf(true)
                 .after(ITERATE).spaceIf(true)
                 .around(JOIN).spaceIf(true)
+                .after(NATIVE).spaceIf(true)
                 .after(PACKAGE).spaceIf(true)
                 .after(REPLY).spaceIf(true)
                 .after(RESOURCE).spaceIf(true)
                 .after(SERVICE).spaceIf(true)
                 .after(STRUCT).spaceIf(true)
                 .after(THROW).spaceIf(true)
-                .around(THROWS).spaceIf(true)
                 .around(TIMEOUT).spaceIf(true)
                 .after(TRY).spaceIf(true)
                 .after(TYPEMAPPER).spaceIf(true)
@@ -96,7 +97,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RPAREN, LPAREN).spaceIf(true)
                 .after(AT).spaceIf(false)
                 .around(EXPRESSION).spaceIf(false)
-                .before(RETURN_PARAMETERS).spaceIf(true)
+                .around(RETURN_PARAMETERS).spaceIf(true)
                 .around(SENDARROW).spaceIf(true)
                 .around(RECEIVEARROW).spaceIf(true)
                 .before(TILDE).spaceIf(false)
@@ -120,7 +121,15 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RBRACE, GT).spaceIf(false)
                 .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
                 .between(XML_LOCAL_NAME, GT).spaceIf(false)
-                .between(NAME_REFERENCE, LBRACE).spaceIf(true);
+                .between(NAME_REFERENCE, LBRACE).spaceIf(true)
+                .around(ANNOTATION_ATTRIBUTE_LIST).spaceIf(false)
+                .withinPairInside(IDENTIFIER, LBRACE, SERVICE_DEFINITION).spaceIf(true)
+                .around(NAME_REFERENCE).spaceIf(false)
+                .between(VALUE_TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .between(IDENTIFIER, LBRACE).spaceIf(true)
+                .between(ATTACHMENT_POINT, LBRACE).spaceIf(true)
+                .around(MAP_STRUCT_LITERAL).spaceIf(false)
+                .around(MAP_STRUCT_KEY_VALUE).spaceIf(false);
     }
 
     @Nullable
