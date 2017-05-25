@@ -82,6 +82,16 @@ import alerts from 'alerts';
                 this._file.setContent(updatedContent);
                 this._file.save();
             }
+            // Send document open notification to the language server
+            let documentOptions = {
+                textDocument: {
+                    documentUri: this._file.id,
+                    languageId: 'ballerina',
+                    version: 1,
+                    text: this._file.getContent()
+                }
+            };
+            this.app.langseverClientController.documentDidOpenNotification(documentOptions);
             $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
         },
 
@@ -89,7 +99,8 @@ import alerts from 'alerts';
             var self = this;
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
             var backendEndpointsOptions = _.get(this.options, 'application.config.services');
-            var diagramRenderingContext = new DiagramRenderContext();
+            let renderingContextOpts = {application: this.options.application};
+            var diagramRenderingContext = new DiagramRenderContext(renderingContextOpts);
 
             var fileEditor = new BallerinaFileEditor({
                 model: astRoot,
@@ -129,6 +140,13 @@ import alerts from 'alerts';
             }, this);
 
             this.on('tab-removed', function() {
+                // Send document open notification to the language server
+                let documentOptions = {
+                    textDocument: {
+                        documentUri: this._file.id
+                    }
+                };
+                this.app.langseverClientController.documentDidCloseNotification(documentOptions);
                 this.removeAllBreakpoints();
             });
 

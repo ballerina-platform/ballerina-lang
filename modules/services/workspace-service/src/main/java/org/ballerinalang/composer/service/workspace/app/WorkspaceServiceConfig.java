@@ -32,6 +32,8 @@ public class WorkspaceServiceConfig {
     private String launcherPath;
     // base url for the debugger websocket connection
     private String debuggerPath;
+    // base url for the language server websocket connection
+    private String langserverPath;
     // we can mount any given directory path as composer workspace root. This property is to provide that directory path
     private String rootDirectories;
     // URL to invoke the started services by composer
@@ -58,6 +60,14 @@ public class WorkspaceServiceConfig {
     }
 
     public void setDebuggerPath(String debuggerPath) {
+        this.debuggerPath = debuggerPath;
+    }
+
+    public String getLangserverPath() {
+        return debuggerPath;
+    }
+
+    public void setLangserverPath(String debuggerPath) {
         this.debuggerPath = debuggerPath;
     }
 

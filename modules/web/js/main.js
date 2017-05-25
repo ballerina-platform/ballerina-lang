@@ -31,6 +31,7 @@ import Debugger from './debugger/module';
 import DebugManager from './debugger/debug-manager';
 import LaunchManager from './launcher/launch-manager';
 import Launcher from './launcher/launcher';
+import LangServerClientController from './langserver/lang-server-client-controller';
 import BallerinaEnvironment from './ballerina/env/environment';
 // importing for side effects only
 import 'jquery-ui/ui/widgets/draggable';
@@ -93,6 +94,12 @@ class Application {
         this.launcher = new Launcher(launcherOpts);
 
         LaunchManager.init(launcherOpts);
+
+        // Setup the language server client controller
+        var langserverOptions = {};
+        _.set(langserverOptions, 'application', this);
+        _.set(_.get('application'), 'config', this.config);
+        this.langseverClientController = new LangServerClientController(langserverOptions);
 
         // init debugger
 

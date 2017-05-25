@@ -43,10 +43,13 @@ public class ConfigServiceImpl {
 
     private int launcherPort;
 
+    private int langserverPort;
+
     private int debuggerPort;
 
     private String apiPath;
     private String launcherPath;
+    private String langserverPath;
     private String debuggerPath;
 
     @GET
@@ -153,6 +156,14 @@ public class ConfigServiceImpl {
         this.launcherPort = launcherPort;
     }
 
+    public int getLangserverPort() {
+        return langserverPort;
+    }
+
+    public void setLangserverPort(int langserverPort) {
+        this.langserverPort = langserverPort;
+    }
+
     public String getApiPath() {
         return apiPath;
     }
@@ -167,6 +178,14 @@ public class ConfigServiceImpl {
 
     public void setLauncherPath(String launcherPath) {
         this.launcherPath = launcherPath;
+    }
+
+    public String getLangserverPath() {
+        return langserverPath;
+    }
+
+    public void setLangserverPath(String langserverPath) {
+        this.langserverPath = langserverPath;
     }
 
     public void setDebuggerPort(int debuggerPort) {

@@ -18,58 +18,77 @@
 
 import Environment from 'ballerina/env/environment';
 import PackageScopedEnvironemnt from 'ballerina/env/package-scoped-environment';
+import _ from 'lodash';
 
 /**
  * Context data conveyor for diagram rendering.
  * @constructor
  */
 class DiagramRenderContext {
- constructor() {
-     // map object for storing view references against models
-     this.viewModelMap = {};
-     this.environment = Environment;
-     this.packagedScopedEnvironemnt = PackageScopedEnvironemnt;
- }
+    constructor(options) {
+        // map object for storing view references against models
+        this.viewModelMap = {};
+        this.environment = Environment;
+        this.packagedScopedEnvironemnt = PackageScopedEnvironemnt;
+        this._application = _.get(options, 'application');
+    }
 
- /**
-  * getter for viewModelMap
-  * @returns {{}|*}
-  */
- getViewModelMap() {
-     return this.viewModelMap;
- }
+    /**
+    * getter for viewModelMap
+    * @returns {{}|*}
+    */
+    getViewModelMap() {
+        return this.viewModelMap;
+    }
 
- /**
-  * get view for node
-  * @returns {{}|*}
-  */
- getViewOfModel(model) {
-     return _.get(this.viewModelMap, model.id);
- }
+    /**
+    * get view for node
+    * @returns {{}|*}
+    */
+    getViewOfModel(model) {
+        return _.get(this.viewModelMap, model.id);
+    }
 
- /**
-  * set view of node
-  * @returns {{}|*}
-  */
- setViewOfModel(model, view) {
-     return _.set(this.viewModelMap, model.id, view);
- }
+    /**
+    * set view of node
+    * @returns {{}|*}
+    */
+    setViewOfModel(model, view) {
+        return _.set(this.viewModelMap, model.id, view);
+    }
 
- /**
-  * get environment
-  * @returns {*}
-  */
- getEnvironment() {
-     return this.environment;
- }
+    /**
+    * get environment
+    * @returns {*}
+    */
+    getEnvironment() {
+        return this.environment;
+    }
 
- /**
-  * get packageScopedEnvironment
-  * @returns {*}
-  */
- getPackagedScopedEnvironment() {
-     return this.packagedScopedEnvironemnt;
- }
+    /**
+    * get packageScopedEnvironment
+    * @returns {*}
+    */
+    getPackagedScopedEnvironment() {
+        return this.packagedScopedEnvironemnt;
+    }
+
+    /**
+     * Get the applications
+     * @return {*}
+     */
+     getApplication() {
+         return this._application;
+     }
+
+    /**
+     * Get the language server client controller
+     * @return {LangServerClientController}
+     */
+     getLanguageServerClientController() {
+         return this.getApplication().langseverClientController;
+     }
+
 }
 
 export default DiagramRenderContext;
