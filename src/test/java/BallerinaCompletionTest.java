@@ -56,6 +56,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testEmptyFilePackageKeyword() {
+        doTest("p<caret>", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileImportKeyword() {
+        doTest("i<caret>", "annotation", "function", "import", "service", "int", "string");
+    }
+
     public void testEmptyFileWithSpaceBeforeCaret() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -63,6 +71,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("\n<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testEmptyFileWithSpaceBeforeCaretPackageKeyword() {
+        doTest("\np<caret>", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileWithSpaceBeforeCaretImportKeyword() {
+        doTest("\ni<caret>", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testEmptyFileWithSpaceAfterCaret() {
@@ -74,6 +90,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testEmptyFileWithSpaceAfterCaretPackageKeyword() {
+        doTest("p<caret>\n", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileWithSpaceAfterCaretImportKeyword() {
+        doTest("i<caret>\n", "annotation", "function", "import", "service", "int", "string");
+    }
+
     public void testEmptyFileWithSpaces() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -81,6 +105,14 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("\n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testEmptyFileWithSpacesPackageKeyword() {
+        doTest("\np<caret>\n", "import", "package", "typemapper", "map");
+    }
+
+    public void testEmptyFileWithSpacesImportKeyword() {
+        doTest("\ni<caret>\n", "annotation", "function", "import", "service", "int", "string");
     }
 
     public void testImportAfterPackage() {
@@ -99,6 +131,10 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("package test; \n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testImportAfterPackagePartialIdentifier() {
+        doTest("package test; \ni<caret>\n", "annotation", "function", "import", "service", "int", "string");
+    }
+
     public void testImportAfterPackageBeforeFunction() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(ANY_TYPE);
@@ -115,6 +151,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("package test; \n<caret>\nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testImportAfterPackageBeforeFunctionPartialIdentifier() {
+        doTest("package test; \ni<caret>\nfunction A(){}", "annotation", "function", "import", "service", "int",
+                "string");
+    }
+
     public void testPackageBeforeImport() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -124,6 +165,10 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testPackageBeforeImportPartialIdentifier() {
+        doTest("p<caret>\nimport test; \nfunction A(){}", "import", "package", "typemapper", "map");
+    }
+
     public void testImportBeforeImport() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
@@ -131,6 +176,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testImportBeforeImportPartialIdentifier() {
+        doTest("i<caret>\nimport test; \nfunction A(){}", "annotation", "function", "import", "service", "int",
+                "string");
     }
 
     public void testImportAfterImport() {
@@ -148,6 +198,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("annotation");
         expectedLookups.add("test");
         doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testImportAfterImportPartialIdentifier() {
+        doTest("import test; \ni<caret> \nfunction A(){}", "annotation", "function", "import", "service", "int",
+                "string");
     }
 
     /**

@@ -344,10 +344,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         if (parent instanceof AnnotationDefinitionNode) {
                             addKeywordAsLookup(resultSet, ATTACH, KEYWORDS_PRIORITY);
                         } else {
+                            addTypeNamesAsLookups(resultSet);
                             if (parent.getTextOffset() == 0) {
                                 addFileLevelKeywordsAsLookups(resultSet, true, true);
                             } else {
-                                addTypeNamesAsLookups(resultSet);
                                 addLookups(resultSet, originalFile, true, false, true, true);
                             }
                         }
