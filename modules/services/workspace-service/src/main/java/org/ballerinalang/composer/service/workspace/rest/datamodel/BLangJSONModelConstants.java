@@ -60,15 +60,15 @@ public class BLangJSONModelConstants {
     public static final String IMPORT_PACKAGE_NAME = "import_package_name";
 
     public static final String IMPORT_PACKAGE_PATH = "import_package_path";
-    
+
     public static final String CONSTANT_DEFINITION = "constant_definition";
-    
+
     public static final String CONSTANT_DEFINITION_BTYPE = "constant_definition_btype";
-    
+
     public static final String CONSTANT_DEFINITION_IDENTIFIER = "constant_definition_identifier";
-    
+
     public static final String CONSTANT_DEFINITION_VALUE = "constant_definition_value";
-    
+
     public static final String SERVICE_DEFINITION = "service_definition";
 
     public static final String ANNOTATION_DEFINITION = "annotation_definition";
@@ -84,24 +84,24 @@ public class BLangJSONModelConstants {
     public static final String SERVICE_NAME = "service_name";
 
     public static final String RESOURCE_DEFINITION = "resource_definition";
-    
+
     public static final String ANNOTATION_ATTACHMENT = "annotation_attachment";
-    
+
     public static final String ANNOTATION_ATTACHMENTS = "annotation_attachments";
 
     public static final String PARAMETER_DEFINITION = "parameter_definition";
 
-    
+
     public static final String ANNOTATION = "annotation";
-    
+
     public static final String ANNOTATION_ENTRY = "annotation_entry";
-    
+
     public static final String ANNOTATION_ENTRY_ARRAY = "annotation_entry_array";
-    
+
     public static final String ANNOTATION_ENTRY_KEY = "annotation_entry_key";
-    
+
     public static final String ANNOTATION_ENTRY_VALUE = "annotation_entry_value";
-    
+
     public static final String ANNOTATION_PACKAGE_NAME = "annotation_package_name";
 
     public static final String ANNOTATION_PACKAGE_PATH = "annotation_package_path";
@@ -175,8 +175,10 @@ public class BLangJSONModelConstants {
     public static final String REPLY_STATEMENT = "reply_statement";
 
     public static final String RETURN_STATEMENT = "return_statement";
-    
+
     public static final String BREAK_STATEMENT = "break_statement";
+
+    public static final String ABORT_STATEMENT = "abort_statement";
 
     public static final String FUNCTION_INVOCATION_EXPRESSION = "function_invocation_expression";
 
@@ -261,11 +263,11 @@ public class BLangJSONModelConstants {
     public static final String STATEMENT = "statement";
 
     public static final String EXPRESSION = "expression";
-    
+
     public static final String STRUCT_DEFINITION = "struct_definition";
-    
+
     public static final String FIELD_ACCESS_EXPRESSION = "field_access_expression";
-    
+
     public static final String STRUCT_NAME = "struct_name";
 
     public static final String KEY_VALUE_EXPRESSION_KEY = "key_value_key";
@@ -325,4 +327,10 @@ public class BLangJSONModelConstants {
     public static final String WORKER_REPLY_EXPRESSION = "worker_reply_expression";
 
     public static final String WORKER_INVOKE_EXPRESSION = "worker_invoke_expression";
+
+    public static final String TRANSACTION_ABORTED_STATEMENT = "transaction_aborted_statement";
+
+    public static final String TRANSACTION_STATEMENT = "transaction_statement";
+
+    public static final String ABORTED_STATEMENT = "aborted_statement";
 }

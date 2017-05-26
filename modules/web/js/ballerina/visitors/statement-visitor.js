@@ -88,6 +88,32 @@ class StatementVisitor extends ASTVisitor {
     endVisitCatchStatement(statement) {
     }
 
+    canVisitTransactionStatement(statement) {
+        return false;
+    }
+
+    beginVisitTransactionStatement(statement) {
+    }
+
+    visitTransactionStatement(statement) {
+    }
+
+    endVisitTransactionStatement(statement) {
+    }
+
+    canVisitAbortedStatement(statement) {
+        return false;
+    }
+
+    beginVisitAbortedStatement(statement) {
+    }
+
+    visitAbortedStatement(statement) {
+    }
+
+    endVisitAbortedStatement(statement) {
+    }
+
     canVisitStatement(statement) {
         return false;
     }
@@ -205,6 +231,19 @@ class StatementVisitor extends ASTVisitor {
     endVisitTryCatchStatement(statement) {
     }
 
+    canVisitTransactionAbortedStatement(statement) {
+        return false;
+    }
+
+    beginVisitTransactionAbortedStatement(statement) {
+    }
+
+    visitTransactionAbortedStatement(statement) {
+    }
+
+    endVisitTransactionAbortedStatement(statement) {
+    }
+
     canVisitAssignmentStatement(statement) {
         return false;
     }
@@ -255,6 +294,19 @@ class StatementVisitor extends ASTVisitor {
     }
 
     endVisitBreakStatement(statement) {
+    }
+
+    canVisitAbortStatement(statement) {
+        return false;
+    }
+
+    beginVisitAbortStatement(statement) {
+    }
+
+    visitAbortStatement(statement) {
+    }
+
+    endVisitAbortStatement(statement) {
     }
 
     canVisitLeftOperandExpression(statement) {
@@ -362,7 +414,7 @@ class StatementVisitor extends ASTVisitor {
             return this.visitIfStatement(node);
         } else if (ASTFactory.isElseStatement(node)) {
             return this.visitElseStatement(node);
-        }  else if (ASTFactory.isElseIfStatement(node)) {
+        } else if (ASTFactory.isElseIfStatement(node)) {
             return this.visitElseIfStatement(node);
         } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.visitTryCatchStatement(node);
@@ -382,24 +434,32 @@ class StatementVisitor extends ASTVisitor {
             return this.visitReplyStatement(node);
         } else if (ASTFactory.isReturnStatement(node)) {
             return this.visitReturnStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
+        } else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.visitFuncInvocationStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
+        } else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.visitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.visitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.visitRightOperandExpression(node);
-        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
+        } else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.visitVariableDefinitionStatement(node);
-        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
+        } else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.visitWorkerInvocationStatement(node);
-        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
+        } else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.visitWorkerReplyStatement(node);
-        }  else if (ASTFactory.isThrowStatement(node)) {
+        } else if (ASTFactory.isThrowStatement(node)) {
             return this.visitThrowStatement(node);
-        }  else if (ASTFactory.isCommentStatement(node)) {
+        } else if (ASTFactory.isCommentStatement(node)) {
             return this.visitCommentStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.visitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.visitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.visitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.visitAbortStatement(node);
         }
     }
 
@@ -417,7 +477,7 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitIfStatement(node);
         } else if (ASTFactory.isElseStatement(node)) {
             return this.canVisitElseStatement(node);
-        }  else if (ASTFactory.isElseIfStatement(node)) {
+        } else if (ASTFactory.isElseIfStatement(node)) {
             return this.canVisitElseIfStatement(node);
         } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.canVisitTryCatchStatement(node);
@@ -427,7 +487,7 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitCatchStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.canVisitAssignmentStatement(node);
-        }  else if (ASTFactory.isAssignment(node)) {
+        } else if (ASTFactory.isAssignment(node)) {
             return this.canVisitAssignment(node);
         } else if (ASTFactory.isTransformStatement(node)) {
             return this.canVisitTransformStatement(node);
@@ -439,24 +499,32 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitReplyStatement(node);
         } else if (ASTFactory.isReturnStatement(node)) {
             return this.canVisitReturnStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
+        } else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.canVisitFuncInvocationStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
+        } else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.canVisitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.canVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.canVisitRightOperandExpression(node);
-        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
+        } else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.canVisitVariableDefinitionStatement(node);
-        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
+        } else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.canVisitWorkerInvocationStatement(node);
-        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
+        } else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.canVisitWorkerReplyStatement(node);
-        }  else if (ASTFactory.isThrowStatement(node)) {
+        } else if (ASTFactory.isThrowStatement(node)) {
             return this.canVisitThrowStatement(node);
-        }  else if (ASTFactory.isCommentStatement(node)) {
+        } else if (ASTFactory.isCommentStatement(node)) {
             return this.canVisitCommentStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.canVisitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.canVisitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.canVisitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.canVisitAbortStatement(node);
         }
     }
 
@@ -474,7 +542,7 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitIfStatement(node);
         } else if (ASTFactory.isElseStatement(node)) {
             return this.beginVisitElseStatement(node);
-        }  else if (ASTFactory.isElseIfStatement(node)) {
+        } else if (ASTFactory.isElseIfStatement(node)) {
             return this.beginVisitElseIfStatement(node);
         } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.beginVisitTryCatchStatement(node);
@@ -492,26 +560,34 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitReplyStatement(node);
         } else if (ASTFactory.isReturnStatement(node)) {
             return this.beginVisitReturnStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
+        } else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.beginVisitFuncInvocationStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
+        } else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.beginVisitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.beginVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.beginVisitRightOperandExpression(node);
-        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
+        } else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.beginVisitVariableDefinitionStatement(node);
-        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
+        } else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.beginVisitWorkerInvocationStatement(node);
-        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
+        } else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.beginVisitWorkerReplyStatement(node);
-        }  else if (ASTFactory.isThrowStatement(node)) {
+        } else if (ASTFactory.isThrowStatement(node)) {
             return this.beginVisitThrowStatement(node);
-        }  else if (ASTFactory.isCommentStatement(node)) {
+        } else if (ASTFactory.isCommentStatement(node)) {
             return this.beginVisitCommentStatement(node);
-        }  else if (ASTFactory.isTransformStatement(node)) {
+        } else if (ASTFactory.isTransformStatement(node)) {
             return this.beginVisitTransformStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.beginVisitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.beginVisitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.beginVisitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.beginVisitAbortStatement(node);
         }
     }
 
@@ -529,7 +605,7 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitIfStatement(node);
         } else if (ASTFactory.isElseStatement(node)) {
             return this.endVisitElseStatement(node);
-        }  else if (ASTFactory.isElseIfStatement(node)) {
+        } else if (ASTFactory.isElseIfStatement(node)) {
             return this.endVisitElseIfStatement(node);
         } else if (ASTFactory.isTryCatchStatement(node)) {
             return this.endVisitTryCatchStatement(node);
@@ -539,7 +615,7 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitCatchStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.endVisitAssignmentStatement(node);
-        }  else if (ASTFactory.isTransformStatement(node)) {
+        } else if (ASTFactory.isTransformStatement(node)) {
             return this.endVisitTransformStatement(node);
         } else if (ASTFactory.isAssignment(node)) {
             return this.endVisitAssignment(node);
@@ -549,26 +625,34 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitExpression(node);
         } else if (ASTFactory.isReplyStatement(node)) {
             return this.endVisitReplyStatement(node);
-        }  else if (ASTFactory.isReturnStatement(node)) {
+        } else if (ASTFactory.isReturnStatement(node)) {
             return this.endVisitReturnStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationStatement(node)) {
+        } else if (ASTFactory.isFunctionInvocationStatement(node)) {
             return this.endVisitFuncInvocationStatement(node);
-        }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
+        } else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.endVisitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.endVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.endVisitRightOperandExpression(node);
-        }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
+        } else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.endVisitVariableDefinitionStatement(node);
-        }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
+        } else if (ASTFactory.isWorkerInvocationStatement(node)) {
             return this.endVisitWorkerInvocationStatement(node);
-        }  else if (ASTFactory.isWorkerReplyStatement(node)) {
+        } else if (ASTFactory.isWorkerReplyStatement(node)) {
             return this.endVisitWorkerReplyStatement(node);
-        }  else if (ASTFactory.isThrowStatement(node)) {
+        } else if (ASTFactory.isThrowStatement(node)) {
             return this.endVisitThrowStatement(node);
-        }  else if (node instanceof AST.CommentStatement(node)) {
+        } else if (ASTFactory.isCommentStatement(node)) {
             return this.endVisitCommentStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.endVisitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.endVisitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.endVisitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.endVisitAbortStatement(node);
         }
     }
 }
