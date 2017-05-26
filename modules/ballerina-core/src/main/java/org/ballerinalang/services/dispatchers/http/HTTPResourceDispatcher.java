@@ -50,11 +50,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         try {
             Map<String, String> resourceArgumentValues = new HashMap<>();
 
-            String rawQueryStr = cMsg.getProperty(Constants.RAW_QUERY_STR) != null
-                    ? "?" + cMsg.getProperty(Constants.RAW_QUERY_STR)
-                    : "";
-
-            Resource resource = service.getUriTemplate().matches((subPath + rawQueryStr), resourceArgumentValues);
+            Resource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues);
             if (resource != null
                     && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
 

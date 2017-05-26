@@ -45,16 +45,22 @@ public class URITemplate {
         return syntaxTree.matchAll(uri, variables, 0);
     }
 
-    public void parse(String template, Resource resource) throws URITemplateException {
-        if (!"/".equals(template) && template.endsWith("/")) {
-            template = template.substring(0, template.length() - 1);
-        }
-
-        if (template.startsWith("/")) {
-            template = template.substring(1);
-        }
+    public void parse(String uriTemplate, Resource resource) throws URITemplateException {
+        uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
         URITemplateParser parser = new URITemplateParser(syntaxTree);
-        parser.parse(template, resource);
+        parser.parse(uriTemplate, resource);
+    }
+
+    public String removeTheFirstAndLastBackSlash(String template) {
+        String uri = template;
+        if (!"/".equals(uri) && uri.endsWith("/")) {
+            uri = uri.substring(0, uri.length() - 1);
+        }
+
+        if (uri.startsWith("/")) {
+            uri = uri.substring(1);
+        }
+        return uri;
     }
 }

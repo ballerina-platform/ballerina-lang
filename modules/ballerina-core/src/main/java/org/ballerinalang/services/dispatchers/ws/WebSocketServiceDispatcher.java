@@ -51,6 +51,9 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         for (String pathSegments: basePathSegments) {
             basePath = basePath + Constants.DEFAULT_BASE_PATH + pathSegments;
             service = HTTPServicesRegistry.getInstance().getService(interfaceId, basePath);
+            if (service != null) {
+                break;
+            }
         }
 
         if (service == null) {

@@ -146,6 +146,8 @@ public abstract class Node {
             } else {
                 uriFragment = uriFragment.substring(matchLength);
             }
+        } else {
+            uriFragment = uriFragment.substring(matchLength);
         }
         return uriFragment;
     }
