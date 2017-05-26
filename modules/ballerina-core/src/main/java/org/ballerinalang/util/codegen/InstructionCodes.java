@@ -24,6 +24,7 @@ package org.ballerinalang.util.codegen;
  */
 public interface InstructionCodes {
     
+    int NOP = 0;
     int ICONST = 2;
     int FCONST = 3;
     int SCONST = 4;
@@ -125,30 +126,27 @@ public interface InstructionCodes {
     int I2F = 130;
     int I2S = 131;
     int I2B = 132;
-    int I2ANY = 141;
-    int F2I = 133;
-    int F2S = 134;
-    int F2ANY = 142;
-    int S2I = 135;
-    int S2F = 136;
-    int S2B = 137;
-    int S2ANY = 143;
-    int B2I = 139;
-    int B2S = 140;
-    int B2ANY = 144;
-    int R2ANY = 145;
+    int I2ANY = 133;
+    int F2I = 134;
+    int F2S = 135;
+    int F2B = 136;
+    int F2ANY = 137;
+    int S2I = 138;
+    int S2F = 139;
+    int S2B = 140;
+    int S2ANY = 141;
+    int B2I = 142;
+    int B2F = 143;
+    int B2S = 144;
+    int B2ANY = 145;
+    int R2ANY = 146;
 
     // Type cast
-//    int I2ANY = 141;
-//    int F2ANY = 142;
-//    int S2ANY = 143;
-//    int B2ANY = 144;
-//    int R2ANY = 145;
-    int ANY2I = 146;
-    int ANY2F = 147;
-    int ANY2S = 148;
-    int ANY2B = 149;
-    int ANY2R = 150;
+    int ANY2I = 147;
+    int ANY2F = 148;
+    int ANY2S = 149;
+    int ANY2B = 150;
+    int ANY2R = 151;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;

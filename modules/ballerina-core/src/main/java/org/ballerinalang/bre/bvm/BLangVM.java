@@ -20,14 +20,17 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.StructureType;
@@ -119,6 +122,7 @@ public class BLangVM {
         BRefValueArray bArray;
         StructureType structureType;
         BMap<String, BRefType> bMap;
+        BRefType bRefType;
 
         StructureRefCPEntry structureRefCPEntry;
         FunctionCallCPEntry funcCallCPEntry;
@@ -595,13 +599,8 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.I2F:
-                    // reg index of the int value to be converted
                     i = operands[0];
-                    // reg index to which the converted value should be copied
                     j = operands[1];
-                    // reg index to which the error value to be copied, if applicable
-                    k = operands[2];
-
                     sf.doubleRegs[j] = (double) sf.longRegs[i];
                     break;
                 case InstructionCodes.I2S:
@@ -619,12 +618,92 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BInteger(sf.longRegs[i]);
                     break;
+                case InstructionCodes.F2I:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.longRegs[j] = (long) sf.doubleRegs[i];
+                    break;
+                case InstructionCodes.F2S:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.stringRegs[j] = Double.toString(sf.doubleRegs[i]);
+                    break;
+                case InstructionCodes.F2B:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.intRegs[j] = sf.doubleRegs[i] != 0.0 ? 1 : 0;
+                    break;
+                case InstructionCodes.F2ANY:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BFloat(sf.doubleRegs[i]);
+                    break;
+                case InstructionCodes.S2I:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
 
+                    try {
+                        sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
+                    } catch (NumberFormatException e) {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.S2F:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    try {
+                        sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
+                    } catch (NumberFormatException e) {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.S2B:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    try {
+                        sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
+                    } catch (NumberFormatException e) {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.S2ANY:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BString(sf.stringRegs[i]);
+                    break;
+                case InstructionCodes.B2I:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.longRegs[j] = sf.intRegs[i];
+                    break;
+                case InstructionCodes.B2F:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.doubleRegs[j] = sf.intRegs[i];
+                    break;
+                case InstructionCodes.B2S:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.stringRegs[j] = sf.intRegs[i] == 1 ? "true" : "false";
+                    break;
+                case InstructionCodes.B2ANY:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
+                    break;
                 case InstructionCodes.ANY2I:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    BRefType bRefType = sf.refRegs[i];
+                    bRefType = sf.refRegs[i];
 
                     if (bRefType.getType() == BTypes.typeInt) {
                         sf.longRegs[j] = ((BInteger) bRefType).intValue();
@@ -632,6 +711,50 @@ public class BLangVM {
                         // TODO
                         throw new BallerinaException("incompatible types");
                     }
+                    break;
+                case InstructionCodes.ANY2F:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeFloat) {
+                        sf.doubleRegs[j] = ((BFloat) bRefType).floatValue();
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.ANY2S:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeString) {
+                        sf.stringRegs[j] = bRefType.stringValue();
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.ANY2B:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeBoolean) {
+                        sf.intRegs[j] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.ANY2R:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = sf.refRegs[i];
                     break;
 
                 case InstructionCodes.INEWARRAY:

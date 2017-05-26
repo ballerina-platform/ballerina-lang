@@ -38,6 +38,7 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
     private Expression rExpr;
     protected TriFunction<BValue, BType, Boolean, BValue[]> evalFunc;
     private BType[] types = new BType[0];
+    private int opcode;
 
     public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
@@ -67,6 +68,14 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
 
     public SimpleTypeName getTypeName() {
         return typeName;
+    }
+
+    public int getOpcode() {
+        return opcode;
+    }
+
+    public void setOpcode(int opcode) {
+        this.opcode = opcode;
     }
 
     @Override

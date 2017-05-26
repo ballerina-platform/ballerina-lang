@@ -2141,6 +2141,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Find the eval function from explicit casting lattice
         TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
+            typeCastExpression.setOpcode(newEdge.getOpcode());
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else if (sourceType instanceof StructDef && targetType instanceof StructDef) {
             typeCastExpression.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
@@ -2187,6 +2188,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Find the eval function from the conversion lattice
         TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
+            typeConversionExpression.setOpcode(newEdge.getOpcode());
             typeConversionExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else {
             // TODO: print a suggestion
@@ -2374,6 +2376,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (newEdge != null) { // Implicit cast from right to left
                     newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
                                                 rExpr, lType);
+                    newExpr.setOpcode(newEdge.getOpcode());
                     newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                     newExpr.accept(this);
                     binaryExpr.setRExpr(newExpr);
@@ -2383,6 +2386,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     if (newEdge != null) { // Implicit cast from left to right
                         newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
                                 lExpr, rType);
+                        newExpr.setOpcode(newEdge.getOpcode());
                         newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                         newExpr.accept(this);
                         binaryExpr.setLExpr(newExpr);
@@ -3062,17 +3066,18 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
-        TypeEdge newEdge;
-        TypeCastExpression newExpr = null;
+        TypeEdge typeEdge;
+        TypeCastExpression typeCastExpr = null;
         BType rhsType = rhsExpr.getType();
 
-        newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
-        if (newEdge != null) {
-            newExpr = new TypeCastExpression(rhsExpr.getNodeLocation(), rhsExpr.getWhiteSpaceDescriptor(),
-                    rhsExpr, lhsType);
-            newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
+        typeEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
+        if (typeEdge != null) {
+            typeCastExpr = new TypeCastExpression(rhsExpr.getNodeLocation(),
+                    rhsExpr.getWhiteSpaceDescriptor(), rhsExpr, lhsType);
+            typeCastExpr.setOpcode(typeEdge.getOpcode());
+            typeCastExpr.setEvalFunc(typeEdge.getTypeMapperFunction());
         }
-        return newExpr;
+        return typeCastExpr;
     }
 
     private void setMemoryLocation(VariableDef variableDef) {

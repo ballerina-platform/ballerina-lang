@@ -1023,13 +1023,46 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TypeCastExpression typeCastExpr) {
-        BType targetType = typeCastExpr.getType();
-        BType sourceType = typeCastExpr.getRExpr().getType();
+        Expression rExpr = typeCastExpr.getRExpr();
+        rExpr.accept(this);
+
+        // TODO Handle multi-return support
+
+        int opCode = typeCastExpr.getOpcode();
+//        if (opCode < 0) {
+//            throw new IllegalStateException("Instruction not supported");
+//        }
+
+        // Ignore  NOP opcode
+        if (opCode != 0) {
+            int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
+            typeCastExpr.setTempOffset(targetRegIndex);
+            emit(opCode, rExpr.getTempOffset(), targetRegIndex, -1);
+        } else {
+            typeCastExpr.setTempOffset(rExpr.getTempOffset());
+        }
     }
 
     @Override
-    public void visit(TypeConversionExpr typeConversionExpression) {
-      // instruct 1 2 3
+    public void visit(TypeConversionExpr typeConversionExpr) {
+        Expression rExpr = typeConversionExpr.getRExpr();
+        rExpr.accept(this);
+
+        // TODO Handle multi-return support
+
+        int opCode = typeConversionExpr.getOpcode();
+//        if (opCode < 0) {
+//            throw new IllegalStateException("Instruction not supported");
+//        }
+
+        // Ignore  NOP opcode
+        if (opCode != 0) {
+            int targetRegIndex = getNextIndex(typeConversionExpr.getType().getTag(), regIndexes);
+            typeConversionExpr.setTempOffset(targetRegIndex);
+            emit(opCode, rExpr.getTempOffset(), targetRegIndex, -1);
+        } else {
+            typeConversionExpr.setTempOffset(rExpr.getTempOffset());
+        }
     }
 
     @Override

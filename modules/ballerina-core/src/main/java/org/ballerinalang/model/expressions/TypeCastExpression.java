@@ -40,6 +40,7 @@ public class TypeCastExpression extends AbstractExpression implements Executable
     private BType[] types = new BType[0];
 
     private int[] offsets;
+    private int opcode;
 
     public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
@@ -69,6 +70,14 @@ public class TypeCastExpression extends AbstractExpression implements Executable
 
     public SimpleTypeName getTypeName() {
         return typeName;
+    }
+
+    public int getOpcode() {
+        return opcode;
+    }
+
+    public void setOpcode(int opcode) {
+        this.opcode = opcode;
     }
 
     @Override
