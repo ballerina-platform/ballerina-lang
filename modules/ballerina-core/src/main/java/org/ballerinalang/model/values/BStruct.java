@@ -161,4 +161,14 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
     public void setRefField(int index, BRefType value) {
         refFields[index] = value;
     }
+
+    @Override
+    public BValue copy() {
+        BValue[] newStructMemBlock = new BValue[structMemBlock.length];
+        for (int i = 0; i < structMemBlock.length; i++) {
+            BValue value = structMemBlock[i];
+            newStructMemBlock[i] = value == null ? null : value.copy();
+        }
+        return new BStruct(structDef, newStructMemBlock);
+    }
 }

@@ -67,4 +67,9 @@ public final class BInteger extends BValueType implements BRefType<Long> {
     public Long value() {
         return value;
     }
+
+    @Override
+    public BValue copy() {
+        return new BInteger(value);
+    }
 }

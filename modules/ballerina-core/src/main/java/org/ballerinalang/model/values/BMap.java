@@ -146,6 +146,16 @@ public class BMap<BString, V extends BValue> extends BallerinaMessageDataSource 
         return BTypes.typeMap;
     }
 
+    @Override
+    public BValue copy() {
+        BMap map = BTypes.typeMap.getEmptyValue();
+        for (int i = 0; i < size; i++) {
+            BValue value = values[i].getValue();
+            map.put(values[i].getKey(), value == null ? null : value.copy());
+        }
+        return map;
+    }
+    
     private class MapEntry<K, V> {
         private final K key;
         private V value;

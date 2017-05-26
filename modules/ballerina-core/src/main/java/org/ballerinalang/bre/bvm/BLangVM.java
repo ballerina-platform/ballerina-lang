@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
@@ -617,6 +618,20 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     sf.refRegs[j] = new BInteger(sf.longRegs[i]);
+                    break;
+
+                case InstructionCodes.ANY2I:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    BRefType bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeInt) {
+                        sf.longRegs[j] = ((BInteger) bRefType).intValue();
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
                     break;
 
                 case InstructionCodes.INEWARRAY:

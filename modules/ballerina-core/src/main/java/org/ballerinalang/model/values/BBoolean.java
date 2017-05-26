@@ -79,4 +79,8 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     public Boolean value() {
         return value;
     }
+
+    public BValue copy() {
+        return new BBoolean(value);
+    }
 }

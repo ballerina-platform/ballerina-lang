@@ -80,4 +80,9 @@ public final class BString extends BValueType implements BRefType<String> {
     public String value() {
         return value;
     }
+
+    @Override
+    public BValue copy() {
+        return new BString(value);
+    }
 }

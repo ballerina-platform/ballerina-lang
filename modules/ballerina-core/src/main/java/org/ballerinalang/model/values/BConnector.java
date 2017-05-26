@@ -126,4 +126,9 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     public void setRefField(int index, BRefType value) {
         refFields[index] = value;
     }
+
+    @Override
+    public BValue copy() {
+        return null;
+    }
 }

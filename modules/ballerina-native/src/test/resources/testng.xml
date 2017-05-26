@@ -78,12 +78,12 @@ under the License.
         </classes>
     </test>
 
-
     <test name="ballerina-identifier-literal-test-suite">
         <classes>
             <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
         </classes>
     </test>
+    
     <test name="ballerina-error-test-suite">
         <classes>
             <class name="org.ballerinalang.core.lang.error.TestErrorReturn"/>

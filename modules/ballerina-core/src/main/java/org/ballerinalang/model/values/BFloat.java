@@ -67,4 +67,9 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     public Double value() {
         return value;
     }
+
+    @Override
+    public BValue copy() {
+        return new BFloat(value);
+    }
 }

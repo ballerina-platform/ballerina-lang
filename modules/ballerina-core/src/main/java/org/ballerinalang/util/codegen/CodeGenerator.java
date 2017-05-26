@@ -85,6 +85,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -1024,6 +1025,11 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(TypeCastExpression typeCastExpr) {
         BType targetType = typeCastExpr.getType();
         BType sourceType = typeCastExpr.getRExpr().getType();
+    }
+
+    @Override
+    public void visit(TypeConversionExpr typeConversionExpression) {
+      // instruct 1 2 3
     }
 
     @Override

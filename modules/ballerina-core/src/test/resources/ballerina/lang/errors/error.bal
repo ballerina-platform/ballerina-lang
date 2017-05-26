@@ -16,3 +16,9 @@ struct StackTraceItem {
     int lineNumber;
 }
 
+struct CastError {
+    string msg;
+    Error cause;
+    string sourceType;
+    string targetType;
+}
