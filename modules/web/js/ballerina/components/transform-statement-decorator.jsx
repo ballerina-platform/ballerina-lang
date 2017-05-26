@@ -224,13 +224,6 @@ class TransformStatementDecorator extends React.Component {
                $(transformOverlay).remove();
           }
 
-          window.onclick = function(event) {
-                var transformOverlayDiv = document.getElementById('transformOverlay')
-               if (event.target == transformOverlayDiv) {
-                   transformOverlayDiv.style.display = "none";
-                   $(transformOverlay).remove();
-               }
-          }
 
            var onConnectionCallback = function(connection) {
                var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
