@@ -458,8 +458,10 @@ public class TypeLattice {
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
         
         transformLattice.addVertex(structV, false);
+        transformLattice.addVertex(datatableV, false);
         
         for (boolean returnErrors: returnErrorsStates) {
             transformLattice.addEdge(structV, mapV, NativeTransformMapper.STRUCT_TO_MAP_FUNC, returnErrors);
@@ -468,6 +470,7 @@ public class TypeLattice {
             transformLattice.addEdge(mapV, structV, NativeTransformMapper.MAP_TO_STRUCT_FUNC, returnErrors);
             transformLattice.addEdge(anyV, structV, NativeTransformMapper.ANY_TO_STRUCT_FUNC, returnErrors);
             transformLattice.addEdge(structV, anyV, NativeTransformMapper.STRUCT_TO_ANY_FUNC, returnErrors);
+            transformLattice.addEdge(datatableV, jsonV, NativeTransformMapper.DATATABLE_TO_JSON_FUNC, returnErrors);
         }
         
         // For all the structs in all the packages imported, add an edge to the conversion lattice.

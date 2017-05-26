@@ -29,6 +29,7 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -401,7 +402,24 @@ public class NativeTransformMapper {
                 return getError(returnErrors, errorMsg, targetType);
             }
         };
-            
+
+    /**
+     * Function to cast a given datatable to a JSON array.
+     */
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> DATATABLE_TO_JSON_FUNC =
+            (rVal, targetType, returnErrors) -> {
+                if (rVal == null) {
+                    return new BValue[] { null, null };
+                }
+                try {
+                    return new BValue[] { JSONUtils.toJSON((BDataTable) rVal), null };
+                } catch (BallerinaException e) {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                            rVal.getType(), BTypes.typeJSON, e.getMessage());
+                    return getError(returnErrors, errorMsg, targetType);
+                }
+            };
+
     public static final TriFunction<BValue, BType, Boolean, BValue[]> XML_TO_XML_FUNC =
             (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
     
@@ -543,6 +561,8 @@ public class NativeTransformMapper {
                 return STRUCT_TO_JSON_FUNC.apply(rVal, targetType, returnErrors);
             } else if (rVal.getType() instanceof BArrayType) {
                 return ARRAY_TO_JSON_FUNC.apply(rVal, targetType, returnErrors);
+            } else if (rVal.getType() ==  BTypes.typeDatatable) {
+                return DATATABLE_TO_JSON_FUNC.apply(rVal, targetType, returnErrors);
             }
 
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
