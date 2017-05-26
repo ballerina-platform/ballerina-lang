@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -591,6 +592,33 @@ public class BLangVM {
                     FunctionReturnCPEntry funcRetCPEntry = (FunctionReturnCPEntry) constPool[cpIndex];
                     handleReturn(funcRetCPEntry.getRegIndexes());
                     break;
+
+                case InstructionCodes.I2F:
+                    // reg index of the int value to be converted
+                    i = operands[0];
+                    // reg index to which the converted value should be copied
+                    j = operands[1];
+                    // reg index to which the error value to be copied, if applicable
+                    k = operands[2];
+
+                    sf.doubleRegs[j] = (double) sf.longRegs[i];
+                    break;
+                case InstructionCodes.I2S:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.stringRegs[j] = Long.toString(sf.longRegs[i]);
+                    break;
+                case InstructionCodes.I2B:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.intRegs[j] = sf.longRegs[i] != 0 ? 1 : 0;
+                    break;
+                case InstructionCodes.I2ANY:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BInteger(sf.longRegs[i]);
+                    break;
+
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
