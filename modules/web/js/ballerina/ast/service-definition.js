@@ -33,6 +33,12 @@ class ServiceDefinition extends ASTNode {
 
         // TODO: All the types should be referred from the global constants
         this.BallerinaASTFactory = this.getFactory();
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: '\n',
+            3: '\n'
+        }
     }
 
     setServiceName(serviceName, options) {
