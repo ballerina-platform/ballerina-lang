@@ -863,16 +863,48 @@ return connections;
  * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
  */
 reposition(self) {
-    var offset = 60;
-    var typeMapperHeight = 0;
-    var structs = $(".struct");
-    _.forEach(structs, struct => {
-        if (typeMapperHeight < $("#"+ struct.id).height() + offset) {
-        typeMapperHeight = $("#"+ struct.id).height() + offset;
-    }
-    $(".leftType, .rightType").height(typeMapperHeight);
-    self.jsPlumbInstance.repaintEverything();
+var funcs = $("#" + self.placeHolderName + "> .func");
+var structs = $("#" + self.placeHolderName + "> .struct");
+var xPointer = 650;
+var yPointer = 200;
+var bottomGap = 50;
+var functionGap = 20;
+var svgLines = $("#" + self.placeHolderName + "> svg");
+var typeMapperHeight = 0;
+
+//Traverse through all the connection svg lines
+_.forEach(svgLines, svgLine => {
+    //Get bottom and right values relative to the type mapper parent div
+    var bottom = svgLine.getBoundingClientRect().bottom - $("#" + self.placeHolderName).offset().top + 10;
+var right = svgLine.getBoundingClientRect().right - $("#" + self.placeHolderName).offset().left + 10;
+
+//Calculate the yPointer value  based on the bottom value of the direct connections
+if (bottom > yPointer && svgLine.getBoundingClientRect().width > 600) {
+    yPointer = bottom;
+}
 });
+
+//Traverse through all the function divs
+_.forEach(funcs, func => {
+    //Position functions and increase yPointer with gaps
+    $("#"+ func.id).css("left", xPointer+ "px");
+$("#"+ func.id).css("top", yPointer + "px");
+yPointer +=  $("#"+ func.id).height() + functionGap;
+
+});
+
+_.forEach(structs, struct => {
+    if (typeMapperHeight < $("#"+ struct.id).height() + bottomGap) {
+    typeMapperHeight = $("#"+ struct.id).height() + bottomGap;
+}
+});
+
+if (typeMapperHeight < yPointer +  bottomGap) {
+    typeMapperHeight = yPointer +  bottomGap;
+}
+
+$(".leftType, .rightType").height(typeMapperHeight);
+self.jsPlumbInstance.repaintEverything();
 }
 
 /**
