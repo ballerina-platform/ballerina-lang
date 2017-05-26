@@ -26,7 +26,10 @@ class BallerinaASTDeserializer {
      */
     static getASTModel(data) {
         var astRoot = deserializeNode(data.root);
-        astRoot.whiteSpaceDescriptor = data.whitespace_descriptor;
+        if (!_.isNil(data.whitespace_descriptor)) {
+            astRoot.setWhiteSpaceDescriptor(data.whitespace_descriptor);
+            astRoot.whiteSpace.useDefault = false;
+        }
         return astRoot;
     }
 }
