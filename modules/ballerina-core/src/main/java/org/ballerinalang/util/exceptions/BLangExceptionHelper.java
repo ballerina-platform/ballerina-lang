@@ -61,4 +61,8 @@ public class BLangExceptionHelper {
     public static String getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
         return MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
     }
+    
+    public static String getErrorMessage(SemanticErrors semanticError, Object... params) {
+        return MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
+    }
 }

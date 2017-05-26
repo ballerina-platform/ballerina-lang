@@ -63,7 +63,6 @@ import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
-import org.ballerinalang.model.expressions.NativeTransformExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
@@ -71,6 +70,7 @@ import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -820,7 +820,7 @@ public class BLangModelBuilder {
         Expression rExpr = exprStack.pop();
         checkArgExprValidity(location, rExpr);
 
-        NativeTransformExpression typeConversionExpression = new NativeTransformExpression(location, 
+        TypeConversionExpr typeConversionExpression = new TypeConversionExpr(location, 
                 whiteSpaceDescriptor, typeName, rExpr);
         exprStack.push(typeConversionExpression);
     }

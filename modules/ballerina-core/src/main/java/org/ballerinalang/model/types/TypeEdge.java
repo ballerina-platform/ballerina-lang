@@ -27,15 +27,13 @@ public class TypeEdge {
     private TypeVertex source, target;
     private TriFunction<BValue, BType, Boolean, BValue[]> typeMapperFunction;
     private String packageName;
-    private boolean returnErrors;
 
     public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean, 
-            BValue[]> typeMapperFunction, boolean returnErrors) {
+            BValue[]> typeMapperFunction) {
         this.source = source;
         this.target = target;
         this.typeMapperFunction = typeMapperFunction;
         this.packageName = TypeConstants.NATIVE_PACKAGE;
-        this.returnErrors = returnErrors;
     }
 
     public TypeVertex getSource() {
@@ -62,7 +60,7 @@ public class TypeEdge {
      * @return String A String representation of this Edge
      */
     public String toString() {
-        return "({" + source.toString() + ", " + target.toString() + ", " + returnErrors + "}" + ": " + 
+        return "({" + source.toString() + ", " + target.toString() + "}" + ": " + 
                 packageName + ")";
     }
 
@@ -70,7 +68,7 @@ public class TypeEdge {
      * @return int The hash code for this Edge
      */
     public int hashCode() {
-        return (source.toString() + target.toString() + packageName + returnErrors).hashCode();
+        return (source.toString() + target.toString() + packageName).hashCode();
     }
 
     /**
@@ -86,8 +84,7 @@ public class TypeEdge {
         if (typeMapperFunction != null) {
             return e.source.equals(this.source) && e.target.equals(this.target)
                     && e.packageName.equals(this.packageName)
-                    && e.typeMapperFunction.equals(this.typeMapperFunction)
-                    && e.returnErrors == this.returnErrors;
+                    && e.typeMapperFunction.equals(this.typeMapperFunction);
         }
         
         return false;

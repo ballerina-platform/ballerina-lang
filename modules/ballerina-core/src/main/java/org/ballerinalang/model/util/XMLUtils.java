@@ -58,6 +58,13 @@ public class XMLUtils {
     
     private static final String XML_ROOT = "root";
     
+    /**
+     * Converts a {@link BXML} to {@link BJSON}.
+     * 
+     * @param xml {@link BXML} to convert
+     * @return converted {@link BJSON} 
+     * @throws BallerinaException
+     */
     public static BJSON toJSON(BXML xml) throws BallerinaException {
         InputStream input = new ByteArrayInputStream(xml.stringValue().getBytes(StandardCharsets.UTF_8));
         InputStream results = null;
@@ -99,7 +106,12 @@ public class XMLUtils {
         return json;
     }
     
-    
+    /**
+     * Converts a {@link BJSON} to {@link BXML}.
+     * 
+     * @param msg {@link BJSON} to convert
+     * @return converted {@link BXML}
+     */
     public static BXML jsonToXML(BJSON msg) {
         InputStream input = new ByteArrayInputStream(msg.stringValue().getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream output = new ByteArrayOutputStream();

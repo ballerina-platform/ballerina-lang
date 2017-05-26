@@ -653,6 +653,14 @@ public class TypeCastExprTest {
         BValue errorMsg = error.getValue(0);
         Assert.assertTrue(errorMsg instanceof BString);
         Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected '.:A', found '.:B'");
+        
+        BValue sourceType = error.getValue(2);
+        Assert.assertTrue(sourceType instanceof BString);
+        Assert.assertEquals(sourceType.stringValue(), "B");
+        
+        BValue targetType = error.getValue(3);
+        Assert.assertTrue(targetType instanceof BString);
+        Assert.assertEquals(targetType.stringValue(), "A");
     }
     
     @Test(description = "Test returning a mismatching error when casting",
@@ -806,4 +814,20 @@ public class TypeCastExprTest {
         Assert.assertTrue(errorMsg instanceof BString);
         Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'map'");
     }
+    
+    // TODO: 
+/*    @Test
+    public void testErrorInForceCasting() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testErrorInForceCasting", new BValue[]{});
+        
+        // check whether float is zero
+        Assert.assertNull(returns[0]);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected '.:A', found '.:B'");
+    }*/
 }
