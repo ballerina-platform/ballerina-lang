@@ -549,12 +549,12 @@ public class TypeCastExprTest {
         Assert.assertEquals(((BFloat) score).floatValue(), 0.0);
     }
     
-//    @Test(description = "Test casting any to struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'map' to type 'Person'")
-//    public void testAnyToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testAnyToStruct");
-//    }
+    @Test(description = "Test casting any to struct",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'map' to type 'Person'")
+    public void testAnyToStruct() {
+        BLangFunctions.invoke(bLangProgram, "testAnyToStruct");
+    }
     
     @Test(description = "Test casting a null stored as any to struct")
     public void testAnyNullToStruct() {
