@@ -47,6 +47,7 @@ public class CallableUnitGroupBuilder {
 
     // BLangSymbol related attributes
     protected Identifier identifier;
+    protected String protocolPkg;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
@@ -68,6 +69,10 @@ public class CallableUnitGroupBuilder {
 
     public void setIdentifier(Identifier identifier) {
         this.identifier = identifier;
+    }
+
+    public void setProtocolPkg(String protocolPkg) {
+        this.protocolPkg = protocolPkg;
     }
 
     public void setPkgPath(String pkgPath) {

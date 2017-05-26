@@ -206,12 +206,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        String serviceName = ctx.Identifier().getText();
+        String protocolPkgName = ctx.Identifier().get(0).getText();
+        String serviceName = ctx.Identifier().get(1).getText();
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getServiceDefinitionWS(tokenStream, ctx);
         }
-        modelBuilder.createService(whiteSpaceDescriptor, serviceName);
+        modelBuilder.createService(getCurrentLocation(ctx), whiteSpaceDescriptor, serviceName, protocolPkgName);
     }
 
     @Override
