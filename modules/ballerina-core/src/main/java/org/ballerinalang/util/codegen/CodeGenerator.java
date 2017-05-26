@@ -177,7 +177,7 @@ public class CodeGenerator implements NodeVisitor {
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
     private boolean varAssignment;
-    private boolean arrayAssignment;
+    private boolean arrayMapAssignment;
     private boolean structAssignment;
 
     public ProgramFile getProgramFile() {
@@ -635,9 +635,9 @@ public class CodeGenerator implements NodeVisitor {
                 lExpr.accept(this);
                 varAssignment = false;
             } else if (lExpr instanceof ArrayMapAccessExpr) {
-                arrayAssignment = true;
+                arrayMapAssignment = true;
                 lExpr.accept(this);
-                arrayAssignment = false;
+                arrayMapAssignment = false;
             } else if (lExpr instanceof FieldAccessExpr) {
                 structAssignment = true;
                 lExpr.accept(this);
@@ -1232,9 +1232,9 @@ public class CodeGenerator implements NodeVisitor {
                 varAssignment = false;
 
             } else if (referenceExpr instanceof ArrayMapAccessExpr) {
-                arrayAssignment = isAssignment;
+                arrayMapAssignment = isAssignment;
                 referenceExpr.accept(this);
-                arrayAssignment = false;
+                arrayMapAssignment = false;
             }
 
             if (isAssignment || childSFAccessExpr.getFieldExpr() == null) {
@@ -1247,25 +1247,43 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        Expression arrayVarExpr = arrayMapAccessExpr.getRExpr();
-        arrayVarExpr.accept(this);
+        Expression arrayMapVarExpr = arrayMapAccessExpr.getRExpr();
+        arrayMapVarExpr.accept(this);
 
         Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
+        if (arrayMapVarExpr.getType() == BTypes.typeMap) {
+            // This is a map access expression
+            Expression indexExpr = indexExprs[0];
+            indexExpr.accept(this);
+
+            if (arrayMapAssignment) {
+                emit(InstructionCodes.MAPSTORE, arrayMapVarExpr.getTempOffset(),
+                        indexExpr.getTempOffset(), rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.MAPLOAD, arrayMapVarExpr.getTempOffset(),
+                        indexExpr.getTempOffset(), mapValueRegIndex);
+                arrayMapAccessExpr.setTempOffset(mapValueRegIndex);
+            }
+            return;
+        }
+
+        // This is an array access expression
         for (int i = indexExprs.length - 1; i >= 0; i--) {
             Expression indexExpr = indexExprs[i];
             indexExpr.accept(this);
 
             if (i == 0) {
                 // Here we assume that the array reference is stored in the current reference register;
-                int arrayIndex = regIndexes[REF_OFFSET];
-                if (arrayAssignment) {
+                int arrayRegIndex = regIndexes[REF_OFFSET];
+                if (arrayMapAssignment) {
                     int opcode = getOpcode(arrayMapAccessExpr.getType().getTag(), InstructionCodes.IASTORE);
-                    emit(opcode, arrayIndex, indexExpr.getTempOffset(), rhsExprRegIndex);
+                    emit(opcode, arrayRegIndex, indexExpr.getTempOffset(), rhsExprRegIndex);
                 } else {
                     OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayMapAccessExpr.getType().getTag(),
                             InstructionCodes.IALOAD, regIndexes);
                     arrayMapAccessExpr.setTempOffset(opcodeAndIndex.index);
-                    emit(opcodeAndIndex.opcode, arrayIndex, indexExpr.getTempOffset(), opcodeAndIndex.index);
+                    emit(opcodeAndIndex.opcode, arrayRegIndex, indexExpr.getTempOffset(), opcodeAndIndex.index);
                 }
             } else {
                 // reg, index, reg
