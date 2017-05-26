@@ -45,13 +45,14 @@ import MessageManager from './../visitors/message-manager';
 import Renderer from '../components/renderer';
 import StructOperationsRenderer from '../components/struct-operations-renderer';
 import FindDebugHitVisitor from './../visitors/find-debug-hit-visitor';
+import EventChannel from 'event_channel';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
  * @class BallerinaFileEditor
- * @extends BallerinaView
+ * @extends EventChannel
  */
-class BallerinaFileEditor extends BallerinaView {
+class BallerinaFileEditor extends EventChannel {
     /**
      * @param {Object} args - Arguments for creating the view.
      * @param {BallerinaASTRoot} args.model - The model for ballerina file editor.
@@ -65,6 +66,14 @@ class BallerinaFileEditor extends BallerinaView {
         this._debugger = _.get(args, 'debugger');
         this._file = _.get(args, 'file');
         this._id = _.get(args, 'id', 'Ballerina Composer');
+        this._viewOptions = _.get(args, 'viewOptions', {});
+        this._container = _.get(args, 'container');
+        this._backendEndpointsOptions = _.get(args, 'backendEndpointsOptions', {});
+        this.toolPalette = _.get(args, 'toolPalette');
+        this.messageManager =  _.get(args, 'messageManager');
+        this.diagramRenderingContext = _.get(args, 'diagramRenderContext');
+
+        this.setModel(_.get(args, 'model'));
 
         if (!this._parseFailed && (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot))) {
             log.error('Ballerina AST Root is undefined or is of different type.' + this._model);
@@ -79,7 +88,6 @@ class BallerinaFileEditor extends BallerinaView {
         this.validatorBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.validator.endpoint', {})});
         this._isInSourceView = false;
         this._isInSwaggerView = false;
-        this._constantDefinitionsPane = undefined;
         this.deserializer = BallerinaASTDeserializer;
         this.init();
     }
@@ -116,47 +124,43 @@ class BallerinaFileEditor extends BallerinaView {
     }
 
     setModel(model) {
-        if(this._parseFailed){
-            return;
+        if (_.isUndefined(model)) {
+            //set an empty ast root if the model is undefined
+            model = BallerinaASTFactory.createBallerinaAstRoot();
         }
-        if ((!_.isUndefined(model) && !_.isNil(model) && model instanceof BallerinaASTRoot)) {
-            this._model = model;
-            var self = this;
-            // make undo-manager capture all tree modifications after initial rendering
-            this._model.on('tree-modified', function(event){
-                if(this.getUndoManager().hasUndo()){
-                    // clear undo stack from source view
-                    if(this.getUndoManager().getOperationFactory()
-                            .isSourceModifiedOperation(this.getUndoManager().undoStackTop())){
-                        this.getUndoManager().reset();
-                    }
+        this._model = model;
+        var self = this;
+        // make undo-manager capture all tree modifications after initial rendering
+        this._model.on('tree-modified', function(event){
+            if(this.getUndoManager().hasUndo()){
+                // clear undo stack from source view
+                if(this.getUndoManager().getOperationFactory()
+                        .isSourceModifiedOperation(this.getUndoManager().undoStackTop())){
+                    this.getUndoManager().reset();
                 }
-                if(this.getUndoManager().hasRedo()){
-                    // clear redo stack from source view
-                    if(this.getUndoManager().getOperationFactory()
-                            .isSourceModifiedOperation(this.getUndoManager().redoStackTop())){
-                        this.getUndoManager().reset();
-                    }
+            }
+            if(this.getUndoManager().hasRedo()){
+                // clear redo stack from source view
+                if(this.getUndoManager().getOperationFactory()
+                        .isSourceModifiedOperation(this.getUndoManager().redoStackTop())){
+                    this.getUndoManager().reset();
                 }
-                // If we have added a new action/function invocation statement the particular import has to be added
-                // to the imports view
-                if (_.isEqual(event.title, 'add import')) {
-                    var childModel = event.data.child;
-                    self.visit(childModel);
-                }
-                _.set(event, 'editor', this);
-                _.set(event, 'skipInSourceView', true);
-                this.getUndoManager().onUndoableOperation(event);
-                this.trigger('content-modified');
-            }, this);
+            }
+            // If we have added a new action/function invocation statement the particular import has to be added
+            // to the imports view
+            if (_.isEqual(event.title, 'add import')) {
+                var childModel = event.data.child;
+                self.visit(childModel);
+            }
+            _.set(event, 'editor', this);
+            _.set(event, 'skipInSourceView', true);
+            this.getUndoManager().onUndoableOperation(event);
+            this.trigger('content-modified');
+        }, this);
 
-            this._model.on('import-new-package', function(packageString) {
-                self.addNewImportPackage(packageString);
-            });
-        } else {
-            log.error('Ballerina AST Root is undefined or is of different type.' + model);
-            throw 'Ballerina AST Root is undefined or is of different type.' + model;
-        }
+        this._model.on('import-new-package', function(packageString) {
+            self.addNewImportPackage(packageString);
+        });
     }
 
     setId(id) {
@@ -245,32 +249,31 @@ class BallerinaFileEditor extends BallerinaView {
         }
 
         var importDeclarations = [];
-        if(!this._parseFailed) {
-            // attach a wrapper to the react diagram so we can attach expression editor to the container.
-            let diagramRoot = $('<div class="diagram root" ></div>');
-            let overlay = $('<div class="html-overlay" ></div>');
-            var renderer = new Renderer(overlay[0]);
-            let structOperationsOverlay = $('<div class="struct-operations-html-overlay" ></div>');
-            const structOperationsRenderer = new StructOperationsRenderer(structOperationsOverlay[0]);
-            this._$canvasContainer.append(diagramRoot);
-            this._$canvasContainer.append(overlay);
-            this._$canvasContainer.append(structOperationsOverlay);
-            //create Rect component for diagram
-            let root = React.createElement(BallerinaDiagram, {
-                editor: this,
-                dragDropManager: this.toolPalette.dragDropManager,
-                messageManager: this.messageManager,
-                container: this._$canvasContainer,
-                renderingContext: this.diagramRenderingContext,
-                renderer,
-                overlay: overlay[0],
-                structOperationsRenderer
-            }, null);
-            ReactDOM.render(
-              root,
-              diagramRoot[0]
-            );
-        }
+
+        // attach a wrapper to the react diagram so we can attach expression editor to the container.
+        let diagramRoot = $('<div class="diagram root" ></div>');
+        let overlay = $('<div class="html-overlay" ></div>');
+        var renderer = new Renderer(overlay[0]);
+        let structOperationsOverlay = $('<div class="struct-operations-html-overlay" ></div>');
+        const structOperationsRenderer = new StructOperationsRenderer(structOperationsOverlay[0]);
+        this._$canvasContainer.append(diagramRoot);
+        this._$canvasContainer.append(overlay);
+        this._$canvasContainer.append(structOperationsOverlay);
+        //create Rect component for diagram
+        let root = React.createElement(BallerinaDiagram, {
+            editor: this,
+            dragDropManager: this.toolPalette.dragDropManager,
+            messageManager: this.messageManager,
+            container: this._$canvasContainer,
+            renderingContext: this.diagramRenderingContext,
+            renderer,
+            overlay: overlay[0],
+            structOperationsRenderer
+        }, null);
+        ReactDOM.render(
+            root,
+            diagramRoot[0]
+        );
 
         // render tool palette
         this.toolPalette.render();
