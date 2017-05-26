@@ -173,6 +173,7 @@ public class TypeLattice {
         TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
         
         conversionLattice.addVertex(intV, false);
         conversionLattice.addVertex(floatV, false);
@@ -181,6 +182,7 @@ public class TypeLattice {
         conversionLattice.addVertex(xmlV, false);
         conversionLattice.addVertex(jsonV, false);
         conversionLattice.addVertex(connectorV, false);
+        conversionLattice.addVertex(datatableV, false);
 
         conversionLattice.addEdge(intV, intV, NativeConversionMapper.INT_TO_INT_FUNC);
         conversionLattice.addEdge(intV, floatV, NativeConversionMapper.INT_TO_FLOAT_FUNC);
@@ -214,6 +216,7 @@ public class TypeLattice {
 
         conversionLattice.addEdge(xmlV, jsonV, NativeConversionMapper.XML_TO_JSON_FUNC);
         conversionLattice.addEdge(xmlV, stringV, NativeConversionMapper.XML_TO_STRING_FUNC);
+        conversionLattice.addEdge(datatableV, xmlV, NativeConversionMapper.DATATABLE_TO_XML_FUNC);
     }
     
     /**
@@ -359,7 +362,7 @@ public class TypeLattice {
                 BLangSymbol symbol = entry.getValue();
                 if (symbol instanceof StructDef && symbol != structDef) {
                     TypeVertex otherStructV = new TypeVertex(symbol);
-                    
+
                     if (isAssignCompatible(structDef, (StructDef) symbol)) {
                         explicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_SAFE_FUNC);
                     }
@@ -374,7 +377,7 @@ public class TypeLattice {
     
     /**
      * Add conversion edges for structs
-     * 
+     *
      * @param structDef Struct definition
      * @param scope scope of the struct
      */
@@ -382,13 +385,16 @@ public class TypeLattice {
         TypeVertex structV = new TypeVertex(structDef);
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
-        
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
+
         conversionLattice.addVertex(structV, false);
-        
-            conversionLattice.addEdge(structV, mapV, NativeConversionMapper.STRUCT_TO_MAP_FUNC);
-            conversionLattice.addEdge(structV, jsonV, NativeConversionMapper.STRUCT_TO_JSON_FUNC);
-            conversionLattice.addEdge(jsonV, structV, NativeConversionMapper.JSON_TO_STRUCT_FUNC);
-            conversionLattice.addEdge(mapV, structV, NativeConversionMapper.MAP_TO_STRUCT_FUNC);
+        conversionLattice.addVertex(datatableV, false);
+
+        conversionLattice.addEdge(structV, mapV, NativeConversionMapper.STRUCT_TO_MAP_FUNC);
+        conversionLattice.addEdge(structV, jsonV, NativeConversionMapper.STRUCT_TO_JSON_FUNC);
+        conversionLattice.addEdge(jsonV, structV, NativeConversionMapper.JSON_TO_STRUCT_FUNC);
+        conversionLattice.addEdge(mapV, structV, NativeConversionMapper.MAP_TO_STRUCT_FUNC);
+        conversionLattice.addEdge(datatableV, jsonV, NativeConversionMapper.DATATABLE_TO_JSON_FUNC);
     }
     
     public static boolean isAssignCompatible(StructDef targetStructDef, StructDef sourceStructDef) {

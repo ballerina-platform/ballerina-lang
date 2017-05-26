@@ -99,6 +99,11 @@ native function getString (datatable dt, string name) (string);
 @doc:Return { value:"boolean: True if there is a new row; false otherwise" }
 native function next (datatable dt) (boolean);
 
+@doc:Description { value:"Retrives the current row and return a struct with the data in the columns"}
+@doc:Param { value:"dt: The datatable object" }
+@doc:Return { value:"any: The resulting row as a struct" }
+native function getNext (datatable dt) (any);
+
 @doc:Description { value:"Retrieves arrays values of a given column name."}
 @doc:Param { value:"dt: The datatable object" }
 @doc:Param { value:"name: " }
