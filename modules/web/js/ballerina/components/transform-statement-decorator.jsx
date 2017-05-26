@@ -171,7 +171,8 @@ class TransformStatementDecorator extends React.Component {
                } else if (currentSelection != $("#" + targetId).val()) {
                    self.mapper.removeType(previousSelection);
                    self.setSource(currentSelection, self.predefinedStructs);
-                   var inputDef = BallerinaASTFactory.createVariableReferenceExpression({variableName: currentSelection});
+                   var inputDef = BallerinaASTFactory
+                                        .createVariableReferenceExpression({variableName: currentSelection});
                    self.props.model.setInput([inputDef]);
                    self.props.model.children = [];
                } else {
@@ -188,7 +189,8 @@ class TransformStatementDecorator extends React.Component {
                } else if (currentSelection != $("#" + sourceId).val()) {
                     self.mapper.removeType(previousSelection);
                     self.setTarget(currentSelection, self.predefinedStructs);
-                    var outDef = BallerinaASTFactory.createVariableReferenceExpression({variableName: currentSelection});
+                    var outDef = BallerinaASTFactory
+                                        .createVariableReferenceExpression({variableName: currentSelection});
                     self.props.model.setOutput([outDef]);
                     self.props.model.children = [];
                } else {
@@ -250,11 +252,13 @@ class TransformStatementDecorator extends React.Component {
                 var con = {};
                 con.id = assignments.id;
                 con.sourceStruct = assignments.getChildren()[1].getChildren()[0].getChildren()[0].getVariableName();
-                var complexSourceProp = self.createComplexProp(con.sourceStruct, assignments.getChildren()[1].getChildren()[0].getChildren()[1].getChildren());
+                var complexSourceProp = self.createComplexProp(con.sourceStruct,
+                assignments.getChildren()[1].getChildren()[0].getChildren()[1].getChildren());
                 con.sourceType = complexSourceProp.types.reverse();
                 con.sourceProperty = complexSourceProp.names.reverse();
                 con.targetStruct = assignments.getChildren()[0].getChildren()[0].getChildren()[0].getVariableName();
-                var complexTargetProp = self.createComplexProp(con.targetStruct, assignments.getChildren()[0].getChildren()[0].getChildren()[1].getChildren());
+                var complexTargetProp = self.createComplexProp(con.targetStruct,
+                assignments.getChildren()[0].getChildren()[0].getChildren()[1].getChildren());
                 con.targetType = complexTargetProp.types.reverse();
                 con.targetProperty = complexTargetProp.names.reverse();
                 con.isComplexMapping = false;
@@ -528,7 +532,8 @@ class TransformStatementDecorator extends React.Component {
     createAccessNode(name, property) {
         var structExpression = BallerinaASTFactory.createFieldAccessExpression();
         var structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
-        var structProperty = BallerinaASTFactory.createBasicLiteralExpression({basicLiteralType:'string', basicLiteralValue:property});
+        var structProperty = BallerinaASTFactory.createBasicLiteralExpression({basicLiteralType:'string',
+                                                                                basicLiteralValue:property});
         var structName =  BallerinaASTFactory.createVariableReferenceExpression();
 
         structName.setVariableName(name);
