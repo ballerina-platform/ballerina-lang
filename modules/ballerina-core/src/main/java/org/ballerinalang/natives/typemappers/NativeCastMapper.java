@@ -84,7 +84,17 @@ public class NativeCastMapper {
      * Function to cast a given struct to another. The compatibility is checked during the semantic analyzer phase.
      * Therefore the same value is returned as is, maintaining its originated type ({@link StructDef}) as meta info.
      */
-    public static final TriFunction<BValue, BType, Boolean, BValue[]> STRUCT_TO_STRUCT_FUNC = 
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> STRUCT_TO_STRUCT_SAFE_FUNC =
+        (rVal, targetType, returnErrors) -> {
+            return new BValue[] { rVal, null };
+        };
+    
+    /**
+     * Function to cast a given struct to another. The compatibility check is failed during the semantic analyzer phase.
+     * Therefore the compatibility is checked during runtime. If it is successful, same value is returned as is, 
+     * maintaining its originated type ({@link StructDef}) as meta info.
+     */
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> STRUCT_TO_STRUCT_UNSAFE_FUNC =
         (rVal, targetType, returnErrors) -> {
             if (rVal == null || TypeLattice.isAssignCompatible((StructDef) targetType, (StructDef) rVal.getType())) {
                 return new BValue[] { rVal, null };
@@ -93,7 +103,7 @@ public class NativeCastMapper {
                 targetType, rVal.getType());
             return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
-    
+
     /**
      * Function to cast a given array to a JSON array.
      * If the array contains reference type elements, those will be converted to their corresponding JSON

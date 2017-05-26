@@ -137,6 +137,7 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.natives.typemappers.TypeMappingUtils;
 import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -2128,10 +2129,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         boolean isMultiReturn = typeCastExpression.isMultiReturnExpr();
         
         // Find the eval function from explicit casting lattice
-        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null, 
-                isMultiReturn);
+        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
+        } else if (sourceType instanceof StructDef && targetType instanceof StructDef) {
+            typeCastExpression.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
         } else {
             // TODO: print a suggestion
             BLangExceptionHelper.throwSemanticError(typeCastExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
@@ -2173,8 +2175,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         boolean isMultiReturn = typeConversionExpression.isMultiReturnExpr();
         
         // Find the eval function from the conversion lattice
-        TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null, 
-                isMultiReturn);
+        TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
             typeConversionExpression.setEvalFunc(newEdge.getTypeMapperFunction());
         } else {

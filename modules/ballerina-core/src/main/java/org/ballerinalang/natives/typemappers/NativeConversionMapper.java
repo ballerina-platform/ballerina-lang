@@ -93,16 +93,31 @@ public class NativeConversionMapper {
                 } catch (Exception e) {
                     String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
                         BTypes.typeString, BTypes.typeInt, e.getMessage());
-                    return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+                    return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
                 }
             };
 
     public static final TriFunction<BValueType, BType, Boolean, BValue[]> STRING_TO_FLOAT_FUNC = 
-            (rVal, targetType, returnErrors) -> new BValue[] {new BFloat(rVal.floatValue()), null };
+            (rVal, targetType, returnErrors) -> {
+                try {
+                    return new BValue[] { new BFloat(rVal.floatValue()), null };
+                } catch (Exception e) {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
+                        BTypes.typeString, BTypes.typeFloat, e.getMessage());
+                    return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
+                }
+            };
 
     public static final TriFunction<BValueType, BType, Boolean, BValue[]> STRING_TO_BOOLEAN_FUNC =
-            (rVal, targetType, returnErrors) -> new BValue[] {new BBoolean(rVal.booleanValue()), null };
-
+            (rVal, targetType, returnErrors) -> {
+                try {
+                    return new BValue[] {new BBoolean(rVal.booleanValue()), null };
+                } catch (Exception e) {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
+                        BTypes.typeString, BTypes.typeBoolean, e.getMessage());
+                    return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
+                }
+            };
     public static final TriFunction<BValueType, BType, Boolean, BValue[]> STRING_TO_JSON_FUNC =
         (rVal, targetType, returnErrors) -> {
             String jsonStr = rVal.stringValue();
@@ -116,7 +131,15 @@ public class NativeConversionMapper {
         };
 
     public static final TriFunction<BValueType, BType, Boolean, BValue[]> STRING_TO_XML_FUNC =
-        (rVal, targetType, returnErrors) -> new BValue[] { new BXML(rVal.stringValue()), null };
+            (rVal, targetType, returnErrors) -> {
+                try {
+                    return new BValue[] { new BXML(rVal.stringValue()), null };
+                } catch (Exception e) {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
+                        BTypes.typeString, BTypes.typeXML, e.getMessage());
+                    return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
+                }
+            };
                 
     public static final TriFunction<BValueType, BType, Boolean, BValue[]> BOOLEAN_TO_BOOLEAN_FUNC =
             (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
