@@ -56,7 +56,7 @@ public class ReadLine extends AbstractNativeFunction {
         BReader reader = (BReader) getArgument(context, 0);
         String line;
         try {
-            line = reader.readLine();
+            line = reader.value().readLine();
         } catch (IOException e) {
             throw new BallerinaException("Exception occurred when reading line", e);
         }

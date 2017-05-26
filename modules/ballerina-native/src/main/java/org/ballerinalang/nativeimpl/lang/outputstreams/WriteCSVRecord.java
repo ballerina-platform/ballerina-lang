@@ -15,8 +15,6 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -45,7 +43,6 @@ import java.io.UnsupportedEncodingException;
         value = "Apply quotes to all data") })
 public class WriteCSVRecord extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(WriteCSVRecord.class);
     @Override public BValue[] execute(Context context) {
 
         CSVWriter csvWriter = null;
@@ -54,7 +51,7 @@ public class WriteCSVRecord extends AbstractNativeFunction {
         BString charset = (BString) getArgument(context, 2);
         BBoolean applyQuotes = (BBoolean) getArgument(context, 3);
         try {
-            csvWriter = new CSVWriter(new OutputStreamWriter(outputStream, charset.stringValue()));
+            csvWriter = new CSVWriter(new OutputStreamWriter(outputStream.value(), charset.stringValue()));
             csvWriter.writeNext(toStringArray(arr), applyQuotes.booleanValue());
 
         } catch (UnsupportedEncodingException e) {

@@ -30,10 +30,12 @@ import java.io.InputStreamReader;
  *
  * @since 0.9.0
  */
-public class BReader extends BufferedReader implements BRefType {
+public class BReader implements BRefType {
+
+    private BufferedReader value;
 
     public BReader(InputStream in) {
-        super(new InputStreamReader(in));
+        value = new BufferedReader(new InputStreamReader(in));
     }
 
     @Override
@@ -47,7 +49,7 @@ public class BReader extends BufferedReader implements BRefType {
     }
 
     @Override
-    public Object value() {
-        return null;
+    public BufferedReader value() {
+        return value;
     }
 }

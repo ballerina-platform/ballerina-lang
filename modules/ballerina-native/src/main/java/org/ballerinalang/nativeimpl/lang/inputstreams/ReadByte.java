@@ -54,7 +54,7 @@ public class ReadByte extends AbstractNativeFunction {
         BInteger result;
         BInputStream inputStream = (BInputStream) getArgument(context, 0);
         try {
-            result = new BInteger(inputStream.read());
+            result = new BInteger(inputStream.value().read());
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while reading input stream", e);
         }

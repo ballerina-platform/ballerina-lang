@@ -51,7 +51,7 @@ public class GetReader extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BReader result;
         BInputStream is = (BInputStream) getArgument(context, 0);
-        result = new BReader(is);
+        result = new BReader(is.value());
         return getBValues(result);
     }
 }

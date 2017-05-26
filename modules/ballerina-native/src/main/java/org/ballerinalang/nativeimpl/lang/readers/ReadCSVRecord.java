@@ -31,8 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -56,7 +54,6 @@ import java.io.IOException;
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "line",
         value = "The array containing the record") })
 public class ReadCSVRecord extends AbstractNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(ReadCSVRecord.class);
     @Override
     public BValue[] execute(Context context) {
         BArray<BString> result = new BArray<>(BString.class);
@@ -70,7 +67,7 @@ public class ReadCSVRecord extends AbstractNativeFunction {
             } else {
                 sep = ',';
             }
-            CSVReader csvReader = new CSVReader(reader, sep);
+            CSVReader csvReader = new CSVReader(reader.value(), sep);
 
             String[] myEntries = csvReader.readNext();
             int i = 0;

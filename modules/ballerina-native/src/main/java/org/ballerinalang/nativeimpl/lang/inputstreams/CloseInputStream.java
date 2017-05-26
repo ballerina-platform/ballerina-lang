@@ -49,7 +49,7 @@ public class CloseInputStream extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BInputStream inputStream = (BInputStream) getArgument(context, 0);
         try {
-            inputStream.close();
+            inputStream.value().close();
         } catch (IOException e) {
             throw new BallerinaException("Exception occurred when closing inputstream");
         }

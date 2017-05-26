@@ -13,8 +13,6 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -36,14 +34,13 @@ import java.io.IOException;
         value = "Output Stream") })
 public class Write extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Write.class);
     @Override public BValue[] execute(Context context) {
 
         BInputStream inputStream = (BInputStream) getArgument(context, 0);
         BOutputStream outputStream = (BOutputStream) getArgument(context, 1);
         try {
-            IOUtils.copy(inputStream, outputStream);
-            outputStream.flush();
+            IOUtils.copy(inputStream.value(), outputStream.value());
+            outputStream.value().flush();
         } catch (FileSystemException e) {
             throw new BallerinaException("Error while resolving file", e);
         } catch (IOException e) {

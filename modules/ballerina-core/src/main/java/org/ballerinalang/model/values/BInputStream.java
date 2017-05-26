@@ -11,14 +11,16 @@ import java.io.InputStream;
  *
  * @since 0.9.0
  */
-public class BInputStream extends BufferedInputStream implements BRefType {
+public class BInputStream implements BRefType {
+
+    private BufferedInputStream value;
 
     public BInputStream(InputStream in) {
-        super(in);
+        value = new BufferedInputStream(in);
     }
 
     public BInputStream(InputStream in, int size) {
-        super(in, size);
+        value = new BufferedInputStream(in, size);
     }
 
     @Override
@@ -32,7 +34,7 @@ public class BInputStream extends BufferedInputStream implements BRefType {
     }
 
     @Override
-    public Object value() {
-        return null;
+    public BufferedInputStream value() {
+        return value;
     }
 }

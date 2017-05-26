@@ -14,8 +14,6 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Copy Function
@@ -35,7 +33,6 @@ import org.slf4j.LoggerFactory;
         value = "The location where the File should be moved to") })
 public class Move extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Move.class);
     @Override public BValue[] execute(Context context) {
         BFile source = (BFile) getArgument(context, 0);
         BFile destination = (BFile) getArgument(context, 1);
