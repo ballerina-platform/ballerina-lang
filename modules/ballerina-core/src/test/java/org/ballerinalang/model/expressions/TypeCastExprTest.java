@@ -468,7 +468,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a struct to an incompatible struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "incompatible-struct-cast.bal:24: incompatible types: 'Student' " +
-            "cannot be converted to 'Person'")
+            "cannot be assigned to 'Person'")
     public void testIncompatibleStructToStructCast() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/incompatible-struct-cast.bal");
     }

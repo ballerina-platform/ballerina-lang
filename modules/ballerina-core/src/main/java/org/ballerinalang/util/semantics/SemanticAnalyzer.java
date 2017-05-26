@@ -923,8 +923,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(VariableDefStmt varDefStmt) {
         // Resolves the type of the variable
         VariableDef varDef = varDefStmt.getVariableDef();
-        BType varBType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
-        varDef.setType(varBType);
+        BType lhsType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
+        varDef.setType(lhsType);
 
         // Mark the this variable references as LHS expressions
         ((ReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
@@ -945,83 +945,66 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
         
-        // Null can be assigned to only reference types
-        if (rExpr instanceof NullLiteral) {
-            if (BTypes.isValueType(varBType)) {
-                BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_ASSIGNMENT, rExpr.getType(),
-                    varBType);
-            }
-            rExpr.setType(varBType);
-            return;
-        }
-        
-        //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, varBType);
+            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
             varDefStmt.setRExpr(refTypeInitExpr);
             refTypeInitExpr.accept(this);
             return;
         }
 
-
+        BType rhsType;
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
-
             CallableUnitInvocationExpr invocationExpr = (CallableUnitInvocationExpr) rExpr;
             BType[] returnTypes = invocationExpr.getTypes();
+
             if (returnTypes.length != 1) {
-                BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, "1",
-                        returnTypes.length);
-            } else if (varBType == BTypes.typeAny) {
-                return;
-            } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
-                    (!varBType.equals(returnTypes[0]))) {
+                BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH,
+                        "1", returnTypes.length);
+            }
 
-                TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
-                if (newExpr != null) {
-                    newExpr.accept(this);
-                    varDefStmt.setRExpr(newExpr);
+            rhsType = returnTypes[0];
+        } else {
+            visitSingleValueExpr(rExpr);
+            rhsType = rExpr.getType();
+        }
+
+        // Check whether the right-hand type can be assigned to the left-hand type.
+        if (isAssignableTo(lhsType, rhsType)) {
+            if (lhsType == BTypes.typeAny && BTypes.isValueType(rhsType)) {
+                TypeCastExpression castExpr = checkWideningPossible(lhsType, rExpr);
+                if (castExpr != null) {
+                    varDefStmt.setRExpr(castExpr);
                 } else {
-                    BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                            returnTypes[0], varBType);
+                    BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
+                            rhsType, lhsType);
                 }
             }
 
             return;
         }
 
-        visitSingleValueExpr(rExpr);
-        BType rType = rExpr.getType();
+        // Check whether we can apply an implicit cast
+        TypeCastExpression implicitCastExpr = checkWideningPossible(lhsType, rExpr);
+        if (implicitCastExpr != null) {
+            varDefStmt.setRExpr(implicitCastExpr);
+        } else {
+            BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
+                    rhsType, lhsType);
+        }
+    }
 
-        // Generate type cast expression if the rhs type is a value type
-        if (varBType == BTypes.typeAny) {
-            if (BTypes.isValueType(rExpr.getType())) {
-                TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
-                if (newExpr != null) {
-                    varDefStmt.setRExpr(newExpr);
-                } else {
-                    BLangExceptionHelper.throwSemanticError(varDefStmt,
-                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, rExpr.getType().getSymbolName(),
-                            varBType.getSymbolName());
-                }
-            }
-            return;
+
+    private boolean isAssignableTo(BType lhsType, BType rhsType) {
+        if (lhsType == BTypes.typeAny) {
+            return true;
         }
 
-        if (rExpr instanceof TypeCastExpression && rType == null) {
-            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
+        if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
+            return true;
         }
 
-        if (!varBType.equals(rType)) {
-
-            TypeCastExpression newExpr = checkWideningPossible(varBType, rExpr);
-            if (newExpr != null) {
-                varDefStmt.setRExpr(newExpr);
-            } else {
-                BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                        rExpr.getType().getSymbolName(), varBType.getSymbolName());
-            }
-        }
+        return lhsType == rhsType;
     }
 
     @Override
@@ -1038,56 +1021,39 @@ public class SemanticAnalyzer implements NodeVisitor {
         
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
-        BType lExprType = lExpr.getType();
+        BType lhsType = lExpr.getType();
 
-        if (rExpr instanceof NullLiteral) {
-            if (BTypes.isValueType(lExprType)) {
-                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES,
-                    rExpr.getType(), lExpr.getType());
-            }
-
-            rExpr.setType(lExprType);
-            return;
-        }
-
-        //todo any type support for RefTypeInitExpr
         if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lExprType);
+            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
             assignStmt.setRExpr(refTypeInitExpr);
             refTypeInitExpr.accept(this);
             return;
         }
 
         visitSingleValueExpr(rExpr);
-        BType rType = rExpr.getType();
+        BType rhsType = rExpr.getType();
 
-        // Generate type cast expression if the rhs type is a value type
-        if (lExprType == BTypes.typeAny) {
-            if (BTypes.isValueType(rExpr.getType())) {
-                TypeCastExpression newExpr = checkWideningPossible(lExprType, rExpr);
-                if (newExpr != null) {
-                    assignStmt.setRExpr(newExpr);
+        // Check whether the right-hand type can be assigned to the left-hand type.
+        if (isAssignableTo(lhsType, rhsType)) {
+            if (lhsType == BTypes.typeAny && BTypes.isValueType(rhsType)) {
+                TypeCastExpression castExpr = checkWideningPossible(lhsType, rExpr);
+                if (castExpr != null) {
+                    assignStmt.setRExpr(castExpr);
                 } else {
-                    BLangExceptionHelper.throwSemanticError(assignStmt,
-                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, rExpr.getType().getSymbolName(),
-                            lExprType.getSymbolName());
+                    BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
+                            rhsType, lhsType);
                 }
             }
             return;
         }
 
-        if (rExpr instanceof TypeCastExpression && rType == null) {
-            rType = BTypes.resolveType(((TypeCastExpression) rExpr).getTypeName(), currentScope, null);
-        }
-
-        if (!lExprType.equals(rType)) {
-            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
-            if (newExpr != null) {
-                assignStmt.setRhsExpr(newExpr);
-            } else {
-                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                        rExpr.getType(), lExpr.getType());
-            }
+        // Check whether we can apply an implicit cast
+        TypeCastExpression implicitCastExpr = checkWideningPossible(lhsType, rExpr);
+        if (implicitCastExpr != null) {
+            assignStmt.setRExpr(implicitCastExpr);
+        } else {
+            BLangExceptionHelper.throwSemanticError(rExpr, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
+                    rhsType, lhsType);
         }
     }
 
@@ -1483,12 +1449,21 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             for (int i = 0; i < returnParamsOfCU.length; i++) {
-                if (returnParamsOfCU[i].getType() != BTypes.typeAny &&
-                    !funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
-                    BLangExceptionHelper.throwSemanticError(returnStmt,
-                            SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, returnParamsOfCU[i].getType(),
-                            funcIExprReturnTypes[i]);
+                BType lhsType = returnParamsOfCU[i].getType();
+                BType rhsType = funcIExprReturnTypes[i];
+
+                // Check whether the right-hand type can be assigned to the left-hand type.
+                if (isAssignableTo(lhsType, rhsType)) {
+                    continue;
                 }
+
+                // TODO Check whether an implicit cast is possible
+                // This requires a tree rewrite. Off the top of my head the results of function or action invocation
+                // should be stored in temporary variables with matching types. Then these temporary variables can be
+                // assigned to left-hand side expressions one by one.
+
+                BLangExceptionHelper.throwSemanticError(returnStmt,
+                        SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, lhsType, rhsType);
             }
 
             return;
@@ -1504,12 +1479,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Now we know that lengths for both arrays are equal.
             // Let's check their types
             for (int i = 0; i < returnParamsOfCU.length; i++) {
-                // Check for ActionInvocationExprs in return arguments
-                if (returnArgExprs[i] instanceof ActionInvocationExpr) {
-                    BLangExceptionHelper.throwSemanticError(returnStmt,
-                            SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_IN_RETURN);
-                }
-
                 // Except for the first argument in return statement, check for FunctionInvocationExprs which return
                 // multiple values.
                 if (returnArgExprs[i] instanceof FunctionInvocationExpr) {
@@ -1520,21 +1489,33 @@ public class SemanticAnalyzer implements NodeVisitor {
                                 funcIExpr.getCallableUnit().getName());
                     }
                 }
-                BType targetType = returnParamsOfCU[i].getType();
-                if (NativeCastMapper.isCompatible(returnParamsOfCU[i].getType(), typesOfReturnExprs[i])) {
+
+                BType lhsType = returnParamsOfCU[i].getType();
+                BType rhsType = typesOfReturnExprs[i];
+
+                // Check whether the right-hand type can be assigned to the left-hand type.
+                if (isAssignableTo(lhsType, rhsType)) {
+                    if (lhsType == BTypes.typeAny && BTypes.isValueType(rhsType)) {
+                        TypeCastExpression castExpr = checkWideningPossible(lhsType, returnArgExprs[i]);
+                        if (castExpr != null) {
+                            returnArgExprs[i] = castExpr;
+                        } else {
+                            BLangExceptionHelper.throwSemanticError(returnStmt,
+                                    SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, lhsType, rhsType);
+                        }
+                    }
                     continue;
                 }
 
-                // Check whether implicit casting is possible. Create a casting expression, if so.
-                TypeCastExpression newExpr = checkWideningPossible(targetType, returnArgExprs[i]);
-                if (newExpr != null) {
-                    newExpr.accept(this);
-                    returnArgExprs[i] = newExpr;
-                    continue;
+                // Check whether we can apply an implicit cast
+                TypeCastExpression implicitCastExpr = checkWideningPossible(lhsType, returnArgExprs[i]);
+                if (implicitCastExpr != null) {
+                    implicitCastExpr.accept(this);
+                    returnArgExprs[i] = implicitCastExpr;
+                } else {
+                    BLangExceptionHelper.throwSemanticError(returnStmt,
+                            SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, lhsType, rhsType);
                 }
-
-                BLangExceptionHelper.throwSemanticError(returnStmt, SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT,
-                        returnParamsOfCU[i].getType().getSymbolName(), typesOfReturnExprs[i].getSymbolName());
             }
         }
     }
@@ -1959,7 +1940,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExpr);
             if (typeCastExpr == null) {
                 BLangExceptionHelper.throwSemanticError(arrayInitExpr,
-                    SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExpr.getType(), expectedElementType);
+                    SemanticErrors.INCOMPATIBLE_ASSIGNMENT, argExpr.getType(), expectedElementType);
             }
             argExprs[i] = typeCastExpr;
         }
@@ -2381,17 +2362,28 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         for (int i = 0; i < lExprs.length; i++) {
             Expression lExpr = lExprs[i];
-            BType returnType = returnTypes[i];
             String varName = getVarNameFromExpression(lExpr);
             if ("_".equals(varName)) {
                 continue;
             }
-            if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
-                BLangExceptionHelper.throwSemanticError(assignStmt,
-                        SemanticErrors.CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT, returnType, varName, lExpr.getType());
+
+            BType lhsType = lExprs[i].getType();
+            BType rhsType = returnTypes[i];
+
+            // Check whether the right-hand type can be assigned to the left-hand type.
+            if (isAssignableTo(lhsType, rhsType)) {
+                continue;
             }
+
+            // TODO Check whether an implicit cast is possible
+            // This requires a tree rewrite. Off the top of my head the results of function or action invocation
+            // should be stored in temporary variables with matching types. Then these temporary variables can be
+            // assigned to left-hand side expressions one by one.
+
+            BLangExceptionHelper.throwSemanticError(assignStmt,
+                    SemanticErrors.CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT, rhsType, varName, lExpr.getType());
         }
-    }
+    }                                   
 
     private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
         // This set data structure is used to check for repeated variable names in the assignment statement
@@ -3055,12 +3047,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
-        BType rhsType = rhsExpr.getType();
-        if (rhsType == null && rhsExpr instanceof TypeCastExpression) {
-            rhsType = BTypes.resolveType(((TypeCastExpression) rhsExpr).getTypeName(), currentScope, null);
-        }
-        TypeCastExpression newExpr = null;
         TypeEdge newEdge;
+        TypeCastExpression newExpr = null;
+        BType rhsType = rhsExpr.getType();
 
         newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
         if (newEdge != null) {

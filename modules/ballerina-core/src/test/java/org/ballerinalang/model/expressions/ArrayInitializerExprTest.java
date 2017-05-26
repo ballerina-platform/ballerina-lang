@@ -76,7 +76,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test arrays initializing with different types",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "multi-type-array-initializer.bal:3: " +
-                    "incompatible types: 'string' cannot be converted to 'int'")
+                    "incompatible types: 'string' cannot be assigned to 'int'")
     public void testMultiTypeMapInit() {
         BTestUtils.parseBalFile("lang/expressions/multi-type-array-initializer.bal");
     }

@@ -151,13 +151,13 @@ public class BMapValueTest   {
     }
 
     @Test(description = "Testing map value access in variableDefStmt", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be converted to 'string'")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be assigned to 'string'")
     void testInvalidGrammar1() {
         BTestUtils.parseBalFile("lang/values/map-value-invalid1.bal");
     }
 
     @Test(description = "Testing map value access in assignStmt", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be converted to 'string'")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be assigned to 'string'")
     void testInvalidGrammar2() {
         BTestUtils.parseBalFile("lang/values/map-value-invalid2.bal");
     }

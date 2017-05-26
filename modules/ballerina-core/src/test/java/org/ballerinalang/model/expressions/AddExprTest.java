@@ -144,7 +144,7 @@ public class AddExprTest {
     @Test(description = "Test adding values of two types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "add-incompatible-types.bal:5: incompatible types: "
-                    + "'string' cannot be converted to 'int'")
+                    + "'string' cannot be assigned to 'int'")
     public void testAddIncompatibleTypes() {
         BTestUtils.parseBalFile("lang/expressions/add-incompatible-types.bal");
     }
