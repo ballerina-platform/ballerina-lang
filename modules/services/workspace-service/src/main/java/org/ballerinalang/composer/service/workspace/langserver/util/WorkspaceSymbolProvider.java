@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class WorkspaceSymbolProvider {
@@ -39,7 +38,7 @@ public class WorkspaceSymbolProvider {
 
     public SymbolInformationDTO[] getSymbols(String query) {
         switch (query) {
-            case LangServerConstants.NATIVE_TYPES:
+            case LangServerConstants.BUILTIN_TYPES:
                 return getBuiltinTypes();
             case LangServerConstants.PACKAGES:
                 return getPackages();

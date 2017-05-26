@@ -222,6 +222,10 @@ class Application {
         return this._isElectronMode;
     }
 
+    getLangserverClientController() {
+        return this.langseverClientController;
+    }
+
 }
 
 export default Application;

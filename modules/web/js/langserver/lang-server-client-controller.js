@@ -24,20 +24,21 @@ import _ from 'lodash';
 import log from 'log';
 
 
-// ################ Handle the websocket closing as well #######################
+// ################ Handle the websocket closing and error as well #######################
 class LangServerClientController extends EventChannel{
     constructor(options) {
         super();
         this.langserverChannel = undefined;
         this.endpoint = _.get(options, 'application.config.services.langserver.endpoint');
         this.requestSessions = [];
+        this.isInitialized = false;
         this.init();
     }
 
     init() {
         this.langserverChannel = new LangserverChannel({ endpoint : this.endpoint, clientController: this });
         this.langserverChannel.on('connected', () => {
-            this.initializeRequest()
+            this.initializeRequest();
         });
     }
 
@@ -56,6 +57,29 @@ class LangServerClientController extends EventChannel{
         session.setMessage(message);
         session.setCallback(() => {
             this.initializeResponseHandler(session);
+        });
+        this.requestSessions.push(session);
+        this.langserverChannel.sendMessage(message);
+    }
+
+    /**
+     * Send the workspace symbol request
+     * @param {string} query
+     * @param {function} callback Callback method for handling the response
+     */
+    workspaceSymbolRequest(query, callback) {
+        let session = new RequestSession();
+        var message = {
+            id: session.getId(),
+            jsonrpc: '2.0',
+            method : "workspace/symbol",
+            params: {
+                query: query
+            }
+        };
+        session.setMessage(message);
+        session.setCallback((responseMsg) => {
+            callback(responseMsg);
         });
         this.requestSessions.push(session);
         this.langserverChannel.sendMessage(message);
@@ -106,7 +130,12 @@ class LangServerClientController extends EventChannel{
      */
     initializeResponseHandler(requestSession) {
         // initialize response message received
-        log.info("################### INITIALIZE RESPONSE RECEIVED ###################");
+        this.trigger('langserver-initialized');
+        this.isInitialized = true;
+    }
+
+    initialized() {
+        return this.isInitialized;
     }
 
     // End language server response handlers

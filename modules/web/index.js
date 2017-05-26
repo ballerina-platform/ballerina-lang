@@ -8,6 +8,31 @@ var Application = require('./js/main').default;
 const config = require('./config').default;
 var app = new Application(config);
 
-app.render();
-app.displayInitialView();
-window.composer = app;
+if (!app.getLangserverClientController().initialized()) {
+    waitForLangserverInitialization(app, function () {
+        app.render();
+        app.displayInitialView();
+        window.composer = app;
+    });
+}
+
+/**
+ * Wait until the language server initialization completes
+ * @param app
+ * @param callback
+ */
+function waitForLangserverInitialization(app, callback) {
+    setTimeout(
+        function () {
+            if (app.getLangserverClientController().initialized()) {
+                console.log("Language Server Connection initialized...");
+                callback();
+                return;
+
+            } else {
+                console.log("Wait for Language Server Connection...");
+                waitForLangserverInitialization(app, callback);
+            }
+
+        }, 100);
+}

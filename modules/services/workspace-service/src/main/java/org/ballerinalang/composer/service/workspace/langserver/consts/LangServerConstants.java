@@ -74,7 +74,7 @@ public class LangServerConstants {
     /**
      * Workspace symbol query string
      */
-    public static final String NATIVE_TYPES = "nativeTypes";
+    public static final String BUILTIN_TYPES = "builtinTypes";
     public static final String PACKAGES = "packages";
 
     /**

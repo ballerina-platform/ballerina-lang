@@ -39,7 +39,9 @@ class BallerinaEnvironment extends EventChannel {
 
     initialize(opts) {
         if (!this.initialized) {
-            this.initializeNativeTypes(opts.app);
+            opts.app.langseverClientController.workspaceSymbolRequest('builtinTypes', (data) => {
+                this.initializeBuiltinTypes(data.result);
+            });
             this.initializePackages(opts.app);
             this.initializeAnnotationAttachmentPoints(opts.app);
             this.initialized = true;
@@ -114,14 +116,13 @@ class BallerinaEnvironment extends EventChannel {
     }
 
     /**
-     * Initialize native types from Ballerina Program
+     * Initialize builtin types from Ballerina Program
      */
-    initializeNativeTypes(app) {
+    initializeBuiltinTypes(builtinTypes) {
         let self = this;
-        let nativeTypesJson = EnvironmentContent.getNativeTypes(app);
-        _.each(nativeTypesJson, function (nativeType) {
-            if (!_.isNil(nativeType)) {
-                self._types.push(nativeType);
+        _.each(builtinTypes, function (builtinType) {
+            if (!_.isNil(builtinType)) {
+                self._types.push(builtinType.name);
             }
         });
         self._types = _.sortBy(self._types, [function (type) {

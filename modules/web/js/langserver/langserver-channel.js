@@ -50,8 +50,8 @@ class LangserverChannel extends EventChannel {
         this.clientController.processMessage(message);
     }
 
-    sendMessage(message) {
-        this.websocket.send(JSON.stringify(message));
+    sendMessage(msg) {
+        this.websocket.send(JSON.stringify(msg));
     }
 
     onClose(event) {

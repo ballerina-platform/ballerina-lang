@@ -99,6 +99,9 @@ public class ConfigServiceImpl {
         if (debuggerPath == null || "".equals(debuggerPath)) {
             debuggerPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + debuggerPort;
         }
+        if (langserverPath == null || "".equals(langserverPath)) {
+            langserverPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + langserverPort;
+        }
 
         JsonObject workspace = new JsonObject();
         workspace.addProperty("endpoint", apiPath + "/service/workspace");
@@ -121,6 +124,9 @@ public class ConfigServiceImpl {
         JsonObject debugger = new JsonObject();
         debugger.addProperty("endpoint", debuggerPath + "/debug");
 
+        JsonObject langserver = new JsonObject();
+        langserver.addProperty("endpoint", langserverPath + "/blangserver");
+
         JsonObject programNativeTypes = new JsonObject();
         programNativeTypes.addProperty("endpoint", apiPath + "/service/program/native/types");
 
@@ -132,6 +138,7 @@ public class ConfigServiceImpl {
         services.add("validator", validator);
         services.add("launcher", launcher);
         services.add("debugger", debugger);
+        services.add("langserver", langserver);
         services.add("programNativeTypes", programNativeTypes);
 
         JsonObject config = new JsonObject();

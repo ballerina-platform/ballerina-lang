@@ -217,7 +217,6 @@ public class WorkspaceServiceRunner {
 
         LangServerManager langServerManager = LangServerManager.getInstance();
         langServerManager.init(langserverPort);
-        logger.info(langserverPath + " ###### " + langserverPort);
 
         if (!isCloudMode) {
             logger.info("Ballerina Composer URL: http://localhost:" + fileServerPort);
