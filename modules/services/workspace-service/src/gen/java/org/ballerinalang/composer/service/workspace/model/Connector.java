@@ -33,7 +33,7 @@ public class Connector {
     private String name = null;
 
     @JsonProperty("annotations")
-    private List<Annotation> annotations = new ArrayList<Annotation>();
+    private List<AnnotationAttachment> annotations = new ArrayList<>();
 
     @JsonProperty("returnParams")
     private List<Parameter> returnParameters = new ArrayList<>();
@@ -63,12 +63,12 @@ public class Connector {
         this.name = name;
     }
 
-    public Connector annotations(List<Annotation> annotations) {
+    public Connector annotations(List<AnnotationAttachment> annotations) {
         this.annotations = annotations;
         return this;
     }
 
-    public Connector addAnnotationsItem(Annotation annotationsItem) {
+    public Connector addAnnotationsItem(AnnotationAttachment annotationsItem) {
         this.annotations.add(annotationsItem);
         return this;
     }
@@ -79,11 +79,11 @@ public class Connector {
      * @return annotations
      **/
     @ApiModelProperty(value = "")
-    public List<Annotation> getAnnotations() {
+    public List<AnnotationAttachment> getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(List<Annotation> annotations) {
+    public void setAnnotations(List<AnnotationAttachment> annotations) {
         this.annotations = annotations;
     }
 

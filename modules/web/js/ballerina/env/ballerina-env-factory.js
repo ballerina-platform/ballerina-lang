@@ -23,7 +23,8 @@ import Package from './package';
 import Connector from './connector';
 import ConnectorAction from './connector-action';
 import Function from './function';
-import Annotation from './annotation';
+import AnnotationDefinition from './annotation-definition';
+import AnnotationAttributeDefinition from './annotation-attribute-definition';
 import TypeMapper from './type-mapper';
 
 /**
@@ -71,9 +72,18 @@ BallerinaEnvFactory.createFunction = function (args) {
  * creates Annotation
  * @param jsonNode
  */
-BallerinaEnvFactory.createAnnotation = function (args) {
-    var annotationDef = new Annotation(args);
+BallerinaEnvFactory.createAnnotationDefinition = function (args) {
+    var annotationDef = new AnnotationDefinition(args);
     return annotationDef;
+};
+
+/**
+ * Creates AnnotationAttributeDefinition.
+ * @param args
+ */
+BallerinaEnvFactory.createAnnotationAttributeDefinition = function (args) {
+    let annotationAttributeDefinition = new AnnotationAttributeDefinition(args);
+    return annotationAttributeDefinition;
 };
 
 /**
@@ -102,8 +112,17 @@ BallerinaEnvFactory.isConnectorAction = function (connectorAction) {
  * @param {function object} annotationDef - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaEnvFactory.isAnnotation = function (annotationDef){
-    return (annotationDef instanceof Annotation);
+BallerinaEnvFactory.isAnnotationDefinition = function (annotationDef) {
+    return (annotationDef instanceof AnnotationDefinition);
+};
+
+/**
+ * instanceof check for AnnotationAttributeDefinition
+ * @param {object} annotationAttributeDefinition - Object for instanceof check
+ * @returns {boolean} - true if same type, else false.
+ */
+BallerinaEnvFactory.isAnnotationAttributeDefinition = function (annotationAttributeDefinition) {
+    return (annotationAttributeDefinition instanceof AnnotationAttributeDefinition);
 };
 
 /**

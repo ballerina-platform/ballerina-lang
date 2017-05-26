@@ -128,6 +128,23 @@ class Annotation extends ASTNode {
         return annotationString;
     }
 
+    getPrefixAsString() {
+        let prefixString;
+        if (_.isUndefined(this._packageName) || _.isEmpty(this._packageName)) {
+            prefixString = '@' + this._identifier;
+        } else {
+            prefixString = '@' + this._packageName + ':' + this._identifier;
+        }
+
+        prefixString = prefixString + '{';
+
+        return prefixString;
+    }
+
+    getSuffixAsString() {
+        return '}';
+    }
+
     /**
      * Setting parameters from json
      * @param {object} jsonNode to initialize from

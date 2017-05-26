@@ -33,7 +33,7 @@ public class Action {
     private String name = null;
 
     @JsonProperty("annotations")
-    private List<Annotation> annotations = new ArrayList<Annotation>();
+    private List<AnnotationAttachment> annotations = new ArrayList<>();
 
     @JsonProperty("parameters")
     private List<Parameter> parameters = new ArrayList<Parameter>();
@@ -60,12 +60,12 @@ public class Action {
         this.name = name;
     }
 
-    public Action annotations(List<Annotation> annotations) {
+    public Action annotations(List<AnnotationAttachment> annotations) {
         this.annotations = annotations;
         return this;
     }
 
-    public Action addAnnotationsItem(Annotation annotationsItem) {
+    public Action addAnnotationsItem(AnnotationAttachment annotationsItem) {
         this.annotations.add(annotationsItem);
         return this;
     }
@@ -76,11 +76,11 @@ public class Action {
      * @return annotations
      **/
     @ApiModelProperty(value = "")
-    public List<Annotation> getAnnotations() {
+    public List<AnnotationAttachment> getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(List<Annotation> annotations) {
+    public void setAnnotations(List<AnnotationAttachment> annotations) {
         this.annotations = annotations;
     }
 
