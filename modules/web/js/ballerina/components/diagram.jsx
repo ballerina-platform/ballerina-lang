@@ -44,7 +44,10 @@ class Diagram extends React.Component {
         this.positionCalc = new PositionCalcVisitor();
 
         this.editor.on("update-diagram", () => {
-            this.setModel(this.editor.getModel());
+            // only update model if it's new
+            if (this.getModel().id !== this.editor.getModel().id) {
+                this.setModel(this.editor.getModel());
+            }
             this.forceUpdate();
         });
     }
@@ -58,12 +61,12 @@ class Diagram extends React.Component {
             height: this.container.height()
         };
 
-        // following code was commented since we add a debounce to diagram update
-        // we need to fix our tree modified and remove the debounce.
         this.model.on('tree-modified', () => {
             this.forceUpdate();
         });
 
+        // following code is a debounce to throttle redundant tree-modified events
+        // we need to fix our tree modified and remove the debounce.
         //this.model.on('tree-modified', _.debounce(_.bind(() => { this.forceUpdate(); }, this), 150));
     }
 
@@ -100,7 +103,7 @@ class Diagram extends React.Component {
         if(annotationRenderer.getAnnotations()){
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations());
         }
-        
+
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    s CsnvasDecorator and pass child components for that.
         let viewState = this.model.getViewState();

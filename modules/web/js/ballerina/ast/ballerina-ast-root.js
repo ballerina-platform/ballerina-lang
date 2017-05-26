@@ -49,32 +49,32 @@ class BallerinaASTRoot extends ASTNode {
             }
         };
 
-        const addImportsForTopLevel = function (child) {
+        const addImportsForTopLevel = function (child, options) {
             if (factory.isAssignmentStatement(child)) {
                 if (child._fullPackageName) {
-                    addImport(child.getFullPackageName());
+                    addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isConnectorDeclaration(child)) {
                 if (child._fullPackageName) {
-                    addImport(child.getFullPackageName());
+                    addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isServiceDefinition(child)) {
                 const annotations = child.getChildrenOfType(factory.isAnnotation);
                 const resources = child.getChildrenOfType(factory.isResourceDefinition);
                 _.forEach(annotations, annotation => {
-                    addImport(annotation.getFullPackageName());
+                    addImport(annotation.getFullPackageName(), options);
                 });
                 _.forEach(resources, resource => {
-                    addImportsForTopLevel(resource);
+                    addImportsForTopLevel(resource, options);
                 });
             } else if (factory.isResourceDefinition(child)) {
                 let annotations = child.getChildrenOfType(factory.isAnnotation);
                 _.forEach(annotations, annotation => {
-                    addImport(annotation.getFullPackageName());
+                    addImport(annotation.getFullPackageName(), options);
                 });
             } else if (factory.isActionInvocationExpression(child)) {
                 if (child._fullPackageName) {
-                    addImport(child.getFullPackageName());
+                    addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isFunctionInvocationStatement(child)) {
                 const functionInvocationExpression = _.find(child.children, function (child) {
@@ -82,14 +82,14 @@ class BallerinaASTRoot extends ASTNode {
                 });
                 if (functionInvocationExpression &&
                     functionInvocationExpression._fullPackageName) {
-                    addImport(functionInvocationExpression.getFullPackageName());
+                    addImport(functionInvocationExpression.getFullPackageName(), options);
                 }
             }
         };
         this.on('tree-modified', function (e) {
             if (e.type === "child-added") {
                 //to add the imports based on the function/action drag and drop to editor
-                addImportsForTopLevel(e.data.child);
+                addImportsForTopLevel(e.data.child, {doSilently: true});
             }
         });
         this.setWhiteSpaceDescriptor({
@@ -148,7 +148,7 @@ class BallerinaASTRoot extends ASTNode {
     /**
      * Deletes an import with given package name.
      */
-    deleteImport(packageName) {
+    deleteImport(packageName, options) {
         var ballerinaASTFactory = this.getFactory();
         var importDeclaration = _.find(this.getChildren(), function (child) {
             return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
@@ -171,14 +171,16 @@ class BallerinaASTRoot extends ASTNode {
         /**
          * @event ASTNode#tree-modified
          */
-        this.trigger('tree-modified', modifiedEvent);
+        if (options === undefined || !options.doSilently) {
+            this.trigger('tree-modified', modifiedEvent);
+        }
     }
 
     /**
      * Adds new import declaration.
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
-    addImport(importDeclaration) {
+    addImport(importDeclaration, options) {
         if (this.isExistingPackage(importDeclaration.getPackageName())) {
             var errorString = "Package \"" + importDeclaration.getPackageName() + "\" is already imported.";
             log.error(errorString);
@@ -211,7 +213,9 @@ class BallerinaASTRoot extends ASTNode {
          * @event ASTNode#tree-modified
          */
         this.trigger('import-new-package', importDeclaration.getPackageName());
-        this.trigger('tree-modified', modifiedEvent);
+        if (options === undefined || !options.doSilently) {
+            this.trigger('tree-modified', modifiedEvent);
+        }
     }
 
     //// Start of constant definition functions

@@ -66,11 +66,11 @@ class CommonUtils {
                     }
                     counter++;
                 }
-
+                let opts = {doSilently: true};
                 if (_.isEqual(counter, 0)) {
-                    attribute.setter.call(genArgs.node, currentAttributeValue);
+                    attribute.setter.call(genArgs.node, currentAttributeValue, opts);
                 } else {
-                    attribute.setter.call(genArgs.node, currentAttributeValue + counter);
+                    attribute.setter.call(genArgs.node, currentAttributeValue + counter, opts);
                 }
             }
         })
