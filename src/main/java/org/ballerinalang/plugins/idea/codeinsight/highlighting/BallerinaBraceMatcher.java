@@ -34,11 +34,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BallerinaBraceMatcher implements PairedBraceMatcher {
-    private final BracePair[] pairs = new BracePair[]{
+
+    private static final BracePair[] pairs = new BracePair[]{
             new BracePair(BallerinaTypes.LPAREN, BallerinaTypes.RPAREN, false),
             new BracePair(BallerinaTypes.LBRACE, BallerinaTypes.RBRACE, true),
-            new BracePair(BallerinaTypes.LBRACK, BallerinaTypes.RBRACK, false),
-            new BracePair(BallerinaTypes.LT, BallerinaTypes.GT, false)
+            new BracePair(BallerinaTypes.LBRACK, BallerinaTypes.RBRACK, false)
     };
 
     @Override
