@@ -415,7 +415,7 @@ addSourceType(struct, reference) {
     this.makeType(struct, 50, 10, reference, "source");
     var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
     this.addComplexProperty(jsTreeId, struct);
-    this.processJSTree(jsTreeId, id, this.addSource)
+    this.processJSTree(jsTreeId, id, this.addSource);
 }
 
 /**
@@ -539,11 +539,11 @@ makeType(struct, posX, posY, reference, type) {
  * @param {object} reference AST model reference
  */
 addFunction(func, reference, onFunctionRemove) {
-    funcName = _.isEmpty(func.packageName) ? func.name : func.packageName + ' : ' + func.name;
-    var funcText = funcName;
+    funcName = _.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + ' : ' + func.meta.functionName;
+    var funcText = func.meta.functionName;
     //Allow multiple functions to drag and drop without conflicting
-    var functionInvocationModelId = reference.model.getChildren()[1].getChildren()[0].getID();
-    func.name = (_.isEmpty(func.packageName) ? func.name : func.packageName + '-' + func.name)
+    var functionInvocationModelId = reference.getChildren()[1].getChildren()[0].getID();
+    func.name = (_.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + '-' + func.meta.functionName)
         + functionInvocationModelId;
 
     var id = func.name + this.viewIdSeperator + this.viewId;
@@ -599,15 +599,15 @@ addFunction(func, reference, onFunctionRemove) {
     }
 
     self.removeType(func.name);
-    onFunctionRemove(removedFunction);
+    onFunctionRemove(reference);
 });
 
-_.forEach(func.parameters, parameter => {
+_.forEach(func.getParameters(), parameter => {
     var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
 self.addTarget(property, self);
 });
 
-_.forEach(func.returnType, parameter => {
+_.forEach(func.getReturnParams(), parameter => {
     var property = self.makeFunctionAttribute($('#' + id + "func-output"), parameter.name, parameter.type, false);
 self.addSource(property, self, true);
 });

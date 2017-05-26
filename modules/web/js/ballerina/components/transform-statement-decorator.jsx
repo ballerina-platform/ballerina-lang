@@ -26,14 +26,10 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import MessageManager from './../visitors/message-manager';
-import ASTFactory from './../ast/ballerina-ast-factory';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import './statement-decorator.css';
-import ArrowDecorator from './arrow-decorator';
-import BackwardArrowDecorator from './backward-arrow-decorator';
-import ExpressionEditor from 'expression_editor_utils';
 import select2 from 'select2';
 import TransformRender from '../../ballerina/components/transform-render';
-import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import ActiveArbiter from './active-arbiter';
 import ImageUtil from './image-util';
 
@@ -152,6 +148,16 @@ class TransformStatementDecorator extends React.Component {
           $("#tab-content-wrapper").append(transformOverlay);
 
           this.transformOverlayDiv = document.getElementById('transformOverlay');
+		  this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+
+		  this.transformOverlayContentDiv.addEventListener("mouseover", e => {
+			  this.onTransformDropZoneActivate(e);
+		  });
+
+		  this.transformOverlayContentDiv.addEventListener("mouseout", e => {
+			  this.onTransformDropZoneDeactivate(e);
+		  });
+
           var span = document.getElementsByClassName("close-transform")[0];
 
           this.predefinedStructs = [];
@@ -276,7 +282,16 @@ class TransformStatementDecorator extends React.Component {
                 self.mapper.addConnection(con);
             });
 
-
+			this.props.model.on('child-added', node => {
+				if (BallerinaASTFactory.isAssignmentStatement(node) &&
+					BallerinaASTFactory.isFunctionInvocationExpression(node.getChildren()[1].getChildren()[0])) {
+					let functionInvocationExpression = node.getChildren()[1].getChildren()[0];
+					let funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
+						functionInvocationExpression.getFullPackageName());
+					let func = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+					this.mapper.addFunction(func, node, node.getParent().removeChild);
+				}
+			});
 	}
 
 	createComplexProp(typeName, children)
@@ -343,40 +358,9 @@ class TransformStatementDecorator extends React.Component {
     		const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
     		const innerDropZoneActivated = this.state.innerDropZoneActivated;
     		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-    		let arrowStart = { x: 0, y: 0 };
-    		let arrowEnd = { x: 0, y: 0 };
-    		let backArrowStart = { x: 0, y: 0 };
-    		let backArrowEnd = { x: 0, y: 0 };
     		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
     											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 
-    		const arrowStartPointX = bBox.getRight();
-    		const arrowStartPointY = this.statementBox.y + this.statementBox.h/2;
-    		const radius = 10;
-
-    		let actionInvocation;
-    		let isActionInvocation = false;
-    		let connector;
-    		if (ASTFactory.isAssignmentStatement(model)) {
-    			actionInvocation = model.getChildren()[1].getChildren()[0];
-    		} else if (ASTFactory.isVariableDefinitionStatement(model)) {
-    			actionInvocation = model.getChildren()[1];
-    		}
-
-    		if (actionInvocation) {
-    			isActionInvocation = !_.isNil(actionInvocation) && ASTFactory.isActionInvocationExpression(actionInvocation);
-    			if (!_.isNil(actionInvocation._connector)) {
-    				connector = actionInvocation._connector;
-    				arrowStart.x = this.statementBox.x + this.statementBox.w;
-    				arrowStart.y = this.statementBox.y + this.statementBox.h/3;
-    				arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
-    				arrowEnd.y = arrowStart.y;
-    				backArrowStart.x = arrowEnd.x;
-    				backArrowStart.y = this.statementBox.y + (2 * this.statementBox.h/3);
-    				backArrowEnd.x = arrowStart.x;
-    				backArrowEnd.y = backArrowStart.y;
-    			}
-    		}
     		const actionBbox = new SimpleBBox();
             const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};
             const iconSize = 14;
@@ -409,22 +393,6 @@ class TransformStatementDecorator extends React.Component {
                             onDelete={ () => this.onDelete() }
                             onJumptoCodeLine={ () => this.onJumptoCodeLine() }
 						/>
-
-						{isActionInvocation &&
-							<g>
-								<circle cx={arrowStartPointX}
-								cy={arrowStartPointY}
-								r={radius}
-								fill="#444"
-								fillOpacity={0}
-								onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
-								onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
-								onMouseDown={(e) => this.onMouseDown(e)}
-								onMouseUp={(e) => this.onMouseUp(e)}/>
-								{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
-								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
-							</g>
-						}
 						{		model.isBreakpoint &&
 								this.renderBreakpointIndicator()
 						}
@@ -442,6 +410,39 @@ class TransformStatementDecorator extends React.Component {
           }
        }
 
+	onTransformDropZoneActivate (e) {
+		this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+		const dragDropManager = this.context.dragDropManager,
+						dropTarget = this.props.model,
+						model = this.props.model;
+		if (dragDropManager.isOnDrag()) {
+			if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+				return;
+			}
+			dragDropManager.setActivatedDropTarget(dropTarget,
+				(nodeBeingDragged) => {
+					// This drop zone is for assignment statements only.
+					return model.getFactory().isAssignmentStatement(nodeBeingDragged);
+				},
+				() => {
+					return dropTarget.getChildren().length;
+				});
+		}
+		e.stopPropagation();
+	}
+
+	onTransformDropZoneDeactivate (e) {
+		this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+		const dragDropManager = this.context.dragDropManager,
+						dropTarget = this.props.model.getParent();
+		if(dragDropManager.isOnDrag()){
+			if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+				dragDropManager.clearActivatedDropTarget();
+				this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
+			}
+		}
+		e.stopPropagation();
+	}
 	onDropZoneActivate (e) {
 			const dragDropManager = this.context.dragDropManager,
 						dropTarget = this.props.model.getParent(),
@@ -468,17 +469,19 @@ class TransformStatementDecorator extends React.Component {
 							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
 					}, this);
 			}
+			e.stopPropagation();
 	}
 
 	onDropZoneDeactivate (e) {
-			const dragDropManager = this.context.dragDropManager,
-						dropTarget = this.props.model.getParent();
-			if(dragDropManager.isOnDrag()){
-					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
-							dragDropManager.clearActivatedDropTarget();
-							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
-					}
+		const dragDropManager = this.context.dragDropManager,
+			  dropTarget = this.props.model.getParent();
+		if(dragDropManager.isOnDrag()){
+			if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+				dragDropManager.clearActivatedDropTarget();
+				this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
 			}
+		}
+		e.stopPropagation();
 	}
 
     onArrowStartPointMouseOver (e) {
@@ -593,11 +596,9 @@ TransformStatementDecorator.propTypes = {
 
 TransformStatementDecorator.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 	 container: PropTypes.instanceOf(Object).isRequired,
 	 renderingContext: PropTypes.instanceOf(Object).isRequired,
 	 activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
-
 
 export default TransformStatementDecorator;
