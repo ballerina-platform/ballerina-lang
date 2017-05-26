@@ -39,7 +39,19 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        var constructedSourceSegment = 'import ' + importDeclaration.getPackageName();
+        var constructedSourceSegment =
+          ((importDeclaration.whiteSpace.useDefault) ? this.getIndentation(): '')
+          + 'import'
+          + importDeclaration.getWSRegion(0)
+          + importDeclaration.getPackageName()
+          + importDeclaration.getWSRegion(1);
+        if (!_.isNil(importDeclaration.getAsName())) {
+            constructedSourceSegment += (
+                'as' + importDeclaration.getWSRegion(2)
+                + importDeclaration.getAsName()
+                + importDeclaration.getWSRegion(3)
+            );
+        }
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit ImportDeclaration');
     }
@@ -49,8 +61,9 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitImportDeclaration(importDeclaration) {
-        this.appendSource(";\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(';' + importDeclaration.getWSRegion(4));
+
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit ImportDeclaration');
     }
 }

@@ -207,6 +207,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         importObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.IMPORT_DEFINITION);
         importObj.addProperty(BLangJSONModelConstants.IMPORT_PACKAGE_NAME, importPackage.getName());
         importObj.addProperty(BLangJSONModelConstants.IMPORT_PACKAGE_PATH, importPackage.getPath());
+        importObj.addProperty(BLangJSONModelConstants.IMPORT_AS_NAME, importPackage.getAsName());
         this.addPosition(importObj, importPackage.getNodeLocation());
         this.addWhitespaceDescriptor(importObj, importPackage.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(importObj);
