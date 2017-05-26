@@ -148,7 +148,7 @@ class SizingUtil {
         viewState.components = components;
     }
 
-        populatePanelDecoratorBBox(node, name) {
+    populatePanelDecoratorBBox(node, name) {
         let viewState = node.getViewState();
         let components = {};
 
@@ -176,7 +176,7 @@ class SizingUtil {
         let statementHeight = 0;
 
         _.forEach(statementChildren, function (child) {
-            statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
+            statementHeight += child.viewState.bBox.h;
             if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
