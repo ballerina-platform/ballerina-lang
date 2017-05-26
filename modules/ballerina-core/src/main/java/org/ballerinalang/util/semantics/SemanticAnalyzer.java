@@ -1928,7 +1928,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void visitArrayInitExpr(ArrayInitExpr arrayInitExpr) {
         BType inheritedType = arrayInitExpr.getInheritedType();
-
         arrayInitExpr.setType(inheritedType);
         Expression[] argExprs = arrayInitExpr.getArgExprs();
         if (argExprs.length == 0) {
@@ -1936,7 +1935,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
-
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
             if (argExpr instanceof RefTypeInitExpr) {
@@ -1947,9 +1945,20 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             visitSingleValueExpr(argExpr);
 
-            if (TypeMappingUtils.isCompatible(expectedElementType, argExpr.getType())) {
+            // Check whether the right-hand type can be assigned to the left-hand type.
+            if (isAssignableTo(expectedElementType, argExpr.getType())) {
+                if (expectedElementType == BTypes.typeAny && BTypes.isValueType(argExpr.getType())) {
+                    TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExpr);
+                    if (typeCastExpr != null) {
+                        argExprs[i] = typeCastExpr;
+                    } else {
+                        BLangExceptionHelper.throwSemanticError(argExpr, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
+                                argExpr.getType(), expectedElementType);
+                    }
+                }
                 continue;
             }
+
             TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExpr);
             if (typeCastExpr == null) {
                 BLangExceptionHelper.throwSemanticError(arrayInitExpr,

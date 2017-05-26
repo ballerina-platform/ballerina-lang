@@ -99,6 +99,8 @@ public class BLangVM {
         this.fp = fp;
         this.ip = ip;
 
+//        traceCode();
+
         exec();
     }
 

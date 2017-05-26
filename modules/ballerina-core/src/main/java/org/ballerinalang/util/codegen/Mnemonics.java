@@ -85,6 +85,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BFIELDSTORE] = "bfieldstore";
         mnemonics[InstructionCodes.RFIELDSTORE] = "rfieldstore";
 
+        mnemonics[InstructionCodes.MAPLOAD] = "mapload";
+        mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
+
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
@@ -97,6 +100,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FDIV] = "fdiv";
         mnemonics[InstructionCodes.IMOD] = "imod";
         mnemonics[InstructionCodes.FMOD] = "fmod";
+        mnemonics[InstructionCodes.INEG] = "ineg";
+        mnemonics[InstructionCodes.FNEG] = "fneg";
 
         mnemonics[InstructionCodes.ICMP] = "icmp";
         mnemonics[InstructionCodes.FCMP] = "fcmp";
@@ -114,6 +119,31 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.RET] = "ret";
 
+        mnemonics[InstructionCodes.I2F] = "i2f";
+        mnemonics[InstructionCodes.I2S] = "i2s";
+        mnemonics[InstructionCodes.I2B] = "i2b";
+        mnemonics[InstructionCodes.I2ANY] = "i2any";
+        mnemonics[InstructionCodes.F2I] = "f2i";
+        mnemonics[InstructionCodes.F2S] = "f2s";
+        mnemonics[InstructionCodes.F2B] = "f2b";
+        mnemonics[InstructionCodes.F2ANY] = "f2any";
+        mnemonics[InstructionCodes.S2I] = "s2i";
+        mnemonics[InstructionCodes.S2F] = "s2f";
+        mnemonics[InstructionCodes.S2B] = "s2b";
+        mnemonics[InstructionCodes.S2ANY] = "s2any";
+        mnemonics[InstructionCodes.B2I] = "b2i";
+        mnemonics[InstructionCodes.B2F] = "b2f";
+        mnemonics[InstructionCodes.B2S] = "b2s";
+        mnemonics[InstructionCodes.B2ANY] = "b2any";
+        mnemonics[InstructionCodes.R2ANY] = "r2any";
+
+        // Type cast
+        mnemonics[InstructionCodes.ANY2I] = "any2i";
+        mnemonics[InstructionCodes.ANY2F] = "any2f";
+        mnemonics[InstructionCodes.ANY2S] = "any2s";
+        mnemonics[InstructionCodes.ANY2B] = "any2b";
+        mnemonics[InstructionCodes.ANY2R] = "any2r";
+
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
@@ -122,9 +152,14 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
+        mnemonics[InstructionCodes.NEWMAP] = "newmap";
     }
 
     public static String getMnem(int opcode) {
-        return mnemonics[opcode];
+        String mnem = mnemonics[opcode];
+        if (mnem == null) {
+            throw new IllegalStateException("opcode " + opcode + " is not added to mnemonics");
+        }
+        return mnem;
     }
 }
