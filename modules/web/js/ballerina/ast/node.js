@@ -498,6 +498,11 @@ class ASTNode extends EventChannel {
         this.whiteSpace.currentDescriptor = whiteSpaceDescriptor;
     }
 
+    getWSRegion(regionId) {
+        let region = _.get(this.getWhiteSpaceDescriptor().regions, regionId);
+        return (!_.isNil(region)) ? region : '';
+    }
+
     /** Gets the children of a specific type.
      * @param  {function} typeCheckFunction The function thats used for type checking. Example: BallerinaASTFactory.isConnectorDeclaration
      * @return {ASTNode[]}                   An array of children.

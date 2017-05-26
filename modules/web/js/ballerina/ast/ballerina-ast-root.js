@@ -92,14 +92,13 @@ class BallerinaASTRoot extends ASTNode {
                 addImportsForTopLevel(e.data.child, {doSilently: true});
             }
         });
-        this.setWhiteSpaceDescriptor({
-            regions: {
-                0: '',
-                1: ' ',
-                2: '',
-                3: '\n'
-            }
-        });
+
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: ' ',
+            2: '',
+            3: '\n'
+        }
     }
 
     /**

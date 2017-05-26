@@ -37,7 +37,7 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitBallerinaASTRoot(astRoot) {
-        // FIXME this.appendSource(astRoot.whiteSpaceDescriptor.regions[0]);
+        this.appendSource(astRoot.getWSRegion(0));
     }
 
     visitServiceDefinition(serviceDefinition) {
