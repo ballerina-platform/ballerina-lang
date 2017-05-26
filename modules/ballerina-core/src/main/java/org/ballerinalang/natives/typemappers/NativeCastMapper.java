@@ -308,7 +308,7 @@ public class NativeCastMapper {
             if (rVal == null) {
                 return new BValue[] { null, null };
             }
-            if (rVal.getType() == targetType) {
+            if (TypeLattice.isAssignCompatible((StructDef) targetType, (StructDef) rVal.getType())) {
                 return new BValue[] { rVal, null };
             }
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,

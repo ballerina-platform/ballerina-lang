@@ -351,7 +351,6 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
-
     @Test(groups = "ConnectorTest")
     public void testTransactonAbort() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTransactonAbort");
