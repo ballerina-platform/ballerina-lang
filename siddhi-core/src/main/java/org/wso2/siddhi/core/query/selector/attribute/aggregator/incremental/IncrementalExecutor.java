@@ -4,6 +4,7 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.Table;
@@ -17,6 +18,7 @@ import org.wso2.siddhi.query.api.expression.Variable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class IncrementalExecutor implements Executor{
     // compositeAggregators contains a map of CompositeAggregator
@@ -153,19 +155,90 @@ public class IncrementalExecutor implements Executor{
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(baseAggregator.getBaseExpression(), metaEvent,
                     currentState, tableMap, executorList, executionPlanContext, groupBy,
                     defaultStreamEventIndex, queryName);
-            String executorUniqueKey = ((AttributeFunction) baseAggregator.getBaseExpression()).getName() + baseAggregator.getAttribute();
-            ExpressionExecutorDetails executorDetails = new ExpressionExecutorDetails(expressionExecutor, executorUniqueKey);
+//            String executorUniqueKey = ((AttributeFunction) baseAggregator.getBaseExpression()).getName() + baseAggregator.getAttribute();
+            ExpressionExecutorDetails executorDetails = new ExpressionExecutorDetails(expressionExecutor, baseAggregator.getAttribute()); // TODO: 5/25/17 we don't have to concat name again
             baseFunctionExecutors.add(executorDetails);
         }
         return baseFunctionExecutors;
     }
 
-
     @Override
     public void execute(ComplexEventChunk complexEventChunk) {
+        // TODO: 5/27/17 per group start time or first event arrival time?
+//        long currentTime = this.executionPlanContext.getTimestampGenerator().currentTime();
+        ComplexEvent complexEvent =complexEventChunk.getFirst();
+        long currentTime = complexEvent.getTimestamp(); // TODO: 5/27/17 this or getTimestampGenerator?
+        if (nextEmitTime==-1) {
+            nextEmitTime = getNextEmitTime(currentTime);
+        }
+        if (currentTime > nextEmitTime) {
+            long timeStampOfBaseAggregate = getStartTime(nextEmitTime);
+            nextEmitTime = getNextEmitTime(nextEmitTime);
 
+            //send complex event with aggregate values if child not null. This should be for each group by
+            // TODO: 5/27/17 this executes in the wrong way. group by doesn't work. Second, minute not working independently
+            if (getNextExecutor()!= null) {
+                for (String groupByKey: storeAggregatorFunctions.keySet()) {
+                    //Create new on after window data to send aggregates to next iterator
+                    List<Object> newOnAfterWindowData = new ArrayList<>();
+                    newOnAfterWindowData.add(groupByKey);
+                    ConcurrentMap<String, Object> aggregatesPerGroupBy = storeAggregatorFunctions.remove(groupByKey);
+                    for (String aggregateKey: aggregatesPerGroupBy.keySet()) {
+                        // TODO: 5/27/17 this if else is a hack!!! change
+                        if (aggregateKey.startsWith("sum")) {
+                            newOnAfterWindowData.add(((Double)aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
+                        } else if (aggregateKey.startsWith("count")) {
+                            newOnAfterWindowData.add(((Long)aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
+                        }
+                    }
+
+
+                    StreamEvent tempStream = (StreamEvent) complexEvent;
+                    complexEventChunk.clear(); //first is set to null
+                    tempStream.setTimestamp(timeStampOfBaseAggregate);
+                    tempStream.setOnAfterWindowData(newOnAfterWindowData.toArray());
+                    complexEventChunk.add(tempStream); //tempStream would be added as first
+                    getNextExecutor().execute(complexEventChunk); //pass this new complex event to next incremental aggregator
+                }
+            }
+        }
+
+        String groupByOutput = groupByExecutor.execute(complexEvent).toString();
+        ConcurrentHashMap<String, Object> baseValuesPerGroupBy = new ConcurrentHashMap<>();
+        for (ExpressionExecutorDetails basicExecutor:basicExecutorDetails) {
+            baseValuesPerGroupBy.put(basicExecutor.getExecutorName(), basicExecutor.getExecutor().execute(complexEvent));
+        }
+        storeAggregatorFunctions.put(groupByOutput, baseValuesPerGroupBy);
+        if (this.duration== TimePeriod.Duration.MINUTES){
+            System.out.println(complexEvent);
+            System.out.println(storeAggregatorFunctions);
+
+        }
+
+    }
+
+
+    /*@Override
+    public void execute(ComplexEventChunk complexEventChunk) {
+        if (nextEmitTime == -1) {
+            long currentTime = this.executionPlanContext.getTimestampGenerator().currentTime();
+            nextEmitTime = getNextEmitTime(currentTime);
+        }
+        boolean sendEvents;
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+        if (currentTime >= nextEmitTime) {
+            nextEmitTime += 1000; // TODO: 3/29/17 :
+            sendEvents = true;
+        } else {
+            sendEvents = false;
+        }
         // TODO: 3/27/17 Based on the output type correctly pass this
         // TODO: 3/29/17 Handle multiple group by clauses
+
+        // TODO: 5/25/17 why are we getting 60 as 3rd value in chunk???
+        // TODO: 5/25/17 in GroupByAggregationAttributeExecutor String key = QuerySelector.getThreadLocalGroupByKey(); is null
+
+
 
             String groupByOutput = (String) this.groupByExecutor.execute(complexEventChunk.getFirst()); // TODO: 5/17/17 this is wrong. Change
             for (ExpressionExecutorDetails executorDTO : basicExecutorDetails) {
@@ -193,14 +266,14 @@ public class IncrementalExecutor implements Executor{
                 }
             }
 
-            //if (sendEvents) {
+            if (sendEvents) {
             // 1. Extract relevant data from HashMap. Create an event and send it
             // calculateAggregators(groupBy)
             // 2. Update the child
-            //}
+            }
 
 
-    }
+    }*/
 
     public static IncrementalExecutor second(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                              MetaComplexEvent metaEvent,
@@ -329,11 +402,18 @@ public class IncrementalExecutor implements Executor{
 
     private class BaseExpressionDetails {
         private Expression baseExpression;
-        private String attribute; // baseExpression will be evaluated against this attribure
+        private String attribute; // baseExpression will be evaluated against this attribute
 
         public BaseExpressionDetails(Expression baseExpression, String attribute) {
             this.baseExpression = baseExpression;
-            this.attribute = attribute;
+            //If we haven't already prefixed with base name, it's concatenated now (Since price1 is no longer in meta)
+            //This could occur in avg since the attribute is sent as price1.
+            if (attribute.startsWith(((AttributeFunction) baseExpression).getName())) {
+                this.attribute = attribute;
+            }
+            else {
+                this.attribute = (((AttributeFunction) baseExpression).getName()).concat(attribute);
+            }
         }
 
         public Expression getBaseExpression() {
@@ -345,7 +425,7 @@ public class IncrementalExecutor implements Executor{
         }
 
         @Override
-        public int hashCode(){
+        public int hashCode() {
             int hash = 0;
             if(this.baseExpression != null){
                 hash += this.baseExpression.hashCode();
@@ -374,10 +454,34 @@ public class IncrementalExecutor implements Executor{
         }
     }
 
-    public long getNextEmitTime(long currentTime) {
+    /*public long getNextEmitTime(long currentTime) {
         // returns the next emission time based on system clock round time values.
         long elapsedTimeSinceLastEmit = (currentTime - startTime) % 1000;
         long emitTime = currentTime + (1000 - elapsedTimeSinceLastEmit);
         return emitTime;
+    }*/
+
+    private long getNextEmitTime(long currentTime) {
+        switch (this.duration) {
+            case SECONDS:
+                return currentTime + 1000;
+            case MINUTES:
+                return currentTime + 60000;
+            // TODO: 5/26/17 add rest
+            default:
+                return -1; // TODO: 5/26/17 This must be corrected
+        }
+    }
+
+    private long getStartTime(long nextEmitTime) {
+        switch (this.duration) {
+            case SECONDS:
+                return nextEmitTime - 1000;
+            case MINUTES:
+                return nextEmitTime - 60000;
+            // TODO: 5/26/17 add rest
+            default:
+                return -1; // TODO: 5/26/17 This must be corrected
+        }
     }
 }

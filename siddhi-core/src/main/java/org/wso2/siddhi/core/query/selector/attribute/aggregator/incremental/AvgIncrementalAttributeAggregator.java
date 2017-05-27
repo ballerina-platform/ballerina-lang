@@ -45,8 +45,8 @@ public class AvgIncrementalAttributeAggregator implements CompositeAggregator {
     }
 
     public Expression[] getBaseAggregators() {
-        Expression sum = Expression.function("sum", Expression.variable(attributeName));
-        Expression count = Expression.function("count", Expression.variable(attributeName));
+        Expression sum = Expression.function("sum", Expression.variable("sum".concat(attributeName)));
+        Expression count = Expression.function("count", Expression.variable("count".concat(attributeName)));
         return new Expression[]{sum, count};
     }
 }

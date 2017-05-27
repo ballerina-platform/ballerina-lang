@@ -109,8 +109,9 @@ public class AggregationTestCase {
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
-        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200l, 56}); // TODO: 5/18/17 check with mull later
-        inputHandler.send(new Object[]{"WSO2", 50f, null, 200l, 56});
+        Thread.sleep(2000);
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200l, 56}); // TODO: 5/18/17 check with null later
+        inputHandler.send(new Object[]{"IBM", 50f, null, 200l, 56});
         Thread.sleep(100);
 //        junit.framework.Assert.assertEquals(3, count);
         executionPlanRuntime.shutdown();

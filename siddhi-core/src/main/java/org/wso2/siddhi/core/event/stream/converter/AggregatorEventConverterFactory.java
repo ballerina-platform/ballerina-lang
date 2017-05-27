@@ -72,54 +72,30 @@ public class AggregatorEventConverterFactory {
                     if (attribute == null) {
                         i++;
                     } else if (!inputDefinition.getAttributeList().contains(attribute)) {
-                        String[] baseAggregatorNames = {"sum", "count", "min", "max"};
-                        for (String base : baseAggregatorNames) {
-                            if (attribute.getName().startsWith(base)) {
-                                Attribute tempAttribute = new Attribute(attribute.getName().replaceFirst(base, ""), attribute.getType());
-
-                                switch (base){
-                                    case "count":
-                                        if (inputDefinition.getAttributeList().contains(tempAttribute)) {
-                                            int fromPosition = -1; //If from position is -1 in convertData method of SelectiveStreamEventConverter, set value to 1
-                                            StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                                            conversionMapping.setFromPosition(fromPosition);
-                                            int[] toPosition = new int[2];
-                                            toPosition[0] = j;
-                                            toPosition[1] = i;
-                                            conversionMapping.setToPosition(toPosition);
-                                            conversionMappings.add(conversionMapping);
-                                        }
-                                        break;
-
-                                    default:
-                                        if (inputDefinition.getAttributeList().contains(tempAttribute)) {
-                                            int fromPosition = inputDefinition.getAttributePosition(tempAttribute.getName());
-                                            StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                                            conversionMapping.setFromPosition(fromPosition);
-                                            int[] toPosition = new int[2];
-                                            toPosition[0] = j;
-                                            toPosition[1] = i;
-                                            conversionMapping.setToPosition(toPosition);
-                                            conversionMappings.add(conversionMapping);
-                                        }
-                                }
-                                break;
-                            }
-                        }
-
-
                         i++;
-
                     } else {
-                        int fromPosition = inputDefinition.getAttributePosition(attribute.getName());
-                        StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                        conversionMapping.setFromPosition(fromPosition);
-                        int[] toPosition = new int[2];
-                        toPosition[0] = j;
-                        toPosition[1] = i;
-                        conversionMapping.setToPosition(toPosition);
-                        conversionMappings.add(conversionMapping);
-                        i++;
+                        if(attribute.getName().startsWith("count")) {
+                            int fromPosition = -1; //If from position is -1 in convertData method of SelectiveStreamEventConverter, set value to 1
+                            StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
+                            conversionMapping.setFromPosition(fromPosition);
+                            int[] toPosition = new int[2];
+                            toPosition[0] = j;
+                            toPosition[1] = i;
+                            conversionMapping.setToPosition(toPosition);
+                            conversionMappings.add(conversionMapping);
+                            i++;
+                        }
+                        else {
+                            int fromPosition = inputDefinition.getAttributePosition(attribute.getName());
+                            StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
+                            conversionMapping.setFromPosition(fromPosition);
+                            int[] toPosition = new int[2];
+                            toPosition[0] = j;
+                            toPosition[1] = i;
+                            conversionMapping.setToPosition(toPosition);
+                            conversionMappings.add(conversionMapping);
+                            i++;
+                        }
                     }
                 }
             }
