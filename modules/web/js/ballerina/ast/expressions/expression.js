@@ -37,4 +37,3 @@ class Expression extends ASTNode {
 }
 
 export default Expression;
-

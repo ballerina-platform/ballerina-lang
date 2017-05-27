@@ -54,11 +54,16 @@ class ReplyStatement extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        this.setReplyMessage(jsonNode.expression, {doSilently: true});
+        let {expression} = jsonNode;
+        const child = jsonNode.children[0] || {};
+        if (child.is_identifier_literal) {
+            expression = `|${jsonNode.expression}|`;
+        }
+        this.setReplyMessage(expression, {doSilently: true});
     }
 
     getReplyExpression() {
-        return "reply " + this.getReplyMessage();
+        return `reply ${this.getReplyMessage()}`;
     }
 
     messageDrawTargetAllowed(target) {
@@ -69,4 +74,3 @@ class ReplyStatement extends Statement {
 }
 
 export default ReplyStatement;
-
