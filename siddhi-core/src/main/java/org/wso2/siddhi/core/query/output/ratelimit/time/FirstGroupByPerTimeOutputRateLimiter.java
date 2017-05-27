@@ -34,11 +34,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined time period and the emit only first
+ * event. This implementation specifically represent GroupBy queries.
+ */
 public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
-    static final Logger log = Logger.getLogger(FirstGroupByPerTimeOutputRateLimiter.class);
-
-    private String id;
+    private static final Logger log = Logger.getLogger(FirstGroupByPerTimeOutputRateLimiter.class);
     private final Long value;
+    private String id;
     private List<String> groupByKeys = new ArrayList<String>();
     private ComplexEventChunk<ComplexEvent> allComplexEventChunk;
     private ScheduledExecutorService scheduledExecutorService;
@@ -46,7 +49,8 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
     private long scheduledTime;
     private String queryName;
 
-    public FirstGroupByPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, String queryName) {
+    public FirstGroupByPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService
+            scheduledExecutorService, String queryName) {
         this.queryName = queryName;
         this.id = id;
         this.value = value;
@@ -56,7 +60,8 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
 
     @Override
     public OutputRateLimiter clone(String key) {
-        FirstGroupByPerTimeOutputRateLimiter instance = new FirstGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService, queryName);
+        FirstGroupByPerTimeOutputRateLimiter instance = new FirstGroupByPerTimeOutputRateLimiter(id + key, value,
+                scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -71,7 +76,8 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
                         if (allComplexEventChunk.getFirst() != null) {
-                            ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
                             eventChunk.add(allComplexEventChunk.getFirst());
                             allComplexEventChunk.clear();
                             groupByKeys.clear();
@@ -82,7 +88,8 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type
+                        .EXPIRED) {
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     if (!groupByKeys.contains(groupedComplexEvent.getGroupKey())) {
                         complexEventChunk.remove();
@@ -115,13 +122,15 @@ public class FirstGroupByPerTimeOutputRateLimiter extends OutputRateLimiter impl
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
-        state.put("GroupByKeys", groupByKeys);
+        synchronized (this) {
+            state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+            state.put("GroupByKeys", groupByKeys);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         allComplexEventChunk.clear();
         allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
         groupByKeys = (List<String>) state.get("GroupByKeys");

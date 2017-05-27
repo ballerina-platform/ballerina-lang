@@ -32,9 +32,9 @@ import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.input.source.Sourcemapper;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.util.AttributeConverter;
+import org.wso2.siddhi.core.util.transport.AttributeMapping;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.core.util.transport.AttributeMapping;
 
 import java.util.HashMap;
 import java.util.List;
@@ -95,7 +95,8 @@ public class MapSourcemapper implements Sourcemapper {
      * @param attributeMappingList   list of attributes mapping
      */
     @Override
-    public void init(StreamDefinition outputStreamDefinition, OutputCallback outputCallback, MetaStreamEvent metaStreamEvent, Map<String, String> options, List<AttributeMapping> attributeMappingList) {
+    public void init(StreamDefinition outputStreamDefinition, OutputCallback outputCallback, MetaStreamEvent
+            metaStreamEvent, Map<String, String> options, List<AttributeMapping> attributeMappingList) {
         this.outputStreamDefinition = outputStreamDefinition;
         this.outputCallback = outputCallback;
         this.outputStreamDefinition = metaStreamEvent.getOutputStreamDefinition();
@@ -165,7 +166,8 @@ public class MapSourcemapper implements Sourcemapper {
 
         for (MappingPositionData mappingPositionData : this.mappingPositions) {
             int position = mappingPositionData.getPosition();
-            data[position] = AttributeConverter.getPropertyValue(((HashMap) eventObject).get(mappingPositionData.getMapping()),
+            data[position] = AttributeConverter.getPropertyValue(((HashMap) eventObject).get(mappingPositionData
+                            .getMapping()),
                     streamAttributes.get(position).getType());
         }
 

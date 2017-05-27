@@ -19,7 +19,6 @@ package org.wso2.siddhi.annotation;
 
 import org.wso2.siddhi.annotation.util.DataType;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -27,7 +26,6 @@ import java.lang.annotation.Target;
 /**
  * Annotation for storing additional attributes returned by a stream processor.
  * This should not be directly applied to any classes.
- * <p>
  * <pre><code>
  * eg:-
  *      {@literal @}Extension(
@@ -46,11 +44,11 @@ import java.lang.annotation.Target;
  * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({})
 public @interface ReturnAttribute {
-    String name() default "";   // optional
+    String name() default "";
 
-    DataType[] type();
+    DataType[] type() default {};
 
-    String description() default "";        // optional
+    String description() default "";
 }

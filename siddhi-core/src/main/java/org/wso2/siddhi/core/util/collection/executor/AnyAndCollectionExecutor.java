@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Implementation of {@link CollectionExecutor}
+ */
 public class AnyAndCollectionExecutor implements CollectionExecutor {
 
 
@@ -35,9 +38,11 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
     private final CollectionExecutor lowCollectionExecutor;
     private ExhaustiveCollectionExecutor exhaustiveCollectionExecutor;
 
-    public AnyAndCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor rightCostCollectionExecutor,
+    public AnyAndCollectionExecutor(CollectionExecutor leftCollectionExecutor, CollectionExecutor
+            rightCostCollectionExecutor,
                                     ExhaustiveCollectionExecutor exhaustiveCollectionExecutor) {
-        if (leftCollectionExecutor.getDefaultCost().getWeight() <= rightCostCollectionExecutor.getDefaultCost().getWeight()) {
+        if (leftCollectionExecutor.getDefaultCost().getWeight() <= rightCostCollectionExecutor.getDefaultCost()
+                .getWeight()) {
             this.lowCollectionExecutor = leftCollectionExecutor;
             this.highCostCollectionExecutor = rightCostCollectionExecutor;
         } else {
@@ -47,7 +52,8 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner
+            storeEventCloner) {
 
         Collection<StreamEvent> resultEventSet = findEvents(matchingEvent, indexedEventHolder);
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
@@ -68,14 +74,17 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
 
     public Collection<StreamEvent> findEvents(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
         //limit for 10 is a magic number identified via performance test
-        Collection<StreamEvent> lowCostStreamEvents = lowCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> lowCostStreamEvents = lowCollectionExecutor.findEvents(matchingEvent,
+                                                                                       indexedEventHolder);
         if (lowCostStreamEvents == null) {
             return null;
         } else if (lowCostStreamEvents.size() > 0) {
             if (lowCostStreamEvents.size() <= 10) {
                 return exhaustiveCollectionExecutor.findEvents(matchingEvent, lowCostStreamEvents);
             } else {
-                Collection<StreamEvent> highCostStreamEvents = highCostCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
+                Collection<StreamEvent> highCostStreamEvents = highCostCollectionExecutor.findEvents(
+                        matchingEvent, indexedEventHolder);
+
                 if (highCostStreamEvents == null) {
                     return null;
                 } else if (highCostStreamEvents.size() > 0) {

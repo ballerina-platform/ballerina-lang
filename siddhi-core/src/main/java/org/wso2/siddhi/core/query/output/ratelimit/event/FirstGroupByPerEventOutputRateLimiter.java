@@ -28,13 +28,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined number of events and the emit only the
+ * first event. This implementation specifically handle queries with group by.
+ */
 public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
+    private List<String> groupByKeys = new ArrayList<String>();
     private String id;
     private ComplexEventChunk<ComplexEvent> allComplexEventChunk;
     private volatile int counter = 0;
-    List<String> groupByKeys = new ArrayList<String>();
 
     public FirstGroupByPerEventOutputRateLimiter(String id, Integer value) {
         this.id = id;
@@ -65,7 +68,8 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
                     }
                     if (++counter == value) {
                         if (allComplexEventChunk.getFirst() != null) {
-                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
                             outputEventChunk.add(allComplexEventChunk.getFirst());
                             outputEventChunks.add(outputEventChunk);
                             allComplexEventChunk.clear();
@@ -98,18 +102,22 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("Counter", counter);
-        state.put("GroupByKeys", groupByKeys);
-        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        synchronized (this) {
+            state.put("Counter", counter);
+            state.put("GroupByKeys", groupByKeys);
+            state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        }
         return state;
     }
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        counter = (int) state.get("Counter");
-        groupByKeys = (List<String>) state.get("GroupByKeys");
-        allComplexEventChunk.clear();
-        allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
+        synchronized (this) {
+            counter = (int) state.get("Counter");
+            groupByKeys = (List<String>) state.get("GroupByKeys");
+            allComplexEventChunk.clear();
+            allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
+        }
     }
 
 }

@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.join;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -31,8 +32,6 @@ import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import junit.framework.Assert;
 
 public class JoinTestCase {
     private static final Logger log = Logger.getLogger(JoinTestCase.class);
@@ -215,13 +214,15 @@ public class JoinTestCase {
                     EventPrinter.print(timestamp, inEvents, removeEvents);
                     if (inEvents != null) {
                         for (Event event : inEvents) {
-                            org.junit.Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
+                            org.junit.Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
+                                    (0)));
                         }
                         inEventCount.addAndGet(inEvents.length);
                     }
                     if (removeEvents != null) {
                         for (Event event : removeEvents) {
-                            org.junit.Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData(0)));
+                            org.junit.Assert.assertTrue("IBM".equals(event.getData(0)) || "WSO2".equals(event.getData
+                                    (0)));
                         }
                         removeEventCount.getAndAdd(removeEvents.length);
                     }
@@ -591,7 +592,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {
@@ -637,7 +638,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {
@@ -684,7 +685,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {
@@ -729,7 +730,7 @@ public class JoinTestCase {
             executionPlanRuntime.start();
             Thread.sleep(100);
             itemsStream.send(new Object[]{"cust1", "bill1", "item1"});
-            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232l});
+            orderStream.send(new Object[]{"bill1", "cust1", "item1", "dow1", 12323232L});
             Thread.sleep(100);
             Assert.assertEquals("Event Arrived", true, eventArrived);
         } finally {

@@ -21,6 +21,8 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+import java.io.Serializable;
+
 /**
  * The converter that converts data of the events into StreamEvents
  */
@@ -43,27 +45,29 @@ public interface StreamEventConverter {
     void convertComplexEvent(ComplexEvent complexEvent, StreamEvent borrowedEvent);
 
     /**
-     * Method to construct(change format) timestamp and data from StreamEvent
+     * Method to construct(change format) timeStamp and data from StreamEvent
      *
-     * @param timestamp     timestamp of the event
+     * @param timeStamp     timeStamp of the event
      * @param data          output data of the event
      * @param borrowedEvent Event that will be populated
      */
-    void convertData(long timestamp, Object[] data, StreamEvent borrowedEvent);
+    void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent);
 
     /**
-     * Method to construct(change format) timestamp and data from StreamEvent
-     *  @param timestamp     timestamp of the event
+     * Method to construct(change format) timeStamp and data from StreamEvent
+     *
+     * @param timeStamp     timeStamp of the event
      * @param data          output data of the event
      * @param type          output type of the event
      * @param borrowedEvent Event that will be populated
      */
-    void convertData(long timestamp, Object[] data, StreamEvent.Type type, StreamEvent borrowedEvent);
+    void convertData(long timeStamp, Object[] data, StreamEvent.Type type, StreamEvent borrowedEvent);
 
     /**
      * Element to hold information about event conversion
      */
-    class ConversionMapping {
+    class ConversionMapping implements Serializable {
+        private static final long serialVersionUID = 4986399180249934830L;
         private int fromPosition;               //position in StreamEvent/data[]
         private int[] toPosition = new int[2];  //new position in StreamEvent
 

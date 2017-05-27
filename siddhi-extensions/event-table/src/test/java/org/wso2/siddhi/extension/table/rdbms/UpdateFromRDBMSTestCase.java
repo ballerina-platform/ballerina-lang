@@ -28,9 +28,9 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 
 public class UpdateFromRDBMSTestCase {
     private static final Logger log = Logger.getLogger(UpdateFromRDBMSTestCase.class);
@@ -57,11 +57,13 @@ public class UpdateFromRDBMSTestCase {
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
 
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
@@ -108,11 +110,13 @@ public class UpdateFromRDBMSTestCase {
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
 
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000')  " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000')  " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
@@ -157,12 +161,14 @@ public class UpdateFromRDBMSTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000') " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "', cache='lru', cache.size='1000') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
@@ -225,12 +231,14 @@ public class UpdateFromRDBMSTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
@@ -294,12 +302,14 @@ public class UpdateFromRDBMSTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "' , bloom.filters = 'enable') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
@@ -362,12 +372,14 @@ public class UpdateFromRDBMSTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, volume long); " +
-                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
@@ -431,13 +443,15 @@ public class UpdateFromRDBMSTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
                         "define stream CheckStockStream (symbol string, price float, volume long); " +
                         "define stream UpdateStockStream (comp string, prc float); " +
-                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
@@ -452,7 +466,8 @@ public class UpdateFromRDBMSTestCase {
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
-                        "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and price<StockTable.price) in StockTable] " +
+                        "from CheckStockStream[(symbol==StockTable.symbol and volume==StockTable.volume and " +
+                        "price<StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -524,22 +539,24 @@ public class UpdateFromRDBMSTestCase {
         try {
             if (dataSource.getConnection() != null) {
 
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
-                                 "define stream StockStream (symbol string, price float, volume long); " +
-                                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                                 "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
-                                 "define table StockTable (symbol string, price float, volume long); ";
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream UpdateStockStream (symbol string, price float, volume long); " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
+                        "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
-                               "@info(name = 'query1') " +
-                               "from StockStream " +
-                               "insert into StockTable ;" +
-                               "" +
-                               "@info(name = 'query2') " +
-                               "from UpdateStockStream " +
-                               "update StockTable " +
-                               "   on StockTable.volume == volume ;";
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from UpdateStockStream " +
+                        "update StockTable " +
+                        "   on StockTable.volume == volume ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 
@@ -575,22 +592,24 @@ public class UpdateFromRDBMSTestCase {
         try {
             if (dataSource.getConnection() != null) {
 
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
-                                 "define stream StockStream (symbol string, price float, volume long); " +
-                                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
-                                 "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
-                                 "define table StockTable (symbol string, price float, volume long); ";
+                        "define stream StockStream (symbol string, price float, volume long); " +
+                        "define stream UpdateStockStream (symbol string, price float, volume long); " +
+                        "@store(type = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' " +
+                        ", table.name = '" + RDBMSTestConstants.TABLE_NAME + "')  " +
+                        "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +
-                               "@info(name = 'query1') " +
-                               "from StockStream " +
-                               "insert into StockTable ;" +
-                               "" +
-                               "@info(name = 'query2') " +
-                               "from UpdateStockStream " +
-                               "update StockTable " +
-                               "   on StockTable.volume == 100 ;";
+                        "@info(name = 'query1') " +
+                        "from StockStream " +
+                        "insert into StockTable ;" +
+                        "" +
+                        "@info(name = 'query2') " +
+                        "from UpdateStockStream " +
+                        "update StockTable " +
+                        "   on StockTable.volume == 100 ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
 

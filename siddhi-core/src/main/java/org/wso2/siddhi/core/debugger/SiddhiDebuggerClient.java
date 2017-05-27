@@ -25,7 +25,12 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
@@ -161,6 +166,58 @@ public class SiddhiDebuggerClient {
         // Start the SiddhiDebuggerClient
         SiddhiDebuggerClient client = new SiddhiDebuggerClient();
         client.start(query, input);
+    }
+
+    /**
+     * Print information message to the console.
+     *
+     * @param msg the message
+     */
+    private static void info(String msg) {
+        System.out.println("INFO: " + msg);
+    }
+
+    /**
+     * Print error message to the console.
+     *
+     * @param msg the message
+     */
+    private static void error(String msg) {
+        System.out.println("ERROR: " + msg);
+    }
+
+    /**
+     * Read the text content of the given file.
+     *
+     * @param path the path of the file
+     * @return the textr content of the file
+     * @throws IOException if there are any issues in reading the file
+     */
+    private static String readText(String path) throws IOException {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+            String line;
+            StringBuilder builder = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                builder.append(line).append('\n');
+            }
+            return builder.toString();
+        } catch (FileNotFoundException e) {
+            error("The file " + path + " does not exist");
+            throw e;
+        } catch (IOException e) {
+            error("Error in reading the file " + path);
+            throw e;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    error("Error when closing the input reader of " + path);
+                }
+            }
+        }
     }
 
     /**
@@ -345,58 +402,6 @@ public class SiddhiDebuggerClient {
      */
     private void printNextLine() {
         System.out.print(DEBUGGER_TERMINAL_PREFIX);
-    }
-
-    /**
-     * Print information message to the console.
-     *
-     * @param msg the message
-     */
-    private static void info(String msg) {
-        System.out.println("INFO: " + msg);
-    }
-
-    /**
-     * Print error message to the console.
-     *
-     * @param msg the message
-     */
-    private static void error(String msg) {
-        System.out.println("ERROR: " + msg);
-    }
-
-    /**
-     * Read the text content of the given file.
-     *
-     * @param path the path of the file
-     * @return the textr content of the file
-     * @throws IOException if there are any issues in reading the file
-     */
-    private static String readText(String path) throws IOException {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            String line;
-            StringBuilder builder = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append('\n');
-            }
-            return builder.toString();
-        } catch (FileNotFoundException e) {
-            error("The file " + path + " does not exist");
-            throw e;
-        } catch (IOException e) {
-            error("Error in reading the file " + path);
-            throw e;
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    error("Error when closing the input reader of " + path);
-                }
-            }
-        }
     }
 
     /**

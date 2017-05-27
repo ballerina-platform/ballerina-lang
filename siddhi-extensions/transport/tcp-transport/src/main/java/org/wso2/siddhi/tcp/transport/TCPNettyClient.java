@@ -18,7 +18,12 @@
 package org.wso2.siddhi.tcp.transport;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -57,6 +62,21 @@ public class TCPNettyClient {
                 });
     }
 
+    public static void main(String[] args) {
+        TCPNettyClient TCPNettyClient = new TCPNettyClient();
+        TCPNettyClient.connect("localhost", 9892);
+        for (int i = 0; i < 10000; i++) {
+            ArrayList<Event> arrayList = new ArrayList<Event>(100);
+            for (int j = 0; j < 5; j++) {
+                arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"WSO2", i, 10}));
+                arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"IBM", i, 10}));
+            }
+            TCPNettyClient.send("StockStream", arrayList.toArray(new Event[10]));
+        }
+        TCPNettyClient.disconnect();
+        TCPNettyClient.shutdown();
+    }
+
     public void connect(String host, int port) {
         // Start the connection attempt.
         try {
@@ -76,7 +96,8 @@ public class TCPNettyClient {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
                     log.error("Error sending events to '" + hostAndPort + "' on stream '" + streamId +
-                            "', " + future.cause() + ", dropping events " + Arrays.deepToString(events), future.cause());
+                            "', " + future.cause() + ", dropping events " + Arrays.deepToString(events), future.cause
+                            ());
                 }
             }
         });
@@ -105,22 +126,6 @@ public class TCPNettyClient {
         log.info("Stopping client to '" + hostAndPort + "' with sessionId:" + sessionId);
         hostAndPort = null;
         sessionId = null;
-    }
-
-
-    public static void main(String[] args) {
-        TCPNettyClient TCPNettyClient = new TCPNettyClient();
-        TCPNettyClient.connect("localhost", 9892);
-        for (int i = 0; i < 10000; i++) {
-            ArrayList<Event> arrayList = new ArrayList<Event>(100);
-            for (int j = 0; j < 5; j++) {
-                arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"WSO2", i, 10}));
-                arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"IBM", i, 10}));
-            }
-            TCPNettyClient.send("StockStream", arrayList.toArray(new Event[10]));
-        }
-        TCPNettyClient.disconnect();
-        TCPNettyClient.shutdown();
     }
 
 }

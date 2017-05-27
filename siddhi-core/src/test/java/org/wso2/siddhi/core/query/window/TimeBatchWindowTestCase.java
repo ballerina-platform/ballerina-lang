@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -61,7 +61,8 @@ public class TimeBatchWindowTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -344,7 +345,8 @@ public class TimeBatchWindowTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEventCount == 0) {
-                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents == null);
+                    Assert.assertTrue("Remove Events will only arrive after the second time period. ", removeEvents
+                            == null);
                 }
                 if (inEvents != null) {
                     inEventCount = inEventCount + inEvents.length;
@@ -359,7 +361,9 @@ public class TimeBatchWindowTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         // Start sending events in the beginning of a cycle
-        while (System.currentTimeMillis() % 2000 != 0) ;
+        while (System.currentTimeMillis() % 2000 != 0) {
+            ;
+        }
         inputHandler.send(new Object[]{"IBM", 700f, 0});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 1});
         Thread.sleep(8500);
@@ -383,7 +387,8 @@ public class TimeBatchWindowTestCase {
 //        SiddhiManager siddhiManager = new SiddhiManager();
 //
 //        String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-//        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(1 sec, 0) select symbol, sum(price) as price" +
+//        String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(1 sec, 0) select symbol, sum
+// (price) as price" +
 //                " insert all events into outputStream ;";
 //
 //        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);

@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.managment;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -72,7 +72,8 @@ public class QuerySyncTestCase {
                     inEventCount.addAndGet(inEvents.length);
                 }
                 if (removeEvents != null) {
-                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount.get() > removeEventCount.get());
+                    Assert.assertTrue("InEvents arrived before RemoveEvents", inEventCount.get() > removeEventCount
+                            .get());
                     removeEventCount.addAndGet(removeEvents.length);
                 }
                 eventArrived = true;
@@ -125,7 +126,8 @@ public class QuerySyncTestCase {
                         Assert.fail("Remove events emitted");
                     } else {
                         count.incrementAndGet();
-                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData(0)));
+                        Assert.assertTrue("192.10.1.3".equals(event.getData(0)) || "192.10.1.4".equals(event.getData
+                                (0)));
                     }
                 }
             }
@@ -242,7 +244,7 @@ public class QuerySyncTestCase {
                     eventArrived = true;
                 }
                 if (removeEvents != null) {
-                    removeEventCount.addAndGet( removeEvents.length);
+                    removeEventCount.addAndGet(removeEvents.length);
                 }
                 eventArrived = true;
             }

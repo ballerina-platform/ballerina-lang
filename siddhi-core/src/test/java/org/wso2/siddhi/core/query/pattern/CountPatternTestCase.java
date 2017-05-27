@@ -731,7 +731,8 @@ public class CountPatternTestCase {
                 "@info(name = 'query1') " +
                 "from every e1 = EventStream -> " +
                 "     e2 = EventStream [e1.symbol==e2.symbol]<4:6> " +
-                "select e1.volume as volume1, e2[0].volume as volume2, e2[1].volume as volume3, e2[2].volume as volume4, e2[3].volume as volume5, e2[4].volume as volume6, e2[5].volume as volume7 " +
+                "select e1.volume as volume1, e2[0].volume as volume2, e2[1].volume as volume3, e2[2].volume as " +
+                "volume4, e2[3].volume as volume5, e2[4].volume as volume6, e2[5].volume as volume7 " +
                 "insert into StockQuote;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -745,19 +746,24 @@ public class CountPatternTestCase {
                         inEventCount++;
                         switch (inEventCount) {
                             case 1:
-                                Assert.assertArrayEquals(new Object[]{100, 200, 300, 400, 500, null, null}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{100, 200, 300, 400, 500, null, null}, event
+                                        .getData());
                                 break;
                             case 2:
-                                Assert.assertArrayEquals(new Object[]{200, 300, 400, 500, 600, null, null}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{200, 300, 400, 500, 600, null, null}, event
+                                        .getData());
                                 break;
                             case 3:
-                                Assert.assertArrayEquals(new Object[]{300, 400, 500, 600, 700, null, null}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{300, 400, 500, 600, 700, null, null}, event
+                                        .getData());
                                 break;
                             case 4:
-                                Assert.assertArrayEquals(new Object[]{400, 500, 600, 700, 800, null, null}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{400, 500, 600, 700, 800, null, null}, event
+                                        .getData());
                                 break;
                             case 5:
-                                Assert.assertArrayEquals(new Object[]{500, 600, 700, 800, 900, null, null}, event.getData());
+                                Assert.assertArrayEquals(new Object[]{500, 600, 700, 800, 900, null, null}, event
+                                        .getData());
                                 break;
                             default:
                                 Assert.assertSame(5, inEventCount);
@@ -812,8 +818,10 @@ public class CountPatternTestCase {
         String query = "" +
                 "@info(name = 'query1') " +
                 "from e1=Stream1[price>20] <0:5> -> e2=Stream2[price>e1[0].price] " +
-                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as price2 " +
-                "having instanceOfFloat(e1[1].price) and not instanceOfFloat(e1[2].price) and instanceOfFloat(price1_1) and not instanceOfFloat(price1_2) " +
+                "select e1[0].price as price1_0, e1[1].price as price1_1, e1[2].price as price1_2, e2.price as price2" +
+                " " +
+                "having instanceOfFloat(e1[1].price) and not instanceOfFloat(e1[2].price) and instanceOfFloat" +
+                "(price1_1) and not instanceOfFloat(price1_2) " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);

@@ -19,6 +19,9 @@ package org.wso2.siddhi.query.api.execution.query.input.state;
 
 import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 
+/**
+ * Element representing states in pattern
+ */
 public interface StateElement {
 
     public TimeConstant getWithin();

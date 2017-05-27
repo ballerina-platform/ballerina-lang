@@ -35,32 +35,27 @@ import java.util.concurrent.TimeUnit;
 public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerator {
 
     /**
+     * ScheduledExecutorService used to produce heartbeat.
+     */
+    private final ScheduledExecutorService scheduledExecutorService;
+    /**
      * Timestamp as defined by the last event.
      */
     private long lastEventTimestamp;
-
     /**
      * The actual timestamp of last event arrival.
      */
     private long lastSystemTimestamp;
-
     /**
      * The minimum time to wait for new events to arrive.
      * If a new event does not arrive within this time, the generator
      * timestamp will be increased by incrementInMilliseconds.
      */
     private long idleTime = -1;
-
     /**
      * By how many milliseconds, the event timestamp should be increased.
      */
     private long incrementInMilliseconds;
-
-    /**
-     * ScheduledExecutorService used to produce heartbeat.
-     */
-    private final ScheduledExecutorService scheduledExecutorService;
-
     /**
      * A flag used to start the heartbeat clock for the first time only.
      */
@@ -79,7 +74,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * Create an EventBasedTimeMillisTimestampGenerator.
      *
-     * @param scheduledExecutorService
+     * @param scheduledExecutorService  the schedule service to be executed for produce heartbeat.
      */
     public EventTimeBasedMillisTimestampGenerator(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;
@@ -99,7 +94,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * Set the timestamp to the {@link EventTimeBasedMillisTimestampGenerator} and notify the interested listeners.
      *
-     * @param timestamp
+     * @param timestamp the timestamp to the {@link EventTimeBasedMillisTimestampGenerator}
      */
     public void setCurrentTimestamp(long timestamp) {
         if (timestamp >= this.lastEventTimestamp) {
@@ -133,17 +128,10 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     }
 
     /**
-     * Listener used to get notification when a new event comes in.
-     */
-    public interface TimeChangeListener {
-        void onTimeChange(long currentTimestamp);
-    }
-
-    /**
      * The {@link ScheduledExecutorService} waits until idleTime from the timestamp of last event
      * and if there are no new events arrived within that period, it will inject a new timestamp.
      *
-     * @param idleTime
+     * @param idleTime the ideal time for wait until from the timestamp of last event.
      */
     public void setIdleTime(long idleTime) {
         this.idleTime = idleTime;
@@ -152,7 +140,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * Set by how many milliseconds, the event timestamp should be increased.
      *
-     * @param incrementInMilliseconds
+     * @param incrementInMilliseconds the timestamp incremental value.
      */
     public void setIncrementInMilliseconds(long incrementInMilliseconds) {
         this.incrementInMilliseconds = incrementInMilliseconds;
@@ -161,7 +149,7 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
     /**
      * This method must be called within a synchronized block to avoid multiple schedulers from running simultaneously.
      *
-     * @param duration
+     * @param duration delay the time from now to delay execution
      */
     private void notifyAfter(long duration) {
         if (!heartbeatRunning && idleTime != -1) {
@@ -169,6 +157,13 @@ public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerato
             scheduledExecutorService.schedule(timeInjector, duration, TimeUnit.MILLISECONDS);
             heartbeatRunning = true;
         }
+    }
+
+    /**
+     * Listener used to get notification when a new event comes in.
+     */
+    public interface TimeChangeListener {
+        void onTimeChange(long currentTimestamp);
     }
 
     /**

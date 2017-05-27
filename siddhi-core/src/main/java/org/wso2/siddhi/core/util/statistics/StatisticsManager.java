@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.util.statistics;
 
-import com.codahale.metrics.*;
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * Each execution plan will have one StatisticsManager in execution plan context

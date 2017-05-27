@@ -17,6 +17,9 @@
  */
 package org.wso2.siddhi.query.api.exception;
 
+/**
+ * Exception thrown when attribute is not present
+ */
 public class AttributeNotExistException extends ExecutionPlanValidationException {
 
     public AttributeNotExistException(String message) {

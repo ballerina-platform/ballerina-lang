@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -27,8 +28,16 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate max value based on an event attribute.
+ */
 @Extension(
         name = "max",
         namespace = "",
@@ -40,7 +49,14 @@ import java.util.*;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the maximum value in the same data type as the input.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "from fooStream#window.timeBatch(10 sec)\n" +
+                        "select max(temp) as maxTemp\n" +
+                        "insert into barStream;",
+                description = "max(temp) returns the maximum temp value recorded for all the events based on their " +
+                        "arrival and expiry."
+        )
 )
 public class MaxAttributeAggregator extends AttributeAggregator {
 
@@ -49,11 +65,12 @@ public class MaxAttributeAggregator extends AttributeAggregator {
     /**
      * The initialization method for FunctionExecutor
      *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader
+     * @param configReader this hold the {@link MaxAttributeAggregator} configuration reader.
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Max aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");
@@ -163,7 +180,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -172,13 +189,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Double) state.get("MaxValue");
             maxDeque = (Deque<Double>) state.get("MaxDeque");
         }
@@ -219,7 +238,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -228,13 +247,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Float) state.get("MaxValue");
             maxDeque = (Deque<Float>) state.get("MaxDeque");
         }
@@ -276,7 +297,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -285,13 +306,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Integer) state.get("MaxValue");
             maxDeque = (Deque<Integer>) state.get("MaxDeque");
         }
@@ -333,7 +356,7 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             maxDeque.clear();
             maxValue = null;
             return null;
@@ -342,13 +365,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MaxValue", maxValue);
-            state.put("MaxDeque", maxDeque);
+            synchronized (this) {
+                state.put("MaxValue", maxValue);
+                state.put("MaxDeque", maxDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             maxValue = (Long) state.get("MaxValue");
             maxDeque = (Deque<Long>) state.get("MaxDeque");
         }

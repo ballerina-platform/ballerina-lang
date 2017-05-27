@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -49,7 +49,8 @@ public class TimeLengthWindowTestCase {
     */
     @Test
     public void timeLengthWindowTest1() throws InterruptedException {
-        log.info("Testing timeLength window with no of events less than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events less than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -98,7 +99,8 @@ public class TimeLengthWindowTestCase {
     */
     @Test
     public void timeLengthWindowTest2() throws InterruptedException {
-        log.info("Testing timeLength window with no of events less than window length and time period greater than window time");
+        log.info("Testing timeLength window with no of events less than window length and time period greater than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -151,7 +153,8 @@ public class TimeLengthWindowTestCase {
     */
     @Test
     public void timeLengthWindowTest3() throws InterruptedException {
-        log.info("Testing timeLength window with no of events greater than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -210,7 +213,8 @@ public class TimeLengthWindowTestCase {
     @Test
     public void timeLengthWindowTest4() throws InterruptedException {
 
-        log.info("Testing timeLength window with no of events greater than window length and time period greater than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period greater than" +
+                " window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -263,7 +267,8 @@ public class TimeLengthWindowTestCase {
     */
     @Test
     public void timeLengthWindowTest6() throws InterruptedException {
-        log.info("Testing timeLength window with no of events greater than window length and time period greater than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period greater than" +
+                " window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -277,28 +282,28 @@ public class TimeLengthWindowTestCase {
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
 
-                if(inEvents != null) {
+                if (inEvents != null) {
                     if (inEvents[0].getData(0).toString().equals("id6")) {
-                        Assert.assertEquals("6",inEvents[0].getData(1).toString());
+                        Assert.assertEquals("6", inEvents[0].getData(1).toString());
                     }
                     if (inEvents[0].getData(0).toString().equals("id7")) {
-                        Assert.assertEquals("6",inEvents[0].getData(1).toString());
+                        Assert.assertEquals("6", inEvents[0].getData(1).toString());
                     }
                     if (inEvents[0].getData(0).toString().equals("id8")) {
-                        Assert.assertEquals("6",inEvents[0].getData(1).toString());
+                        Assert.assertEquals("6", inEvents[0].getData(1).toString());
                     }
                     inEventCount++;
                 }
 
-                if(removeEvents != null) {
+                if (removeEvents != null) {
                     if (removeEvents[0].getData(0).toString().equals("id1")) {
-                        Assert.assertEquals("5",removeEvents[0].getData(1).toString());
+                        Assert.assertEquals("5", removeEvents[0].getData(1).toString());
                     }
                     if (removeEvents[0].getData(0).toString().equals("id2")) {
-                        Assert.assertEquals("5",removeEvents[0].getData(1).toString());
+                        Assert.assertEquals("5", removeEvents[0].getData(1).toString());
                     }
                     if (removeEvents[0].getData(0).toString().equals("id3")) {
-                        Assert.assertEquals("3",removeEvents[0].getData(1).toString());
+                        Assert.assertEquals("3", removeEvents[0].getData(1).toString());
                     }
                     removeEventCount++;
                 }
@@ -339,7 +344,8 @@ public class TimeLengthWindowTestCase {
     */
     @Test
     public void timeLengthWindowTest7() throws InterruptedException {
-        log.info("Testing timeLength window with no of events less than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events less than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -384,7 +390,8 @@ public class TimeLengthWindowTestCase {
 
     @Test
     public void timeLengthWindowTest10() throws InterruptedException {
-        log.info("Testing timeLength window with no of events greater than window length and time period less than window time");
+        log.info("Testing timeLength window with no of events greater than window length and time period less than " +
+                "window time");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 

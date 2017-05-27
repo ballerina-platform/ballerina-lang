@@ -44,14 +44,16 @@ public class SchedulerParser {
      * @param executionPlanContext     ExecutionPlanContext
      * @return Scheduler instance
      */
-    public static Scheduler parse(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
+    public static Scheduler parse(ScheduledExecutorService scheduledExecutorService, Schedulable
+            singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
         Scheduler scheduler;
         if (executionPlanContext.isPlayback()) {
             // Playback mode is enabled
             scheduler = new EventTimeBasedScheduler(singleThreadEntryValve, executionPlanContext);
         } else {
             // Default execution
-            scheduler = new SystemTimeBasedScheduler(executionPlanContext.getScheduledExecutorService(), singleThreadEntryValve, executionPlanContext);
+            scheduler = new SystemTimeBasedScheduler(executionPlanContext.getScheduledExecutorService(),
+                    singleThreadEntryValve, executionPlanContext);
         }
 
         return scheduler;

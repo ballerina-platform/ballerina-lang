@@ -25,6 +25,11 @@ import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+/**
+ * Implementation of {@link OutputCallback} to receive processed Siddhi events from
+ * Siddhi queries and insert data into a {@link Table}
+ * based on received events and condition.
+ */
 public class InsertIntoTableCallback extends OutputCallback {
     private Table table;
     private StreamDefinition outputStreamDefinition;
@@ -45,7 +50,8 @@ public class InsertIntoTableCallback extends OutputCallback {
     @Override
     public void send(ComplexEventChunk complexEventChunk) {
         if (convertToStreamEvent) {
-            ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>(complexEventChunk.isBatch());
+            ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>(complexEventChunk
+                    .isBatch());
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
                 ComplexEvent complexEvent = complexEventChunk.next();
@@ -53,7 +59,8 @@ public class InsertIntoTableCallback extends OutputCallback {
                 streamEventConvertor.convertData(
                         complexEvent.getTimestamp(),
                         complexEvent.getOutputData(),
-                        complexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT : complexEvent.getType(),
+                        complexEvent.getType() == ComplexEvent.Type.EXPIRED ? ComplexEvent.Type.CURRENT :
+                                complexEvent.getType(),
                         borrowEvent);
                 streamEventChunk.add(borrowEvent);
             }

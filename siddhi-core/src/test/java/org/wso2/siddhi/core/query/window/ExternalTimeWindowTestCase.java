@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -74,15 +74,14 @@ public class ExternalTimeWindowTestCase {
         });
 
 
-
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{1366335804341l, "192.10.1.3"});
-        inputHandler.send(new Object[]{1366335804342l, "192.10.1.4"});
-        inputHandler.send(new Object[]{1366335814341l, "192.10.1.5"});
-        inputHandler.send(new Object[]{1366335814345l, "192.10.1.6"});
-        inputHandler.send(new Object[]{1366335824341l, "192.10.1.7"});
+        inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
+        inputHandler.send(new Object[]{1366335804342L, "192.10.1.4"});
+        inputHandler.send(new Object[]{1366335814341L, "192.10.1.5"});
+        inputHandler.send(new Object[]{1366335814345L, "192.10.1.6"});
+        inputHandler.send(new Object[]{1366335824341L, "192.10.1.7"});
 
         Thread.sleep(1000);
 

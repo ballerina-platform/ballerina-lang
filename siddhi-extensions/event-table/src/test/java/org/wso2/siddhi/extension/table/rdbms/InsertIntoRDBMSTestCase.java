@@ -17,16 +17,16 @@
  */
 package org.wso2.siddhi.extension.table.rdbms;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 
 public class InsertIntoRDBMSTestCase {
     private static final Logger log = Logger.getLogger(InsertIntoRDBMSTestCase.class);
@@ -41,10 +41,12 @@ public class InsertIntoRDBMSTestCase {
 
         try (Connection connection = dataSource.getConnection()) {
             if (connection != null) {
-                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
+                DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants
+                        .TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
-                        "@store(type = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
+                        "@store(type = 'rdbms' , datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "'" +
+                        " , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
 
                 String query = "" +

@@ -17,11 +17,10 @@
  */
 package org.wso2.siddhi.query.api.execution.query.output.stream;
 
+/**
+ * Query output stream
+ */
 public abstract class OutputStream {
-
-    public enum OutputEventType {
-        EXPIRED_EVENTS, CURRENT_EVENTS, ALL_EVENTS, ALL_RAW_EVENTS, EXPIRED_RAW_EVENTS
-    }
 
     protected String id;
     protected OutputEventType outputEventType;
@@ -52,13 +51,21 @@ public abstract class OutputStream {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OutputStream)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OutputStream)) {
+            return false;
+        }
 
         OutputStream that = (OutputStream) o;
 
-        if (outputEventType != that.outputEventType) return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (outputEventType != that.outputEventType) {
+            return false;
+        }
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
 
         return true;
     }
@@ -68,5 +75,16 @@ public abstract class OutputStream {
         int result = outputEventType != null ? outputEventType.hashCode() : 0;
         result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * Output event types
+     */
+    public enum OutputEventType {
+        EXPIRED_EVENTS,
+        CURRENT_EVENTS,
+        ALL_EVENTS,
+        ALL_RAW_EVENTS,
+        EXPIRED_RAW_EVENTS
     }
 }

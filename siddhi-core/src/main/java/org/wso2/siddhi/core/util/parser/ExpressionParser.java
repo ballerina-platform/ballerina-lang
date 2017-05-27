@@ -53,140 +53,134 @@ import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditi
 import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorLongInt;
 import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorLongLong;
 import org.wso2.siddhi.core.executor.condition.compare.equal.EqualCompareConditionExpressionExecutorStringString;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorDoubleDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorDoubleFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorDoubleInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorDoubleLong;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorFloatDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorFloatFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorFloatInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorFloatLong;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorIntDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorIntFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than.GreaterThanCompareConditionExpressionExecutorIntInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
-        .GreaterThanCompareConditionExpressionExecutorIntLong;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan.GreaterThanCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan.GreaterThanCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorLongDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorLongFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
-        .GreaterThanCompareConditionExpressionExecutorLongInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan.GreaterThanCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.greaterthan
         .GreaterThanCompareConditionExpressionExecutorLongLong;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorDoubleDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorDoubleFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorDoubleInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorDoubleLong;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorFloatDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorFloatFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorFloatInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorFloatLong;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorIntDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorIntFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorIntInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorIntLong;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorLongDouble;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorLongFloat;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorLongInt;
-import org.wso2.siddhi.core.executor.condition.compare.greater_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.greaterthanequal
         .GreaterThanEqualCompareConditionExpressionExecutorLongLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorDoubleLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorFloatLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorIntLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than.LessThanCompareConditionExpressionExecutorLongLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.lessthan.LessThanCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorDoubleDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorDoubleFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorDoubleInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorDoubleLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorFloatDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorFloatFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorFloatInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorFloatLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorIntDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorIntFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorIntInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorIntLong;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorLongDouble;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorLongFloat;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorLongInt;
-import org.wso2.siddhi.core.executor.condition.compare.less_than_equal
+import org.wso2.siddhi.core.executor.condition.compare.lessthanequal
         .LessThanEqualCompareConditionExpressionExecutorLongLong;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorBoolBool;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleDouble;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleFloat;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleInt;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorDoubleLong;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatDouble;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatFloat;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatInt;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorFloatLong;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntDouble;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntFloat;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntInt;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorIntLong;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongDouble;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongFloat;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongInt;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorLongLong;
-import org.wso2.siddhi.core.executor.condition.compare.not_equal.NotEqualCompareConditionExpressionExecutorStringString;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorBoolBool;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorDoubleDouble;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorDoubleFloat;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorDoubleInt;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorDoubleLong;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorFloatDouble;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorFloatFloat;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorFloatInt;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorFloatLong;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorIntDouble;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorIntFloat;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorIntInt;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorIntLong;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorLongDouble;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorLongFloat;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorLongInt;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorLongLong;
+import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorStringString;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorDouble;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorFloat;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorInt;
-import org.wso2.siddhi.core.executor.math.Subtract.SubtractExpressionExecutorLong;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorDouble;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorInt;
@@ -203,6 +197,10 @@ import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorDou
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorInt;
 import org.wso2.siddhi.core.executor.math.multiply.MultiplyExpressionExecutorLong;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorDouble;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorFloat;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorInt;
+import org.wso2.siddhi.core.executor.math.subtract.SubtractExpressionExecutorLong;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AbstractAggregationAttributeExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.executor.AggregationAttributeExecutor;
@@ -265,19 +263,19 @@ public class ExpressionParser {
      * @param expression              Expression to be parsed
      * @param metaEvent               Meta Event
      * @param currentState            Current state number
-     * @param tableMap           Event Table Map
+     * @param tableMap                Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
      * @param executionPlanContext    ExecutionPlanContext
      * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
+     * @param queryName               query name of expression belongs to.
      * @return ExpressionExecutor
      */
-    public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent, int
-            currentState,
-                                                     Map<String, Table> tableMap,
+    public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent,
+                                                     int currentState, Map<String, Table> tableMap,
                                                      List<VariableExpressionExecutor> executorList,
-                                                     ExecutionPlanContext executionPlanContext, boolean groupBy, int
-                                                             defaultStreamEventIndex, String queryName) {
+                                                     ExecutionPlanContext executionPlanContext,
+                                                     boolean groupBy, int defaultStreamEventIndex, String queryName) {
         if (expression instanceof And) {
             return new AndConditionExpressionExecutor(
                     parseExpression(((And) expression).getLeftExpression(), metaEvent, currentState, tableMap,
@@ -299,52 +297,40 @@ public class ExpressionParser {
         } else if (expression instanceof Compare) {
             if (((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 return parseEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.NOT_EQUAL) {
                 return parseNotEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN) {
                 return parseGreaterThanCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN_EQUAL) {
                 return parseGreaterThanEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN) {
                 return parseLessThanCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN_EQUAL) {
                 return parseLessThanEqualCompare(
-                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName),
-                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState,
-                                tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                                queryName));
+                        parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                        parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
+                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
             }
 
         } else if (expression instanceof Constant) {
@@ -440,9 +426,8 @@ public class ExpressionParser {
         } else if (expression instanceof Divide) {
             ExpressionExecutor left = parseExpression(((Divide) expression).getLeftValue(), metaEvent, currentState,
                     tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-            ExpressionExecutor right = parseExpression(((Divide) expression).getRightValue(), metaEvent,
-                    currentState, tableMap, executorList, executionPlanContext, groupBy,
-                    defaultStreamEventIndex, queryName);
+            ExpressionExecutor right = parseExpression(((Divide) expression).getRightValue(), metaEvent, currentState,
+                    tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -1482,21 +1467,18 @@ public class ExpressionParser {
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @return List of expressionExecutors
      */
-    private static ExpressionExecutor[] parseInnerExpression(Expression[] innerExpressions, MetaComplexEvent
-            metaEvent, int currentState,
-                                                             Map<String, Table> tableMap,
+    private static ExpressionExecutor[] parseInnerExpression(Expression[] innerExpressions, MetaComplexEvent metaEvent,
+                                                             int currentState, Map<String, Table> tableMap,
                                                              List<VariableExpressionExecutor> executorList,
-                                                             ExecutionPlanContext executionPlanContext, boolean
-                                                                     groupBy, int defaultStreamEventIndex, String
-                                                                     queryName) {
+                                                             ExecutionPlanContext executionPlanContext, boolean groupBy,
+                                                             int defaultStreamEventIndex, String queryName) {
         ExpressionExecutor[] innerExpressionExecutors;
         if (innerExpressions != null) {
             if (innerExpressions.length > 0) {
                 innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
                 for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
                     innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState,
-                            tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                            queryName);
+                            tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
                 }
             } else {
                 List<Expression> outputAttributes = new ArrayList<Expression>();
@@ -1529,8 +1511,7 @@ public class ExpressionParser {
                 innerExpressionExecutors = new ExpressionExecutor[outputAttributes.size()];
                 for (int i = 0, innerExpressionsLength = outputAttributes.size(); i < innerExpressionsLength; i++) {
                     innerExpressionExecutors[i] = parseExpression(outputAttributes.get(i), metaEvent, currentState,
-                            tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex,
-                            queryName);
+                            tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
                 }
             }
         } else {

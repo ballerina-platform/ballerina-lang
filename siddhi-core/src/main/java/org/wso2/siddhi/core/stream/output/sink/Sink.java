@@ -42,22 +42,16 @@ public abstract class Sink implements SinkListener, Snapshotable {
     private String elementId;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
 
-    public void init(StreamDefinition streamDefinition,
-                     String type,
-                     OptionHolder transportOptionHolder,
-                     ConfigReader sinkConfigReader,
-                     SinkMapper sinkMapper,
-                     String mapType,
-                     OptionHolder mapOptionHolder,
-                     String payload,
-                     ConfigReader mapperConfigReader,
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
+                     ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
+                     OptionHolder mapOptionHolder, String payload, ConfigReader mapperConfigReader,
                      ExecutionPlanContext executionPlanContext) {
         this.type = type;
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, sinkConfigReader, executionPlanContext);
         if (sinkMapper != null) {
             sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader,
-                    executionPlanContext);
+                            executionPlanContext);
             this.mapper = sinkMapper;
         }
 
@@ -79,10 +73,10 @@ public abstract class Sink implements SinkListener, Snapshotable {
     /**
      * Will be called for initialing the {@link Sink}
      *
-     * @param outputStreamDefinition
+     * @param outputStreamDefinition containing stream definition bind to the {@link Sink}
      * @param optionHolder           Option holder containing static and dynamic options related to the {@link Sink}
-     * @param sinkConfigReader
-     * @param executionPlanContext
+     * @param sinkConfigReader  this hold the {@link Sink} extensions configuration reader.
+     * @param executionPlanContext {@link ExecutionPlanContext} of the parent execution plan.
      */
     protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
                                  ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext);

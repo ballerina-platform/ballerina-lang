@@ -19,6 +19,9 @@ package org.wso2.siddhi.core.event;
 
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+/**
+ * Interface for meta event to hold information relevant to a {@link ComplexEvent}.
+ */
 public interface MetaComplexEvent {
 
     void setOutputDefinition(StreamDefinition streamDefinition);

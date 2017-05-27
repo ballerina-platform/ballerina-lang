@@ -183,6 +183,8 @@ public class JoinInputStreamParser {
         switch (joinInputStream.getType()) {
             case FULL_OUTER_JOIN:
                 leftOuterJoinProcessor = true;
+                rightOuterJoinProcessor = true;
+                break;
             case RIGHT_OUTER_JOIN:
                 rightOuterJoinProcessor = true;
                 break;

@@ -71,39 +71,33 @@ public class Window implements FindableProcessor, Snapshotable {
      * ExecutionPlanContext is used to create the elementId  and WindowProcessor.
      */
     private final ExecutionPlanContext executionPlanContext;
-
+    /**
+     * LockWrapper to coordinate asynchronous events.
+     */
+    private final LockWrapper lockWrapper;
+    /**
+     * TemplateBuilder to convert {@link StateEvent}s to {@link StreamEvent}s
+     */
+    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     /**
      * Publisher to which the output events from internal window have to be sent.
      */
     private StreamJunction.Publisher outputPublisher;
-
     /**
      * Processor for the internal window.
      * It will contain the PublisherProcessor as the last windowProcessor in the chain.
      */
     private Processor windowProcessor;
-
     /**
      * WindowProcessor reference to the actual processor which is holding the events.
      * If this.windowProcessor refers to EntryValveProcessor (if the Window is a scheduler based, it may be),
      * internalWindowProcessor refers to the this.windowProcessor.getNextProcessor()
      */
     private WindowProcessor internalWindowProcessor;
-
-    /**
-     * LockWrapper to coordinate asynchronous events.
-     */
-    private final LockWrapper lockWrapper;
-
     /**
      * StreamEventPool to create new empty StreamEvent.
      */
     private StreamEventPool streamEventPool;
-
-    /**
-     * TemplateBuilder to convert {@link StateEvent}s to {@link StreamEvent}s
-     */
-    private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
     /**
      * Construct a Window object.
@@ -125,8 +119,10 @@ public class Window implements FindableProcessor, Snapshotable {
      * @param tableMap  map of {@link Table}s
      * @param eventWindowMap map of EventWindows
      * @param latencyTracker to rack the latency if statistic of underlying {@link WindowProcessor} is required
+     * @param queryName name of the query window belongs to.
      */
-    public void init(Map<String, Table> tableMap, Map<String, Window> eventWindowMap, LatencyTracker latencyTracker, String queryName) {
+    public void init(Map<String, Table> tableMap, Map<String, Window> eventWindowMap, LatencyTracker
+            latencyTracker, String queryName) {
         if (this.windowProcessor != null) {
             return;
         }
@@ -145,14 +141,17 @@ public class Window implements FindableProcessor, Snapshotable {
         OutputStream.OutputEventType outputEventType = windowDefinition.getOutputEventType();
         boolean outputExpectsExpiredEvents = outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS;
 
-        WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor(windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this.executionPlanContext, tableMap, false, outputExpectsExpiredEvents, queryName);
+        WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor
+                (windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this
+                        .executionPlanContext, tableMap, false, outputExpectsExpiredEvents, queryName);
         internalWindowProcessor.setStreamEventCloner(streamEventCloner);
         internalWindowProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
 
         EntryValveProcessor entryValveProcessor = null;
         if (internalWindowProcessor instanceof SchedulingProcessor) {
             entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
-            Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
+            Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(),
+                    entryValveProcessor, this.executionPlanContext);
             scheduler.init(this.lockWrapper, queryName);
             scheduler.setStreamEventPool(streamEventPool);
             ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);
@@ -213,7 +212,8 @@ public class Window implements FindableProcessor, Snapshotable {
             }
 
             // Send to the window windowProcessor
-            windowProcessor.process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, complexEventChunk.isBatch()));
+            windowProcessor.process(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, complexEventChunk
+                    .isBatch()));
         } finally {
             this.lockWrapper.unlock();
         }
@@ -231,11 +231,17 @@ public class Window implements FindableProcessor, Snapshotable {
      * {@inheritDoc}
      */
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, String queryName) {
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         if (this.internalWindowProcessor instanceof FindableProcessor) {
-            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, tableMap, queryName);
+            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression,
+                    matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, tableMap,
+                    queryName);
         } else {
-            throw new OperationNotSupportedException("Cannot construct finder for the window " + this.windowDefinition.getWindow());
+            throw new OperationNotSupportedException("Cannot construct finder for the window " + this
+                    .windowDefinition.getWindow());
         }
 
     }
@@ -299,8 +305,10 @@ public class Window implements FindableProcessor, Snapshotable {
 
         public StreamPublishProcessor(OutputStream.OutputEventType outputEventType) {
             this.outputEventType = outputEventType;
-            this.allowCurrentEvents = (outputEventType == OutputStream.OutputEventType.CURRENT_EVENTS || outputEventType == OutputStream.OutputEventType.ALL_EVENTS);
-            this.allowExpiredEvents = (outputEventType == OutputStream.OutputEventType.EXPIRED_EVENTS || outputEventType == OutputStream.OutputEventType.ALL_EVENTS);
+            this.allowCurrentEvents = (outputEventType == OutputStream.OutputEventType.CURRENT_EVENTS ||
+                    outputEventType == OutputStream.OutputEventType.ALL_EVENTS);
+            this.allowExpiredEvents = (outputEventType == OutputStream.OutputEventType.EXPIRED_EVENTS ||
+                    outputEventType == OutputStream.OutputEventType.ALL_EVENTS);
         }
 
         public void process(ComplexEventChunk complexEventChunk) {
@@ -309,7 +317,8 @@ public class Window implements FindableProcessor, Snapshotable {
             complexEventChunk.reset();
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
-                if (((event.getType() != StreamEvent.Type.CURRENT || !allowCurrentEvents) && (event.getType() != StreamEvent.Type.EXPIRED || !allowExpiredEvents))) {
+                if (((event.getType() != StreamEvent.Type.CURRENT || !allowCurrentEvents) && (event.getType() !=
+                        StreamEvent.Type.EXPIRED || !allowExpiredEvents))) {
                     complexEventChunk.remove();
                 }
             }

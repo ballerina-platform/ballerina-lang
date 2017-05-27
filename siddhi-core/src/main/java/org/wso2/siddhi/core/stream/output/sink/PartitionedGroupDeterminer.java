@@ -21,8 +21,10 @@ package org.wso2.siddhi.core.stream.output.sink;
 import org.wso2.siddhi.core.event.Event;
 
 /**
- * This implementation of {@OutputEventGroupDeterminer} groups events into 'n' number of partitions. The events will be divided into predefined number
- * partitions based on the value of a given field in the event. Events which are having the same value for the partitioning field will belong the to
+ * This implementation of {@link OutputGroupDeterminer} groups events into 'n' number of partitions. The events will
+ * be divided into predefined number
+ * partitions based on the value of a given field in the event. Events which are having the same value for the
+ * partitioning field will belong the to
  * the same partition.
  */
 public class PartitionedGroupDeterminer implements OutputGroupDeterminer {
@@ -35,7 +37,8 @@ public class PartitionedGroupDeterminer implements OutputGroupDeterminer {
     }
 
     /**
-     * Deciding the group of a given event and returning a unique identifier to identify a group. A correct implementation of this method
+     * Deciding the group of a given event and returning a unique identifier to identify a group. A correct
+     * implementation of this method
      * should be returning  the same group identifier for all events belongs a single group.
      *
      * @param event Event that needs to be decided to which group it belongs to

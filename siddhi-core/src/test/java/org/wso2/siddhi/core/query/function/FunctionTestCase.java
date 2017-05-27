@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -39,7 +39,7 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public class FunctionTestCase {
-    static final Logger log = Logger.getLogger(FunctionTestCase.class);
+    private static final Logger log = Logger.getLogger(FunctionTestCase.class);
     private int count;
     private boolean eventArrived;
 
@@ -56,7 +56,8 @@ public class FunctionTestCase {
         log.info("function test 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price1", Attribute.Type.FLOAT).attribute("price2", Attribute.Type.FLOAT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -64,7 +65,8 @@ public class FunctionTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price", Expression.function("coalesce", Expression.variable("price1"), Expression.variable("price2")))
+                        select("price", Expression.function("coalesce", Expression.variable("price1"), Expression
+                                .variable("price2")))
         );
         query.insertInto("StockQuote");
 
@@ -115,8 +117,10 @@ public class FunctionTestCase {
         log.info("function test 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 double, price2 float, volume long , quantity int);";
-        String query = "@info(name = 'query1') from cseEventStream select symbol, coalesce(price1,price2) as price,quantity insert into outputStream ;";
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 double, price2 float, volume " +
+                "long , quantity int);";
+        String query = "@info(name = 'query1') from cseEventStream select symbol, coalesce(price1,price2) as price," +
+                "quantity insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -141,10 +145,10 @@ public class FunctionTestCase {
         });
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
-        inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
-        inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60L, 6});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10});
+        inputHandler.send(new Object[]{"WSO2", null, 44f, 200L, 56});
+        inputHandler.send(new Object[]{"WSO2", null, null, 200L, 56});
         Thread.sleep(100);
         Assert.assertEquals(4, count);
         executionPlanRuntime.shutdown();
@@ -157,8 +161,10 @@ public class FunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-        String query = "@info(name = 'query1') from cseEventStream[coalesce(price1,price2) > 0f] select symbol, coalesce(price1,price2) as price,quantity insert into outputStream ;";
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long" +
+                " , quantity int);";
+        String query = "@info(name = 'query1') from cseEventStream[coalesce(price1,price2) > 0f] select symbol, " +
+                "coalesce(price1,price2) as price,quantity insert into outputStream ;";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
@@ -182,12 +188,12 @@ public class FunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
-        inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
-        inputHandler.send(new Object[]{"WSO2", null, null, 200l, 56});
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60L, 6});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10});
+        inputHandler.send(new Object[]{"WSO2", null, 44f, 200L, 56});
+        inputHandler.send(new Object[]{"WSO2", null, null, 200L, 56});
         Thread.sleep(100);
-        junit.framework.Assert.assertEquals(3, count);
+        org.junit.Assert.assertEquals(3, count);
         executionPlanRuntime.shutdown();
 
     }

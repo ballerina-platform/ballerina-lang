@@ -19,6 +19,7 @@
 package org.wso2.siddhi.extension.output.transport.tcp;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
@@ -37,7 +38,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Extension(
         name = "tcp",
         namespace = "sink",
-        description = ""
+        description = "TBD",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 public class TCPSink extends Sink {
 
@@ -57,7 +59,8 @@ public class TCPSink extends Sink {
     }
 
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ConfigReader sinkConfigReader, ExecutionPlanContext
+            executionPlanContext) {
         TCPNettyClient = new TCPNettyClient();
         host = optionHolder.validateAndGetStaticValue(HOST, "localhost");
         port = Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT, "9892"));

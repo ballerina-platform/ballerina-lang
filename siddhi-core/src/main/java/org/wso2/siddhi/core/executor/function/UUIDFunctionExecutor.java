@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
@@ -29,6 +30,9 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Executor class for UUID function. Function execution logic is implemented in execute here.
+ */
 @Extension(
         name = "UUID",
         namespace = "",
@@ -36,7 +40,18 @@ import java.util.UUID;
         parameters = {},
         returnAttributes = @ReturnAttribute(
                 description = "Returns a UUID string.",
-                type = {DataType.STRING})
+                type = {DataType.STRING}),
+        examples = @Example(
+                syntax = "from TempStream\n" +
+                        "select convert(roomNo, 'string') as roomNo, temp, UUID() as messageID\n" +
+                        "insert into RoomTempStream;",
+                description = "This will converts a room number to string, introducing a message ID to each event as" +
+                        "UUID() returns a34eec40-32c2-44fe-8075-7f4fde2e2dd8\n" +
+                        "\n" +
+                        "from TempStream\n" +
+                        "select convert(roomNo, 'string') as roomNo, temp, UUID() as messageID\n" +
+                        "insert into RoomTempStream;"
+        )
 )
 public class UUIDFunctionExecutor extends FunctionExecutor {
 
@@ -50,7 +65,8 @@ public class UUIDFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected Object execute(Object[] data) {
-        return null; //Since the e function takes in no parameters, this method does not get called. Hence, not implemented.
+        return null; //Since the e function takes in no parameters, this method does not get called. Hence, not
+        // implemented.
     }
 
     @Override

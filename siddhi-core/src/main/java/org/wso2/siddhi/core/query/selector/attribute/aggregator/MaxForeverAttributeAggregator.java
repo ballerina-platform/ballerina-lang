@@ -18,6 +18,7 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -32,6 +33,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate max value for life time based on an event attribute.
+ */
 @Extension(
         name = "maxForever",
         namespace = "",
@@ -44,7 +48,14 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the maximum value in the same data type as the input.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "from inputStream\n" +
+                        "select maxForever(temp) as max\n" +
+                        "insert into outputStream;",
+                description = "maxForever(temp) returns the maximum temp value recorded for all the events throughout" +
+                        " the lifetime of the query."
+        )
 )
 public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
@@ -52,14 +63,16 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader this hold the {@link MaxForeverAttributeAggregator} configuration reader.
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
-            throw new OperationNotSupportedException("MaxForever aggregator has to have exactly 1 parameter, currently " +
+            throw new OperationNotSupportedException("MaxForever aggregator has to have exactly 1 parameter, " +
+                    "currently " +
                     attributeExpressionExecutors.length + " parameters provided");
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
@@ -93,7 +106,8 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
     @Override
     public Object processAdd(Object[] data) {
         // will not occur
-        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString(data));
+        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString
+                (data));
     }
 
     @Override
@@ -104,7 +118,8 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
     @Override
     public Object processRemove(Object[] data) {
         // will not occur
-        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString(data));
+        return new IllegalStateException("MaxForever cannot process data array, but found " + Arrays.deepToString
+                (data));
     }
 
     @Override

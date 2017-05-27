@@ -19,11 +19,12 @@
 package org.wso2.siddhi.extension.input.mapper.map;
 
 import org.apache.log4j.Logger;
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.stream.input.source.InMemoryInputTransport;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
@@ -39,7 +40,7 @@ import java.util.HashMap;
 
 public class MapSourcemapperTestCase {
     static final Logger log = Logger.getLogger(MapSourcemapperTestCase.class);
-    private HashMap<String,Object> hashMap = new HashMap<>();
+    private HashMap<String, Object> hashMap = new HashMap<>();
 
     @Before
     public void init() {
@@ -52,9 +53,9 @@ public class MapSourcemapperTestCase {
 
     @Test
     public void subscriptionTest12() throws InterruptedException {
-        log.info("Subscription Test 12: Test an in memory transport with default hashmap mapping");
+        log.info("Subscription Test 12: Test an in memory source with default hashmap mapping");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
         subscription.map(Mapping.format("map"));
         subscription.insertInto("FooStream");
 
@@ -77,16 +78,16 @@ public class MapSourcemapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock",hashMap);
+        InMemoryBroker.publish("stock", hashMap);
 
         executionPlanRuntime.shutdown();
     }
 
     @Test
     public void subscriptionTest13() throws InterruptedException {
-        log.info("Subscription Test 13: Test an in memory transport with custom positional hashmap mapping");
+        log.info("Subscription Test 13: Test an in memory source with custom positional hashmap mapping");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
         subscription.map(Mapping.format("map").map("symbol").map("price").map("volume"));
         subscription.insertInto("FooStream");
 
@@ -109,17 +110,18 @@ public class MapSourcemapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock",hashMap);
+        InMemoryBroker.publish("stock", hashMap);
 
         executionPlanRuntime.shutdown();
     }
 
     @Test
     public void subscriptionTest14() throws InterruptedException {
-        log.info("Subscription Test 14:  Test an in memory transport with custom named hashmap mapping");
+        log.info("Subscription Test 14:  Test an in memory source with custom named hashmap mapping");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
-        subscription.map(Mapping.format("map").map("output_symbol","symbol").map("output_price","price").map("output_volume","volume"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
+        subscription.map(Mapping.format("map").map("output_symbol", "symbol").map("output_price", "price").map
+                ("output_volume", "volume"));
         subscription.insertInto("FooStream");
 
         ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
@@ -141,7 +143,7 @@ public class MapSourcemapperTestCase {
 
         executionPlanRuntime.start();
 
-        InMemoryBroker.publish("stock",hashMap);
+        InMemoryBroker.publish("stock", hashMap);
 
         executionPlanRuntime.shutdown();
     }

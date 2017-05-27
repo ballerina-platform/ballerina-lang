@@ -32,7 +32,7 @@ import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
 
 public class LogTestCase {
-    static final Logger log = Logger.getLogger(LogTestCase.class);
+    private static final Logger log = Logger.getLogger(LogTestCase.class);
     private int count;
     private boolean eventArrived;
     private long firstValue;

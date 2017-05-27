@@ -22,9 +22,14 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.input.SingleProcessStreamReceiver;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 
+/**
+ * {@link org.wso2.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events into pattern queries
+ * with single stream.
+ */
 public class PatternSingleProcessStreamReceiver extends SingleProcessStreamReceiver {
 
-    public PatternSingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker, String queryName) {
+    public PatternSingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker, String
+            queryName) {
         super(streamId, lockKey, latencyTracker, queryName);
     }
 

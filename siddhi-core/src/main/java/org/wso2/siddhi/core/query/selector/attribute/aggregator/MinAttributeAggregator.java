@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -27,8 +28,16 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate min value based on an event attribute.
+ */
 @Extension(
         name = "min",
         namespace = "",
@@ -40,7 +49,14 @@ import java.util.*;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the minimum value in the same type as the input.",
-                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT}),
+        examples = @Example(
+                syntax = "from inputStream\n" +
+                        "select min(temp) as minTemp\n" +
+                        "insert into outputStream;",
+                description = "min(temp) returns the minimum temp value recorded for all the events based on their " +
+                        "arrival and expiry."
+        )
 )
 public class MinAttributeAggregator extends AttributeAggregator {
 
@@ -53,12 +69,13 @@ public class MinAttributeAggregator extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader this hold the {@link MinAttributeAggregator} configuration reader.
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Min aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");
@@ -168,7 +185,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -177,13 +194,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Double) state.get("MinValue");
             minDeque = (Deque<Double>) state.get("MinDeque");
         }
@@ -225,7 +244,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -234,13 +253,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Float) state.get("MinValue");
             minDeque = (Deque<Float>) state.get("MinDeque");
         }
@@ -275,7 +296,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -291,13 +312,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Integer) state.get("MinValue");
             minDeque = (Deque<Integer>) state.get("MinDeque");
         }
@@ -331,7 +354,7 @@ public class MinAttributeAggregator extends AttributeAggregator {
         }
 
         @Override
-        public Object reset() {
+        public synchronized Object reset() {
             minDeque.clear();
             minValue = null;
             return null;
@@ -347,13 +370,15 @@ public class MinAttributeAggregator extends AttributeAggregator {
         @Override
         public Map<String, Object> currentState() {
             Map<String, Object> state = new HashMap<>();
-            state.put("MinValue", minValue);
-            state.put("MinDeque", minDeque);
+            synchronized (this) {
+                state.put("MinValue", minValue);
+                state.put("MinDeque", minDeque);
+            }
             return state;
         }
 
         @Override
-        public void restoreState(Map<String, Object> state) {
+        public synchronized void restoreState(Map<String, Object> state) {
             minValue = (Long) state.get("MinValue");
             minDeque = (Deque<Long>) state.get("MinDeque");
         }

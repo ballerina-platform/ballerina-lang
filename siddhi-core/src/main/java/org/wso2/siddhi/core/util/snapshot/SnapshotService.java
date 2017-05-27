@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service level implementation to take/restore snapshots of processing elements.
+ */
 public class SnapshotService {
 
 
@@ -47,13 +50,15 @@ public class SnapshotService {
             snapshotableMap.put(queryName, snapshotableList);
         } else {
             // add if item is not already in list
-            if (!snapshotableList.contains(snapshotable)) snapshotableList.add(snapshotable);
+            if (!snapshotableList.contains(snapshotable)) {
+                snapshotableList.add(snapshotable);
+            }
         }
     }
 
     public byte[] snapshot() {
         HashMap<String, Map<String, Object>> snapshots = new HashMap<>(snapshotableMap.size());
-        List<Snapshotable> snapshotableList = new ArrayList<>();
+        List<Snapshotable> snapshotableList;
         byte[] serializedSnapshots;
         if (log.isDebugEnabled()) {
             log.debug("Taking snapshot ...");
@@ -63,12 +68,12 @@ public class SnapshotService {
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
                 snapshotableList = entry.getValue();
                 snapshotableList.forEach(snapshotableElement -> snapshots.put(snapshotableElement.getElementId(),
-                        snapshotableElement.currentState()));
+                                                                              snapshotableElement.currentState()));
             }
             if (log.isDebugEnabled()) {
                 log.debug("Snapshot serialization started ...");
             }
-            serializedSnapshots = ByteSerializer.OToB(snapshots);
+            serializedSnapshots = ByteSerializer.objectToByte(snapshots);
             if (log.isDebugEnabled()) {
                 log.debug("Snapshot serialization finished.");
             }
@@ -108,7 +113,8 @@ public class SnapshotService {
 
 
     public void restore(byte[] snapshot) {
-        HashMap<String, Map<String, Object>> snapshots = (HashMap<String, Map<String, Object>>) ByteSerializer.BToO(snapshot);
+        Map<String, Map<String, Object>> snapshots = (Map<String, Map<String, Object>>)
+                ByteSerializer.byteToObject(snapshot);
         List<Snapshotable> snapshotableList;
         try {
             this.executionPlanContext.getThreadBarrier().lock();

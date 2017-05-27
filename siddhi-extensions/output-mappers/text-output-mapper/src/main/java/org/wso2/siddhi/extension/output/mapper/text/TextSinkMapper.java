@@ -18,11 +18,12 @@
 
 package org.wso2.siddhi.extension.output.mapper.text;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
+import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -33,7 +34,8 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 @Extension(
         name = "text",
         namespace = "sinkMapper",
-        description = "Event to Text output mapper."
+        description = "Event to Text output mapper.",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
 public class TextSinkMapper extends SinkMapper {
     private StreamDefinition streamDefinition;
@@ -54,7 +56,8 @@ public class TextSinkMapper extends SinkMapper {
      * @param mapperConfigReader
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
+            payloadTemplateBuilder, ConfigReader mapperConfigReader) {
         this.streamDefinition = streamDefinition;
         this.payloadTemplateBuilder = payloadTemplateBuilder;
     }
@@ -63,7 +66,6 @@ public class TextSinkMapper extends SinkMapper {
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
-        updateEventIds(events);
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
                 sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
@@ -79,7 +81,6 @@ public class TextSinkMapper extends SinkMapper {
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
-        updateEventId(event);
         if (this.payloadTemplateBuilder != null) {
             sinkListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
         } else {
@@ -95,14 +96,13 @@ public class TextSinkMapper extends SinkMapper {
      */
     private Object constructDefaultMapping(Event event) {
         StringBuilder eventText = new StringBuilder();
+        eventText.append("siddhiEventId").append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(event.getId()).append("\n");
         Object[] data = event.getData();
         for (int i = 0; i < data.length; i++) {
-            String attributeName = streamDefinition.getAttributeNameArray()[i];
             Object attributeValue = data[i];
-            eventText.append(attributeName).append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(attributeValue.toString()).append(EVENT_ATTRIBUTE_SEPARATOR).append("\n");
+            eventText.append(attributeValue.toString()).append(EVENT_ATTRIBUTE_SEPARATOR);
         }
         eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
-        eventText.deleteCharAt(eventText.lastIndexOf("\n"));
 
 //        // Get arbitrary data from event
 //        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
@@ -110,7 +110,8 @@ public class TextSinkMapper extends SinkMapper {
 //            // Add arbitrary data key-value to the default template
 //            eventText.append(EVENT_ATTRIBUTE_SEPARATOR);
 //            for (Map.Entry<String, Object> entry : arbitraryDataMap.entrySet()) {
-//                eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() + EVENT_ATTRIBUTE_SEPARATOR);
+//                eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() +
+// EVENT_ATTRIBUTE_SEPARATOR);
 //            }
 //            eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
 //            eventText.deleteCharAt(eventText.lastIndexOf("\n"));

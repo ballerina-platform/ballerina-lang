@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class ValidateTestCase {
-    static final Logger log = Logger.getLogger(ValidateTestCase.class);
+    private static final Logger log = Logger.getLogger(ValidateTestCase.class);
     private int count;
     private boolean eventArrived;
     private int inEventCount;
@@ -41,7 +41,7 @@ public class ValidateTestCase {
 
 
     @Test
-    public void ValidateTest1() throws InterruptedException {
+    public void validateTest1() throws InterruptedException {
         log.info("validate test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -61,7 +61,7 @@ public class ValidateTestCase {
 
 
     @Test(expected = ExecutionPlanValidationException.class)
-    public void ValidateTest2() throws InterruptedException {
+    public void validateTest2() throws InterruptedException {
         log.info("validate test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 

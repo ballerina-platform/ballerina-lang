@@ -27,13 +27,19 @@ import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined time period and the emit all
+ * collected events as a batch.
+ */
 
 public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
 
+    private static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
     private final Long value;
     private String id;
     private ScheduledExecutorService scheduledExecutorService;
@@ -42,9 +48,8 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     private long scheduledTime;
     private String queryName;
 
-    static final Logger log = Logger.getLogger(AllPerTimeOutputRateLimiter.class);
-
-    public AllPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, String queryName) {
+    public AllPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService,
+                                       String queryName) {
         this.id = id;
         this.value = value;
         this.queryName = queryName;
@@ -54,7 +59,8 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
 
     @Override
     public OutputRateLimiter clone(String key) {
-        AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService, queryName);
+        AllPerTimeOutputRateLimiter instance = new AllPerTimeOutputRateLimiter(id + key, value,
+                                                                               scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -72,14 +78,16 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
                         ComplexEvent first = allComplexEventChunk.getFirst();
                         if (first != null) {
                             allComplexEventChunk.clear();
-                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
                             outputEventChunk.add(first);
                             outputEventChunks.add(outputEventChunk);
                         }
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type
+                        .EXPIRED) {
                     complexEventChunk.remove();
                     allComplexEventChunk.add(event);
                 }
@@ -108,12 +116,14 @@ public class AllPerTimeOutputRateLimiter extends OutputRateLimiter implements Sc
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        synchronized (this) {
+            state.put("AllComplexEventChunk", allComplexEventChunk.getFirst());
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         allComplexEventChunk.clear();
         allComplexEventChunk.add((ComplexEvent) state.get("AllComplexEventChunk"));
     }

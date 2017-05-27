@@ -19,8 +19,12 @@ package org.wso2.siddhi.query.api.expression.constant;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Integer constant {@link Expression}
+ */
 public class IntConstant extends Expression implements Constant {
 
+    private static final long serialVersionUID = 1L;
     private Integer value;
 
     public IntConstant(int value) {

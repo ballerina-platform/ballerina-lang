@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -38,7 +38,7 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public class PassThroughTestCase {
-    static final Logger log = Logger.getLogger(PassThroughTestCase.class);
+    private static final Logger log = Logger.getLogger(PassThroughTestCase.class);
     private int count;
     private boolean eventArrived;
 
@@ -50,11 +50,12 @@ public class PassThroughTestCase {
 
 
     @Test
-    public void PassThroughTest1() throws InterruptedException {
+    public void passThroughTest1() throws InterruptedException {
         log.info("pass through test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -94,12 +95,14 @@ public class PassThroughTestCase {
     }
 
     @Test
-    public void PassThroughTest2() throws InterruptedException {
+    public void passThroughTest2() throws InterruptedException {
         log.info("pass through test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
-        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -139,12 +142,14 @@ public class PassThroughTestCase {
     }
 
     @Test
-    public void PassThroughTest3() throws InterruptedException {
+    public void passThroughTest3() throws InterruptedException {
         log.info("pass through test3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
-        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
+        StreamDefinition cseEventStream1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.INT);
 
         Query query = new Query();
         query.from(InputStream.stream("cseEventStream"));
@@ -152,7 +157,7 @@ public class PassThroughTestCase {
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
-                        select("price",Expression.variable("symbol"))
+                        select("price", Expression.variable("symbol"))
         );
         query.insertInto("StockQuote");
 
@@ -190,7 +195,7 @@ public class PassThroughTestCase {
     }
 
     @Test
-    public void PassThroughTest4() throws InterruptedException {
+    public void passThroughTest4() throws InterruptedException {
         log.info("pass through test4");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -230,8 +235,8 @@ public class PassThroughTestCase {
 
         executionPlanRuntime.start();
 
-        inputHandler.send(new Object[]{"WSO2", 700f, 100l});
-        inputHandler.send(new Object[]{"WSO2", 60.5f, 200l});
+        inputHandler.send(new Object[]{"WSO2", 700f, 100L});
+        inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);

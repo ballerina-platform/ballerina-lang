@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core;
 
 import com.lmax.disruptor.ExceptionHandler;
+
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
@@ -31,6 +32,7 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -48,7 +50,9 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,35 +67,37 @@ import java.util.stream.Collectors;
  */
 public class ExecutionPlanRuntime {
     private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
-    private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap = new ConcurrentHashMap<String,
-            AbstractDefinition>(); // Contains stream definition.
-    private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap = new ConcurrentHashMap<String,
-            AbstractDefinition>(); // Contains table definition.
+    private final Map<String, List<Source>> eventSourceMap;
+    private final Map<String, List<Sink>> eventSinkMap;
+    private Map<String, AbstractDefinition> streamDefinitionMap =
+            new ConcurrentHashMap<String,
+                    AbstractDefinition>(); // Contains stream definition.
+    private Map<String, AbstractDefinition> tableDefinitionMap =
+            new ConcurrentHashMap<String,
+                    AbstractDefinition>(); // Contains table definition.
     private InputManager inputManager;
-    private ConcurrentMap<String, QueryRuntime> queryProcessorMap = new ConcurrentHashMap<String, QueryRuntime>();
-    private ConcurrentMap<String, StreamJunction> streamJunctionMap = new ConcurrentHashMap<String, StreamJunction>()
-            ; // Contains stream junctions.
-    private ConcurrentMap<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); //
-    // Contains event tables.
-    private final ConcurrentMap<String, List<Source>> eventSourceMap;
-    private final ConcurrentMap<String, List<Sink>> eventSinkMap;
-    private ConcurrentMap<String, PartitionRuntime> partitionMap = new ConcurrentHashMap<String, PartitionRuntime>();
-    // Contains partitions.
+    private Map<String, QueryRuntime> queryProcessorMap =
+            Collections.synchronizedMap(new LinkedHashMap<String, QueryRuntime>());
+    private Map<String, StreamJunction> streamJunctionMap =
+            new ConcurrentHashMap<String, StreamJunction>(); // Contains stream junctions.
+    private Map<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); // Contains event tables.
+    private Map<String, PartitionRuntime> partitionMap =
+            new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
     private ExecutionPlanContext executionPlanContext;
-    private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
+    private Map<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
     private SiddhiDebugger siddhiDebugger;
 
-    public ExecutionPlanRuntime(ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
-                                ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
-                                ConcurrentMap<String, QueryRuntime> queryProcessorMap,
-                                ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                ConcurrentMap<String, Table> tableMap,
-                                ConcurrentMap<String, List<Source>> eventSourceMap,
-                                ConcurrentMap<String, List<Sink>> eventSinkMap,
-                                ConcurrentMap<String, PartitionRuntime> partitionMap,
+    public ExecutionPlanRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
+                                Map<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
+                                Map<String, QueryRuntime> queryProcessorMap,
+                                Map<String, StreamJunction> streamJunctionMap,
+                                Map<String, Table> tableMap,
+                                Map<String, List<Source>> eventSourceMap,
+                                Map<String, List<Sink>> eventSinkMap,
+                                Map<String, PartitionRuntime> partitionMap,
                                 ExecutionPlanContext executionPlanContext,
-                                ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
+                                Map<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
         this.streamDefinitionMap = streamDefinitionMap;
         this.tableDefinitionMap = tableDefinitionMap;
         this.inputManager = inputManager;
@@ -120,7 +126,7 @@ public class ExecutionPlanRuntime {
         for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
             for (Source source : sourceEntries.getValue()) {
-                source.getMapper().setInputHandler(inputHandler);
+                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, executionPlanContext));
             }
         }
     }
@@ -131,6 +137,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the stream definition map.
+     *
      * @return Map of {@link StreamDefinition}s.
      */
     public Map<String, StreamDefinition> getStreamDefinitionMap() {
@@ -142,6 +149,7 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the table definition map.
+     *
      * @return Map of {@link TableDefinition}s.
      */
     public Map<String, TableDefinition> getTableDefinitionMap() {
@@ -153,7 +161,8 @@ public class ExecutionPlanRuntime {
 
     /**
      * Get the names of the available queries.
-     * @return {@link Set<String>} of query names.
+     *
+     * @return string set of query names.
      */
     public Set<String> getQueryNames() {
         return queryProcessorMap.keySet();

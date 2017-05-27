@@ -20,13 +20,17 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Implementation of {@link CollectionExpression} which represent Not expressions.
+ */
 public class NotCollectionExpression implements CollectionExpression {
 
     private final Expression expression;
     private final CollectionScope collectionScope;
     private CollectionExpression collectionExpression;
 
-    public NotCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression collectionExpression) {
+    public NotCollectionExpression(Expression expression, CollectionScope collectionScope, CollectionExpression
+            collectionExpression) {
         this.expression = expression;
         this.collectionScope = collectionScope;
         this.collectionExpression = collectionExpression;

@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.stream.event;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -40,47 +40,49 @@ public class ComplexEventChunkTestCase {
 
 
     @Test
-    public void EventChunkTest() {
+    public void eventChunkTest() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 1l});
+        streamEvent1.setOutputData(new Object[]{"IBM", 700L, 1L});
 
         StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 2l});
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700L, 2L});
 
         StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 3l});
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700L, 3L});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter,
+                streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
             count++;
             StreamEvent event = streamEventChunk.next();
-            Assert.assertEquals(count * 1l, event.getOutputData()[2]);
+            Assert.assertEquals(count * 1L, event.getOutputData()[2]);
         }
         Assert.assertEquals(3, count);
     }
 
     @Test
-    public void EventChunkRemoveTest1() {
+    public void eventChunkRemoveTest1() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 1l});
+        streamEvent1.setOutputData(new Object[]{"IBM", 700L, 1L});
 
         StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 2l});
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700L, 2L});
 
         StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 3l});
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700L, 3L});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter,
+                streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -94,25 +96,26 @@ public class ComplexEventChunkTestCase {
     }
 
     @Test
-    public void EventChunkRemoveTest2() {
+    public void eventChunkRemoveTest2() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 1l});
+        streamEvent1.setOutputData(new Object[]{"IBM", 700L, 1L});
 
         StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 2l});
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700L, 2L});
 
         StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 3l});
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700L, 3L});
 
         StreamEvent streamEvent4 = new StreamEvent(0, 0, 3);
-        streamEvent4.setOutputData(new Object[]{"WSO2", 700l, 4l});
+        streamEvent4.setOutputData(new Object[]{"WSO2", 700L, 4L});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter,
+                streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -128,25 +131,26 @@ public class ComplexEventChunkTestCase {
     }
 
     @Test
-    public void EventChunkRemoveTest3() {
+    public void eventChunkRemoveTest3() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
+        streamEvent1.setOutputData(new Object[]{"IBM", 700L, 100L});
 
         StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700L, 100L});
 
         StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700L, 100L});
 
         StreamEvent streamEvent4 = new StreamEvent(0, 0, 3);
-        streamEvent4.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        streamEvent4.setOutputData(new Object[]{"WSO2", 700L, 100L});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter,
+                streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -158,25 +162,26 @@ public class ComplexEventChunkTestCase {
     }
 
     @Test
-    public void EventChunkRemoveTest4() {
+    public void eventChunkRemoveTest4() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
+        streamEvent1.setOutputData(new Object[]{"IBM", 700L, 100L});
 
         StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700L, 100L});
 
         StreamEvent streamEvent3 = new StreamEvent(0, 0, 3);
-        streamEvent3.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        streamEvent3.setOutputData(new Object[]{"WSO2", 700L, 100L});
 
         StreamEvent streamEvent4 = new StreamEvent(0, 0, 3);
-        streamEvent4.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        streamEvent4.setOutputData(new Object[]{"WSO2", 700L, 100L});
 
         streamEvent1.setNext(streamEvent2);
         streamEvent2.setNext(streamEvent3);
         streamEvent3.setNext(streamEvent4);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter,
+                streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         while (streamEventChunk.hasNext()) {
@@ -193,17 +198,18 @@ public class ComplexEventChunkTestCase {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void EventChunkRemoveTest5() {
+    public void eventChunkRemoveTest5() {
         StreamEvent streamEvent1 = new StreamEvent(0, 0, 3);
-        streamEvent1.setOutputData(new Object[]{"IBM", 700l, 100l});
+        streamEvent1.setOutputData(new Object[]{"IBM", 700L, 100L});
 
         StreamEvent streamEvent2 = new StreamEvent(0, 0, 3);
-        streamEvent2.setOutputData(new Object[]{"WSO2", 700l, 100l});
+        streamEvent2.setOutputData(new Object[]{"WSO2", 700L, 100L});
 
         streamEvent1.setNext(streamEvent2);
 
         StreamEventPool streamEventPool = new StreamEventPool(0, 0, 3, 5);
-        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter, streamEventPool);
+        ConversionStreamEventChunk streamEventChunk = new ConversionStreamEventChunk(streamEventConverter,
+                streamEventPool);
         streamEventChunk.convertAndAssign(streamEvent1);
 
         streamEventChunk.remove();

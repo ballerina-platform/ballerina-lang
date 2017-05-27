@@ -99,7 +99,8 @@ public class TestSinkTestCase {
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable
+                        ("volume"))
         );
         query.insertInto("BarStream");
 

@@ -21,9 +21,11 @@ package org.wso2.siddhi.core.util.collection;
 import org.wso2.siddhi.core.event.state.StateEvent;
 
 /**
- * Created by suho on 5/21/16.
+ * State Event holder used by {@link org.wso2.siddhi.core.executor.condition.InConditionExpressionExecutor}
  */
 public class FinderStateEvent extends StateEvent {
+
+    private static final long serialVersionUID = -6442877320125223084L;
 
     public FinderStateEvent(int streamEventsSize, int outputSize) {
         super(streamEventsSize, outputSize);

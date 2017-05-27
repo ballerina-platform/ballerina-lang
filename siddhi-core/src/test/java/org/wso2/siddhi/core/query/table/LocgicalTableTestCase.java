@@ -27,8 +27,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,16 +98,16 @@ public class LocgicalTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 300l});
-            stockStream.send(new Object[]{"GOOG", 55.6f, 300l});
-            checkStockStream.send(new Object[]{"IBM", 200l});
-            checkStockStream.send(new Object[]{"WSO2", 200l});
-            checkStockStream.send(new Object[]{"GOOG", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 300L});
+            stockStream.send(new Object[]{"GOOG", 55.6f, 300L});
+            checkStockStream.send(new Object[]{"IBM", 200L});
+            checkStockStream.send(new Object[]{"WSO2", 200L});
+            checkStockStream.send(new Object[]{"GOOG", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 300l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 300L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -165,16 +165,16 @@ public class LocgicalTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 300l});
-            stockStream.send(new Object[]{"GOOG", 55.6f, 300l});
-            checkStockStream.send(new Object[]{"IBM", 200l});
-            checkStockStream.send(new Object[]{"WSO2", 200l});
-            checkStockStream.send(new Object[]{"GOOG", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 300L});
+            stockStream.send(new Object[]{"GOOG", 55.6f, 300L});
+            checkStockStream.send(new Object[]{"IBM", 200L});
+            checkStockStream.send(new Object[]{"WSO2", 200L});
+            checkStockStream.send(new Object[]{"GOOG", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 300l},
-                    new Object[]{"GOOG", 300l}
+                    new Object[]{"IBM", 300L},
+                    new Object[]{"GOOG", 300L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -233,16 +233,16 @@ public class LocgicalTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 300l});
-            stockStream.send(new Object[]{"GOOG", 55.6f, 300l});
-            checkStockStream.send(new Object[]{"IBM", 300l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            checkStockStream.send(new Object[]{"GOOG", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 300L});
+            stockStream.send(new Object[]{"GOOG", 55.6f, 300L});
+            checkStockStream.send(new Object[]{"IBM", 300L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            checkStockStream.send(new Object[]{"GOOG", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 300l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 300L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -301,16 +301,16 @@ public class LocgicalTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 50l});
-            stockStream.send(new Object[]{"GOOG", 55.6f, 300l});
-            checkStockStream.send(new Object[]{"IBM", 300l});
-            checkStockStream.send(new Object[]{"WSO2", 100l});
-            checkStockStream.send(new Object[]{"GOOG", 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 50L});
+            stockStream.send(new Object[]{"GOOG", 55.6f, 300L});
+            checkStockStream.send(new Object[]{"IBM", 300L});
+            checkStockStream.send(new Object[]{"WSO2", 100L});
+            checkStockStream.send(new Object[]{"GOOG", 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 50l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 50L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));
@@ -369,17 +369,18 @@ public class LocgicalTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 50l});
-            stockStream.send(new Object[]{"GOOG", 55.6f, 300l});
-            checkStockStream.send(new Object[]{"IBM", 150l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 50L});
+            stockStream.send(new Object[]{"GOOG", 55.6f, 300L});
+            checkStockStream.send(new Object[]{"IBM", 150L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 100l},
-                    new Object[]{"IBM", 50l}
+                    new Object[]{"IBM", 100L},
+                    new Object[]{"IBM", 50L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
-            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList, expected));
+            Assert.assertEquals("In events matched", true, SiddhiTestHelper.isUnsortedEventsMatch(inEventsList,
+                    expected));
             Assert.assertEquals("Number of success events", 2, inEventCount.get());
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
@@ -437,15 +438,15 @@ public class LocgicalTableTestCase {
             InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
 
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-            stockStream.send(new Object[]{"IBM", 55.6f, 50l});
-            stockStream.send(new Object[]{"GOOG", 55.6f, 300l});
-            checkStockStream.send(new Object[]{"IBM", 55.6f, 50l});
-            checkStockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 55.6f, 50L});
+            stockStream.send(new Object[]{"GOOG", 55.6f, 300L});
+            checkStockStream.send(new Object[]{"IBM", 55.6f, 50L});
+            checkStockStream.send(new Object[]{"WSO2", 55.6f, 100L});
 
             List<Object[]> expected = Arrays.asList(
-                    new Object[]{"IBM", 50l},
-                    new Object[]{"WSO2", 100l}
+                    new Object[]{"IBM", 50L},
+                    new Object[]{"WSO2", 100L}
             );
             SiddhiTestHelper.waitForEvents(100, 2, inEventCount, 60000);
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(inEventsList, expected));

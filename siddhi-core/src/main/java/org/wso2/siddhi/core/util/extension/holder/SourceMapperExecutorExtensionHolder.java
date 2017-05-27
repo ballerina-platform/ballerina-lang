@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link SourceMapper} Extensions.
+ */
 public class SourceMapperExecutorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = SourceMapper.class;
 

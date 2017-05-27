@@ -27,23 +27,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Manager class to handle {@link org.wso2.siddhi.core.event.Event} insertion to Siddhi.
+ */
 public class InputManager {
 
     private final InputEntryValve inputEntryValve;
-    private ExecutionPlanContext executionPlanContext;
     private Map<String, InputHandler> inputHandlerMap = new LinkedHashMap<String, InputHandler>();
-    private Map<String, AbstractDefinition> streamDefinitionMap;
     private Map<String, StreamJunction> streamJunctionMap;
     private InputDistributor inputDistributor;
 
     public InputManager(ExecutionPlanContext executionPlanContext,
                         ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
                         ConcurrentMap<String, StreamJunction> streamJunctionMap) {
-        this.executionPlanContext = executionPlanContext;
-        this.streamDefinitionMap = streamDefinitionMap;
         this.streamJunctionMap = streamJunctionMap;
         this.inputDistributor = new InputDistributor();
-        this.inputEntryValve =new InputEntryValve(executionPlanContext,inputDistributor);
+        this.inputEntryValve = new InputEntryValve(executionPlanContext, inputDistributor);
     }
 
     public InputHandler getInputHandler(String streamId) {

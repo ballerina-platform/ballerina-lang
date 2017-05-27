@@ -24,6 +24,9 @@ import org.wso2.siddhi.core.util.ThreadBarrier;
 
 import java.util.List;
 
+/**
+ * Implementation of {@link InputProcessor} which inject the event to the next input processor through a valve.
+ */
 public class InputEntryValve implements InputProcessor {
 
     private ThreadBarrier barrier;

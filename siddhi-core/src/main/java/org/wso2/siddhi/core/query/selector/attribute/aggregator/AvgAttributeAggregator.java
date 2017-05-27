@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -31,6 +32,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link AttributeAggregator} to calculate average based on an event attribute.
+ */
 @Extension(
         name = "avg",
         namespace = "",
@@ -42,7 +46,12 @@ import java.util.Map;
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the calculated average value as a double.",
-                type = {DataType.DOUBLE})
+                type = {DataType.DOUBLE}),
+        examples = @Example(
+                syntax = "from fooStream#window.timeBatch\n select avg(temp) as avgTemp\n insert into barStream;",
+                description = "avg(temp) returns the average temp value for all the events based on their " +
+                        "arrival and expiry."
+        )
 )
 public class AvgAttributeAggregator extends AttributeAggregator {
 
@@ -51,11 +60,12 @@ public class AvgAttributeAggregator extends AttributeAggregator {
     /**
      * The initialization method for FunctionExecutor
      *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader
+     * @param configReader this hold the {@link AvgAttributeAggregator} configuration reader.
      * @param executionPlanContext         Execution plan runtime context
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("Avg aggregator has to have exactly 1 parameter, currently " +
                     attributeExpressionExecutors.length + " parameters provided");
@@ -145,7 +155,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count++;
             value += (Double) data;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -155,7 +165,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count--;
             value -= (Double) obj;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -164,7 +174,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             value = 0.0;
             count = 0;
-            return 0.0;
+            return null;
         }
 
         @Override
@@ -197,7 +207,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count++;
             value += (Float) data;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -207,7 +217,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count--;
             value -= (Float) obj;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -216,7 +226,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             value = 0.0;
             count = 0;
-            return 0.0;
+            return null;
         }
 
         @Override
@@ -249,7 +259,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count++;
             value += (Integer) data;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -259,7 +269,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count--;
             value -= (Integer) obj;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -268,7 +278,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             value = 0.0;
             count = 0;
-            return 0.0;
+            return null;
         }
 
         @Override
@@ -302,7 +312,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count++;
             value += (Long) data;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -312,7 +322,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
             count--;
             value -= (Long) obj;
             if (count == 0) {
-                return 0.0;
+                return null;
             }
             return value / count;
         }
@@ -321,7 +331,7 @@ public class AvgAttributeAggregator extends AttributeAggregator {
         public Object reset() {
             value = 0.0;
             count = 0;
-            return 0.0;
+            return null;
         }
 
         @Override

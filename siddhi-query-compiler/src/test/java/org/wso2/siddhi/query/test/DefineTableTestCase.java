@@ -28,10 +28,10 @@ import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 public class DefineTableTestCase {
 
-
     @Test
-    public void Test1() throws SiddhiParserException {
-        TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table cseStream ( symbol string, price int, volume float )");
+    public void test1() throws SiddhiParserException {
+        TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table cseStream ( symbol " +
+                "string, price int, volume float )");
         Assert.assertEquals(TableDefinition.
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
@@ -41,8 +41,9 @@ public class DefineTableTestCase {
     }
 
     @Test
-    public void Test2() throws SiddhiParserException {
-        TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table `define` ( `string` string, price int, volume float );");
+    public void test2() throws SiddhiParserException {
+        TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table `define` ( `string` " +
+                "string, price int, volume float );");
         Assert.assertEquals(TableDefinition.
                         id("define").
                         attribute("string", Attribute.Type.STRING).
@@ -52,8 +53,9 @@ public class DefineTableTestCase {
     }
 
     @Test
-    public void Test3() throws SiddhiParserException {
-        TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table cseStream ( symbol string, price int, volume float )");
+    public void test3() throws SiddhiParserException {
+        TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("define table cseStream ( symbol " +
+                "string, price int, volume float )");
         Assert.assertEquals(TableDefinition.
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
@@ -63,7 +65,7 @@ public class DefineTableTestCase {
     }
 
     @Test
-    public void Test4() throws SiddhiParserException {
+    public void test4() throws SiddhiParserException {
         TableDefinition streamDefinition = SiddhiCompiler.parseTableDefinition("" +
                 " @from(datasource='MyDatabase','CUSTOM')" +
                 " define table cseStream ( symbol string, price int, volume float )");
@@ -71,7 +73,8 @@ public class DefineTableTestCase {
                         id("cseStream").
                         attribute("symbol", Attribute.Type.STRING).
                         attribute("price", Attribute.Type.INT).
-                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("from").element("datasource", "MyDatabase").element("CUSTOM")).toString(),
+                        attribute("volume", Attribute.Type.FLOAT).annotation(Annotation.annotation("from").element
+                        ("datasource", "MyDatabase").element("CUSTOM")).toString(),
                 streamDefinition.toString());
     }
 

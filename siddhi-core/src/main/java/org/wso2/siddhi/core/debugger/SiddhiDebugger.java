@@ -197,7 +197,9 @@ public class SiddhiDebugger {
      * @param siddhiDebuggerCallback the SiddhiDebuggerCallback
      */
     public void setDebuggerCallback(SiddhiDebuggerCallback siddhiDebuggerCallback) {
-        this.siddhiDebuggerCallback = siddhiDebuggerCallback;
+        synchronized (this) {
+            this.siddhiDebuggerCallback = siddhiDebuggerCallback;
+        }
     }
 
     /**
@@ -246,6 +248,7 @@ public class SiddhiDebugger {
      * SiddhiDebugger allows to add breakpoints only at the beginning and the end of a query.
      */
     public enum QueryTerminal {
-        IN, OUT
+        IN,
+        OUT
     }
 }

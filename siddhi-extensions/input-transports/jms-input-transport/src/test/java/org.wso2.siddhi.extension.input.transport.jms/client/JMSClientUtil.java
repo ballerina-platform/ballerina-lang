@@ -20,11 +20,6 @@ package org.wso2.siddhi.extension.input.transport.jms.client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -33,6 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
 public class JMSClientUtil {
     private static Log log = LogFactory.getLog(JMSClientUtil.class);
@@ -41,6 +41,7 @@ public class JMSClientUtil {
      * Messages will be read from the given filepath and stored in the array list (messagesList)
      *
      * @param filePath Text file to be read
+     * @return messagesList
      */
     public static List<String> readFile(String filePath) {
         BufferedReader bufferedReader = null;

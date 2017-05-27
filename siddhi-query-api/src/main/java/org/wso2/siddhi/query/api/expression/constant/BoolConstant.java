@@ -19,7 +19,13 @@ package org.wso2.siddhi.query.api.expression.constant;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Boolean constant {@link Expression}
+ */
 public class BoolConstant extends Expression implements Constant {
+
+    private static final long serialVersionUID = 1L;
+
     private Boolean value;
 
     public BoolConstant(boolean value) {

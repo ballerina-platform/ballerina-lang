@@ -24,7 +24,6 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -35,9 +34,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Abstract parent class to represent event mappers. Events mappers will receive {@link Event}s and can convert them
+ * to any desired object type (Ex: XML, JSON). Custom mappers can be implemented as extensions extending this
+ * abstract implementation.
+ */
 public abstract class SinkMapper implements Snapshotable {
     private String type;
-    private AtomicLong lastEventId = new AtomicLong(0);
+    private AtomicLong lastEventId = new AtomicLong(Long.MIN_VALUE);
     private String elementId;
     private OptionHolder optionHolder;
     private TemplateBuilder payloadTemplateBuilder = null;
@@ -55,7 +59,8 @@ public abstract class SinkMapper implements Snapshotable {
         }
         this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader);
-        executionPlanContext.getSnapshotService().addSnapshotable(streamDefinition.getId()+".sink.mapper", this);
+        executionPlanContext.getSnapshotService().addSnapshotable(streamDefinition.getId() + ".sink.mapper",
+                                                                  this);
     }
 
     /**
@@ -63,8 +68,9 @@ public abstract class SinkMapper implements Snapshotable {
      *
      * @param event event to be updated
      */
-    public void updateEventId(Event event) {
-        event.setId(lastEventId.incrementAndGet());
+    private void updateEventId(Event event) {
+        // event id -1 is reserved for the events that are arriving for the first Siddhi node
+        event.setId(lastEventId.incrementAndGet() == -1 ? lastEventId.incrementAndGet() : lastEventId.get());
     }
 
     /**
@@ -72,9 +78,10 @@ public abstract class SinkMapper implements Snapshotable {
      *
      * @param events events to be updated
      */
-    public void updateEventIds(Event[] events) {
+    private void updateEventIds(Event[] events) {
         for (Event event : events) {
-            event.setId(lastEventId.incrementAndGet());
+            // event id -1 is reserved for the events that are arriving for the first Siddhi node
+            event.setId(lastEventId.incrementAndGet() == -1 ? lastEventId.incrementAndGet() : lastEventId.get());
         }
     }
 
@@ -91,7 +98,7 @@ public abstract class SinkMapper implements Snapshotable {
      *  @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder un mapped payload for reference
-     * @param mapperConfigReader
+     * @param mapperConfigReader this hold the {@link SinkMapper} extensions configuration reader.
      */
     public abstract void init(StreamDefinition streamDefinition,
                               OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader
@@ -106,7 +113,7 @@ public abstract class SinkMapper implements Snapshotable {
      */
     public void mapAndSend(Event[] events, SinkListener sinkListener)
             throws ConnectionUnavailableException {
-
+        updateEventIds(events);
         if (groupDeterminer != null) {
             LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
             for (Event event : events) {
@@ -117,12 +124,12 @@ public abstract class SinkMapper implements Snapshotable {
 
             for (ArrayList<Event> eventList : eventMap.values()) {
                 mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder,
-                        payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
+                           payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
 
             }
         } else {
             mapAndSend(events, optionHolder, payloadTemplateBuilder, sinkListener,
-                    new DynamicOptions(events[0]));
+                       new DynamicOptions(events[0]));
         }
     }
 
@@ -135,6 +142,7 @@ public abstract class SinkMapper implements Snapshotable {
      */
     public void mapAndSend(Event event, SinkListener sinkListener)
             throws ConnectionUnavailableException {
+        updateEventId(event);
         mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener, new DynamicOptions(event));
     }
 
@@ -179,9 +187,7 @@ public abstract class SinkMapper implements Snapshotable {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        synchronized (lastEventId) {
-            state.put("LastEventId", lastEventId);
-        }
+        state.put("LastEventId", lastEventId);
         return state;
     }
 

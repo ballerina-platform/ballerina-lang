@@ -36,16 +36,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class DistributionStrategy {
 
-    protected List<Integer> destinationIds = new CopyOnWriteArrayList<>();
-
-    protected static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
+    static final List<Integer> EMPTY_RETURN_VALUE = new ArrayList<>();
+    List<Integer> destinationIds = new CopyOnWriteArrayList<>();
 
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
-     * @param streamDefinition The stream attached to the sink this DistributionStrategy is used in
-     * @param transportOptionHolder Sink options of the sink which uses this DistributionStrategy
+     *
+     * @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
+     * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
+     * @param distributionOptionHolder The option under @destination of the relevant sink.
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
-     * @param configReader
+     * @param configReader This hold the {@link DistributionStrategy} extensions configuration reader.
      */
     public abstract void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder, OptionHolder
             distributionOptionHolder, List<OptionHolder> destinationOptionHolders, ConfigReader configReader);
@@ -54,7 +55,8 @@ public abstract class DistributionStrategy {
      * This method tells the ID(s) of the destination(s) to which a given messages should be sent. There can be cases
      * where a given message is only sent to a specific destination(e.g., partition based) and message is sent to
      * multiple endpoints(e.g., broadcast)
-     * @param payload payload of the message
+     *
+     * @param payload          payload of the message
      * @param transportOptions Dynamic transport options of the sink
      * @return Set of IDs of the destination to which the event should be sent
      */
@@ -64,19 +66,21 @@ public abstract class DistributionStrategy {
      * Remove a given destination from available set of destination IDs. Once this method is called for a given
      * destination ID, that particular destination ID will not included in the return value of subsequent
      * getDestinationsToPublish() is calls
+     *
      * @param destinationId the ID of the destination to be removed
      */
-    public void destinationFailed(int destinationId){
+    public void destinationFailed(int destinationId) {
         destinationIds.remove(destinationId);
     }
 
     /**
      * Remove a destination to available set of destination IDs. Once this method is called for a given
      * destination ID, that particular destination ID will be considered when getDestinationsToPublish() is called
-     * @param destinationId
+     *
+     * @param destinationId the ID of the destination to be check for availability.
      */
-    public void destinationAvailable(int destinationId){
-        if (destinationIds.contains(destinationId)){
+    public void destinationAvailable(int destinationId) {
+        if (destinationIds.contains(destinationId)) {
             throw new ExecutionPlanValidationException("Destination ID " + destinationId + " already registered");
         }
 

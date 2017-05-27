@@ -17,9 +17,9 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
@@ -47,23 +47,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Batch Window operating based on time.
+ */
 @Extension(
         name = "timeBatch",
         namespace = "",
-        description = "A batch (tumbling) time window that holds events that arrive during windowTime periods, " +
-                "and gets updated for each windowTime.",
+        description = "A batch (tumbling) time window that holds events that arrive during window.time periods, " +
+                "and gets updated for each window.time.",
         parameters = {
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The batch time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
-                @Parameter(name = "startTime",
+                @Parameter(name = "start.time",
                         description = "This specifies an offset in milliseconds in order to start the " +
                                 "window at a time different to the standard time.",
                         type = {DataType.INT})
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = {
+                @Example(
+                        syntax = "define window cseEventWindow (symbol string, price float, volume int) " +
+                                "timeBatch(20) output all events;\n" +
+                                "@info(name = 'query0')\n" +
+                                "from cseEventStream\n" +
+                                "insert into cseEventWindow;\n" +
+                                "@info(name = 'query1')\n" +
+                                "from cseEventWindow\n" +
+                                "select symbol, sum(price) as price\n" +
+                                "insert all events into outputStream ;",
+                        description = "This will processing events arrived every 20 milliseconds" +
+                                " as a batch and out put all events."
+                )
+        }
 )
 public class TimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
@@ -103,44 +118,64 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         if (attributeExpressionExecutors.length == 1) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
+                            .getValue();
 
                 } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
-                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
+                            .getValue();
                 } else {
-                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
+                                                                       "int or long, but found " +
+                                                                       attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
+                                                                   "found a dynamic attribute " +
+                                                                   attributeExpressionExecutors[0].getClass().
+                                                                           getCanonicalName());
             }
         } else if (attributeExpressionExecutors.length == 2) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
+                            .getValue();
 
                 } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
-                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
+                            .getValue();
                 } else {
-                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
+                                                                       "int or long, but found " +
+                                                                       attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
+                                                                   "found a dynamic attribute " +
+                                                                   attributeExpressionExecutors[0].getClass()
+                                                                           .getCanonicalName());
             }
             // start time
             isStartTimeEnabled = true;
             if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+                startTime = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
+                        attributeExpressionExecutors[1]).getValue()));
             } else {
-                startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue()));
+                startTime = Long.parseLong(String.valueOf(((ConstantExpressionExecutor)
+                        attributeExpressionExecutors[1]).getValue()));
             }
         } else {
-            throw new ExecutionPlanValidationException("Time window should only have one or two parameters. (<int|long|time> windowTime), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("Time window should only have one or two parameters. " +
+                                                               "(<int|long|time> windowTime), but found " +
+                                                               attributeExpressionExecutors.length + " input " +
+                                                               "attributes");
         }
     }
 
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
         synchronized (this) {
             if (nextEmitTime == -1) {
                 long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
@@ -237,14 +272,16 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("CurrentEventChunk", currentEventChunk.getFirst());
-        state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
-        state.put("ResetEvent", resetEvent);
+        synchronized (this) {
+            state.put("CurrentEventChunk", currentEventChunk.getFirst());
+            state.put("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null);
+            state.put("ResetEvent", resetEvent);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         if (expiredEventChunk != null) {
             expiredEventChunk.clear();
             expiredEventChunk.add((StreamEvent) state.get("ExpiredEventChunk"));
@@ -260,11 +297,15 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, String queryName) {
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
+                                                executionPlanContext, variableExpressionExecutors, tableMap,
+                                                this.queryName);
     }
 }

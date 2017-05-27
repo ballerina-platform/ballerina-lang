@@ -41,22 +41,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * An abstract implementation of table. Abstract implementation will handle {@link ComplexEventChunk} so that
+ * developer can directly work with event data.
+ */
 public abstract class AbstractRecordTable implements Table {
-
 
     private TableDefinition tableDefinition;
     private StreamEventPool storeEventPool;
-    private StreamEventCloner storeEventCloner;
-    private ExecutionPlanContext executionPlanContext;
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
                      StreamEventCloner storeEventCloner, ConfigReader configReader, ExecutionPlanContext
-                                 executionPlanContext) {
+                             executionPlanContext) {
         this.tableDefinition = tableDefinition;
         this.storeEventPool = storeEventPool;
-        this.storeEventCloner = storeEventCloner;
-        this.executionPlanContext = executionPlanContext;
         init(tableDefinition, configReader);
     }
 
@@ -64,7 +63,7 @@ public abstract class AbstractRecordTable implements Table {
      * Initializing the Record Table
      *
      * @param tableDefinition definintion of the table with annotations if any
-     * @param configReader
+     * @param configReader this hold the {@link AbstractRecordTable} configuration reader.
      */
     protected abstract void init(TableDefinition tableDefinition, ConfigReader configReader);
 
@@ -105,7 +104,7 @@ public abstract class AbstractRecordTable implements Table {
 
         Iterator<Object[]> records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
         ComplexEventChunk<StreamEvent> streamEventComplexEventChunk = new ComplexEventChunk<>(true);
-        if (records != null && records.hasNext()) {
+        if (records != null) {
             while (records.hasNext()) {
                 Object[] record = records.next();
                 StreamEvent streamEvent = storeEventPool.borrowEvent();
@@ -200,7 +199,7 @@ public abstract class AbstractRecordTable implements Table {
             Map<String, Object> valueMap = new HashMap<>();
             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                 valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
-                        updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
             }
             updateValues.add(valueMap);
         }
@@ -241,13 +240,13 @@ public abstract class AbstractRecordTable implements Table {
             Map<String, Object> valueMap = new HashMap<>();
             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
                 valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
-                        updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
             }
             updateValues.add(valueMap);
-            addingRecords.add(stateEvent.getOutputData());
+            addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
         }
         updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition, updateValues,
-                addingRecords);
+                    addingRecords);
 
     }
 
@@ -272,7 +271,8 @@ public abstract class AbstractRecordTable implements Table {
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         ConditionBuilder conditionBuilder = new ConditionBuilder(expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, tableMap, queryName);
+                                                                 executionPlanContext, variableExpressionExecutors,
+                                                                 tableMap, queryName);
         CompiledCondition compiledCondition = compileCondition(conditionBuilder);
         Map<String, ExpressionExecutor> expressionExecutorMap = conditionBuilder.getVariableExpressionExecutorMap();
         return new RecordStoreCompiledCondition(expressionExecutorMap, compiledCondition);

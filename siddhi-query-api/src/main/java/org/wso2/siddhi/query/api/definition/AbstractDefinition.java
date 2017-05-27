@@ -25,6 +25,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract definition used for Streams, Tables and other common artifacts
+ */
 public abstract class AbstractDefinition implements Serializable {
 
     protected String id;
@@ -62,7 +65,8 @@ public abstract class AbstractDefinition implements Serializable {
     protected void checkAttribute(String attributeName) {
         for (Attribute attribute : attributeList) {
             if (attribute.getName().equals(attributeName)) {
-                throw new DuplicateAttributeException("'"+attributeName + "' is already defined for with type '" + attribute.getType() + "' for '" + id + "'; " + this.toString());
+                throw new DuplicateAttributeException("'" + attributeName + "' is already defined for with type '" +
+                        attribute.getType() + "' for '" + id + "'; " + this.toString());
             }
         }
     }
@@ -73,7 +77,8 @@ public abstract class AbstractDefinition implements Serializable {
                 return attribute.getType();
             }
         }
-        throw new AttributeNotExistException("Cannot find attribute type as '" + attributeName + "' does not exist in '" + id + "'; " + this.toString());
+        throw new AttributeNotExistException("Cannot find attribute type as '" + attributeName + "' does not exist in" +
+                " '" + id + "'; " + this.toString());
     }
 
     public int getAttributePosition(String attributeName) {
@@ -83,7 +88,8 @@ public abstract class AbstractDefinition implements Serializable {
                 return i;
             }
         }
-        throw new AttributeNotExistException("Cannot get attribute position as '" + attributeName + "' does not exist in '" + id + "'; " + this.toString());
+        throw new AttributeNotExistException("Cannot get attribute position as '" + attributeName + "' does not exist" +
+                " in '" + id + "'; " + this.toString());
     }
 
     public String[] getAttributeNameArray() {
@@ -106,15 +112,24 @@ public abstract class AbstractDefinition implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AbstractDefinition)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AbstractDefinition)) {
+            return false;
+        }
 
         AbstractDefinition that = (AbstractDefinition) o;
 
-        if (annotations != null ? !annotations.equals(that.annotations) : that.annotations != null) return false;
-        if (attributeList != null ? !attributeList.equals(that.attributeList) : that.attributeList != null)
+        if (annotations != null ? !annotations.equals(that.annotations) : that.annotations != null) {
             return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        }
+        if (attributeList != null ? !attributeList.equals(that.attributeList) : that.attributeList != null) {
+            return false;
+        }
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
 
         return true;
     }
@@ -129,14 +144,21 @@ public abstract class AbstractDefinition implements Serializable {
 
 
     public boolean equalsIgnoreAnnotations(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AbstractDefinition)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AbstractDefinition)) {
+            return false;
+        }
 
         AbstractDefinition that = (AbstractDefinition) o;
 
-        if (attributeList != null ? !attributeList.equals(that.attributeList) : that.attributeList != null)
+        if (attributeList != null ? !attributeList.equals(that.attributeList) : that.attributeList != null) {
             return false;
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        }
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
 
         return true;
     }

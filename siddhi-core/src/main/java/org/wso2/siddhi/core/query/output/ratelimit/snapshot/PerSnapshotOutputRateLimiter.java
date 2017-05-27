@@ -32,9 +32,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Parent implementation for per event periodic snapshot rate limiting. Multiple implementations of this will be
+ * there to represent different queries. Snapshot rate limiting will only emit current events representing the
+ * snapshot period.
+ */
 public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
-    private String id;
     private final Long value;
+    private String id;
     private ScheduledExecutorService scheduledExecutorService;
     private ComplexEventChunk<ComplexEvent> eventChunk = new ComplexEventChunk<ComplexEvent>(false);
     private ComplexEvent lastEvent;
@@ -42,7 +47,9 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     private long scheduledTime;
     private String queryName;
 
-    public PerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext, String queryName) {
+    public PerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService,
+                                        WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
+                                        ExecutionPlanContext executionPlanContext, String queryName) {
         super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.queryName = queryName;
         this.id = id;
@@ -87,8 +94,10 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     }
 
     @Override
-    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new PerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+    public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
+            wrappedSnapshotOutputRateLimiter) {
+        return new PerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
+                                                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
     @Override
@@ -109,12 +118,14 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("EventChunk", eventChunk.getFirst());
+        synchronized (this) {
+            state.put("EventChunk", eventChunk.getFirst());
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         eventChunk.clear();
         eventChunk.add((ComplexEvent) state.get("EventList"));
     }

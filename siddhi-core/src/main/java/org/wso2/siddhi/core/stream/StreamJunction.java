@@ -26,10 +26,8 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.event.EventFactory;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.SiddhiEventFactory;
 import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -45,6 +43,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * Stream Junction is the place where streams are collected and distributed. There will be an Stream Junction per
+ * evey event stream. {@link StreamJunction.Publisher} can be used to publish events to the junction and
+ * {@link StreamJunction.Receiver} can be used to receive events from Stream Junction. Stream Junction will hold the
+ * events till they are consumed by registered Receivers.
+ */
 public class StreamJunction {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
     private final ExecutionPlanContext executionPlanContext;
@@ -80,7 +84,7 @@ public class StreamJunction {
         }
         try {
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
-                    streamDefinition.getAnnotations());
+                                                                   streamDefinition.getAnnotations());
             async = executionPlanContext.isAsync();
             if (annotation != null) {
                 async = true;
@@ -197,10 +201,11 @@ public class StreamJunction {
         }
     }
 
-    private void sendData(long timestamp, Object[] data) {
+    private void sendData(long timeStamp, Object[] data) {
         // Set timestamp to system if Siddhi is in playback mode
         if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).setCurrentTimestamp(timestamp);
+            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator())
+                    .setCurrentTimestamp(timeStamp);
         }
         if (throughputTracker != null) {
             throughputTracker.eventIn();
@@ -209,7 +214,7 @@ public class StreamJunction {
             long sequenceNo = ringBuffer.next();
             try {
                 Event existingEvent = ringBuffer.get(sequenceNo);
-                existingEvent.setTimestamp(timestamp);
+                existingEvent.setTimestamp(timeStamp);
                 existingEvent.setIsExpired(false);
                 System.arraycopy(data, 0, existingEvent.getData(), 0, data.length);
             } finally {
@@ -217,7 +222,7 @@ public class StreamJunction {
             }
         } else {
             for (Receiver receiver : receivers) {
-                receiver.receive(timestamp, data);
+                receiver.receive(timeStamp, data);
             }
         }
     }
@@ -230,15 +235,16 @@ public class StreamJunction {
             for (Constructor constructor : Disruptor.class.getConstructors()) {
                 if (constructor.getParameterTypes().length == 5) {      // If new disruptor classes available
                     ProducerType producerType = ProducerType.MULTI;
-                    disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                            bufferSize, executorService, producerType, new BlockingWaitStrategy());
+                    disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
+                                                     bufferSize, executorService, producerType,
+                                                     new BlockingWaitStrategy());
                     disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
                     break;
                 }
             }
             if (disruptor == null) {
-                disruptor = new Disruptor<Event>(new EventFactory(streamDefinition.getAttributeList().size()),
-                        bufferSize, executorService);
+                disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
+                                                 bufferSize, executorService);
                 disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
             }
             for (Receiver receiver : receivers) {
@@ -288,6 +294,9 @@ public class StreamJunction {
         return streamDefinition;
     }
 
+    /**
+     * Interface to be implemented by all receivers who need to subscribe to Stream Junction and receive events.
+     */
     public interface Receiver {
 
         String getStreamId();
@@ -298,15 +307,17 @@ public class StreamJunction {
 
         void receive(Event event, boolean endOfBatch);
 
-        void receive(long timestamp, Object[] data);
+        void receive(long timeStamp, Object[] data);
 
         void receive(Event[] events);
     }
 
+    /**
+     * Interface to be implemented to receive events via handlers.
+     */
     public class StreamHandler implements EventHandler<Event> {
 
         private Receiver receiver;
-        private ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
         public StreamHandler(Receiver receiver) {
             this.receiver = receiver;
@@ -317,6 +328,9 @@ public class StreamJunction {
         }
     }
 
+    /**
+     * Interface to be implemented to send events into the Stream Junction.
+     */
     public class Publisher implements InputProcessor {
 
         private StreamJunction streamJunction;
@@ -345,8 +359,8 @@ public class StreamJunction {
         }
 
         @Override
-        public void send(long timestamp, Object[] data, int streamIndex) {
-            streamJunction.sendData(timestamp, data);
+        public void send(long timeStamp, Object[] data, int streamIndex) {
+            streamJunction.sendData(timeStamp, data);
         }
 
         public String getStreamId() {

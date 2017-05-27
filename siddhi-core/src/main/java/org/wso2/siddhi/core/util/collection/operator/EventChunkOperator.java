@@ -102,7 +102,8 @@ public class EventChunkOperator implements Operator {
 
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[]
+            updateAttributeMappers) {
         ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
@@ -125,11 +126,14 @@ public class EventChunkOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object
+            storeEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers,
+                                                    AddingStreamEventExtractor addingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         updatingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>
+                (updatingOrAddingEventChunk.isBatch());
         while (updatingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             try {

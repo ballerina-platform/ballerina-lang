@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.partition;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -26,8 +26,8 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class PartitionTestCase {
-    static final Logger log = Logger.getLogger(PartitionTestCase.class);
+    private static final Logger log = Logger.getLogger(PartitionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);
     private int stockStreamEventCount;
     private boolean eventArrived;
@@ -101,7 +101,8 @@ public class PartitionTestCase {
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
-                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
+                + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from " +
+                "cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -145,7 +146,9 @@ public class PartitionTestCase {
         String executionPlan = "@plan:name('PartitionTest2') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream StockStream1 (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream , symbol of StockStream1) begin @info(name = 'query1') from cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
+                + "partition with (symbol of cseEventStream , symbol of StockStream1) begin @info(name = 'query1') " +
+                "from cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;" +
+                "  end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -178,7 +181,8 @@ public class PartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan3");
 
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
         executionPlan.defineStream(streamDefinition);
 
@@ -244,8 +248,10 @@ public class PartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan4");
 
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
-        StreamDefinition streamDefinition1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute
+                .Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
         executionPlan.defineStream(streamDefinition);
         executionPlan.defineStream(streamDefinition1);
@@ -355,9 +361,12 @@ public class PartitionTestCase {
         final SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan5");
 
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
-        StreamDefinition streamDefinition1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
-        StreamDefinition streamDefinition2 = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute
+                .Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition2 = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
 
         executionPlan.defineStream(streamDefinition);
@@ -369,7 +378,8 @@ public class PartitionTestCase {
                 with("cseEventStream", Expression.variable("symbol"));
 
         Query query = Query.query();
-        query.from(InputStream.stream("cseEventStream")).annotation(Annotation.annotation("info").element("name", "query"));
+        query.from(InputStream.stream("cseEventStream")).annotation(Annotation.annotation("info").element("name",
+                "query"));
         query.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -380,7 +390,8 @@ public class PartitionTestCase {
         query.insertIntoInner("StockStream");
 
         Query query1 = Query.query();
-        query1.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name", "query1"));
+        query1.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name",
+                "query1"));
         query1.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -398,7 +409,8 @@ public class PartitionTestCase {
                 with("cseEventStream1", Expression.variable("symbol"));
 
         Query query2 = Query.query();
-        query2.from(InputStream.stream("cseEventStream1")).annotation(Annotation.annotation("info").element("name", "query2"));
+        query2.from(InputStream.stream("cseEventStream1")).annotation(Annotation.annotation("info").element("name",
+                "query2"));
         query2.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -410,7 +422,8 @@ public class PartitionTestCase {
 
 
         Query query3 = Query.query();
-        query3.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name", "query3"));
+        query3.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name",
+                "query3"));
         query3.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -422,7 +435,8 @@ public class PartitionTestCase {
 
 
         Query query4 = Query.query();
-        query4.from(InputStream.stream("StockStream")).annotation(Annotation.annotation("info").element("name", "query4"));
+        query4.from(InputStream.stream("StockStream")).annotation(Annotation.annotation("info").element("name",
+                "query4"));
         query4.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -434,7 +448,8 @@ public class PartitionTestCase {
 
 
         Query query5 = Query.query();
-        query5.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name", "query5"));
+        query5.from(InputStream.innerStream("StockStream")).annotation(Annotation.annotation("info").element("name",
+                "query5"));
         query5.select(
                 Selector.selector().
                         select("symbol", Expression.variable("symbol")).
@@ -516,10 +531,12 @@ public class PartitionTestCase {
         String executionPlan = "@plan:name('PartitionTest6') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream , symbol of cseEventStream1) begin @info(name = 'query') from cseEventStream select symbol,price,volume insert into #StockStream ;"
+                + "partition with (symbol of cseEventStream , symbol of cseEventStream1) begin @info(name = 'query') " +
+                "from cseEventStream select symbol,price,volume insert into #StockStream ;"
                 + "@info(name = 'query1') from #StockStream select symbol,price,volume insert into OutStockStream ;"
                 + "@info(name = 'query2') from cseEventStream1 select symbol,price,volume insert into  #StockStream1 ;"
-                + "@info(name = 'query3') from #StockStream1 select symbol,price,volume insert into OutStockStream ; end ";
+                + "@info(name = 'query3') from #StockStream1 select symbol,price,volume insert into OutStockStream ; " +
+                "end ";
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
@@ -564,7 +581,8 @@ public class PartitionTestCase {
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
-                + "@info(name = 'query') from cseEventStream select symbol,sum(price) as price,volume insert into OutStockStream ;"
+                + "@info(name = 'query') from cseEventStream select symbol,sum(price) as price,volume insert into " +
+                "OutStockStream ;"
                 + "end ";
 
 
@@ -612,7 +630,8 @@ public class PartitionTestCase {
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
-                + "@info(name = 'query') from cseEventStream select symbol,max(price) as max_price,volume insert into OutStockStream ;"
+                + "@info(name = 'query') from cseEventStream select symbol,max(price) as max_price,volume insert into" +
+                " OutStockStream ;"
                 + "end ";
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -658,7 +677,8 @@ public class PartitionTestCase {
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
-                + "@info(name = 'query') from cseEventStream select symbol,min(price) as min_price,volume insert into OutStockStream ;"
+                + "@info(name = 'query') from cseEventStream select symbol,min(price) as min_price,volume insert into" +
+                " OutStockStream ;"
                 + "end ";
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -704,7 +724,8 @@ public class PartitionTestCase {
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
-                + "@info(name = 'query') from cseEventStream select symbol,avg(price) as avgPrice,volume insert into OutStockStream ;"
+                + "@info(name = 'query') from cseEventStream select symbol,avg(price) as avgPrice,volume insert into " +
+                "OutStockStream ;"
                 + "end ";
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -750,7 +771,8 @@ public class PartitionTestCase {
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
                 + "begin"
-                + "@info(name = 'query') from cseEventStream select count(symbol) as entries insert into OutStockStream ;"
+                + "@info(name = 'query') from cseEventStream select count(symbol) as entries insert into " +
+                "OutStockStream ;"
                 + "end ";
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -762,13 +784,13 @@ public class PartitionTestCase {
                 for (Event event : events) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals(1l, event.getData()[0]);
+                        Assert.assertEquals(1L, event.getData()[0]);
                     } else if (count.get() == 2) {
-                        Assert.assertEquals(1l, event.getData()[0]);
+                        Assert.assertEquals(1L, event.getData()[0]);
                     } else if (count.get() == 3) {
-                        Assert.assertEquals(2l, event.getData()[0]);
+                        Assert.assertEquals(2L, event.getData()[0]);
                     } else if (count.get() == 4) {
-                        Assert.assertEquals(1l, event.getData()[0]);
+                        Assert.assertEquals(1L, event.getData()[0]);
                     }
                     eventArrived = true;
                 }
@@ -796,12 +818,16 @@ public class PartitionTestCase {
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "define stream StockStream (symbol string, price float,volume int);"
-                + "partition with (symbol of cseEventStream) begin @info(name = 'query') from cseEventStream select symbol,price as price,volume insert into #StockStream ;"
+                + "partition with (symbol of cseEventStream) begin @info(name = 'query') from cseEventStream select " +
+                "symbol,price as price,volume insert into #StockStream ;"
                 + "@info(name = 'query1') from #StockStream select symbol,price,volume insert into OutStockStream ;"
                 + "@info(name = 'query2') from #StockStream select symbol,price,volume insert into StockStream ; end ;"
-                + "partition with (symbol of cseEventStream1) begin @info(name = 'query3') from cseEventStream1 select symbol,price+5 as price,volume insert into #StockStream ;"
-                + "@info(name = 'query4') from #StockStream select symbol,price,volume insert into OutStockStream ; end ;"
-                + "@info(name = 'query5') from StockStream select symbol,price+15  as price,volume group by symbol insert into OutStockStream ;";
+                + "partition with (symbol of cseEventStream1) begin @info(name = 'query3') from cseEventStream1 " +
+                "select symbol,price+5 as price,volume insert into #StockStream ;"
+                + "@info(name = 'query4') from #StockStream select symbol,price,volume insert into OutStockStream ; " +
+                "end ;"
+                + "@info(name = 'query5') from StockStream select symbol,price+15  as price,volume group by symbol " +
+                "insert into OutStockStream ;";
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
 
@@ -855,7 +881,8 @@ public class PartitionTestCase {
 
         String executionPlan = "@plan:name('PartitionTest16') " +
                 "define stream streamA (symbol string, price int);"
-                + "partition with (symbol of streamA) begin @info(name = 'query1') from streamA select symbol,price insert into StockQuote ;"
+                + "partition with (symbol of streamA) begin @info(name = 'query1') from streamA select symbol,price " +
+                "insert into StockQuote ;"
                 + "@info(name = 'query2') from streamA select symbol,price insert into StockQuote ; end ";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -890,7 +917,8 @@ public class PartitionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         ExecutionPlan executionPlan = new ExecutionPlan("plan17");
 
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
+                .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
         executionPlan.defineStream(streamDefinition);
 
@@ -936,13 +964,13 @@ public class PartitionTestCase {
                 for (Event event : events) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals(100l, event.getData()[0]);
+                        Assert.assertEquals(100L, event.getData()[0]);
                     } else if (count.get() == 2) {
-                        Assert.assertEquals(600l, event.getData()[0]);
+                        Assert.assertEquals(600L, event.getData()[0]);
                     } else if (count.get() == 3) {
-                        Assert.assertEquals(200l, event.getData()[0]);
+                        Assert.assertEquals(200L, event.getData()[0]);
                     } else if (count.get() == 4) {
-                        Assert.assertEquals(250l, event.getData()[0]);
+                        Assert.assertEquals(250L, event.getData()[0]);
                     }
                     eventArrived = true;
                 }
@@ -971,7 +999,9 @@ public class PartitionTestCase {
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
-                + "partition with (price>=100 as 'large' or price<100 as 'small' of cseEventStream) begin @info(name = 'query1') from cseEventStream#window.length(4) select symbol,sum(price) as price insert into OutStockStream ;  end ";
+                + "partition with (price>=100 as 'large' or price<100 as 'small' of cseEventStream) begin @info(name " +
+                "= 'query1') from cseEventStream#window.length(4) select symbol,sum(price) as price insert into " +
+                "OutStockStream ;  end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -1018,7 +1048,9 @@ public class PartitionTestCase {
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
-                + "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of cseEventStream) begin @info(name = 'query1') from cseEventStream select symbol,sum(price) as price insert into OutStockStream ;  end ";
+                + "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of " +
+                "cseEventStream) begin @info(name = 'query1') from cseEventStream select symbol,sum(price) as price " +
+                "insert into OutStockStream ;  end ";
 
 
         ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
@@ -1079,7 +1111,8 @@ public class PartitionTestCase {
                 "select symbol, price, volume " +
                 "insert into cseEventStream;" +
                 " " +
-                "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of cseEventStream) " +
+                "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of " +
+                "cseEventStream) " +
                 "   begin" +
                 "   @info(name = 'query1') " +
                 "   from cseEventStream " +
@@ -1155,7 +1188,8 @@ public class PartitionTestCase {
                 "select symbol, price, volume " +
                 "insert into cseEventStream;" +
                 " " +
-                "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of cseEventStream) " +
+                "partition with (price>=100 as 'large' or price<100 as 'medium' or price<50 as 'small' of " +
+                "cseEventStream) " +
                 "   begin" +
                 "   @info(name = 'query1') " +
                 "   from cseEventStream " +
@@ -1265,7 +1299,7 @@ public class PartitionTestCase {
                 + "begin"
                 + "@info(name = 'query') from cseEventStream#window.time(1 sec) " +
                 "select symbol, avg(price) as avgPrice, volume " +
-                "having avgPrice >= 0" +
+                "having avgPrice >= 0 or avgPrice is null " +
                 "insert expired events into OutStockStream ;"
                 + "end ";
 
@@ -1278,7 +1312,7 @@ public class PartitionTestCase {
                 for (Event event : events) {
                     count.incrementAndGet();
                     if (count.get() == 1) {
-                        Assert.assertEquals(0.0, event.getData()[1]);
+                        Assert.assertEquals(null, event.getData()[1]);
                     }
                     eventArrived = true;
                 }

@@ -35,18 +35,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Implementation of {@link OutputRateLimiter} which will collect pre-defined time period and the emit only last
+ * event. This implementation specifically represent GroupBy queries.
+ */
 public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
-    private String id;
+    private static final Logger log = Logger.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
     private final Long value;
+    private String id;
     private Map<String, ComplexEvent> allGroupByKeyEvents = new LinkedHashMap<String, ComplexEvent>();
     private ScheduledExecutorService scheduledExecutorService;
     private Scheduler scheduler;
     private long scheduledTime;
     private String queryName;
 
-    static final Logger log = Logger.getLogger(LastGroupByPerTimeOutputRateLimiter.class);
-
-    public LastGroupByPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, String queryName) {
+    public LastGroupByPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService
+            scheduledExecutorService, String queryName) {
         this.queryName = queryName;
         this.id = id;
         this.value = value;
@@ -55,7 +59,8 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
 
     @Override
     public OutputRateLimiter clone(String key) {
-        LastGroupByPerTimeOutputRateLimiter instance = new LastGroupByPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService, queryName);
+        LastGroupByPerTimeOutputRateLimiter instance = new LastGroupByPerTimeOutputRateLimiter(id + key, value,
+                scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -70,7 +75,8 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
                 if (event.getType() == ComplexEvent.Type.TIMER) {
                     if (event.getTimestamp() >= scheduledTime) {
                         if (allGroupByKeyEvents.size() != 0) {
-                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>(complexEventChunk.isBatch());
+                            ComplexEventChunk<ComplexEvent> outputEventChunk = new ComplexEventChunk<ComplexEvent>
+                                    (complexEventChunk.isBatch());
                             for (ComplexEvent complexEvent : allGroupByKeyEvents.values()) {
                                 outputEventChunk.add(complexEvent);
                             }
@@ -80,7 +86,8 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
                         scheduledTime = scheduledTime + value;
                         scheduler.notifyAt(scheduledTime);
                     }
-                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type.EXPIRED) {
+                } else if (event.getType() == ComplexEvent.Type.CURRENT || event.getType() == ComplexEvent.Type
+                        .EXPIRED) {
                     complexEventChunk.remove();
                     GroupedComplexEvent groupedComplexEvent = ((GroupedComplexEvent) event);
                     allGroupByKeyEvents.put(groupedComplexEvent.getGroupKey(), groupedComplexEvent.getComplexEvent());
@@ -111,12 +118,14 @@ public class LastGroupByPerTimeOutputRateLimiter extends OutputRateLimiter imple
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-        state.put("AllGroupByKeyEvents", allGroupByKeyEvents);
+        synchronized (this) {
+            state.put("AllGroupByKeyEvents", allGroupByKeyEvents);
+        }
         return state;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
+    public synchronized void restoreState(Map<String, Object> state) {
         allGroupByKeyEvents = (Map<String, ComplexEvent>) state.get("AllGroupByKeyEvents");
     }
 

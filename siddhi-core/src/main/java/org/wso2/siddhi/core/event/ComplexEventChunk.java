@@ -28,11 +28,12 @@ import java.util.NoSuchElementException;
  */
 public class ComplexEventChunk<E extends ComplexEvent> implements Iterator<E>, Serializable {
 
+    private static final long serialVersionUID = 3185987841726255019L;
     protected E first;
     protected E previousToLastReturned;
     protected E lastReturned;
     protected E last;
-    protected boolean isBatch=false;
+    protected boolean isBatch = false;
 
     public ComplexEventChunk(boolean isBatch) {
         this.isBatch = isBatch;

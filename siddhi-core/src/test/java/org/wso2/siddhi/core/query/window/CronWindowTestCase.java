@@ -17,8 +17,8 @@
  */
 package org.wso2.siddhi.core.query.window;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -42,13 +42,14 @@ public class CronWindowTestCase {
     }
 
     @Test
-    public void CronWindowTest1() throws InterruptedException {
+    public void cronWindowTest1() throws InterruptedException {
         log.info("Testing cron window for current events");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price,volume insert into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price," +
+                "volume insert into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -88,13 +89,14 @@ public class CronWindowTestCase {
 
 
     @Test
-    public void CronWindowTest2() throws InterruptedException {
+    public void cronWindowTest2() throws InterruptedException {
         log.info("Testing cron window for expired events");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume int);";
-        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price,volume insert expired events into outputStream ;";
+        String query = "@info(name = 'query1') from cseEventStream#window.cron('*/5 * * * * ?') select symbol,price," +
+                "volume insert expired events into outputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -104,7 +106,7 @@ public class CronWindowTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                        removeEventCount++;
+                    removeEventCount++;
                 }
                 eventArrived = true;
             }
@@ -126,6 +128,5 @@ public class CronWindowTestCase {
         executionPlanRuntime.shutdown();
 
     }
-
-
 }
+

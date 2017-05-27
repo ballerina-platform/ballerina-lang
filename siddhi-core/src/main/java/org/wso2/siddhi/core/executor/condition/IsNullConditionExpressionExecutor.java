@@ -21,6 +21,9 @@ package org.wso2.siddhi.core.executor.condition;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 
+/**
+ * Executor class for IsNull condition. Condition evaluation logic is implemented within executor.
+ */
 public class IsNullConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     private ExpressionExecutor expressionExecutor;

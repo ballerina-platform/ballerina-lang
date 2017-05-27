@@ -21,10 +21,14 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+import java.io.Serializable;
+
 /**
  * The converter that does no conversion but only copy OutputData of the events into StreamEvents
  */
-public class ZeroStreamEventConverter implements StreamEventConverter {
+public class ZeroStreamEventConverter implements StreamEventConverter, Serializable {
+
+    private static final long serialVersionUID = 2223375413250580450L;
 
     public void convertData(long timestamp, Object[] data, StreamEvent.Type type, StreamEvent borrowedEvent) {
         System.arraycopy(data, 0, borrowedEvent.getOutputData(), 0, data.length);
@@ -33,7 +37,8 @@ public class ZeroStreamEventConverter implements StreamEventConverter {
     }
 
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
-        convertData(event.getTimestamp(), event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
+        convertData(event.getTimestamp(), event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent
+                        .Type.CURRENT,
                 borrowedEvent);
     }
 

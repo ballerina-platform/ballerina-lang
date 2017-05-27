@@ -17,7 +17,12 @@
  */
 package org.wso2.siddhi.query.api.expression.constant;
 
+/**
+ * Time constant expression
+ */
 public class TimeConstant extends LongConstant {
+
+    private static final long serialVersionUID = 1L;
 
     public TimeConstant(long i) {
         super(i);

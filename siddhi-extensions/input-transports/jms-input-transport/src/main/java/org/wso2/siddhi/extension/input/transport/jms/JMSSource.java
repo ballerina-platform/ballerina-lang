@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.receiver.JMSServerConnector;
-import org.wso2.carbon.transport.jms.utils.JMSConstants;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
@@ -30,8 +30,8 @@ import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.extension.input.transport.jms.util.JMSOptionsMapper;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +39,20 @@ import java.util.Map;
 @Extension(
         name = "jms",
         namespace = "source",
-        description = "JMS Input Transport"
+        description = "JMS Source",
+        examples = @Example(description = "TBD", syntax = "TBD")
 )
+/**
+ * JMS Source implementation.
+ */
 public class JMSSource extends Source {
     private static final Logger log = Logger.getLogger(JMSSource.class);
-
+    private final int DEFAULT_THREAD_POOL_SIZE = 1;
     private SourceEventListener sourceEventListener;
     private OptionHolder optionHolder;
     private JMSServerConnector jmsServerConnector;
     private JMSMessageProcessor jmsMessageProcessor;
     private int threadPoolSize;
-    private final int DEFAULT_THREAD_POOL_SIZE = 1;
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
@@ -104,16 +107,17 @@ public class JMSSource extends Source {
      * Initializing JMS properties.
      * The properties in the required options list are mandatory.
      * Other JMS options can be passed in as key value pairs, key being in the JMS spec or the broker spec.
+     *
      * @return all the options map.
      */
     private Map<String, String> initJMSProperties() {
-        List<String> requiredOptions = Arrays.asList(JMSConstants.DESTINATION_PARAM_NAME,
-                JMSConstants.CONNECTION_FACTORY_JNDI_PARAM_NAME, JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,
-                JMSConstants.PROVIDER_URL_PARAM_NAME, JMSConstants.CONNECTION_FACTORY_TYPE_PARAM_NAME);
+        Map<String, String> customPropertyMapping = JMSOptionsMapper.getCustomPropertyMapping();
+        List<String> requiredOptions = JMSOptionsMapper.getRequiredOptions();
         // getting the required values
         Map<String, String> transportProperties = new HashMap<>();
         requiredOptions.forEach(requiredOption ->
-                transportProperties.put(requiredOption, optionHolder.validateAndGetStaticValue(requiredOption)));
+                transportProperties.put(customPropertyMapping.get(requiredOption),
+                        optionHolder.validateAndGetStaticValue(requiredOption)));
         // getting optional values
         optionHolder.getStaticOptionsKeys().stream()
                 .filter(option -> !requiredOptions.contains(option) && !option.equals("type")).forEach(option ->

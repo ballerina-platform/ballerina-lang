@@ -19,7 +19,12 @@ package org.wso2.siddhi.query.api.expression.condition;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * In condition {@link Expression} checking events from Table or Window
+ */
 public class In extends Expression {
+
+    private static final long serialVersionUID = 1L;
 
     private Expression expression;
     private String sourceId;

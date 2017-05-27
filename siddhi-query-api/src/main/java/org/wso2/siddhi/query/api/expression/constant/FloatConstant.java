@@ -19,8 +19,12 @@ package org.wso2.siddhi.query.api.expression.constant;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
+/**
+ * Float constant {@link Expression}
+ */
 public class FloatConstant extends Expression implements Constant {
 
+    private static final long serialVersionUID = 1L;
     private Float value;
 
     public FloatConstant(float value) {

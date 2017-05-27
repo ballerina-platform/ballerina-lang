@@ -61,9 +61,9 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(500);
 
         executionPlanRuntime.shutdown();
@@ -95,9 +95,9 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(500);
 
         executionPlanRuntime.shutdown();
@@ -130,9 +130,9 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100l});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(500);
 
         executionPlanRuntime.shutdown();
@@ -190,7 +190,7 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockCheckStream.send(new Object[]{"IBM"});
         stockCheckStream.send(new Object[]{"WSO2"});
 
@@ -255,8 +255,8 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
         stockCheckStream.send(new Object[]{"IBM"});
 
         Thread.sleep(500);
@@ -322,8 +322,8 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
         stockCheckStream.send(new Object[]{"IBM"});
         stockCheckStream.send(new Object[]{"WSO2"});
 
@@ -387,9 +387,9 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-        stockStream.send(new Object[]{"GOOG", 255.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+        stockStream.send(new Object[]{"GOOG", 255.6f, 100L});
         stockCheckStream.send(new Object[]{200f});
 
         Thread.sleep(500);
@@ -452,9 +452,9 @@ public class InsertIntoTableTestCase {
 
         executionPlanRuntime.start();
 
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
-        stockStream.send(new Object[]{"IBM", 55.6f, 100l});
-        stockStream.send(new Object[]{"GOOG", 255.6f, 100l});
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+        stockStream.send(new Object[]{"IBM", 55.6f, 100L});
+        stockStream.send(new Object[]{"GOOG", 255.6f, 100L});
         stockCheckStream.send(new Object[]{100f});
 
         Thread.sleep(500);

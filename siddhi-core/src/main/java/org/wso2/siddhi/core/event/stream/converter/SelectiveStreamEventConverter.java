@@ -21,13 +21,15 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * The converter class that converts the events into StreamEvent
  */
-public class SelectiveStreamEventConverter implements StreamEventConverter {
+public class SelectiveStreamEventConverter implements StreamEventConverter, Serializable {
 
+    private static final long serialVersionUID = 5728843379822962369L;
     private List<ConversionMapping> conversionMappings;       //List to hold information needed for conversion
 
     public SelectiveStreamEventConverter(List<ConversionMapping> conversionMappings) {
@@ -63,7 +65,8 @@ public class SelectiveStreamEventConverter implements StreamEventConverter {
 
 
     public void convertEvent(Event event, StreamEvent borrowedEvent) {
-        convertData(event.getTimestamp(), event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent.Type.CURRENT,
+        convertData(event.getTimestamp(), event.getData(), event.isExpired() ? StreamEvent.Type.EXPIRED : StreamEvent
+                        .Type.CURRENT,
                 borrowedEvent);
     }
 

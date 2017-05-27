@@ -25,10 +25,15 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.condition.Compare;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 
+/**
+ * Partition testing testcase
+ */
 public class DefinePartitionTestCase {
     @Test
-    public void Test1() {
-        Partition partition = SiddhiCompiler.parsePartition("partition with (200>volume as 'LessValue' or 200<=volume as 'HighValue' of cseEventStream) begin from cseEventStream select sum(volume) as sumvolume insert into StockStream ;  end ");
+    public void test1() {
+        Partition partition = SiddhiCompiler.parsePartition("partition with (200>volume as 'LessValue' or 200<=volume" +
+                " as 'HighValue' of cseEventStream) begin from cseEventStream select sum(volume) as sumvolume insert " +
+                "into StockStream ;  end ");
 
         Assert.assertEquals(Partition.partition().
                         with("cseEventStream",
@@ -48,8 +53,9 @@ public class DefinePartitionTestCase {
     }
 
     @Test
-    public void Test2() {
-        Partition partition = SiddhiCompiler.parsePartition("partition with (symbol of cseEventStream) begin from cseEventStream select sum(volume) as sumvolume insert into StockStream ;  end ");
+    public void test2() {
+        Partition partition = SiddhiCompiler.parsePartition("partition with (symbol of cseEventStream) begin from " +
+                "cseEventStream select sum(volume) as sumvolume insert into StockStream ;  end ");
 
         Assert.assertEquals(Partition.partition().
                         with("cseEventStream", Expression.variable("symbol")).toString().split("queryList")[0],

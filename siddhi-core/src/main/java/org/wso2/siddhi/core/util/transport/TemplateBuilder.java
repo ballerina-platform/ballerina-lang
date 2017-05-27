@@ -31,6 +31,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Template builder used by {@link org.wso2.siddhi.core.stream.output.sink.SinkMapper} to generate custom payload.
+ */
 public class TemplateBuilder {
     private static final Pattern DYNAMIC_PATTERN = Pattern.compile("(\\{\\{[^{}]*}})|[{}]");
     private MessageFormat messageFormat;
@@ -77,7 +80,7 @@ public class TemplateBuilder {
                     m.appendReplacement(result, String.format("{%s}", attrIndex));
                 } else {
                     throw new NoSuchAttributeException(String.format("Attribute : %s does not exist in %s.",
-                            m.group(1), streamDefinition));
+                                                                     m.group(1), streamDefinition));
                 }
             } else {
                 m.appendReplacement(result, "'" + m.group() + "'");

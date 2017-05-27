@@ -67,11 +67,13 @@ public class SingleInputStreamParser {
      * @param variableExpressionExecutors List to hold VariableExpressionExecutors to update after query parsing
      * @param streamDefinitionMap         Stream Definition Map
      * @param tableDefinitionMap          Table Definition Map
+     * @param windowDefinitionMap         window definition map
      * @param tableMap                    Table Map
      * @param metaComplexEvent            MetaComplexEvent
      * @param processStreamReceiver       ProcessStreamReceiver
      * @param supportsBatchProcessing     supports batch processing
      * @param outputExpectsExpiredEvents  is output expects ExpiredEvents
+     * @param queryName                   query name of single input stream belongs to.
      * @return SingleStreamRuntime
      */
     public static SingleStreamRuntime parseInputStream(SingleInputStream inputStream, ExecutionPlanContext
@@ -80,7 +82,8 @@ public class SingleInputStreamParser {
                                                        Map<String, AbstractDefinition> streamDefinitionMap,
                                                        Map<String, AbstractDefinition> tableDefinitionMap,
                                                        Map<String, AbstractDefinition> windowDefinitionMap,
-                                                       Map<String, Table> tableMap, MetaComplexEvent metaComplexEvent,
+                                                       Map<String, Table> tableMap, MetaComplexEvent
+                                                               metaComplexEvent,
                                                        ProcessStreamReceiver processStreamReceiver, boolean
                                                                supportsBatchProcessing, boolean
                                                                outputExpectsExpiredEvents, String queryName) {

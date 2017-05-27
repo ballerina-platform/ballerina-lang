@@ -29,6 +29,7 @@ public interface ThroughputTracker {
 
     /**
      * This method is to notify receive of multiple events to calculate the throughput
+     *
      * @param eventCount number of events passing through
      */
     void eventsIn(int eventCount);

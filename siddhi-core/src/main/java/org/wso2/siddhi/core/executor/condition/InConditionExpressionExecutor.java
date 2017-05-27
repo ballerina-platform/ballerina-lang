@@ -26,6 +26,9 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.collection.FinderStateEvent;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
+/**
+ * Executor class for In condition. Condition evaluation logic is implemented within executor.
+ */
 public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     private final int streamEventSize;
@@ -35,7 +38,8 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
     private final CompiledCondition compiledCondition;
     private FinderStateEvent finderStateEvent;
 
-    public InConditionExpressionExecutor(Table table, CompiledCondition compiledCondition, int streamEventSize, boolean isMatchingEventAStateEvent, int matchingStreamIndex) {
+    public InConditionExpressionExecutor(Table table, CompiledCondition compiledCondition, int
+            streamEventSize, boolean isMatchingEventAStateEvent, int matchingStreamIndex) {
         this.streamEventSize = streamEventSize;
         this.isMatchingEventAStateEvent = isMatchingEventAStateEvent;
         this.matchingStreamIndex = matchingStreamIndex;
@@ -63,7 +67,8 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new InConditionExpressionExecutor(table, compiledCondition.cloneCompiledCondition(key), streamEventSize, isMatchingEventAStateEvent, matchingStreamIndex);
+        return new InConditionExpressionExecutor(table, compiledCondition.cloneCompiledCondition(key),
+                streamEventSize, isMatchingEventAStateEvent, matchingStreamIndex);
     }
 
 

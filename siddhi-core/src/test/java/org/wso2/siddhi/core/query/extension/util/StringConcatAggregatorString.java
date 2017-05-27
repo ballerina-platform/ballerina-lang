@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.extension.util;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
@@ -36,13 +37,19 @@ import java.util.Map;
         namespace = "custom",
         description = "Return the concatenations of the given input values.",
         parameters = {
-                @Parameter(name = "arg",
-                        description = "The value that need to be concat.",
+                @Parameter(name = "args",
+                        description = "The values that need to be concat.",
                         type = {DataType.STRING})
         },
         returnAttributes = @ReturnAttribute(
                 description = "Returns the concatenated value as a string.",
-                type = {DataType.STRING})
+                type = {DataType.STRING}),
+        examples = @Example(
+                syntax = "from inputStream\n" +
+                        "select custom:getAll(\"hello\",\"_\",\"world\") as name\n" +
+                        "insert into outputStream;",
+                description = "This will concatenate given input values and return 'hello world'."
+        )
 )
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
@@ -51,12 +58,14 @@ public class StringConcatAggregatorString extends AttributeAggregator {
 
     /**
      * The initialization method for FunctionExecutor
-     *  @param attributeExpressionExecutors are the executors of each attributes in the function
-     * @param configReader
+     *
+     * @param attributeExpressionExecutors are the executors of each attributes in the function
+     * @param configReader this hold the {@link StringConcatAggregatorString} configuration reader.
      * @param executionPlanContext         SiddhiContext
      */
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        ExecutionPlanContext executionPlanContext) {
         appendAbc = Boolean.parseBoolean(configReader.readConfig("append.abc", "false"));
 
     }
@@ -70,12 +79,11 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public Object processAdd(Object data) {
         aggregatedStringValue = aggregatedStringValue + data;
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
-
     }
 
     @Override
@@ -83,9 +91,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue + aData;
         }
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -94,9 +102,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     @Override
     public Object processRemove(Object data) {
         aggregatedStringValue = aggregatedStringValue.replaceFirst(data.toString(), "");
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -106,9 +114,9 @@ public class StringConcatAggregatorString extends AttributeAggregator {
         for (Object aData : data) {
             aggregatedStringValue = aggregatedStringValue.replaceFirst(aData.toString(), "");
         }
-        if(appendAbc){
-            return aggregatedStringValue+"-abc";
-        }else {
+        if (appendAbc) {
+            return aggregatedStringValue + "-abc";
+        } else {
             return aggregatedStringValue;
         }
     }
@@ -141,5 +149,4 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     public void restoreState(Map<String, Object> state) {
         aggregatedStringValue = (String) state.get("AggregatedStringValue");
     }
-
 }

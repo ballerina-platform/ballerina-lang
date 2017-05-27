@@ -32,7 +32,8 @@ public class FunctionSample {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String executionPlan = "" +
-                "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);" +
+                "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int)" +
+                ";" +
                 "" +
                 "@info(name = 'query1') " +
                 "from cseEventStream " +
@@ -57,9 +58,9 @@ public class FunctionSample {
         executionPlanRuntime.start();
 
         //Sending events to Siddhi
-        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
-        inputHandler.send(new Object[]{"WSO2", null, 44f, 200l, 56});
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60L, 6});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10});
+        inputHandler.send(new Object[]{"WSO2", null, 44f, 200L, 56});
         Thread.sleep(100);
 
         //Shutting down the runtime

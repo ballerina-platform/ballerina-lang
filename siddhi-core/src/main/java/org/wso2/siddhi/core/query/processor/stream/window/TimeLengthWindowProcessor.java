@@ -18,9 +18,9 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -47,22 +47,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of {@link WindowProcessor} which represent a Window operating based on pre-defined length.
+ */
 @Extension(
         name = "timeLength",
         namespace = "",
-        description = "A sliding time window that, at a given time holds the last windowLength events that arrived " +
-                "during last windowTime period, and gets updated for every event arrival and expiry.",
+        description = "A sliding time window that, at a given time holds the last window.length events that arrived " +
+                "during last window.time period, and gets updated for every event arrival and expiry.",
         parameters = {
-                @Parameter(name = "windowTime",
+                @Parameter(name = "window.time",
                         description = "The sliding time period for which the window should hold events.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME}),
-                @Parameter(name = "windowLength",
+                @Parameter(name = "window.length",
                         description = "The number of events that should be be included in a sliding length window..",
                         type = {DataType.INT})
         },
-        returnAttributes = @ReturnAttribute(
-                description = "Returns current and expired events.",
-                type = {})
+        examples = @Example(
+                syntax = "define stream cseEventStream (symbol string, price float, volume int);\n" +
+                        "define window cseEventWindow (symbol string, price float, volume int) " +
+                        "timeLength(2 sec, 10);\n" +
+                        "@info(name = 'query0')\n" +
+                        "from cseEventStream\n" +
+                        "insert into cseEventWindow;\n" +
+                        "@info(name = 'query1')\n" +
+                        "from cseEventWindow select symbol, price, volume\n" +
+                        "insert all events into outputStream;",
+                description = "window.timeLength(2 sec, 10) holds the last 10 events that arrived during " +
+                        "last 2 seconds and gets updated for every event arrival and expiry."
+        )
 )
 public class TimeLengthWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
@@ -92,23 +105,31 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
             length = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                    timeInMilliSeconds = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
+                            .getValue();
 
                 } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.LONG) {
-                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+                    timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
+                            .getValue();
                 } else {
-                    throw new ExecutionPlanValidationException("TimeLength window's first parameter attribute should be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
+                    throw new ExecutionPlanValidationException("TimeLength window's first parameter attribute should " +
+                            "be either int or long, but found " + attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new ExecutionPlanValidationException("TimeLength window should have constant parameter attributes but found a dynamic attribute " + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                throw new ExecutionPlanValidationException("TimeLength window should have constant parameter " +
+                        "attributes but found a dynamic attribute " + attributeExpressionExecutors[0].getClass()
+                        .getCanonicalName());
             }
         } else {
-            throw new ExecutionPlanValidationException("TimeLength window should only have two parameters (<int> windowTime,<int> windowLength), but found " + attributeExpressionExecutors.length + " input attributes");
+            throw new ExecutionPlanValidationException("TimeLength window should only have two parameters (<int> " +
+                    "windowTime,<int> windowLength), but found " + attributeExpressionExecutors.length + " input " +
+                    "attributes");
         }
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner) {
         synchronized (this) {
             long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
 
@@ -164,9 +185,12 @@ public class TimeLengthWindowProcessor extends WindowProcessor implements Schedu
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap, String queryName) {
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
+                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 
     @Override

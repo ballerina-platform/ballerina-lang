@@ -20,8 +20,9 @@ package org.wso2.siddhi.core.util.collection.expression;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.List;
-
+/**
+ * Implementation of {@link CollectionExpression} which represent attribute expressions.
+ */
 public class AttributeCollectionExpression implements CollectionExpression {
     private final Expression expression;
     private final CollectionScope collectionScope = CollectionScope.INDEXED_ATTRIBUTE;

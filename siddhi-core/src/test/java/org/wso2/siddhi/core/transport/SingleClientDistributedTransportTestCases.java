@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class SingleClientDistributedTransportTestCases {
-    static final Logger log = Logger.getLogger(SingleClientDistributedTransportTestCases.class);
+    private static final Logger log = Logger.getLogger(SingleClientDistributedTransportTestCases.class);
     private AtomicInteger topic1Count = new AtomicInteger(0);
     private AtomicInteger topic2Count = new AtomicInteger(0);
 

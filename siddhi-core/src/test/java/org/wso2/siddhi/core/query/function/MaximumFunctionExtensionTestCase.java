@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 public class MaximumFunctionExtensionTestCase {
-    static final Logger log = Logger.getLogger(MaximumFunctionExtensionTestCase.class);
+    private static final Logger log = Logger.getLogger(MaximumFunctionExtensionTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -51,7 +51,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -112,7 +113,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
     }
 
     @Test
@@ -124,7 +126,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -173,7 +176,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -234,7 +238,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(price1, price2, price3) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
@@ -245,13 +250,13 @@ public class MaximumFunctionExtensionTestCase {
                     count++;
                     switch (count) {
                         case 1:
-                            Assert.assertEquals(74l, event.getData(0));
+                            Assert.assertEquals(74L, event.getData(0));
                             break;
                         case 2:
-                            Assert.assertEquals(78l, event.getData(0));
+                            Assert.assertEquals(78L, event.getData(0));
                             break;
                         case 3:
-                            Assert.assertEquals(39l, event.getData(0));
+                            Assert.assertEquals(39L, event.getData(0));
                             break;
                         default:
                             org.junit.Assert.fail();
@@ -283,7 +288,8 @@ public class MaximumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select maximum(*) as max " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+                query);
 
         executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override

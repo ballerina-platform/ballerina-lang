@@ -46,8 +46,9 @@ public abstract class DistributedTransport extends Sink {
      * Will be called for initialing the {@link Sink}
      *
      * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
-     * @param optionHolder           Option holder containing static and dynamic options related to the {@link Sink}
-     * @param sinkConfigReader
+     * @param optionHolder           Option holder containing static and dynamic options related to the
+     * {@link Sink}
+     * @param sinkConfigReader this hold the {@link Sink} extensions configuration reader.
      * @param executionPlanContext   Context of the execution plan which this output sink belongs to
      */
     @Override
@@ -62,35 +63,34 @@ public abstract class DistributedTransport extends Sink {
     /**
      * This is method contains the additional parameters which require to initialize distributed transport
      *
-     * @param streamDefinition
-     * @param transportOptionHolder
-     * @param sinkConfigReader
-     * @param mapperConfigReader
-     * @param executionPlanContext
-     * @param destinationOptionHolders
-     * @param sinkAnnotation
-     * @param strategy
+     * @param streamDefinition Definition of the stream this sink instance is publishing to
+     * @param type Type of the transport that (e.g., TCP, JMS)
+     * @param transportOptionHolder Option holder for carrying options for the transport
+     * @param sinkConfigReader  This hold the {@link Sink} extensions configuration reader for the sink
+     * @param sinkMapper Hold the mapper that's used in this sink
+     * @param mapType Type of the mapper
+     * @param mapOptionHolder Options of the mapper
+     * @param payloadTemplate The template of the payload message
+     * @param mapperConfigReader This hold the {@link Sink} extensions configuration reader for the mapper
+     * @param executionPlanContext The execution plan context
+     * @param destinationOptionHolders List of option holders containing the options mentioned in @destination
+     * @param sinkAnnotation The annotation of the Sink
+     * @param strategy Publishing strategy to be used by the distributed transport
+     * @param supportedDynamicOptions List of supported dynamic options
      */
-    public void init(StreamDefinition streamDefinition,
-                     String type,
-                     OptionHolder transportOptionHolder,
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader,
-                     SinkMapper sinkMapper,
-                     String mapType,
-                     OptionHolder mapOptionHolder,
-                     String payload,
-                     ConfigReader mapperConfigReader,
-                     ExecutionPlanContext executionPlanContext,
-                     List<OptionHolder> destinationOptionHolders,
-                     Annotation sinkAnnotation,
-                     DistributionStrategy strategy,
+                     SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder, String payloadTemplate
+            ,
+                     ConfigReader mapperConfigReader, ExecutionPlanContext executionPlanContext, List<OptionHolder>
+                             destinationOptionHolders, Annotation sinkAnnotation, DistributionStrategy strategy,
                      String[] supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
         init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
-                payload, mapperConfigReader, executionPlanContext);
+                payloadTemplate, mapperConfigReader, executionPlanContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,
-                executionPlanContext);
+                      executionPlanContext);
     }
 
     @Override

@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * Event that is used external to Siddhi
@@ -31,7 +30,6 @@ public class Event {
     protected long id = -1;
     protected Object[] data;
     protected boolean isExpired = false;
-    private Map<String, Object> arbitraryDataMap;
 
     public Event(long timestamp, Object[] data) {
         this.timestamp = timestamp;
@@ -82,6 +80,7 @@ public class Event {
     public String toString() {
         return "Event{" +
                 "timestamp=" + timestamp +
+                ", id=" + id +
                 ", data=" + Arrays.toString(data) +
                 ", isExpired=" + isExpired +
                 '}';
@@ -107,13 +106,21 @@ public class Event {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Event)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Event)) {
+            return false;
+        }
 
         Event event = (Event) o;
 
-        if (isExpired != event.isExpired) return false;
-        if (timestamp != event.timestamp) return false;
+        if (isExpired != event.isExpired) {
+            return false;
+        }
+        if (timestamp != event.timestamp) {
+            return false;
+        }
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         return Arrays.equals(data, event.data);
 

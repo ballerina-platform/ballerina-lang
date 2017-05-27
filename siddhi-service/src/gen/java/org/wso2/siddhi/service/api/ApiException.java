@@ -16,7 +16,8 @@
 
 package org.wso2.siddhi.service.api;
 
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-03-15T08:56:59.657Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date =
+        "2017-03-15T08:56:59.657Z")
 public class ApiException extends Exception {
     private int code;
 

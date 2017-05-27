@@ -22,6 +22,9 @@ import org.wso2.siddhi.query.api.annotation.Element;
 
 import java.util.List;
 
+/**
+ * Factory interface to create Trackers and Managers
+ */
 public interface StatisticsTrackerFactory {
 
     LatencyTracker createLatencyTracker(String name, StatisticsManager statisticsManager);

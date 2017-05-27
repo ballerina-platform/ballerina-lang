@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
  */
 public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
 
+    private static final long serialVersionUID = 2754352338846132676L;
     private StreamEventConverter streamEventConverter;
     private StreamEventPool streamEventPool;
 

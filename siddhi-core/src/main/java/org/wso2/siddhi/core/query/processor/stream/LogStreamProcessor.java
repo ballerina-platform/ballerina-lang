@@ -18,7 +18,11 @@
 
 package org.wso2.siddhi.core.query.processor.stream;
 
+import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -38,16 +42,58 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Input attributes to log is (priority (String), logMessage (String), isEventLogged (Bool))
+ * Input attributes to log is (priority (String), log.message (String), is.event.logged (Bool))
  */
 @Extension(
         name = "log",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "The logger stream processor logs the message with or without event for the given log priority.",
+        parameters = {
+                @Parameter(name = "priority",
+                        description = "The priority/type of this log message.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "log.message",
+                        description = "This submit the log message.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "is.event.logged",
+                        description = "Use this command to enable the logging of one or more events.",
+                        type = {DataType.BOOL})
+        },
+        examples = {
+                @Example(
+                        syntax = "from fooStream#log(\"INFO\", \"Sample Event :\", true)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will log as INFO with the message \"Sample Event :\" + fooStream:events."
+                ),
+                @Example(
+                        syntax = "from fooStream#log(\"Sample Event :\", true)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will logs with default log level as INFO."
+                ),
+                @Example(
+                        syntax = "from fooStream#log(\"Sample Event :\", fasle)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will only log message."
+                ),
+                @Example(
+                        syntax = "from fooStream#log(true)\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will only log fooStream:events."
+                ),
+                @Example(
+                        syntax = "from fooStream#log(\"Sample Event :\")\n" +
+                                "select *\n" +
+                                "insert into barStream;",
+                        description = "This will log message and fooStream:events."
+                )
+        }
 )
 public class LogStreamProcessor extends StreamProcessor {
-
+    private static final Logger log = Logger.getLogger(LogStreamProcessor.class);
     private ExpressionExecutor isLogEventExpressionExecutor = null;
     private ExpressionExecutor logMessageExpressionExecutor = null;
     private ExpressionExecutor logPriorityExpressionExecutor = null;
@@ -60,7 +106,7 @@ public class LogStreamProcessor extends StreamProcessor {
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters
      * @param executionPlanContext         execution plan context
-     * @param configReader
+     * @param configReader this hold the {@link LogStreamProcessor} configuration reader.
      * @return the additional output attributes introduced by the function
      */
     @Override

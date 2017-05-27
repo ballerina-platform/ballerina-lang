@@ -48,9 +48,9 @@ import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.extension.table.hazelcast.HazelcastCollectionEventHolder;
-import org.wso2.siddhi.extension.table.hazelcast.HazelcastTableConstants;
 import org.wso2.siddhi.extension.table.hazelcast.HazelcastOperatorParser;
 import org.wso2.siddhi.extension.table.hazelcast.HazelcastPrimaryKeyEventHolder;
+import org.wso2.siddhi.extension.table.hazelcast.HazelcastTableConstants;
 import org.wso2.siddhi.extension.table.hazelcast.internal.ds.HazelcastTableServiceValueHolder;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -101,11 +101,12 @@ public class HazelcastTable implements Table {
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     * @param tableDefinition        Definition of event table.
+     *
+     * @param tableDefinition      Definition of event table.
      * @param storeEventPool
      * @param storeEventCloner
      * @param configReader
-     * @param executionPlanContext   ExecutionPlan related meta information.
+     * @param executionPlanContext ExecutionPlan related meta information.
      */
     @Override
     public void init(TableDefinition tableDefinition,
@@ -230,12 +231,14 @@ public class HazelcastTable implements Table {
     }
 
     @Override
-    public synchronized void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
+    public synchronized void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition
+            compiledCondition) {
         ((Operator) compiledCondition).delete(deletingEventChunk, eventHolder);
     }
 
     @Override
-    public synchronized void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
+    public synchronized void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition
+            compiledCondition,
                                     UpdateAttributeMapper[] updateAttributeMappers) {
         ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
 
@@ -243,7 +246,8 @@ public class HazelcastTable implements Table {
 
     @Override
     public synchronized void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                                         CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
+                                         CompiledCondition compiledCondition, UpdateAttributeMapper[]
+                                                     updateAttributeMappers,
                                          AddingStreamEventExtractor addingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(updateOrAddingEventChunk,
                 eventHolder, updateAttributeMappers, addingStreamEventExtractor);

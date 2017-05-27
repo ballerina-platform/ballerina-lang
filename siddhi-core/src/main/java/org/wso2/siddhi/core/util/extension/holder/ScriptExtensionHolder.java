@@ -23,15 +23,19 @@ import org.wso2.siddhi.core.function.Script;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link Script} Extensions.
+ */
 public class ScriptExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =Script.class;
+    private static Class clazz = Script.class;
 
     protected ScriptExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);
     }
 
     public static ScriptExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap =
+                executionPlanContext.getSiddhiContext().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
             abstractExtensionHolder = new ScriptExtensionHolder(executionPlanContext);

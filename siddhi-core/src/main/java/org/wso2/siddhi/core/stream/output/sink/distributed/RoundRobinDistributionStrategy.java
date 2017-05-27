@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -29,12 +30,21 @@ import java.util.List;
 
 /**
  * Publishing strategy to implement messages in a round robin manner to multiple destinations
- * */
+ */
 
 @Extension(
         name = "roundRobin",
         namespace = "distributionStrategy",
-        description = ""
+        description = "Publishing strategy to implement messages in a round robin manner to multiple destinations.",
+        examples = @Example(
+                syntax = "@sink(type='tcp', @map(type='text'),\n" +
+                        "@distribution(strategy='roundRobin',\n" +
+                        "@destination(topic = 'topic1'),\n" +
+                        "@destination(topic = 'topic2')))\n" +
+                        "define stream BarStream (symbol string, price float, volume long);",
+                description = "In this example BarStream sink will act as round robin strategy to 'topic1' and " +
+                        "'topic2' destinations."
+        )
 )
 public class RoundRobinDistributionStrategy extends DistributionStrategy {
     private int count = 0;
@@ -43,10 +53,11 @@ public class RoundRobinDistributionStrategy extends DistributionStrategy {
 
     /**
      * Initialize the Distribution strategy with the information it will require to make decisions.
-     * @param streamDefinition The stream attached to the sink this DistributionStrategy is used in
-     * @param transportOptionHolder Sink options of the sink which uses this DistributionStrategy
+     *
+     * @param streamDefinition         The stream attached to the sink this DistributionStrategy is used in
+     * @param transportOptionHolder    Sink options of the sink which uses this DistributionStrategy
      * @param destinationOptionHolders The list of options under @destination of the relevant sink.
-     * @param configReader
+     * @param configReader This hold the {@link RoundRobinDistributionStrategy} configuration reader.
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
@@ -66,16 +77,16 @@ public class RoundRobinDistributionStrategy extends DistributionStrategy {
      */
     @Override
     public List<Integer> getDestinationsToPublish(Object payload, DynamicOptions transportOptions) {
-        if (destinationIds.isEmpty()){
+        if (destinationIds.isEmpty()) {
             return DistributionStrategy.EMPTY_RETURN_VALUE;
         }
 
         int currentDestinationCount = destinationIds.size();
-        if (destinationCount != currentDestinationCount){
+        if (destinationCount != currentDestinationCount) {
             destinationCount = currentDestinationCount;
         }
 
-        if (!returnValue.isEmpty()){
+        if (!returnValue.isEmpty()) {
             returnValue.remove(0);
         }
 

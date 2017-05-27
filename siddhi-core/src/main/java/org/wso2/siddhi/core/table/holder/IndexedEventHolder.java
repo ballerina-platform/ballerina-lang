@@ -24,6 +24,9 @@ import org.wso2.siddhi.query.api.expression.condition.Compare;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Interface for an EventHolder which keep events indexed for faster access.
+ */
 public interface IndexedEventHolder extends EventHolder {
 
     boolean isAttributeIndexed(String attribute);

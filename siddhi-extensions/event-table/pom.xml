@@ -18,11 +18,12 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.siddhi</groupId>
         <artifactId>siddhi-extensions</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>4.0.0-M3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -104,13 +105,13 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.siddhi.extension.table.hazelcast.internal.*,
-                            org.wso2.siddhi.extension.table.*;version="${siddhi.version}"
+                            org.wso2.siddhi.extension.table.*;version="${project.version}"
                         </Export-Package>
                         <Import-Package>
                             org.apache.hadoop.util.bloom;version="${hadoop.common.version}",
                             org.osgi.service.component;version="${equinox.osgi.services.imp.pkg.version.range}",
                             com.hazelcast.*;version="${hazelcast.imp.pkg.version.range}",
-                            org.wso2.siddhi.*;version="${siddhi.version}",
+                            org.wso2.siddhi.*;version="${project.version}",
                             org.apache.hadoop.util.hash;version="${hadoop.common.version}",
                             org.apache.log4j;version="${log4j.imp.pkg.version.range}",
                             org.apache.tomcat.jdbc.pool;version="${jdbc-pool.imp.pkg.version.range}",

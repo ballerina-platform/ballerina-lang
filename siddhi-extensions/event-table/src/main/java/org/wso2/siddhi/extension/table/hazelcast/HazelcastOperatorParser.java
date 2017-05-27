@@ -55,16 +55,19 @@ public class HazelcastOperatorParser {
             if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 Compare compare = (Compare) expression;
                 if ((compare.getLeftExpression() instanceof Variable || compare.getLeftExpression() instanceof Constant)
-                        && (compare.getRightExpression() instanceof Variable || compare.getRightExpression() instanceof Constant)) {
+                        && (compare.getRightExpression() instanceof Variable || compare.getRightExpression()
+                        instanceof Constant)) {
 
                     boolean leftSideIndexed = false;
                     boolean rightSideIndexed = false;
 
-                    if (isTableIndexVariable(matchingMetaInfoHolder, compare.getLeftExpression(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexAttribute())) {
+                    if (isTableIndexVariable(matchingMetaInfoHolder, compare.getLeftExpression(), (
+                            (HazelcastPrimaryKeyEventHolder) storeEvents).getIndexAttribute())) {
                         leftSideIndexed = true;
                     }
 
-                    if (isTableIndexVariable(matchingMetaInfoHolder, compare.getRightExpression(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexAttribute())) {
+                    if (isTableIndexVariable(matchingMetaInfoHolder, compare.getRightExpression(), (
+                            (HazelcastPrimaryKeyEventHolder) storeEvents).getIndexAttribute())) {
                         rightSideIndexed = true;
                     }
 
@@ -94,15 +97,19 @@ public class HazelcastOperatorParser {
         }
     }
 
-    private static boolean isTableIndexVariable(MatchingMetaInfoHolder matchingMetaInfoHolder, Expression expression, String indexAttribute) {
+    private static boolean isTableIndexVariable(MatchingMetaInfoHolder matchingMetaInfoHolder, Expression expression,
+                                                String indexAttribute) {
         if (expression instanceof Variable) {
             Variable variable = (Variable) expression;
             if (variable.getStreamId() != null) {
-                MetaStreamEvent tableStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaInfoHolder.getStoreEventIndex());
+                MetaStreamEvent tableStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent
+                        (matchingMetaInfoHolder.getStoreEventIndex());
                 if (tableStreamEvent != null) {
-                    if ((tableStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals(tableStreamEvent.getInputReferenceId())) ||
+                    if ((tableStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals
+                            (tableStreamEvent.getInputReferenceId())) ||
                             (tableStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {
-                        if (Arrays.asList(tableStreamEvent.getLastInputDefinition().getAttributeNameArray()).contains(indexAttribute)) {
+                        if (Arrays.asList(tableStreamEvent.getLastInputDefinition().getAttributeNameArray()).contains
+                                (indexAttribute)) {
                             return true;
                         }
                     }

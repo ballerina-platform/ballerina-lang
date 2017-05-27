@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.query.function;
 
-import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 
 public class InstanceOfFunctionTestCase {
 
-    static final Logger log = Logger.getLogger(InstanceOfFunctionTestCase.class);
+    private static final Logger log = Logger.getLogger(InstanceOfFunctionTestCase.class);
     private int count;
     private boolean eventArrived;
 
@@ -77,10 +77,10 @@ public class InstanceOfFunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{19900813115534l, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{1990, false, 602, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         Thread.sleep(100);
-        junit.framework.Assert.assertEquals(2, count);
+        org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -122,11 +122,11 @@ public class InstanceOfFunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{19900813115534l, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
-        inputHandler.send(new Object[]{19900813115534l, "notAvailable", 602, "temperature", 90.34344, 20.44345, 2.3f,
+        inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, "notAvailable", 602, "temperature", 90.34344, 20.44345, 2.3f,
                 20.44345});
         Thread.sleep(100);
-        junit.framework.Assert.assertEquals(2, count);
+        org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -168,11 +168,11 @@ public class InstanceOfFunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{19900813115534l, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
-        inputHandler.send(new Object[]{19900813115534l, true, 60232434.657, "temperature", 90.34344, 20.44345, 2.3f,
+        inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, true, 60232434.657, "temperature", 90.34344, 20.44345, 2.3f,
                 20.44345});
         Thread.sleep(100);
-        junit.framework.Assert.assertEquals(2, count);
+        org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -214,10 +214,10 @@ public class InstanceOfFunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{19900813115534l, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
-        inputHandler.send(new Object[]{19900813115534l, true, 602, 90.34344, 90.34344, 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, true, 602, 90.34344, 90.34344, 20.44345, 2.3f, 20.44345});
         Thread.sleep(1000);
-        junit.framework.Assert.assertEquals(2, count);
+        org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -259,10 +259,10 @@ public class InstanceOfFunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{19900813115534l, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
-        inputHandler.send(new Object[]{19900813115534l, true, 602, "temperature", "90.3434", 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, true, 602, "temperature", "90.3434", 20.44345, 2.3f, 20.44345});
         Thread.sleep(100);
-        junit.framework.Assert.assertEquals(2, count);
+        org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 
@@ -304,10 +304,10 @@ public class InstanceOfFunctionTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{19900813115534l, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
-        inputHandler.send(new Object[]{19900813115534l, true, 602, "temperature", 90.34344, 20.44345, 2.3, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
+        inputHandler.send(new Object[]{19900813115534L, true, 602, "temperature", 90.34344, 20.44345, 2.3, 20.44345});
         Thread.sleep(100);
-        junit.framework.Assert.assertEquals(2, count);
+        org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
 

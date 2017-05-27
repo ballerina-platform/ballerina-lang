@@ -31,18 +31,23 @@ import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@link org.wso2.siddhi.core.stream.StreamJunction.Receiver} implementation to receive events to be fed into multi
+ * stream processors which consume multiple streams.
+ */
 public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
 
     protected Processor[] nextProcessors;
+    protected int processCount;
+    protected int[] eventSequence;
+    protected String queryName;
     private MetaStreamEvent[] metaStreamEvents;
     private StreamEventPool[] streamEventPools;
     private StreamEventConverter[] streamEventConverters;
-    protected int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
-    protected int[] eventSequence;
-    protected String queryName;
 
-    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String queryName) {
+    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String
+            queryName) {
         super(streamId, latencyTracker, queryName);
         this.processCount = processCount;
         this.queryName = queryName;
@@ -167,7 +172,8 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {
-        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(streamEvent, streamEvent, batchProcessingAllowed);
+        ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(
+                streamEvent, streamEvent, batchProcessingAllowed);
         nextProcessors[processIndex].process(currentStreamEventChunk);
     }
 

@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+/**
+ * Executor class for And condition. Condition evaluation logic is implemented within executor.
+ */
 public class AndConditionExpressionExecutor extends ConditionExpressionExecutor {
 
     protected ExpressionExecutor leftConditionExecutor;
@@ -37,15 +40,24 @@ public class AndConditionExpressionExecutor extends ConditionExpressionExecutor 
             this.rightConditionExecutor = rightConditionExecutor;
         } else {
             if (!leftConditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {
-                throw new OperationNotSupportedException("Return type of condition executor " + leftConditionExecutor.toString() + " should be of type BOOL. " +
-                        "Actual Type: " + leftConditionExecutor.getReturnType().toString());
+                throw new OperationNotSupportedException("Return type of condition executor " +
+                                                                 leftConditionExecutor.toString() +
+                                                                 " should be of type BOOL. Actual Type: " +
+                                                                 leftConditionExecutor.getReturnType().toString());
             } else if (!rightConditionExecutor.getReturnType().equals(Attribute.Type.BOOL)) {
-                throw new OperationNotSupportedException("Return type of condition executor " + rightConditionExecutor.toString() + " should be of type BOOL. " +
-                        "Actual Type: " + rightConditionExecutor.getReturnType().toString());
+                throw new OperationNotSupportedException("Return type of condition executor " +
+                                                                 rightConditionExecutor.toString() + " should be of "
+                                                                 + "type BOOL. Actual Type: " +
+                                                                 rightConditionExecutor.getReturnType().toString());
             } else {
-                throw new OperationNotSupportedException("Return type of condition executor " + leftConditionExecutor.toString() +
-                        " and condition executor" + rightConditionExecutor.toString() + "should be of type BOOL. Left executor: " +
-                        leftConditionExecutor.getReturnType().toString() + " Right executor: " + rightConditionExecutor.getReturnType().toString());
+                throw new OperationNotSupportedException("Return type of condition executor " +
+                                                                 leftConditionExecutor.toString() +
+                                                                 " and condition executor" +
+                                                                 rightConditionExecutor.toString() +
+                                                                 "should be of type BOOL. Left executor: " +
+                                                                 leftConditionExecutor.getReturnType().toString() +
+                                                                 " Right executor: " +
+                                                                 rightConditionExecutor.getReturnType().toString());
             }
         }
 
@@ -65,7 +77,8 @@ public class AndConditionExpressionExecutor extends ConditionExpressionExecutor 
 
     @Override
     public ExpressionExecutor cloneExecutor(String key) {
-        return new AndConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(key), rightConditionExecutor.cloneExecutor(key));
+        return new AndConditionExpressionExecutor(leftConditionExecutor.cloneExecutor(key), rightConditionExecutor
+                .cloneExecutor(key));
     }
 
 }

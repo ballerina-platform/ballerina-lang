@@ -154,7 +154,8 @@ public class TextSinkMapperWithSiddhiQLTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
-                "@sink(type='inMemory', topic='{{symbol}}', @map(type='text', @payload(\"Stock price of {{symbol}} is {{price}}\"))) " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='text', @payload(\"Stock price of {{symbol}} is" +
+                " {{price}}\"))) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
@@ -177,9 +178,12 @@ public class TextSinkMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert custom text
-        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 55.6", onMessageList.get(0).toString());
-        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of IBM is 75.6", onMessageList.get(1).toString());
-        Assert.assertEquals("Mismatch of custom text with the event consumed!","Stock price of WSO2 is 57.6", onMessageList.get(2).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!", "Stock price of WSO2 is 55.6",
+                onMessageList.get(0).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!", "Stock price of IBM is 75.6",
+                onMessageList.get(1).toString());
+        Assert.assertEquals("Mismatch of custom text with the event consumed!", "Stock price of WSO2 is 57.6",
+                onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -198,7 +202,8 @@ public class TextSinkMapperWithSiddhiQLTestCase {
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
-                "@sink(type='inMemory', topic='{{symbol}}', @map(type='text', @payload(\"Stock price of {{non-exist}} is {{price}}\"))) " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='text', @payload(\"Stock price of {{non-exist}}" +
+                " is {{price}}\"))) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
 
         String query = "" +
