@@ -78,6 +78,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -102,7 +103,6 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BTypes;
-
 import java.util.Stack;
 
 
@@ -581,6 +581,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(TypeConversionExpr typeConversionExpression){
+
+    }
+
+    @Override
     public void visit(NullLiteral nullLiteral) {
 
     }
@@ -766,5 +771,4 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
 
     }
-    
 }
