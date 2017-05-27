@@ -41,6 +41,7 @@ import org.wso2.siddhi.core.util.parser.AggregationRuntime;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -63,6 +64,8 @@ public class ExecutionPlanRuntimeBuilder {
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap =
             new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
     private ConcurrentMap<String, AbstractDefinition> windowDefinitionMap =
+            new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
+    private ConcurrentMap<String, AbstractDefinition> aggregationDefinitionConcurrentMap =
             new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
     private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap =
             new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
@@ -93,7 +96,7 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void defineStream(StreamDefinition streamDefinition) {
         DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap);
+                windowDefinitionMap, aggregationDefinitionConcurrentMap);
         AbstractDefinition currentDefinition = streamDefinitionMap
                 .putIfAbsent(streamDefinition.getId(), streamDefinition);
         if (currentDefinition != null) {
@@ -106,7 +109,7 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void defineTable(TableDefinition tableDefinition) {
         DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap);
+                windowDefinitionMap, aggregationDefinitionConcurrentMap);
         AbstractDefinition currentDefinition = tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
         if (currentDefinition != null) {
             tableDefinition = (TableDefinition) currentDefinition;
@@ -116,7 +119,7 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void defineWindow(WindowDefinition windowDefinition) {
         DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap);
+                windowDefinitionMap, aggregationDefinitionConcurrentMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
         AbstractDefinition currentDefinition = windowDefinitionMap
                 .putIfAbsent(windowDefinition.getId(), windowDefinition);

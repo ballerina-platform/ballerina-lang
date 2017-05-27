@@ -23,6 +23,7 @@ import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -61,6 +62,7 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
@@ -1138,6 +1140,24 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 .getParameters());
     }
 
+    @Override
+    public BasicSelector visitGroup_by_query_selection(@NotNull SiddhiQLParser.Group_by_query_selectionContext ctx) {
+
+        BasicSelector selector = new BasicSelector();
+
+        List<OutputAttribute> attributeList = new ArrayList<OutputAttribute>(ctx.output_attribute().size());
+        for (SiddhiQLParser.Output_attributeContext output_attributeContext : ctx.output_attribute()) {
+            attributeList.add((OutputAttribute) visit(output_attributeContext));
+        }
+        selector.addSelectionList(attributeList);
+
+        if (ctx.group_by() != null) {
+            selector.addGroupByList((List<Variable>) visit(ctx.group_by()));
+        }
+
+        return selector;
+    }
+
     /**
      * {@inheritDoc}
      * <p>The default implementation returns the result of calling
@@ -1154,14 +1174,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         Selector selector = new Selector();
 
-        List<OutputAttribute> attributeList = new ArrayList<OutputAttribute>(ctx.output_attribute().size());
-        for (SiddhiQLParser.Output_attributeContext output_attributeContext : ctx.output_attribute()) {
+        List<OutputAttribute> attributeList = new ArrayList<OutputAttribute>(ctx.group_by_query_selection().output_attribute().size());
+        for (SiddhiQLParser.Output_attributeContext output_attributeContext : ctx.group_by_query_selection().output_attribute()) {
             attributeList.add((OutputAttribute) visit(output_attributeContext));
         }
         selector.addSelectionList(attributeList);
 
-        if (ctx.group_by() != null) {
-            selector.addGroupByList((List<Variable>) visit(ctx.group_by()));
+        if (ctx.group_by_query_selection().group_by() != null) {
+            selector.addGroupByList((List<Variable>) visit(ctx.group_by_query_selection().group_by()));
         }
         if (ctx.having() != null) {
             selector.having((Expression) visit(ctx.having()));

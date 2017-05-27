@@ -51,6 +51,10 @@ public class Selector {
         return this;
     }
 
+    public static BasicSelector basicSelector() {
+        return new BasicSelector();
+    }
+
     private void checkSelection(OutputAttribute newAttribute) {
         for (OutputAttribute attribute : selectionList) {
             if (attribute.getRename().equals(newAttribute.getRename())) {

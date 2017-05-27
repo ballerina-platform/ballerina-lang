@@ -209,7 +209,7 @@ public class IncrementalExecutor implements Executor{
             baseValuesPerGroupBy.put(basicExecutor.getExecutorName(), basicExecutor.getExecutor().execute(complexEvent));
         }
         storeAggregatorFunctions.put(groupByOutput, baseValuesPerGroupBy);
-        if (this.duration== TimePeriod.Duration.MINUTES){
+        if (this.duration== TimePeriod.Duration.SECONDS){
             System.out.println(complexEvent);
             System.out.println(storeAggregatorFunctions);
 
