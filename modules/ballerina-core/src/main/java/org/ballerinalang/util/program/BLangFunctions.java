@@ -52,6 +52,8 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.Arrays;
+
 /**
  * This class contains helper methods to invoke Ballerina functions.
  *
@@ -247,10 +249,8 @@ public class BLangFunctions {
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        for (int i = 0; i < stringLocalVars.length; i++) {
-            stringLocalVars[i] = "";
-        }
-
+        Arrays.fill(stringLocalVars, "");
+        
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 

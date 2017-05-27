@@ -22,6 +22,8 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 
+import java.util.Arrays;
+
 /**
  * @since 0.87
  */
@@ -64,9 +66,7 @@ public class StackFrame {
 
         this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
-        for (int i = 0; i < stringLocalVars.length; i++) {
-            this.stringLocalVars[i] = "";
-        }
+        Arrays.fill(stringLocalVars, "");
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];

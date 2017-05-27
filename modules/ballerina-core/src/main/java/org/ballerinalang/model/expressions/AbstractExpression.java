@@ -40,7 +40,7 @@ public abstract class AbstractExpression implements Expression {
     protected int offset;
 
     // Non-Blocking Implementation related fields.
-    private int tempOffset;
+    protected int tempOffset;
     private boolean isTempOffsetSet = false;
 
     public AbstractExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {

@@ -19,6 +19,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.types.BType;
 
+import java.util.Arrays;
+
 /**
  * The {@code BStruct} represents the value of a user defined struct in Ballerina.
  *
@@ -108,6 +110,7 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
         longFields = new long[fieldIndexes[0]];
         doubleFields = new double[fieldIndexes[1]];
         stringFields = new String[fieldIndexes[2]];
+        Arrays.fill(stringFields, "");
         intFields = new int[fieldIndexes[3]];
         refFields = new BRefType[fieldIndexes[4]];
     }

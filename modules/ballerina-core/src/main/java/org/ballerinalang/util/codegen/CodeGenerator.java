@@ -347,7 +347,7 @@ public class CodeGenerator implements NodeVisitor {
             connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
             resetIndexes(fieldIndexes);
 
-            // Create a the init function info
+            // Create the init function info
             createFunctionInfoEntries(new Function[]{connectorDef.getInitFunction()});
 
             // Create function info entries for all actions
@@ -1107,12 +1107,12 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connectorInitExpr.getType();
-        int pkgCPEntryIndex = addPackageCPEntry(connectorDef.getPackagePath());
+        int pkgCPIndex = addPackageCPEntry(connectorDef.getPackagePath());
 
         UTF8CPEntry nameUTF8CPEntry = new UTF8CPEntry(connectorDef.getName());
         int nameIndex = currentPkgInfo.getCPEntryIndex(nameUTF8CPEntry);
 
-        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPEntryIndex, nameIndex);
+        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, nameIndex);
         structureRefCPEntry.setStructureTypeInfo(currentPkgInfo.getConnectorInfo(connectorDef.getName()));
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
@@ -1140,7 +1140,7 @@ public class CodeGenerator implements NodeVisitor {
         UTF8CPEntry nameCPEntry = new UTF8CPEntry(initFunction.getName());
         int initFuncNameIndex = currentPkgInfo.addCPEntry(nameCPEntry);
 
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPEntryIndex, initFuncNameIndex);
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, initFuncNameIndex);
         funcRefCPEntry.setFunctionInfo(currentPkgInfo.getFunctionInfo(initFunction.getName()));
         int initFuncRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
 
@@ -1167,6 +1167,8 @@ public class CodeGenerator implements NodeVisitor {
         emit(InstructionCodes.NEWSTRUCT, structCPEntryIndex, structRegIndex);
         structInitExpr.setTempOffset(structRegIndex);
 
+        List<String> initializedFieldNameList = new ArrayList<>(structDef.getFieldDefStmts().length);
+
         for (Expression expr : structInitExpr.getArgExprs()) {
             KeyValueExpr keyValueExpr = (KeyValueExpr) expr;
             VariableRefExpr varRefExpr = (VariableRefExpr) keyValueExpr.getKeyExpr();
@@ -1177,6 +1179,21 @@ public class CodeGenerator implements NodeVisitor {
 
             int opcode = getOpcode(varRefExpr.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, structRegIndex, fieldIndex, valueExpr.getTempOffset());
+            initializedFieldNameList.add(varRefExpr.getVarName());
+        }
+
+        // Initialize default values in a struct definition
+        for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
+            VariableRefExpr varRefExpr = (VariableRefExpr) fieldDefStmt.getLExpr();
+            if (fieldDefStmt.getRExpr() == null || initializedFieldNameList.contains(varRefExpr.getVarName())) {
+                continue;
+            }
+
+            int fieldIndex = ((StructVarLocation) varRefExpr.getMemoryLocation()).getStructMemAddrOffset();
+            fieldDefStmt.getRExpr().accept(this);
+
+            int opcode = getOpcode(varRefExpr.getType().getTag(), InstructionCodes.IFIELDSTORE);
+            emit(opcode, structRegIndex, fieldIndex, fieldDefStmt.getRExpr().getTempOffset());
         }
     }
 
@@ -1270,12 +1287,13 @@ public class CodeGenerator implements NodeVisitor {
 
         // This is an array access expression
         for (int i = indexExprs.length - 1; i >= 0; i--) {
+            // Here we assume that the array reference is stored in the current reference register;
+            int arrayRegIndex = regIndexes[REF_OFFSET];
+
             Expression indexExpr = indexExprs[i];
             indexExpr.accept(this);
 
             if (i == 0) {
-                // Here we assume that the array reference is stored in the current reference register;
-                int arrayRegIndex = regIndexes[REF_OFFSET];
                 if (arrayMapAssignment) {
                     int opcode = getOpcode(arrayMapAccessExpr.getType().getTag(), InstructionCodes.IASTORE);
                     emit(opcode, arrayRegIndex, indexExpr.getTempOffset(), rhsExprRegIndex);
@@ -1287,7 +1305,7 @@ public class CodeGenerator implements NodeVisitor {
                 }
             } else {
                 // reg, index, reg
-                emit(InstructionCodes.RALOAD, regIndexes[REF_OFFSET],
+                emit(InstructionCodes.RALOAD, arrayRegIndex,
                         indexExpr.getTempOffset(), ++regIndexes[REF_OFFSET]);
             }
         }
@@ -1347,6 +1365,7 @@ public class CodeGenerator implements NodeVisitor {
             // Since we are processing a connector field here, the connector reference must be stored in the current
             //  reference register index.
             int connectorRegIndex = ++regIndexes[REF_OFFSET];
+
             // The connector is always the first parameter of the action
             emit(InstructionCodes.RLOAD, 0, connectorRegIndex);
 
