@@ -21,6 +21,52 @@ service echo4 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:GET{}
+    @http:Path {value:"/echo2/{abc}+{xyz}"}
+    resource echo2 (message m, @http:PathParam {value:"abc"} string abc, @http:PathParam {value:"xyz"} string xyz) {
+        message response = {};
+        json responseJson = {"first":xyz, "second":abc};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"/echo2/{abc}"}
+    resource echo3 (message m, @http:PathParam {value:"abc"} string abc) {
+        message response = {};
+        json responseJson = {"echo3":abc};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"/echo2/{abc}+{xyz}/bar"}
+    resource echo4 (message m, @http:PathParam {value:"abc"} string abc, @http:PathParam {value:"xyz"} string xyz) {
+        message response = {};
+        json responseJson = {"first":abc, "second":xyz, "echo4": "echo4"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"/echo2/{abc}+{xyz}/{bar}"}
+    resource echo4 (message m, @http:PathParam {value:"abc"} string abc,
+                    @http:PathParam {value:"xyz"} string xyz, @http:PathParam {value:"bar"} string bar) {
+        message response = {};
+        json responseJson = {"first":abc, "second":xyz, "echo4": bar};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:GET{}
+    @http:Path {value:"/echo2/*"}
+    resource echo5 (message m) {
+        message response = {};
+        json responseJson = {"echo5":"any"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }
 
 @http:BasePath {value:"/hello/world"}
