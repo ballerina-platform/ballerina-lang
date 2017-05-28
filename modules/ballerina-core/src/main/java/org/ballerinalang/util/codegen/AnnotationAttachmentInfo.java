@@ -45,4 +45,16 @@ public class AnnotationAttachmentInfo {
     public void addAnnotationAttribute(String name, AnnotationAttributeValue attributeValue) {
         attributeValueMap.put(name, attributeValue);
     }
+
+    public AnnotationAttributeValue getAnnotationAttributeValue(String name) {
+        return attributeValueMap.get(name);
+    }
+
+    public String getPkgPath() {
+        return pkgPath;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

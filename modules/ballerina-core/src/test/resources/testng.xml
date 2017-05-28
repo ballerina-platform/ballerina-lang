@@ -52,14 +52,6 @@ under the License.
     </test>
 
 
-    <test name="ballerina-service-test">
-        <classes>
-            <class name="org.ballerinalang.service.ServiceVariableTest"/>
-            <class name="org.ballerinalang.service.JMSServiceTest" />
-            <class name="org.ballerinalang.service.FileServiceTest" />
-        </classes>
-    </test>
-
     <!-- Debugger TestCases TODO: Enable this. -->
 
     <!--<test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">-->

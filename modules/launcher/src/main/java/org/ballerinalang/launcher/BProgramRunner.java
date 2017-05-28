@@ -22,6 +22,7 @@ import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
@@ -56,10 +57,10 @@ class BProgramRunner {
 
         for (Path servicePath : serviceFilePaths) {
             // TODO Handle errors
-            BLangProgram bLangProgram = new BLangProgramLoader().loadService(programDirPath, servicePath);
+            ProgramFile programFile = new BLangProgramLoader().loadServiceProgramFile(programDirPath, servicePath);
 
             outStream.println("ballerina: deploying service(s) in '" + servicePath + "'");
-            new BLangProgramRunner().startServices(bLangProgram);
+            new BLangProgramRunner().startServices(programFile);
         }
 
         try {

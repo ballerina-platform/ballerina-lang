@@ -48,6 +48,9 @@ public class PackageInfo {
     // Package level variable count
     protected int[] plvCount;
 
+    // cache values.
+    ProgramFile programFile;
+
     public PackageInfo(String packageName) {
         this.pkgPath = packageName;
     }
@@ -95,11 +98,16 @@ public class PackageInfo {
         connectorInfoMap.put(connectorName, connectorInfo);
     }
 
+    public ServiceInfo[] getServiceInfoList() {
+        return serviceInfoMap.values().toArray(new ServiceInfo[0]);
+    }
+
     public ServiceInfo getServiceInfo(String serviceName) {
         return serviceInfoMap.get(serviceName);
     }
 
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
+        serviceInfo.setPackageInfo(this);
         serviceInfoMap.put(serviceName, serviceInfo);
     }
 
@@ -110,5 +118,13 @@ public class PackageInfo {
 
     public List<Instruction> getInstructionList() {
         return instructionList;
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
+    }
+
+    public void setProgramFile(ProgramFile programFile) {
+        this.programFile = programFile;
     }
 }

@@ -51,6 +51,7 @@ public class BLangProgramLoader {
     private PackageRepository packageRepository;
     private BLangDiagnosticListener diagnosticListener;
 
+    @Deprecated
     public BLangProgram loadMain(Path programDirPath, Path sourcePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
 
@@ -81,6 +82,7 @@ public class BLangProgramLoader {
         return bLangProgram;
     }
 
+    @Deprecated
     public BLangProgram loadService(Path programDirPath, Path servicePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
 
@@ -110,6 +112,68 @@ public class BLangProgramLoader {
         return bLangProgram;
     }
 
+    public ProgramFile loadMainProgramFile(Path programDirPath, Path sourcePath) {
+        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
+
+        // Get the global scope
+        GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] builtinPkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
+
+        // Creates program scope for this Ballerina program
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.MAIN_PROGRAM);
+        bLangProgram.setProgramFilePath(sourcePath);
+
+        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath,
+                bLangProgram, builtinPkgRepositories);
+        BLangPackage mainPackage = bLangPackages[0];
+        bLangProgram.setMainPackage(mainPackage);
+        bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
+
+        // Analyze the semantic properties of the Ballerina program
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+        bLangProgram.accept(semanticAnalyzer);
+
+        CodeGenerator codeGenerator = new CodeGenerator();
+        bLangProgram.accept(codeGenerator);
+
+        ProgramFile programFile = codeGenerator.getProgramFile();
+        programFile.setProgramFilePath(bLangProgram.getProgramFilePath());
+        return programFile;
+    }
+
+    public ProgramFile loadServiceProgramFile(Path programDirPath, Path servicePath) {
+        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
+
+        // Get the global scope
+        GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+        NativeScope nativeScope = BLangPrograms.populateNativeScope();
+
+        BuiltinPackageRepository[] builtinPkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
+
+        // Creates program scope for this Ballerina program
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.SERVICE_PROGRAM);
+        bLangProgram.setProgramFilePath(servicePath);
+
+        BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath,
+                bLangProgram, builtinPkgRepositories);
+        for (BLangPackage servicePkg : servicePackages) {
+            bLangProgram.addServicePackage(servicePkg);
+            bLangProgram.define(new SymbolName(servicePkg.getPackagePath()), servicePkg);
+        }
+
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+        bLangProgram.accept(semanticAnalyzer);
+
+        CodeGenerator codeGenerator = new CodeGenerator();
+        bLangProgram.accept(codeGenerator);
+
+        ProgramFile programFile = codeGenerator.getProgramFile();
+        programFile.setProgramFilePath(bLangProgram.getProgramFilePath());
+        return programFile;
+    }
+
     public ProgramFile loadProgramFile(Path programDirPath, Path sourcePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
 
@@ -137,9 +201,12 @@ public class BLangProgramLoader {
         CodeGenerator codeGenerator = new CodeGenerator();
         bLangProgram.accept(codeGenerator);
 
-        return codeGenerator.getProgramFile();
+        ProgramFile programFile = codeGenerator.getProgramFile();
+        programFile.setProgramFilePath(bLangProgram.getProgramFilePath());
+        return programFile;
     }
 
+    @Deprecated
     public BLangProgram loadLibrary(Path programDirPath, Path sourcePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
 

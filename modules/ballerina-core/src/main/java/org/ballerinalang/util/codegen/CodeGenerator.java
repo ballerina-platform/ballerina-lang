@@ -199,11 +199,12 @@ public class CodeGenerator implements NodeVisitor {
 
         if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
             mainPkg.accept(this);
-
+            programFile.setMainPackageName(mainPkg.getName());
         } else if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
             BLangPackage[] servicePackages = bLangProgram.getServicePackages();
             for (BLangPackage servicePkg : servicePackages) {
                 servicePkg.accept(this);
+                programFile.addServicePackage(servicePkg.getName());
             }
         } else {
             BLangPackage[] libraryPackages = bLangProgram.getLibraryPackages();
@@ -231,6 +232,7 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgPath = bLangPackage.getPackagePath();
         UTF8CPEntry pkgPathCPEntry = new UTF8CPEntry(currentPkgPath);
         currentPkgInfo = new PackageInfo(currentPkgPath);
+        currentPkgInfo.setProgramFile(programFile);
         programFile.addPackageInfo(currentPkgPath, currentPkgInfo);
 
         // Insert the package reference to the constant pool of the Ballerina program
@@ -289,6 +291,7 @@ public class CodeGenerator implements NodeVisitor {
             int serviceNameCPIndex = currentPkgInfo.addCPEntry(serviceNameCPEntry);
 
             ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex);
+            serviceInfo.setServiceName(service.getName());
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             // Assign field indexes for Connector variables

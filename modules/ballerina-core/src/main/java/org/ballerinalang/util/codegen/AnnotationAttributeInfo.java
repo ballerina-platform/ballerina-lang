@@ -32,4 +32,8 @@ public class AnnotationAttributeInfo implements AttributeInfo {
     public void addAnnotationAttachmentInfo(AnnotationAttachmentInfo attachmentInfo) {
         attachmentList.add(attachmentInfo);
     }
+
+    public List<AnnotationAttachmentInfo> getAnnotationAttachmentInfo() {
+        return attachmentList;
+    }
 }
