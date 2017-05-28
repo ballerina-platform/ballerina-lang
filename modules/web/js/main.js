@@ -142,6 +142,9 @@ class Application {
     }
 
     render() {
+        // lets initialize the ballerina environment before we render UI.
+        BallerinaEnvironment.initialize({app: this});  
+
         log.debug("start: rendering menu_bar control");
         this.menuBar.render();
         log.debug("end: rendering menu_bar control");
@@ -169,7 +172,6 @@ class Application {
         if(this.isElectronMode()) {
             this.menuBar.setVisible(false);
         }
-        BallerinaEnvironment.initialize({app: this});
     }
 
     displayInitialView() {
