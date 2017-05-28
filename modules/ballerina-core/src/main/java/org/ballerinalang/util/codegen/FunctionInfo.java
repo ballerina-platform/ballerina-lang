@@ -40,6 +40,14 @@ public class FunctionInfo extends CallableUnitInfo {
         attributeInfoMap.put(AttributeInfo.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
+    public AbstractNativeFunction getNativeFunction() {
+        return nativeFunction;
+    }
+
+    public void setNativeFunction(AbstractNativeFunction nativeFunction) {
+        this.nativeFunction = nativeFunction;
+    }
+    
     @Override
     public int hashCode() {
         return Objects.hash(pkgCPIndex, nameCPIndex);
@@ -49,13 +57,5 @@ public class FunctionInfo extends CallableUnitInfo {
     public boolean equals(Object obj) {
         return obj instanceof FunctionInfo && pkgCPIndex == (((FunctionInfo) obj).pkgCPIndex)
                 && nameCPIndex == (((FunctionInfo) obj).nameCPIndex);
-    }
-
-    public AbstractNativeFunction getNativeFunction() {
-        return nativeFunction;
-    }
-
-    public void setNativeFunction(AbstractNativeFunction nativeFunction) {
-        this.nativeFunction = nativeFunction;
     }
 }

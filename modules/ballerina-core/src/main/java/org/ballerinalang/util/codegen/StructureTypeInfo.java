@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BType;
+
 /**
  * @since 0.87
  */
@@ -27,6 +29,9 @@ public class StructureTypeInfo {
     protected int nameCPIndex;
 
     protected int[] fieldCount;
+
+    // TODO Remove. Temporary field
+    protected BType[] fieldTypes;
 
     public StructureTypeInfo(int pkgPathCPIndex, int nameCPIndex) {
         this.pkgPathCPIndex = pkgPathCPIndex;
@@ -39,5 +44,13 @@ public class StructureTypeInfo {
 
     public void setFieldCount(int[] fieldCount) {
         this.fieldCount = fieldCount;
+    }
+
+    public BType[] getFieldTypes() {
+        return fieldTypes;
+    }
+
+    public void setFieldTypes(BType[] fieldTypes) {
+        this.fieldTypes = fieldTypes;
     }
 }

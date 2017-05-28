@@ -38,6 +38,9 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
     private int[] intFields;
     private BRefType[] refFields;
 
+    // TODO Remove this when old executor is removed
+    private BType[] fieldTypes;
+
     /**
      * Creates a struct with a single memory block.
      */
@@ -74,6 +77,26 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
      */
     public void setValue(int offset, BValue bValue) {
         this.structMemBlock[offset] = bValue;
+    }
+
+    @Override
+    public BType[] getFieldTypes() {
+        return fieldTypes;
+    }
+
+    @Override
+    public void setFieldTypes(BType[] fieldTypes) {
+        this.fieldTypes = fieldTypes;
+    }
+
+    @Override
+    public BValue[] getMemoryBlock() {
+        return structMemBlock;
+    }
+
+    @Override
+    public void setMemoryBlock(BValue[] memoryBlock) {
+        this.structMemBlock = memoryBlock;
     }
 
     /**

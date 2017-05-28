@@ -38,6 +38,9 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     private int[] intFields;
     private BRefType[] refFields;
 
+    // TODO Remove this when old executor is removed
+    private BType[] fieldTypes;
+
     public BConnector() {
         this(null, new BValue[0]);
     }
@@ -53,6 +56,24 @@ public final class BConnector implements BRefType<Connector>, StructureType {
 
     public void setValue(int offset, BValue bValue) {
         this.connectorMemBlock[offset] = bValue;
+    }
+
+    public BType[] getFieldTypes() {
+        return fieldTypes;
+    }
+
+    public void setFieldTypes(BType[] fieldTypes) {
+        this.fieldTypes = fieldTypes;
+    }
+
+    @Override
+    public BValue[] getMemoryBlock() {
+        return connectorMemBlock;
+    }
+
+    @Override
+    public void setMemoryBlock(BValue[] connectorMemBlock) {
+        this.connectorMemBlock = connectorMemBlock;
     }
 
     @Override

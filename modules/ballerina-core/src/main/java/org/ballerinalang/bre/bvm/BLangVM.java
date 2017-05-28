@@ -42,6 +42,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -133,6 +134,8 @@ public class BLangVM {
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
         FunctionInfo functionInfo;
+        ActionRefCPEntry actionRefCPEntry;
+        ActionInfo actionInfo;
         StringCPEntry stringCPEntry;
 
         // TODO use HALT Instruction in the while condition
@@ -635,14 +638,21 @@ public class BLangVM {
                     break;
                 case InstructionCodes.ACALL:
                     cpIndex = operands[0];
-                    ActionRefCPEntry actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    ActionInfo actionInfo = actionRefCPEntry.getActionInfo();
+                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
+                    actionInfo = actionRefCPEntry.getActionInfo();
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
+                    cpIndex = operands[0];
+                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
+                    actionInfo = actionRefCPEntry.getActionInfo();
+
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeNativeAction(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.RET:
                     cpIndex = operands[0];
@@ -912,6 +922,7 @@ public class BLangVM {
                     structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
                     fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
                     BStruct bStruct = new BStruct();
+                    bStruct.setFieldTypes(structureRefCPEntry.getStructureTypeInfo().getFieldTypes());
                     bStruct.init(fieldCount);
                     sf.refRegs[i] = bStruct;
                     break;
@@ -921,6 +932,7 @@ public class BLangVM {
                     structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
                     fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
                     BConnector bConnector = new BConnector();
+                    bConnector.setFieldTypes(structureRefCPEntry.getStructureTypeInfo().getFieldTypes());
                     bConnector.init(fieldCount);
                     sf.refRegs[i] = bConnector;
                     break;
@@ -1053,6 +1065,9 @@ public class BLangVM {
         BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
                 functionInfo.getParamTypes());
 
+        // TODO Remove
+        prepareStructureTypeForNativeAction(nativeArgValues);
+
         BType[] retTypes = functionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
         StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
@@ -1065,10 +1080,33 @@ public class BLangVM {
         // Copy return values to the callers stack
         controlStack.popFrame();
         handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
+        // TODO Remove
+        prepareStructureTypeFromNativeAction(nativeArgValues);
     }
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+        StackFrame callerSF = controlStack.currentFrame;
+        BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
+                actionInfo.getParamTypes());
 
+        // TODO Remove
+        prepareStructureTypeForNativeAction(nativeArgValues);
+
+        BType[] retTypes = actionInfo.getRetParamTypes();
+        BValue[] returnValues = new BValue[retTypes.length];
+        StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
+        controlStack.pushFrame(caleeSF);
+
+        AbstractNativeAction nativeAction = actionInfo.getNativeAction();
+        nativeAction.execute(context);
+
+        // Copy return values to the callers stack
+        controlStack.popFrame();
+        handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
+        // TODO Remove 
+        prepareStructureTypeFromNativeAction(nativeArgValues);
     }
 
     private BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
@@ -1116,6 +1154,88 @@ public class BLangVM {
                     break;
                 default:
                     callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
+            }
+        }
+    }
+
+    // TODO Remove this once all the native actions are refactored
+    private void prepareStructureTypeForNativeAction(BValue[] bValues) {
+        for (BValue bValue : bValues) {
+            if (bValue instanceof StructureType) {
+                prepareStructureTypeForNativeAction((StructureType) bValue);
+            }
+        }
+    }
+
+    private void prepareStructureTypeForNativeAction(StructureType structureType) {
+        BType[] fieldTypes = structureType.getFieldTypes();
+        BValue[] memoryBlock = new BValue[fieldTypes.length];
+
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
+
+        for (int i = 0; i < fieldTypes.length; i++) {
+            BType paramType = fieldTypes[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    memoryBlock[i] = new BInteger(structureType.getIntField(++longRegIndex));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    memoryBlock[i] = new BFloat(structureType.getFloatField(++doubleRegIndex));
+                    break;
+                case TypeTags.STRING_TAG:
+                    memoryBlock[i] = new BString(structureType.getStringField(++stringRegIndex));
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    memoryBlock[i] = new BBoolean(structureType.getBooleanField(++booleanRegIndex) == 1);
+                    break;
+                default:
+                    memoryBlock[i] = structureType.getRefField(++refRegIndex);
+            }
+        }
+
+        structureType.setMemoryBlock(memoryBlock);
+    }
+
+    // TODO Remove this once all the native actions are refactored
+    private void prepareStructureTypeFromNativeAction(BValue[] bValues) {
+        for (BValue bValue : bValues) {
+            if (bValue instanceof StructureType) {
+                prepareStructureTypeFromNativeAction((StructureType) bValue);
+            }
+        }
+    }
+
+    private void prepareStructureTypeFromNativeAction(StructureType structureType) {
+        BType[] fieldTypes = structureType.getFieldTypes();
+        BValue[] memoryBlock = structureType.getMemoryBlock();
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
+
+        for (int i = 0; i < fieldTypes.length; i++) {
+            BType paramType = fieldTypes[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    structureType.setIntField(++longRegIndex, ((BInteger) memoryBlock[i]).intValue());
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    structureType.setFloatField(++doubleRegIndex, ((BFloat) memoryBlock[i]).floatValue());
+                    break;
+                case TypeTags.STRING_TAG:
+                    structureType.setStringField(++stringRegIndex, memoryBlock[i].stringValue());
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    structureType.setBooleanField(++booleanRegIndex,
+                            ((BBoolean) memoryBlock[i]).booleanValue() ? 1 : 0);
+                    break;
+                default:
+                    structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
             }
         }
     }

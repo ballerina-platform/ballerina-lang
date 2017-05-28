@@ -25,6 +25,7 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
+import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationDef;
@@ -123,6 +124,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -308,9 +310,13 @@ public class CodeGenerator implements NodeVisitor {
             StructInfo structInfo = new StructInfo(currentPkgCPIndex, structNameCPIndex);
             currentPkgInfo.addStructInfo(structDef.getName(), structInfo);
 
-            for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
+            VariableDefStmt[] fieldDefStmts = structDef.getFieldDefStmts();
+            BType[] structFieldTypes = new BType[fieldDefStmts.length];
+            for (int i = 0; i < fieldDefStmts.length; i++) {
+                VariableDefStmt fieldDefStmt = fieldDefStmts[i];
                 VariableDef fieldDef = fieldDefStmt.getVariableDef();
                 BType fieldType = fieldDef.getType();
+                structFieldTypes[i] = fieldType;
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
                 StructVarLocation structVarLocation = new StructVarLocation(fieldIndex);
@@ -318,6 +324,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             structInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
+            structInfo.setFieldTypes(structFieldTypes);
             resetIndexes(fieldIndexes);
         }
     }
@@ -331,9 +338,15 @@ public class CodeGenerator implements NodeVisitor {
             ConnectorInfo connectorInfo = new ConnectorInfo(currentPkgCPIndex, connectorNameCPIndex);
             currentPkgInfo.addConnectorInfo(connectorDef.getName(), connectorInfo);
 
+            // TODO Temporary solution to get both executors working
+            int fieldTypeCount = 0;
+            BType[] connectorFieldTypes = new BType[connectorDef.getParameterDefs().length +
+                    connectorDef.getVariableDefStmts().length];
+
             // Assign field indexes for Connector parameters
             for (ParameterDef parameterDef : connectorDef.getParameterDefs()) {
                 BType fieldType = parameterDef.getType();
+                connectorFieldTypes[fieldTypeCount++] = fieldType;
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
                 ConnectorVarLocation connectorVarLocation = new ConnectorVarLocation(fieldIndex);
@@ -344,6 +357,7 @@ public class CodeGenerator implements NodeVisitor {
             for (VariableDefStmt varDefStmt : connectorDef.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
                 BType fieldType = varDef.getType();
+                connectorFieldTypes[fieldTypeCount++] = fieldType;
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
                 ConnectorVarLocation connectorVarLocation = new ConnectorVarLocation(fieldIndex);
@@ -351,6 +365,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
+            connectorInfo.setFieldTypes(connectorFieldTypes);
             resetIndexes(fieldIndexes);
 
             // Create the init function info
@@ -358,11 +373,16 @@ public class CodeGenerator implements NodeVisitor {
 
             // Create function info entries for all actions
             createActionInfoEntries(connectorDef.getActions(), connectorInfo);
+
+            // Create the init native action info
+            if (connectorDef.getInitAction() != null) {
+                createActionInfoEntries(new Action[]{connectorDef.getInitAction()}, connectorInfo);
+            }
         }
     }
 
-    private void createActionInfoEntries(BallerinaAction[] actions, ConnectorInfo connectorInfo) {
-        for (BallerinaAction action : actions) {
+    private void createActionInfoEntries(Action[] actions, ConnectorInfo connectorInfo) {
+        for (Action action : actions) {
             // Add action name as an UTFCPEntry to the constant pool
             UTF8CPEntry actionNameCPEntry = new UTF8CPEntry(action.getName());
             int actionNameCPIndex = currentPkgInfo.addCPEntry(actionNameCPEntry);
@@ -371,6 +391,7 @@ public class CodeGenerator implements NodeVisitor {
                     action.getName(), actionNameCPIndex);
             actionInfo.setParamTypes(getParamTypes(action.getParameterDefs()));
             actionInfo.setRetParamTypes(getParamTypes(action.getReturnParameters()));
+            actionInfo.setNative(action.isNative());
             actionInfo.setPackageInfo(currentPkgInfo);
 
             connectorInfo.addActionInfo(action.getName(), actionInfo);
@@ -549,7 +570,9 @@ public class CodeGenerator implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        action.getCallableUnitBody().accept(this);
+        if (!action.isNative()) {
+            action.getCallableUnitBody().accept(this);
+        }
 
         endCallableUnit();
     }
@@ -1023,6 +1046,7 @@ public class CodeGenerator implements NodeVisitor {
         int funcCallIndex = getCallableUnitCallCPIndex(funcIExpr);
 
         if (functionInfo.isNative()) {
+            // TODO Move this to the place where we create function info entry
             functionInfo.setNativeFunction((AbstractNativeFunction) funcIExpr.getCallableUnit());
             emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallIndex);
         } else {
@@ -1053,6 +1077,8 @@ public class CodeGenerator implements NodeVisitor {
         int actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
 
         if (actionInfo.isNative()) {
+            // TODO Move this to the place where we create action info entry
+            actionInfo.setNativeAction((AbstractNativeAction) actionIExpr.getCallableUnit());
             emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
         } else {
             emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
@@ -1164,13 +1190,15 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connectorInitExpr.getType();
+        PackageInfo connectorPkgInfo = programFile.getPackageInfo(connectorDef.getPackagePath());
         int pkgCPIndex = addPackageCPEntry(connectorDef.getPackagePath());
 
         UTF8CPEntry nameUTF8CPEntry = new UTF8CPEntry(connectorDef.getName());
         int nameIndex = currentPkgInfo.getCPEntryIndex(nameUTF8CPEntry);
 
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, nameIndex);
-        structureRefCPEntry.setStructureTypeInfo(currentPkgInfo.getConnectorInfo(connectorDef.getName()));
+        ConnectorInfo connectorInfo = connectorPkgInfo.getConnectorInfo(connectorDef.getName());
+        structureRefCPEntry.setStructureTypeInfo(connectorInfo);
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
         //Emit an instruction to create a new connector.
@@ -1198,13 +1226,32 @@ public class CodeGenerator implements NodeVisitor {
         int initFuncNameIndex = currentPkgInfo.addCPEntry(nameCPEntry);
 
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, initFuncNameIndex);
-        funcRefCPEntry.setFunctionInfo(currentPkgInfo.getFunctionInfo(initFunction.getName()));
+        funcRefCPEntry.setFunctionInfo(connectorPkgInfo.getFunctionInfo(initFunction.getName()));
         int initFuncRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
 
         FunctionCallCPEntry initFuncCallCPEntry = new FunctionCallCPEntry(new int[]{connectorRegIndex}, new int[0]);
         int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
 
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
+
+        // Invoke Connector init native action if any
+        Action action = connectorDef.getInitAction();
+        if (action == null) {
+            return;
+        }
+
+        String actionName = action.getName();
+        UTF8CPEntry actionNameCPEntry = new UTF8CPEntry(actionName);
+        int actionNameCPIndex = currentPkgInfo.addCPEntry(actionNameCPEntry);
+        int connectorRefCPIndex = getConnectorRefCPIndex(connectorDef);
+        ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgCPIndex, connectorRefCPIndex, actionNameCPIndex);
+
+        ActionInfo actionInfo = connectorInfo.getActionInfo(actionName);
+        actionRefCPEntry.setActionInfo(actionInfo);
+        int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
+
+        actionInfo.setNativeAction((AbstractNativeAction) action);
+        emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
     }
 
     @Override
