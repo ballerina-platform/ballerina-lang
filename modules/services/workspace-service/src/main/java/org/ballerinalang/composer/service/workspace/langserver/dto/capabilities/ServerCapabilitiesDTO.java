@@ -16,6 +16,9 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto.capabilities;
 
+/**
+ * DTO for server capabilities
+ */
 public class ServerCapabilitiesDTO {
 
     private boolean hoverProvider;

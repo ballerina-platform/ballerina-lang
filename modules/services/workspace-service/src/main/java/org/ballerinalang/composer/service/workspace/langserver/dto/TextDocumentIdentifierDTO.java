@@ -16,6 +16,9 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
+/**
+ * Text document identifier dto
+ */
 public class TextDocumentIdentifierDTO {
 
     private String documentUri;

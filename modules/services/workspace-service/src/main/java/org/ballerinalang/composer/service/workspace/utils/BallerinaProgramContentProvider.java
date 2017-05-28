@@ -56,6 +56,9 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
+/**
+ * BLang program content provider
+ */
 public class BallerinaProgramContentProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaProgramContentProvider.class);
@@ -68,7 +71,7 @@ public class BallerinaProgramContentProvider {
     }
 
     public static synchronized BallerinaProgramContentProvider getInstance() {
-        if(instance == null){
+        if (instance == null) {
             instance = new BallerinaProgramContentProvider();
         }
         return instance;

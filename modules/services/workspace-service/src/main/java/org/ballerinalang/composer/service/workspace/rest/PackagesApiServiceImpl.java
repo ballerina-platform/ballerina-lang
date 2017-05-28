@@ -18,8 +18,8 @@ package org.ballerinalang.composer.service.workspace.rest;
 
 import org.ballerinalang.composer.service.workspace.api.NotFoundException;
 import org.ballerinalang.composer.service.workspace.api.PackagesApiService;
-import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
+import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

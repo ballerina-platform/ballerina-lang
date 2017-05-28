@@ -66,7 +66,7 @@ public class WorkspaceSymbolProvider {
     private SymbolInformationDTO[] getBuiltinTypes() {
         JsonArray builtinTypes = contentProvider.builtinTypes();
         ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();
-        for(int itr = 0; itr < builtinTypes.size(); itr ++) {
+        for (int itr = 0; itr < builtinTypes.size(); itr++) {
             SymbolInformationDTO symbolInfo = new SymbolInformationDTO();
             symbolInfo.setName(builtinTypes.get(itr).getAsString());
             symbolInfo.setKind(SymbolKind.BUILTIN_TYPE);
@@ -85,7 +85,6 @@ public class WorkspaceSymbolProvider {
         ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();
 
         for (Map.Entry<String, ModelPackage> entry : packages.entrySet()) {
-            System.out.println(entry.getKey() + "/" + entry.getValue());
             SymbolInformationDTO symbolInfo = new SymbolInformationDTO();
             symbolInfo.setName(entry.getKey());
             symbolInfo.setKind(SymbolKind.PACKAGE_DEF);

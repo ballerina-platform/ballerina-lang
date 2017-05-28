@@ -16,7 +16,10 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
-public class ResponseMessageDTO extends MessageDTO{
+/**
+ * Response message dto
+ */
+public class ResponseMessageDTO extends MessageDTO {
 
     private String id;
 

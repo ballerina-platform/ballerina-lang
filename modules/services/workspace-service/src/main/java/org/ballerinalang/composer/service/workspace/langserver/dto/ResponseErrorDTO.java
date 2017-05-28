@@ -16,6 +16,9 @@ package org.ballerinalang.composer.service.workspace.langserver.dto;
  * limitations under the License.
  */
 
+/**
+ * Response error dto
+ */
 public class ResponseErrorDTO {
 
     private int code;

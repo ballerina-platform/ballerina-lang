@@ -16,6 +16,9 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
+/**
+ * DTO for error data
+ */
 public class ErrorDataDTO {
 
     private boolean retry;

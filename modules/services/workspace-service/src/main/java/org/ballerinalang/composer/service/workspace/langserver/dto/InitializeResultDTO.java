@@ -18,6 +18,9 @@ package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 
+/**
+ * DTO for initialize request result params
+ */
 public class InitializeResultDTO {
     private ServerCapabilitiesDTO capabilities;
 

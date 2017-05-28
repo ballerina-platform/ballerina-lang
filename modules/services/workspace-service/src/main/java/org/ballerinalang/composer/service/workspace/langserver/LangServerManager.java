@@ -157,6 +157,7 @@ public class LangServerManager {
                     break;
                 case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
                     this.documentDidSave(message);
+                    break;
                 default:
                     // Valid Method could not be found
                     // Only log a warn since this is a notification
@@ -307,7 +308,7 @@ public class LangServerManager {
                         .remove("/temp/" + textDocumentIdentifier.getDocumentId());
                 textDocumentItem.setText(didSaveTextDocumentParams.getText());
                 this.getOpenDocumentSessions().put(textDocumentIdentifier.getDocumentUri(), textDocumentItem);
-            } else if (this.getOpenDocumentSessions().containsKey(textDocumentIdentifier.getDocumentUri())){
+            } else if (this.getOpenDocumentSessions().containsKey(textDocumentIdentifier.getDocumentUri())) {
                 textDocumentItem = this.getOpenDocumentSessions()
                         .get(textDocumentIdentifier.getDocumentUri());
                 textDocumentItem.setText(didSaveTextDocumentParams.getText());
