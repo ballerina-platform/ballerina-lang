@@ -666,7 +666,7 @@ public class BLangVM {
                         message = (BMessage) sf.refRegs[i];
                     }
                     context.getBalCallback().done(message != null ? message.value() : null);
-                    ip = 0;
+                    ip = -1;
                     break;
                 case InstructionCodes.I2F:
                     i = operands[0];

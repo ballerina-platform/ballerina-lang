@@ -8,7 +8,7 @@ service echo {
 
     @http:GET {}
     @http:Path {value : "/message"}
-    resource echo (message m, @http:QueryParam {value : "msg" } string msg) {
+    resource echo (message m) {
         reply m;
     }
 
@@ -24,7 +24,9 @@ service echo {
     @http:Path {value:"/getString"}
     resource getString (message m) {
         message response = {};
-        messages:setStringPayload(response, serviceLevelStr);
+        // TODO : Fix bellow line
+        // messages:setStringPayload(response, serviceLevelStr);
+        messages:setStringPayload(response, "hello");
         reply response;
     }
 }

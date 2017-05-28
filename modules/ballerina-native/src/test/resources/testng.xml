@@ -50,12 +50,13 @@ under the License.
     </test>
 
     <!-- Service Related Test Cases -->
-    <!-- TODO : Enable this. -->
-    <!--<test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.service"/>
-        </packages>
-    </test>-->
+
+    <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!-- TODO : Add other testcases. -->
+            <class name="org.ballerinalang.service.ServiceTest"/>
+        </classes>
+    </test>
 
     <test name="ballerina-any-type-test-suite">
         <classes>

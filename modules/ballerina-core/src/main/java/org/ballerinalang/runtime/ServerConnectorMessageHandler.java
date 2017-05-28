@@ -19,12 +19,18 @@
 package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.util.codegen.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -35,6 +41,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -110,7 +117,50 @@ public class ServerConnectorMessageHandler {
      */
     public static void invokeResource(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
-        // TODO : Implement me.
+        PackageInfo packageInfo = serviceInfo.getPackageInfo();
+
+        // TODO : This is not supported yet. Fix this.
+        if (resourceInfo.getParamTypes().length > 1) {
+            throw new RuntimeException("Resource with Param not supported yet. ");
+        }
+
+        Context context = new Context();
+        ControlStackNew controlStackNew = context.getControlStackNew();
+        context.setBalCallback(new DefaultBalCallback(carbonCallback));
+
+        // Now create callee's stackframe
+        org.ballerinalang.bre.bvm.StackFrame calleeSF =
+                new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, -1, new int[0]);
+        controlStackNew.pushFrame(calleeSF);
+
+        int longParamCount = 0;
+        int doubleParamCount = 0;
+        int stringParamCount = 0;
+        int intParamCount = 0;
+        int refParamCount = 0;
+
+        CodeAttributeInfo codeAttribInfo = resourceInfo.getCodeAttributeInfo();
+
+        long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
+        double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        // Setting the zero values for strings
+        Arrays.fill(stringLocalVars, "");
+
+        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        refLocalVars[0] = new BMessage(carbonMessage);
+
+        // TODO : handle other resource parameters.
+
+        calleeSF.setLongLocalVars(longLocalVars);
+        calleeSF.setDoubleLocalVars(doubleLocalVars);
+        calleeSF.setStringLocalVars(stringLocalVars);
+        calleeSF.setIntLocalVars(intLocalVars);
+        calleeSF.setRefLocalVars(refLocalVars);
+
+        BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
+        bLangVM.execFunction(packageInfo, context, resourceInfo.getCodeAttributeInfo().getCodeAddrs());
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {

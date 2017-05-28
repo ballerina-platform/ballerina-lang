@@ -29,7 +29,9 @@ import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -86,10 +88,11 @@ public class EnvironmentInitializer {
         }
     }
 
-    public static void cleanup(BLangProgram bLangProgram) {
+    public static void cleanup(ProgramFile programFile) {
 
-        for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
-            for (Service service : bLangPackage.getServices()) {
+        for (String servicePackageName : programFile.getServicePackageNameList()) {
+            PackageInfo packageInfo = programFile.getPackageInfo(servicePackageName);
+            for (ServiceInfo service : packageInfo.getServiceInfoList()) {
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
                     dispatcher.serviceUnregistered(service);
                 });

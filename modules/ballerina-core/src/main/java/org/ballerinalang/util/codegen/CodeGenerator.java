@@ -228,6 +228,7 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgPath = bLangPackage.getPackagePath();
         UTF8CPEntry pkgPathCPEntry = new UTF8CPEntry(currentPkgPath);
         currentPkgInfo = new PackageInfo(currentPkgPath);
+        currentPkgInfo.setProgramFile(programFile);
         programFile.addPackageInfo(currentPkgPath, currentPkgInfo);
 
         // Insert the package reference to the constant pool of the Ballerina program

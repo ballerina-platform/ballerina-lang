@@ -48,6 +48,9 @@ public class PackageInfo {
     // Package level variable count
     protected int[] plvCount;
 
+    // cache values.
+    ProgramFile programFile;
+
     public PackageInfo(String packageName) {
         this.pkgPath = packageName;
     }
@@ -123,5 +126,13 @@ public class PackageInfo {
 
     public int[] getPackageLevelVarCount() {
         return plvCount;
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
+    }
+
+    public void setProgramFile(ProgramFile programFile) {
+        this.programFile = programFile;
     }
 }
