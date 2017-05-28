@@ -126,8 +126,10 @@ public interface InstructionCodes {
 
     int GOTO = 119;
     int CALL = 120;
-    int ACALL = 121;
-    int RET = 125;
+    int NCALL = 121;
+    int ACALL = 122;
+    int NACALL = 123;
+    int RET = 124;
 
     // Type Cast/Conversion related instructions
     int I2F = 130;

@@ -121,6 +121,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -187,6 +188,9 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(BLangProgram bLangProgram) {
+        for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
+            bLangPackage.setSymbolsDefined(false);
+        }
 
         BLangPackage mainPkg = bLangProgram.getMainPackage();
 
@@ -499,7 +503,9 @@ public class CodeGenerator implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        function.getCallableUnitBody().accept(this);
+        if (!function.isNative()) {
+            function.getCallableUnitBody().accept(this);
+        }
 
         endCallableUnit();
     }
@@ -991,21 +997,34 @@ public class CodeGenerator implements NodeVisitor {
         UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(funcName);
         int funcNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
 
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, funcNameCPIndex);
-        funcRefCPEntry.setFunctionInfo(currentPkgInfo.getFunctionInfo(funcName));
-        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        // Find the package info entry of the function and from the package info entry find the function info entry
+        String pkgPath = funcIExpr.getPackagePath();
+        PackageInfo funcPackageInfo = programFile.getPackageInfo(pkgPath);
+        FunctionInfo functionInfo = funcPackageInfo.getFunctionInfo(funcName);
 
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, funcNameCPIndex);
+        funcRefCPEntry.setFunctionInfo(functionInfo);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         int funcCallIndex = getCallableUnitCallCPIndex(funcIExpr);
-        emit(InstructionCodes.CALL, funcRefCPIndex, funcCallIndex);
+
+        if (functionInfo.isNative()) {
+            functionInfo.setNativeFunction((AbstractNativeFunction) funcIExpr.getCallableUnit());
+            emit(InstructionCodes.NCALL, funcRefCPIndex, funcCallIndex);
+        } else {
+            emit(InstructionCodes.CALL, funcRefCPIndex, funcCallIndex);
+        }
     }
 
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
         int pkgCPIndex = addPackageCPEntry(actionIExpr.getPackagePath());
+        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) actionIExpr.getArgExprs()[0].getType();
+
+        String pkgPath = actionIExpr.getPackagePath();
+        PackageInfo actionPackageInfo = programFile.getPackageInfo(pkgPath);
 
         // Get the connector ref CP index
-        BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) actionIExpr.getArgExprs()[0].getType();
-        ConnectorInfo connectorInfo = currentPkgInfo.getConnectorInfo(connectorDef.getName());
+        ConnectorInfo connectorInfo = actionPackageInfo.getConnectorInfo(connectorDef.getName());
         int connectorRefCPIndex = getConnectorRefCPIndex(connectorDef);
 
         String actionName = actionIExpr.getName();
@@ -1013,11 +1032,16 @@ public class CodeGenerator implements NodeVisitor {
         int actionNameCPIndex = currentPkgInfo.addCPEntry(actionNameCPEntry);
 
         ActionRefCPEntry actionRefCPEntry = new ActionRefCPEntry(pkgCPIndex, connectorRefCPIndex, actionNameCPIndex);
-        actionRefCPEntry.setActionInfo(connectorInfo.getActionInfo(actionName));
+        ActionInfo actionInfo = connectorInfo.getActionInfo(actionName);
+        actionRefCPEntry.setActionInfo(actionInfo);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-
         int actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
-        emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
+
+        if (actionInfo.isNative()) {
+            emit(InstructionCodes.NACALL, actionRefCPIndex, actionCallIndex);
+        } else {
+            emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
+        }
     }
 
     @Override

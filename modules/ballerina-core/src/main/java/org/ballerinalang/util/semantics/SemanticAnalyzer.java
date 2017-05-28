@@ -126,7 +126,6 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BNullType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -2640,27 +2639,32 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
 
                 BType rhsType = argExpr.getType();
-                
-                // if the passed value is null, and the function parameter is a reference type,
-                // then its a match
-                if (rhsType instanceof BNullType && !BTypes.isValueType(lhsType)) {
+
+                // Check whether the right-hand type can be assigned to the left-hand type.
+                if (isAssignableTo(lhsType, rhsType)) {
+                    if (lhsType == BTypes.typeAny && BTypes.isValueType(rhsType)) {
+                        TypeCastExpression castExpr = checkWideningPossible(lhsType, argExpr);
+                        if (castExpr != null) {
+                            updatedArgExprs[i] = castExpr;
+                        } else {
+                            BLangExceptionHelper.throwSemanticError(argExpr, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
+                                    rhsType, lhsType);
+                        }
+                    }
+
                     continue;
                 }
-                
-                if (rhsType != null && lhsType.equals(rhsType)) {
-                    continue;
-                }
-                if (lhsType == BTypes.typeAny) { //if left hand side is any, then no need for casting
-                    continue;
-                }
-                TypeCastExpression newExpr = checkWideningPossible(lhsType, argExpr);
-                if (newExpr != null) {
-                    updatedArgExprs[i] = newExpr;
+
+                // Check whether we can apply an implicit cast
+                TypeCastExpression implicitCastExpr = checkWideningPossible(lhsType, argExpr);
+                if (implicitCastExpr != null) {
+                    updatedArgExprs[i] = implicitCastExpr;
                 } else {
                     implicitCastPossible = false;
                     break;
                 }
             }
+
             if (implicitCastPossible) {
                 if (functionSymbol == null) {
                     functionSymbol = (BLangSymbol) entry.getValue();

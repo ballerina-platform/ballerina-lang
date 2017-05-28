@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Function;
@@ -175,7 +176,12 @@ public class BLangFunctions {
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args, Context bContext) {
-        PackageInfo packageInfo = bLangProgram.getPackageInfo(".");
+        return invokeNew(bLangProgram, ".", functionName, args, bContext);
+    }
+
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
+                                     BValue[] args, Context bContext) {
+        PackageInfo packageInfo = bLangProgram.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
 
         if (functionInfo == null) {
@@ -186,14 +192,14 @@ public class BLangFunctions {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
 
-        org.ballerinalang.bre.bvm.StackFrame[] stackFrames =
-                new org.ballerinalang.bre.bvm.StackFrame[BLangVM.DEFAULT_CONTROL_STACK_SIZE];
+        Context context = new Context();
+        ControlStackNew controlStackNew = context.getControlStackNew();
 
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
         // registers to hold function arguments as well as return values from the callee.
         org.ballerinalang.bre.bvm.StackFrame callerSF =
-                new org.ballerinalang.bre.bvm.StackFrame(-1, new int[0]);
-        stackFrames[0] = callerSF;
+                new org.ballerinalang.bre.bvm.StackFrame(packageInfo, -1, new int[0]);
+        controlStackNew.pushFrame(callerSF);
         // TODO Create registers to hold return values
 
         int longRegCount = 0;
@@ -235,7 +241,7 @@ public class BLangFunctions {
         // Now create callee's stackframe
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
                 new org.ballerinalang.bre.bvm.StackFrame(functionInfo, -1, retRegs);
-        stackFrames[1] = calleeSF;
+        controlStackNew.pushFrame(calleeSF);
 
         int longParamCount = 0;
         int doubleParamCount = 0;
@@ -250,7 +256,7 @@ public class BLangFunctions {
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         // Setting the zero values for strings
         Arrays.fill(stringLocalVars, "");
-        
+
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
@@ -287,7 +293,7 @@ public class BLangFunctions {
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
-        bLangVM.execFunction(packageInfo, stackFrames, 1, functionInfo.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.execFunction(packageInfo, context, functionInfo.getCodeAttributeInfo().getCodeAddrs());
 
         longRegCount = 0;
         doubleRegCount = 0;

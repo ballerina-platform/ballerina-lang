@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -48,10 +49,15 @@ public class StackFrame {
     int[] retRegIndexes;
 
     CallableUnitInfo callableUnitInfo;
-
     PackageInfo packageInfo;
 
-    public StackFrame(int retAddrs, int[] retRegIndexes) {
+    // To Support old native function and action invocation
+    // TODO Refactor this when native function and action invocations are improved.
+    public BValue[] argValues;
+    public BValue[] returnValues;
+
+    public StackFrame(PackageInfo packageInfo, int retAddrs, int[] retRegIndexes) {
+        this.packageInfo = packageInfo;
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
     }
@@ -79,6 +85,11 @@ public class StackFrame {
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
+    }
+
+    public StackFrame(BValue[] argValues, BValue[] returnValues) {
+        this.argValues = argValues;
+        this.returnValues = returnValues;
     }
 
     public long[] getLongRegs() {

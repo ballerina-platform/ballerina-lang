@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.runtime.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -32,6 +33,7 @@ public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
     private ControlStack controlStack;
+    private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
@@ -39,17 +41,26 @@ public class Context {
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
 
+    // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
+    private boolean vmBasedExecutor = false;
+
     public Context() {
         this.controlStack = new ControlStack();
+        this.controlStackNew = new ControlStackNew();
     }
 
     public Context(CarbonMessage cMsg) {
         this.cMsg = cMsg;
         this.controlStack = new ControlStack();
+        this.controlStackNew = new ControlStackNew();
     }
 
     public ControlStack getControlStack() {
         return this.controlStack;
+    }
+
+    public ControlStackNew getControlStackNew() {
+        return controlStackNew;
     }
 
     public CarbonMessage getCarbonMessage() {
@@ -102,5 +113,13 @@ public class Context {
 
     public boolean isInTransaction() {
         return this.ballerinaTransactionManager != null;
+    }
+
+    public boolean isVMBasedExecutor() {
+        return vmBasedExecutor;
+    }
+
+    public void setVMBasedExecutor(boolean vmBasedExecutor) {
+        this.vmBasedExecutor = vmBasedExecutor;
     }
 }

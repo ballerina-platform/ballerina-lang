@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.natives.AbstractNativeFunction;
+
 import java.util.Objects;
 
 /**
@@ -25,6 +27,8 @@ import java.util.Objects;
  * @since 0.87
  */
 public class FunctionInfo extends CallableUnitInfo {
+
+    private AbstractNativeFunction nativeFunction;
 
     public FunctionInfo(String pkgPath, int pkgCPIndex, String funcName, int funcNameCPIndex) {
         this.pkgPath = pkgPath;
@@ -45,5 +49,13 @@ public class FunctionInfo extends CallableUnitInfo {
     public boolean equals(Object obj) {
         return obj instanceof FunctionInfo && pkgCPIndex == (((FunctionInfo) obj).pkgCPIndex)
                 && nameCPIndex == (((FunctionInfo) obj).nameCPIndex);
+    }
+
+    public AbstractNativeFunction getNativeFunction() {
+        return nativeFunction;
+    }
+
+    public void setNativeFunction(AbstractNativeFunction nativeFunction) {
+        this.nativeFunction = nativeFunction;
     }
 }

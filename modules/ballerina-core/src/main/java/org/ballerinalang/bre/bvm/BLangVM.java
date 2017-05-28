@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -36,7 +37,9 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -65,9 +68,8 @@ import java.util.StringJoiner;
  * @since 0.87
  */
 public class BLangVM {
-
-    public static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
-
+    private Context context;
+    private ControlStackNew controlStack;
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
 
@@ -75,30 +77,8 @@ public class BLangVM {
     private int ip = 0;
     private Instruction[] code;
 
-    // Stack frame pointer;
-    private int fp = -1;
-
-    private StackFrame[] stackFrames = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
-
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
-    }
-
-    public void execMain() {
-        PackageInfo mainPkgInfo = programFile.getPackageInfo(".");
-        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
-        StackFrame stackFrame = new StackFrame(mainFuncInfo, ip, new int[0]);
-
-        // TODO Improve this
-        this.constPool = mainPkgInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = mainPkgInfo.getInstructionList().toArray(new Instruction[0]);
-        stackFrames[++fp] = stackFrame;
-
-//        traceCode();
-
-        ip = mainFuncInfo.getCodeAttributeInfo().getCodeAddrs();
-
-        exec();
     }
 
     // TODO Remove
@@ -110,22 +90,23 @@ public class BLangVM {
         }
     }
 
-    public void execFunction(PackageInfo packageInfo, StackFrame[] stackFrames, int fp, int ip) {
+    public void execFunction(PackageInfo packageInfo, Context context, int ip) {
         this.constPool = packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
         this.code = packageInfo.getInstructionList().toArray(new Instruction[0]);
-        this.stackFrames = stackFrames;
-        this.fp = fp;
+
+        this.context = context;
+        this.controlStack = context.getControlStackNew();
+        this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
 //        traceCode();
-
         exec();
     }
 
     /**
      * Act as a virtual CPU
      */
-    public void exec() {
+    private void exec() {
         int i;
         int j;
         int k;
@@ -146,16 +127,18 @@ public class BLangVM {
 
         StructureRefCPEntry structureRefCPEntry;
         FunctionCallCPEntry funcCallCPEntry;
+        FunctionRefCPEntry funcRefCPEntry;
+        FunctionInfo functionInfo;
         StringCPEntry stringCPEntry;
 
         // TODO use HALT Instruction in the while condition
-        while (ip >= 0 && ip < code.length && fp >= 0) {
+        while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
             ip++;
-            StackFrame sf = stackFrames[fp];
+            StackFrame sf = controlStack.getCurrentFrame();
 
             switch (opcode) {
                 case InstructionCodes.ICONST:
@@ -630,12 +613,21 @@ public class BLangVM {
                     break;
                 case InstructionCodes.CALL:
                     cpIndex = operands[0];
-                    FunctionRefCPEntry funcCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
-                    FunctionInfo functionInfo = funcCPEntry.getFunctionInfo();
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
+                    functionInfo = funcRefCPEntry.getFunctionInfo();
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    break;
+                case InstructionCodes.NCALL:
+                    cpIndex = operands[0];
+                    funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
+                    functionInfo = funcRefCPEntry.getFunctionInfo();
+
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeNativeFunction(functionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.ACALL:
                     cpIndex = operands[0];
@@ -645,6 +637,8 @@ public class BLangVM {
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(actionInfo, funcCallCPEntry);
+                    break;
+                case InstructionCodes.NACALL:
                     break;
                 case InstructionCodes.RET:
                     cpIndex = operands[0];
@@ -944,10 +938,10 @@ public class BLangVM {
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = stackFrames[fp];
+        StackFrame callerSF = controlStack.getCurrentFrame();
 
         StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
-        stackFrames[++fp] = calleeSF;
+        controlStack.pushFrame(calleeSF);
 
         // Copy arg values from the current StackFrame to the new StackFrame
         copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
@@ -988,10 +982,10 @@ public class BLangVM {
     }
 
     private void handleReturn(int[] regIndexes) {
-        StackFrame currentSF = stackFrames[fp];
-        if (fp != 0) {
+        StackFrame currentSF = controlStack.popFrame();
+        if (controlStack.fp >= 0) {
 
-            StackFrame callersSF = stackFrames[fp - 1];
+            StackFrame callersSF = controlStack.currentFrame;
             BType[] retTypes = currentSF.callableUnitInfo.getRetParamTypes();
 
             for (int i = 0; i < regIndexes.length; i++) {
@@ -1015,11 +1009,13 @@ public class BLangVM {
                         callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[regIndex];
                 }
             }
+
+            // TODO Improve
+            this.constPool = callersSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+            this.code = callersSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
         }
 
         ip = currentSF.retAddrs;
-        stackFrames[fp] = null;
-        fp--;
     }
 
     private String getOperandsLine(int[] operands) {
@@ -1038,6 +1034,78 @@ public class BLangVM {
             sb.append(operands[i]);
         }
         return sb.toString();
+    }
+
+    private void invokeNativeFunction(FunctionInfo functionInfo, FunctionCallCPEntry funcCallCPEntry) {
+        StackFrame callerSF = controlStack.currentFrame;
+        BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
+                functionInfo.getParamTypes());
+
+        BType[] retTypes = functionInfo.getRetParamTypes();
+        BValue[] returnValues = new BValue[retTypes.length];
+        StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
+        controlStack.pushFrame(caleeSF);
+
+        // Invoke Native function;
+        AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
+        nativeFunction.executeNative(context);
+
+        // Copy return values to the callers stack
+        controlStack.popFrame();
+        handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+    }
+
+    private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+
+    }
+
+    private BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
+        BValue[] nativeArgValues = new BValue[paramTypes.length];
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            int argReg = argRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    nativeArgValues[i] = new BInteger(callerSF.longRegs[argReg]);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    nativeArgValues[i] = new BFloat(callerSF.doubleRegs[argReg]);
+                    break;
+                case TypeTags.STRING_TAG:
+                    nativeArgValues[i] = new BString(callerSF.stringRegs[argReg]);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    nativeArgValues[i] = new BBoolean(callerSF.intRegs[argReg] == 1);
+                    break;
+                default:
+                    nativeArgValues[i] = callerSF.refRegs[argReg];
+            }
+        }
+        return nativeArgValues;
+    }
+
+    private void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
+                                                    BValue[] returnValues, BType[] retTypes) {
+        for (int i = 0; i < returnValues.length; i++) {
+            int callersRetRegIndex = returnRegIndexes[i];
+            BType retType = retTypes[i];
+            switch (retType.getTag()) {
+                case TypeTags.INT_TAG:
+                    callerSF.longRegs[callersRetRegIndex] = ((BInteger) returnValues[i]).intValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    callerSF.doubleRegs[callersRetRegIndex] = ((BFloat) returnValues[i]).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    callerSF.intRegs[callersRetRegIndex] = ((BBoolean) returnValues[i]).booleanValue() ? 1 : 0;
+                    break;
+                default:
+                    callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
+            }
+        }
     }
 
     // TODO Refactor these methods and move them to a proper util class
