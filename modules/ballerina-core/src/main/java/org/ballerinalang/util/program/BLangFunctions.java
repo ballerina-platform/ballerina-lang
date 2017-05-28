@@ -79,12 +79,12 @@ public class BLangFunctions {
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName) {
         BValue[] args = {};
-        return invokeNew(bLangProgram, ".", functionName, args, new Context());
+        return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram));
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName) {
         BValue[] args = {};
-        return invokeNew(bLangProgram, packageName, functionName, args, new Context());
+        return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram));
     }
 
     /**
@@ -100,11 +100,11 @@ public class BLangFunctions {
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args) {
-        return invokeNew(bLangProgram, ".", functionName, args, new Context());
+        return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram));
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName, BValue[] args) {
-        return invokeNew(bLangProgram, packageName, functionName, args, new Context());
+        return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram));
     }
 
     /**

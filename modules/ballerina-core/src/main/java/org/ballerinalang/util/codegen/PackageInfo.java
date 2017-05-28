@@ -111,12 +111,4 @@ public class PackageInfo {
     public List<Instruction> getInstructionList() {
         return instructionList;
     }
-
-    public void setPackageLevelVarCount(int[] pkgLevelVarCount) {
-        this.plvCount = pkgLevelVarCount;
-    }
-
-    public int[] getPackageLevelVarCount() {
-        return plvCount;
-    }
 }

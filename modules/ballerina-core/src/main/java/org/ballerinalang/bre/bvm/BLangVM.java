@@ -82,6 +82,8 @@ public class BLangVM {
     private int ip = 0;
     private Instruction[] code;
 
+    private StructureType globalMemBlock;
+
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
     }
@@ -101,6 +103,7 @@ public class BLangVM {
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
+        this.globalMemBlock = context.getGlobalMemoryBlock();
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
@@ -291,6 +294,34 @@ public class BLangVM {
                     // TODO Proper error handling
                     sf.refRegs[k] = JSONUtils.getArrayElement((BJSON) sf.refRegs[i], sf.longRegs[j]);
                     break;
+                case InstructionCodes.IGLOAD:
+                    // Global variable index
+                    i = operands[0];
+                    // Stack registry index
+                    j = operands[1];
+                    sf.longRegs[j] = globalMemBlock.getIntField(i);
+                    break;
+                case InstructionCodes.FGLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.doubleRegs[j] = globalMemBlock.getFloatField(i);
+                    break;
+                case InstructionCodes.SGLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.stringRegs[j] = globalMemBlock.getStringField(i);
+                    break;
+                case InstructionCodes.BGLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.intRegs[j] = globalMemBlock.getBooleanField(i);
+                    break;
+                case InstructionCodes.RGLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = globalMemBlock.getRefField(i);
+                    break;
+
                 case InstructionCodes.ISTORE:
                     i = operands[0];
                     lvIndex = operands[1];
@@ -358,6 +389,34 @@ public class BLangVM {
                     // TODO Proper error handling
                     JSONUtils.setArrayElement((BJSON) sf.refRegs[i], sf.longRegs[j], (BJSON) sf.refRegs[k]);
                     break;
+                case InstructionCodes.IGSTORE:
+                    // Stack reg index
+                    i = operands[0];
+                    // Global var index
+                    j = operands[1];
+                    globalMemBlock.setIntField(j, sf.longRegs[i]);
+                    break;
+                case InstructionCodes.FGSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    globalMemBlock.setFloatField(j, sf.doubleRegs[i]);
+                    break;
+                case InstructionCodes.SGSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    globalMemBlock.setStringField(j, sf.stringRegs[i]);
+                    break;
+                case InstructionCodes.BGSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    globalMemBlock.setBooleanField(j, sf.intRegs[i]);
+                    break;
+                case InstructionCodes.RGSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    globalMemBlock.setRefField(j, sf.refRegs[i]);
+                    break;
+
                 case InstructionCodes.IFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];

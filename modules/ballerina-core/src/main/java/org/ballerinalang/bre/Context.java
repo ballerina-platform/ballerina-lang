@@ -18,7 +18,10 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.runtime.BalCallback;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -44,6 +47,8 @@ public class Context {
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
 
+    private StructureType globalMemoryBlock;
+
     public Context() {
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
@@ -53,6 +58,13 @@ public class Context {
         this.cMsg = cMsg;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
+    }
+
+    public Context(ProgramFile programFile) {
+        this.controlStack = new ControlStack();
+        this.controlStackNew = new ControlStackNew();
+        this.globalMemoryBlock = new BStruct();
+        globalMemoryBlock.init(programFile.getGlobalVarIndexes());
     }
 
     public ControlStack getControlStack() {
@@ -121,5 +133,9 @@ public class Context {
 
     public void setVMBasedExecutor(boolean vmBasedExecutor) {
         this.vmBasedExecutor = vmBasedExecutor;
+    }
+
+    public StructureType getGlobalMemoryBlock() {
+        return globalMemoryBlock;
     }
 }

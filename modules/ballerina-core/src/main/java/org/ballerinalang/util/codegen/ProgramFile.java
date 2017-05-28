@@ -39,6 +39,8 @@ public class ProgramFile {
 
     private Map<String, PackageInfo> packageInfoMap = new HashMap<>();
 
+    private int[] globalVarIndexes;
+
     public int getMagicValue() {
         return magicValue;
     }
@@ -74,5 +76,13 @@ public class ProgramFile {
 
     public void addPackageInfo(String packageName, PackageInfo packageInfo) {
         packageInfoMap.put(packageName, packageInfo);
+    }
+
+    public int[] getGlobalVarIndexes() {
+        return globalVarIndexes;
+    }
+
+    public void setGlobalVarIndexes(int[] globalVarIndexes) {
+        this.globalVarIndexes = globalVarIndexes;
     }
 }

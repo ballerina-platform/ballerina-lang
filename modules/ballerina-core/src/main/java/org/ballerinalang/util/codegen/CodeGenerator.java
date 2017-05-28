@@ -169,7 +169,7 @@ public class CodeGenerator implements NodeVisitor {
 
     // Package level variable indexes. This includes package constants, package level variables and
     //  service level variables
-    private int[] plvIndexes = {-1, -1, -1, -1, -1};
+    private int[] gvIndexes = {-1, -1, -1, -1, -1};
 
     private ProgramFile programFile = new ProgramFile();
     private CallableUnitInfo callableUnitInfo;
@@ -211,6 +211,10 @@ public class CodeGenerator implements NodeVisitor {
                 libraryPkg.accept(this);
             }
         }
+
+        // Add global variable indexes to the ProgramFile
+        prepareIndexes(gvIndexes);
+        programFile.setGlobalVarIndexes(gvIndexes);
     }
 
     @Override
@@ -241,19 +245,41 @@ public class CodeGenerator implements NodeVisitor {
         packageRefCPEntry.setPackageInfo(currentPkgInfo);
         currentPkgCPIndex = currentPkgInfo.addCPEntry(packageRefCPEntry);
 
+        visitConstants(bLangPackage.getConsts());
+        visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
         createConnectorInfoEntries(bLangPackage.getConnectors());
         createServiceInfoEntries(bLangPackage.getServices());
         createFunctionInfoEntries(bLangPackage.getFunctions());
 
+        // TODO Create function info for the package function
+
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
 
-        currentPkgInfo.setPackageLevelVarCount(plvIndexes);
-        resetIndexes(plvIndexes);
+        // TODO Visit package init function
+
         currentPkgCPIndex = -1;
         currentPkgPath = null;
+    }
+
+    private void visitConstants(ConstDef[] constDefs) {
+        for (ConstDef constDef : constDefs) {
+            BType varType = constDef.getType();
+            int regIndex = getNextIndex(varType.getTag(), gvIndexes);
+            GlobalVarLocation globalVarLocation = new GlobalVarLocation(regIndex);
+            constDef.setMemoryLocation(globalVarLocation);
+        }
+    }
+
+    private void visitGlobalVariables(GlobalVariableDef[] globalVariableDefs) {
+        for (GlobalVariableDef varDef : globalVariableDefs) {
+            BType varType = varDef.getType();
+            int regIndex = getNextIndex(varType.getTag(), gvIndexes);
+            GlobalVarLocation globalVarLocation = new GlobalVarLocation(regIndex);
+            varDef.setMemoryLocation(globalVarLocation);
+        }
     }
 
     private void createServiceInfoEntries(Service[] services) {
@@ -270,15 +296,15 @@ public class CodeGenerator implements NodeVisitor {
                 VariableDef varDef = varDefStmt.getVariableDef();
                 BType fieldType = varDef.getType();
 
-                int fieldIndex = getNextIndex(fieldType.getTag(), plvIndexes);
-                ServiceVarLocation serviceVarLocation = new ServiceVarLocation(fieldIndex);
-                varDef.setMemoryLocation(serviceVarLocation);
+                int fieldIndex = getNextIndex(fieldType.getTag(), gvIndexes);
+                GlobalVarLocation globalVarLocation = new GlobalVarLocation(fieldIndex);
+                varDef.setMemoryLocation(globalVarLocation);
             }
 
             // TODO Create the init function info
 //            createFunctionInfoEntries(new Function[]{serviceInfo.getInitFunction()});
 
-            // Create function info entries for all actions
+            // Create resource info entries for all resource
             createResourceInfoEntries(service.getResources(), serviceInfo);
         }
     }
@@ -1558,8 +1584,22 @@ public class CodeGenerator implements NodeVisitor {
                 variableRefExpr.setTempOffset(exprRegIndex);
             }
 
-        } else if (memoryLocation instanceof ServiceVarLocation) {
-            // TODO
+        } else if (memoryLocation instanceof GlobalVarLocation) {
+            int gvIndex = ((GlobalVarLocation) memoryLocation).getStaticMemAddrOffset();
+
+            if (varAssignment) {
+                opcode = getOpcode(variableRefExpr.getType().getTag(),
+                        InstructionCodes.IGSTORE);
+
+                emit(opcode, rhsExprRegIndex, gvIndex);
+            } else {
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
+                        InstructionCodes.IGLOAD, regIndexes);
+                opcode = opcodeAndIndex.opcode;
+                exprRegIndex = opcodeAndIndex.index;
+                emit(opcode, gvIndex, exprRegIndex);
+                variableRefExpr.setTempOffset(exprRegIndex);
+            }
         }
     }
 
