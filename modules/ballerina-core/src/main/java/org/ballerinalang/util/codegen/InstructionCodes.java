@@ -130,6 +130,7 @@ public interface InstructionCodes {
     int ACALL = 122;
     int NACALL = 123;
     int RET = 124;
+    int REP = 125;
 
     // Type Cast/Conversion related instructions
     int I2F = 130;

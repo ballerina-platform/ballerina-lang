@@ -754,7 +754,12 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-
+        if (replyStmt.getReplyExpr() != null) {
+            replyStmt.getReplyExpr().accept(this);
+            emit(InstructionCodes.REP, replyStmt.getReplyExpr().getTempOffset());
+        } else {
+            emit(InstructionCodes.REP, -1);
+        }
     }
 
     @Override
