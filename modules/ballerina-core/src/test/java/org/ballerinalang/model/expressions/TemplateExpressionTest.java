@@ -17,17 +17,14 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-import org.ballerinalang.runtime.internal.GlobalScopeHolder;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -38,15 +35,13 @@ import org.testng.annotations.Test;
  * Test class to validate the backtick based inline xml and json definitions.
  */
 public class TemplateExpressionTest {
+    private ProgramFile programFile;
     private BLangProgram bLangProgram;
     
     @BeforeClass
     public void setup() {
         // Add Native functions.
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.model.system:print_string")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
-        }
+        programFile = BTestUtils.getProgramFile("lang/expressions/template-expr.bal");
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/template-expr.bal");
     }
 
@@ -63,7 +58,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression definition")
     public void testJSONInit() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJSONInit", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"John\"}";
@@ -73,7 +68,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with string variable reference")
     public void testStringVariableAccessInJSONInit() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStringVariableAccessInJSONInit", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStringVariableAccessInJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"WSO2\"}";
@@ -93,7 +88,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with integer variable reference")
     public void testIntegerVariableAccessInJSONInit() {
         BValue[] args = { new BInteger(11)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerVariableAccessInJSONInit", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntegerVariableAccessInJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"age\":11}";
@@ -103,7 +98,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with embedding full JSON")
     public void testEnrichFullJSON() {
         BValue[] args = { new BInteger(11)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEnrichFullJSON", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEnrichFullJSON", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":\"John\"}";
@@ -113,7 +108,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with multiple variables embedding full JSON")
     public void testMultipleVariablesInJSONInit() {
         BValue[] args = { new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMultipleVariablesInJSONInit", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMultipleVariablesInJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":{\"first_name\":\"Chanaka\",\"last_name\":\"Fernando\"}}";
@@ -122,7 +117,7 @@ public class TemplateExpressionTest {
 
     @Test(description = "Test JSON backtick expression with int and string arrays variable reference")
     public void testArrayVariableAccessInJSONInit() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayVariableAccessInJSONInit");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testArrayVariableAccessInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"strIndex0\":\"value0\",\"intIndex2\":2,\"strIndex2\":\"value2\"}";
@@ -140,7 +135,7 @@ public class TemplateExpressionTest {
 
     @Test(description = "Test JSON backtick expression with map variable reference")
     public void testMapVariableAccessInJSONInit() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMapVariableAccessInJSONInit");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMapVariableAccessInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"val1\":\"value0\",\"val2\":1}";
@@ -158,7 +153,7 @@ public class TemplateExpressionTest {
 
     @Test(description = "Test JSON backtick expression with boolean and integers as string values")
     public void testBooleanIntegerValuesAsStringsInJSONInit() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBooleanIntegerValuesAsStringsInJSONInit");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testBooleanIntegerValuesAsStringsInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"intStrIndex0\":\"0\",\"intStrIndex1\":\"1\","
@@ -170,6 +165,6 @@ public class TemplateExpressionTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "json-backtick-expr.bal:2: incompatible types: expected xml")
     public void testBacktickJSON() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/json-backtick-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/json-backtick-expr.bal");
     }
 }

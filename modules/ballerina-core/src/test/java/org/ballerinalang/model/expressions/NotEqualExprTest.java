@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -36,17 +37,19 @@ import org.testng.annotations.Test;
  */
 public class NotEqualExprTest {
 
+    private ProgramFile programFile;
     private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/not-equal-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/not-equal-expr.bal");
     }
 
     @Test(description = "Test two int equality")
     public void testIntNotEqualExpr() {
         BValue[] args = { new BInteger(5), new BInteger(5) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkIntEquality", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "checkIntEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
@@ -54,7 +57,7 @@ public class NotEqualExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BInteger(5), new BInteger(6) };
-        returns = BLangFunctions.invoke(bLangProgram, "checkIntEquality", args);
+        returns = BLangFunctions.invokeNew(programFile, "checkIntEquality", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
