@@ -859,6 +859,19 @@ public class BLangVM {
                         throw new BallerinaException("incompatible types");
                     }
                     break;
+                case InstructionCodes.ANY2MAP:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeMap) {
+                        sf.refRegs[j] = bRefType;
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
                 case InstructionCodes.NULL2JSON:
                     i = operands[0];
                     j = operands[1];
