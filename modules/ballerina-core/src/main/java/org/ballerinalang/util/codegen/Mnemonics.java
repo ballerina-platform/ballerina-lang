@@ -171,6 +171,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
+        mnemonics[InstructionCodes.NEWMESSAGE] = "newmessage";
+        mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
     }
 
     public static String getMnem(int opcode) {

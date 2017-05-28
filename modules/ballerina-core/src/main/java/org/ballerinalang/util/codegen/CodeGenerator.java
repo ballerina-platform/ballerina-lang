@@ -1129,7 +1129,15 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
+        int varRegIndex = ++regIndexes[REF_OFFSET];
+        refTypeInitExpr.setTempOffset(varRegIndex);
 
+        BType bType = refTypeInitExpr.getType();
+        if (bType == BTypes.typeMessage) {
+            emit(InstructionCodes.NEWMESSAGE, varRegIndex);
+        } else if (bType == BTypes.typeDatatable) {
+            emit(InstructionCodes.NEWDATATABLE, varRegIndex);
+        }
     }
 
     @Override

@@ -177,6 +177,8 @@ public interface InstructionCodes {
     int NEWCONNECTOR = 211;
     int NEWMAP = 212;
     int NEWJSON = 213;
+    int NEWMESSAGE = 214;
+    int NEWDATATABLE = 215;
 
-    int INSTRUCTION_CODE_COUNT = 214;
+    int INSTRUCTION_CODE_COUNT = 216;
 }

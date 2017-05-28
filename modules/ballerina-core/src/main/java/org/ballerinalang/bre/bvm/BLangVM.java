@@ -26,12 +26,14 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -62,6 +64,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.StringJoiner;
 
 /**
@@ -927,6 +931,14 @@ public class BLangVM {
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
                     sf.refRegs[i] = new BJSON("{}");
+                    break;
+                case InstructionCodes.NEWMESSAGE:
+                    i = operands[0];
+                    sf.refRegs[i] = new BMessage();
+                    break;
+                case InstructionCodes.NEWDATATABLE:
+                    i = operands[0];
+                    sf.refRegs[i] = new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
                     break;
 
                 default:
