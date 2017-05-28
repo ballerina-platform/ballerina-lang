@@ -482,7 +482,10 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(ReplyStmt replyStmt) {
         // TODO revisit this logic
         Expression expr = replyStmt.getReplyExpr();
-        BMessage bMessage = (BMessage) expr.execute(this);
+        BMessage bMessage = null;
+        if (expr != null) {
+            bMessage = (BMessage) expr.execute(this);
+        }
         bContext.getBalCallback().done(bMessage != null ? bMessage.value() : null);
         returnedOrReplied = true;
     }
