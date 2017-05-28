@@ -179,7 +179,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final String ERRORS_PACKAGE = "ballerina.lang.errors";
     private static final String BALLERINA_CAST_ERROR = "CastError";
     private static final String BALLERINA_ERROR = "Error";
-    
+
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
     private SymbolScope currentScope;
@@ -322,8 +322,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
         constDef.setMemoryLocation(memLocation);
 
-        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(), constDef.getWhiteSpaceDescriptor(),
-                                                    constDef.getName());
+        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(),
+                constDef.getWhiteSpaceDescriptor(), constDef.getName());
         varRefExpr.setVariableDef(constDef);
         VariableDefStmt varDefStmt = new VariableDefStmt(constDef.getNodeLocation(),
                 constDef, varRefExpr, constDef.getRhsExpr());
@@ -803,7 +803,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BasicLiteral defaultValue = attributeDef.getAttributeValue();
                 if (defaultValue != null) {
                     annotation.addAttributeNameValuePair(attributeName,
-                        new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName(), null, null));
+                            new AnnotationAttributeValue(defaultValue.getBValue(),
+                                    defaultValue.getTypeName(), null, null));
                 }
                 continue;
             }
@@ -998,19 +999,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-
-    private boolean isAssignableTo(BType lhsType, BType rhsType) {
-        if (lhsType == BTypes.typeAny) {
-            return true;
-        }
-
-        if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
-            return true;
-        }
-
-        return lhsType == rhsType;
-    }
-
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression[] lExprs = assignStmt.getLExprs();
@@ -1022,14 +1010,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
         }
-        
+
         if (lExprs.length > 1 && (rExpr instanceof TypeCastExpression || rExpr instanceof TypeConversionExpr)) {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
             return;
         }
-        
+
         // Now we know that this is a single value assignment statement.
         Expression lExpr = assignStmt.getLExprs()[0];
         BType lhsType = lExpr.getType();
@@ -1055,6 +1043,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                             rhsType, lhsType);
                 }
             }
+
             return;
         }
 
@@ -1181,8 +1170,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (tryCatchStmt.getCatchBlocks().length != 0) {
             // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
             if (error == null || !(error instanceof StructDef)) {
-                BLangExceptionHelper.throwSemanticError(tryCatchStmt, 
-                    SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_ERROR);
+                BLangExceptionHelper.throwSemanticError(tryCatchStmt,
+                        SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_ERROR);
             }
         }
         for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
@@ -1229,8 +1218,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             // TODO : Fix this.
             // Assumption : To use CatchClause, ballerina.lang.errors should be resolved before.
             if (error == null) {
-                BLangExceptionHelper.throwSemanticError(throwStmt, 
-                    SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_ERROR);
+                BLangExceptionHelper.throwSemanticError(throwStmt,
+                        SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_ERROR);
             }
             if (error.equals(expressionType) || TypeLattice.getExplicitCastLattice().getEdgeFromTypes
                     (expressionType, error, null) != null) {
@@ -1300,7 +1289,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(forkJoinStmt);
 
         // Visit workers
-        for (Worker worker: forkJoinStmt.getWorkers()) {
+        for (Worker worker : forkJoinStmt.getWorkers()) {
             /* Here we are setting the current stack frame size of the parent component (function, resource, action)
             as the accessible stack frame size for fork-join internal workers. */
             worker.setAccessibleStackFrameSize(stackFrameOffset + 1);
@@ -1390,13 +1379,13 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(currentCallableUnit,
                     SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_IN_REPLY);
         }
-        
+
         Expression replyExpr = replyStmt.getReplyExpr();
         visitSingleValueExpr(replyExpr);
-        
+
         // reply statement supports only message type
         if (replyExpr.getType() != BTypes.typeMessage) {
-            BLangExceptionHelper.throwSemanticError(replyExpr, SemanticErrors.INCOMPATIBLE_TYPES, 
+            BLangExceptionHelper.throwSemanticError(replyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                     BTypes.typeMessage, replyExpr.getType());
         }
     }
@@ -1877,14 +1866,27 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(argExpr);
 
             // check the type compatibility of the value.
-            BType argType = argExpr.getType();
-            if (BTypes.isValueType(argType) || TypeMappingUtils.isCompatible(BTypes.typeJSON, argType)) {
+            BType argExprType = argExpr.getType();
+            if (BTypes.isValueType(argExprType)) {
+                TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, argExpr);
+                if (typeCastExpr != null) {
+                    argExprs[i] = typeCastExpr;
+                } else {
+                    BLangExceptionHelper.throwSemanticError(argExpr,
+                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExprType.getSymbolName(),
+                            inheritedType.getSymbolName());
+                }
                 continue;
             }
+
+            if (argExprType != BTypes.typeNull && isAssignableTo(BTypes.typeJSON, argExprType)) {
+                continue;
+            }
+
             TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, argExpr);
             if (typeCastExpr == null) {
                 BLangExceptionHelper.throwSemanticError(jsonArrayInitExpr,
-                    SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExpr.getType(), BTypes.typeJSON);
+                        SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExpr.getType(), BTypes.typeJSON);
             }
             argExprs[i] = typeCastExpr;
         }
@@ -2777,7 +2779,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(actionSymbolName);
         } else {
             BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED,
-                connectorSymbolName);
+                    connectorSymbolName);
         }
 
         if ((actionSymbol instanceof BallerinaAction) && (actionSymbol.isNative())) {
@@ -2801,9 +2803,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BType bType = BTypes.resolveType(typeName, currentScope, actionIExpr.getNodeLocation());
                 returnTypes[i] = bType;
             }
-            
+
             if (!(nativeUnit instanceof Action)) {
-                BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
+                BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                         actionSymbolName);
             }
             action = (Action) nativeUnit;
@@ -2812,7 +2814,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (actionSymbol instanceof Action) {
             action = (Action) actionSymbol;
         } else {
-            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
+            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                     actionSymbolName);
         }
 
@@ -2902,7 +2904,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Go to the child field
-        FieldAccessExpr fieldExpr = (FieldAccessExpr) fieldAccessExpr.getFieldExpr();
+        FieldAccessExpr fieldExpr = fieldAccessExpr.getFieldExpr();
         if (fieldExpr == null) {
             return;
         }
@@ -2965,6 +2967,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             Expression varRefExpr = fieldExpr.getVarRef();
             varRefExpr.accept(this);
+            if (varRefExpr.getType() != BTypes.typeInt && varRefExpr.getType() != BTypes.typeString) {
+                BLangExceptionHelper.throwSemanticError(varRefExpr,
+                        SemanticErrors.INCOMPATIBLE_TYPES, "string or int", varRefExpr.getType());
+            }
+
             currentFieldExpr = new JSONFieldAccessExpr(fieldExpr.getNodeLocation(), fieldExpr.getWhiteSpaceDescriptor(),
                     varRefExpr, nextFieldExpr);
         }
@@ -2982,7 +2989,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param enclosingScope Enclosing scope
      */
     private void visitMapAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
-            SymbolScope enclosingScope) {
+                                    SymbolScope enclosingScope) {
         Expression fieldVar = fieldExpr.getVarRef();
 
         // map access can only be at the end of a field access expression chain. Because maps are of any-type. Hence
@@ -3021,7 +3028,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param enclosingScope Enclosing scope
      */
     private void visitArrayAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
-            BType exprType, SymbolScope enclosingScope) {
+                                      BType exprType, SymbolScope enclosingScope) {
 
         if (fieldExpr.getVarRef() instanceof BasicLiteral) {
             String value = ((BasicLiteral) fieldExpr.getVarRef()).getBValue().stringValue();
@@ -3536,45 +3543,70 @@ public class SemanticAnalyzer implements NodeVisitor {
                 keyValueExpr.setValueExpr(valueExpr);
             }
             valueExpr.accept(this);
+            BType valueExprType = valueExpr.getType();
 
             // Generate type cast expression if the rhs type is a value type
             if (inheritedType == BTypes.typeMap) {
-                if (BTypes.isValueType(valueExpr.getType())) {
+                if (BTypes.isValueType(valueExprType)) {
                     TypeCastExpression newExpr = checkWideningPossible(BTypes.typeAny, valueExpr);
                     if (newExpr != null) {
                         keyValueExpr.setValueExpr(newExpr);
                     } else {
                         BLangExceptionHelper.throwSemanticError(keyValueExpr,
-                                SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, valueExpr.getType().getSymbolName(),
-                                inheritedType.getSymbolName());
+                                SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, valueExprType.getSymbolName(),
+                                inheritedType);
                     }
                 }
                 continue;
             }
 
             // for JSON init expr, check the type compatibility of the value.
-            BType valueType = valueExpr.getType();
-            if (BTypes.isValueType(valueType) || TypeMappingUtils.isCompatible(BTypes.typeJSON, valueType)) {
+            if (BTypes.isValueType(valueExprType)) {
+                TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);
+                if (typeCastExpr != null) {
+                    keyValueExpr.setValueExpr(typeCastExpr);
+                } else {
+                    BLangExceptionHelper.throwSemanticError(keyValueExpr,
+                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, valueExprType.getSymbolName(),
+                            inheritedType.getSymbolName());
+                }
                 continue;
             }
+
+            if (valueExprType != BTypes.typeNull && isAssignableTo(BTypes.typeJSON, valueExprType)) {
+                continue;
+            }
+
             TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);
             if (typeCastExpr == null) {
                 BLangExceptionHelper.throwSemanticError(initExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                    valueExpr.getType(), BTypes.typeJSON);
+                        valueExpr.getType(), BTypes.typeJSON);
             }
-            argExprs[i] = typeCastExpr;
+            keyValueExpr.setValueExpr(typeCastExpr);
         }
 
     }
 
     private void addDependentPkgInitCalls(List<BallerinaFunction> initFunctionList,
-        BlockStmt.BlockStmtBuilder blockStmtBuilder, NodeLocation initFuncLocation) {
+                                          BlockStmt.BlockStmtBuilder blockStmtBuilder, NodeLocation initFuncLocation) {
         for (BallerinaFunction initFunc : initFunctionList) {
             FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(initFuncLocation, null,
-                    initFunc.getName(), null, initFunc.getPackagePath(), new Expression[] {});
+                    initFunc.getName(), null, initFunc.getPackagePath(), new Expression[]{});
             funcIExpr.setCallableUnit(initFunc);
             FunctionInvocationStmt funcIStmt = new FunctionInvocationStmt(initFuncLocation, funcIExpr);
             blockStmtBuilder.addStmt(funcIStmt);
         }
+    }
+
+    private boolean isAssignableTo(BType lhsType, BType rhsType) {
+        if (lhsType == BTypes.typeAny) {
+            return true;
+        }
+
+        if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
+            return true;
+        }
+
+        return lhsType == rhsType;
     }
 }

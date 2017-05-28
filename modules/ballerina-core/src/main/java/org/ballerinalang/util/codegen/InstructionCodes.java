@@ -42,6 +42,7 @@ public interface InstructionCodes {
     int FCONST_5 = 16;
     int BCONST_0 = 17;
     int BCONST_1 = 18;
+    int RCONST_NULL = 19;
 
     int ILOAD = 22;
     int FLOAD = 23;
@@ -53,33 +54,35 @@ public interface InstructionCodes {
     int SALOAD = 29;
     int BALOAD = 30;
     int RALOAD = 31;
-    int IGLOAD = 32;
-    int FGLOAD = 33;
-    int SGLOAD = 34;
-    int BGLOAD = 35;
-    int RGLOAD = 36;
+    int JSONALOAD = 32;
+    int IGLOAD = 33;
+    int FGLOAD = 34;
+    int SGLOAD = 35;
+    int BGLOAD = 36;
+    int RGLOAD = 37;
 
-    int ISTORE = 37;
-    int FSTORE = 38;
-    int SSTORE = 39;
-    int BSTORE = 40;
-    int RSTORE = 41;
-    int IASTORE = 42;
-    int FASTORE = 43;
-    int SASTORE = 44;
-    int BASTORE = 45;
-    int RASTORE = 46;
-    int IGSTORE = 47;
-    int FGSTORE = 48;
-    int SGSTORE = 49;
-    int BGSTORE = 50;
-    int RGSTORE = 51;
+    int ISTORE = 38;
+    int FSTORE = 39;
+    int SSTORE = 40;
+    int BSTORE = 41;
+    int RSTORE = 42;
+    int IASTORE = 43;
+    int FASTORE = 44;
+    int SASTORE = 45;
+    int BASTORE = 46;
+    int RASTORE = 47;
+    int JSONASTORE = 48;
+    int IGSTORE = 49;
+    int FGSTORE = 50;
+    int SGSTORE = 51;
+    int BGSTORE = 52;
+    int RGSTORE = 53;
 
-    int IFIELDLOAD = 52;
-    int FFIELDLOAD = 53;
-    int SFIELDLOAD = 54;
-    int BFIELDLOAD = 55;
-    int RFIELDLOAD = 56;
+    int IFIELDLOAD = 54;
+    int FFIELDLOAD = 55;
+    int SFIELDLOAD = 56;
+    int BFIELDLOAD = 57;
+    int RFIELDLOAD = 58;
 
     int IFIELDSTORE = 60;
     int FFIELDSTORE = 61;
@@ -87,10 +90,14 @@ public interface InstructionCodes {
     int BFIELDSTORE = 63;
     int RFIELDSTORE = 64;
 
-    // mapload map_reg_inde key_name_cp_index value_reg_index
+    // mapload map_reg_index key value_reg_index
     int MAPLOAD = 65;
-    // mapstore map_reg_inde key_name_cp_index value_reg_index
+    // mapstore map_reg_index key value_reg_index
     int MAPSTORE = 66;
+
+    // jsonload json_reg_index key json_value_reg_index
+    int JSONLOAD = 67;
+    int JSONSTORE = 68;
 
     int IADD = 70;
     int FADD = 71;
@@ -122,41 +129,51 @@ public interface InstructionCodes {
     int ACALL = 121;
     int RET = 125;
 
-    // Type Conversion
+    // Type Cast/Conversion related instructions
     int I2F = 130;
     int I2S = 131;
     int I2B = 132;
     int I2ANY = 133;
-    int F2I = 134;
-    int F2S = 135;
-    int F2B = 136;
-    int F2ANY = 137;
-    int S2I = 138;
-    int S2F = 139;
-    int S2B = 140;
-    int S2ANY = 141;
-    int B2I = 142;
-    int B2F = 143;
-    int B2S = 144;
-    int B2ANY = 145;
-    int R2ANY = 146;
+    int I2JSON = 134;
+    int F2I = 135;
+    int F2S = 136;
+    int F2B = 137;
+    int F2ANY = 138;
+    int F2JSON = 139;
+    int S2I = 140;
+    int S2F = 141;
+    int S2B = 142;
+    int S2ANY = 143;
+    int S2JSON = 144;
+    int B2I = 145;
+    int B2F = 146;
+    int B2S = 147;
+    int B2ANY = 148;
+    int B2JSON = 149;
+    int JSON2I = 150;
+    int JSON2F = 151;
+    int JSON2S = 152;
+    int JSON2B = 153;
 
     // Type cast
-    int ANY2I = 147;
-    int ANY2F = 148;
-    int ANY2S = 149;
-    int ANY2B = 150;
-    int ANY2R = 151;
+    int ANY2I = 154;
+    int ANY2F = 155;
+    int ANY2S = 156;
+    int ANY2B = 157;
+    int ANY2JSON = 158;
+    int NULL2JSON = 159;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
     int SNEWARRAY = 202;
     int BNEWARRAY = 203;
     int RNEWARRAY = 204;
+    int JSONNEWARRAY = 205;
 
     int NEWSTRUCT = 210;
     int NEWCONNECTOR = 211;
     int NEWMAP = 212;
+    int NEWJSON = 213;
 
-    int INSTRUCTION_CODE_COUNT = 213;
+    int INSTRUCTION_CODE_COUNT = 214;
 }

@@ -17,9 +17,11 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
@@ -27,6 +29,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -39,6 +42,7 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
+import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
@@ -50,7 +54,12 @@ import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
+
+import java.io.PrintStream;
+import java.util.StringJoiner;
 
 /**
  * @since 0.87
@@ -90,6 +99,15 @@ public class BLangVM {
         ip = mainFuncInfo.getCodeAttributeInfo().getCodeAddrs();
 
         exec();
+    }
+
+    // TODO Remove
+    private void traceCode() {
+        PrintStream printStream = System.out;
+        for (int i = 0; i < code.length; i++) {
+            printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
+                    getOperandsLine(code[i].getOperands()));
+        }
     }
 
     public void execFunction(PackageInfo packageInfo, StackFrame[] stackFrames, int fp, int ip) {
@@ -211,6 +229,11 @@ public class BLangVM {
                     i = operands[0];
                     sf.intRegs[i] = 1;
                     break;
+                case InstructionCodes.RCONST_NULL:
+                    i = operands[0];
+                    sf.refRegs[i] = null;
+                    break;
+
                 case InstructionCodes.ILOAD:
                     lvIndex = operands[0];
                     i = operands[1];
@@ -271,6 +294,13 @@ public class BLangVM {
                     bArray = (BRefValueArray) sf.refRegs[i];
                     sf.refRegs[k] = bArray.get(sf.longRegs[j]);
                     break;
+                case InstructionCodes.JSONALOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    // TODO Proper error handling
+                    sf.refRegs[k] = JSONUtils.getArrayElement((BJSON) sf.refRegs[i], sf.longRegs[j]);
+                    break;
                 case InstructionCodes.ISTORE:
                     i = operands[0];
                     lvIndex = operands[1];
@@ -330,6 +360,13 @@ public class BLangVM {
                     k = operands[2];
                     bArray = (BRefValueArray) sf.refRegs[i];
                     bArray.add(sf.longRegs[j], sf.refRegs[k]);
+                    break;
+                case InstructionCodes.JSONASTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    // TODO Proper error handling
+                    JSONUtils.setArrayElement((BJSON) sf.refRegs[i], sf.longRegs[j], (BJSON) sf.refRegs[k]);
                     break;
                 case InstructionCodes.IFIELDLOAD:
                     i = operands[0];
@@ -415,6 +452,21 @@ public class BLangVM {
                     k = operands[2];
                     bMap = (BMap<String, BRefType>) sf.refRegs[i];
                     bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                    break;
+
+                case InstructionCodes.JSONLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    // TODO Proper error handling
+                    sf.refRegs[k] = JSONUtils.getElement((BJSON) sf.refRegs[i], sf.stringRegs[j]);
+                    break;
+                case InstructionCodes.JSONSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    // TODO Proper error handling
+                    JSONUtils.setElement((BJSON) sf.refRegs[i], sf.stringRegs[j], (BJSON) sf.refRegs[k]);
                     break;
 
                 case InstructionCodes.IADD:
@@ -620,6 +672,11 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BInteger(sf.longRegs[i]);
                     break;
+                case InstructionCodes.I2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BJSON(Long.toString(sf.longRegs[i]));
+                    break;
                 case InstructionCodes.F2I:
                     i = operands[0];
                     j = operands[1];
@@ -639,6 +696,11 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     sf.refRegs[j] = new BFloat(sf.doubleRegs[i]);
+                    break;
+                case InstructionCodes.F2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BJSON(Double.toString(sf.doubleRegs[i]));
                     break;
                 case InstructionCodes.S2I:
                     i = operands[0];
@@ -681,6 +743,19 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BString(sf.stringRegs[i]);
                     break;
+                case InstructionCodes.S2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    String jsonStr = sf.stringRegs[i];
+
+                    // If this is a string-representation of complex JSON object, generate a BJSON out of it.
+                    if (jsonStr.matches("\\{.*\\}|\\[.*\\]")) {
+                        sf.refRegs[j] = new BJSON(jsonStr);
+                    }
+
+                    // Else, generate a BJSON with a quoted string.
+                    sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
+                    break;
                 case InstructionCodes.B2I:
                     i = operands[0];
                     j = operands[1];
@@ -701,6 +776,24 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
                     break;
+                case InstructionCodes.B2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
+                    break;
+                case InstructionCodes.JSON2I:
+                    convertJSONToInt(operands, sf);
+                    break;
+                case InstructionCodes.JSON2F:
+                    convertJSONToFloat(operands, sf);
+                    break;
+                case InstructionCodes.JSON2S:
+                    convertJSONToString(operands, sf);
+                    break;
+                case InstructionCodes.JSON2B:
+                    convertJSONToBoolean(operands, sf);
+                    break;
+
                 case InstructionCodes.ANY2I:
                     i = operands[0];
                     j = operands[1];
@@ -753,10 +846,23 @@ public class BLangVM {
                         throw new BallerinaException("incompatible types");
                     }
                     break;
-                case InstructionCodes.ANY2R:
+                case InstructionCodes.ANY2JSON:
                     i = operands[0];
                     j = operands[1];
-                    sf.refRegs[j] = sf.refRegs[i];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeJSON) {
+                        sf.refRegs[j] = bRefType;
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.NULL2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BJSON("null");
                     break;
 
                 case InstructionCodes.INEWARRAY:
@@ -779,6 +885,16 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BRefValueArray();
                     break;
+                case InstructionCodes.JSONNEWARRAY:
+                    i = operands[0];
+                    j = operands[1];
+                    // This is a temporary solution to create n-valued JSON array
+                    StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
+                    for (int index = 0; index < sf.longRegs[j]; index++) {
+                        stringJoiner.add("0");
+                    }
+                    sf.refRegs[i] = new BJSON(stringJoiner.toString());
+                    break;
                 case InstructionCodes.NEWSTRUCT:
                     cpIndex = operands[0];
                     i = operands[1];
@@ -797,10 +913,13 @@ public class BLangVM {
                     bConnector.init(fieldCount);
                     sf.refRegs[i] = bConnector;
                     break;
-
                 case InstructionCodes.NEWMAP:
                     i = operands[0];
                     sf.refRegs[i] = new BMap<String, BRefType>();
+                    break;
+                case InstructionCodes.NEWJSON:
+                    i = operands[0];
+                    sf.refRegs[i] = new BJSON("{}");
                     break;
 
                 default:
@@ -906,5 +1025,132 @@ public class BLangVM {
             sb.append(operands[i]);
         }
         return sb.toString();
+    }
+
+    // TODO Refactor these methods and move them to a proper util class
+    private static void convertJSONToInt(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+
+        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        // TODO  Check for NULL
+//        if (bjson == null) {
+//            String errorMsg =
+//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeInt);
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+//        }
+
+        JsonNode jsonNode;
+        try {
+            jsonNode = jsonValue.value();
+        } catch (BallerinaException e) {
+            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                    BTypes.typeJSON, BTypes.typeInt, e.getMessage());
+            throw new BallerinaException(errorMsg);
+            // TODO
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+        }
+
+        if (jsonNode.isInt() || jsonNode.isLong()) {
+            sf.longRegs[j] = jsonNode.longValue();
+            return;
+        }
+
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                BTypes.typeInt, JSONUtils.getTypeName(jsonNode));
+    }
+
+    private static void convertJSONToFloat(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+
+        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        // TODO  Check for NULL
+//        if (bjson == null) {
+//            String errorMsg =
+//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
+// BTypes.typeFloat);
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+//        }
+
+        JsonNode jsonNode;
+        try {
+            jsonNode = jsonValue.value();
+        } catch (BallerinaException e) {
+            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                    BTypes.typeJSON, BTypes.typeFloat, e.getMessage());
+            throw new BallerinaException(errorMsg);
+            // TODO
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+        }
+
+        if (jsonNode.isFloat() || jsonNode.isDouble()) {
+            sf.doubleRegs[j] = jsonNode.doubleValue();
+            return;
+        }
+
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
+    }
+
+    private static void convertJSONToString(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+
+        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        // TODO  Check for NULL
+//        if (bjson == null) {
+//            String errorMsg =
+//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
+// BTypes.typeString);
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+//        }
+
+        try {
+            sf.stringRegs[j] = jsonValue.stringValue();
+        } catch (BallerinaException e) {
+            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                    BTypes.typeJSON, BTypes.typeString, e.getMessage());
+            throw new BallerinaException(errorMsg);
+            // TODO
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+        }
+    }
+
+    private static void convertJSONToBoolean(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+
+        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        // TODO  Check for NULL
+//        if (bjson == null) {
+//            String errorMsg =
+//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
+// BTypes.typeBoolean);
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+//        }
+
+        JsonNode jsonNode;
+        try {
+            jsonNode = jsonValue.value();
+        } catch (BallerinaException e) {
+            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                    BTypes.typeJSON, BTypes.typeBoolean, e.getMessage());
+            throw new BallerinaException(errorMsg);
+            // TODO
+//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+        }
+
+        if (jsonNode.isBoolean()) {
+            sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
+            return;
+        }
+
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
     }
 }

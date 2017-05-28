@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
@@ -969,6 +970,9 @@ public class BLangExecutor implements NodeExecutor {
                 stringVal = null;
             } else if (value instanceof BString) {
                 stringVal = "\"" + value.stringValue() + "\"";
+            } else if (value instanceof BJSON) {
+                JsonNode jsonNode = ((BJSON) value).value();
+                stringVal = jsonNode.toString();
             } else  {
                 stringVal = value.stringValue();
             }
@@ -988,7 +992,10 @@ public class BLangExecutor implements NodeExecutor {
                 stringVal = null;
             } else if (value instanceof BString) {
                 stringVal = "\"" + value.stringValue() + "\"";
-            } else  {
+            } else if (value instanceof BJSON) {
+                JsonNode jsonNode = ((BJSON) value).value();
+                stringVal = jsonNode.toString();
+            } else {
                 stringVal = value.stringValue();
             }
             stringJoiner.add(stringVal);

@@ -69,18 +69,20 @@ public class TypeLattice {
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex nullV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.NULL_TNAME)));
 
         implicitCastLattice.addVertex(intV, false);
         implicitCastLattice.addVertex(floatV, false);
         implicitCastLattice.addVertex(stringV, false);
-        implicitCastLattice.addEdge(stringV, jsonV, NativeConversionMapper.STRING_TO_JSON_FUNC);
+        implicitCastLattice.addEdge(stringV, jsonV, NativeConversionMapper.STRING_TO_JSON_FUNC,
+                InstructionCodes.S2JSON);
         
         implicitCastLattice.addEdge(intV, floatV, NativeConversionMapper.INT_TO_FLOAT_FUNC, InstructionCodes.I2F);
         implicitCastLattice.addEdge(intV, stringV, NativeConversionMapper.INT_TO_STRING_FUNC, InstructionCodes.I2S);
-        implicitCastLattice.addEdge(intV, jsonV, NativeConversionMapper.INT_TO_JSON_FUNC);
+        implicitCastLattice.addEdge(intV, jsonV, NativeConversionMapper.INT_TO_JSON_FUNC, InstructionCodes.I2JSON);
         
         implicitCastLattice.addEdge(floatV, stringV, NativeConversionMapper.FLOAT_TO_STRING_FUNC, InstructionCodes.F2S);
-        implicitCastLattice.addEdge(floatV, jsonV, NativeConversionMapper.FLOAT_TO_JSON_FUNC);
+        implicitCastLattice.addEdge(floatV, jsonV, NativeConversionMapper.FLOAT_TO_JSON_FUNC, InstructionCodes.F2JSON);
         
         implicitCastLattice.addEdge(intV, anyV, NativeCastMapper.INT_TO_ANY_FUNC, InstructionCodes.I2ANY);
         implicitCastLattice.addEdge(floatV, anyV, NativeCastMapper.FLOAT_TO_ANY_FUNC, InstructionCodes.F2ANY);
@@ -92,7 +94,11 @@ public class TypeLattice {
         implicitCastLattice.addEdge(booleanV, intV, NativeConversionMapper.BOOLEAN_TO_INT_FUNC, InstructionCodes.B2I);
         implicitCastLattice.addEdge(booleanV, floatV, NativeConversionMapper.BOOLEAN_TO_FLOAT_FUNC,
                 InstructionCodes.B2F);
-        implicitCastLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC);
+        implicitCastLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC,
+                InstructionCodes.B2JSON);
+
+        implicitCastLattice.addEdge(nullV, jsonV, NativeConversionMapper.NULL_TO_JSON_FUNC,
+                InstructionCodes.NULL2JSON);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -121,7 +127,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(intV, stringV, NativeConversionMapper.INT_TO_STRING_FUNC, InstructionCodes.I2S);
         explicitCastLattice.addEdge(intV, booleanV, NativeConversionMapper.INT_TO_BOOLEAN_FUNC, InstructionCodes.I2B);
         explicitCastLattice.addEdge(intV, anyV, NativeCastMapper.INT_TO_ANY_FUNC, InstructionCodes.I2ANY);
-        explicitCastLattice.addEdge(intV, jsonV, NativeConversionMapper.INT_TO_JSON_FUNC);
+        explicitCastLattice.addEdge(intV, jsonV, NativeConversionMapper.INT_TO_JSON_FUNC, InstructionCodes.I2JSON);
 
         explicitCastLattice.addEdge(floatV, floatV, NativeConversionMapper.FLOAT_TO_FLOAT_FUNC, InstructionCodes.NOP);
         explicitCastLattice.addEdge(floatV, stringV, NativeConversionMapper.FLOAT_TO_STRING_FUNC, InstructionCodes.F2S);
@@ -129,14 +135,15 @@ public class TypeLattice {
                 InstructionCodes.F2B);
         explicitCastLattice.addEdge(floatV, intV, NativeConversionMapper.FLOAT_TO_INT_FUNC, InstructionCodes.F2I);
         explicitCastLattice.addEdge(floatV, anyV, NativeCastMapper.FLOAT_TO_ANY_FUNC, InstructionCodes.F2ANY);
-        explicitCastLattice.addEdge(floatV, jsonV, NativeConversionMapper.FLOAT_TO_JSON_FUNC);
+        explicitCastLattice.addEdge(floatV, jsonV, NativeConversionMapper.FLOAT_TO_JSON_FUNC, InstructionCodes.F2JSON);
 
         explicitCastLattice.addEdge(stringV, stringV, NativeConversionMapper.STRING_TO_STRING_FUNC,
                 InstructionCodes.NOP);
         explicitCastLattice.addEdge(stringV, floatV, NativeConversionMapper.STRING_TO_FLOAT_FUNC, InstructionCodes.S2F);
         explicitCastLattice.addEdge(stringV, intV, NativeConversionMapper.STRING_TO_INT_FUNC, InstructionCodes.S2I);
         explicitCastLattice.addEdge(stringV, anyV, NativeCastMapper.STRING_TO_ANY_FUNC, InstructionCodes.S2ANY);
-        explicitCastLattice.addEdge(stringV, jsonV, NativeConversionMapper.STRING_TO_JSON_FUNC);
+        explicitCastLattice.addEdge(stringV, jsonV, NativeConversionMapper.STRING_TO_JSON_FUNC,
+                InstructionCodes.S2JSON);
         explicitCastLattice.addEdge(stringV, xmlV, NativeConversionMapper.STRING_TO_XML_FUNC);
 
         explicitCastLattice.addEdge(booleanV, booleanV, NativeConversionMapper.BOOLEAN_TO_BOOLEAN_FUNC,
@@ -147,7 +154,8 @@ public class TypeLattice {
         explicitCastLattice.addEdge(booleanV, floatV, NativeConversionMapper.BOOLEAN_TO_FLOAT_FUNC,
                 InstructionCodes.B2F);
         explicitCastLattice.addEdge(booleanV, anyV, NativeCastMapper.BOOLEAN_TO_ANY_FUNC, InstructionCodes.B2ANY);
-        explicitCastLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC);
+        explicitCastLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC,
+                InstructionCodes.B2JSON);
 
         explicitCastLattice.addEdge(connectorV, anyV, NativeCastMapper.CONNECTOR_TO_ANY_FUNC, InstructionCodes.NOP);
 
@@ -155,18 +163,20 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, stringV, NativeCastMapper.ANY_TO_STRING_FUNC, InstructionCodes.ANY2S);
         explicitCastLattice.addEdge(anyV, booleanV, NativeCastMapper.ANY_TO_BOOLEAN_FUNC, InstructionCodes.ANY2B);
         explicitCastLattice.addEdge(anyV, intV, NativeCastMapper.ANY_TO_INT_FUNC, InstructionCodes.ANY2I);
-        explicitCastLattice.addEdge(anyV, jsonV, NativeCastMapper.ANY_TO_JSON_FUNC);
+        explicitCastLattice.addEdge(anyV, jsonV, NativeCastMapper.ANY_TO_JSON_FUNC, InstructionCodes.ANY2JSON);
         explicitCastLattice.addEdge(anyV, xmlV, NativeCastMapper.ANY_TO_XML_FUNC);
         explicitCastLattice.addEdge(anyV, connectorV, NativeCastMapper.ANY_TO_CONNECTOR_FUNC);
-        explicitCastLattice.addEdge(anyV, anyV, NativeCastMapper.ANY_TO_ANY_FUNC);
+        explicitCastLattice.addEdge(anyV, anyV, NativeCastMapper.ANY_TO_ANY_FUNC, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, mapV, NativeCastMapper.ANY_TO_MAP_FUNC);
 
-        explicitCastLattice.addEdge(jsonV, jsonV, NativeCastMapper.JSON_TO_JSON_FUNC);
+        explicitCastLattice.addEdge(jsonV, jsonV, NativeCastMapper.JSON_TO_JSON_FUNC, InstructionCodes.NOP);
         explicitCastLattice.addEdge(jsonV, anyV, NativeCastMapper.JSON_TO_ANY_FUNC, InstructionCodes.NOP);
-        explicitCastLattice.addEdge(jsonV, stringV, NativeConversionMapper.JSON_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(jsonV, intV, NativeConversionMapper.JSON_TO_INT_FUNC);
-        explicitCastLattice.addEdge(jsonV, floatV, NativeConversionMapper.JSON_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(jsonV, booleanV, NativeConversionMapper.JSON_TO_BOOLEAN_FUNC);
+        explicitCastLattice.addEdge(jsonV, stringV, NativeConversionMapper.JSON_TO_STRING_FUNC,
+                InstructionCodes.JSON2S);
+        explicitCastLattice.addEdge(jsonV, intV, NativeConversionMapper.JSON_TO_INT_FUNC, InstructionCodes.JSON2I);
+        explicitCastLattice.addEdge(jsonV, floatV, NativeConversionMapper.JSON_TO_FLOAT_FUNC, InstructionCodes.JSON2F);
+        explicitCastLattice.addEdge(jsonV, booleanV, NativeConversionMapper.JSON_TO_BOOLEAN_FUNC,
+                InstructionCodes.JSON2B);
         // explicitCastLattice.addEdge(jsonV, mapV, NativeCastMapper.JSON_TO_MAP_FUNC);
 
         explicitCastLattice.addEdge(xmlV, xmlV, NativeCastMapper.XML_TO_XML_FUNC);
@@ -200,13 +210,13 @@ public class TypeLattice {
         conversionLattice.addEdge(intV, floatV, NativeConversionMapper.INT_TO_FLOAT_FUNC, InstructionCodes.I2F);
         conversionLattice.addEdge(intV, stringV, NativeConversionMapper.INT_TO_STRING_FUNC, InstructionCodes.I2S);
         conversionLattice.addEdge(intV, booleanV, NativeConversionMapper.INT_TO_BOOLEAN_FUNC, InstructionCodes.I2B);
-        conversionLattice.addEdge(intV, jsonV, NativeConversionMapper.INT_TO_JSON_FUNC);
+        conversionLattice.addEdge(intV, jsonV, NativeConversionMapper.INT_TO_JSON_FUNC, InstructionCodes.I2JSON);
 
         conversionLattice.addEdge(floatV, floatV, NativeConversionMapper.FLOAT_TO_FLOAT_FUNC, InstructionCodes.NOP);
         conversionLattice.addEdge(floatV, stringV, NativeConversionMapper.FLOAT_TO_STRING_FUNC, InstructionCodes.F2S);
         conversionLattice.addEdge(floatV, booleanV, NativeConversionMapper.FLOAT_TO_BOOLEAN_FUNC, InstructionCodes.F2B);
         conversionLattice.addEdge(floatV, intV, NativeConversionMapper.FLOAT_TO_INT_FUNC, InstructionCodes.F2I);
-        conversionLattice.addEdge(floatV, jsonV, NativeConversionMapper.FLOAT_TO_JSON_FUNC);
+        conversionLattice.addEdge(floatV, jsonV, NativeConversionMapper.FLOAT_TO_JSON_FUNC, InstructionCodes.F2JSON);
 
         conversionLattice.addEdge(stringV, stringV, NativeConversionMapper.STRING_TO_STRING_FUNC,
                 InstructionCodes.NOP);
@@ -214,7 +224,7 @@ public class TypeLattice {
         conversionLattice.addEdge(stringV, intV, NativeConversionMapper.STRING_TO_INT_FUNC, InstructionCodes.S2I);
         conversionLattice.addEdge(stringV, booleanV, NativeConversionMapper.STRING_TO_BOOLEAN_FUNC,
                 InstructionCodes.S2B);
-        conversionLattice.addEdge(stringV, jsonV, NativeConversionMapper.STRING_TO_JSON_FUNC);
+        conversionLattice.addEdge(stringV, jsonV, NativeConversionMapper.STRING_TO_JSON_FUNC, InstructionCodes.S2JSON);
         conversionLattice.addEdge(stringV, xmlV, NativeConversionMapper.STRING_TO_XML_FUNC);
 
         conversionLattice.addEdge(booleanV, booleanV, NativeConversionMapper.BOOLEAN_TO_BOOLEAN_FUNC,
@@ -224,12 +234,14 @@ public class TypeLattice {
         conversionLattice.addEdge(booleanV, intV, NativeConversionMapper.BOOLEAN_TO_INT_FUNC, InstructionCodes.B2I);
         conversionLattice.addEdge(booleanV, floatV, NativeConversionMapper.BOOLEAN_TO_FLOAT_FUNC,
                 InstructionCodes.B2F);
-        conversionLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC);
+        conversionLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC,
+                InstructionCodes.B2JSON);
 
-        conversionLattice.addEdge(jsonV, stringV, NativeConversionMapper.JSON_TO_STRING_FUNC);
-        conversionLattice.addEdge(jsonV, intV, NativeConversionMapper.JSON_TO_INT_FUNC);
-        conversionLattice.addEdge(jsonV, floatV, NativeConversionMapper.JSON_TO_FLOAT_FUNC);
-        conversionLattice.addEdge(jsonV, booleanV, NativeConversionMapper.JSON_TO_BOOLEAN_FUNC);
+        conversionLattice.addEdge(jsonV, stringV, NativeConversionMapper.JSON_TO_STRING_FUNC, InstructionCodes.JSON2S);
+        conversionLattice.addEdge(jsonV, intV, NativeConversionMapper.JSON_TO_INT_FUNC, InstructionCodes.JSON2I);
+        conversionLattice.addEdge(jsonV, floatV, NativeConversionMapper.JSON_TO_FLOAT_FUNC, InstructionCodes.JSON2F);
+        conversionLattice.addEdge(jsonV, booleanV, NativeConversionMapper.JSON_TO_BOOLEAN_FUNC,
+                InstructionCodes.JSON2B);
         conversionLattice.addEdge(jsonV, xmlV, NativeConversionMapper.JSON_TO_XML_FUNC);
 
         conversionLattice.addEdge(xmlV, jsonV, NativeConversionMapper.XML_TO_JSON_FUNC);

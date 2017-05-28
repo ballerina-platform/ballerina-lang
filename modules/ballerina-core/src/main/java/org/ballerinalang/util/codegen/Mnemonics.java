@@ -41,6 +41,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FCONST_5] = "fconst_5";
         mnemonics[InstructionCodes.BCONST_0] = "bconst_0";
         mnemonics[InstructionCodes.BCONST_1] = "bconst_1";
+        mnemonics[InstructionCodes.RCONST_NULL] = "rconst_null";
 
         mnemonics[InstructionCodes.ILOAD] = "iload";
         mnemonics[InstructionCodes.FLOAD] = "fload";
@@ -52,6 +53,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SALOAD] = "saload";
         mnemonics[InstructionCodes.BALOAD] = "baload";
         mnemonics[InstructionCodes.RALOAD] = "raload";
+        mnemonics[InstructionCodes.JSONALOAD] = "jsonaload";
         mnemonics[InstructionCodes.IGLOAD] = "igload";
         mnemonics[InstructionCodes.FGLOAD] = "fgload";
         mnemonics[InstructionCodes.SGLOAD] = "sgload";
@@ -68,6 +70,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SASTORE] = "sastore";
         mnemonics[InstructionCodes.BASTORE] = "bastore";
         mnemonics[InstructionCodes.RASTORE] = "rastore";
+        mnemonics[InstructionCodes.JSONASTORE] = "jsonastore";
         mnemonics[InstructionCodes.IGSTORE] = "igstore";
         mnemonics[InstructionCodes.FGSTORE] = "fgstore";
         mnemonics[InstructionCodes.SGSTORE] = "sgstore";
@@ -87,6 +90,8 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
         mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
+        mnemonics[InstructionCodes.JSONLOAD] = "jsonload";
+        mnemonics[InstructionCodes.JSONSTORE] = "jsonstore";
 
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
@@ -123,36 +128,46 @@ public class Mnemonics {
         mnemonics[InstructionCodes.I2S] = "i2s";
         mnemonics[InstructionCodes.I2B] = "i2b";
         mnemonics[InstructionCodes.I2ANY] = "i2any";
+        mnemonics[InstructionCodes.I2JSON] = "i2json";
         mnemonics[InstructionCodes.F2I] = "f2i";
         mnemonics[InstructionCodes.F2S] = "f2s";
         mnemonics[InstructionCodes.F2B] = "f2b";
         mnemonics[InstructionCodes.F2ANY] = "f2any";
+        mnemonics[InstructionCodes.F2JSON] = "f2json";
         mnemonics[InstructionCodes.S2I] = "s2i";
         mnemonics[InstructionCodes.S2F] = "s2f";
         mnemonics[InstructionCodes.S2B] = "s2b";
         mnemonics[InstructionCodes.S2ANY] = "s2any";
+        mnemonics[InstructionCodes.S2JSON] = "s2json";
         mnemonics[InstructionCodes.B2I] = "b2i";
         mnemonics[InstructionCodes.B2F] = "b2f";
         mnemonics[InstructionCodes.B2S] = "b2s";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
-        mnemonics[InstructionCodes.R2ANY] = "r2any";
+        mnemonics[InstructionCodes.B2JSON] = "b2json";
+        mnemonics[InstructionCodes.JSON2I] = "json2i";
+        mnemonics[InstructionCodes.JSON2F] = "json2f";
+        mnemonics[InstructionCodes.JSON2S] = "json2s";
+        mnemonics[InstructionCodes.JSON2B] = "json2b";
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";
         mnemonics[InstructionCodes.ANY2F] = "any2f";
         mnemonics[InstructionCodes.ANY2S] = "any2s";
         mnemonics[InstructionCodes.ANY2B] = "any2b";
-        mnemonics[InstructionCodes.ANY2R] = "any2r";
+        mnemonics[InstructionCodes.ANY2JSON] = "any2json";
+        mnemonics[InstructionCodes.NULL2JSON] = "null2json";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
+        mnemonics[InstructionCodes.JSONNEWARRAY] = "jsonnewarray";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
+        mnemonics[InstructionCodes.NEWJSON] = "newjson";
     }
 
     public static String getMnem(int opcode) {

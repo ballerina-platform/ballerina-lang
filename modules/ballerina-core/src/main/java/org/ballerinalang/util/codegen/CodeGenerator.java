@@ -131,6 +131,7 @@ import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -869,6 +870,9 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(NullLiteral nullLiteral) {
+        int regIndex = ++regIndexes[REF_OFFSET];
+        nullLiteral.setTempOffset(regIndex);
+        emit(InstructionCodes.RCONST_NULL, regIndex);
     }
 
     @Override
@@ -1220,12 +1224,49 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(JSONInitExpr jsonInitExpr) {
+        int jsonVarRegIndex = ++regIndexes[REF_OFFSET];
+        jsonInitExpr.setTempOffset(jsonVarRegIndex);
+        emit(InstructionCodes.NEWJSON, jsonVarRegIndex);
+
+        Expression[] argExprs = jsonInitExpr.getArgExprs();
+        for (Expression argExpr : argExprs) {
+            KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
+
+            Expression keyExpr = keyValueExpr.getKeyExpr();
+            keyExpr.accept(this);
+
+            Expression valueExpr = keyValueExpr.getValueExpr();
+            valueExpr.accept(this);
+
+            emit(InstructionCodes.JSONSTORE, jsonVarRegIndex, keyExpr.getTempOffset(), valueExpr.getTempOffset());
+        }
 
     }
 
     @Override
     public void visit(JSONArrayInitExpr jsonArrayInitExpr) {
+        int jsonVarRegIndex = ++regIndexes[REF_OFFSET];
+        jsonArrayInitExpr.setTempOffset(jsonVarRegIndex);
+        Expression[] argExprs = jsonArrayInitExpr.getArgExprs();
 
+        BasicLiteral arraySizeLiteral = new BasicLiteral(jsonArrayInitExpr.getNodeLocation(),
+                null, new BInteger(argExprs.length));
+        arraySizeLiteral.setType(BTypes.typeInt);
+        arraySizeLiteral.accept(this);
+
+        emit(InstructionCodes.JSONNEWARRAY, jsonVarRegIndex, arraySizeLiteral.getTempOffset());
+
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            argExpr.accept(this);
+
+            BasicLiteral indexLiteral = new BasicLiteral(jsonArrayInitExpr.getNodeLocation(),
+                    null, new BInteger(i));
+            indexLiteral.setType(BTypes.typeInt);
+            indexLiteral.accept(this);
+
+            emit(InstructionCodes.JSONASTORE, jsonVarRegIndex, indexLiteral.getTempOffset(), argExpr.getTempOffset());
+        }
     }
 
     @Override
@@ -1241,21 +1282,50 @@ public class CodeGenerator implements NodeVisitor {
         FieldAccessExpr childSFAccessExpr = fieldAccessExpr;
 
         while (true) {
-            ReferenceExpr referenceExpr = (ReferenceExpr) childSFAccessExpr.getVarRef();
             boolean isAssignment = childSFAccessExpr.getFieldExpr() == null && structAssignment;
-            if (referenceExpr instanceof VariableRefExpr) {
-                varAssignment = isAssignment;
-                referenceExpr.accept(this);
-                varAssignment = false;
 
-            } else if (referenceExpr instanceof ArrayMapAccessExpr) {
-                arrayMapAssignment = isAssignment;
-                referenceExpr.accept(this);
-                arrayMapAssignment = false;
+            int regIndex = -1;
+            if (childSFAccessExpr instanceof JSONFieldAccessExpr) {
+                Expression varRef = childSFAccessExpr.getVarRef();
+                int jsonValueRegIndex = regIndexes[REF_OFFSET];
+                varRef.accept(this);
+
+                if (varRef.getType() == BTypes.typeString) {
+                    if (isAssignment) {
+                        emit(InstructionCodes.JSONSTORE, jsonValueRegIndex, varRef.getTempOffset(), rhsExprRegIndex);
+                    } else {
+                        regIndex = ++regIndexes[REF_OFFSET];
+                        emit(InstructionCodes.JSONLOAD, jsonValueRegIndex, varRef.getTempOffset(), regIndex);
+                    }
+                } else if (varRef.getType() == BTypes.typeInt) {
+                    // JSON array access
+                    if (isAssignment) {
+                        emit(InstructionCodes.JSONASTORE, jsonValueRegIndex, varRef.getTempOffset(), rhsExprRegIndex);
+                    } else {
+                        regIndex = ++regIndexes[REF_OFFSET];
+                        emit(InstructionCodes.JSONALOAD, jsonValueRegIndex, varRef.getTempOffset(), regIndex);
+                    }
+                } else {
+                    throw new BallerinaException("Invalid json access field type: " + varRef.getType());
+                }
+
+            } else {
+                ReferenceExpr referenceExpr = (ReferenceExpr) childSFAccessExpr.getVarRef();
+                if (referenceExpr instanceof VariableRefExpr) {
+                    varAssignment = isAssignment;
+                    referenceExpr.accept(this);
+                    varAssignment = false;
+
+                } else if (referenceExpr instanceof ArrayMapAccessExpr) {
+                    arrayMapAssignment = isAssignment;
+                    referenceExpr.accept(this);
+                    arrayMapAssignment = false;
+                }
+                regIndex = referenceExpr.getTempOffset();
             }
 
             if (isAssignment || childSFAccessExpr.getFieldExpr() == null) {
-                fieldAccessExpr.setTempOffset(referenceExpr.getTempOffset());
+                fieldAccessExpr.setTempOffset(regIndex);
                 break;
             }
             childSFAccessExpr = childSFAccessExpr.getFieldExpr();
