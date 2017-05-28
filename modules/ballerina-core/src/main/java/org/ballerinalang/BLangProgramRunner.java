@@ -31,7 +31,6 @@ import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.values.BArray;
@@ -39,6 +38,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -52,6 +54,7 @@ import java.util.AbstractMap;
  */
 public class BLangProgramRunner {
 
+    @Deprecated
     public void startServices(BLangProgram bLangProgram) {
         BLangPackage[] servicePackages = bLangProgram.getServicePackages();
         if (servicePackages.length == 0) {
@@ -59,7 +62,6 @@ public class BLangProgramRunner {
         }
 
         int serviceCount = 0;
-        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
         for (BLangPackage servicePackage : servicePackages) {
             for (Service service : servicePackage.getServices()) {
                 serviceCount++;
@@ -83,6 +85,33 @@ public class BLangProgramRunner {
         bLangProgram.setRuntimeEnvironment(runtimeEnv);
     }
 
+    public void startServices(ProgramFile programFile) {
+        String[] servicePackageNameList = programFile.getServicePackageNameList();
+        if (servicePackageNameList.length == 0) {
+            throw new RuntimeException("no service found in '" + programFile.getProgramFilePath() + "'");
+        }
+        int serviceCount = 0;
+        for (String packageName : servicePackageNameList) {
+            PackageInfo packageInfo = programFile.getPackageInfo(packageName);
+            if (packageInfo != null) {
+                for (ServiceInfo serviceInfo : packageInfo.getServiceInfoList()) {
+                    DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
+                            dispatcher.serviceRegistered(serviceInfo));
+                    serviceCount++;
+                }
+            }
+        }
+        if (serviceCount == 0) {
+            throw new RuntimeException("no service found in '" + programFile.getProgramFilePath() + "'");
+        }
+        if (ModeResolver.getInstance().isDebugEnabled()) {
+            DebugManager debugManager = DebugManager.getInstance();
+            // This will start the websocket server.
+            debugManager.init();
+        }
+    }
+
+    @Deprecated
     public void runMain(BLangProgram bLangProgram, String[] args) {
         Context bContext = new Context();
         BallerinaFunction mainFunction = bLangProgram.getMainFunction();

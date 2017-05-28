@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPServiceDispatcher.class);
 
-
+    @Deprecated
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
 
         try {
@@ -100,6 +101,61 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceUnregistered(Service service) {
+        HTTPServicesRegistry.getInstance().unregisterService(service);
+    }
+
+    public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
+
+        try {
+            String interfaceId = getInterface(cMsg);
+            Map<String, ServiceInfo> servicesOnInterface = HTTPServicesRegistry
+                    .getInstance().getServicesInfoByInterface(interfaceId);
+            if (servicesOnInterface == null) {
+                throw new BallerinaException("No services found for interface : " + interfaceId);
+            }
+            String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+            //replace multiple slashes from single slash if exist in request path to enable
+            // dispatchers when request path contains multiple slashes
+            URI requestUri = URI.create(uriStr.replaceAll("//+", Constants.DEFAULT_BASE_PATH));
+            if (requestUri == null) {
+                throw new BallerinaException("uri not found in the message or found an invalid URI.");
+            }
+
+            String basePath = URIUtil.getFirstPathSegment(requestUri.getPath());
+            String subPath = URIUtil.getSubPath(requestUri.getPath());
+
+            // Most of the time we will find service from here
+            ServiceInfo service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH + basePath);
+
+            // Check if there is a service with default base path ("/")
+            if (service == null) {
+                service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH);
+                basePath = Constants.DEFAULT_BASE_PATH;
+            }
+
+            if (service == null) {
+                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
+            }
+
+            cMsg.setProperty(Constants.BASE_PATH, basePath);
+            cMsg.setProperty(Constants.SUB_PATH, subPath);
+            cMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
+            //store query params comes with request as it is
+            cMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
+
+            return service;
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void serviceRegistered(ServiceInfo service) {
+        HTTPServicesRegistry.getInstance().registerService(service);
+    }
+
+    @Override
+    public void serviceUnregistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().unregisterService(service);
     }
 

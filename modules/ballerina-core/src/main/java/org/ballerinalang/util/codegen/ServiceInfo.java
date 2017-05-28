@@ -36,8 +36,16 @@ public class ServiceInfo extends StructureTypeInfo {
 
     private FunctionInfo initFuncInfo;
 
+    // Cache values.
+    private String serviceName;
+    private PackageInfo packageInfo;
+
     public ServiceInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
         super(pkgPathCPIndex, connectorNameCPIndex);
+    }
+
+    public ResourceInfo[] getResourceInfoList() {
+        return resourceInfoMap.values().toArray(new ResourceInfo[0]);
     }
 
     public void addResourceInfo(String resourceName, ResourceInfo resourceInfo) {
@@ -67,4 +75,35 @@ public class ServiceInfo extends StructureTypeInfo {
                 && pkgPathCPIndex == (((ServiceInfo) obj).pkgPathCPIndex)
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
     }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
+    }
+
+    protected void setPackageInfo(PackageInfo packageInfo) {
+        this.packageInfo = packageInfo;
+    }
+
+    public AnnotationAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
+        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
+                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
+        if (attributeInfo == null || packageName == null || annotationName == null) {
+            return null;
+        }
+        for (AnnotationAttachmentInfo annotationInfo : attributeInfo.getAnnotationAttachmentInfo()) {
+            if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
+                return annotationInfo;
+            }
+        }
+        return null;
+    }
+
 }

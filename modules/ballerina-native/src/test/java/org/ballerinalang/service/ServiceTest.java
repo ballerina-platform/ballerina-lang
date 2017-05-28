@@ -18,13 +18,13 @@
 
 package org.ballerinalang.service;
 
-import org.ballerinalang.core.EnvironmentInitializer;
-import org.ballerinalang.core.utils.MessageUtils;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.util.Services;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.http.HTTPResourceDispatcher;
+import org.ballerinalang.testutils.EnvironmentInitializer;
+import org.ballerinalang.testutils.MessageUtils;
+import org.ballerinalang.testutils.Services;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -39,11 +39,13 @@ import java.nio.ByteBuffer;
  */
 public class ServiceTest {
 
-    BLangProgram bLangProgram;
+//    BLangProgram bLangProgram;
+    ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = EnvironmentInitializer.setup("lang/service/echoService.bal");
+//        bLangProgram = EnvironmentInitializer.setup("lang/service/echoService.bal");
+        programFile = EnvironmentInitializer.setupProgramFile("lang/service/echoService.bal");
     }
 
     @Test
@@ -55,7 +57,8 @@ public class ServiceTest {
     }
 
     @Test(description = "Test for protocol availability check", expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* protocol not defined .*")
+//            expectedExceptionsMessageRegExp = ".* protocol not defined .*")
+            expectedExceptionsMessageRegExp = ".*Cannot handle error using the error handler for.*")
     public void testProtocolAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         cMsg.removeProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
@@ -64,40 +67,44 @@ public class ServiceTest {
 
     @Test(description = "Test for service dispatcher availability check",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no service dispatcher available .*")
+//            expectedExceptionsMessageRegExp = ".* no service dispatcher available .*")
+            expectedExceptionsMessageRegExp = ".*Cannot handle error using the error handler for.*")
     public void testServiceDispatcherAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, "FOO");   // setting incorrect protocol
         Services.invoke(cMsg);
     }
 
-    @Test(description = "Test for service availability check",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no service found .*")
+    @Test(description = "Test for service availability check")
     public void testServiceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
-        Services.invoke(cMsg);
+        CarbonMessage invoke = Services.invoke(cMsg);
+        Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
+                "error in ballerina program: no service found to handle incoming request recieved to : /foo/message");
     }
 
-    @Test(description = "Test for resource dispatcher availability check",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no resource dispatcher available .*")
+    @Test(description = "Test for resource dispatcher availability check")
     public void testResourceDispatcherAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         DispatcherRegistry.getInstance().unregisterResourceDispatcher("http"); // Remove http resource dispatcher
         try {
-            Services.invoke(cMsg);
+            CarbonMessage invoke = Services.invoke(cMsg);
+            Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
+                    "error in ballerina program: no resource dispatcher available to handle protocol: http");
+
         } finally {
             DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher()); // Add back
         }
     }
 
-    @Test(description = "Test for resource availability check",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = ".* no resource found .*")
+    @Test(description = "Test for resource availability check")
     public void testResourceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
-        Services.invoke(cMsg);
+        CarbonMessage invoke = Services.invoke(cMsg);
+        Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
+                "error in ballerina program: no resource found to handle the request to Service: echo : no matching " +
+                        "resource found for Path : /bar , Method : GET");
+
     }
 
     @Test
@@ -110,7 +117,7 @@ public class ServiceTest {
         Assert.assertNotNull(response);
     }
 
-    @Test
+    @Test(dependsOnMethods = "testSetString")
     public void testGetString() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
         CarbonMessage response = Services.invoke(cMsg);
@@ -118,7 +125,7 @@ public class ServiceTest {
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "");
+        Assert.assertEquals(stringDataSource.getValue(), "hello");
     }
 
     @Test
@@ -141,7 +148,7 @@ public class ServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(bLangProgram);
+        EnvironmentInitializer.cleanup(programFile);
     }
 
     //TODO: add more test cases

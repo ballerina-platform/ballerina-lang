@@ -50,11 +50,12 @@ import java.util.Map;
 
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram.
- *
+ * @deprecated since 0.88
  * @since 0.8.0
  */
 public class BalProgramExecutor {
 
+    @Deprecated
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
 
