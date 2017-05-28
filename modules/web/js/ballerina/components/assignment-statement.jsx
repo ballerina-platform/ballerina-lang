@@ -17,7 +17,13 @@
  */
 import React from "react";
 import StatementDecorator from "./statement-decorator";
-import PropTypes from "prop-types"
+import PropTypes from "prop-types";
+import _ from 'lodash';
+import MessageManager from './../visitors/message-manager';
+import DragDropManager from '../tool-palette/drag-drop-manager';
+import ActiveArbiter from './active-arbiter';
+import ArrowDecorator from './arrow-decorator';
+import BackwardArrowDecorator from './backward-arrow-decorator';
 
 /**
  * Assignment statement decorator.
@@ -40,9 +46,122 @@ class AssignmentStatement extends React.Component {
      * */
     render() {
         let model = this.props.model,
-            expression = model.viewState.expression;
-        return (<StatementDecorator viewState={model.viewState} expression={expression}
-                    editorOptions={this.editorOptions} model={model} />);
+            expression = model.viewState.expression,
+            bBox = model.getViewState().bBox;
+
+        let innerZoneHeight = model.getViewState().components['drop-zone'].h;
+
+        // calculate the bBox for the statement
+        this.statementBox = {};
+        this.statementBox.h = bBox.h - innerZoneHeight;
+        this.statementBox.y = bBox.y + innerZoneHeight;
+        this.statementBox.w = bBox.w;
+        this.statementBox.x = bBox.x;
+
+        const arrowStartPointX = bBox.getRight();
+        const arrowStartPointY = this.statementBox.y + this.statementBox.h/2;
+        const radius = 10;
+        const actionInvocation = !_.isNil(model.getChildren()[1].getChildren()[0]) ?
+            model.getChildren()[1].getChildren()[0] : undefined;
+        let connector;
+        let arrowStart = { x: 0, y: 0 };
+        let arrowEnd = { x: 0, y: 0 };
+        let backArrowStart = { x: 0, y: 0 };
+        let backArrowEnd = { x: 0, y: 0 };
+
+        if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation._connector)) {
+            connector = actionInvocation._connector;
+
+            // TODO: need a proper way to do this
+            let isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(function (child) {
+                return child.id === connector.id;
+            }));
+
+            arrowStart.x = this.statementBox.x + this.statementBox.w;
+            arrowStart.y = this.statementBox.y + this.statementBox.h/3;
+
+            if (!isConnectorAvailable) {
+                connector = undefined;
+                actionInvocation._connector = undefined;
+            } else {
+                arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
+            }
+
+            arrowEnd.y = arrowStart.y;
+            backArrowStart.x = arrowEnd.x;
+            backArrowStart.y = this.statementBox.y + (2 * this.statementBox.h/3);
+            backArrowEnd.x = arrowStart.x;
+            backArrowEnd.y = backArrowStart.y;
+        }
+
+
+        return (<StatementDecorator viewState={model.viewState} expression={expression} editorOptions={this.editorOptions} model={model}>
+            {!_.isNil(actionInvocation) &&
+            <g>
+                <circle cx={arrowStartPointX}
+                        cy={arrowStartPointY}
+                        r={radius}
+                        fill="#444"
+                        fillOpacity={0}
+                        onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
+                        onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
+                        onMouseDown={(e) => this.onMouseDown(e)}
+                        onMouseUp={(e) => this.onMouseUp(e)}/>
+                {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
+                {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
+            </g>
+            }
+        </StatementDecorator>);
+    }
+
+    setActionVisibility (show) {
+        if (!this.context.dragDropManager.isOnDrag()) {
+            if (show) {
+                this.context.activeArbiter.readyToActivate(this);
+            } else {
+                this.context.activeArbiter.readyToDeactivate(this);
+            }
+        }
+    }
+
+    onArrowStartPointMouseOver (e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0.5;
+        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
+    }
+
+    onArrowStartPointMouseOut (e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0;
+    }
+
+    onMouseDown (e) {
+        const messageManager = this.context.messageManager;
+        const model = this.props.model;
+        const bBox = model.getViewState().bBox;
+        const statement_h = this.statementBox.h;
+        const messageStartX = bBox.x +  bBox.w;
+        const messageStartY = this.statementBox.y +  statement_h/2;
+        let actionInvocation;
+        actionInvocation = model.getChildren()[1].getChildren()[0];
+        messageManager.setSource(actionInvocation);
+        messageManager.setIsOnDrag(true);
+        messageManager.setMessageStart(messageStartX, messageStartY);
+
+        messageManager.setTargetValidationCallback(function (destination) {
+            return actionInvocation.messageDrawTargetAllowed(destination);
+        });
+
+        messageManager.startDrawMessage(function (source, destination) {
+            source.setConnector(destination);
+            model.generateStatementString();
+            model.trigger('tree-modified', {type:'custom', title:'action set'});
+        });
+    }
+
+    onMouseUp (e) {
+        const messageManager = this.context.messageManager;
+        messageManager.reset();
     }
 }
 
@@ -56,6 +175,14 @@ AssignmentStatement.propTypes = {
     expression: PropTypes.shape({
         expression: PropTypes.string
     })
+};
+
+AssignmentStatement.contextTypes = {
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
+    container: PropTypes.instanceOf(Object).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired
 };
 
 export default AssignmentStatement;
