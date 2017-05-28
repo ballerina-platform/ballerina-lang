@@ -18,7 +18,6 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import {statement} from './../configs/designer-defaults';
 import {lifeLine} from './../configs/designer-defaults';
 import ASTNode from '../ast/node';
 import ActionBox from './action-box';
@@ -26,12 +25,8 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import MessageManager from './../visitors/message-manager';
-import ASTFactory from './../ast/ballerina-ast-factory';
 import './statement-decorator.css';
-import ArrowDecorator from './arrow-decorator';
-import BackwardArrowDecorator from './backward-arrow-decorator';
 import ExpressionEditor from 'expression_editor_utils';
-import ImageUtil from './image-util';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 
@@ -116,117 +111,55 @@ class StatementDecorator extends React.Component {
 		const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
 		const innerDropZoneActivated = this.state.innerDropZoneActivated;
 		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-		let arrowStart = { x: 0, y: 0 };
-		let arrowEnd = { x: 0, y: 0 };
-		let backArrowStart = { x: 0, y: 0 };
-		let backArrowEnd = { x: 0, y: 0 };
 		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
 											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
 
-		const arrowStartPointX = bBox.getRight();
-		const arrowStartPointY = this.statementBox.y + this.statementBox.h/2;
-		const radius = 10;
-
-		let actionInvocation;
-		let isActionInvocation = false;
-		let connector;
-		if (ASTFactory.isAssignmentStatement(model)) {
-			actionInvocation = model.getChildren()[1].getChildren()[0];
-		} else if (ASTFactory.isVariableDefinitionStatement(model)) {
-			actionInvocation = model.getChildren()[1];
-		}
-
-		if (actionInvocation) {
-			isActionInvocation = !_.isNil(actionInvocation) && ASTFactory.isActionInvocationExpression(actionInvocation);
-			if (!_.isNil(actionInvocation._connector)) {
-				connector = actionInvocation._connector;
-
-				// TODO: need a proper way to do this
-				let isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(function (child) {
-					return child.id === connector.id;
-				}));
-
-				arrowStart.x = this.statementBox.x + this.statementBox.w;
-				arrowStart.y = this.statementBox.y + this.statementBox.h/3;
-
-				if (!isConnectorAvailable) {
-					connector = undefined;
-					actionInvocation._connector = undefined;
-				} else {
-					arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w/2;
-				}
-
-				arrowEnd.y = arrowStart.y;
-				backArrowStart.x = arrowEnd.x;
-				backArrowStart.y = this.statementBox.y + (2 * this.statementBox.h/3);
-				backArrowEnd.x = arrowStart.x;
-				backArrowEnd.y = backArrowStart.y;
-			}
-		}
 		const actionBbox = new SimpleBBox();
-        const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};
+		const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};
 		actionBbox.w = DesignerDefaults.actionBox.width;
 		actionBbox.h = DesignerDefaults.actionBox.height;
 		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
 		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
 		let statementRectClass = "statement-rect";
 		if(model.isDebugHit) {
-				statementRectClass = `${statementRectClass} debug-hit`;
+			statementRectClass = `${statementRectClass} debug-hit`;
 		}
 
 		return (
-            <g className="statement"
-               onMouseOut={ this.setActionVisibility.bind(this, false) }
-               onMouseOver={ this.setActionVisibility.bind(this, true)}>
-						<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
-			                className={dropZoneClassName} {...fill}
-						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
-								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
-							  onClick={(e) => this.openExpressionEditor(e)} />
-						<g className="statement-body">
-							<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
-						</g>
-						<ActionBox
-                            bBox={ actionBbox }
-                            show={ this.state.active }
-                            isBreakpoint={model.isBreakpoint}
-                            onDelete={ () => this.onDelete() }
-                            onJumptoCodeLine={ () => this.onJumptoCodeLine() }
-                            onBreakpointClick={ () => this.onBreakpointClick() }
-						/>
-
-						{isActionInvocation &&
-							<g>
-								<circle cx={arrowStartPointX}
-								cy={arrowStartPointY}
-								r={radius}
-								fill="#444"
-								fillOpacity={0}
-								onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
-								onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
-								onMouseDown={(e) => this.onMouseDown(e)}
-								onMouseUp={(e) => this.onMouseUp(e)}/>
-								{connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
-								{connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable={true}/>}
-							</g>
-						}
-						{		model.isBreakpoint &&
-								this.renderBreakpointIndicator()
-						}
-				{this.props.children}
-				</g>);
+			<g className="statement"
+			   onMouseOut={ this.setActionVisibility.bind(this, false) }
+				onMouseOver={ this.setActionVisibility.bind(this, true)}>
+					<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
+						className={dropZoneClassName} {...fill}
+							onMouseOver={(e) => this.onDropZoneActivate(e)}
+							onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+					<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
+						  onClick={(e) => this.openExpressionEditor(e)} />
+					<g className="statement-body">
+						<text x={text_x} y={text_y} className="statement-text" onClick={(e) => this.openExpressionEditor(e)}>{expression}</text>
+					</g>
+					<ActionBox
+						bBox={ actionBbox }
+						show={ this.state.active }
+						isBreakpoint={model.isBreakpoint}
+						onDelete={ () => this.onDelete() }
+						onJumptoCodeLine={ () => this.onJumptoCodeLine() }
+						onBreakpointClick={ () => this.onBreakpointClick() }
+					/>
+					{ model.isBreakpoint && this.renderBreakpointIndicator() }
+					{ this.props.children }
+			</g>);
 	}
 
-  setActionVisibility (show) {
-      if (!this.context.dragDropManager.isOnDrag()) {
-          if (show) {
-              this.context.activeArbiter.readyToActivate(this);
-          } else {
-              this.context.activeArbiter.readyToDeactivate(this);
-          }
-      }
-  }
+	setActionVisibility (show) {
+		if (!this.context.dragDropManager.isOnDrag()) {
+			if (show) {
+				this.context.activeArbiter.readyToActivate(this);
+			} else {
+				this.context.activeArbiter.readyToDeactivate(this);
+			}
+		}
+	}
 
 	onDropZoneActivate (e) {
 			const dragDropManager = this.context.dragDropManager,
@@ -265,50 +198,6 @@ class StatementDecorator extends React.Component {
 							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
 					}
 			}
-	}
-
-	onArrowStartPointMouseOver (e) {
-		e.target.style.fill = '#444';
-		e.target.style.fillOpacity = 0.5;
-		e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
-	}
-
-	onArrowStartPointMouseOut (e) {
-		e.target.style.fill = '#444';
-		e.target.style.fillOpacity = 0;
-	}
-
-	onMouseDown (e) {
-		const messageManager = this.context.messageManager;
-		const model = this.props.model;
-		const bBox = model.getViewState().bBox;
-		const statement_h = this.statementBox.h;
-		const messageStartX = bBox.x +  bBox.w;
-		const messageStartY = this.statementBox.y +  statement_h/2;
-		let actionInvocation;
-		if (ASTFactory.isAssignmentStatement(model)) {
-			actionInvocation = model.getChildren()[1].getChildren()[0];
-		} else if (ASTFactory.isVariableDefinitionStatement(model)) {
-			actionInvocation = model.getChildren()[1];
-		}
-		messageManager.setSource(actionInvocation);
-		messageManager.setIsOnDrag(true);
-		messageManager.setMessageStart(messageStartX, messageStartY);
-
-		messageManager.setTargetValidationCallback(function (destination) {
-			return actionInvocation.messageDrawTargetAllowed(destination);
-		});
-
-		messageManager.startDrawMessage(function (source, destination) {
-			source.setConnector(destination);
-			model.generateStatementString();
-			model.trigger('tree-modified', {type:'custom', title:'action set'});
-		});
-	}
-
-	onMouseUp (e) {
-		const messageManager = this.context.messageManager;
-		messageManager.reset();
 	}
 
 	openExpressionEditor(e){
