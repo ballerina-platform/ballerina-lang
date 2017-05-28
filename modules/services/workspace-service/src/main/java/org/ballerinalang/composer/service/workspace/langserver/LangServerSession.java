@@ -19,20 +19,32 @@ package org.ballerinalang.composer.service.workspace.langserver;
 import io.netty.channel.Channel;
 
 /**
- * Launch session which holds the client information.
+ * LangServer session which holds the client information.
  */
 public class LangServerSession {
 
     private Channel channel = null;
 
+    /**
+     * Constructor
+     * @param channel netty channel
+     */
     public LangServerSession(Channel channel) {
         this.channel = channel;
     }
 
+    /**
+     * Get the channel
+     * @return channel
+     */
     public Channel getChannel() {
         return channel;
     }
 
+    /**
+     * Set the channel
+     * @param channel netty channel
+     */
     public void setChannel(Channel channel) {
         this.channel = channel;
     }

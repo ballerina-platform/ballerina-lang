@@ -45,6 +45,11 @@ import alerts from 'alerts';
             this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
             this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
             this.deserializer = BallerinaASTDeserializer;
+            this._file.setLangserverCallbacks({
+                documentDidSaveNotification:  (options) => {
+                    this.app.langseverClientController.documentDidSaveNotification(options)
+                }
+                });
         },
 
         getTitle: function(){
@@ -83,9 +88,10 @@ import alerts from 'alerts';
                 this._file.save();
             }
             // Send document open notification to the language server
+            const docUri = this._file.isPersisted() ? this._file.getPath() : ('/temp/' + this._file.id);
             let documentOptions = {
                 textDocument: {
-                    documentUri: this._file.id,
+                    documentUri: docUri,
                     languageId: 'ballerina',
                     version: 1,
                     text: this._file.getContent()
@@ -140,10 +146,12 @@ import alerts from 'alerts';
             }, this);
 
             this.on('tab-removed', function() {
-                // Send document open notification to the language server
+                const docUri = this._file.isPersisted() ? this._file.getPath() : ('/temp/' + this._file.id);
+                // Send document closed notification to the language server
                 let documentOptions = {
                     textDocument: {
-                        documentUri: this._file.id
+                        documentUri: docUri,
+                        documentId: this._file.id
                     }
                 };
                 this.app.langseverClientController.documentDidCloseNotification(documentOptions);

@@ -45,7 +45,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
- * Handler of langServer websocket.
+ * Handler of language Server websocket.
  */
 public class LangServerHandler extends SimpleChannelInboundHandler<Object> {
 
@@ -102,7 +102,6 @@ public class LangServerHandler extends SimpleChannelInboundHandler<Object> {
         // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
             handShaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
-//            LangServerManager.getInstance().stopProcess();
             return;
         }
         if (frame instanceof PingWebSocketFrame) {
@@ -114,14 +113,12 @@ public class LangServerHandler extends SimpleChannelInboundHandler<Object> {
                     .getName()));
         }
 
-
         String request = ((TextWebSocketFrame) frame).text();
         LangServerManager langServerManager = LangServerManager.getInstance();
         langServerManager.processFrame(request);
     }
 
-    private static void sendHttpResponse(
-            ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
+    private static void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
         // Generate an error page if response getStatus code is not OK (200).
         if (res.status().code() != OK.code()) {
             ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);

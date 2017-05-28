@@ -14,30 +14,16 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.composer.service.workspace.langserver.consts;
+package org.ballerinalang.composer.service.workspace.langserver.dto;
 
-/**
- * Symbol kind Constants
- */
-public class SymbolKind {
-    public static final int FILE = 1;
+public class WorkspaceSymbolParamsDTO {
+    private String query;
 
-    public static final int PACKAGE_DEF = 2;
+    public String getQuery() {
+        return query;
+    }
 
-    public static final int IMPORT_DEF = 3;
-
-    public static final int SERVICE_DEF = 4;
-
-    public static final int FUNCTION_DEF = 5;
-
-    public static final int CONNECTOR_DEF = 6;
-
-    public static final int RESOURCE_DEF = 7;
-
-    public static final int ACTION_DEF = 8;
-
-    public static final int VARIABLE_DEF = 9;
-
-    public static final int BUILTIN_TYPE = 10;
+    public void setQuery(String query) {
+        this.query = query;
+    }
 }
-

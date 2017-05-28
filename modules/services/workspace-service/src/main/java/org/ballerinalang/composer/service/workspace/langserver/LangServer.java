@@ -16,7 +16,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver;
 
-import com.google.gson.Gson;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -27,12 +26,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.composer.service.workspace.langserver.dto.MessageDTO;
 
 
 /**
- * Launch Server , websocket server which handles launch requests and stream
+ * Language Server , websocket server which handles language server requests and stream
  * application output back to the client
  */
 public class LangServer {
@@ -57,7 +54,10 @@ public class LangServer {
         }
     }
 
-    public void startServer() {
+    /**
+     * Start Language server
+     */
+    void startServer() {
         //lets start the server in a new thread.
         Runnable run = new Runnable() {
             public void run() {
@@ -67,6 +67,9 @@ public class LangServer {
         (new Thread(run)).start();
     }
 
+    /**
+     * Language server starts listening
+     */
     private void startListening() {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -88,18 +91,5 @@ public class LangServer {
             workerGroup.shutdownGracefully();
         }
     }
-
-    /**
-     * Push message to client.
-     *
-     * @param langServerSession the launch session
-     * @param status       the status
-     */
-    public void pushMessageToClient(LangServerSession langServerSession, MessageDTO status) {
-        Gson gson = new Gson();
-        String json = gson.toJson(status);
-        langServerSession.getChannel().write(new TextWebSocketFrame(json));
-        langServerSession.getChannel().flush();
-    }
-
 }
+

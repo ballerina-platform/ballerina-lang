@@ -28,14 +28,25 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * Provider for the workspace symbols
+ */
 public class WorkspaceSymbolProvider {
 
     private static Logger logger = LoggerFactory.getLogger(WorkspaceSymbolProvider.class);
     private static BallerinaProgramContentProvider contentProvider = BallerinaProgramContentProvider.getInstance();
 
+    /**
+     * Constructor
+     */
     public WorkspaceSymbolProvider() {
     }
 
+    /**
+     * Router to get the particular symbol type
+     * @param query symbol query string
+     * @return SymbolInformationDTO array
+     */
     public SymbolInformationDTO[] getSymbols(String query) {
         switch (query) {
             case LangServerConstants.BUILTIN_TYPES:
@@ -48,6 +59,10 @@ public class WorkspaceSymbolProvider {
         }
     }
 
+    /**
+     * Get the builtin types
+     * @return SymbolInformationDTO array
+     */
     private SymbolInformationDTO[] getBuiltinTypes() {
         JsonArray builtinTypes = contentProvider.builtinTypes();
         ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();
@@ -61,6 +76,10 @@ public class WorkspaceSymbolProvider {
         return symbolInformationArr.toArray(new SymbolInformationDTO[0]);
     }
 
+    /**
+     * Get the packages
+     * @return SymbolInformationDTO array
+     */
     public SymbolInformationDTO[] getPackages() {
         Map<String, ModelPackage> packages = contentProvider.getAllPackages();
         ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();

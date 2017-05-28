@@ -16,14 +16,16 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
-public class WorkspaceSymbolParams {
-    private String query;
+import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 
-    public String getQuery() {
-        return query;
+public class InitializeResultDTO {
+    private ServerCapabilitiesDTO capabilities;
+
+    public ServerCapabilitiesDTO getCapabilities() {
+        return capabilities;
     }
 
-    public void setQuery(String query) {
-        this.query = query;
+    public void setCapabilities(ServerCapabilitiesDTO capabilities) {
+        this.capabilities = capabilities;
     }
 }

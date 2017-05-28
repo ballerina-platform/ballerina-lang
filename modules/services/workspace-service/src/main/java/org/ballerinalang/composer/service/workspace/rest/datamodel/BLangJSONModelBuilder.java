@@ -87,6 +87,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -1291,12 +1292,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         typeCastEprObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTypeName().toString());
 
         tempJsonArrayRef.push(new JsonArray());
-        if (typeCastExpression.getArgExprs() != null) {
-            typeCastExpression.getArgExprs()[0].accept(this);
-        }
+        typeCastExpression.getRExpr().accept(this);
         typeCastEprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(typeCastEprObj);
+    }
+
+    @Override
+    public void visit(TypeConversionExpr typeConversionExpr) {
+
     }
 
     @Override

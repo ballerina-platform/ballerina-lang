@@ -16,16 +16,25 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
-import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
+public class DidSaveTextDocumentParamsDTO {
 
-public class InitializeResult {
-    private ServerCapabilitiesDTO capabilities;
+    private TextDocumentIdentifierDTO textDocument;
 
-    public ServerCapabilitiesDTO getCapabilities() {
-        return capabilities;
+    private String text;
+
+    public TextDocumentIdentifierDTO getTextDocument() {
+        return textDocument;
     }
 
-    public void setCapabilities(ServerCapabilitiesDTO capabilities) {
-        this.capabilities = capabilities;
+    public void setTextDocument(TextDocumentIdentifierDTO textDocument) {
+        this.textDocument = textDocument;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

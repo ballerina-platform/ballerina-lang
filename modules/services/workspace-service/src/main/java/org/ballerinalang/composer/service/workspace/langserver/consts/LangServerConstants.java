@@ -67,6 +67,7 @@ public class LangServerConstants {
     public static final String EXIT = "exit";
     public static final String TEXT_DOCUMENT_DID_OPEN = "textDocument/didOpen";
     public static final String TEXT_DOCUMENT_DID_CLOSE = "textDocument/didClose";
+    public static final String TEXT_DOCUMENT_DID_SAVE = "textDocument/didSave";
     public static final String TEXT_DOCUMENT_DOCUMENT_SYMBOL = "textDocument/documentSymbol";
 
     public static final String WORKSPACE_SYMBOL = "workspace/symbol";

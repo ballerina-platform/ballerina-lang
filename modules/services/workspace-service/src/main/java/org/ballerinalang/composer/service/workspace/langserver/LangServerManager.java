@@ -24,8 +24,9 @@ import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
+import org.ballerinalang.composer.service.workspace.langserver.dto.DidSaveTextDocumentParamsDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ErrorDataDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.InitializeResult;
+import org.ballerinalang.composer.service.workspace.langserver.dto.InitializeResultDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.MessageDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessageDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseErrorDTO;
@@ -42,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Launch Manager which manage launch requests from the clients.
+ * Language server Manager which manage langServer requests from the clients.
  */
 public class LangServerManager {
     
@@ -104,6 +105,7 @@ public class LangServerManager {
         RequestMessageDTO message = gson.fromJson(json, RequestMessageDTO.class);
 
         if (message.getId() != null) {
+            // Request Message Received
             processRequest(message);
         } else {
             // Notification message Received
@@ -153,6 +155,8 @@ public class LangServerManager {
                 case LangServerConstants.TEXT_DOCUMENT_DID_CLOSE:
                     this.documentDidClose(message);
                     break;
+                case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
+                    this.documentDidSave(message);
                 default:
                     // Valid Method could not be found
                     // Only log a warn since this is a notification
@@ -182,7 +186,8 @@ public class LangServerManager {
      * @param message MessageDTO
      */
     private void invalidMethodFound(MessageDTO message) {
-        sendErrorResponse(LangServerConstants.METHOD_NOT_FOUND_LINE, LangServerConstants.METHOD_NOT_FOUND, message, null);
+        sendErrorResponse(LangServerConstants.METHOD_NOT_FOUND_LINE, LangServerConstants.METHOD_NOT_FOUND,
+                message, null);
     }
 
     /**
@@ -209,17 +214,17 @@ public class LangServerManager {
         pushMessageToClient(langServerSession, responseMessageDTO);
     }
 
-    // Start Request Handlers
 
+    // Start Request Handlers
     /**
      * Process initialize request
-     * @param message MessageDTO
+     * @param message Request Message
      */
     private void initialize(MessageDTO message) {
         this.setInitialized(true);
 
         ResponseMessageDTO responseMessage = new ResponseMessageDTO();
-        InitializeResult initializeResult = new InitializeResult();
+        InitializeResultDTO initializeResult = new InitializeResultDTO();
         if (message instanceof RequestMessageDTO) {
             responseMessage.setId(((RequestMessageDTO) message).getId());
         }
@@ -228,14 +233,13 @@ public class LangServerManager {
         responseMessage.setResult(initializeResult);
         pushMessageToClient(langServerSession, responseMessage);
     }
-
     // End Request Handlers
 
-    // Start Notification handlers
 
+    // Start Notification handlers
     /**
      * Handle Document did open notification
-     * @param message MessageDTO
+     * @param message Request Message
      */
     private void documentDidOpen(MessageDTO message) {
         if (message instanceof RequestMessageDTO) {
@@ -254,6 +258,10 @@ public class LangServerManager {
         }
     }
 
+    /**
+     * Handle Document did close notification
+     * @param message Request Message
+     */
     private void documentDidClose(MessageDTO message) {
         if (message instanceof RequestMessageDTO) {
             try {
@@ -280,6 +288,42 @@ public class LangServerManager {
         }
     }
 
+    private void documentDidSave(MessageDTO message) {
+        if (message instanceof RequestMessageDTO) {
+            JsonObject params = gson.toJsonTree(((RequestMessageDTO) message).getParams()).getAsJsonObject();
+            DidSaveTextDocumentParamsDTO didSaveTextDocumentParams = gson.fromJson(params.toString(),
+                    DidSaveTextDocumentParamsDTO.class);
+            TextDocumentIdentifierDTO textDocumentIdentifier = didSaveTextDocumentParams.getTextDocument();
+
+            /**
+             * If the text document have not been persisted then this is the first time we try to
+             * persist the document. In that case we need to remove the previous temp entry
+             */
+            TextDocumentItemDTO textDocumentItem;
+            if (this.getOpenDocumentSessions().containsKey("/temp/" + textDocumentIdentifier.getDocumentId())) {
+                textDocumentItem = this.getOpenDocumentSessions()
+                        .get("/temp/" + textDocumentIdentifier.getDocumentId());
+                this.getOpenDocumentSessions()
+                        .remove("/temp/" + textDocumentIdentifier.getDocumentId());
+                textDocumentItem.setText(didSaveTextDocumentParams.getText());
+                this.getOpenDocumentSessions().put(textDocumentIdentifier.getDocumentUri(), textDocumentItem);
+            } else if (this.getOpenDocumentSessions().containsKey(textDocumentIdentifier.getDocumentUri())){
+                textDocumentItem = this.getOpenDocumentSessions()
+                        .get(textDocumentIdentifier.getDocumentUri());
+                textDocumentItem.setText(didSaveTextDocumentParams.getText());
+            } else {
+                logger.warn("Invalid document uri");
+            }
+        } else {
+            // Invalid message type found
+            logger.warn("Invalid Message type found");
+        }
+    }
+
+    /**
+     * Handle the get workspace symbol requests
+     * @param message Request Message
+     */
     private void getWorkspaceSymbol(MessageDTO message) {
         if (message instanceof RequestMessageDTO) {
             String query = (String) ((LinkedTreeMap) ((RequestMessageDTO) message).getParams()).get("query");
@@ -295,7 +339,7 @@ public class LangServerManager {
 
     /**
      * Process Shutdown notification
-     * @param message MessageDTO
+     * @param message Request Message
      */
     private void shutdown(MessageDTO message) {
         ResponseMessageDTO responseMessage = new ResponseMessageDTO();
@@ -305,7 +349,7 @@ public class LangServerManager {
 
     /**
      * Handle exit notification
-     * @param message MessageDTO
+     * @param message Request Message
      */
     private void exit(MessageDTO message) {
         //Exit the process

@@ -20,11 +20,21 @@ public class TextDocumentIdentifierDTO {
 
     private String documentUri;
 
+    private String documentId;
+
     public String getDocumentUri() {
         return documentUri;
     }
 
     public void setDocumentUri(String documentUri) {
         this.documentUri = documentUri;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }

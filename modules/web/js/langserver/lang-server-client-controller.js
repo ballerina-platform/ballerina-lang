@@ -113,6 +113,16 @@ class LangServerClientController extends EventChannel{
         this.langserverChannel.sendMessage(message);
     }
 
+    documentDidSaveNotification(options) {
+        var message = {
+            jsonrpc: '2.0',
+            method: 'textDocument/didSave',
+            params: options.didSaveParams
+        };
+
+        this.langserverChannel.sendMessage(message);
+    }
+
     // End language server notifications
 
     processMessage(message) {
