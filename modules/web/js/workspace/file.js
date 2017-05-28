@@ -27,7 +27,8 @@ var File = Backbone.Model.extend(
             content: undefined,
             isPersisted: false,
             lastPersisted: _.now(),
-            isDirty: true
+            isDirty: true,
+            langserverCallbacks: undefined
         },
 
         initialize: function (attrs, options) {
@@ -48,6 +49,24 @@ var File = Backbone.Model.extend(
                 this._storage.update(this);
             } else {
                 this._storage.create(this);
+            }
+
+            if (this.isPersisted()) {
+                /**
+                 * We send the fileDidSave notification to the language server on the file save
+                 */
+                const docUri = this.getPath() + '/' + this.getName();
+                // Send document closed notification to the language server
+                let didSaveOptions = {
+                    didSaveParams: {
+                        textDocument: {
+                            documentUri: docUri,
+                            documentId: this.id
+                        },
+                        text: this.getContent()
+                    }
+                };
+                this.getLangserverCallbacks().documentDidSaveNotification(didSaveOptions);
             }
             return this;
         },
@@ -111,6 +130,14 @@ var File = Backbone.Model.extend(
 
         isDirty: function(){
             return this.get('isDirty');
+        },
+
+        setLangserverCallbacks(callbacks) {
+            this.set('langserverCallbacks',callbacks);
+        },
+
+        getLangserverCallbacks() {
+            return this.get('langserverCallbacks');
         }
     }
 );

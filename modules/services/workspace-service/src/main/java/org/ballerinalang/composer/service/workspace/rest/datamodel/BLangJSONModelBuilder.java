@@ -1299,7 +1299,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(TypeConversionExpr typeConversionExpression) {
+    public void visit(TypeConversionExpr typeConversionExpr) {
 
     }
 

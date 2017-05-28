@@ -594,7 +594,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(TypeCastExpression typeCastExpression) {
         
     }
-    
+
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
         StringBuffer buffer = new StringBuffer();

@@ -24,6 +24,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.api.PackagesApi;
+import org.ballerinalang.composer.service.workspace.langserver.LangServerManager;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.ballerinalang.composer.service.workspace.rest.BallerinaProgramService;
@@ -93,6 +94,7 @@ public class WorkspaceServiceRunner {
 
         String apiPath = null;
         String launcherPath = null;
+        String langserverPath = null;
         String debuggerPath = null;
         String[] rootDirectoriesArray = null;
         String tryServiceURL = null;
@@ -107,6 +109,7 @@ public class WorkspaceServiceRunner {
                         WorkspaceServiceConfig.class);
                 apiPath = workspaceServiceConfig.getApiPath();
                 launcherPath = workspaceServiceConfig.getLauncherPath();
+                langserverPath = workspaceServiceConfig.getLangserverPath();
                 debuggerPath = workspaceServiceConfig.getDebuggerPath();
                 if (workspaceServiceConfig.getRootDirectories() != null) {
                     rootDirectoriesArray = workspaceServiceConfig.getRootDirectories().split(",");
@@ -150,7 +153,9 @@ public class WorkspaceServiceRunner {
 
         //find free port for launch service.
         int launcherPort = apiPort + 1;
+        int langserverPort = apiPort + 2;
         launcherPort = WorkspaceUtils.getAvailablePort(launcherPort);
+        langserverPort = WorkspaceUtils.getAvailablePort(langserverPort);
 
         // find free port for debugger
         int debuggerPort = LaunchUtils.getFreePort();
@@ -191,9 +196,11 @@ public class WorkspaceServiceRunner {
         ConfigServiceImpl configService = new ConfigServiceImpl();
         configService.setApiPort(apiPort);
         configService.setLauncherPort(launcherPort);
+        configService.setLangserverPort(langserverPort);
         configService.setDebuggerPort(debuggerPort);
         configService.setApiPath(apiPath);
         configService.setLauncherPath(launcherPath);
+        configService.setLangserverPath(langserverPath);
         configService.setDebuggerPath(debuggerPath);
 
 
@@ -207,6 +214,9 @@ public class WorkspaceServiceRunner {
         //The launcher service was implemented with netty since msf4j do not have websocket support yet.
         LaunchManager launchManager = LaunchManager.getInstance();
         launchManager.init(launcherPort, tryServiceURL);
+
+        LangServerManager langServerManager = LangServerManager.getInstance();
+        langServerManager.init(langserverPort);
 
         if (!isCloudMode) {
             logger.info("Ballerina Composer URL: http://localhost:" + fileServerPort);

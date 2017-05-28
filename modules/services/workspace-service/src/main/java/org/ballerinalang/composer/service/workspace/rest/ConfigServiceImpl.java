@@ -43,10 +43,13 @@ public class ConfigServiceImpl {
 
     private int launcherPort;
 
+    private int langserverPort;
+
     private int debuggerPort;
 
     private String apiPath;
     private String launcherPath;
+    private String langserverPath;
     private String debuggerPath;
 
     @GET
@@ -96,6 +99,9 @@ public class ConfigServiceImpl {
         if (debuggerPath == null || "".equals(debuggerPath)) {
             debuggerPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + debuggerPort;
         }
+        if (langserverPath == null || "".equals(langserverPath)) {
+            langserverPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + langserverPort;
+        }
 
         JsonObject workspace = new JsonObject();
         workspace.addProperty("endpoint", apiPath + "/service/workspace");
@@ -118,6 +124,9 @@ public class ConfigServiceImpl {
         JsonObject debugger = new JsonObject();
         debugger.addProperty("endpoint", debuggerPath + "/debug");
 
+        JsonObject langserver = new JsonObject();
+        langserver.addProperty("endpoint", langserverPath + "/blangserver");
+
         JsonObject programNativeTypes = new JsonObject();
         programNativeTypes.addProperty("endpoint", apiPath + "/service/program/native/types");
 
@@ -129,6 +138,7 @@ public class ConfigServiceImpl {
         services.add("validator", validator);
         services.add("launcher", launcher);
         services.add("debugger", debugger);
+        services.add("langserver", langserver);
         services.add("programNativeTypes", programNativeTypes);
 
         JsonObject config = new JsonObject();
@@ -153,6 +163,14 @@ public class ConfigServiceImpl {
         this.launcherPort = launcherPort;
     }
 
+    public int getLangserverPort() {
+        return langserverPort;
+    }
+
+    public void setLangserverPort(int langserverPort) {
+        this.langserverPort = langserverPort;
+    }
+
     public String getApiPath() {
         return apiPath;
     }
@@ -167,6 +185,14 @@ public class ConfigServiceImpl {
 
     public void setLauncherPath(String launcherPath) {
         this.launcherPath = launcherPath;
+    }
+
+    public String getLangserverPath() {
+        return langserverPath;
+    }
+
+    public void setLangserverPath(String langserverPath) {
+        this.langserverPath = langserverPath;
     }
 
     public void setDebuggerPort(int debuggerPort) {
