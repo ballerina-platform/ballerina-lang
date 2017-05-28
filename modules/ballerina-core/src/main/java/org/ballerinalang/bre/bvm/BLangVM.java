@@ -649,7 +649,15 @@ public class BLangVM {
                     FunctionReturnCPEntry funcRetCPEntry = (FunctionReturnCPEntry) constPool[cpIndex];
                     handleReturn(funcRetCPEntry.getRegIndexes());
                     break;
-
+                case InstructionCodes.REP:
+                    i = operands[0];
+                    BMessage message = null;
+                    if (i >= 0) {
+                        message = (BMessage) sf.refRegs[i];
+                    }
+                    context.getBalCallback().done(message != null ? message.value() : null);
+                    ip = 0;
+                    break;
                 case InstructionCodes.I2F:
                     i = operands[0];
                     j = operands[1];

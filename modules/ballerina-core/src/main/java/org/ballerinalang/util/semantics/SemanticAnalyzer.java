@@ -425,6 +425,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.accept(this);
+        checkAndAddReplyStmt(blockStmt);
 
         int sizeOfStackFrame = stackFrameOffset + 1;
         resource.setStackFrameSize(sizeOfStackFrame);
@@ -1383,12 +1384,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         Expression replyExpr = replyStmt.getReplyExpr();
-        visitSingleValueExpr(replyExpr);
-
-        // reply statement supports only message type
-        if (replyExpr.getType() != BTypes.typeMessage) {
-            BLangExceptionHelper.throwSemanticError(replyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
-                    BTypes.typeMessage, replyExpr.getType());
+        if (replyExpr != null) {
+            visitSingleValueExpr(replyExpr);
+            // reply statement supports only message type
+            if (replyExpr.getType() != BTypes.typeMessage) {
+                BLangExceptionHelper.throwSemanticError(replyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
+                        BTypes.typeMessage, replyExpr.getType());
+            }
         }
     }
 
@@ -3629,6 +3631,18 @@ public class SemanticAnalyzer implements NodeVisitor {
             ReturnStmt returnStmt = new ReturnStmt(lastStatement.getNodeLocation(), null, new Expression[0]);
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = returnStmt;
+            blockStmt.setStatements(statements);
+        }
+    }
+
+    private void checkAndAddReplyStmt(BlockStmt blockStmt) {
+        Statement[] statements = blockStmt.getStatements();
+        int length = statements.length;
+        Statement lastStatement = statements[length - 1];
+        if (!(lastStatement instanceof ReplyStmt)) {
+            ReplyStmt replyStmt = new ReplyStmt(lastStatement.getNodeLocation(), null, null);
+            statements = Arrays.copyOf(statements, length + 1);
+            statements[length] = replyStmt;
             blockStmt.setStatements(statements);
         }
     }
