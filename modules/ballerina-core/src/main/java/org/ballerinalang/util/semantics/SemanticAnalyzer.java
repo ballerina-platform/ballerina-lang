@@ -219,8 +219,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BLangPackage bLangPackage) {
         BLangPackage[] dependentPackages = bLangPackage.getDependentPackages();
         List<BallerinaFunction> initFunctionList = new ArrayList<>();
-        for (int i = 0; i < dependentPackages.length; i++) {
-            BLangPackage dependentPkg = dependentPackages[i];
+        for (BLangPackage dependentPkg : dependentPackages) {
             if (dependentPkg.isSymbolsDefined()) {
                 continue;
             }
@@ -478,6 +477,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (function.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
                 BLangExceptionHelper.throwSemanticError(function, SemanticErrors.MISSING_RETURN_STATEMENT);
             }
+
+            checkAndAddReturnStmt(function.getReturnParamTypes().length, blockStmt);
         }
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -598,6 +599,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (action.getReturnParameters().length > 0 && !blockStmt.isAlwaysReturns()) {
                 BLangExceptionHelper.throwSemanticError(action, SemanticErrors.MISSING_RETURN_STATEMENT);
             }
+
+            checkAndAddReturnStmt(action.getReturnParameters().length, blockStmt);
         }
 
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
@@ -948,7 +951,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr == null) {
             return;
         }
-        
+
         if (rExpr instanceof RefTypeInitExpr) {
             RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
             varDefStmt.setRExpr(refTypeInitExpr);
@@ -1963,7 +1966,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExpr);
             if (typeCastExpr == null) {
                 BLangExceptionHelper.throwSemanticError(arrayInitExpr,
-                    SemanticErrors.INCOMPATIBLE_ASSIGNMENT, argExpr.getType(), expectedElementType);
+                        SemanticErrors.INCOMPATIBLE_ASSIGNMENT, argExpr.getType(), expectedElementType);
             }
             argExprs[i] = typeCastExpr;
         }
@@ -3612,5 +3615,21 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         return lhsType == rhsType;
+    }
+
+    private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
+        if (returnParamCount != 0) {
+            return;
+        }
+
+        Statement[] statements = blockStmt.getStatements();
+        int length = statements.length;
+        Statement lastStatement = statements[length - 1];
+        if (!(lastStatement instanceof ReturnStmt)) {
+            ReturnStmt returnStmt = new ReturnStmt(lastStatement.getNodeLocation(), null, new Expression[0]);
+            statements = Arrays.copyOf(statements, length + 1);
+            statements[length] = returnStmt;
+            blockStmt.setStatements(statements);
+        }
     }
 }

@@ -624,7 +624,12 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         // Evaluate the rhs expression
-        assignStmt.getRExpr().accept(this);
+        Expression rExpr = assignStmt.getRExpr();
+        if (rExpr == null) {
+            return;
+        }
+
+        rExpr.accept(this);
 
         int[] rhsExprRegIndexes;
         if (assignStmt.getRExpr() instanceof CallableUnitInvocationExpr) {

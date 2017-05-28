@@ -52,6 +52,10 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         return this.statements;
     }
 
+    public void setStatements(Statement[] statements) {
+        this.statements = statements;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
