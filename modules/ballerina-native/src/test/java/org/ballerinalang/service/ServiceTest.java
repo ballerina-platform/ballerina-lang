@@ -18,13 +18,13 @@
 
 package org.ballerinalang.service;
 
-import org.ballerinalang.core.EnvironmentInitializer;
-import org.ballerinalang.core.utils.MessageUtils;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.util.Services;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.http.HTTPResourceDispatcher;
+import org.ballerinalang.testutils.EnvironmentInitializer;
+import org.ballerinalang.testutils.MessageUtils;
+import org.ballerinalang.testutils.Services;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -39,11 +39,13 @@ import java.nio.ByteBuffer;
  */
 public class ServiceTest {
 
-    BLangProgram bLangProgram;
+//    BLangProgram bLangProgram;
+    ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = EnvironmentInitializer.setup("lang/service/echoService.bal");
+//        bLangProgram = EnvironmentInitializer.setup("lang/service/echoService.bal");
+        programFile = EnvironmentInitializer.setupProgramFile("lang/service/echoService.bal");
     }
 
     @Test
@@ -141,7 +143,7 @@ public class ServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(bLangProgram);
+//        EnvironmentInitializer.cleanup(bLangProgram);
     }
 
     //TODO: add more test cases

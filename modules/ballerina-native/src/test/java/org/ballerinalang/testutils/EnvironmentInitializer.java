@@ -18,6 +18,8 @@
 
 package org.ballerinalang.testutils;
 
+import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
@@ -27,6 +29,11 @@ import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.util.codegen.ProgramFile;
+
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * {@code EnvironmentInitializr} is responsible for initializing an environment for a particular ballerina file.
@@ -56,6 +63,27 @@ public class EnvironmentInitializer {
         bLangProgram.setRuntimeEnvironment(runtimeEnv);
 
         return bLangProgram;
+    }
+
+
+    public static ProgramFile setupProgramFile(String sourcePath) {
+        // Initialize server connectors before starting the test cases
+        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
+        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
+
+        // Load constructors
+        BuiltInNativeConstructLoader.loadConstructs();
+        try {
+            Path programPath = Paths.get(EnvironmentInitializer.class.getProtectionDomain().getCodeSource()
+                    .getLocation().toURI());
+
+            ProgramFile programFile = new BLangProgramLoader().loadServiceProgramFile(programPath, Paths.get
+                    (sourcePath));
+            new BLangProgramRunner().startServices(programFile);
+            return programFile;
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        }
     }
 
     public static void cleanup(BLangProgram bLangProgram) {

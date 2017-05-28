@@ -95,11 +95,16 @@ public class PackageInfo {
         connectorInfoMap.put(connectorName, connectorInfo);
     }
 
+    public ServiceInfo[] getServiceInfoList() {
+        return serviceInfoMap.values().toArray(new ServiceInfo[0]);
+    }
+
     public ServiceInfo getServiceInfo(String serviceName) {
         return serviceInfoMap.get(serviceName);
     }
 
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {
+        serviceInfo.setPackageInfo(this);
         serviceInfoMap.put(serviceName, serviceInfo);
     }
 

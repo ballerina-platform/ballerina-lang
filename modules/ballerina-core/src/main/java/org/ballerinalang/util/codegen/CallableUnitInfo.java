@@ -109,4 +109,18 @@ public class CallableUnitInfo {
     public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
         attributeInfoMap.put(attributeName, attributeInfo);
     }
+
+    public AnnotationAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
+        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
+                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
+        if (attributeInfo == null || packageName == null || annotationName == null) {
+            return null;
+        }
+        for (AnnotationAttachmentInfo annotationInfo : attributeInfo.getAnnotationAttachmentInfo()) {
+            if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
+                return annotationInfo;
+            }
+        }
+        return null;
+    }
 }

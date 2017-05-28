@@ -19,14 +19,14 @@
 package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,55 +50,67 @@ public class ServerConnectorMessageHandler {
 
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
         // Create the Ballerina Context
-        Context balContext = new Context(cMsg);
-        balContext.setServerConnectorProtocol(cMsg.getProperty("PROTOCOL"));
+//        Context balContext = new Context(cMsg);
+//        balContext.setServerConnectorProtocol(cMsg.getProperty("PROTOCOL"));
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
-                throw new BallerinaException("protocol not defined in the incoming request", balContext);
+                throw new BallerinaException("protocol not defined in the incoming request");
             }
 
             // Find the Service Dispatcher
             ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
             if (dispatcher == null) {
-                throw new BallerinaException("no service dispatcher available to handle protocol: " + protocol,
-                        balContext);
+                throw new BallerinaException("no service dispatcher available to handle protocol: " + protocol);
             }
 
             // Find the Service
-            Service service = dispatcher.findService(cMsg, callback, balContext);
+            ServiceInfo service = dispatcher.findService(cMsg, callback);
             if (service == null) {
-                throw new BallerinaException("no Service found to handle the service request", balContext);
+                throw new BallerinaException("no Service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
             // Find the Resource Dispatcher
             ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
             if (resourceDispatcher == null) {
-                throw new BallerinaException("no resource dispatcher available to handle protocol: " + protocol,
-                        balContext);
+                throw new BallerinaException("no resource dispatcher available to handle protocol: " + protocol);
             }
 
             // Find the Resource
-            Resource resource = null;
+            ResourceInfo resource = null;
             try {
-                resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
+                resource = resourceDispatcher.findResource(service, cMsg, callback);
             } catch (BallerinaException ex) {
                 throw new BallerinaException("no resource found to handle the request to Service: " +
-                        service.getSymbolName().getName() + " : " + ex.getMessage());
+                        service.getServiceName() + " : " + ex.getMessage());
             }
             if (resource == null) {
                 throw new BallerinaException("no resource found to handle the request to Service: " +
-                        service.getSymbolName().getName());
+                        service.getServiceName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
             // Delegate the execution to the BalProgram Executor
-            BalProgramExecutor.execute(cMsg, callback, resource, service, balContext);
+//            BalProgramExecutor.execute(cMsg, callback, resource, service, balContext);
+            invokeResource(cMsg, callback, resource, service);
 
         } catch (Throwable throwable) {
-            handleErrorInboundPath(cMsg, callback, balContext, throwable);
+            handleErrorInboundPath(cMsg, callback, throwable);
         }
+    }
+
+    /**
+     * Resource invocation logic.
+     *
+     * @param carbonMessage  incoming carbonMessage
+     * @param carbonCallback carbonCallback
+     * @param resourceInfo   resource that has been invoked
+     * @param serviceInfo    service that has been invoked
+     */
+    public static void invokeResource(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
+                                      ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
+        // TODO : Implement me.
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
@@ -115,10 +127,10 @@ public class ServerConnectorMessageHandler {
 //        }
     }
 
-    public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback, Context balContext,
+    public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback,
                                               Throwable throwable) {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
+        String stacktrace = ""; //ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
         String errorWithTrace = errorMsg + "\n" + stacktrace;
         outStream.println(errorWithTrace);
 
@@ -131,7 +143,7 @@ public class ServerConnectorMessageHandler {
         try {
             optionalErrorHandler
                     .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause()), cMsg, callback);
         } catch (Exception e) {
             throw new BallerinaException("Cannot handle error using the error handler for: " + protocol, e);
         }

@@ -19,6 +19,7 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,13 @@ public class ProgramFile {
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
 
     private Map<String, PackageInfo> packageInfoMap = new HashMap<>();
+
+    private String mainPackageName = "";
+    private List<String> servicePackageNameList = new ArrayList<>();
+
+    // Cached values.
+    // This is the actual path given by the user and this is used primarily for error reporting
+    private Path programFilePath;
 
     public int getMagicValue() {
         return magicValue;
@@ -74,5 +82,36 @@ public class ProgramFile {
 
     public void addPackageInfo(String packageName, PackageInfo packageInfo) {
         packageInfoMap.put(packageName, packageInfo);
+    }
+
+    // Main package.
+
+    public void setMainPackageName(String mainPackageName) {
+        this.mainPackageName = mainPackageName;
+    }
+
+    public String[] getServicePackageNameList() {
+        return servicePackageNameList.toArray(new String[0]);
+    }
+
+    // Service package.
+
+    public String getMainPackageName() {
+        return mainPackageName;
+    }
+
+    public void addServicePackage(String servicePackageName) {
+        this.servicePackageNameList.add(servicePackageName);
+    }
+
+
+    // Information about ProgramFile, which are set from outside.
+
+    public Path getProgramFilePath() {
+        return programFilePath;
+    }
+
+    public void setProgramFilePath(Path programFilePath) {
+        this.programFilePath = programFilePath;
     }
 }
