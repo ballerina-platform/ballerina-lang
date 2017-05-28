@@ -79,7 +79,12 @@ public class BLangFunctions {
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName) {
         BValue[] args = {};
-        return invokeNew(bLangProgram, functionName, args, new Context());
+        return invokeNew(bLangProgram, ".", functionName, args, new Context());
+    }
+
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName) {
+        BValue[] args = {};
+        return invokeNew(bLangProgram, packageName, functionName, args, new Context());
     }
 
     /**
@@ -95,7 +100,11 @@ public class BLangFunctions {
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args) {
-        return invokeNew(bLangProgram, functionName, args, new Context());
+        return invokeNew(bLangProgram, ".", functionName, args, new Context());
+    }
+
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName, BValue[] args) {
+        return invokeNew(bLangProgram, packageName, functionName, args, new Context());
     }
 
     /**
@@ -175,12 +184,8 @@ public class BLangFunctions {
 
     }
 
-    public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args, Context bContext) {
-        return invokeNew(bLangProgram, ".", functionName, args, bContext);
-    }
-
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,
-                                     BValue[] args, Context bContext) {
+                                     BValue[] args, Context context) {
         PackageInfo packageInfo = bLangProgram.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
 
@@ -192,7 +197,6 @@ public class BLangFunctions {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
 
-        Context context = new Context();
         ControlStackNew controlStackNew = context.getControlStackNew();
 
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough

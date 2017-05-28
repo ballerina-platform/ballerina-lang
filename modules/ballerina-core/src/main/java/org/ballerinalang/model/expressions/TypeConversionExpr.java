@@ -40,6 +40,8 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
     private BType[] types = new BType[0];
     private int opcode;
 
+    private int[] offsets;
+
     public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
         super(location, whiteSpaceDescriptor);
@@ -111,6 +113,16 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
         if (!multipleReturnsAvailable && types.length == 1) {
             this.type = types[0];
         }
+    }
+
+    @Override
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    @Override
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
     /**

@@ -37,6 +37,7 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
@@ -730,11 +731,20 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(ReturnStmt returnStmt) {
-        int[] regIndexes = new int[returnStmt.getExprs().length];
-        for (int i = 0; i < returnStmt.getExprs().length; i++) {
-            Expression expr = returnStmt.getExprs()[i];
-            expr.accept(this);
-            regIndexes[i] = expr.getTempOffset();
+        int[] regIndexes;
+        if (returnStmt.getExprs().length == 1 &&
+                returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr) {
+            ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) returnStmt.getExprs()[0];
+            returnStmt.getExprs()[0].accept(this);
+            regIndexes = multiReturnExpr.getOffsets();
+
+        } else {
+            regIndexes = new int[returnStmt.getExprs().length];
+            for (int i = 0; i < returnStmt.getExprs().length; i++) {
+                Expression expr = returnStmt.getExprs()[i];
+                expr.accept(this);
+                regIndexes[i] = expr.getTempOffset();
+            }
         }
 
         FunctionReturnCPEntry funcRetCPEntry = new FunctionReturnCPEntry(regIndexes);
@@ -1065,9 +1075,12 @@ public class CodeGenerator implements NodeVisitor {
         if (opCode != 0) {
             int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
             typeCastExpr.setTempOffset(targetRegIndex);
+            typeCastExpr.setOffsets(new int[]{targetRegIndex});
             emit(opCode, rExpr.getTempOffset(), targetRegIndex, -1);
         } else {
+            // TODO improve
             typeCastExpr.setTempOffset(rExpr.getTempOffset());
+            typeCastExpr.setOffsets(new int[]{rExpr.getTempOffset()});
         }
     }
 
@@ -1087,9 +1100,12 @@ public class CodeGenerator implements NodeVisitor {
         if (opCode != 0) {
             int targetRegIndex = getNextIndex(typeConversionExpr.getType().getTag(), regIndexes);
             typeConversionExpr.setTempOffset(targetRegIndex);
+            typeConversionExpr.setOffsets(new int[]{targetRegIndex});
             emit(opCode, rExpr.getTempOffset(), targetRegIndex, -1);
         } else {
+            // TODO improve
             typeConversionExpr.setTempOffset(rExpr.getTempOffset());
+            typeConversionExpr.setOffsets(new int[]{rExpr.getTempOffset()});
         }
     }
 
