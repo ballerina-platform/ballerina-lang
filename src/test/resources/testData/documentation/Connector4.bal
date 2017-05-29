@@ -20,4 +20,17 @@ connector ClientConnector (string serviceUri) {
     @doc:Return {value:"message: The response message object"}
 
     native action get (ClientConnector c, string path, message m) (message);
+
+    @doc:Description { value:"The POST action implementation of the HTTP Connector."}
+
+    @doc:Param { value:"c: A connector object" }
+
+    @doc:Param { value:"path: Resource path " }
+
+    @doc:Param { value:"m: A message object" }
+
+    @doc:Return { value:"message: The response message object" }
+
+    native action post (ClientConnector c, string path, message m) (message);
+
 }
