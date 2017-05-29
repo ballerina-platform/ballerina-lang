@@ -170,7 +170,6 @@ class TransformStatementDecorator extends React.Component {
                    _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
                           if (structInfo[0] ==  predefinedStruct.getStructName()) {
                                 var struct = self.createType(structInfo[1], predefinedStruct);
-                                self.predefinedStructs.push(struct);
                                 self.loadSchemaToComboBox(sourceId, struct.name);
                                 self.loadSchemaToComboBox(targetId, struct.name);
                            }
@@ -323,12 +322,12 @@ class TransformStatementDecorator extends React.Component {
 
              var innerStruct = _.find(self._package.getStructDefinitions(), { _structName:property.type});
              if (innerStruct != null) {
-                 property.innerType = self.createType(property.type, innerStruct);
+                 property.innerType = self.createType(property.name, innerStruct);
              }
 
              struct.properties.push(property);
         });
-
+        self.predefinedStructs.push(struct);
         return struct;
 	}
 
