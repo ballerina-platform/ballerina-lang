@@ -125,6 +125,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.NACALL] = "nacall";
         mnemonics[InstructionCodes.RET] = "ret";
+        mnemonics[InstructionCodes.REP] = "rep";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
