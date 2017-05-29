@@ -17,10 +17,10 @@
  */
 /* eslint-env es6 */
 
-import _ from 'lodash';
+import Backend from 'ballerina/views/backend';
+import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
+import BallerinaASTRootVisitor from 'ballerina/visitors/source-gen/ballerina-ast-root-visitor';
 import log from 'log';
-import $ from 'jquery';
-import Ballerina from 'ballerina';
 import fs from 'fs';
 import { expect } from 'chai';
 import path from 'path';
@@ -32,33 +32,30 @@ var getFileContentBackend = "http://localhost:8289/service/workspace";
 
 //Ballerina AST Deserializer
 function ballerinaASTDeserializer(fileContent){
-    var backend = new Ballerina.views.Backend({"url" : getModelBackend})
+    var backend = new Backend({"url" : getModelBackend})
     var response = backend.parse(fileContent);
-    var ASTModel = Ballerina.ast.BallerinaASTDeserializer.getASTModel(response);
-    var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
+    var ASTModel = BallerinaASTDeserializer.getASTModel(response);
+    var sourceGenVisitor = new BallerinaASTRootVisitor();
     ASTModel.accept(sourceGenVisitor);
     var source = sourceGenVisitor.getGeneratedSource();
     return source;
 }
 
-function readFile(filePath, callback){
-    var workspaceServiceURL = getFileContentBackend;
-    var saveServiceURL = workspaceServiceURL + "/read";
-
+function readFile(filePath){
     return fs.readFileSync(filePath, 'utf8');
 }
 
 var sourceList = testFileList.sources.source;
 
-describe("Ballerina Tests", function() {
+describe("Ballerina Composer Test Suite", function() {
     sourceList.forEach(function(testFile) {
 
         // TODO: following path resolution only works if tests are run from the root directory of the project
         // To avoid that we need to use __dirname or __filename
         // but mocha-webpack does not seem to provide correct values for them. So using path.resolve for now.
-        var sourceFile = path.resolve('js/tests/resources/' + testFile)
+        var sourceFile = path.resolve(path.join('js', 'tests', 'resources', testFile));
 
-        it(sourceFile.replace(/^.*[\\\/]/, '') + " Service Test", function() {
+        it(sourceFile.replace(/^.*[\\\/]/, '') + " file serialize/deserialize test", function() {
             var expectedSource = readFile(sourceFile);
             var generatedSource = ballerinaASTDeserializer(expectedSource)
             expectedSource = expectedSource.replace(/\s/g, '');
