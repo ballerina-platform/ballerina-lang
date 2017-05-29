@@ -50,6 +50,11 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         // cause issues when using find usage, etc.
         if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
 
+            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+            if (resolvedElement != null) {
+                return resolvedElement;
+            }
+
             VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
                     VariableReferenceNode.class);
             if (variableReferenceNode == null) {
@@ -99,7 +104,8 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
                 }
             }
 
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+//            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
         } else if (element.getParent() instanceof TypeNameNode) {

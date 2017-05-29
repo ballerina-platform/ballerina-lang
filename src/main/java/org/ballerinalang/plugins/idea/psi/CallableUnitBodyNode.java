@@ -36,6 +36,11 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof NameReferenceNode
                 || element.getParent() instanceof StatementNode) {
+            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
+                    "//variableDefinitionStatement/Identifier");
+            if (resolvedElement != null && !BallerinaPsiImplUtil.isStructField(element)) {
+                return resolvedElement;
+            }
             return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");

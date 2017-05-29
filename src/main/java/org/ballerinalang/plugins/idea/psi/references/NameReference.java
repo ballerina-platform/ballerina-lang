@@ -378,12 +378,12 @@ public class NameReference extends BallerinaElementReference {
                 }
 
 
-                ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(myElement, ExpressionNode.class);
-                if (expressionNode != null) {
-                    if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
-                        return false;
-                    }
-                }
+//                ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(myElement, ExpressionNode.class);
+//                if (expressionNode != null) {
+//                    if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
+//                        return false;
+//                    }
+//                }
                 boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
                 if (!isStructField) {
                     return isValid((PsiNameIdentifierOwner) definitionElement, refName);
