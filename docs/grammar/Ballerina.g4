@@ -381,10 +381,10 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' rollbackClause
+    :   'transaction' '{' statement* '}' abortedClause
     ;
 
-rollbackClause
+abortedClause
     :   'aborted' '{' statement* '}'
     ;
 

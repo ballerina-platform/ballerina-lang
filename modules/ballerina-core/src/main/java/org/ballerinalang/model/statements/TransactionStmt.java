@@ -29,26 +29,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code TransactionStmt} represents a Transaction/rollback statement.
+ * {@code TransactionStmt} represents a Transaction statement.
  *
  * @since 0.87
  */
-public class TransactionRollbackStmt extends AbstractStatement {
+public class TransactionStmt extends AbstractStatement {
     private Statement transactionBlock;
-    private RollbackBlock rollbackBlock;
+    private AbortedBlock abortedBlock;
 
-    private TransactionRollbackStmt(NodeLocation location, Statement transactionBlock, RollbackBlock rollbackBlock) {
+    private TransactionStmt(NodeLocation location, Statement transactionBlock, AbortedBlock abortedBlock) {
         super(location);
         this.transactionBlock = transactionBlock;
-        this.rollbackBlock = rollbackBlock;
+        this.abortedBlock = abortedBlock;
     }
 
     public Statement getTransactionBlock() {
         return transactionBlock;
     }
 
-    public RollbackBlock getRollbackBlock() {
-        return rollbackBlock;
+    public AbortedBlock getAbortedBlock() {
+        return abortedBlock;
     }
 
     @Override
@@ -62,15 +62,15 @@ public class TransactionRollbackStmt extends AbstractStatement {
     }
 
     /**
-     * Represents RollbackBlock of a Transaction-Rollback statement.
+     * Represents Aborted block of a Transaction statement.
      */
-    public static class RollbackBlock implements SymbolScope {
+    public static class AbortedBlock implements SymbolScope {
 
         private final SymbolScope enclosingScope;
         private Map<SymbolName, BLangSymbol> symbolMap;
-        private BlockStmt rollbackBlock;
+        private BlockStmt abortedBlock;
 
-        public RollbackBlock(SymbolScope enclosingScope) {
+        public AbortedBlock(SymbolScope enclosingScope) {
             this.enclosingScope = enclosingScope;
             this.symbolMap = new HashMap<>();
         }
@@ -100,35 +100,35 @@ public class TransactionRollbackStmt extends AbstractStatement {
             return Collections.unmodifiableMap(this.symbolMap);
         }
 
-        public BlockStmt getRollbackBlockStmt() {
-            return rollbackBlock;
+        public BlockStmt getAbortedBlockStmt() {
+            return abortedBlock;
         }
 
-        void setRollbackBlockStmt(BlockStmt rollbackBlock) {
-            this.rollbackBlock = rollbackBlock;
+        void setAbortedBlockStmt(BlockStmt abortedBlock) {
+            this.abortedBlock = abortedBlock;
         }
     }
 
     /**
-     * Builds a {@code {@link TransactionRollbackStmt}} statement.
+     * Builds a {@code {@link TransactionStmt}} statement.
      *
      * @since 0.87
      */
-    public static class TransactionRollbackStmtBuilder {
+    public static class TransactionStmtBuilder {
         private Statement transactionBlock;
-        private RollbackBlock rollbackBlock;
+        private AbortedBlock abortedBlock;
         private NodeLocation location;
 
         public void setTransactionBlock(Statement transactionBlock) {
             this.transactionBlock = transactionBlock;
         }
 
-        public void setRollbackBlockStmt(Statement statement) {
-            this.rollbackBlock.setRollbackBlockStmt((BlockStmt) statement);
+        public void setAbortedBlockStmt(Statement statement) {
+            this.abortedBlock.setAbortedBlockStmt((BlockStmt) statement);
         }
 
-        public void setRollbackBlock(RollbackBlock rollbackBlock) {
-            this.rollbackBlock = rollbackBlock;
+        public void setAbortedBlock(AbortedBlock abortedBlock) {
+            this.abortedBlock = abortedBlock;
         }
 
         public NodeLocation getLocation() {
@@ -139,11 +139,11 @@ public class TransactionRollbackStmt extends AbstractStatement {
             this.location = location;
         }
 
-        public TransactionRollbackStmt build() {
-            return new TransactionRollbackStmt(
+        public TransactionStmt build() {
+            return new TransactionStmt(
                     location,
                     transactionBlock,
-                    rollbackBlock);
+                    abortedBlock);
         }
     }
 }

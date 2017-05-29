@@ -57,7 +57,7 @@ public class BallerinaParser extends Parser {
 		RULE_replyStatement = 67, RULE_workerInteractionStatement = 68, RULE_triggerWorker = 69, 
 		RULE_workerReply = 70, RULE_commentStatement = 71, RULE_variableReference = 72, 
 		RULE_expressionList = 73, RULE_functionInvocationStatement = 74, RULE_actionInvocationStatement = 75, 
-		RULE_transactionStatement = 76, RULE_rollbackClause = 77, RULE_abortStatement = 78, 
+		RULE_transactionStatement = 76, RULE_abortedClause = 77, RULE_abortStatement = 78, 
 		RULE_actionInvocation = 79, RULE_backtickString = 80, RULE_expression = 81, 
 		RULE_nameReference = 82, RULE_returnParameters = 83, RULE_returnTypeList = 84, 
 		RULE_parameterList = 85, RULE_parameter = 86, RULE_fieldDefinition = 87, 
@@ -82,7 +82,7 @@ public class BallerinaParser extends Parser {
 		"catchClauses", "catchClause", "finallyClause", "throwStatement", "returnStatement", 
 		"replyStatement", "workerInteractionStatement", "triggerWorker", "workerReply", 
 		"commentStatement", "variableReference", "expressionList", "functionInvocationStatement", 
-		"actionInvocationStatement", "transactionStatement", "rollbackClause", 
+		"actionInvocationStatement", "transactionStatement", "abortedClause", 
 		"abortStatement", "actionInvocation", "backtickString", "expression", 
 		"nameReference", "returnParameters", "returnTypeList", "parameterList", 
 		"parameter", "fieldDefinition", "simpleLiteral"
@@ -5433,8 +5433,8 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class TransactionStatementContext extends ParserRuleContext {
-		public RollbackClauseContext rollbackClause() {
-			return getRuleContext(RollbackClauseContext.class,0);
+		public AbortedClauseContext abortedClause() {
+			return getRuleContext(AbortedClauseContext.class,0);
 		}
 		public List<StatementContext> statement() {
 			return getRuleContexts(StatementContext.class);
@@ -5484,7 +5484,7 @@ public class BallerinaParser extends Parser {
 			setState(961);
 			match(T__7);
 			setState(962);
-			rollbackClause();
+			abortedClause();
 			}
 		}
 		catch (RecognitionException re) {
@@ -5498,30 +5498,30 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RollbackClauseContext extends ParserRuleContext {
+	public static class AbortedClauseContext extends ParserRuleContext {
 		public List<StatementContext> statement() {
 			return getRuleContexts(StatementContext.class);
 		}
 		public StatementContext statement(int i) {
 			return getRuleContext(StatementContext.class,i);
 		}
-		public RollbackClauseContext(ParserRuleContext parent, int invokingState) {
+		public AbortedClauseContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_rollbackClause; }
+		@Override public int getRuleIndex() { return RULE_abortedClause; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterRollbackClause(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterAbortedClause(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitRollbackClause(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAbortedClause(this);
 		}
 	}
 
-	public final RollbackClauseContext rollbackClause() throws RecognitionException {
-		RollbackClauseContext _localctx = new RollbackClauseContext(_ctx, getState());
-		enterRule(_localctx, 154, RULE_rollbackClause);
+	public final AbortedClauseContext abortedClause() throws RecognitionException {
+		AbortedClauseContext _localctx = new AbortedClauseContext(_ctx, getState());
+		enterRule(_localctx, 154, RULE_abortedClause);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);

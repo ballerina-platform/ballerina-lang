@@ -19,7 +19,7 @@ package org.ballerinalang.model.nodes.fragments.statements;
 
 import org.ballerinalang.model.LinkedNodeVisitor;
 import org.ballerinalang.model.nodes.AbstractLinkedNode;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 
 /**
  * Represents the end of an Transaction-Rollback Statement.
@@ -28,14 +28,14 @@ import org.ballerinalang.model.statements.TransactionRollbackStmt;
  */
 public class TransactionRollbackStmtEndNode extends AbstractLinkedNode {
 
-    private TransactionRollbackStmt statement;
+    private TransactionStmt statement;
 
-    public TransactionRollbackStmtEndNode(TransactionRollbackStmt stmt) {
+    public TransactionRollbackStmtEndNode(TransactionStmt stmt) {
         this.statement = stmt;
         this.parent = stmt;
     }
 
-    public TransactionRollbackStmt getStatement() {
+    public TransactionStmt getStatement() {
         return statement;
     }
 

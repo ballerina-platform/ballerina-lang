@@ -1494,16 +1494,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+    public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startRollbackClause(getCurrentLocation(ctx));
+            modelBuilder.startAbortedClause(getCurrentLocation(ctx));
         }
     }
 
     @Override
-    public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+    public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addRollbackClause();
+            modelBuilder.addAbortedClause();
         }
     }
 

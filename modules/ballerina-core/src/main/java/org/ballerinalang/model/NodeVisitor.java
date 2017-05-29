@@ -72,7 +72,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -161,7 +161,7 @@ public interface NodeVisitor {
 
     void visit(TransformStmt transformStmt);
 
-    void visit(TransactionRollbackStmt transactionRollbackStmt);
+    void visit(TransactionStmt transactionStmt);
 
     void visit(AbortStmt abortStmt);
 

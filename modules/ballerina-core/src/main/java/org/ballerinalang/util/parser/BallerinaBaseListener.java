@@ -976,13 +976,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) { }
+	@Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) { }
+	@Override public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

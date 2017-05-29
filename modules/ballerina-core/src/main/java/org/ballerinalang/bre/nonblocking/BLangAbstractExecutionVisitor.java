@@ -118,7 +118,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -421,12 +421,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing TransactionRollbackStmt {}",
-                    getNodeLocation(transactionRollbackStmt.getNodeLocation()));
+            logger.debug("Executing TransactionStmt {}", getNodeLocation(transactionStmt.getNodeLocation()));
         }
-        next = transactionRollbackStmt.next;
+        next = transactionStmt.next;
     }
 
     @Override
@@ -1464,7 +1463,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(TransactionRollbackStmtEndNode transactionRollbackStmtEndNode) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing TransactionRollbackStmt - EndNode");
+            logger.debug("Executing TransactionStmt - EndNode");
         }
         next = transactionRollbackStmtEndNode.next;
     }
