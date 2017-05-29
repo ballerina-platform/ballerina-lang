@@ -64,6 +64,13 @@ class Annotation extends ASTNode {
          * A special string for identification.
          */
         this._uniqueIdentifier = _.get(args, 'uniqueIdentifier');
+
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '',
+            3: '\n'
+        };
     }
 
     setFullPackageName(fullPackageName, options) {
@@ -113,9 +120,9 @@ class Annotation extends ASTNode {
     toString() {
         let annotationString;
         if (_.isUndefined(this._packageName) || _.isEmpty(this._packageName)) {
-            annotationString = '@' + this._identifier;
+            annotationString = '@' + this.getWSRegion(0) + this._identifier;
         } else {
-            annotationString = '@' + this._packageName + ':' + this._identifier;
+            annotationString = '@' + this._packageName + ':' + this._identifier + this.getWSRegion(1);
         }
 
         let childrenAsString = [];
@@ -123,8 +130,7 @@ class Annotation extends ASTNode {
             childrenAsString.push(child.toString());
         });
 
-        annotationString = annotationString + '{' + _.join(childrenAsString, ', ') + '}';
-
+        annotationString = annotationString + '{' + _.join(childrenAsString, ',') + '}' + this.getWSRegion(3);
         return annotationString;
     }
 
