@@ -43,16 +43,27 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '\n';
+        let useDefaultWS = resourceDefinition.whiteSpace.useDefault;
+        let constructedSourceSegment = (useDefaultWS) ? '\n' : '';
         _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
+                constructedSourceSegment +=
+                          ((useDefaultWS) ? this.getIndentation() : '')
+                          + annotationNode.toString()
+                          + ((useDefaultWS) ? '\n' : '');
             }
         });
 
-        constructedSourceSegment += this.getIndentation() + 'resource ' + resourceDefinition.getResourceName() + '(';
+        constructedSourceSegment +=
+                  ((useDefaultWS) ? this.getIndentation() : '')
+                  + 'resource' + resourceDefinition.getWSRegion(0)
+                  + resourceDefinition.getResourceName()
+                  + resourceDefinition.getWSRegion(1)
+                  + '(' + resourceDefinition.getWSRegion(2);
 
-        constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {\n';
+        constructedSourceSegment += resourceDefinition.getParametersAsString()
+                + ')' + resourceDefinition.getWSRegion(3)
+                + '{' + resourceDefinition.getWSRegion(4);
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
@@ -78,7 +89,9 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitResourceDefinition(resourceDefinition) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}\n");
+        this.appendSource(
+            ((resourceDefinition.whiteSpace.useDefault) ? this.getIndentation() : '')
+            + "}" + resourceDefinition.getWSRegion(5));
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

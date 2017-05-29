@@ -35,6 +35,14 @@ class ResourceDefinition extends ASTNode {
         this._resourceName = _.get(args, 'resourceName');
 
         this.BallerinaASTFactory = this.getFactory();
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: '',
+            3: ' ',
+            4: '\n',
+            5: '\n'
+        }
     }
 
     setResourceName(resourceName, options) {
