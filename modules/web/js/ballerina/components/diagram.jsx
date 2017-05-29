@@ -54,12 +54,6 @@ class Diagram extends React.Component {
 
     setModel(model) {
         this.model = model;
-        //pass the container width and height to root view state.
-        let viewState = this.model.getViewState();
-        viewState.container = {
-            width: this.container.width(),
-            height: this.container.height()
-        };
 
         this.model.on('tree-modified', () => {
             this.forceUpdate();
@@ -79,6 +73,13 @@ class Diagram extends React.Component {
         // 1. We will visit the model tree and calculate width and height of all
         //    the elements. We will use DimensionCalcVisitor.
         this.model.accept(this.dimentionCalc);
+        // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
+        // - This is done by passing the container width to position calculater to readjest. 
+        let viewState = this.model.getViewState();
+        viewState.container = {
+            width: this.container.width(),
+            height: this.container.height()
+        }; 
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
         this.model.accept(this.positionCalc);
@@ -106,7 +107,6 @@ class Diagram extends React.Component {
 
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    s CsnvasDecorator and pass child components for that.
-        let viewState = this.model.getViewState();
 
         return <CanvasDecorator dropTarget={this.model} title="StatementContainer" bBox={viewState.bBox} annotations={annotations}>
                    {others}
