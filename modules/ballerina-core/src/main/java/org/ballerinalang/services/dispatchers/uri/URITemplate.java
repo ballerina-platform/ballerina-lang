@@ -21,6 +21,7 @@ package org.ballerinalang.services.dispatchers.uri;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.uri.parser.Node;
 import org.ballerinalang.services.dispatchers.uri.parser.URITemplateParser;
+import org.ballerinalang.util.codegen.ResourceInfo;
 
 import java.util.Map;
 
@@ -41,11 +42,11 @@ public class URITemplate {
         return null;
     }
 
-    public Resource matches(String uri, Map<String, String> variables) {
+    public ResourceInfo matches(String uri, Map<String, String> variables) {
         return syntaxTree.matchAll(uri, variables, 0);
     }
 
-    public void parse(String uriTemplate, Resource resource) throws URITemplateException {
+    public void parse(String uriTemplate, ResourceInfo resource) throws URITemplateException {
         uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
 
         URITemplateParser parser = new URITemplateParser(syntaxTree);

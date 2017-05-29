@@ -55,6 +55,16 @@ public class BStructType extends BType {
     }
 
     @Override
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_STRUCT, packagePath, typeName);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.STRUCT_TAG;
+    }
+
     public String getName() {
         return identifier.getName();
     }

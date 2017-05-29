@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.8.0
  */
-public final class BFloat extends BValueType {
+public final class BFloat extends BValueType implements BRefType<Double> {
 
     private double value;
 
@@ -61,5 +61,15 @@ public final class BFloat extends BValueType {
     @Override
     public boolean equals(Object obj) {
         return ((BFloat) obj).floatValue() == value;
+    }
+
+    @Override
+    public Double value() {
+        return value;
+    }
+
+    @Override
+    public BValue copy() {
+        return new BFloat(value);
     }
 }

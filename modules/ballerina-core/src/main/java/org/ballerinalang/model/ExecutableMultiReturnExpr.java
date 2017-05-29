@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -34,4 +35,23 @@ public interface ExecutableMultiReturnExpr {
      * @return results of this expression
      */
     BValue[] executeMultiReturn(NodeExecutor executor);
+    
+
+    /**
+     * Returns an arrays of argument types of this expression.
+     *
+     * @return an arrays of argument types
+     */
+    BType[] getTypes();
+
+    /**
+     * Sets an arrays of argument types.
+     *
+     * @param types arrays of argument types
+     */
+    void setTypes(BType[] types);
+
+    int[] getOffsets();
+
+    void setOffsets(int[] offsets);
 }

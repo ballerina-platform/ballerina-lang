@@ -57,6 +57,16 @@ public class BasicLiteral extends AbstractExpression {
     }
 
     @Override
+    public int getTempOffset() {
+        return tempOffset;
+    }
+
+    @Override
+    public void setTempOffset(int index) {
+        this.tempOffset = index;
+    }
+
+    @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }

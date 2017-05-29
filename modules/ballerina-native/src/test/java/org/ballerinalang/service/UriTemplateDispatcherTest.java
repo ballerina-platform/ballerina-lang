@@ -204,6 +204,6 @@ public class UriTemplateDispatcherTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(application);
+//        EnvironmentInitializer.cleanup(application);
     }
 }

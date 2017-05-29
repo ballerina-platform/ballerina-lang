@@ -21,6 +21,7 @@ package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.util.codegen.ResourceInfo;
 
 public class URITemplateParser {
 
@@ -33,7 +34,7 @@ public class URITemplateParser {
         this.syntaxTree = rootNode;
     }
 
-    public Node parse(String template, Resource resource) throws URITemplateException {
+    public Node parse(String template, ResourceInfo resource) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }

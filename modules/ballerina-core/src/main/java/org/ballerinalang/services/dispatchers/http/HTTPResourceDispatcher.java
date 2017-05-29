@@ -23,6 +23,8 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
+import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +42,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     @Override
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+    public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback)
             throws BallerinaException {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
@@ -50,9 +52,9 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         try {
             Map<String, String> resourceArgumentValues = new HashMap<>();
 
-            Resource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues);
+            ResourceInfo resource = service.getUriTemplate().matches(subPath, resourceArgumentValues);
             if (resource != null
-                    && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
+                    && (resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null)) {
 
                 if (cMsg.getProperty(Constants.QUERY_STR) != null) {
                     QueryParamProcessor.processQueryParams
@@ -63,11 +65,44 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 return resource;
             }
         } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
+            // TODO: Why no context??
+            throw new BallerinaException(e.getMessage());
         }
 
         // Throw an exception if the resource is not found.
         throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
+    }
+
+    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws BallerinaException {
+
+//        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+//        String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
+//        subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
+//
+//        try {
+//            Map<String, String> resourceArgumentValues = new HashMap<>();
+//
+//            Resource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues);
+//            if (resource != null
+//                    && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
+//
+//                if (cMsg.getProperty(Constants.QUERY_STR) != null) {
+//                    QueryParamProcessor.processQueryParams
+//                            ((String) cMsg.getProperty(Constants.QUERY_STR))
+//                            .forEach((resourceArgumentValues::put));
+//                }
+//                cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
+//                return resource;
+//            }
+//        } catch (Throwable e) {
+//            throw new BallerinaException(e.getMessage(), balContext);
+//        }
+//
+//        // Throw an exception if the resource is not found.
+//        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
+
+        return null;
     }
 
     @Override

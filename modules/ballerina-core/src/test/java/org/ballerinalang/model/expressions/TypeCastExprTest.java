@@ -44,7 +44,7 @@ public class TypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/type-mapping.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/type-casting.bal");
     }
 
 //    @Test
@@ -281,162 +281,6 @@ public class TypeCastExprTest {
 //        Assert.assertEquals(addressNode.get("city").textValue(), "CA");
 //    }
     
-//    @Test
-//    public void testStructToMap() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructToMap");
-//        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-//        BMap<BString, ?> map = (BMap<BString, ?>) returns[0];
-//        
-//        BValue name = map.get(new BString("name"));
-//        Assert.assertTrue(name instanceof BString);
-//        Assert.assertEquals(name.stringValue(), "Child");
-//
-//        BValue age = map.get(new BString("age"));
-//        Assert.assertTrue(age instanceof BInteger);
-//        Assert.assertEquals(((BInteger) age).intValue(), 25);
-//
-//        BValue parent = map.get(new BString("parent"));
-//        Assert.assertTrue(parent instanceof BStruct);
-//        BStruct parentStruct  = (BStruct) parent;
-//        Assert.assertEquals(((BString) parentStruct.getValue(0)).stringValue(), "Parent");
-//        Assert.assertEquals(((BInteger) parentStruct.getValue(1)).intValue(), 50);
-//        
-//        BValue address = map.get(new BString("address"));
-//        Assert.assertTrue(address instanceof BMap<?, ?>);
-//        BMap<BString, ?> addressMap = (BMap<BString, ?>) address;
-//        Assert.assertEquals(addressMap.get(new BString("city")).stringValue(), "Colombo");
-//        Assert.assertEquals(addressMap.get(new BString("country")).stringValue(), "SriLanka");
-//        
-//        BValue info = map.get(new BString("info"));
-//        Assert.assertTrue(info instanceof BJSON);
-//        Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
-//        
-//        BValue marks = map.get(new BString("marks"));
-//        Assert.assertTrue(marks instanceof BArray);
-//        BArray<BInteger> marksArray = (BArray<BInteger>) marks;
-//        Assert.assertEquals(marksArray.get(0).intValue(), 67);
-//        Assert.assertEquals(marksArray.get(1).intValue(), 38);
-//        Assert.assertEquals(marksArray.get(2).intValue(), 91);
-//    }
-    
-//    @Test
-//    public void testMapToStruct() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMapToStruct");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct struct = (BStruct) returns[0];
-//        
-//        BValue name = struct.getValue(0);
-//        Assert.assertTrue(name instanceof BString);
-//        Assert.assertEquals(name.stringValue(), "Child");
-//
-//        BValue age = struct.getValue(1);
-//        Assert.assertTrue(age instanceof BInteger);
-//        Assert.assertEquals(((BInteger) age).intValue(), 25);
-//
-//        BValue parent = struct.getValue(2);
-//        Assert.assertTrue(parent instanceof BStruct);
-//        BStruct parentStruct  = (BStruct) parent;
-//        Assert.assertEquals(((BString) parentStruct.getValue(0)).stringValue(), "Parent");
-//        Assert.assertEquals(((BInteger) parentStruct.getValue(1)).intValue(), 50);
-//        Assert.assertEquals(parentStruct.getValue(2), null);
-//        Assert.assertEquals(parentStruct.getValue(3), null);
-//        Assert.assertEquals(parentStruct.getValue(4), null);
-//        Assert.assertEquals(parentStruct.getValue(5), null);
-//        
-//        BValue info = struct.getValue(3);
-//        Assert.assertTrue(info instanceof BJSON);
-//        Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
-//        
-//        BValue address = struct.getValue(4);
-//        Assert.assertTrue(address instanceof BMap<?, ?>);
-//        BMap<BString, ?> addressMap = (BMap<BString, ?>) address;
-//        Assert.assertEquals(addressMap.get(new BString("city")).stringValue(), "Colombo");
-//        Assert.assertEquals(addressMap.get(new BString("country")).stringValue(), "SriLanka");
-//        
-//        BValue marks = struct.getValue(5);
-//        Assert.assertTrue(marks instanceof BArray);
-//        BArray<BInteger> marksArray = (BArray<BInteger>) marks;
-//        Assert.assertEquals(marksArray.get(0).intValue(), 87);
-//        Assert.assertEquals(marksArray.get(1).intValue(), 94);
-//        Assert.assertEquals(marksArray.get(2).intValue(), 72);
-//    }
-    
-//    @Test
-//    public void testStructToJson() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructToJson");
-//        Assert.assertTrue(returns[0] instanceof BJSON);
-//        JsonNode child = ((BJSON) returns[0]).value();
-//        Assert.assertEquals(child.get("name").textValue(), "Child");
-//        Assert.assertEquals(child.get("age").intValue(), 25);
-//        
-//        JsonNode parent = child.get("parent");
-//        Assert.assertTrue(parent.isObject());
-//        Assert.assertEquals(parent.get("name").textValue(), "Parent");
-//        Assert.assertEquals(parent.get("age").intValue(), 50);
-//        Assert.assertTrue(parent.get("parent").isNull());
-//        Assert.assertTrue(parent.get("info").isNull());
-//        Assert.assertTrue(parent.get("address").isNull());
-//        Assert.assertTrue(parent.get("marks").isNull());
-//        
-//        JsonNode info = child.get("info");
-//        Assert.assertTrue(info.isObject());
-//        Assert.assertEquals(info.get("status").textValue(), "single");
-//        
-//        JsonNode address = child.get("address");
-//        Assert.assertTrue(info.isObject());
-//        Assert.assertEquals(address.get("country").textValue(), "SriLanka");
-//        Assert.assertEquals(address.get("city").textValue(), "Colombo");
-//        
-//        JsonNode marks = child.get("marks");
-//        Assert.assertTrue(marks.isArray());
-//        Assert.assertEquals(marks.size(), 3);
-//        Assert.assertEquals(marks.get(0).intValue(), 87);
-//        Assert.assertEquals(marks.get(1).intValue(), 94);
-//        Assert.assertEquals(marks.get(2).intValue(), 72);
-//    }
-    
-//    @Test
-//    public void testJsonToStruct() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToStruct");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct struct = (BStruct) returns[0];
-//        
-//        BValue name = struct.getValue(0);
-//        Assert.assertTrue(name instanceof BString);
-//        Assert.assertEquals(name.stringValue(), "Child");
-//
-//        BValue age = struct.getValue(1);
-//        Assert.assertTrue(age instanceof BInteger);
-//        Assert.assertEquals(((BInteger) age).intValue(), 25);
-//
-//        BValue parent = struct.getValue(2);
-//        Assert.assertTrue(parent instanceof BStruct);
-//        BStruct parentStruct  = (BStruct) parent;
-//        Assert.assertEquals(((BString) parentStruct.getValue(0)).stringValue(), "Parent");
-//        Assert.assertEquals(((BInteger) parentStruct.getValue(1)).intValue(), 50);
-//        Assert.assertEquals(parentStruct.getValue(2), null);
-//        Assert.assertEquals(parentStruct.getValue(3), null);
-//        Assert.assertEquals(parentStruct.getValue(4), null);
-//        Assert.assertEquals(parentStruct.getValue(5), null);
-//        
-//        BValue info = struct.getValue(3);
-//        Assert.assertTrue(info instanceof BJSON);
-//        Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
-//        
-//        BValue address = struct.getValue(4);
-//        Assert.assertTrue(address instanceof BMap<?, ?>);
-//        BMap<BString, ?> addressMap = (BMap<BString, ?>) address;
-//        Assert.assertEquals(addressMap.get(new BString("city")).stringValue(), "Colombo");
-//        Assert.assertEquals(addressMap.get(new BString("country")).stringValue(), "SriLanka");
-//        
-//        BValue marks = struct.getValue(5);
-//        Assert.assertTrue(marks instanceof BArray);
-//        BArray<BInteger> marksArray = (BArray<BInteger>) marks;
-//        Assert.assertEquals(marksArray.size(), 2);
-//        Assert.assertEquals(marksArray.get(0).intValue(), 56);
-//        Assert.assertEquals(marksArray.get(1).intValue(), 79);
-//    }
-    
     @Test
     public void testStructToStruct() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructToStruct");
@@ -468,133 +312,10 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a struct to an incompatible struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "incompatible-struct-cast.bal:24: incompatible types: 'Student' " +
-            "cannot be converted to 'Person'")
+            "cannot be assigned to 'Person'")
     public void testIncompatibleStructToStructCast() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/incompatible-struct-cast.bal");
     }
-    
-//    @Test(description = "Test casting a map with missing field to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'Person': error while mapping 'parent': " +
-//            "no such field found")
-//    public void testIncompatibleMapToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testIncompatibleMapToStruct");
-//    }
-    
-//    @Test(description = "Test casting a map with incompatible inner array to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'Person': error while mapping 'marks': " +
-//            "array casting is not supported yet. expected 'int\\[\\]', found' float\\[\\]'")
-//    public void testMapWithIncompatibleArrayToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testMapWithIncompatibleArrayToStruct");
-//    }
-    
-//    @Test(description = "Test casting a map with incompatible inner struct to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'Employee': error while mapping 'parent': " +
-//            "incompatible types: expected 'Person', found 'Student'")
-//    public void testMapWithIncompatibleStructToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testMapWithIncompatibleStructToStruct");
-//    }
-    
-//    @Test(description = "Test casting a incompatible JSON to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping 'parent':" +
-//            " no such field found")
-//    public void testIncompatibleJsonToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testIncompatibleJsonToStruct");
-//    }
-    
-//    @Test(description = "Test casting a JSON with incompatible inner map to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping " +
-//            "'address': incompatible types: expected 'json-object', found 'string'")
-//    public void testJsonWithIncompatibleMapToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleMapToStruct");
-//    }
-    
-//    @Test(description = "Test casting a JSON with incompatible inner struct to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping 'parent': " +
-//            "incompatible types: expected 'json-object', found 'string'")
-//    public void testJsonWithIncompatibleStructToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleStructToStruct");
-//    }
-    
-//    @Test(description = "Test casting a JSON array to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': incompatible types: expected " +
-//            "'json-object', found 'json-array'")
-//    public void testJsonArrayToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testJsonArrayToStruct");
-//    }
-    
-//    @Test(description = "Test casting a struct with compatible inner struct to a struct")
-//    public void testInnerStructToStruct() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInnerStructToStruct");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct killer = (BStruct) returns[0];
-//        
-//        BValue name = killer.getValue(0);
-//        Assert.assertTrue(name instanceof BString);
-//        Assert.assertEquals(name.stringValue(), "Supun");
-//
-//        BValue age = killer.getValue(1);
-//        Assert.assertTrue(age instanceof BInteger);
-//        Assert.assertEquals(((BInteger) age).intValue(), 35);
-//        
-//        BValue partner = killer.getValue(2);
-//        Assert.assertTrue(partner instanceof BStruct);
-//        BStruct partnerStruct = (BStruct) partner;
-//        Assert.assertEquals(partnerStruct.getType().getName(), "Student");
-//        Assert.assertEquals(partnerStruct.getValue(0).stringValue(), "StudentPartner");
-//        Assert.assertEquals(((BInteger) partnerStruct.getValue(1)).intValue(), 27);
-//        
-//        BValue address = killer.getValue(4);
-//        Assert.assertTrue(address instanceof BMap<?, ?>);
-//        BMap<BString, ?> addressMap = (BMap<BString, ?>) address;
-//        Assert.assertEquals(addressMap.get(new BString("city")).stringValue(), "Kandy");
-//        Assert.assertEquals(addressMap.get(new BString("country")).stringValue(), "SriLanka");
-//        
-//        BValue marks = killer.getValue(5);
-//        Assert.assertTrue(marks instanceof BArray);
-//        BArray<BInteger> marksArray = (BArray<BInteger>) marks;
-//        Assert.assertEquals(marksArray.size(), 2);
-//        Assert.assertEquals(marksArray.get(0).intValue(), 24);
-//        Assert.assertEquals(marksArray.get(1).intValue(), 81);
-//    }
-    
-//    @Test(description = "Test casting a struct with incompatible inner map to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'Doctor' to type 'Employee': error while mapping " +
-//            "'parent': no such field found")
-//    public void testStructWithIncompatibleInnerMapToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testStructWithIncompatibleInnerMapToStruct");
-//    }
-    
-//    @Test(description = "Test casting a JSON with incompatible inner type to a struct",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping 'age': " +
-//            "incompatible types: expected 'int', found 'float' in json")
-//    public void testJsonWithIncompatibleTypeToStruct() {
-//        BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleTypeToStruct");
-//    }
-    
-//    @Test(description = "Test casting a map with inner XML to a JSON",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'json': error while mapping 'info': " +
-//            "incompatible types: expected 'json', found 'xml'")
-//    public void testMapWithXmlToJson() {
-//        BLangFunctions.invoke(bLangProgram, "testMapWithXmlToJson");
-//    }
-    
-//    @Test(description = "Test casting a struct with inner XML to a JSON",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'Info' to type 'json': error while mapping 'name': " +
-//            "incompatible types: expected 'json', found 'xml'")
-//    public void testStructWithXmlToJson() {
-//        BLangFunctions.invoke(bLangProgram, "testStructWithXmlToJson");
-//    }
     
     @Test(description = "Test casting a JSON integer to a string")
     public void testJsonIntToString() {
@@ -647,119 +368,6 @@ public class TypeCastExprTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.0);
     }
     
-//    @Test(description = "Test casting an array to JSON")
-//    public void testArrayToJson() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayToJson");
-//        Assert.assertTrue(returns[0] instanceof BJSON);
-//        JsonNode json = ((BJSON) returns[0]).value();
-//        ArrayNode array = (ArrayNode) json.get("array");
-//
-//        Assert.assertEquals(array.get(0).intValue(), 4);
-//        Assert.assertEquals(array.get(1).textValue(), "Supun");
-//        Assert.assertEquals(array.get(2).floatValue(), 5.36F);
-//        Assert.assertEquals(array.get(3).booleanValue(), true);
-//        Assert.assertEquals(array.get(4).toString(), "{\"lname\":\"Setunga\"}");
-//        Assert.assertEquals(array.get(5).toString(), "{\"city\":\"Colombo\",\"country\":\"\"}");
-//        Assert.assertEquals(array.get(6).toString(), "[4,3,7]");
-//        Assert.assertTrue(array.get(7).isNull());
-//        Assert.assertEquals(array.get(8).toString(), "{\"status\":\"single\"}");
-//    }
-    
-//    @Test(description = "Test casting an array with incompatible types to JSON",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'json': error while mapping 'array': " +
-//            "incompatible types: expected 'json', found 'xml'")
-//    public void testArrayWithIncompatibleTypesToJson() {
-//        BLangFunctions.invoke(bLangProgram, "testArrayWithIncompatibleTypesToJson");
-//    }
-    
-//    @Test(description = "Test casting a JSON array to any array")
-//    public void testJsonToAnyArray() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToAnyArray");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct anyArrayStruct = (BStruct) returns[0];
-//        BArray<BValue> array = (BArray<BValue>) anyArrayStruct.getValue(0);
-//
-//        Assert.assertEquals(((BInteger) array.get(0)).intValue(), 4);
-//        Assert.assertEquals(array.get(1).stringValue(), "Supun");
-//        Assert.assertEquals(((BFloat) array.get(2)).floatValue(), 5.36);
-//        Assert.assertEquals(((BBoolean) array.get(3)).booleanValue(), true);
-//        Assert.assertEquals(((BJSON) array.get(4)).stringValue(), "{\"lname\":\"Setunga\"}");
-//        Assert.assertEquals(((BJSON) array.get(5)).stringValue(), "[4,3,7]");
-//        Assert.assertEquals(array.get(6), null);
-//    }
-    
-//    @Test(description = "Test casting a JSON array to int array")
-//    public void testJsonToIntArray() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToIntArray");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct anyArrayStruct = (BStruct) returns[0];
-//        BArray<BValue> array = (BArray<BValue>) anyArrayStruct.getValue(0);
-//
-//        Assert.assertEquals(array.getType().getName(), "int[]");
-//        Assert.assertEquals(((BInteger) array.get(0)).intValue(), 4);
-//        Assert.assertEquals(((BInteger) array.get(1)).intValue(), 3);
-//        Assert.assertEquals(((BInteger) array.get(2)).intValue(), 9);
-//    }
-    
-//    @Test(description = "Test casting a JSON string array to string array")
-//    public void testJsonToStringArray() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonToStringArray");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct anyArrayStruct = (BStruct) returns[0];
-//        BArray<BValue> array = (BArray<BValue>) anyArrayStruct.getValue(0);
-//
-//        Assert.assertEquals(array.getType().getName(), "string[]");
-//        Assert.assertEquals(((BString) array.get(0)).stringValue(), "a");
-//        Assert.assertEquals(((BString) array.get(1)).stringValue(), "b");
-//        Assert.assertEquals(((BString) array.get(2)).stringValue(), "c");
-//    }
-    
-//    @Test(description = "Test casting a JSON integer array to string array")
-//    public void testJsonIntArrayToStringArray() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonIntArrayToStringArray");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct anyArrayStruct = (BStruct) returns[0];
-//        BArray<BValue> array = (BArray<BValue>) anyArrayStruct.getValue(0);
-//
-//        Assert.assertEquals(array.getType().getName(), "string[]");
-//        Assert.assertEquals(((BString) array.get(0)).stringValue(), "4");
-//        Assert.assertEquals(((BString) array.get(1)).stringValue(), "3");
-//        Assert.assertEquals(((BString) array.get(2)).stringValue(), "9");
-//    }
-    
-//    @Test(description = "Test casting a JSON array to xml array",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'XmlArray': error while mapping 'a': " +
-//            "incompatible types: expected 'xml', found 'string'")
-//    public void testJsonToXmlArray() {
-//        BLangFunctions.invoke(bLangProgram, "testJsonToXmlArray");
-//    }
-    
-//    @Test(description = "Test casting a JSON integer array to string array")
-//    public void testNullJsonToArray() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullJsonToArray");
-//        Assert.assertEquals(returns[0], null);
-//    }
-    
-//    @Test(description = "Test casting a JSON null to string array")
-//    public void testNullJsonArrayToArray() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullJsonArrayToArray");
-//        Assert.assertTrue(returns[0] instanceof BStruct);
-//        BStruct anyArrayStruct = (BStruct) returns[0];
-//        BArray<BValue> array = (BArray<BValue>) anyArrayStruct.getValue(0);
-//
-//        Assert.assertEquals(array, null);
-//    }
-    
-//    @Test(description = "Test casting a JSON string to string array",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'StringArray': error while mapping 'a': " +
-//            "incompatible types: expected 'json-array', found 'string'")
-//    public void testNonArrayJsonToArray() {
-//        BLangFunctions.invoke(bLangProgram, "testNonArrayJsonToArray");
-//    }
-    
     @Test(description = "Test casting a null JSON to string",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "cannot cast 'null' value to type 'string'")
@@ -788,92 +396,60 @@ public class TypeCastExprTest {
         BLangFunctions.invoke(bLangProgram, "testNullJsonToBoolean");
     }
     
-//    @Test(description = "Test casting a null JSON to map")
-//    public void testNullJsonToMap() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullJsonToMap");
-//        Assert.assertEquals(returns[0], null);
-//    }
-//    
-//    @Test(description = "Test casting a null JSON to struct")
-//    public void testNullJsonToStruct() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullJsonToStruct");
-//        Assert.assertEquals(returns[0], null);
-//    }
-//    
-//    @Test(description = "Test casting a primitive JSON to map",
-//            expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'map': incompatible types: expected " +
-//            "'json-object', found 'string'")
-//    public void testPrimitiveJsonToMap() {
-//        BLangFunctions.invoke(bLangProgram, "testPrimitiveJsonToMap");
-//    }
-//    
-//    @Test(description = "Test casting a null map to JSON")
-//    public void testNullMapToJson() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullMapToJson");
-//        Assert.assertEquals(returns[0], null);
-//    }
-//    
-//    @Test(description = "Test casting a null map to Struct")
-//    public void testNullMapToStruct() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullMapToStruct");
-//        Assert.assertEquals(returns[0], null);
-//    }
-    
     @Test(description = "Test casting a null Struct to Struct")
     public void testNullStructToStruct() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullStructToStruct");
         Assert.assertEquals(returns[0], null);
     }
     
-//    @Test(description = "Test casting a null Struct to json")
-//    public void testNullStructToJson() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullStructToJson");
-//        Assert.assertEquals(returns[0], null);
-//    }
-    
-//    @Test(description = "Test casting a null Struct to map")
-//    public void testNullStructToMap() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullStructToMap");
-//        Assert.assertEquals(returns[0], null);
-//    }
-    
-    @Test(description = "Test casting an int as any type to json")
+    @Test(description = "Test casting an int as any type to json",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'int' to type 'json'")
     public void testAnyIntToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyIntToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(((BJSON) returns[0]).value().intValue(), 8);
     }
     
-    @Test(description = "Test casting a string as any type to json")
+    @Test(description = "Test casting a string as any type to json",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'string' to type 'json'")
     public void testAnyStringToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyStringToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(((BJSON) returns[0]).value().textValue(), "Supun");
     }
     
-    @Test(description = "Test casting a boolean as any type to json")
+    @Test(description = "Test casting a boolean as any type to json",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'boolean' to type 'json'")
     public void testAnyBooleanToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyBooleanToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(((BJSON) returns[0]).value().booleanValue(), true);
     }
     
-    @Test(description = "Test casting a float as any type to json")
+    @Test(description = "Test casting a float as any type to json",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'float' to type 'json'")
     public void testAnyFloatToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyFloatToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(((BJSON) returns[0]).value().floatValue(), 8.73F);
     }
     
-    @Test(description = "Test casting a map as any type to json")
+    @Test(description = "Test casting a map as any type to json",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'map' to type 'json'")
     public void testAnyMapToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyMapToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(((BJSON) returns[0]).value().toString(), "{\"name\":\"supun\"}");
     }
     
-    @Test(description = "Test casting a struct as any type to json")
+    @Test(description = "Test casting a struct as any type to json",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'Address' to type 'json'")
     public void testAnyStructToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyStructToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -893,7 +469,9 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0], null);
     }
     
-    @Test(description = "Test casting an array as any type to json")
+    @Test(description = "Test casting an array as any type to json",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'any\\[\\]' to type 'json'")
     public void testAnyArrayToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyArrayToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -907,41 +485,33 @@ public class TypeCastExprTest {
         BLangFunctions.invoke(bLangProgram, "testAnyXmlToJson");
     }
     
-//    @Test(description = "Test casting a struct to another struct in a different package")
-//    public void testCastToStructInDifferentPkg() {
-//        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/foo");
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCastToStructInDifferentPkg");
-//    }
-    
-    
     @Test(description = "Test casting a struct to map",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types in return statement. " +
-            "expected 'map', found 'Person'")
+            expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: 'Person' cannot be cast " +
+            "to 'map'")
     public void testStructToMap() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/struct-to-map.bal");
     }
 
     @Test(description = "Test casting a map to struct",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types in return statement. " +
-            "expected 'Person', found 'map'")
+            expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
+            "'Person'")
     public void testMapToStruct() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/map-to-struct.bal");
     }
     
     @Test(description = "Test casting a json to map",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "json-to-map.bal:9: incompatible types in return statement. expected " +
-            "'map', found 'json'")
+            expectedExceptionsMessageRegExp = "json-to-map.bal:9: incompatible types: 'json' cannot be cast to 'map'")
     public void testJsonToMap() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/json-to-map.bal");
     }
     
     @Test(description = "Test casting a json to struct",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types in return statement. " +
-            "expected 'Person', found 'json'")
+            expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types: 'json' cannot be cast to" +
+            " 'Person'")
     public void testJsonToStruct() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/json-to-struct.bal");
     }
@@ -1008,7 +578,6 @@ public class TypeCastExprTest {
     public void testStructToAnyExplicit() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructToAnyExplicit");
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct student = (BStruct) returns[0];
         
         BValue name = student.getValue(0);
@@ -1044,4 +613,221 @@ public class TypeCastExprTest {
         BMap<BString, ?> map = (BMap<BString, ?>) returns[0];
         Assert.assertEquals(map.get(new BString("name")).stringValue(), "supun");
     }
+    
+    @Test(description = "Test casting a struct to another struct in a different package")
+    public void testCastToStructInDifferentPkg() {
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/foo");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCastToStructInDifferentPkg");
+    }
+    
+    // Casting with errors returned
+
+    @Test
+    public void testCompatibleStructForceCasting() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCompatibleStructForceCasting", new BValue[]{});
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct structC = (BStruct) returns[0];
+        
+        BValue xVal = structC.getValue(0);
+        Assert.assertTrue(xVal instanceof BString);
+        Assert.assertEquals(xVal.stringValue(), "updated-x-valueof-a");
+
+        BValue yVal = structC.getValue(1);
+        Assert.assertTrue(yVal instanceof BInteger);
+        Assert.assertEquals(((BInteger) yVal).intValue(), 4);
+        
+        // check whether error is null
+        Assert.assertNull(returns[1]);
+    }
+    
+    @Test
+    public void testInCompatibleStructForceCasting() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInCompatibleStructForceCasting", new BValue[]{});
+        
+        // check whether struct is null
+        Assert.assertNull(returns[0]);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected 'A', found 'B'");
+        
+        BValue sourceType = error.getValue(2);
+        Assert.assertTrue(sourceType instanceof BString);
+        Assert.assertEquals(sourceType.stringValue(), "B");
+        
+        BValue targetType = error.getValue(3);
+        Assert.assertTrue(targetType instanceof BString);
+        Assert.assertEquals(targetType.stringValue(), "A");
+    }
+    
+    @Test(description = "Test returning a mismatching error when casting",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types for" +
+            " 'err': expected 'ballerina.lang.errors:CastError', found 'Error'")
+    public void testMistmatchErrorInMultiReturnCasting() {
+        BTestUtils.parseBalFile("lang/expressions/type/cast/mismatch-error-in-multi-return-casting.bal");
+    }
+    
+    @Test(description = "Test casting with too many returns",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "casting-with-too-many-returns.bal:17: assignment count mismatch: " +
+            "3 != 2")
+    public void testCastingWithTooManyReturns() {
+        BTestUtils.parseBalFile("lang/expressions/type/cast/casting-with-too-many-returns.bal");
+    }
+    
+    
+    @Test
+    public void testAnyToStringWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToStringWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(returns[0].stringValue(), "");
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'int' to type 'string'");
+    }
+    
+    @Test
+    public void testAnyNullToStringWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToStringWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(returns[0].stringValue(), "");
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'string'");
+    }
+    
+    @Test
+    public void testAnyToBooleanWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToBooleanWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'int' to type 'boolean'");
+    }
+    
+    @Test
+    public void testAnyNullToBooleanWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToBooleanWithErrors", new BValue[]{});
+        
+        // check whether string is empty
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'boolean'");
+    }
+    
+    @Test
+    public void testAnyToIntWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToIntWithErrors", new BValue[]{});
+        
+        // check whether int is zero
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'int'");
+    }
+    
+    @Test
+    public void testAnyNullToIntWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToIntWithErrors", new BValue[]{});
+        
+        // check whether int is zero
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'int'");
+    }
+    
+    @Test
+    public void testAnyToFloatWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToFloatWithErrors", new BValue[]{});
+        
+        // check whether float is zero
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'float'");
+    }
+    
+    @Test
+    public void testAnyNullToFloatWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyNullToFloatWithErrors", new BValue[]{});
+        
+        // check whether float is zero
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'null' value to type 'float'");
+    }
+    
+    @Test
+    public void testAnyToMapWithErrors() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyToMapWithErrors", new BValue[]{});
+        
+        // check whether map is null
+        Assert.assertNull(returns[0]);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'any' with type 'string' to type 'map'");
+    }
+    
+    // TODO: 
+/*    @Test
+    public void testErrorInForceCasting() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testErrorInForceCasting", new BValue[]{});
+        
+        // check whether float is zero
+        Assert.assertNull(returns[0]);
+        
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        BValue errorMsg = error.getValue(0);
+        Assert.assertTrue(errorMsg instanceof BString);
+        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected 'A', found 'B'");
+    }*/
 }

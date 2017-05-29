@@ -28,7 +28,7 @@ public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:6: incompatible types: 'int' " +
-                    "cannot be converted to 'boolean'")
+                    "cannot be assigned to 'boolean'")
     public void testIncompatibleTypeAssignment() {
         BTestUtils.parseBalFile("lang/statements/assignment/incompatible-type-assignment.bal");
     }

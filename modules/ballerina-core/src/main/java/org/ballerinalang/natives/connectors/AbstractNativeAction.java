@@ -79,7 +79,14 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            BValue result = context.getControlStack().getCurrentFrame().values[index];
+
+            BValue result;
+            if (context.isVMBasedExecutor()) {
+                result = context.getControlStackNew().getCurrentFrame().argValues[index];
+            } else {
+                result = context.getControlStack().getCurrentFrame().values[index];
+            }
+
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }

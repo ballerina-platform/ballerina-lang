@@ -41,7 +41,7 @@ public class CommentStmtTest {
         Statement[] statements = bLangProgram.getLibraryPackages()[0]
                 .getFunctions()[0].getCallableUnitBody().getStatements();
         Assert.assertNotNull(statements, "statements not found");
-        Assert.assertEquals(statements.length, 4, "statement count mismatched");
+        Assert.assertEquals(statements.length, 5, "statement count mismatched");
         Assert.assertTrue(statements[0] instanceof CommentStmt, "1st statement is not a comment statement");
         Assert.assertTrue(statements[2] instanceof CommentStmt, "3rd statement is not a comment statement");
         Assert.assertEquals(((CommentStmt) statements[0]).getComment(), "//comment1", "comment text mismatched");

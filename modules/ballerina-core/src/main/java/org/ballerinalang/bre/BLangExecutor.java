@@ -17,11 +17,12 @@
 */
 package org.ballerinalang.bre;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.model.Action;
-import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.ParameterDef;
@@ -29,7 +30,6 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
@@ -39,7 +39,6 @@ import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
-import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FieldAccessExpr;
@@ -56,6 +55,7 @@ import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -95,7 +95,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
@@ -195,7 +194,9 @@ public class BLangExecutor implements NodeExecutor {
         Expression[] lExprs = assignStmt.getLExprs();
         if (lExprs.length > 1) {
             // This statement contains multiple assignments
-            rValues = ((CallableUnitInvocationExpr) rExpr).executeMultiReturn(this);
+            rValues = ((ExecutableMultiReturnExpr) rExpr).executeMultiReturn(this);
+        } else if (rExpr == null) {
+            rValues = new BValue[]{lExprs[0].getType().getZeroValue()};
         } else {
             rValues = new BValue[]{rExpr.execute(this)};
         }
@@ -481,7 +482,10 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(ReplyStmt replyStmt) {
         // TODO revisit this logic
         Expression expr = replyStmt.getReplyExpr();
-        BMessage bMessage = (BMessage) expr.execute(this);
+        BMessage bMessage = null;
+        if (expr != null) {
+            bMessage = (BMessage) expr.execute(this);
+        }
         bContext.getBalCallback().done(bMessage != null ? bMessage.value() : null);
         returnedOrReplied = true;
     }
@@ -969,6 +973,9 @@ public class BLangExecutor implements NodeExecutor {
                 stringVal = null;
             } else if (value instanceof BString) {
                 stringVal = "\"" + value.stringValue() + "\"";
+            } else if (value instanceof BJSON) {
+                JsonNode jsonNode = ((BJSON) value).value();
+                stringVal = jsonNode.toString();
             } else  {
                 stringVal = value.stringValue();
             }
@@ -988,7 +995,10 @@ public class BLangExecutor implements NodeExecutor {
                 stringVal = null;
             } else if (value instanceof BString) {
                 stringVal = "\"" + value.stringValue() + "\"";
-            } else  {
+            } else if (value instanceof BJSON) {
+                JsonNode jsonNode = ((BJSON) value).value();
+                stringVal = jsonNode.toString();
+            } else {
                 stringVal = value.stringValue();
             }
             stringJoiner.add(stringVal);
@@ -1044,65 +1054,20 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public BValue visit(TypeCastExpression typeCastExpression) {
+    public BValue[] visit(TypeCastExpression typeCastExpression) {
         // Check for native type casting
-        if (typeCastExpression.getEvalFunc() != null) {
-            BValue result = (BValue) typeCastExpression.getRExpr().execute(this);
-            return typeCastExpression.getEvalFunc().apply(result, typeCastExpression.getTargetType());
-        } else {
-            TypeMapper typeMapper = typeCastExpression.getCallableUnit();
-
-            int sizeOfValueArray = typeMapper.getStackFrameSize();
-            BValue[] localVals = new BValue[sizeOfValueArray];
-
-            // Get values for all the function arguments
-            int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
-
-//            // Create default values for all declared local variables
-//            for (VariableDef variableDef : typeMapper.getVariableDefs()) {
-//                localVals[valueCounter] = variableDef.getType().getDefaultValue();
-//                valueCounter++;
-//            }
-
-            for (ParameterDef returnParam : typeMapper.getReturnParameters()) {
-                // Check whether these are unnamed set of return types.
-                // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-                if (returnParam.getName() == null) {
-                    break;
-                }
-
-                localVals[valueCounter] = returnParam.getType().getZeroValue();
-                valueCounter++;
-            }
-
-            // Create an arrays in the stack frame to hold return values;
-            BValue[] returnVals = new BValue[1];
-
-            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-            // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
-                    typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
-
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
-            controlStack.pushFrame(stackFrame);
-
-            // Check whether we are invoking a native function or not.
-            if (typeMapper instanceof BTypeMapper) {
-                BTypeMapper bTypeMapper = (BTypeMapper) typeMapper;
-                bTypeMapper.getCallableUnitBody().execute(this);
-            } else {
-                AbstractNativeTypeMapper nativeTypeMapper = (AbstractNativeTypeMapper) typeMapper;
-                nativeTypeMapper.convertNative(bContext);
-            }
-
-            controlStack.popFrame();
-
-            // Setting return values to function invocation expression
-            returnedOrReplied = false;
-            return returnVals[0];
-        }
+        BValue result = (BValue) typeCastExpression.getRExpr().execute(this);
+        return typeCastExpression.getEvalFunc().apply(result, typeCastExpression.getType(), 
+                typeCastExpression.isMultiReturnExpr());
     }
 
+    @Override
+    public BValue[] visit(TypeConversionExpr nativeTransformExpression) {
+        BValue result = (BValue) nativeTransformExpression.getRExpr().execute(this);
+        return nativeTransformExpression.getEvalFunc().apply(result, nativeTransformExpression.getType(),
+                nativeTransformExpression.isMultiReturnExpr());
+    }
+    
     @Override
     public BValue visit(BasicLiteral basicLiteral) {
         return basicLiteral.getBValue();
@@ -1601,6 +1566,9 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        returnedOrReplied = false;
     }
 
     private void invokeConnectorInitAction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
@@ -1622,6 +1590,9 @@ public class BLangExecutor implements NodeExecutor {
         AbstractNativeAction nativeAction = (AbstractNativeAction) action;
         nativeAction.execute(bContext);
         controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        returnedOrReplied = false;
     }
 
     private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
@@ -1733,6 +1704,9 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        returnedOrReplied = false;
     }
 
     /**

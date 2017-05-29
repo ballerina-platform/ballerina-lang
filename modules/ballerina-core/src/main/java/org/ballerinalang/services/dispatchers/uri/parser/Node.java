@@ -18,7 +18,7 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-import org.ballerinalang.model.Resource;
+import org.ballerinalang.util.codegen.ResourceInfo;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -31,7 +31,7 @@ public abstract class Node {
 
     protected List<Node> childNodesList = new LinkedList<>();
 
-    protected Resource resource;
+    protected ResourceInfo resource;
 
     protected Node(String token) {
         this.token = token;
@@ -51,7 +51,7 @@ public abstract class Node {
         return node;
     }
 
-    public Resource matchAll(String uriFragment, Map<String, String> variables, int start) {
+    public ResourceInfo matchAll(String uriFragment, Map<String, String> variables, int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -59,7 +59,7 @@ public abstract class Node {
             String subUriFragment = nextURIFragment(uriFragment, matchLength);
             String subPath = nextSubPath(subUriFragment);
 
-            Resource resource;
+            ResourceInfo resource;
             for (Node childNode : childNodesList) {
                 if (childNode instanceof Literal) {
                     String regex = childNode.getToken();
@@ -96,11 +96,11 @@ public abstract class Node {
         }
     }
 
-    public Resource getResource() {
+    public ResourceInfo getResource() {
         return this.resource;
     }
 
-    public void setResource(Resource resource) {
+    public void setResource(ResourceInfo resource) {
         this.resource = resource;
     }
 
