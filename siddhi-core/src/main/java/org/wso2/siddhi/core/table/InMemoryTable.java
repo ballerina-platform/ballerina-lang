@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.core.table.holder.ListEventHolder;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -85,6 +86,17 @@ public class InMemoryTable implements Table, Snapshotable {
             readWriteLock.writeLock().unlock();
         }
 
+    }
+
+    public void add(long timeStamp, Object [] addingEvent) { //used only in incremental aggregator TODO: 5/29/17 change?
+        try {
+            readWriteLock.writeLock().lock();
+            if (eventHolder instanceof ListEventHolder) {
+                ((ListEventHolder)eventHolder).addIncrementalEvent(timeStamp, addingEvent);
+            }
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     @Override
