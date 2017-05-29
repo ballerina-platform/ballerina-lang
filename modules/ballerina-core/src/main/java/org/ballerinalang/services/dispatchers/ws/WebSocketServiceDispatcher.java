@@ -93,9 +93,16 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         if (serviceUri == null) {
             throw new BallerinaException("No service found to dispatch");
         }
-        String basePath = URIUtil.getFirstPathSegment(serviceUri);
-        ServiceInfo service = HTTPServicesRegistry.getInstance().
-                getServiceInfo(interfaceId, Constants.DEFAULT_BASE_PATH + basePath);
+        String basePath = "";
+        ServiceInfo service = null;
+        String[] basePathSegments = URIUtil.getPathSegments(serviceUri);
+        for (String pathSegments: basePathSegments) {
+            basePath = basePath + Constants.DEFAULT_BASE_PATH + pathSegments;
+            service = HTTPServicesRegistry.getInstance().getServiceInfo(interfaceId, basePath);
+            if (service != null) {
+                break;
+            }
+        }
         if (service == null) {
             throw new BallerinaException("No service found to handle message for " + serviceUri);
         }

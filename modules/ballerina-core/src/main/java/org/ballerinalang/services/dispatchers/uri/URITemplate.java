@@ -18,7 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.uri;
 
-import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.uri.parser.Node;
 import org.ballerinalang.services.dispatchers.uri.parser.URITemplateParser;
 import org.ballerinalang.util.codegen.ResourceInfo;
