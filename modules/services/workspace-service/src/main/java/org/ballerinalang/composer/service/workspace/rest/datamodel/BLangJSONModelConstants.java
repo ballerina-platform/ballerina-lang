@@ -332,6 +332,10 @@ public class BLangJSONModelConstants {
 
     public static final String WORKER_INVOKE_EXPRESSION = "worker_invoke_expression";
 
+    public static final String JOIN_STATEMENT = "join_statement";
+
+    public static final String FORK_JOIN_STATEMENT = "fork_join_statement";
+
     public static final String TRANSACTION_ABORTED_STATEMENT = "transaction_aborted_statement";
 
     public static final String TRANSACTION_STATEMENT = "transaction_statement";

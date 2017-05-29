@@ -96,6 +96,8 @@ import annotation from './annotations/annotation';
 import annotationEntry from './annotations/annotation-entry';
 import annotationEntryArray from './annotations/annotation-entry-array';
 import transformStatement from './statements/transform-statement';
+import forkJoinStatement from './statements/fork-join-statment';
+import joinStatement from './statements/join-statment';
 import transactionAbortedStatement from './statements/transactionaborted-statement';
 import transactionStatement from './statements/transaction-statement';
 import abortedStatement from './statements/aborted-statement';
@@ -348,6 +350,15 @@ BallerinaASTFactory.createAssignmentStatement = function (args) {
 BallerinaASTFactory.createTransformStatement = function (args) {
     return new transformStatement(args);
 };
+
+BallerinaASTFactory.createForkJoinStatement = function (args) {
+    return new forkJoinStatement(args);
+};
+
+BallerinaASTFactory.createJoinStatement = function (args) {
+    return new joinStatement(args);
+};
+
 
 /**
  * Creates Variable Definition Statement
@@ -814,6 +825,24 @@ BallerinaASTFactory.isWorkerDeclaration = function (child) {
  */
 BallerinaASTFactory.isWorkerInvocationStatement = function (child) {
     return child instanceof workerInvocationStatement;
+};
+
+/**
+ * instanceof check for JoinStatement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isJoinStatement = function (child) {
+    return child instanceof joinStatement;
+};
+
+/**
+ * instanceof check for ForkJoinStatement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isForkJoinStatement = function (child) {
+    return child instanceof forkJoinStatement;
 };
 
 /**
@@ -1714,7 +1743,13 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'transform_statement':
         node = BallerinaASTFactory.createTransformStatement();
         break;
-    case 'transaction_aborted_statement':
+    case 'fork_join_statement':
+            node = BallerinaASTFactory.createForkJoinStatement();
+            break;
+        case 'join_statement':
+            node = BallerinaASTFactory.createJoinStatement();
+            break;
+        case 'transaction_aborted_statement':
         node = BallerinaASTFactory.createTransactionAbortedStatement();
         break;
     case 'transaction_statement':

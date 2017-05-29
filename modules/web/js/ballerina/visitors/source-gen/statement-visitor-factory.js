@@ -43,6 +43,8 @@ import TransactionAbortedStatementVisitor from './transaction-aborted-statement-
 import TransactionStatementVisitor from './transaction-statement-visitor';
 import AbortedStatementVisitor from './aborted-statement-visitor';
 import AbortStatementVisitor from './abort-statement-visitor';
+import ForkJoinStatementVisitor from './fork-join-statement-visitor';
+import JoinStatementVisitor from './join-statement-visitor';
 
 class StatementVisitorFactor {
     getStatementVisitor(statement, parent) {
@@ -92,6 +94,10 @@ class StatementVisitorFactor {
             return new ThrowStatementVisitor(parent);
         } else if (ASTFactory.isCommentStatement(statement)) {
             return new CommentStatementVisitor(parent);
+        } else if (ASTFactory.isForkJoinStatement(statement)) {
+            return new ForkJoinStatementVisitor(parent);
+        } else if (ASTFactory.isJoinStatement(statement)) {
+            return new JoinStatementVisitor(parent);
         } else if (ASTFactory.isTransactionAbortedStatement(statement)) {
             return new TransactionAbortedStatementVisitor(parent);
         } else if (ASTFactory.isTransactionStatement(statement)) {

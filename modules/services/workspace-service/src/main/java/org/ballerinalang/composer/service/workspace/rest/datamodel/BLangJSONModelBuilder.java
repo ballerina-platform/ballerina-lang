@@ -1036,7 +1036,32 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        JsonObject forkJoinStmtObj = new JsonObject();
+        forkJoinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.FORK_JOIN_STATEMENT);
+        this.addPosition(forkJoinStmtObj, forkJoinStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(forkJoinStmtObj, forkJoinStmt.getWhiteSpaceDescriptor());
+        JsonArray children = new JsonArray();
+        tempJsonArrayRef.push(children);
+        Worker[] workers = forkJoinStmt.getWorkers();
+        for (Worker worker : workers) {
+            worker.accept(this);
+        }
 
+
+        ForkJoinStmt.Join join = forkJoinStmt.getJoin();
+        JsonObject joinStmtObj = new JsonObject();
+        joinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.JOIN_STATEMENT);
+        this.addPosition(joinStmtObj, join.getNodeLocation());
+        tempJsonArrayRef.push(new JsonArray());
+        join.getJoinBlock().accept(this);
+
+        joinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(joinStmtObj);
+
+        forkJoinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(forkJoinStmtObj);
     }
 
     @Override

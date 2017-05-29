@@ -133,6 +133,14 @@ export const blockStatement = {
     }
 };
 
+export const fork = {
+    padding: {
+        top: statement.gutter.v,
+        bottom: statement.gutter.v,
+    },
+    lifeLineGutterH: 6
+};
+
 export const canvas = {
     padding: {
         top: 50,
