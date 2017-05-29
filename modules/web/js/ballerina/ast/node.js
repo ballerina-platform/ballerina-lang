@@ -503,6 +503,11 @@ class ASTNode extends EventChannel {
         return (!_.isNil(region)) ? region : '';
     }
 
+    getChildWSRegion(childId, regionId) {
+        let region = _.get(_.get(this.getWhiteSpaceDescriptor().children, childId).regions, regionId);
+        return (!_.isNil(region)) ? region : '';
+    }
+
     /** Gets the children of a specific type.
      * @param  {function} typeCheckFunction The function thats used for type checking. Example: BallerinaASTFactory.isConnectorDeclaration
      * @return {ASTNode[]}                   An array of children.

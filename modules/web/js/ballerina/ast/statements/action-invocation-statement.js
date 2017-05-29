@@ -27,6 +27,10 @@ import Statement from './statement';
 class ActionInvocationStatement extends Statement {
     constructor(args) {
         super('ActionInvocationStatement');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '\n'
+        };
     }
 
     /**
@@ -64,4 +68,3 @@ class ActionInvocationStatement extends Statement {
 }
 
 export default ActionInvocationStatement;
-
