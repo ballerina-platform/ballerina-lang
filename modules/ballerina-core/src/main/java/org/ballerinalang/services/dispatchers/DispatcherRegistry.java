@@ -44,6 +44,10 @@ public class DispatcherRegistry {
         return serviceDispatchers.get(protocol);
     }
 
+    public boolean protocolExist(String protocolPkg) {
+        return serviceDispatchers.keySet().contains(protocolPkg);
+    }
+
     public Map<String, ServiceDispatcher> getServiceDispatchers() {
         return serviceDispatchers;
     }

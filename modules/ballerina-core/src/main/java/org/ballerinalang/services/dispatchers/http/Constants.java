@@ -35,6 +35,7 @@ public class Constants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";

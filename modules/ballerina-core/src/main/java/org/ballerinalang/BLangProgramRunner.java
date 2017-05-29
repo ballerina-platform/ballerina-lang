@@ -39,6 +39,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -64,8 +65,11 @@ public class BLangProgramRunner {
             for (Service service : servicePackage.getServices()) {
                 serviceCount++;
                 service.setBLangProgram(bLangProgram);
-                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-                        dispatcher.serviceRegistered(service));
+                ServiceDispatcher serviceDispatcher = DispatcherRegistry.getInstance()
+                        .getServiceDispatcher(service.getProtocolPkg());
+                serviceDispatcher.serviceRegistered(service);
+//                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
+//                        dispatcher.serviceRegistered(service));
                 // Build Flow for Non-Blocking execution.
                 service.accept(flowBuilder);
             }

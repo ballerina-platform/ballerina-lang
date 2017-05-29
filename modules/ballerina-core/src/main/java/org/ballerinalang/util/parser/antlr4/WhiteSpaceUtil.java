@@ -122,7 +122,9 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_SERVICE_KEYWORD_TO_IDENTIFIER,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_IDENTIFIER_TO_BODY_START,
-                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(0).getSymbol().getTokenIndex())); //todo chek-ra
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_IDENTIFIER_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().get(1).getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_BODY_START_TO_FIRST_CHILD,
                 getWhitespaceToRight(tokenStream, ctx.serviceBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_END_TO_NEXT_TOKEN,

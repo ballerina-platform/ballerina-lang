@@ -138,6 +138,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
+import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -344,6 +345,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit the contents within a service
         // Open a new symbol scope
         openScope(service);
+
+        if (!DispatcherRegistry.getInstance().protocolExist(service.getProtocolPkg())) {
+            throw BLangExceptionHelper.getSemanticError(service, SemanticErrors.INVALID_PROTOCOL,
+                    service.getProtocolPkg());
+        }
 
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);

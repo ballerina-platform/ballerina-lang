@@ -104,6 +104,7 @@ public enum SemanticErrors {
     DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
     RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
     IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
+    INVALID_PROTOCOL("invalid.protocol", "SEMANTIC_0083"),
     ;
 
     private String errorMsgKey;

@@ -10,6 +10,10 @@ annotation Path attach resource {
     string value;
 }
 
+annotation Port attach service {
+    string value;
+}
+
 annotation BasePath attach service {
     string value;
 }

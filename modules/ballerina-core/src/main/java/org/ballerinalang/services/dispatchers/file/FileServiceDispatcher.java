@@ -60,7 +60,7 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public String getProtocol() {
-        return Constants.PROTOCOL_FILE;
+        return Constants.PROTOCOL_PACKAGE_FILE;
     }
 
     @Override

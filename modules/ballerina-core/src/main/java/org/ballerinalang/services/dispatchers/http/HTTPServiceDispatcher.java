@@ -90,7 +90,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public String getProtocol() {
-        return Constants.PROTOCOL_HTTP;
+        return Constants.PROTOCOL_PACKAGE_HTTP;
     }
 
     @Override

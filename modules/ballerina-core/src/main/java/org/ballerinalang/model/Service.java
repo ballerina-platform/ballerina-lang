@@ -151,6 +151,10 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         return identifier;
     }
 
+    public String getProtocolPkg() {
+        return protocolPkg;
+    }
+
     @Override
     public String getPackagePath() {
         return pkgPath;
