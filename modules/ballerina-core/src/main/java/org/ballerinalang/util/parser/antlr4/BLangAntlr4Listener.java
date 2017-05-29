@@ -96,7 +96,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     // to create parameter when there is a named parameter
     protected boolean isWorkerStarted = false;
     protected boolean isTypeMapperStarted = false;
-    protected boolean processingActionInvocationStmt = false;
 
     // token stream is required for listener to access hidden whiteSpace
     // such as whitespace/newlines while building model for composer use
@@ -1518,12 +1517,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
-        processingActionInvocationStmt = true;
     }
 
     @Override
     public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
-        processingActionInvocationStmt = false;
+        NodeLocation nodeLocation = getCurrentLocation(ctx);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createActionInvocationStmt(nodeLocation, whiteSpaceDescriptor);
     }
 
     @Override
@@ -1584,16 +1587,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationStmtWS(tokenStream, ctx);
+            whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationExprWS(tokenStream, ctx);
         }
-
-        if (processingActionInvocationStmt) {
-            modelBuilder.createActionInvocationStmt(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
+        modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
                     argsAvailable);
-        } else {
-            modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
-                    argsAvailable);
-        }
     }
 
     @Override

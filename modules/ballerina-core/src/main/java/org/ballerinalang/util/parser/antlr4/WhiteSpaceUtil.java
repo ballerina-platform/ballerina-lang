@@ -741,7 +741,7 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
-    public static WhiteSpaceDescriptor getActionInvocationStmtWS(CommonTokenStream tokenStream,
+    public static WhiteSpaceDescriptor getActionInvocationExprWS(CommonTokenStream tokenStream,
                                                                  BallerinaParser.ActionInvocationContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_PRECEDING_WHITESPACE,
@@ -979,6 +979,16 @@ public class WhiteSpaceUtil {
                                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSFORM_STMT_TO_BODY_START,
                                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getActionInvocationStmtWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.ActionInvocationStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 }
