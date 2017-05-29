@@ -24,6 +24,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
@@ -178,13 +179,13 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
      * Returns parameters as a single string concatenated with ",". Leading and Trailering parenthesis will be added
      * if the {@literal withParenthesis} is true.
      *
-     * @param parent          parent element (definition element)
+     * @param definitionNode  parent element (definition element)
      * @param withParenthesis indicate whether we want to enclose the parameters with parenthesis
      * @return a string containing the parameters.
      */
     @NotNull
-    public static String getParameterString(PsiElement parent, boolean withParenthesis) {
-        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
+    public static String getParameterString(PsiElement definitionNode, boolean withParenthesis) {
+        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(definitionNode, ParameterListNode.class);
         List<String> presentations = BallerinaParameterInfoHandler.getParameterPresentations(parameterListNode);
         StringBuilder stringBuilder = new StringBuilder();
         if (withParenthesis) {
@@ -283,6 +284,22 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         }
         // Return empty list.
         return results;
+    }
+
+    /**
+     * Returns parameters and return types of the given definition.
+     *
+     * @param definitionNode definition node which we want to use when getting the parameter and return type
+     * @return parameters and return types. Eg: (param1, param2)(rt1, rt2)
+     */
+    public static String getParametersAndReturnTypes(PsiElement definitionNode) {
+        String parameterString = BallerinaDocumentationProvider.getParameterString(definitionNode, true);
+        String returnTypeString = "";
+        List<String> returnTypes = getReturnTypes(definitionNode);
+        if (!returnTypes.isEmpty()) {
+            returnTypeString = "(" + StringUtil.join(returnTypes, ", ") + ")";
+        }
+        return parameterString + returnTypeString;
     }
 
     /**

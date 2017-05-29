@@ -628,7 +628,7 @@ public class BallerinaCompletionUtils {
         for (PsiElement function : functions) {
             LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
                     .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
-                    .withTailText(BallerinaDocumentationProvider.getParameterString(function.getParent(), true))
+                    .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(function.getParent()))
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
         }
@@ -670,7 +670,7 @@ public class BallerinaCompletionUtils {
         for (PsiElement action : actions) {
             LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
                     .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
-                    .withTailText(BallerinaDocumentationProvider.getParameterString(action.getParent(), true))
+                    .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(action.getParent()))
                     .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
