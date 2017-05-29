@@ -31,6 +31,5 @@ function testJsonToStruct() (Person) {
                score: 5.67,
                alive:true
              };
-    Person p = (Person) j;
-    return p;
+    return j;
 }

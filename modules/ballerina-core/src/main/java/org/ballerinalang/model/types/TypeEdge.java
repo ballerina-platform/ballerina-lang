@@ -17,23 +17,32 @@
  */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.typemappers.TriFunction;
+
+import java.util.function.BiFunction;
 
 /**
  * One edge in the Type Lattice graph.
  */
 public class TypeEdge {
     private TypeVertex source, target;
-    private TriFunction<BValue, BType, Boolean, BValue[]> typeMapperFunction;
+    private BiFunction<BValue, BType, BValue> typeMapperFunction;
+    private TypeMapper typeMapper;
     private String packageName;
 
-    public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean, 
-            BValue[]> typeMapperFunction) {
+    public TypeEdge(TypeVertex source, TypeVertex target, BiFunction<BValue, BType, BValue> typeMapperFunction) {
         this.source = source;
         this.target = target;
         this.typeMapperFunction = typeMapperFunction;
         this.packageName = TypeConstants.NATIVE_PACKAGE;
+    }
+
+    public TypeEdge(TypeVertex source, TypeVertex target, TypeMapper typeMapper, String packageName) {
+        this.source = source;
+        this.target = target;
+        this.typeMapper = typeMapper;
+        this.packageName = packageName;
     }
 
     public TypeVertex getSource() {
@@ -52,16 +61,23 @@ public class TypeEdge {
         this.target = target;
     }
 
-    public TriFunction<BValue, BType, Boolean, BValue[]> getTypeMapperFunction() {
+    public BiFunction<BValue, BType, BValue> getTypeMapperFunction() {
         return typeMapperFunction;
+    }
+
+    public TypeMapper getTypeMapper() {
+        return typeMapper;
+    }
+
+    public void setTypeMapper(TypeMapper typeMapper) {
+        this.typeMapper = typeMapper;
     }
 
     /**
      * @return String A String representation of this Edge
      */
     public String toString() {
-        return "({" + source.toString() + ", " + target.toString() + "}" + ": " + 
-                packageName + ")";
+        return "({" + source.toString() + ", " + target.toString() + "}" + ": " + packageName + ")";
     }
 
     /**
@@ -85,9 +101,11 @@ public class TypeEdge {
             return e.source.equals(this.source) && e.target.equals(this.target)
                     && e.packageName.equals(this.packageName)
                     && e.typeMapperFunction.equals(this.typeMapperFunction);
+        } else {
+            return e.source.equals(this.source) && e.target.equals(this.target)
+                    && e.packageName.equals(this.packageName)
+                    && e.typeMapper.equals(this.typeMapper);
         }
-        
-        return false;
     }
 
     public String getPackageName() {

@@ -56,7 +56,6 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
-import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -204,8 +203,6 @@ public interface NodeVisitor {
     void visit(UnaryExpression unaryExpression);
 
     void visit(TypeCastExpression typeCastExpression);
-    
-    void visit(TypeConversionExpr typeConversionExpression);
 
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
     

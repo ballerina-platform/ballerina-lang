@@ -21,10 +21,3 @@ native function getStackTrace(Error err)(StackTrace);
 function toString(StackTraceItem item)(string){
     return item.packageName + ":" + item.caller + "(" + item.fileName + ":" + item.lineNumber + ")";
 }
-
-struct CastError {
-    string msg;
-    Error cause;
-    string sourceType;
-    string targetType;
-}

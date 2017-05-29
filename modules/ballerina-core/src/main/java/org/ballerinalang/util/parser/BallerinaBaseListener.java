@@ -1204,18 +1204,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

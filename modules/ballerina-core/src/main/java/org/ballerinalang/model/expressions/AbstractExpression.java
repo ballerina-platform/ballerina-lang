@@ -67,10 +67,6 @@ public abstract class AbstractExpression implements Expression {
         return multipleReturnsAvailable;
     }
 
-    public void setMultiReturnAvailable(boolean multiReturnsAvailable) {
-        this.multipleReturnsAvailable = multiReturnsAvailable;
-    }
-    
     public BValue execute(NodeExecutor executor) {
         return null;
     }

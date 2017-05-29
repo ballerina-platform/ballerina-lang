@@ -75,8 +75,4 @@ public final class BBoolean extends BValueType {
         return ((BBoolean) obj).booleanValue() == value;
     }
 
-    @Override
-    public BValue copy() {
-        return new BBoolean(value);
-    }
 }

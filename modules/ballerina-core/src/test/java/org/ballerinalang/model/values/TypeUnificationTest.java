@@ -115,6 +115,9 @@ public class TypeUnificationTest   {
 
         Assert.assertTrue(returns[1] instanceof BMap);
         Assert.assertEquals(((BMap<BString, BString>) returns[1]).get(new BString("name")).stringValue(), "Supun");
+
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertEquals(returns[2].stringValue(), "{\"name\":\"Supun\"}");
     }
     
     @Test

@@ -19,6 +19,5 @@ function testStructToMap() (map) {
                  info:{status:"single"},
                  marks:[67,38,91]
                };
-    map m = (map) p;
-    return m;
+    return p;
 }

@@ -33,6 +33,5 @@ function testMapToStruct() (Person) {
                score: 5.67,
                alive:true
              };
-    Person p = (Person) m;
-    return p;
+    return m;
 }

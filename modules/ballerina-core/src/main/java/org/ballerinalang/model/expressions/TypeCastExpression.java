@@ -17,33 +17,42 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.typemappers.TriFunction;
+
+import java.util.function.BiFunction;
 
 /**
  * Class to hold the data related to type casting expression.
  *
  * @since 0.8.0
  */
-public class TypeCastExpression extends AbstractExpression implements ExecutableMultiReturnExpr {
-
+public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeMapper> {
+    private String name;
+    private String pkgName;
+    private String pkgPath;
     private SimpleTypeName typeName;
     private Expression rExpr;
-    protected TriFunction<BValue, BType, Boolean, BValue[]> evalFunc;
-    private BType[] types = new BType[0];
+    private BType targetType;
+    private String packageName;
+    private SymbolName typeMapperName;
+    private TypeMapper typeMapper;
+    protected BiFunction<BValue, BType, BValue> evalFunc;
+    private int retuningBranchID;
+    private boolean hasReturningBranch;
 
     public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
-        this.type = targetType;
+        this.targetType = targetType;
     }
 
     public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
@@ -53,11 +62,11 @@ public class TypeCastExpression extends AbstractExpression implements Executable
         this.typeName = typeName;
     }
 
-    public TriFunction<BValue, BType, Boolean, BValue[]> getEvalFunc() {
+    public BiFunction<BValue, BType, BValue> getEvalFunc() {
         return evalFunc;
     }
 
-    public void setEvalFunc(TriFunction<BValue, BType, Boolean, BValue[]> evalFunc) {
+    public void setEvalFunc(BiFunction<BValue, BType, BValue> evalFunc) {
         this.evalFunc = evalFunc;
     }
 
@@ -71,17 +80,27 @@ public class TypeCastExpression extends AbstractExpression implements Executable
 
     @Override
     public BType getType() {
-        return type;
+        return targetType;
     }
 
-    @Deprecated
     public BType getTargetType() {
-        return getType();
+        return targetType;
     }
 
-    @Deprecated
     public void setTargetType(BType targetType) {
-        this.type = targetType;
+        this.targetType = targetType;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public SymbolName getTypeMapperName() {
+        return typeMapperName;
+    }
+
+    public void setTypeMapperName(SymbolName typeMapperName) {
+        this.typeMapperName = typeMapperName;
     }
 
     @Override
@@ -91,7 +110,54 @@ public class TypeCastExpression extends AbstractExpression implements Executable
 
     @Override
     public BValue execute(NodeExecutor executor) {
-        return executor.visit(this)[0];
+        return executor.visit(this);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    /**
+     * Returns an arrays of arguments of this callable unit invocation expression.
+     *
+     * @return the arrays of arguments
+     */
+    @Override
+    public Expression[] getArgExprs() {
+        Expression[] expressions = {this.rExpr};
+        return expressions;
+    }
+
+    /**
+     * Returns the {@code CallableUnit} linked with this callable unit invocation expression.
+     *
+     * @return the linked {@code CallableUnit}
+     */
+    @Override
+    public TypeMapper getCallableUnit() {
+        return this.typeMapper;
+    }
+
+    /**
+     * Sets the {@code CallableUnit}.
+     *
+     * @param callableUnit type of the callable unit
+     */
+    @Override
+    public void setCallableUnit(TypeMapper callableUnit) {
+        this.typeMapper = callableUnit;
+
     }
 
     /**
@@ -101,7 +167,7 @@ public class TypeCastExpression extends AbstractExpression implements Executable
      */
     @Override
     public BType[] getTypes() {
-        return types;
+        return new BType[0];
     }
 
     /**
@@ -111,12 +177,7 @@ public class TypeCastExpression extends AbstractExpression implements Executable
      */
     @Override
     public void setTypes(BType[] types) {
-        this.types = types;
 
-        multipleReturnsAvailable = types.length > 1;
-        if (!multipleReturnsAvailable && types.length == 1) {
-            this.type = types[0];
-        }
     }
 
     /**
@@ -127,11 +188,27 @@ public class TypeCastExpression extends AbstractExpression implements Executable
      */
     @Override
     public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return executor.visit(this);
+        return new BValue[0];
     }
 
     @Override
-    public void setMultiReturnAvailable(boolean multiReturnsAvailable) {
-        this.multipleReturnsAvailable = multiReturnsAvailable;
+    public int getGotoBranchID() {
+        return retuningBranchID;
     }
+
+    @Override
+    public void setGotoBranchID(int retuningBranchID) {
+        this.retuningBranchID = retuningBranchID;
+    }
+
+    @Override
+    public boolean hasGotoBranchID() {
+        return hasReturningBranch;
+    }
+
+    @Override
+    public void setHasGotoBranchID(boolean hasReturningBranch) {
+        this.hasReturningBranch = hasReturningBranch;
+    }
+
 }

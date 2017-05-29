@@ -44,7 +44,6 @@ import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.TypeCastExpression;
-import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -148,9 +147,7 @@ public interface NodeExecutor {
 
     BValue visit(VariableRefExpr variableRefExpr);
 
-    BValue[] visit(TypeCastExpression typeCastExpression);
-    
-    BValue[] visit(TypeConversionExpr typeConversionExpression);
+    BValue visit(TypeCastExpression typeCastExpression);
 
     BValue visit(BasicLiteral basicLiteral);
     

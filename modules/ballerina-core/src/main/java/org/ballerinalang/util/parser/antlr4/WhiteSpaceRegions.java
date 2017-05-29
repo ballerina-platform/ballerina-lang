@@ -307,11 +307,6 @@ public class WhiteSpaceRegions {
     public static final int TYPE_CAST_EXP_PRECEDING_WHITESPACE = 0;
     public static final int TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP = 1;
     public static final int TYPE_CAST_EXP_FOLLOWING_WHITESPACE = 2;
-    
-    // white space regions in a type-conversion expr
-    public static final int TYPE_CONVERSION_EXP_PRECEDING_WHITESPACE = 0;
-    public static final int TYPE_CONVERSION_EXP_TYPE_CAST_END_TO_EXP = 1;
-    public static final int TYPE_CONVERSION_EXP_FOLLOWING_WHITESPACE = 2;
 
     // white space regions in a unary expr
     public static final int UNARY_EXP_PRECEDING_WHITESPACE = 0;
