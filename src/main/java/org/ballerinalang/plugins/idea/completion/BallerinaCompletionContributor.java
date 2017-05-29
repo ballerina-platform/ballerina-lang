@@ -382,6 +382,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         } else if (elementType == BallerinaTypes.LPAREN || elementType == BallerinaTypes.COMMA) {
                             addLookups(resultSet, originalFile, true, true, true, false);
                         }
+                        if (prevElement.getTextOffset() == 0) {
+                            addFileLevelKeywordsAsLookups(resultSet, true, true);
+                        }
                     },
                     (p, r, prevElement) -> {
                         addTypeNamesAsLookups(resultSet);

@@ -23,6 +23,11 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.PrioritizedLookupElement;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInsight.template.Template;
+import com.intellij.codeInsight.template.TemplateManager;
+import com.intellij.codeInsight.template.impl.TemplateSettings;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -126,19 +131,19 @@ public class BallerinaCompletionUtils {
 
 
     static {
-        PACKAGE = createKeywordLookupElement("package", AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        IMPORT = createKeywordLookupElement("import", AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        CONST = createKeywordLookupElement("const", AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        SERVICE = createKeywordLookupElement("service", AddSpaceInsertHandler.INSTANCE);
-        RESOURCE = createKeywordLookupElement("resource", AddSpaceInsertHandler.INSTANCE);
-        FUNCTION = createKeywordLookupElement("function", AddSpaceInsertHandler.INSTANCE);
-        CONNECTOR = createKeywordLookupElement("connector", AddSpaceInsertHandler.INSTANCE);
-        ACTION = createKeywordLookupElement("action", AddSpaceInsertHandler.INSTANCE);
-        STRUCT = createKeywordLookupElement("struct", AddSpaceInsertHandler.INSTANCE);
-        TYPEMAPPER = createKeywordLookupElement("typemapper", AddSpaceInsertHandler.INSTANCE);
-        ANNOTATION = createKeywordLookupElement("annotation", AddSpaceInsertHandler.INSTANCE);
-        ATTACH = createKeywordLookupElement("attach", AddSpaceInsertHandler.INSTANCE);
-        PARAMETER = createKeywordLookupElement("parameter", AddSpaceInsertHandler.INSTANCE);
+        PACKAGE = createKeywordLookupElement("package");
+        IMPORT = createKeywordLookupElement("import");
+        CONST = createKeywordLookupElement("const");
+        SERVICE = createKeywordLookupElement("service");
+        RESOURCE = createKeywordLookupElement("resource");
+        FUNCTION = createKeywordLookupElement("function");
+        CONNECTOR = createKeywordLookupElement("connector");
+        ACTION = createKeywordLookupElement("action");
+        STRUCT = createKeywordLookupElement("struct");
+        TYPEMAPPER = createKeywordLookupElement("typemapper");
+        ANNOTATION = createKeywordLookupElement("annotation");
+        ATTACH = createKeywordLookupElement("attach");
+        PARAMETER = createKeywordLookupElement("parameter");
 
         ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
 
@@ -153,24 +158,24 @@ public class BallerinaCompletionUtils {
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
         DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
 
-        REPLY = createKeywordLookupElement("reply", AddSpaceInsertHandler.INSTANCE);
-        RETURN = createKeywordLookupElement("return", AddSpaceInsertHandler.INSTANCE);
-        IF = createKeywordLookupElement("if", ParenthesisInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        ELSE = createKeywordLookupElement("else", AddSpaceInsertHandler.INSTANCE);
-        CREATE = createKeywordLookupElement("create", AddSpaceInsertHandler.INSTANCE);
-        FORK = createKeywordLookupElement("fork", ParenthesisInsertHandler.INSTANCE);
-        JOIN = createKeywordLookupElement("join", AddSpaceInsertHandler.INSTANCE);
-        ALL = createKeywordLookupElement("all", null);
-        SOME = createKeywordLookupElement("some", AddSpaceInsertHandler.INSTANCE);
-        TIMEOUT = createKeywordLookupElement("timeout", ParenthesisInsertHandler.INSTANCE);
-        WORKER = createKeywordLookupElement("worker", AddSpaceInsertHandler.INSTANCE);
-        TRANSFORM = createKeywordLookupElement("transform", AddSpaceInsertHandler.INSTANCE);
-        TRANSACTION = createKeywordLookupElement("transaction", AddSpaceInsertHandler.INSTANCE);
-        ABORT = createKeywordLookupElement("abort", AddSpaceInsertHandler.INSTANCE);
-        ABORTED = createKeywordLookupElement("aborted", AddSpaceInsertHandler.INSTANCE);
-        TRY = createKeywordLookupElement("try", AddSpaceInsertHandler.INSTANCE);
-        CATCH = createKeywordLookupElement("catch", AddSpaceInsertHandler.INSTANCE);
-        FINALLY = createKeywordLookupElement("finally", AddSpaceInsertHandler.INSTANCE);
+        REPLY = createKeywordLookupElement("reply");
+        RETURN = createKeywordLookupElement("return");
+        IF = createKeywordLookupElement("if");
+        ELSE = createKeywordLookupElement("else");
+        CREATE = createKeywordLookupElement("create");
+        FORK = createKeywordLookupElement("fork");
+        JOIN = createKeywordLookupElement("join");
+        ALL = createKeywordLookupElement("all");
+        SOME = createKeywordLookupElement("some");
+        TIMEOUT = createKeywordLookupElement("timeout");
+        WORKER = createKeywordLookupElement("worker");
+        TRANSFORM = createKeywordLookupElement("transform");
+        TRANSACTION = createKeywordLookupElement("transaction");
+        ABORT = createKeywordLookupElement("abort");
+        ABORTED = createKeywordLookupElement("aborted");
+        TRY = createKeywordLookupElement("try");
+        CATCH = createKeywordLookupElement("catch");
+        FINALLY = createKeywordLookupElement("finally");
     }
 
     private BallerinaCompletionUtils() {
@@ -193,15 +198,33 @@ public class BallerinaCompletionUtils {
     /**
      * Creates a keyword lookup element.
      *
-     * @param name          name of the lookup
-     * @param insertHandler insert handler of the lookup
+     * @param name name of the lookup
      * @return {@link LookupElementBuilder} which will be used to create the lookup element.
      */
     @NotNull
-    private static LookupElementBuilder createKeywordLookupElement(@NotNull String name,
-                                                                   @Nullable InsertHandler<LookupElement>
-                                                                           insertHandler) {
-        return createLookupElement(name, insertHandler);
+    private static LookupElementBuilder createKeywordLookupElement(@NotNull String name) {
+        return createLookupElement(name, createTemplateBasedInsertHandler("ballerina_lang_" + name));
+    }
+
+
+    @Nullable
+    public static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId) {
+        return (context, item) -> {
+            Template template = TemplateSettings.getInstance().getTemplateById(templateId);
+            Editor editor = context.getEditor();
+            if (template != null) {
+                editor.getDocument().deleteString(context.getStartOffset(), context.getTailOffset());
+                TemplateManager.getInstance(context.getProject()).startTemplate(editor, template);
+            } else {
+                int currentOffset = editor.getCaretModel().getOffset();
+                CharSequence documentText = editor.getDocument().getImmutableCharSequence();
+                if (documentText.length() <= currentOffset || documentText.charAt(currentOffset) != ' ') {
+                    EditorModificationUtil.insertStringAtCaret(editor, " ");
+                } else {
+                    EditorModificationUtil.moveCaretRelatively(editor, 1);
+                }
+            }
+        };
     }
 
     /**
