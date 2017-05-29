@@ -162,23 +162,6 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     }
 
     /**
-     * Generate the built-in ballerina files.
-     *
-     * @param srcDir Path to the ballerina source directory
-     */
-    public void generateNativeBalFiles(Map<String, String> options, String srcDir) {
-        //TODO remove bal file generation code and refactor
-        //TODO remove public access modifier on method
-        String targetDir = options.get(TARGET_DIR);
-        if (targetDir == null) {
-            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
-        }
-        NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(srcDir, targetDir);
-        nativeBallerinaFileBuilder.addNativePackages(nativePackages);
-        nativeBallerinaFileBuilder.build();
-    }
-
-    /**
      * Process all {@link BallerinaFunction} annotations and append constructs to the class builder.
      *
      * @param balFunctionElements Elements annotated with {@link BallerinaFunction}
