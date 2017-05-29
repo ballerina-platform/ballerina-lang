@@ -3,12 +3,12 @@ function testNullInForkJoin () (message, message) {
     fork {
         worker foo {
             message resp1 = null;
-            resp1 -> ;
+            resp1 -> fork;
         }
 
         worker bar {
             message resp2 = {};
-            resp2 -> ;
+            resp2 -> fork;
         }
     } join (all) (any[][] allReplies) {
 

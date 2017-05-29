@@ -449,7 +449,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             for (Statement statement : callableUnit.getWorkerInteractionStatements()) {
                 if (statement instanceof WorkerInvocationStmt) {
                     targetWorkerName = ((WorkerInvocationStmt) statement).getName();
-                    if (targetWorkerName == null && isForkJoinStmt) {
+                    if (targetWorkerName == "fork" && isForkJoinStmt) {
                         // This is a special worker invocation statement which returns data to the join block
                         break;
                     }
@@ -1429,7 +1429,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (workerInvocationStmt.getCallableUnitName() != null &&
-                !workerInvocationStmt.getCallableUnitName().equals("default")) {
+                !workerInvocationStmt.getCallableUnitName().equals("default") &&
+                !workerInvocationStmt.getCallableUnitName().equals("fork")) {
             linkWorker(workerInvocationStmt);
 
             //Find the return types of this function invocation expression.

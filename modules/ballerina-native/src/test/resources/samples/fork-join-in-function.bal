@@ -23,7 +23,7 @@ function testForkJoinAll(message m)(message[]) {
                 //system:println(mm["name"]);
                 x = 234;
                 system:println(y);
-                m1 -> ;
+                m1 -> fork;
             }
 
             worker XYZ_Airline {
@@ -32,7 +32,7 @@ function testForkJoinAll(message m)(message[]) {
                 x = 500;
                 system:println(x);
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
         } join (all) (any[][] airlineResponses) {
             results[0] = (message) airlineResponses[0][0];
@@ -67,14 +67,14 @@ function testForkJoinAny(message m)(message[]) {
                 json payload;
                 payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
         } join (some 1) (any[][] airlineResponses) {
             results[0] = (message) airlineResponses[0][0];
@@ -100,21 +100,21 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
                 json payload;
                 payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
 
             worker PQR_Airline {
                 json payload;
                 payload = {"name":"pqr"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
         } join (all ABC_Airline, XYZ_Airline) (any[][] airlineResponses) {
             results[0] = (message) airlineResponses[0][0];
@@ -142,21 +142,21 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
                 json payload;
                 payload = {"name":"abc"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
 
             worker XYZ_Airline {
                 json payload;
                 payload = {"name":"xyz"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
 
             worker PQR_Airline {
                 json payload;
                 payload = {"name":"pqr"};
                 messages:setJsonPayload(m, payload);
-                m -> ;
+                m -> fork;
             }
         } join (some 1 ABC_Airline, XYZ_Airline) (any[][] airlineResponses) {
             results[0] = (message) airlineResponses[0][0];

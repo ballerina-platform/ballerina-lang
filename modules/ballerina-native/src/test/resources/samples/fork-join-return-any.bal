@@ -12,14 +12,14 @@ function testForkJoinReturnAnyType()(int, string) {
     m["time"] = "120 BC";
     int x = 23;
     string a = "aaaaa";
-    x, a -> ;
+    x, a -> fork;
     }
     worker W2 {
     system:println(m["name"]);
     m["period"] = "30 years";
     string s = "test";
     float u = 10.23;
-    s, u -> ;
+    s, u -> fork;
     }
     } join (all) (any[][] results) {
         system:println(m["time"]);

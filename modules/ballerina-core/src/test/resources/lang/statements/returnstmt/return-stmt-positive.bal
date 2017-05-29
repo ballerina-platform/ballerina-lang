@@ -125,12 +125,12 @@ function testForkJoin () (message, message) {
     fork {
         worker foo {
             message resp1 = null;
-            resp1 -> ;
+            resp1 -> fork;
         }
 
         worker bar {
             message resp2 = {};
-            resp2 -> ;
+            resp2 -> fork;
         }
     }join (all) (any[][] allReplies) {
         return (message)allReplies[0][0], (message)allReplies[1][0];
