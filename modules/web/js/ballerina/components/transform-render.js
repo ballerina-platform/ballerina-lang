@@ -357,14 +357,14 @@ addConnection(connection) {
         isSourceExists = true;
     } else {
         isSourceExists = _.includes(this.existingJsTrees,
-                connection.sourceStruct + this.viewIdSeperator + this.viewId)
+                connection.sourceStruct + this.viewIdSeperator + this.viewId);
     }
     if (connection.targetFunction) {
         targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
         isTargetExists = true;
     } else {
         isTargetExists = _.includes(this.existingJsTrees,
-                connection.targetStruct + this.viewIdSeperator + this.viewId)
+                connection.targetStruct + this.viewIdSeperator + this.viewId);
     }
 
     if (isSourceExists && isTargetExists) {
@@ -541,6 +541,7 @@ makeType(struct, posX, posY, reference, type) {
  * Add a function in the mapper UI
  * @param {object} function definition with parameters to be mapped
  * @param {object} reference AST model reference
+ * @param {function} onFunctionRemove call back function for function remove
  */
 addFunction(func, reference, onFunctionRemove) {
     funcName = _.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + ' : ' + func.meta.functionName;
@@ -551,14 +552,14 @@ addFunction(func, reference, onFunctionRemove) {
         + functionInvocationModelId;
 
     var id = func.name + this.viewIdSeperator + this.viewId;
-    if ($("#" + id).length === 0) {
+    if ($('#' + id).length === 0) {
         this.references.push({name: id, refObj: reference});
         var newFunc = $('<div>').attr('id', id).addClass('func');
         var self = this;
         var funcName = $('<div>');
         var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
-        var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
-        var outputContent = $('<div>').attr('id', id + "func-output").addClass('func-output');
+        var closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
+        var outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');
 
         var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
 
@@ -574,48 +575,46 @@ addFunction(func, reference, onFunctionRemove) {
             'left': 0
         });
 
-        $("#" + this.placeHolderName).append(newFunc);
+        $('#' + this.placeHolderName).append(newFunc);
 
         //Remove button functionality
-        $("#" + id + "-button").on("click", () => {
+        $('#' + id + '-button').on('click', () => {
             var removedFunction = {name: func.name};
-        removedFunction.incomingConnections = [];
-        removedFunction.outgoingConnections = [];
+            removedFunction.incomingConnections = [];
+            removedFunction.outgoingConnections = [];
 
-        _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
-            if (connection.target.id.includes(id)) {
-            removedFunction.incomingConnections.push(
-                self.getConnectionObject(connection.getParameter("id"),
-                    connection.sourceId, connection.targetId));
-        } else if (connection.source.id.includes(id)) {
-            removedFunction.outgoingConnections.push(
-                self.getConnectionObject(connection.getParameter("id"),
-                    connection.sourceId, connection.targetId));
-        }
-    });
+            _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
+                if (connection.target.id.includes(id)) {
+                    removedFunction.incomingConnections.push(
+                        self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
+                } else if (connection.source.id.includes(id)) {
+                    removedFunction.outgoingConnections.push(
+                        self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
+                }
+            });
 
-    for (var i = 0; i < self.references.length; i++) {
-        if (self.references[i].name == id) {
-            removedFunction.reference = self.references[i].refObj;
-        }
+            for (var i = 0; i < self.references.length; i++) {
+                if (self.references[i].name === id) {
+                    removedFunction.reference = self.references[i].refObj;
+                }
+            }
+
+            self.removeType(func.name);
+            onFunctionRemove(reference);
+        });
+
+        _.forEach(func.getParameters(), parameter => {
+            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
+            self.addTarget(property, self);
+        });
+
+        _.forEach(func.getReturnParams(), parameter => {
+            var property = self.makeFunctionAttribute($('#' + id + 'func-output'), parameter.name, parameter.type, false);
+            self.addSource(property, self, true);
+        });
+
+        self.reposition(this);
     }
-
-    self.removeType(func.name);
-    onFunctionRemove(reference);
-});
-
-_.forEach(func.getParameters(), parameter => {
-    var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
-self.addTarget(property, self);
-});
-
-_.forEach(func.getReturnParams(), parameter => {
-    var property = self.makeFunctionAttribute($('#' + id + "func-output"), parameter.name, parameter.type, false);
-self.addSource(property, self, true);
-});
-
-self.reposition(this);
-}
 }
 
 makeFunctionAttribute(parentId, name, type, input) {

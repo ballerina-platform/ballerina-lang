@@ -257,21 +257,8 @@ class TransformStatementDecorator extends React.Component {
                   self.setTarget(targetType, self.predefinedStructs);
            }
 
-            _.forEach(this.props.model.getChildren(), assignments => {
-                var con = {};
-                con.id = assignments.id;
-                con.sourceStruct = assignments.getChildren()[1].getChildren()[0].getChildren()[0].getVariableName();
-                var complexSourceProp = self.createComplexProp(con.sourceStruct,
-                assignments.getChildren()[1].getChildren()[0].getChildren()[1].getChildren());
-                con.sourceType = complexSourceProp.types.reverse();
-                con.sourceProperty = complexSourceProp.names.reverse();
-                con.targetStruct = assignments.getChildren()[0].getChildren()[0].getChildren()[0].getVariableName();
-                var complexTargetProp = self.createComplexProp(con.targetStruct,
-                assignments.getChildren()[0].getChildren()[0].getChildren()[1].getChildren());
-                con.targetType = complexTargetProp.types.reverse();
-                con.targetProperty = complexTargetProp.names.reverse();
-                con.isComplexMapping = false;
-                self.mapper.addConnection(con);
+            _.forEach(this.props.model.getChildren(), statement => {
+                this.createConnection(statement)
             });
 
 			this.props.model.on('child-added', node => {
@@ -285,6 +272,76 @@ class TransformStatementDecorator extends React.Component {
 				}
 			});
 	}
+
+    createConnection(statement){
+        if (BallerinaASTFactory.isAssignmentStatement(statement)){
+            let leftExpression = statement.getChildren()[0].getChildren()[0];
+            let rightExpression = statement.getChildren()[1].getChildren()[0];
+
+            if (BallerinaASTFactory.isFieldAccessExpression(rightExpression)) {
+                let con = {};
+                con.id = statement.id;
+                con.sourceStruct = rightExpression.getChildren()[0].getVariableName();
+                var complexSourceProp = this.createComplexProp(con.sourceStruct,
+                                           rightExpression.getChildren()[1].getChildren());
+                con.sourceType = complexSourceProp.types.reverse();
+                con.sourceProperty = complexSourceProp.names.reverse();
+
+                con.targetStruct = leftExpression.getChildren()[0].getVariableName();
+                var complexTargetProp = this.createComplexProp(con.targetStruct,
+                                          leftExpression.getChildren()[1].getChildren());
+                con.targetType = complexTargetProp.types.reverse();
+                con.targetProperty = complexTargetProp.names.reverse();
+                con.isComplexMapping = false;
+
+                self.mapper.addConnection(con);
+
+            } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)){
+				let funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
+				rightExpression.getFullPackageName());
+				let func = funPackage.getFunctionDefinitionByName(rightExpression.getFunctionName());
+				this.mapper.addFunction(func, statement, statement.getParent().removeChild);
+
+                _.forEach(rightExpression.getParams(), parameter => {
+                    // draw source struct to function connection
+                    let conLeft = {};
+                    conLeft.id = leftExpression.id;
+                    conLeft.sourceStruct = rightExpression.getChildren()[0].getChildren()[0].getVariableName();
+                    var complexSourceProp = this.createComplexProp(conLeft.sourceStruct,
+                                        rightExpression.getChildren()[0].getChildren()[1].getChildren());
+                    conLeft.sourceType = complexSourceProp.types.reverse();
+                    conLeft.sourceProperty = complexSourceProp.names.reverse();
+
+                    conLeft.targetFunction = true;
+                    conLeft.targetStruct = func.meta.packageName + '-' + func.getName();
+                    conLeft.targetId = rightExpression.getID();
+                    conLeft.targetProperty = [func.getParameters()[0].name];
+                    conLeft.targetType = [func.getParameters()[0].type];
+
+                    self.mapper.addConnection(conLeft);
+
+                    // draw function to target struct connection
+                    let conRight = {};
+                    conRight.id = rightExpression.id;
+                    conRight.sourceFunction = true;
+                    conRight.sourceStruct = func.meta.packageName + '-' + func.getName();
+                    conRight.sourceId = rightExpression.getID();
+                    conRight.sourceProperty = [func.getParameters()[0].name];
+                    conRight.sourceType = [func.getParameters()[0].type];
+
+                    conRight.targetStruct = leftExpression.getChildren()[0].getVariableName();
+                    var complexTargetProp = this.createComplexProp(conRight.targetStruct,
+                                          leftExpression.getChildren()[1].getChildren());
+                    conRight.targetType = complexTargetProp.types.reverse();
+                    conRight.targetProperty = complexTargetProp.names.reverse();
+                    conRight.isComplexMapping = false;
+                    self.mapper.addConnection(conRight);
+                });
+            }
+        } else {
+            log.error('invalid statement type in transform statement');
+        }
+    }
 
 	createComplexProp(typeName, children)
     {
