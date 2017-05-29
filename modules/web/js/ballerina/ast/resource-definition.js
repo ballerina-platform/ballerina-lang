@@ -117,10 +117,10 @@ class ResourceDefinition extends ASTNode {
         let params = this.getArguments();
 
         _.forEach(params, function (parameter, index) {
-            paramsAsString += parameter.getParameterDefinitionAsString();
-            if (params.length - 1 != index) {
-                paramsAsString += ", ";
+            if (index != 0) {
+                paramsAsString += ((parameter.whiteSpace.useDefault) ? ', ' : ',');
             }
+            paramsAsString += parameter.getParameterDefinitionAsString();
         });
 
         return paramsAsString;

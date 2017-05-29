@@ -35,6 +35,11 @@ class ParameterDefinition extends VariableDefinition {
         //since there are ParameterDefinitions without names (return types) we set this to undefined
         this._name = _.get(args, 'name', undefined);
         this.type = 'ParameterDefinition';
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ''
+        };
     }
 
     /**
@@ -49,11 +54,12 @@ class ParameterDefinition extends VariableDefinition {
 
     getParameterDefinitionAsString() {
         let argAsString = "";
-        argAsString += this.getTypeName();
-        argAsString += !_.isNil(this.getName()) ? " " + this.getName() : "";
+        argAsString += this.getWSRegion(0) + this.getTypeName();
+        argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : "";
+        argAsString += this.getWSRegion(2);
         return argAsString;
     }
-    
+
     addAnnotation(annotation) {
         this.addChild(annotation);
     }

@@ -59,7 +59,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
                   + 'resource' + resourceDefinition.getWSRegion(0)
                   + resourceDefinition.getResourceName()
                   + resourceDefinition.getWSRegion(1)
-                  + '(' + resourceDefinition.getWSRegion(2);
+                  + '(';
 
         constructedSourceSegment += resourceDefinition.getParametersAsString()
                 + ')' + resourceDefinition.getWSRegion(3)
