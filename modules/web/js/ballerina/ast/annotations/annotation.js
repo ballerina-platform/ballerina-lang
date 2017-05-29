@@ -69,7 +69,7 @@ class Annotation extends ASTNode {
             0: '',
             1: ' ',
             2: '',
-            3: '\n'
+            3: ''
         };
     }
 

@@ -42,7 +42,6 @@ class AnnotationVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitAnnotation (annotation) {
-        this.appendSource('\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Annotation');
     }
