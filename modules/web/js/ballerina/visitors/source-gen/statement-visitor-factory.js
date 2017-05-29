@@ -39,6 +39,10 @@ import WorkerReplyStatementVisitor from './worker-reply-statement-visitor';
 import BreakStatementVisitor from './break-statement-visitor';
 import ThrowStatementVisitor from './throw-statement-visitor';
 import CommentStatementVisitor from './comment-statement-visitor';
+import TransactionAbortedStatementVisitor from './transaction-aborted-statement-visitor';
+import TransactionStatementVisitor from './transaction-statement-visitor';
+import AbortedStatementVisitor from './aborted-statement-visitor';
+import AbortStatementVisitor from './abort-statement-visitor';
 
 class StatementVisitorFactor {
     getStatementVisitor(statement, parent) {
@@ -60,7 +64,7 @@ class StatementVisitorFactor {
             return new WhileStatementVisitor(parent);
         } else if (ASTFactory.isAssignmentStatement(statement)) {
             return new AssignmentStatementVisitor(parent);
-        }  else if (ASTFactory.isTransformStatement(statement)) {
+        } else if (ASTFactory.isTransformStatement(statement)) {
             return new TransformStatementVisitor(parent);
         } else if (ASTFactory.isReplyStatement(statement)) {
             return new ReplyStatementVisitor(parent);
@@ -68,7 +72,7 @@ class StatementVisitorFactor {
             return new ReturnStatementVisitor(parent);
         } else if (ASTFactory.isFunctionInvocationStatement(statement)) {
             return new FunctionInvocationVisitor(parent);
-        } else if(ASTFactory.isAssignment(statement)){
+        } else if (ASTFactory.isAssignment(statement)) {
             return new AssignmentVisitor(parent);
         } else if (ASTFactory.isLeftOperandExpression(statement)) {
             return new LeftOperandExpressionVisitor(parent);
@@ -78,7 +82,7 @@ class StatementVisitorFactor {
             return new VariableDefinitionStatement(parent);
         } else if (ASTFactory.isWorkerInvocationStatement(statement)) {
             return new WorkerInvocationStatementVisitor(parent);
-        }  else if (ASTFactory.isWorkerReplyStatement(statement)) {
+        } else if (ASTFactory.isWorkerReplyStatement(statement)) {
             return new WorkerReplyStatementVisitor(parent);
         } else if (ASTFactory.isActionInvocationStatement(statement)) {
             return new ActionInvocationStatementVisitor(parent);
@@ -88,6 +92,14 @@ class StatementVisitorFactor {
             return new ThrowStatementVisitor(parent);
         } else if (ASTFactory.isCommentStatement(statement)) {
             return new CommentStatementVisitor(parent);
+        } else if (ASTFactory.isTransactionAbortedStatement(statement)) {
+            return new TransactionAbortedStatementVisitor(parent);
+        } else if (ASTFactory.isTransactionStatement(statement)) {
+            return new TransactionStatementVisitor(parent);
+        } else if (ASTFactory.isAbortedStatement(statement)) {
+            return new AbortedStatementVisitor(parent);
+        } else if (ASTFactory.isAbortStatement(statement)) {
+            return new AbortStatementVisitor(parent);
         }
     }
 }

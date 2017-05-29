@@ -93,6 +93,10 @@ import annotation from './annotations/annotation';
 import annotationEntry from './annotations/annotation-entry';
 import annotationEntryArray from './annotations/annotation-entry-array';
 import transformStatement from './statements/transform-statement';
+import transactionAbortedStatement from './statements/transactionaborted-statement';
+import transactionStatement from './statements/transaction-statement';
+import abortedStatement from './statements/aborted-statement';
+import abortStatement from './statements/abort-statement';
 
 /**
  * @class BallerinaASTFactory
@@ -659,10 +663,10 @@ BallerinaASTFactory.createAnnotation = function (args) {
 };
 
 /**
-* creates ParameterDefinition
-* @param {Object} args - Arguments for creating a new parameter definition.
-* @returns {ParameterDefinition}
-*/
+ * creates ParameterDefinition
+ * @param {Object} args - Arguments for creating a new parameter definition.
+ * @returns {ParameterDefinition}
+ */
 BallerinaASTFactory.createParameterDefinition = function (args) {
     return new parameterDefinition(args);
 };
@@ -691,6 +695,42 @@ BallerinaASTFactory.createAnnotationEntry = function (args) {
  */
 BallerinaASTFactory.createAnnotationEntryArray = function () {
     return new annotationEntryArray();
+};
+
+/**
+ * Create {@link TransactionAbortedStatement}
+ * @param {object} args - Argument to create the transaction aborted statement.
+ * @return {TransactionAbortedStatement} new TransactionAborted Statement.
+ * */
+BallerinaASTFactory.createTransactionAbortedStatement = function (args) {
+    return new transactionAbortedStatement(args);
+};
+
+/**
+ * Create {@link TransactionStatement}
+ * @param {object} args - Argument to create the transaction statement.
+ * @return {TransactionStatement} new Transaction Statement.
+ * */
+BallerinaASTFactory.createTransactionStatement = function (args) {
+    return new transactionStatement();
+};
+
+/**
+ * Create {@link AbortedStatement}
+ * @param {object} args - Argument to create the Aborted statement.
+ * @return {AbortedStatement} new Aborted Statement.
+ * */
+BallerinaASTFactory.createAbortedStatement = function (args) {
+    return new abortedStatement();
+};
+
+/**
+ * Create {@link AbortStatement}
+ * @param {object} args - Arguments to create the Abort Statement.
+ * @return {AbortStatement} new Abort Statement.
+ * */
+BallerinaASTFactory.createAbortStatement = function (args) {
+    return new abortStatement();
 };
 
 /**
@@ -854,7 +894,6 @@ BallerinaASTFactory.isVariableDeclaration = function (child) {
 BallerinaASTFactory.isReferenceTypeInitiExpression = function (child) {
     return child instanceof referenceTypeInitExpression;
 };
-
 
 
 /**
@@ -1250,7 +1289,7 @@ BallerinaASTFactory.isConstantDefinition = function (child) {
  * @param {ASTNode} child - The ast node.
  * @return {boolean} - true if same type, else false
  * */
-BallerinaASTFactory.isAnnotationDefinition = function(child){
+BallerinaASTFactory.isAnnotationDefinition = function (child) {
     return child instanceof annotationDefinition;
 };
 
@@ -1259,7 +1298,7 @@ BallerinaASTFactory.isAnnotationDefinition = function(child){
  * @param {ASTNode} child - The ast node.
  * @return {boolean} - true if same type, else false
  * */
-BallerinaASTFactory.isAnnotationAttributeDefinition = function(child){
+BallerinaASTFactory.isAnnotationAttributeDefinition = function (child) {
     return child instanceof annotationAttributeDefinition;
 };
 
@@ -1342,6 +1381,42 @@ BallerinaASTFactory.isArgumentParameterDefinitionHolder = function (child) {
  */
 BallerinaASTFactory.isReturnParameterDefinitionHolder = function (child) {
     return child instanceof returnParameterDefinitionHolder;
+};
+
+/**
+ * instanceof check for the TransactionAbortedStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isTransactionAbortedStatement = function (child) {
+    return child instanceof transactionAbortedStatement;
+};
+
+/**
+ * instanceof check for the TransactionStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isTransactionStatement = function (child) {
+    return child instanceof transactionStatement;
+};
+
+/**
+ * instanceof check for the AbortedStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isAbortedStatement = function (child) {
+    return child instanceof abortedStatement;
+};
+
+/**
+ * instanceof check for the AbortStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isAbortStatement = function (child) {
+    return child instanceof abortStatement;
 };
 
 BallerinaASTFactory.createFromJson = function (jsonNode) {
@@ -1573,6 +1648,18 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
             break;
         case 'transform_statement':
             node = BallerinaASTFactory.createTransformStatement();
+            break;
+        case 'transaction_aborted_statement':
+            node = BallerinaASTFactory.createTransactionAbortedStatement();
+            break;
+        case 'transaction_statement':
+            node = BallerinaASTFactory.createTransactionStatement();
+            break;
+        case 'aborted_statement':
+            node = BallerinaASTFactory.createAbortedStatement();
+            break;
+        case 'abort_statement':
+            node = BallerinaASTFactory.createAbortStatement();
             break;
         default:
             throw new Error('Unknown node definition for ' + jsonNode.type);

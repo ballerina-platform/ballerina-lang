@@ -88,6 +88,31 @@ class StatementVisitor extends ASTVisitor {
     endVisitCatchStatement(statement) {
     }
 
+    canVisitTransactionStatement(statement) {
+        return false;
+    }
+
+    beginVisitTransactionStatement(statement) {
+    }
+
+    visitTransactionStatement(statement) {
+    }
+
+    endVisitTransactionStatement(statement) {
+    }
+
+    canVisitAbortedStatement(statement) {
+        return false;
+    }
+
+    beginVisitAbortedStatement(statement) {
+    }
+
+    visitAbortedStatement(statement) {
+    }
+
+    endVisitAbortedStatement(statement) {
+    }
     canVisitStatement(statement) {
         return false;
     }
@@ -205,6 +230,19 @@ class StatementVisitor extends ASTVisitor {
     endVisitTryCatchStatement(statement) {
     }
 
+    canVisitTransactionAbortedStatement(statement) {
+        return false;
+    }
+
+    beginVisitTransactionAbortedStatement(statement) {
+    }
+
+    visitTransactionAbortedStatement(statement) {
+    }
+
+    endVisitTransactionAbortedStatement(statement) {
+    }
+
     canVisitAssignmentStatement(statement) {
         return false;
     }
@@ -257,6 +295,18 @@ class StatementVisitor extends ASTVisitor {
     endVisitBreakStatement(statement) {
     }
 
+    canVisitAbortStatement(statement) {
+        return false;
+    }
+
+    beginVisitAbortStatement(statement) {
+    }
+
+    visitAbortStatement(statement) {
+    }
+
+    endVisitAbortStatement(statement) {
+    }
     canVisitLeftOperandExpression(statement) {
         return false;
     }
@@ -400,6 +450,14 @@ class StatementVisitor extends ASTVisitor {
             return this.visitThrowStatement(node);
         }  else if (ASTFactory.isCommentStatement(node)) {
             return this.visitCommentStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.visitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.visitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.visitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.visitAbortStatement(node);
         }
     }
 
@@ -457,6 +515,14 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitThrowStatement(node);
         }  else if (ASTFactory.isCommentStatement(node)) {
             return this.canVisitCommentStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.canVisitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.canVisitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.canVisitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.canVisitAbortStatement(node);
         }
     }
 
@@ -512,6 +578,14 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitCommentStatement(node);
         }  else if (ASTFactory.isTransformStatement(node)) {
             return this.beginVisitTransformStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.beginVisitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.beginVisitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.beginVisitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.beginVisitAbortStatement(node);
         }
     }
 
@@ -567,8 +641,16 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitWorkerReplyStatement(node);
         }  else if (ASTFactory.isThrowStatement(node)) {
             return this.endVisitThrowStatement(node);
-        }  else if (ASTFactory.isCommentStatement(node)) {
+        } else if (ASTFactory.isCommentStatement(node)) {
             return this.endVisitCommentStatement(node);
+        } else if (ASTFactory.isTransactionAbortedStatement(node)) {
+            return this.endVisitTransactionAbortedStatement(node);
+        } else if (ASTFactory.isTransactionStatement(node)) {
+            return this.endVisitTransactionStatement(node);
+        } else if (ASTFactory.isAbortedStatement(node)) {
+            return this.endVisitAbortedStatement(node);
+        } else if (ASTFactory.isAbortStatement(node)) {
+            return this.endVisitAbortStatement(node);
         }
     }
 }
