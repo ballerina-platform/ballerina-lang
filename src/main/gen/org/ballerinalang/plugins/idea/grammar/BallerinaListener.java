@@ -996,6 +996,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#simpleExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleExpression(BallerinaParser.SimpleExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#simpleExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleExpression(BallerinaParser.SimpleExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree
 	 */

@@ -374,7 +374,7 @@ expression
     |   nameReference '(' expressionList? ')'           # functionInvocationExpression
     |   '<' typeName '>' expression                     # typeConversionExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
-    |   ('+' | '-' | '!') expression                    # unaryExpression
+    |   ('+' | '-' | '!') simpleExpression              # unaryExpression
     |   '(' expression ')'                              # bracedExpression
     |   expression '^' expression                       # binaryPowExpression
     |   expression ('/' | '*' | '%') expression         # binaryDivMulModExpression
@@ -383,6 +383,10 @@ expression
     |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
+    ;
+
+simpleExpression
+    :   expression
     ;
 
 //reusable productions

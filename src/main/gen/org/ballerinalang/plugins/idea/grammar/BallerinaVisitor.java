@@ -599,6 +599,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#simpleExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimpleExpression(BallerinaParser.SimpleExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
