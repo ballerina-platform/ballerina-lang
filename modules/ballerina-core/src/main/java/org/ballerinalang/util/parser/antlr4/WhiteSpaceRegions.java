@@ -248,10 +248,7 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in an action invocation statement
     public static final int ACTION_INVOCATION_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int ACTION_INVOCATION_STMT_VAR_EXP_LIST_TO_EQUAL_OPERATOR = 1;
-    public static final int ACTION_INVOCATION_STMT_EQUAL_OPERATOR_TO_EXPRESSION = 2;
-    public static final int ACTION_INVOCATION_STMT_EXPRESSION_TO_END = 3;
-    public static final int ACTION_INVOCATION_STMT_END_TO_NEXT_TOKEN = 4;
+    public static final int ACTION_INVOCATION_STMT_END_TO_NEXT_TOKEN = 1;
 
     // whitespace regions in a function invocation expr
     public static final int FUNCTION_INVOCATION_PRECEDING_WHITESPACE = 0;
