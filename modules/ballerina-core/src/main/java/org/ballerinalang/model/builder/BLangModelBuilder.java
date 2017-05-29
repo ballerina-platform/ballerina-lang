@@ -70,6 +70,7 @@ import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -797,6 +798,16 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
+    public void createTypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+        SimpleTypeName typeName) {
+        Expression rExpr = exprStack.pop();
+        checkArgExprValidity(location, rExpr);
+
+        TypeConversionExpr typeConversionExpression = new TypeConversionExpr(location, 
+                whiteSpaceDescriptor, typeName, rExpr);
+        exprStack.push(typeConversionExpression);
+    }
+    
     public void createArrayInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                     boolean argsAvailable) {
         List<Expression> argExprList;

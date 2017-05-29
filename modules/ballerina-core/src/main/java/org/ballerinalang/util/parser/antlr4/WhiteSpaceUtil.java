@@ -884,6 +884,18 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+    
+    public static WhiteSpaceDescriptor getTypeConversionExpWS(CommonTokenStream tokenStream,
+        BallerinaParser.TypeConversionExpressionContext ctx) {
+    WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_PRECEDING_WHITESPACE,
+        getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_TYPE_CAST_END_TO_EXP,
+        getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_FOLLOWING_WHITESPACE,
+        getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+    return ws;
+}
 
     public static WhiteSpaceDescriptor getUnaryExpWS(CommonTokenStream tokenStream,
                                                      BallerinaParser.UnaryExpressionContext ctx) {

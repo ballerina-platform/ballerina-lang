@@ -473,14 +473,14 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     @Override
     public void visit(TypeCastExpressionEndNode endNode) {
         super.visit(endNode);
-        if (endNode.getExpression().getCallableUnit() != null) {
+        /*if (endNode.getExpression().getCallableUnit() != null) {
             int i = 0;
             for (ParameterDef parameter : endNode.getExpression().getCallableUnit().getParameterDefs()) {
                 bContext.getControlStack().getCurrentFrame().variables.put(
                         parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
                 i++;
             }
-        }
+        }*/
     }
 
     @Override
