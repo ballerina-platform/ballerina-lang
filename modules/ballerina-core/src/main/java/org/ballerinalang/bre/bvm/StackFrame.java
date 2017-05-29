@@ -92,6 +92,26 @@ public class StackFrame {
         this.returnValues = returnValues;
     }
 
+    public long[] getLongLocalVars() {
+        return longLocalVars;
+    }
+
+    public double[] getDoubleLocalVars() {
+        return doubleLocalVars;
+    }
+
+    public String[] getStringLocalVars() {
+        return stringLocalVars;
+    }
+
+    public int[] getIntLocalVars() {
+        return intLocalVars;
+    }
+
+    public BRefType[] getRefLocalVars() {
+        return refLocalVars;
+    }
+
     public long[] getLongRegs() {
         return longRegs;
     }

@@ -44,7 +44,10 @@ public class ControlStackNew {
 
     public StackFrame popFrame() {
         StackFrame poppedFrame = currentFrame;
-        currentFrame = stackFrames[--fp];
+        stackFrames[fp] = null;
+        if (fp != 0) {
+            currentFrame = stackFrames[--fp];
+        }
         return poppedFrame;
     }
 
@@ -52,26 +55,6 @@ public class ControlStackNew {
         return currentFrame;
     }
 
-    public int getFP() {
-        return fp;
-    }
-
-    //    public BValue getValue(int offset) {
-//        return currentFrame.values[offset];
-//    }
-//
-//    public void setValue(int offset, BValue bValue) {
-//        currentFrame.values[offset] = bValue;
-//    }
-//
-//    public void setReturnValue(int offset, BValue bValue) {
-//        currentFrame.returnValues[offset] = bValue;
-//    }
-//
-//    public Iterator<org.ballerinalang.bre.StackFrame> iterator() {
-//        return this.stack.iterator();
-//    }
-//
     public StackFrame[] getStack() {
         return stackFrames;
     }

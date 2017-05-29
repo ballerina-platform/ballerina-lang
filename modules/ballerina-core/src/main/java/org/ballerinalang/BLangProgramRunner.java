@@ -23,6 +23,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.BLangPackage;
@@ -35,9 +37,11 @@ import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -109,6 +113,36 @@ public class BLangProgramRunner {
             // This will start the websocket server.
             debugManager.init();
         }
+    }
+
+    public void runMain(ProgramFile programFile, String[] args) {
+        Context bContext = new Context(programFile);
+        ControlStackNew controlStackNew = bContext.getControlStackNew();
+        String mainPkgName = programFile.getMainPackageName();
+
+        PackageInfo mainPkgInfo = programFile.getPackageInfo(mainPkgName);
+        if (mainPkgInfo == null) {
+            throw new RuntimeException("cannot find main function '" + programFile.getProgramFilePath() + "'");
+        }
+
+        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
+        if (mainFuncInfo == null) {
+            throw new RuntimeException("cannot find main function '" + programFile.getProgramFilePath() + "'");
+        }
+
+        BStringArray arrayArgs = new BStringArray();
+        for (int i = 0; i < args.length; i++) {
+            arrayArgs.add(i, args[i]);
+        }
+
+        org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(mainFuncInfo,
+                -1, new int[0]);
+        stackFrame.getRefLocalVars()[0] = arrayArgs;
+        controlStackNew.pushFrame(stackFrame);
+
+        BLangVM bLangVM = new BLangVM(programFile);
+        // TODO invoke package <init> function
+        bLangVM.execFunction(mainPkgInfo, bContext, mainFuncInfo.getCodeAttributeInfo().getCodeAddrs());
     }
 
     @Deprecated
