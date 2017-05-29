@@ -311,6 +311,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Define the constant in the package scope
         currentScope.define(symbolName, constDef);
 
+        constDef.getRhsExpr().accept(this);
+
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
             annotationAttachment.accept(this);
@@ -320,12 +322,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
         constDef.setMemoryLocation(memLocation);
 
+        // Insert constant initialization stmt to the package init function
         VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(),
                 constDef.getWhiteSpaceDescriptor(), constDef.getName());
         varRefExpr.setVariableDef(constDef);
-        VariableDefStmt varDefStmt = new VariableDefStmt(constDef.getNodeLocation(),
-                constDef, varRefExpr, constDef.getRhsExpr());
-        pkgInitFuncStmtBuilder.addStmt(varDefStmt);
+        AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
+                new Expression[]{varRefExpr}, constDef.getRhsExpr());
+        pkgInitFuncStmtBuilder.addStmt(assignStmt);
     }
 
     @Override
@@ -335,6 +338,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (variableDefStmt.getRExpr() != null) {
             // Create an assignment statement
+            // Insert global variable initialization stmt to the package init function
             AssignStmt assignStmt = new AssignStmt(variableDefStmt.getNodeLocation(),
                     new Expression[]{variableDefStmt.getLExpr()}, variableDefStmt.getRExpr());
             pkgInitFuncStmtBuilder.addStmt(assignStmt);
