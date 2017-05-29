@@ -82,7 +82,7 @@
                                 implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaCompletionContributor"/>
 
         <lang.braceMatcher language="Ballerina"
-                           implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaPairedBraceMatcher"/>
+                           implementationClass="org.ballerinalang.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
 
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>

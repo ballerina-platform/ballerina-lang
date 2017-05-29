@@ -14,17 +14,13 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.completion;
+package org.ballerinalang.plugins.idea.codeinsight.highlighting;
 
 import com.intellij.codeInsight.highlighting.PairedBraceMatcherAdapter;
 import com.intellij.lang.BracePair;
 import com.intellij.openapi.editor.highlighter.HighlighterIterator;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.psi.tree.IElementType;
-import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
-import org.ballerinalang.plugins.idea.codeinsight.highlighting.BallerinaBraceMatcher;
 
 public class BallerinaPairedBraceMatcher extends PairedBraceMatcherAdapter {
 
@@ -44,17 +40,6 @@ public class BallerinaPairedBraceMatcher extends PairedBraceMatcherAdapter {
 
     private boolean isBrace(HighlighterIterator iterator, CharSequence fileText, FileType fileType, boolean left) {
         final BracePair pair = findPair(left, iterator, fileText, fileType);
-        if (pair == null) {
-            return false;
-        }
-
-        final IElementType opposite = left ? BallerinaTypes.GT : BallerinaTypes.LT;
-        if ((left ? pair.getRightBraceType() : pair.getLeftBraceType()) != opposite) {
-            return true;
-        }
-        if (fileType != BallerinaFileType.INSTANCE) {
-            return false;
-        }
-        return true;
+        return pair != null;
     }
 }
