@@ -33,6 +33,10 @@ public class BInputStream implements BRefType {
         return BTypes.typeInputStream;
     }
 
+    @Override public BValue copy() {
+        return new BInputStream(value);
+    }
+
     @Override
     public BufferedInputStream value() {
         return value;

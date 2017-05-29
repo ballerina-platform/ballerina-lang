@@ -45,6 +45,9 @@ public class BFile implements BRefType {
         return BTypes.typeFile;
     }
 
+    @Override public BValue copy() {
+        return new BFile(filePath);
+    }
 
     @Override
     public Object value() {

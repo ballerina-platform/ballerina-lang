@@ -34,6 +34,10 @@ public class BOutputStream implements BRefType {
         return BTypes.typeOutputStream;
     }
 
+    @Override public BValue copy() {
+        return new BOutputStream(value);
+    }
+
     @Override
     public BufferedOutputStream value() {
         return value;

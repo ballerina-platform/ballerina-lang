@@ -84,7 +84,7 @@ public class Archive extends AbstractNativeFunction {
                             outputStream.write(bytes, 0, length);
                         }
                     } catch (Exception e) {
-                        log.error("Unable to compress a file." + e.getMessage());
+                        throw new BallerinaException("Unable to compress a file." + e.getMessage());
                     } finally {
                         try {
                             if (outputStream != null) {
@@ -174,7 +174,7 @@ public class Archive extends AbstractNativeFunction {
                 outputStream.write(bytes, 0, length);
             }
         } catch (IOException e) {
-            log.error("Unable to add a file into the zip file directory." + e.getMessage());
+            throw new BallerinaException ("Unable to add a file into the zip file directory." + e.getMessage());
         } finally {
             try {
                 outputStream.closeEntry();

@@ -48,6 +48,10 @@ public class BReader implements BRefType {
         return BTypes.typeReader;
     }
 
+    @Override public BValue copy() {
+        return null;
+    }
+
     @Override
     public BufferedReader value() {
         return value;
