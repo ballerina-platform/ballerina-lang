@@ -32,6 +32,7 @@ import java.util.Map;
 public class PackageInfo {
 
     private String pkgPath;
+    private FunctionInfo initFunctionInfo;
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
 
@@ -126,5 +127,13 @@ public class PackageInfo {
 
     public void setProgramFile(ProgramFile programFile) {
         this.programFile = programFile;
+    }
+
+    public FunctionInfo getInitFunctionInfo() {
+        return initFunctionInfo;
+    }
+
+    public void setInitFunctionInfo(FunctionInfo initFunctionInfo) {
+        this.initFunctionInfo = initFunctionInfo;
     }
 }

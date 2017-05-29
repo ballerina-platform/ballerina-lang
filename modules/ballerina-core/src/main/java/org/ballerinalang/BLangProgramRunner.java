@@ -48,6 +48,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.AbstractMap;
 
@@ -130,6 +131,12 @@ public class BLangProgramRunner {
             throw new RuntimeException("cannot find main function '" + programFile.getProgramFilePath() + "'");
         }
 
+        // TODO Validate main function signature - input and output parameters
+
+        // Invoke package init function
+        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo, bContext);
+
+        // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
         for (int i = 0; i < args.length; i++) {
             arrayArgs.add(i, args[i]);

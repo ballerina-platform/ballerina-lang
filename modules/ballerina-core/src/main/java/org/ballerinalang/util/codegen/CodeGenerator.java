@@ -255,14 +255,16 @@ public class CodeGenerator implements NodeVisitor {
         createFunctionInfoEntries(bLangPackage.getFunctions());
 
         // Create function info for the package function
-        createFunctionInfoEntries(new Function[] {bLangPackage.getInitFunction()});
+        BallerinaFunction pkgInitFunction = bLangPackage.getInitFunction();
+        createFunctionInfoEntries(new Function[] {pkgInitFunction});
 
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
 
         // Visit package init function
-        bLangPackage.getInitFunction().accept(this);
+        pkgInitFunction.accept(this);
+        currentPkgInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(pkgInitFunction.getName()));
 
         currentPkgCPIndex = -1;
         currentPkgPath = null;
