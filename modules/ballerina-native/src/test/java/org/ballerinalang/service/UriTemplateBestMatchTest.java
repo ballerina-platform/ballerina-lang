@@ -17,13 +17,11 @@
 */
 package org.ballerinalang.service;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ServiceInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
