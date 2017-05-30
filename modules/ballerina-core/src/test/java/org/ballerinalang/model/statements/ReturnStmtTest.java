@@ -100,7 +100,7 @@ public class ReturnStmtTest {
     @Test(description = "Test two return values", enabled = false)
     public void testReturnTwoVarDclsTwoReturnArgs() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnTwoVarDclsTwoReturnArgs",args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnTwoVarDclsTwoReturnArgs", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(10, ((BInteger) returns[0]).intValue());
