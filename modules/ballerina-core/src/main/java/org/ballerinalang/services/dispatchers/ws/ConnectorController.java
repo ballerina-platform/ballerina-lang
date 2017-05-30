@@ -49,6 +49,15 @@ public class ConnectorController {
     // Map<clientID, session>
     private final Map<String, Session> clientIDToSessionMap = new HashMap<>();
 
+    /**
+     * Connector controller control all the aspects of a given WebSocket connector.
+     *
+     * @param bConnector Ballerina connector.
+     * @param connectorID unique ID of the connector. This should be given by the developer.
+     * @param parentServiceName Name of the service where the connector is created.
+     * @param clientServiceName the callback service which is defined as a parameter of the connector.
+     * @param url URL which the connector should be connected to.
+     */
     public ConnectorController(BConnector bConnector, String connectorID, String parentServiceName,
                                String clientServiceName, String url) {
         this.bConnector = bConnector;
@@ -56,10 +65,17 @@ public class ConnectorController {
         this.parentServiceName = parentServiceName;
         this.clientServiceName = clientServiceName;
         this.remoteUrl = url;
-        //Creating an initial connection
         this.parentClientID = Utils.generateWebSocketClientID(connectorID, connectionSubCount);
-        initiateConnection(parentClientID);
         connectionSubCount = connectionSubCount + 1;
+        /*
+            In the constructor there is one additional connection is created in order to work with non WebSocket server
+            endpoints and main function. Because if the parent service is non WebSocket endpoint or main function then
+            there is no point of having multiple WebSocket clients for each connector.
+         */
+        if (parentServiceName == null ||
+                !WebSocketServicesRegistry.getInstance().isWebSocketServerEndpoint(parentServiceName)) {
+            initiateConnection(parentClientID);
+        }
     }
 
     /**

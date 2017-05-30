@@ -68,15 +68,22 @@ public class Init extends AbstractWebSocketAction {
             String remoteUrl = bconnector.getValue(0).stringValue();
             String clientServiceName = bconnector.getValue(1).stringValue();
             Connector connector = bconnector.value();
+
             SymbolScope enclosingScope = connector.getEnclosingScope();
             while (!(enclosingScope instanceof BLangProgram)) {
                 enclosingScope = enclosingScope.getEnclosingScope();
             }
-            String parentServiceName = ((BLangProgram) enclosingScope).
-                    getServicePackageList().get(0).getServices()[0].getName();
+            BLangProgram bLangProgram = (BLangProgram) enclosingScope;
             String connectorID = UUID.randomUUID().toString();
-            controllerRegistry.addConnectorController(bconnector, connectorID, parentServiceName,
-                                                                             clientServiceName, remoteUrl);
+            if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
+                String parentServiceName = ((BLangProgram) enclosingScope).
+                        getServicePackageList().get(0).getServices()[0].getName();
+                controllerRegistry.addConnectorController(bconnector, connectorID, parentServiceName,
+                                                          clientServiceName, remoteUrl);
+            } else {
+                controllerRegistry.addConnectorController(bconnector, connectorID, null,
+                                                          clientServiceName, remoteUrl);
+            }
         }
         return null;
     }

@@ -95,14 +95,61 @@ public class WebSocketServicesRegistry {
         return serviceEndpoints.get(listenerInterface).get(uri);
     }
 
+    /**
+     * Retrieve the client service by service name if exists.
+     *
+     * @param serviceName name of the service.
+     * @return the service by service name if exists. Else return null.
+     */
     public Service getClientService(String serviceName) {
         return clientServices.get(serviceName);
     }
 
+    /**
+     * Check whether the given service name is a client service or not.
+     *
+     * @param serviceName name of the service.
+     * @return true if the service given by service name is a client service. Else return false.
+     */
     public boolean isClientService(String serviceName) {
         return clientServices.containsKey(serviceName);
     }
 
+    /**
+     * Check whether the given service is a WebSocket server endpoint.
+     *
+     * @param serviceName name of the service.
+     * @return true if the service given by service name is a client service. Else return false.
+     */
+    public boolean isWebSocketServerEndpoint(String serviceName) {
+        for (Map.Entry<String, Map<String, Service>> endpoints: serviceEndpoints.entrySet()) {
+            if (endpoints.getValue().containsKey(serviceName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Refactor the given URI.
+     *
+     * @param uri URI to refactor.
+     * @return refactored URI.
+     */
+    public String refactorUri(String uri) {
+        if (uri.startsWith("\"")) {
+            uri = uri.substring(1, uri.length() - 1);
+        }
+
+        if (!uri.startsWith("/")) {
+            uri = "/".concat(uri);
+        }
+
+        if (uri.endsWith("/")) {
+            uri = uri.substring(0, uri.length() - 1);
+        }
+        return uri;
+    }
 
     private String findFullWebSocketUpgradePath(Service service) {
         AnnotationAttachment websocketUpgradePathAnnotation = null;
@@ -158,27 +205,6 @@ public class WebSocketServicesRegistry {
             }
         }
         return listenerInterface;
-    }
-
-    /**
-     * Refactor the given URI.
-     *
-     * @param uri URI to refactor.
-     * @return refactored URI.
-     */
-    public String refactorUri(String uri) {
-        if (uri.startsWith("\"")) {
-            uri = uri.substring(1, uri.length() - 1);
-        }
-
-        if (!uri.startsWith("/")) {
-            uri = "/".concat(uri);
-        }
-
-        if (uri.endsWith("/")) {
-            uri = uri.substring(0, uri.length() - 1);
-        }
-        return uri;
     }
 
 }
