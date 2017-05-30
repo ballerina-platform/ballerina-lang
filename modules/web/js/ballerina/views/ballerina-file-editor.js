@@ -330,6 +330,7 @@ class BallerinaFileEditor extends EventChannel {
         this._sourceView.render();
 
         var lastRenderedTimestamp = this._file.getLastPersisted();
+        var transformPopUp = '#transformOverlay';
 
         // container for per-tab swagger view TODO improve swagger view to wrap this logic
         var swaggerViewContainer = $(this._container).find(_.get(this._viewOptions, 'swagger_view.container'));
@@ -373,6 +374,7 @@ class BallerinaFileEditor extends EventChannel {
             designViewBtn.show();
             swaggerViewBtn.show();
             sourceViewBtn.hide();
+            $(transformPopUp).remove();
             this.setActiveView('source');
         });
 
@@ -437,6 +439,7 @@ class BallerinaFileEditor extends EventChannel {
                 designViewBtn.show();
                 sourceViewBtn.show();
                 swaggerViewBtn.hide();
+                $(transformPopUp).remove();
                 self.toolPalette.hide();
                 self.setActiveView('swagger');
             } catch (err) {
