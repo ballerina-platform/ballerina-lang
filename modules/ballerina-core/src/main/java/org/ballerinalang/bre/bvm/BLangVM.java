@@ -618,7 +618,11 @@ public class BLangVM {
                     j = operands[1];
                     sf.doubleRegs[j] = -sf.doubleRegs[i];
                     break;
-
+                case InstructionCodes.NOT:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
+                    break;
                 case InstructionCodes.ICMP:
                     i = operands[0];
                     j = operands[1];
@@ -626,6 +630,18 @@ public class BLangVM {
                     if (sf.longRegs[i] == sf.longRegs[j]) {
                         sf.intRegs[k] = 0;
                     } else if (sf.longRegs[i] > sf.longRegs[j]) {
+                        sf.intRegs[k] = 1;
+                    } else {
+                        sf.intRegs[k] = -1;
+                    }
+                    break;
+                case InstructionCodes.FCMP:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.doubleRegs[i] == sf.doubleRegs[j]) {
+                        sf.intRegs[k] = 0;
+                    } else if (sf.doubleRegs[i] > sf.doubleRegs[j]) {
                         sf.intRegs[k] = 1;
                     } else {
                         sf.intRegs[k] = -1;

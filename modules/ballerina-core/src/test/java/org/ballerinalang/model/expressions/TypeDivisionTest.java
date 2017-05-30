@@ -34,14 +34,12 @@ import org.testng.annotations.Test;
  */
 public class TypeDivisionTest {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
 
     @BeforeClass
     public void setup() {
         programFile = BTestUtils.getProgramFile("lang/expressions/type-division.bal");
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type-division.bal");
     }
 
     @Test
@@ -65,7 +63,7 @@ public class TypeDivisionTest {
     @Test
     public void testIntGTFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intGTFloat", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "intGTFloat", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -74,7 +72,7 @@ public class TypeDivisionTest {
     @Test
     public void testFloatGTInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatGTInt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatGTInt", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
