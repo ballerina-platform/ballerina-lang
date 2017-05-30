@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,10 +33,12 @@ import org.testng.annotations.Test;
  */
 public class WorkerInFunctionTest {
     private BLangProgram bLangProgram;
+    private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("samples/worker-declaration-stmt.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-declaration-stmt.bal");
     }
 
     @Test(description = "Test worker in function")
@@ -51,7 +54,7 @@ public class WorkerInFunctionTest {
     @Test(description = "Test simple worker in function")
     public void testSimpleWorkerInFunction() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSimpleWorker", args);
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testSimpleWorker", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
         final String expected = "{\"name\":\"chanaka\"}";

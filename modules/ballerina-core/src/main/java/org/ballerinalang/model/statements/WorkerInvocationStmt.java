@@ -73,7 +73,7 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
 
     @Override
     public String getName() {
-        return null;
+        return workerName;
     }
 
     @Override

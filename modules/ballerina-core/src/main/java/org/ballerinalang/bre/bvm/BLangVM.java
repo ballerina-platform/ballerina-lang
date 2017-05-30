@@ -51,6 +51,7 @@ import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -60,6 +61,9 @@ import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -140,6 +144,10 @@ public class BLangVM {
         ActionRefCPEntry actionRefCPEntry;
         ActionInfo actionInfo;
         StringCPEntry stringCPEntry;
+        WorkerRefCPEntry workerRefCPEntry;
+        WorkerInvokeCPEntry workerInvokeCPEntry;
+        WorkerReplyCPEntry workerReplyCPEntry;
+        WorkerInfo workerInfo;
 
         // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
@@ -686,6 +694,24 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
+                case InstructionCodes.WRKINVOKE:
+                    cpIndex = operands[0];
+                    workerRefCPEntry = (WorkerRefCPEntry) constPool[cpIndex];
+                    workerInfo = workerRefCPEntry.getWorkerInfo();
+
+                    cpIndex = operands[1];
+                    workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
+                    invokeWorker(workerInfo, workerInvokeCPEntry);
+                    break;
+                case InstructionCodes.WRKREPLY:
+                    cpIndex = operands[0];
+                    workerRefCPEntry = (WorkerRefCPEntry) constPool[cpIndex];
+                    workerInfo = workerRefCPEntry.getWorkerInfo();
+
+                    cpIndex = operands[1];
+                    workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
+                    replyWorker(workerInfo, workerReplyCPEntry);
+                    break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
@@ -1042,6 +1068,41 @@ public class BLangVM {
         this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
         ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
     }
+
+    public void invokeWorker(CallableUnitInfo callableUnitInfo, WorkerInvokeCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        BType[] paramTypes = callableUnitInfo.getParamTypes();
+        StackFrame callerSF = controlStack.getCurrentFrame();
+
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+        controlStack.pushFrame(calleeSF);
+
+        // Copy arg values from the current StackFrame to the new StackFrame
+        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+
+        // TODO Improve following two lines
+        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+    }
+
+    public void replyWorker(CallableUnitInfo callableUnitInfo, WorkerReplyCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        BType[] paramTypes = callableUnitInfo.getParamTypes();
+        StackFrame callerSF = controlStack.getCurrentFrame();
+
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+        controlStack.pushFrame(calleeSF);
+
+        // Copy arg values from the current StackFrame to the new StackFrame
+        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+
+        // TODO Improve following two lines
+        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+    }
+
 
     private void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;

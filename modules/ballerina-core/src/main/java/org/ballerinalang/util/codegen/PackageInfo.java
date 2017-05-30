@@ -46,6 +46,8 @@ public class PackageInfo {
 
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
+    private Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
+
     // Package level variable count
     protected int[] plvCount;
 
@@ -81,6 +83,14 @@ public class PackageInfo {
 
     public void addFunctionInfo(String functionName, FunctionInfo functionInfo) {
         functionInfoMap.put(functionName, functionInfo);
+    }
+
+    public WorkerInfo getWorkerInfo(String workerName) {
+        return workerInfoMap.get(workerName);
+    }
+
+    public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
+        workerInfoMap.put(workerName, workerInfo);
     }
 
     public StructInfo getStructInfo(String structName) {

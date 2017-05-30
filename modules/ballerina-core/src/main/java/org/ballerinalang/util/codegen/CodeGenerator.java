@@ -135,6 +135,7 @@ import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerRefCPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
@@ -449,6 +450,24 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
+    private void createWorkerInfoEntries(Worker[] workers) {
+        for (Worker worker : workers) {
+
+            // Add worker name as an UTFCPEntry to the constant pool
+            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.getName());
+            int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+
+            WorkerInfo workerInfo = new WorkerInfo(currentPkgPath, currentPkgCPIndex,
+                    worker.getName(), workerNameCPIndex);
+            workerInfo.setParamTypes(getParamTypes(worker.getParameterDefs()));
+            workerInfo.setRetParamTypes(getParamTypes(worker.getReturnParameters()));
+            workerInfo.setNative(worker.isNative());
+            workerInfo.setPackageInfo(currentPkgInfo);
+
+            currentPkgInfo.addWorkerInfo(worker.getName(), workerInfo);
+        }
+    }
+
     @Override
     public void visit(BallerinaFile bFile) {
 
@@ -524,6 +543,8 @@ public class CodeGenerator implements NodeVisitor {
 
         resource.getCallableUnitBody().accept(this);
 
+        createWorkerInfoEntries(resource.getWorkers());
+
         endCallableUnit();
     }
 
@@ -561,6 +582,8 @@ public class CodeGenerator implements NodeVisitor {
         if (!function.isNative()) {
             function.getCallableUnitBody().accept(this);
         }
+
+        createWorkerInfoEntries(function.getWorkers());
 
         endCallableUnit();
     }
@@ -607,11 +630,45 @@ public class CodeGenerator implements NodeVisitor {
             action.getCallableUnitBody().accept(this);
         }
 
+        createWorkerInfoEntries(action.getWorkers());
+
         endCallableUnit();
     }
 
     @Override
     public void visit(Worker worker) {
+        callableUnitInfo = currentPkgInfo.getWorkerInfo(worker.getName());
+
+        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
+        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
+        callableUnitInfo.codeAttributeInfo.setAttributeNameIndex(codeAttribNameIndex);
+        callableUnitInfo.codeAttributeInfo.setCodeAddrs(nextIP());
+
+        // Read annotations attached to this function
+        AnnotationAttachment[] annotationAttachments = worker.getAnnotations();
+        if (annotationAttachments.length > 0) {
+            AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
+            callableUnitInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
+        }
+
+        // Add local variable indexes to the parameters and return parameters
+        visitCallableUnitParameterDefs(worker.getParameterDefs(), callableUnitInfo);
+
+        // Visit return parameter defs
+        for (ParameterDef parameterDef : worker.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (parameterDef.getName() != null) {
+                int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
+                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            }
+
+            parameterDef.accept(this);
+        }
+
+        worker.getCallableUnitBody().accept(this);
+
+        endCallableUnit();
 
     }
 
@@ -861,11 +918,42 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        int pkgCPIndex = addPackageCPEntry(workerInvocationStmt.getPackagePath());
 
+        String workerName = workerInvocationStmt.getName();
+        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName);
+        int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+
+        // Find the package info entry of the function and from the package info entry find the function info entry
+        String pkgPath = workerInvocationStmt.getPackagePath();
+        PackageInfo workerPackageInfo = programFile.getPackageInfo(pkgPath);
+        WorkerInfo workerInfo = workerPackageInfo.getWorkerInfo(workerName);
+
+        WorkerRefCPEntry funcRefCPEntry = new WorkerRefCPEntry(pkgCPIndex, workerNameCPIndex);
+        funcRefCPEntry.setWorkerInfo(workerInfo);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int funcCallIndex = getCallableUnitCallCPIndex(workerInvocationStmt);
+        emit(InstructionCodes.WRKINVOKE, funcRefCPIndex, funcCallIndex);
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
+        int pkgCPIndex = addPackageCPEntry(workerReplyStmt.getPackagePath());
+
+        String workerName = workerReplyStmt.getWorkerName();
+        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName);
+        int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+
+        // Find the package info entry of the function and from the package info entry find the function info entry
+        String pkgPath = workerReplyStmt.getPackagePath();
+        PackageInfo workerPackageInfo = programFile.getPackageInfo(pkgPath);
+        WorkerInfo workerInfo = workerPackageInfo.getWorkerInfo(workerName);
+
+        WorkerRefCPEntry funcRefCPEntry = new WorkerRefCPEntry(pkgCPIndex, workerNameCPIndex);
+        funcRefCPEntry.setWorkerInfo(workerInfo);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int funcCallIndex = getCallableUnitCallCPIndex(workerReplyStmt);
+        emit(InstructionCodes.WRKREPLY, funcRefCPIndex, funcCallIndex);
 
     }
 
