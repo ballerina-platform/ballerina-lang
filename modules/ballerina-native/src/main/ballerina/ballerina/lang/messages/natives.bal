@@ -40,6 +40,11 @@ native function getStringPayload (message m) (string);
 @doc:Param { value:"value: The header value" }
 native function addHeader (message m, string key, string value);
 
+@doc:Description { value:"Gets the message payload in blob format"}
+@doc:Param { value:"m: The message object" }
+@doc:Return { value:"blob: The blob representation of the message payload" }
+native function getBinaryPayload (message m) (blob);
+
 @doc:Description { value:"Gets transport headers from the message"}
 @doc:Param { value:"m: The message object" }
 @doc:Param { value:"headerName: The header name" }
