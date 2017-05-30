@@ -97,7 +97,32 @@ class IfElseStatement extends Statement {
             index = elseStatementIndex;
         }
 
+        if(BallerinaASTFactory.isElseStatement(child)){
+            this._elseStatement = child;
+        }
+
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+    }
+
+    addElseStatement(elseStatement) {
+        if(this._elseStatement) {
+            // else statement already added
+            return;
+        }
+
+        this._elseStatement = elseStatement;
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, elseStatement);
+    }
+
+    addElseIfStatement(elseIfStatement, index) {
+        const elseStatementIndex = _.findIndex(this.getChildren(), function (node) {
+            return BallerinaASTFactory.isElseStatement(node);
+        });
+
+        this._elseIfStatements.push(elseIfStatement);
+
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(
+            this, elseIfStatement, index || elseStatementIndex);
     }
 
     /**
@@ -179,4 +204,3 @@ class IfElseStatement extends Statement {
 }
 
 export default IfElseStatement;
-
