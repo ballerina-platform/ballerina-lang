@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+package completion;
+
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
@@ -1046,6 +1048,17 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach parameter {}");
         doCheckResult("test.bal", "import org.test; function A(@test:T<caret>)",
                 "import org.test; function A(@test:TEST {})", null);
+    }
+
+    public void testPackageInvocationInParameter() {
+        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        doTest("import org.test; function A(test:<caret>)", "test");
+    }
+
+    public void testPackageInvocationInParameterAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        doCheckResult("test.bal", "import org.test; function A(test:t<caret>)",
+                "import org.test; function A(test:test)", null);
     }
 
     // todo - query param annotations

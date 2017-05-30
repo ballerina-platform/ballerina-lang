@@ -51,6 +51,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
@@ -287,6 +288,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ForkJoinStatementNode(node);
             case BallerinaParser.RULE_workerInteractionStatement:
                 return new WorkerInterationStatementNode(node);
+            case BallerinaParser.RULE_functionInvocation:
+                return new FunctionInvocationNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

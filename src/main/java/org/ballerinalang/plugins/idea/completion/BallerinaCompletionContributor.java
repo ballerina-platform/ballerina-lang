@@ -737,6 +737,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             return;
                         }
                         suggestAnnotationsFromPackage(parameters, resultSet, packageNode, attachmentType);
+                    } else if (tokenElementType == BallerinaTypes.LPAREN) {
+                        //Eg: function test(test:Na<caret> ){ }
+                        suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true, true, false);
                     }
                 } else {
                     suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true, true, false);
@@ -782,6 +785,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         return;
                     }
                     suggestAnnotationsFromPackage(parameters, resultSet, packageNode, attachmentType);
+                } else if (tokenElementType == BallerinaTypes.LPAREN) {
+                    //Eg: function test(test:<caret> ){ }
+                    suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true, true, false);
                 }
             } else {
                 suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true, true, false);

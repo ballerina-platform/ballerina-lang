@@ -30,6 +30,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -98,7 +99,8 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
         if (!(element instanceof IdentifierPSINode)) {
             return false;
         }
-        if (!(superParent instanceof ExpressionNode || superParent instanceof FunctionInvocationStatementNode)) {
+        if (!(superParent instanceof ExpressionNode || superParent instanceof FunctionInvocationStatementNode
+                || superParent instanceof FunctionInvocationNode)) {
             return false;
         }
         if (!(parent instanceof FunctionInvocationStatementNode || parent instanceof NameReferenceNode)) {

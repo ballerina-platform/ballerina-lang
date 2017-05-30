@@ -371,7 +371,7 @@ expression
     |   builtInReferenceTypeName '.' Identifier         # builtInReferenceTypeTypeExpression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
-    |   nameReference '(' expressionList? ')'           # functionInvocationExpression
+    |   functionInvocation                              # functionInvocationExpression
     |   '<' typeName '>' expression                     # typeConversionExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
     |   ('+' | '-' | '!') simpleExpression              # unaryExpression
@@ -387,6 +387,10 @@ expression
 
 simpleExpression
     :   expression
+    ;
+
+functionInvocation
+    :   nameReference '(' expressionList? ')'
     ;
 
 //reusable productions

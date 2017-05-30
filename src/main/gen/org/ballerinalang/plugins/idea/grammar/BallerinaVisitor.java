@@ -605,6 +605,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSimpleExpression(BallerinaParser.SimpleExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#functionInvocation}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

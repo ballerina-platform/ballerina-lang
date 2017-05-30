@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -36,6 +37,16 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof NameReferenceNode
                 || element.getParent() instanceof StatementNode) {
+
+            FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(element,
+                    FunctionInvocationNode.class);
+            if (functionInvocationNode == null) {
+                PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
+                        "//variableDefinitionStatement/Identifier");
+                if (resolvedElement != null && !BallerinaPsiImplUtil.isStructField(element)) {
+                    return resolvedElement;
+                }
+            }
             return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");

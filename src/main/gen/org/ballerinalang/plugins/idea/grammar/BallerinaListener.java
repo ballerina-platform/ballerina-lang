@@ -1006,6 +1006,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitSimpleExpression(BallerinaParser.SimpleExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#functionInvocation}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#functionInvocation}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree
 	 */

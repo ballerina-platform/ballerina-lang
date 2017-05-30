@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+package marker;
+
 import com.intellij.codeInsight.daemon.GutterMark;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
