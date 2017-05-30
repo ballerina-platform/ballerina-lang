@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
@@ -27,10 +26,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -107,29 +108,12 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
 
     @Override
     public ItemPresentation getPresentation() {
-        return new ItemPresentation() {
-
-            @Nullable
-            @Override
-            public String getPresentableText() {
-                // Get the identifier.
-                PsiElement nameIdentifier = getNameIdentifier();
-                if (nameIdentifier == null) {
-                    return null;
-                }
-                return nameIdentifier.getText();
-            }
-
-            @Nullable
-            @Override
-            public String getLocationString() {
-                return null;
-            }
+        return new BallerinaItemPresentation(getNameIdentifier()) {
 
             @Nullable
             @Override
             public Icon getIcon(boolean unused) {
-                return AllIcons.Nodes.Field;
+                return BallerinaIcons.FUNCTION;
             }
         };
     }

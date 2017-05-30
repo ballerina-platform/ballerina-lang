@@ -24,7 +24,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
@@ -334,30 +333,34 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
     @NotNull
     private static List<PsiElement> getDocAnnotations(PsiElement element) {
         List<PsiElement> annotations = new LinkedList<>();
-        PsiElement definitionNode;
         if (element.getParent() instanceof ActionDefinitionNode) {
-            // Action definition itself contains the annotations.
-            definitionNode = element.getParent().getParent();
-            // So we directly get all annotations from the action definition node.
-            Collection<AnnotationAttachmentNode> attachmentNodes = PsiTreeUtil.findChildrenOfType(definitionNode,
-                    AnnotationAttachmentNode.class);
-            annotations.addAll(attachmentNodes);
+            // For action definition nodes, annotations precedes the parent node.
+            findAnnotations(element.getParent(), annotations);
         } else {
             // For other types of nodes, annotations precedes the super parent node.
-            definitionNode = element.getParent().getParent();
-            PsiElement prevSibling = definitionNode.getPrevSibling();
-            // We iterate through all nodes ignoring PsiWhiteSpace nodes.
-            while (prevSibling != null && (prevSibling instanceof AnnotationAttachmentNode ||
-                    prevSibling instanceof PsiWhiteSpace)) {
-                // If the prevSibling is not a PsiWhiteSpace, that means it is an AnnotationAttachmentNode.
-                if (!(prevSibling instanceof PsiWhiteSpace)) {
-                    annotations.add(0, prevSibling);
-                }
-                prevSibling = prevSibling.getPrevSibling();
-            }
+            findAnnotations(element.getParent().getParent(), annotations);
         }
         // Return the annotations.
         return annotations;
+    }
+
+    /**
+     * Finds annotations for the given definition node and adds to the provided list.
+     *
+     * @param definitionNode node which we use to find annotations.
+     * @param annotations    list which is used to add result
+     */
+    private static void findAnnotations(PsiElement definitionNode, List<PsiElement> annotations) {
+        PsiElement prevSibling = definitionNode.getPrevSibling();
+        // We iterate through all nodes ignoring PsiWhiteSpace nodes.
+        while (prevSibling != null && (prevSibling instanceof AnnotationAttachmentNode ||
+                prevSibling instanceof PsiWhiteSpace)) {
+            // If the prevSibling is not a PsiWhiteSpace, that means it is an AnnotationAttachmentNode.
+            if (!(prevSibling instanceof PsiWhiteSpace)) {
+                annotations.add(0, prevSibling);
+            }
+            prevSibling = prevSibling.getPrevSibling();
+        }
     }
 
     /**

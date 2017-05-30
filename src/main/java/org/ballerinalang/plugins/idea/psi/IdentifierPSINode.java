@@ -27,6 +27,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiLeafNode;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
@@ -129,8 +130,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
     @Override
     public ItemPresentation getPresentation() {
-        if (getParent() instanceof FunctionDefinitionNode) {
-            return ((FunctionDefinitionNode) getParent()).getPresentation();
+        PsiElement parent = getParent();
+        if (parent instanceof IdentifierDefSubtree) {
+            return ((IdentifierDefSubtree) parent).getPresentation();
         }
         return super.getPresentation();
     }
