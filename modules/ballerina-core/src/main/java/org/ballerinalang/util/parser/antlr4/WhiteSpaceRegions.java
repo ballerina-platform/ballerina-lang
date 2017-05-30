@@ -110,7 +110,8 @@ public class WhiteSpaceRegions {
     public static final int ANNOTATION_DEF_ANNOTATION_KEYWORD_TO_IDENTIFIER = 0;
     public static final int ANNOTATION_DEF_IDENTIFIER_TO_ATTACH_KEYWORD = 1;
     public static final int ANNOTATION_DEF_BODY_START_TO_LAST_TOKEN = 2;
-    public static final int ANNOTATION_DEF_BODY_END_TO_NEXT_TOKEN = 3;
+    public static final int ANNOTATION_DEF_BODY_START_TO_NEXT_TOKEN = 3;
+    public static final int ANNOTATION_DEF_BODY_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in an annotation attachment point
     public static final int ANNOTATION_ATTACHMENT_POINT_PRECEDING_WS = 0;
@@ -318,9 +319,10 @@ public class WhiteSpaceRegions {
     // white space regions in a field def
     public static final int FILED_DEF_PRECEDING_WHITESPACE = 0;
     public static final int FILED_DEF_TYPE_NAME_TO_ID = 1;
-    public static final int FILED_DEF_ID_TO_EQUAL_OPERATOR = 2;
+    public static final int FILED_DEF_ID_TO_NEXT_TOKEN = 2;
     public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 3;
-    public static final int FILED_DEF_FOLLOWING_WHITESPACE = 4;
+    public static final int FILED_DEF_LITERAL_TO_NEXT_TOKEN = 4;
+    public static final int FILED_DEF_FOLLOWING_WHITESPACE = 5;
 
     // whitespace regions in a transform statement
     public static final int TRANSFORM_STMT_PRECEDING_WHITESPACE = 0;
