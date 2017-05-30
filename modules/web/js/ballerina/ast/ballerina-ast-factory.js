@@ -47,7 +47,6 @@ import variableDeclaration from './variable-declaration';
 import packageDefinition from './package-definition';
 import importDeclaration from './import-declaration';
 import resourceParameter from './resource-parameter';
-import assignment from './assignment';
 import assignmentStatement from './statements/assignment-statement';
 import functionInvocationStatement from './statements/function-invocation-statement';
 import functionInvocationExpression from './expressions/function-invocation-expression';
@@ -1233,15 +1232,6 @@ BallerinaASTFactory.isTypeName = function (child) {
  */
 BallerinaASTFactory.isBackTickExpression = function (child) {
     return child instanceof backTickExpression;
-};
-
-/**
- * instanceof check for Assignment
- * @param child
- * @returns {boolean}
- */
-BallerinaASTFactory.isAssignment = function (child) {
-    return child instanceof assignment;
 };
 
 /**

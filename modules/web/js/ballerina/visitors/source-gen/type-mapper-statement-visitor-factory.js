@@ -30,7 +30,6 @@ import ReplyStatementVisitor from './reply-statement-visitor';
 import TypeMapperReturnStatementVisitor from './type-mapper-return-statement-visitor';
 import FunctionInvocationVisitor from './function-invocation-visitor';
 import TypeMapperFunctionInvocationExpressionVisitor from './type-mapper-function-invocation-expression-visitor';
-import AssignmentVisitor from './assignment-visitor';
 import TypeMapperLeftOperandExpressionVisitor from './type-mapper-left-operand-expression-visitor';
 import TypeMapperRightOperandExpressionVisitor from './type-mapper-right-operand-expression-visitor';
 import TypeMapperVariableDefinitionStatement from './type-mapper-variable-definition-statement-visitor';
@@ -67,8 +66,6 @@ class TypeMapperStatementVisitorFactory {
             return new FunctionInvocationVisitor(parent);
         }else if (ASTFactory.isFunctionInvocationExpression(statement)) {
             return new TypeMapperFunctionInvocationExpressionVisitor(parent);
-        } else if(ASTFactory.isAssignment(statement)){
-            return new AssignmentVisitor(parent);
         } else if (ASTFactory.isLeftOperandExpression(statement)) {
             return new TypeMapperLeftOperandExpressionVisitor(parent);
         } else if (ASTFactory.isRightOperandExpression(statement)) {
