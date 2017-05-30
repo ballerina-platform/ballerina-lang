@@ -82,6 +82,19 @@ public class BreakStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test break statement in a nested while loop.")
+    public void testBreakStmtInNestedWhile() {
+        BValue[] args = {new BInteger(12), new BInteger(8)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedBreakStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 140;
+        Assert.assertEquals(actual, expected);
+    }
+
     @Test(description = "Check invalid break statement location.", expectedExceptions = SemanticException.class,
     expectedExceptionsMessageRegExp = ".*break statement is not allowed here*")
     public void testNegative() {
