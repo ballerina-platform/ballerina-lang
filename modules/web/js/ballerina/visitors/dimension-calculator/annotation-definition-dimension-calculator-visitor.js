@@ -36,55 +36,14 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
+        util.populateOuterPanelDecoratorBBox(node);
         let viewState = node.getViewState();
-        let components = {};
 
-        components['heading'] = new SimpleBBox();
+        this.annotationAttributeDefinitionDimension(node);
 
-        //Initial statement height include panel heading and pannel padding.
-        let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
-        // Set the width to 0 don't add the padding now since we do a comparison.
-        let bodyWidth = 0;
-        let largestWidthAmongChildren = 0;
-
-        // Get the largest width of children.
-        node.children.forEach(function (child, index) {
-            if (largestWidthAmongChildren < child.viewState.textLength.w) {
-                largestWidthAmongChildren = child.viewState.textLength.w;
-            }
-        });
-
-        node.children.forEach(function (child, index) {
-            bodyHeight += child.viewState.bBox.h;
-            // If there is only one child no need to add gutter
-            if (index === 1) {
-                bodyHeight = bodyHeight + DesignerDefaults.innerPanel.wrapper.gutter.v;
-            }
-
-            if (largestWidthAmongChildren > child.viewState.bBox.w) {
-                child.viewState.bBox.w = largestWidthAmongChildren + 10;
-            }
-
-            if (child.viewState.bBox.w > bodyWidth) {
-                bodyWidth = child.viewState.bBox.w;
-            }
-        });
-
-        bodyWidth = bodyWidth + DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
-
-        components['body'] = new SimpleBBox();
-
-        if (node.viewState.collapsed) {
-            components['body'].h = 0;
-        } else {
-            components['body'].h = bodyHeight;
-        }
-        components['body'].w = bodyWidth;
-        components['heading'].w = bodyWidth;
-
-        viewState.bBox.h = components['heading'].h + components['body'].h;
-
-        viewState.components = components;
+        viewState.bBox.h = viewState.components['heading'].h + viewState.components['body'].h
+            + viewState.components['annotation'].h;
+        viewState.bBox.w = viewState.components['body'].w;
 
         const textWidth = util.getTextWidth(node.getAnnotationName());
         viewState.titleWidth = textWidth.w;
@@ -99,8 +58,8 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         viewState.components.closingParameter = {};
         viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
-        let componentWidth = components['heading'].w > components['body'].w
-            ? components['heading'].w : components['body'].w;
+        let componentWidth = viewState.components['heading'].w > viewState.components['body'].w
+            ? viewState.components['heading'].w : viewState.components['body'].w;
 
         viewState.bBox.w = componentWidth +
             this.annotationAttachmentPointWidth(node) +
@@ -121,6 +80,50 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         }
 
         return width;
+    }
+
+    /**
+     * Get the max width among children
+     * @param {object} node - children node to get the max width.
+     * @return {number} maxWidthAmongChildren - Max width among children
+     * */
+    getMaxWidthOfChildren(node) {
+        let maxWidthAmongChildren = 0;
+        node.children.forEach(function (child, index) {
+            if (maxWidthAmongChildren < child.viewState.textLength.w) {
+                maxWidthAmongChildren = child.viewState.textLength.w;
+            }
+        });
+        return maxWidthAmongChildren;
+    }
+
+    /**
+     * Calculate Annotation Attribute Definition Dimension.
+     * @param {object} node - annotation definition node.
+     * */
+    annotationAttributeDefinitionDimension(node) {
+        let bodyHeight = node.viewState.components['body'].h;
+        let bodyWidth = node.viewState.components['body'].w;
+        let maxWidthAmongChildren = this.getMaxWidthOfChildren(node);
+        node.children.forEach(function (child, index) {
+            bodyHeight += child.viewState.bBox.h
+                + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
+
+            if (maxWidthAmongChildren > child.viewState.bBox.w) {
+                child.viewState.bBox.w = maxWidthAmongChildren
+                    + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
+            }
+
+            if (child.viewState.bBox.w > bodyWidth) {
+                bodyWidth = child.viewState.bBox.w;
+            }
+        });
+
+        if (node.viewState.collapsed) {
+            node.viewState.components['body'].h = 0;
+        } else {
+            node.viewState.components['body'].h = bodyHeight;
+        }
     }
 }
 

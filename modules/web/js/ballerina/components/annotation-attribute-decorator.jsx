@@ -19,11 +19,10 @@
 import React from 'react';
 import _ from 'lodash';
 import './annotation-definition.css';
-import ImageUtil from './image-util';
 import Alerts from 'alerts';
-import Renderer from './renderer';
 import PropTypes from 'prop-types';
 import EditableText from './editable-text';
+import * as DesignerDefaults from './../configs/designer-defaults';
 
 const DEFAULT_INPUT_VALUE = "+ Add Attribute";
 
@@ -145,12 +144,18 @@ class AnnotationAttributeDecorator extends React.Component {
         return (
             <g className="attribute-content-operations-wrapper">
                 <g onClick={() => this.onClickVariableTextBox()}>
-                    <rect x={bBox.x + 50} y={bBox.y + 50} width={330} height={30}
+                    <rect x={bBox.x + DesignerDefaults.panel.body.padding.left}
+                          y={bBox.y + DesignerDefaults.panel.heading.height
+                          + DesignerDefaults.panel.body.padding.top}
+                          width={DesignerDefaults.annotationAttributeDefinition.heading.width}
+                          height={DesignerDefaults.annotationAttributeDefinition.heading.height}
                           className="annotation-input"/>
-                    <EditableText x={bBox.x + 50}
-                                  y={bBox.y + 65}
-                                  width={331}
-                                  height={31}
+                    <EditableText x={bBox.x + DesignerDefaults.panel.body.padding.left}
+                                  y={bBox.y + DesignerDefaults.annotationAttributeDefinition.text.padding.top
+                                  + DesignerDefaults.panel.heading.height
+                                  + DesignerDefaults.panel.body.padding.top}
+                                  width={DesignerDefaults.annotationAttributeDefinition.text.width}
+                                  height={DesignerDefaults.annotationAttributeDefinition.text.height}
                                   labelClass={"annotation-input-placeholder"}
                                   inputClass={"annotation-input-text-box"}
                                   placeholder={DEFAULT_INPUT_VALUE}

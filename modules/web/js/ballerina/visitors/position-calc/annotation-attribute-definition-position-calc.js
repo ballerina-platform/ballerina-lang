@@ -33,21 +33,26 @@ class AnnotationAttributePositionCalcVisitor {
         let parentViewState = parent.getViewState();
         let parentBBox = parentViewState.bBox;
         let bBox = viewState.bBox;
+        let x, y;
 
         let attributes = _.filter(parent.getChildren(), function (child) {
             return ASTFactory.isAnnotationAttributeDefinition(child);
         });
-
-        let x, y;
+        
         let currentAttributeIndex = _.findIndex(attributes, node);
-
         if (currentAttributeIndex === 0) {
-            x = parentBBox.x + 50;
-            y = parentBBox.y + 50 + 40;
+            x = parentBBox.x + DesignerDefaults.panel.body.padding.left;
+            y = parentBBox.y + DesignerDefaults.panel.heading.height
+                + DesignerDefaults.panel.body.padding.top
+                + DesignerDefaults.annotationAttributeDefinition.body.height
+                + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
         } else if (currentAttributeIndex > 0) {
             let previousAttributeBBox = attributes[currentAttributeIndex - 1].getViewState().bBox;
-            x = parentBBox.x + 50;
-            y = parentBBox.y + 10 + previousAttributeBBox.h + (previousAttributeBBox.y - parentBBox.y);
+            x = parentBBox.x + DesignerDefaults.panel.body.padding.left;
+            y = parentBBox.y
+                + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom
+                + previousAttributeBBox.h
+                + (previousAttributeBBox.y - parentBBox.y);
         }
 
         bBox.x = x;
