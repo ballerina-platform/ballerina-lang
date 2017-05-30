@@ -45,7 +45,12 @@ class ArrayInitExpression extends Expression {
     }
 
     generateExpression() {
-        this._expression = this.getVariableName();
+        var generatedExpression = '[';
+        _.each(this.getChildren(), function (child) {
+            generatedExpression += child.getExpression() + ",";
+        });
+        this.setExpression(generatedExpression.replace(/,\s*$/, "") + ']', {doSilently: true});
+        return this._expression;
     }
 }
 

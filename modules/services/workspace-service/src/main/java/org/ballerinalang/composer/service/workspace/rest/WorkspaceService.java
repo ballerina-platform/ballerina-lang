@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
@@ -99,7 +100,7 @@ public class WorkspaceService {
             return  getErrorResponse(throwable);
         }
     }
-    
+
     @GET
     @Path("/exists")
     @Produces("application/json")
@@ -151,7 +152,7 @@ public class WorkspaceService {
             return getErrorResponse(throwable);
         }
     }
-    
+
     @GET
     @Path("/listFiles")
     @Produces("application/json")
@@ -187,12 +188,14 @@ public class WorkspaceService {
             if (splitConfigContent.length > 1) {
                 config = splitConfigContent[1];
             }
-            byte[] base64Config = Base64.getDecoder().decode(config);
+
             byte[] base64ConfigName = Base64.getDecoder().decode(configName);
             byte[] base64Location = Base64.getDecoder().decode(location);
+            byte[] configDecoded = URLDecoder.decode(config, "UTF-8").getBytes("UTF-8");
             Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
                                   System.getProperty(FILE_SEPARATOR) +
-                                  new String(base64ConfigName, Charset.defaultCharset())), base64Config);
+                                  new String(base64ConfigName, Charset.defaultCharset())),
+                    configDecoded);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*').type
@@ -202,7 +205,7 @@ public class WorkspaceService {
             return getErrorResponse(throwable);
         }
     }
-    
+
     @POST
     @Path("/read")
     @Produces("application/json")
@@ -216,7 +219,7 @@ public class WorkspaceService {
             return getErrorResponse(throwable);
         }
     }
-    
+
     @POST
     @Path("/log")
     @Produces("application/json")

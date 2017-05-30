@@ -1666,6 +1666,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     }
 
     node.setLineNumber(jsonNode.line_number, {doSilently: true});
+    if(jsonNode.is_identifier_literal) {
+        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, {doSilently: true});
+    }
 
     if (!_.isNil(jsonNode.whitespace_descriptor)) {
         node.setWhiteSpaceDescriptor(jsonNode.whitespace_descriptor, {doSilently: true});

@@ -35,7 +35,7 @@ class BinaryExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
+        this.setExpression(this.generateExpressionFromJson(jsonNode), {doSilently: true});
     }
 
     /**
@@ -44,7 +44,7 @@ class BinaryExpression extends Expression {
      * @return {string} - Arguments as a string.
      * @private
      */
-    generateExpressionString(jsonNode) {
+    generateExpressionFromJson(jsonNode) {
         var self = this;
         var expString = "";
         if(!_.isNil(jsonNode.children[0]) && !_.isNil(jsonNode.children[1])){
@@ -54,7 +54,12 @@ class BinaryExpression extends Expression {
             rightExpression.initFromJson(jsonNode.children[1]);
             expString = leftExpression.getExpression() + " " + this.getOperator() + " " + rightExpression.getExpression();
         }
+        this._expression = expString;
         return expString;
+    }
+
+    generateExpression() {
+        return this._expression;
     }
 
     getOperator() {

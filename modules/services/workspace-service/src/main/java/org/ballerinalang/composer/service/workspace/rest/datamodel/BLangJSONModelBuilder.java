@@ -651,7 +651,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(variableDefObj, variableDef.getWhiteSpaceDescriptor());
         variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .VARIABLE_DEFINITION);
-        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getName());
+        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getIdentifier().getName());
+        variableDefObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL,
+                variableDef.getIdentifier().isLiteral());
         variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().toString());
         variableDefObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, variableDef.getTypeName().getPackageName());
         tempJsonArrayRef.peek().add(variableDefObj);
@@ -1322,8 +1324,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         if (variableRefExpr.getVariableDef() != null) {
             tempJsonArrayRef.push(new JsonArray());
             variableRefExpr.getVariableDef().accept(this);
+            variableRefObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL,
+                    variableRefExpr.getVariableDef().getIdentifier().isLiteral());
             variableRefObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
+        } else if (StringUtils.containsWhitespace(variableRefExpr.getSymbolName().getName())) {
+            variableRefObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL, true);
         }
         tempJsonArrayRef.peek().add(variableRefObj);
 
