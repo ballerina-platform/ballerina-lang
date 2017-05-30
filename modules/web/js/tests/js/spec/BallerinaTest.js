@@ -64,9 +64,6 @@ describe ('Ballerina Composer Test Suite', function() {
         it (testFile.replace(/^.*[\\\/]/, '') + ' file serialize/deserialize test', function() {
             var expectedSource = readFile(testFile);
             var generatedSource = ballerinaASTDeserializer(expectedSource)
-            expectedSource = expectedSource.replace(/\s/g, '');
-            generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,'');
-            generatedSource = generatedSource.replace(/\s/g, '');
             if (generatedSource !== expectedSource) {
                 log.error('error');
             }
