@@ -17,7 +17,8 @@
 }
 .property-name {
     padding: 5px;
-    color: #3d3d3d;
+    font-size: 0.94em;
+    color: #666769;
 }
 
 .property-type {
@@ -63,8 +64,8 @@
 }
 .property {
     padding: 5;
-    font-size: 16px;
-    color: black;
+    font-size: 0.94em;
+    color: #666769;
 }
 
 svg.plumbConnect path {
@@ -86,11 +87,12 @@ svg.plumbConnect path {
 
 .func {
     border: 1px solid gray;
-    width: 400px;
+    width: 300px;
     height: auto;
-    background: #3d3d3d;
+    background: #666769;
     color: #ffffff;
     position: absolute;
+    font-size: 0.94em;
 }
 
 .func-property {
@@ -98,7 +100,7 @@ svg.plumbConnect path {
     font-size: 16px;
     background-color: #ffffff;
     border: 2px;
-    color: black;
+    color: #666769;
 }
 
 .func-in-property {
@@ -106,7 +108,7 @@ svg.plumbConnect path {
     font-size: 16px;
     background-color: #ffffff;
     border: 2px;
-    color: black;
+    color: #666769;
     cursor: pointer;
 }
 
@@ -115,7 +117,7 @@ svg.plumbConnect path {
     font-size: 16px;
     background-color: #ffffff;
     border: 2px;
-    color: black;
+    color: #666769;
     cursor: pointer;
 }
 
@@ -125,13 +127,13 @@ svg.plumbConnect path {
 
 .transformContextMenu {
     position:fixed;
-    border: 1px solid black;
+    border: 1px solid #666769;
     padding:5px;
     display:none;
 }
 
 .func-output {
-    width:200px;
+    width:150px;
     height:calc(100% - 33px);
     border: 0.5px solid gray;
     border-top: none;
@@ -224,4 +226,9 @@ svg.plumbConnect path {
     background-color:#343434;
     font-size: 16px;
     width: 27px;
+}
+
+.type-mapper-con-remove {
+    font-size: 0.94em;
+    color: #666769;
 }

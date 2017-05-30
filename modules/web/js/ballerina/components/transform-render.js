@@ -59,7 +59,7 @@ class TransformRender
         PaintStyle: {
             strokeWidth: 2,
             //todo : load colors from css
-            stroke: "#3d3d3d",
+            stroke: "#666769",
             cssClass: "plumbConnect",
             outlineStroke: "#F7F7F7",
             outlineWidth: 2
@@ -92,7 +92,7 @@ class TransformRender
     $('#' + self.contextMenu).hide();
         this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
         var contextMenuDiv = $('#' + self.contextMenu);
-        var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
+        var anchorTag = $('<a>').attr('id', 'typeMapperConRemove').attr('class', 'type-mapper-con-remove');
         anchorTag.html($('<i>').addClass('fw fw-delete'));
         anchorTag.html( anchorTag.html() + " Remove");
         contextMenuDiv.html(anchorTag);
@@ -427,7 +427,11 @@ addSourceType(struct, reference) {
  */
 processJSTree(jsTreeId, structId, createCallback) {
     var self = this;
-    $("#" + jsTreeId).jstree().on('ready.jstree', () => {
+    //Disable jstree collapsing
+    $.jstree.plugins.noclose = function () {
+        this.close_node = $.noop;
+    };
+    $("#" + jsTreeId).jstree({'plugins': ["noclose"]}).on('ready.jstree', () => {
         var sourceElements = $("#" + structId).find('.jstree-anchor');
     _.forEach(sourceElements, element => {
         createCallback(element, self);
@@ -556,12 +560,10 @@ addFunction(func, reference, onFunctionRemove) {
         var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
         var outputContent = $('<div>').attr('id', id + "func-output").addClass('func-output');
 
-        var square = $('<i>').addClass('fw fw-square fw-stack-1x');
         var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
 
         funcName.append(funcIcon);
         funcName.append($('<span>').text(funcText));
-        closeButton.append(square);
         closeButton.append(del);
         funcName.append(closeButton);
         newFunc.append(funcName);
@@ -865,10 +867,10 @@ return connections;
 reposition(self) {
 var funcs = $("#" + self.placeHolderName + "> .func");
 var structs = $("#" + self.placeHolderName + "> .struct");
-var xPointer = 650;
-var yPointer = 200;
-var bottomGap = 50;
-var functionGap = 20;
+var xPointer = 700;
+var yPointer = 180;
+var bottomGap = 0;
+var functionGap = 30;
 var svgLines = $("#" + self.placeHolderName + "> svg");
 var typeMapperHeight = 0;
 
