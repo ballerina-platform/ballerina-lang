@@ -2,7 +2,7 @@
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ * Version 2.0 (the 'License'); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -10,7 +10,7 @@
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
@@ -25,14 +25,11 @@ import fs from 'fs';
 import { expect } from 'chai';
 import path from 'path';
 
-var testFileList = require('../../resources/BalList.json');
-
-var getModelBackend = "http://localhost:8289/ballerina/model/content";
-var getFileContentBackend = "http://localhost:8289/service/workspace";
+var getModelBackend = 'http://localhost:8289/ballerina/model/content';
 
 //Ballerina AST Deserializer
 function ballerinaASTDeserializer(fileContent){
-    var backend = new Backend({"url" : getModelBackend})
+    var backend = new Backend({'url' : getModelBackend})
     var response = backend.parse(fileContent);
     var ASTModel = BallerinaASTDeserializer.getASTModel(response);
     var sourceGenVisitor = new BallerinaASTRootVisitor();
@@ -45,23 +42,32 @@ function readFile(filePath){
     return fs.readFileSync(filePath, 'utf8');
 }
 
-var sourceList = testFileList.sources.source;
+// List all files in a directory in Node.js recursively in a synchronous fashion
+function findBalFilesInDirSync(dir, filelist) {
+    let files = fs.readdirSync(dir);
+    filelist = filelist || [];
+    files.forEach(function(file) {
+        if (fs.statSync(path.join(dir, file)).isDirectory()) {
+            filelist = findBalFilesInDirSync(path.join(dir, file), filelist);
+        }
+        else if (path.extname(file) === '.bal') {
+            filelist.push(path.join(dir, file));
+        }
+    });
+    return filelist;
+}
 
-describe("Ballerina Composer Test Suite", function() {
-    sourceList.forEach(function(testFile) {
-
-        // TODO: following path resolution only works if tests are run from the root directory of the project
-        // To avoid that we need to use __dirname or __filename
-        // but mocha-webpack does not seem to provide correct values for them. So using path.resolve for now.
-        var sourceFile = path.resolve(path.join('js', 'tests', 'resources', testFile));
-
-        it(sourceFile.replace(/^.*[\\\/]/, '') + " file serialize/deserialize test", function() {
-            var expectedSource = readFile(sourceFile);
+describe ('Ballerina Composer Test Suite', function() {
+    let testResDir = path.resolve(path.join('js', 'tests', 'resources'));
+    let testFiles = findBalFilesInDirSync(testResDir);
+    testFiles.forEach(function(testFile) {
+        it (testFile.replace(/^.*[\\\/]/, '') + ' file serialize/deserialize test', function() {
+            var expectedSource = readFile(testFile);
             var generatedSource = ballerinaASTDeserializer(expectedSource)
             expectedSource = expectedSource.replace(/\s/g, '');
-            generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,"");
+            generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,'');
             generatedSource = generatedSource.replace(/\s/g, '');
-            if(generatedSource!=expectedSource){
+            if (generatedSource !== expectedSource) {
                 log.error('error');
             }
             expect(generatedSource).to.equal(expectedSource);
