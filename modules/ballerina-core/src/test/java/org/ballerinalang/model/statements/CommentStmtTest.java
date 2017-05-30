@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
 public class CommentStmtTest {
 
     @Test(description = "Test the comment statement in the function body")
-    public void testCommentInFunctionBody() {
+    public void testCommentInFunctionBody() { //todo
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
         Statement[] statements = bLangProgram.getLibraryPackages()[0]
                 .getFunctions()[0].getCallableUnitBody().getStatements();
@@ -52,6 +52,6 @@ public class CommentStmtTest {
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "comment-in-invalid-location.bal:1:0: unwanted token '//invalid .*")
     public void testCommentInInvalidLocation() {
-        BTestUtils.parseBalFile("lang/statements/comment/comment-in-invalid-location.bal");
+        BTestUtils.getProgramFile("lang/statements/comment/comment-in-invalid-location.bal");
     }
 }
