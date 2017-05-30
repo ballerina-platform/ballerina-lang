@@ -141,19 +141,23 @@ class AnnotationAttributeDecorator extends React.Component {
 
     render() {
         let bBox = this.props.bBox;
+        let editableBox_x = bBox.x + DesignerDefaults.panel.body.padding.left;
+        let editableBox_y = bBox.y + DesignerDefaults.annotationAttributeDefinition.text.padding.top
+            + DesignerDefaults.panel.heading.height
+            + DesignerDefaults.panel.body.padding.top;
+        let editBoxRect_x = bBox.x + DesignerDefaults.panel.body.padding.left;
+        let editBoxRect_y = bBox.y + DesignerDefaults.panel.heading.height
+            + DesignerDefaults.panel.body.padding.top;
         return (
             <g className="attribute-content-operations-wrapper">
                 <g onClick={() => this.onClickVariableTextBox()}>
-                    <rect x={bBox.x + DesignerDefaults.panel.body.padding.left}
-                          y={bBox.y + DesignerDefaults.panel.heading.height
-                          + DesignerDefaults.panel.body.padding.top}
+                    <rect x={editBoxRect_x}
+                          y={editBoxRect_y}
                           width={DesignerDefaults.annotationAttributeDefinition.heading.width}
                           height={DesignerDefaults.annotationAttributeDefinition.heading.height}
                           className="annotation-input"/>
-                    <EditableText x={bBox.x + DesignerDefaults.panel.body.padding.left}
-                                  y={bBox.y + DesignerDefaults.annotationAttributeDefinition.text.padding.top
-                                  + DesignerDefaults.panel.heading.height
-                                  + DesignerDefaults.panel.body.padding.top}
+                    <EditableText x={editableBox_x}
+                                  y={editableBox_y}
                                   width={DesignerDefaults.annotationAttributeDefinition.text.width}
                                   height={DesignerDefaults.annotationAttributeDefinition.text.height}
                                   labelClass={"annotation-input-placeholder"}
@@ -164,14 +168,14 @@ class AnnotationAttributeDecorator extends React.Component {
                                       this.onKeyDown(e);
                                   }}
                                   onBlur={e => {
-                                      this.onInputBlur(e)
+                                      this.onInputBlur(e);
                                   }}
                                   onClick={() => {
-                                      this.onClickVariableTextBox()
+                                      this.onClickVariableTextBox();
                                   }}
                                   editing={this.state.editing}
                                   onChange={e => {
-                                      this.onInputChange(e)
+                                      this.onInputChange(e);
                                   }}>
                         {this.state.editValue}
                     </EditableText>
