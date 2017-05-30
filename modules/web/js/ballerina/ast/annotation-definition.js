@@ -28,6 +28,57 @@ class AnnotationDefinition extends ASTNode {
         super('AnnotationDefinition');
         this._annotationName = _.get(args, 'annotationName');
         this._attachmentPoints = _.get(args, 'attachmentPoints', []);
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: '\n',
+            4: '\n'
+        }
+        this.whiteSpace.defaultDescriptor.children = {
+            'attachmentPoints': {
+                'service': {
+                    0: ' ',
+                    1: ''
+                },
+                'resource': {
+                    0: ' ',
+                    1: ''
+                },
+                'connector': {
+                    0: ' ',
+                    1: ''
+                },
+                'action': {
+                    0: ' ',
+                    1: ''
+                },
+                'function': {
+                    0: ' ',
+                    1: ''
+                },
+                'typemapper': {
+                    0: ' ',
+                    1: ''
+                },
+                'struct': {
+                    0: ' ',
+                    1: ''
+                },
+                'const': {
+                    0: ' ',
+                    1: ''
+                },
+                'parameter': {
+                    0: ' ',
+                    1: ''
+                },
+                'annotation': {
+                    0: ' ',
+                    1: ''
+                },
+            }
+        }
     }
 
     setAnnotationName(annotationName, options) {
