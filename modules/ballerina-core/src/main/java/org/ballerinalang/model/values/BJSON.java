@@ -286,4 +286,9 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         void serialize(JsonGenerator gen, SerializerProvider serializerProvider) throws IOException;
 
     }
+    
+    @Override
+    public BValue copy() {
+        return new BJSON(this.stringValue());
+    }
 }

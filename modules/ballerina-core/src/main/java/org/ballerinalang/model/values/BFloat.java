@@ -62,4 +62,9 @@ public final class BFloat extends BValueType {
     public boolean equals(Object obj) {
         return ((BFloat) obj).floatValue() == value;
     }
+    
+    @Override
+    public BValue copy() {
+        return new BFloat(value);
+    }
 }

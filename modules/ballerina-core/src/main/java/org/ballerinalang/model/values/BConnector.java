@@ -61,4 +61,9 @@ public final class BConnector implements BRefType<Connector> {
     public BType getType() {
         return BTypes.typeConnector;
     }
+    
+    @Override
+    public BValue copy() {
+        return null;
+    }
 }

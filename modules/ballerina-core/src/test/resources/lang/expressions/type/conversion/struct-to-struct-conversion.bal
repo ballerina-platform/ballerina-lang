@@ -10,14 +10,19 @@ struct Person {
     boolean alive;
 }
 
-function testStructToJson() (json) {
-    Person p = { name:"Child", 
+struct Student {
+    string name;
+    int age;
+}
+
+function testStructToStruct() (Student) {
+    Person p = { name:"Supun", 
                  age:25, 
                  parent:{name:"Parent", age:50}, 
-                 address:{"city":"Colombo", "country":"SriLanka"}, 
+                 address:{"city":"Kandy", "country":"SriLanka"}, 
                  info:{status:"single"},
-                 marks:[87,94,72]
+                 marks:[24, 81]
                };
-    json j = (json) p;
-    return j;
+    Student s = <Student> p ;
+    return s;
 }

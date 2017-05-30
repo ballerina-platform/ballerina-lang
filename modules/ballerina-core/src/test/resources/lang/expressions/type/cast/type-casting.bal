@@ -1,3 +1,5 @@
+import ballerina.lang.errors;
+
 function floattoint(float value)(int) {
     int result;
     result = (int)value;
@@ -102,7 +104,7 @@ function testStructToStruct() (Student) {
                  info:{status:"single"},
                  marks:[24, 81]
                };
-    return p;
+    return (Student) p;
 }
 
 function testJsonIntToString() (string) {
@@ -162,7 +164,7 @@ function testNullJsonToBoolean() (boolean) {
 
 function testNullStructToStruct() (Student) {
     Person p;
-    return p;
+    return (Student) p;
 }
 
 function testAnyIntToJson() (json) {
@@ -278,4 +280,130 @@ function testStructToAnyExplicit() (any) {
 function testMapToAnyExplicit() (any) {
     map m = {name:"supun"};
     return (any) m;
+}
+
+struct A {
+    string x;
+    int y;
+}
+
+struct B {
+    string x;
+}
+
+function testCompatibleStructForceCasting()(A, errors:CastError) {
+    A a = {x: "x-valueof-a", y:4};
+    B b = {x: "x-valueof-b"};
+    A c;
+    
+    b = (B) a;
+    errors:CastError err;
+    c, err = (A) b;
+    
+    a.x = "updated-x-valueof-a";
+    return c, err;
+}
+
+function testInCompatibleStructForceCasting()(A, errors:CastError) {
+    B b = {x: "x-valueof-b"};
+    A a;
+    errors:CastError err;
+    a, err = (A) b;
+    
+    return a, err;
+}
+
+function testAnyToStringWithErrors()(string, errors:CastError) {
+    any a = 5; 
+    string s;
+    errors:CastError err;
+    s, err = (string) a;
+    
+    return s, err;
+}
+
+function testAnyNullToStringWithErrors()(string, errors:CastError) {
+    any a = null; 
+    string s;
+    errors:CastError err;
+    s, err = (string) a;
+    
+    return s, err;
+}
+
+function testAnyToBooleanWithErrors()(boolean, errors:CastError) {
+    any a = 5; 
+    boolean b;
+    errors:CastError err;
+    b, err = (boolean) a;
+    
+    return b, err;
+}
+
+function testAnyNullToBooleanWithErrors()(boolean, errors:CastError) {
+    any a = null; 
+    boolean b;
+    errors:CastError err;
+    b, err = (boolean) a;
+    
+    return b, err;
+}
+
+function testAnyToIntWithErrors()(int, errors:CastError) {
+    any a = "foo"; 
+    int b;
+    errors:CastError err;
+    b, err = (int) a;
+    
+    return b, err;
+}
+
+function testAnyNullToIntWithErrors()(int, errors:CastError) {
+    any a = null; 
+    int b;
+    errors:CastError err;
+    b, err = (int) a;
+    
+    return b, err;
+}
+
+function testAnyToFloatWithErrors()(float, errors:CastError) {
+    any a = "foo"; 
+    float b;
+    errors:CastError err;
+    b, err = (float) a;
+    
+    return b, err;
+}
+
+function testAnyNullToFloatWithErrors()(float, errors:CastError) {
+    any a = null; 
+    float b;
+    errors:CastError err;
+    b, err = (float) a;
+    
+    return b, err;
+}
+
+function testAnyToMapWithErrors()(map, errors:CastError) {
+    any a = "foo"; 
+    map b;
+    errors:CastError err;
+    b, err = (map) a;
+    
+    return b, err;
+}
+
+function testErrorInForceCasting()(A, errors:Error) {
+    B b = {x: "x-valueof-b"};
+    A a;
+    errors:CastError castError;
+    a, castError = (A) b;
+    
+    errors:Error error;
+    if (castError != null) {
+        error = (errors:Error) castError;
+    }
+    
+    return a, error;
 }

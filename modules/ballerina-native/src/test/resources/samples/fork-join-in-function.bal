@@ -9,8 +9,6 @@ function testForkJoinAll(message m)(message[]) {
         float y = 1000.5;
         system:println("Airfare ");
         system:println(y);
-        map mm = {"name":"chanaka", "age":"32"};
-        system:println(mm["name"]);
 
         fork {
             worker ABC_Airline {
@@ -18,7 +16,6 @@ function testForkJoinAll(message m)(message[]) {
                 payload = {"name":"abc"};
                 message m1 = messages:clone(m);
                 messages:setJsonPayload(m1, payload);
-                mm["name"] = "wso2";
                 //x = 100;
                 //system:println(mm["name"]);
                 x = 234;
@@ -39,7 +36,6 @@ function testForkJoinAll(message m)(message[]) {
             results[1] = (message) airlineResponses[1][0];
             system:println(results[0]);
             system:println(results[1]);
-            system:println(mm["name"]);
             x = 999;
             //return airlineResponses;
         } timeout (30000) (any[][] airlineResponses) {
@@ -172,21 +168,22 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
         }
 }
 
-function testForkJoinWithoutTimeoutExpression()(map m) {
-    m = {"name":"Abhaya", "era":"Anuradhapura"};
+function testForkJoinWithoutTimeoutExpression()(int, float) {
+    int x;
+    float y;
     fork {
     worker W1 {
-    system:println(m["name"]);
-    m["time"] = "120 BC";
+    100 -> fork;
     }
     worker W2 {
-    system:println(m["name"]);
-    m["period"] = "30 years";
+    1.23 -> fork;
     }
     } join (all) (any[][] results) {
-    system:println(m["time"]);
-    system:println(m["period"]);
+    x = (int)results[0][0];
+    y = (float)results[1][0];
+    system:println(x);
+    system:println(y);
     }
     system:println("After the fork-join statement");
-    return m;
+    return x, y;
 }
