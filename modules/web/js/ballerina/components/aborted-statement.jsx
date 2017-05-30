@@ -28,9 +28,9 @@ class AbortedStatement extends React.Component {
     render() {
         let model = this.props.model;
         let bBox = model.viewState.bBox;
-        let titleViewState = model.viewState.title;
+        let titleWidth = model.viewState.titleWidth;
         let children = getComponentForNodeArray(model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleViewState={titleViewState}
+        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
                                          title={"Aborted"}>
             {children}
         </BlockStatementDecorator>);

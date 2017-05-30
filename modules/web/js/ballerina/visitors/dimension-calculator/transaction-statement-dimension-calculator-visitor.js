@@ -38,13 +38,7 @@ class TransactionStatementDimensionCalculatorVisitor {
 
         /// Calculate the title width and height as to the keyword width.
         let viewState = node.getViewState();
-        viewState.title = {
-            w: 0,
-            h: 0
-        };
-
-        viewState.title.w = util.getTextWidth("Transaction").w;
-        viewState.title.h = blockStatement.heading.height;
+        viewState.titleWidth = util.getTextWidth("Transaction").w;
     }
 }
 
