@@ -79,6 +79,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected static final String ATTACHMENT_POINTS = "attachmentPoints";
     protected static final String B_KEYWORD_ACTION = "action";
     public static final String NAME_REF = "nameRef";
+    public static final String TYPE_NAME = "typeName";
 
     protected String fileName;
     protected String packageDirPath;
@@ -1741,6 +1742,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getTypeCastingExpWS(tokenStream, ctx);
+            whiteSpaceDescriptor.addChildDescriptor(TYPE_NAME, typeNameStack.peek().getWhiteSpaceDescriptor());
         }
         modelBuilder.createTypeCastExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop());
     }
