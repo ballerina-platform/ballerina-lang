@@ -1170,6 +1170,7 @@ public class BallerinaPsiImplUtil {
             }
         }
 
-        return BallerinaPsiImplUtil.resolveElement(scopeNode, element, "//variableDefinitionStatement/Identifier");
+        return BallerinaPsiImplUtil.resolveElement(scopeNode, element, "//variableDefinitionStatement/Identifier",
+                "//parameter/Identifier");
     }
 }
