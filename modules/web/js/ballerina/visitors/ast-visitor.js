@@ -49,8 +49,6 @@ class ASTVisitor extends EventChannel {
             return this.canVisitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.canVisitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.canVisitAssignment(node);
         } else if( ASTFactory.isFunctionInvocationExpression(node)){
             return this.canVisitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
@@ -110,8 +108,6 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.beginVisitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.beginVisitAssignment(node);
         } else if(ASTFactory.isFunctionInvocationExpression(node)){
             return this.beginVisitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
@@ -171,8 +167,6 @@ class ASTVisitor extends EventChannel {
             return this.visitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.visitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.visitAssignment(node);
         } else if(ASTFactory.isFunctionInvocationExpression(node)){
             return this.visitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
@@ -233,8 +227,6 @@ class ASTVisitor extends EventChannel {
             return this.endVisitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.endVisitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.endVisitAssignment(node);
         } else if(ASTFactory.isFunctionInvocationExpression(node)) {
             return this.endVisitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
