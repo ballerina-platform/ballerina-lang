@@ -17,14 +17,19 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
@@ -39,9 +44,21 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
             return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
         } else if (element.getParent() instanceof StatementNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        }else if (element.getParent() instanceof NameReferenceNode) {
+        } else if (element.getParent() instanceof NameReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
         }
         return null;
+    }
+
+    @Override
+    public ItemPresentation getPresentation() {
+        return new BallerinaItemPresentation(getNameIdentifier()) {
+
+            @Nullable
+            @Override
+            public Icon getIcon(boolean unused) {
+                return BallerinaIcons.STRUCT;
+            }
+        };
     }
 }
