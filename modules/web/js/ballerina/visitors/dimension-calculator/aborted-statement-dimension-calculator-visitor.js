@@ -37,15 +37,9 @@ class AbortedStatementDimensionCalculatorVisitor {
         log.debug('end visit AbortedStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
 
-        /// Calculate the title width and height as to the keyword width.
+        /// Calculate the title width as to the keyword width.
         let viewState = node.getViewState();
-        viewState.title = {
-            w: 0,
-            h: 0
-        };
-
-        viewState.title.w = util.getTextWidth("Aborted").w;
-        viewState.title.h = blockStatement.heading.height;
+        viewState.titleWidth = util.getTextWidth("Aborted").w;
     }
 }
 

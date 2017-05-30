@@ -31,8 +31,9 @@ class BlockStatementDecorator extends React.Component {
         let title_h = blockStatement.heading.height;
         let title_w = blockStatement.heading.width;
 
-        if (this.props.titleViewState) {
-            title_w = this.props.titleViewState.w;
+        // If Available get the title width from given props.
+        if (this.props.titleWidth) {
+            title_w = this.props.titleWidth;
         }
 
         let p1_x = bBox.x;
