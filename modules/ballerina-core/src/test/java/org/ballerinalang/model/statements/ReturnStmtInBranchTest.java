@@ -18,9 +18,9 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,11 +33,11 @@ import org.testng.annotations.Test;
  */
 public class ReturnStmtInBranchTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/returnstmt/return-stmt-in-branches.bal");
+        programFile = BTestUtils.getProgramFile("lang/statements/returnstmt/return-stmt-in-branches.bal");
     }
 
 //    @Test(description = "Test Return statements in branches")
@@ -56,7 +56,7 @@ public class ReturnStmtInBranchTest {
     public void testReturnStmtInBranches2() {
         BValue[] args = {new BInteger(9), new BInteger(10)};
 
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "returnStmtBranch2", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "returnStmtBranch2", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
