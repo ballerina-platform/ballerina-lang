@@ -58,22 +58,15 @@ class VariableReferenceExpression extends Expression {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-        let refName;
-        if (jsonNode.is_identifier_literal) {
-            refName = `|${jsonNode.variable_reference_name}|`;
-        } else {
-            refName = jsonNode.variable_reference_name;
-        }
-        this.setVariableName(refName, {doSilently: true});
+        this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
         this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
     generateExpression() {
         var varDef = this.findChild(this.getFactory().isVariableDefinition);
         if (!_.isNil(varDef)) {
-            const varName = varDef.is_identifier_literal ? varDef.getName() : `|${varDef.getName()}|`;
             return (!_.isNil(varDef.getPkgPath()) ?
-                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varName;
+                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
         } else {
             return this.getVariableName();
         }
