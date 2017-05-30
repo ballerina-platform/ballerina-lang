@@ -18,8 +18,6 @@
 
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 import {util} from '../sizing-utils';
 
 class AnnotationAttributeDimensionCalculatorVisitor {
@@ -40,8 +38,8 @@ class AnnotationAttributeDimensionCalculatorVisitor {
         let viewState = node.getViewState();
         let components = {};
 
-        viewState.bBox.h = 30;
-        viewState.bBox.w = 300;
+        viewState.bBox.h = DesignerDefaults.annotationAttributeDefinition.body.height;
+        viewState.bBox.w = DesignerDefaults.annotationAttributeDefinition.body.width;
         viewState.textLength = util.getTextWidth(node.getAttributeStatementString(), viewState.bBox.w, 500);
 
         viewState.components = components;

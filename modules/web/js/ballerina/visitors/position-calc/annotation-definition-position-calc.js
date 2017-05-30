@@ -17,11 +17,9 @@
  */
 
 import log from 'log';
-import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import ASTFactory from './../../ast/ballerina-ast-factory';
-import {panel} from './../../configs/designer-defaults';
 import {util} from './../sizing-utils';
+import * as PositioningUtils from './utils';
 
 class AnnotationDefinitionPositionCalcVisitor {
     /**
@@ -35,49 +33,15 @@ class AnnotationDefinitionPositionCalcVisitor {
 
     beginVisit(node) {
         let viewState = node.getViewState();
-        let bBox = viewState.bBox;
-        let parent = node.getParent();
-        let panelChildren = parent.filterChildren(function (child) {
-            return ASTFactory.isFunctionDefinition(child) ||
-                ASTFactory.isServiceDefinition(child) ||
-                ASTFactory.isConnectorDefinition(child) ||
-                ASTFactory.isAnnotationDefinition(child) ||
-                ASTFactory.isStructDefinition(child) ||
-                ASTFactory.isPackageDefinition(child);
-        });
-
-        let heading = viewState.components.heading;
-        let body = viewState.components.body;
-        let currentAnnotationIndex = _.findIndex(panelChildren, node);
-        let x, y, headerX, headerY, bodyX, bodyY;
-        if (currentAnnotationIndex === 0) {
-            headerX = DesignerDefaults.panel.wrapper.gutter.h;
-            headerY = DesignerDefaults.panel.wrapper.gutter.v;
-        } else if (currentAnnotationIndex > 0) {
-            let previousServiceBBox = panelChildren[currentAnnotationIndex - 1].getViewState().bBox;
-            headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
-            headerX = DesignerDefaults.panel.wrapper.gutter.h;
-        } else {
-            throw 'Invalid Index for Annotation Definition';
-        }
-
-        x = headerX;
-        y = headerY;
-        bodyX = headerX;
-        bodyY = headerY + heading.h;
-
-        bBox.x = x;
-        bBox.y = y;
-        heading.x = headerX;
-        heading.y = headerY;
-        body.x = bodyX;
-        body.y = bodyY;
+        PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
 
         /// Positioning parameters
         // Setting positions of function parameters.
         // Positioning the opening bracket component of the parameters.
-        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth
-            + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding;
+        viewState.components.openingParameter.x = viewState.bBox.x
+            + viewState.titleWidth
+            + DesignerDefaults.panelHeading.iconSize.width
+            + DesignerDefaults.panelHeading.iconSize.padding;
         viewState.components.openingParameter.y = viewState.bBox.y;
 
         viewState.attachments = {};
@@ -143,7 +107,8 @@ class AnnotationDefinitionPositionCalcVisitor {
         };
         viewState.attachments[attachment.attachment] = childViewState;
 
-        return (x + util.getTextWidth(attachment.attachment, 0).w) + childViewState.viewState.components.deleteIcon.w;
+        return (x + util.getTextWidth(attachment.attachment, 0).w)
+            + childViewState.viewState.components.deleteIcon.w;
     }
 }
 

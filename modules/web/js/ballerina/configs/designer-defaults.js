@@ -179,6 +179,27 @@ export const structDefinition = {
     }
 };
 
+export const annotationAttributeDefinition = {
+    heading: {
+        height: 30,
+        width: 330
+    },
+    text: {
+        padding: {
+            top: 15
+        },
+        width: 331,
+        height: 31
+    },
+    body: {
+        width: 300,
+        height: 30,
+        padding: {
+            bottom: 10
+        }
+    }
+};
+
 export const contentOperations = {
     height: 45,
     width: 600,
