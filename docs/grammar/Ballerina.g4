@@ -381,11 +381,15 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' abortedClause
+    :   'transaction' '{' statement* '}' abortedClause committedClause
     ;
 
 abortedClause
     :   'aborted' '{' statement* '}'
+    ;
+
+committedClause
+    :   'committed' '{' statement* '}'
     ;
 
 abortStatement

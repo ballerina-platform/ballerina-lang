@@ -669,6 +669,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         TransactionRollbackStmtEndNode endNode = new TransactionRollbackStmtEndNode(transactionStmt);
         Statement transactionBlock = transactionStmt.getTransactionBlock();
         Statement abortedBlock = transactionStmt.getAbortedBlock().getAbortedBlockStmt();
+        Statement committedBlock = transactionStmt.getCommittedBlock().getCommittedBlockStmt();
         // Visit Transaction block.
         transactionBlock.setParent(transactionStmt);
         transactionStmt.setNext(transactionBlock);
@@ -680,6 +681,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Visit Aborted Block.
         abortedBlock.setParent(transactionStmt);
         abortedBlock.accept(this);
+        committedBlock.accept(this);
     }
 
     @Override

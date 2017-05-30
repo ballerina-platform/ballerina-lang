@@ -1373,6 +1373,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         transactionStmtCount++;
         transactionStmt.getTransactionBlock().accept(this);
         transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+        transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
         transactionStmtCount--;
     }
 

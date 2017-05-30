@@ -636,6 +636,8 @@ public class BLangExecutor implements NodeExecutor {
                 ballerinaTransactionManager.rollbackTransactionBlock();
                 inRollbackBlock = true;
                 transactionStmt.getAbortedBlock().getAbortedBlockStmt().execute(this);
+            } else {
+                transactionStmt.getCommittedBlock().getCommittedBlockStmt().execute(this);
             }
         } catch (Exception e) {
             throw new BallerinaException(e);

@@ -1508,6 +1508,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCommittedClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addCommittedClause();
+        }
+    }
+
+    @Override
     public void enterAbortStatement(BallerinaParser.AbortStatementContext ctx) {
 
     }

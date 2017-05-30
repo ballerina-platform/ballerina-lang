@@ -160,8 +160,7 @@ public class BLangModelBuilder {
 
     protected Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
 
-    protected Stack<TransactionStmt.TransactionStmtBuilder> transactionStmtBuilderStack =
-            new Stack<>();
+    protected Stack<TransactionStmt.TransactionStmtBuilder> transactionStmtBuilderStack = new Stack<>();
 
     protected Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
     protected Stack<List<Worker>> workerStack = new Stack<>();
@@ -1675,8 +1674,7 @@ public class BLangModelBuilder {
     }
 
     public void startTransactionhStmt(NodeLocation location) {
-        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder
-                = new TransactionStmt.TransactionStmtBuilder();
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = new TransactionStmt.TransactionStmtBuilder();
         transactionStmtBuilder.setLocation(location);
         transactionStmtBuilderStack.push(transactionStmtBuilder);
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
@@ -1685,8 +1683,7 @@ public class BLangModelBuilder {
     }
 
     public void startAbortedClause(NodeLocation location) {
-        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder =
-                transactionStmtBuilderStack.peek();
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Creating Transaction clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt transactionBlock = blockStmtBuilder.build();
@@ -1702,17 +1699,34 @@ public class BLangModelBuilder {
     }
 
     public void addAbortedClause() {
-        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder =
-                transactionStmtBuilderStack.peek();
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder abortedBlockBuilder = blockStmtBuilderStack.pop();
         BlockStmt abortedBlock = abortedBlockBuilder.build();
         currentScope = abortedBlock.getEnclosingScope();
         transactionStmtBuilder.setAbortedBlockStmt(abortedBlock);
     }
 
+    public void startCommittedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing committed clause.
+        TransactionStmt.CommittedBlock committedBlock = new TransactionStmt.CommittedBlock(currentScope);
+        transactionStmtBuilder.setCommittedBlock(committedBlock);
+        currentScope = committedBlock;
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(committedBlockBuilder);
+        currentScope = committedBlockBuilder.getCurrentScope();
+    }
+
+    public void addCommittedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt committedBlock = committedBlockBuilder.build();
+        currentScope = committedBlock.getEnclosingScope();
+        transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
+    }
+
     public void addTransactionStmt() {
-        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder
-                = transactionStmtBuilderStack.pop();
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
         TransactionStmt transactionStmt = transactionStmtBuilder.build();
         addToBlockStmt(transactionStmt);
     }
