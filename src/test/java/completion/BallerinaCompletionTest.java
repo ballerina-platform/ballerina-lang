@@ -1050,6 +1050,17 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
                 "import org.test; function A(@test:TEST {})", null);
     }
 
+    public void testPackageInvocationInParameter() {
+        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        doTest("import org.test; function A(test:<caret>)", "test");
+    }
+
+    public void testPackageInvocationInParameterAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "struct test {}");
+        doCheckResult("test.bal", "import org.test; function A(test:t<caret>)",
+                "import org.test; function A(test:test)", null);
+    }
+
     // todo - query param annotations
 
     /**
