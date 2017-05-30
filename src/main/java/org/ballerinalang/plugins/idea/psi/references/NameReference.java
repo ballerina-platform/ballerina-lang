@@ -26,7 +26,6 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
@@ -35,10 +34,9 @@ import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -308,10 +306,10 @@ public class NameReference extends BallerinaElementReference {
                             return false;
                         }
                     }
-                    boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
-                    if (!isStructField) {
-                        return isValid((PsiNameIdentifierOwner) definitionElement, refName);
-                    }
+                    //                    boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
+                    //                    if (!isStructField) {
+                    //                        return isValid((PsiNameIdentifierOwner) definitionElement, refName);
+                    //                    }
                 } else {
                     Map<String, String> allImports =
                             BallerinaPsiImplUtil.getAllImportsInAFile(myElement.getContainingFile());
@@ -334,7 +332,9 @@ public class NameReference extends BallerinaElementReference {
                     }
                     return isValid((PsiNameIdentifierOwner) definitionElement, refName);
                 }
-            } else if (definitionElement instanceof ParameterNode) {
+            }
+
+            if (definitionElement instanceof ParameterNode) {
 
                 if (!(myElement.getParent() instanceof NameReferenceNode)) {
                     return false;
@@ -378,12 +378,13 @@ public class NameReference extends BallerinaElementReference {
                 }
 
 
-//                ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(myElement, ExpressionNode.class);
-//                if (expressionNode != null) {
-//                    if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
-//                        return false;
-//                    }
-//                }
+                //                ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(myElement,
+                // ExpressionNode.class);
+                //                if (expressionNode != null) {
+                //                    if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
+                //                        return false;
+                //                    }
+                //                }
                 boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
                 if (!isStructField) {
                     return isValid((PsiNameIdentifierOwner) definitionElement, refName);
@@ -403,6 +404,12 @@ public class NameReference extends BallerinaElementReference {
                         return false;
                     }
                 }
+                FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(myElement,
+                        FunctionInvocationNode.class);
+                if (functionInvocationNode != null) {
+                    return false;
+                }
+
                 boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
                 if (!isStructField) {
                     return isValid((PsiNameIdentifierOwner) definitionElement, refName);
@@ -418,8 +425,17 @@ public class NameReference extends BallerinaElementReference {
                 }
 
                 return resolvedElement.getParent().equals(definitionElement);
-            } else if (definitionElement instanceof NameReferenceNode) {
-
+            } else if (definitionElement instanceof GlobalVariableDefinitionNode) {
+                boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
+                if (!isStructField) {
+                    return isValid((PsiNameIdentifierOwner) definitionElement, refName);
+                }
+            } else if (definitionElement instanceof FunctionDefinitionNode) {
+                FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(myElement,
+                        FunctionInvocationNode.class);
+                if (functionInvocationNode != null) {
+                    return isValid((PsiNameIdentifierOwner) definitionElement, refName);
+                }
             }
         }
         return false;

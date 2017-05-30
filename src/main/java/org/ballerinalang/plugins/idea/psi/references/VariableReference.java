@@ -22,6 +22,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
@@ -44,7 +45,8 @@ public class VariableReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof ParameterNode
-                || def instanceof ConstantDefinitionNode || def instanceof FieldDefinitionNode;
+                || def instanceof ConstantDefinitionNode || def instanceof FieldDefinitionNode
+                || def instanceof GlobalVariableDefinitionNode;
     }
 
     @NotNull
