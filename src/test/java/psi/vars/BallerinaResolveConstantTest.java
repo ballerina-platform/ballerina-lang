@@ -18,22 +18,51 @@ package psi.vars;
 
 import psi.BallerinaResolveTestBase;
 
+import java.io.IOException;
+
 public class BallerinaResolveConstantTest extends BallerinaResolveTestBase {
+
+    private String constant = "const int /*def*/a;";
 
     @Override
     protected String getTestDataPath() {
         return "src/test/resources/testData/psi/resolve/vars/constant";
     }
 
-    public void testConstantInConnector() {
+    public void testConstantInSameFileInConnector() {
         doFileTest();
     }
 
-    public void testConstantInFunction() {
+    public void testConstantInSameFileInFunction() {
         doFileTest();
     }
 
-    public void testConstantInService() {
+    public void testConstantInSameFileInService() {
         doFileTest();
+    }
+
+    public void testConstantInDifferentFileInConnector() throws IOException {
+        doFileTest(constant);
+    }
+
+    public void testConstantInDifferentFileInFunction() throws IOException {
+        doFileTest(constant);
+    }
+
+    public void testConstantInDifferentFileInService() throws IOException {
+        doFileTest(constant);
+    }
+
+
+    public void testConstantInDifferentPackageInConnector() throws IOException {
+        doFileTest(constant, "org/test/test.bal");
+    }
+
+    public void testConstantInDifferentPackageInFunction() throws IOException {
+        doFileTest(constant, "org/test/test.bal");
+    }
+
+    public void testConstantInDifferentPackageInService() throws IOException {
+        doFileTest(constant, "org/test/test.bal");
     }
 }

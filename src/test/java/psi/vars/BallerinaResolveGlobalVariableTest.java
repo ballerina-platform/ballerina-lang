@@ -18,22 +18,50 @@ package psi.vars;
 
 import psi.BallerinaResolveTestBase;
 
+import java.io.IOException;
+
 public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase {
+
+    private String globalVariable = "int /*def*/a;";
 
     @Override
     protected String getTestDataPath() {
         return "src/test/resources/testData/psi/resolve/vars/global";
     }
 
-    public void testGlobalVariableInConnector() {
+    public void testGlobalVariableInSameFileInConnector() {
         doFileTest();
     }
 
-    public void testGlobalVariableInFunction() {
+    public void testGlobalVariableInSameFileInFunction() {
         doFileTest();
     }
 
-    public void testGlobalVariableInService() {
+    public void testGlobalVariableInSameFileInService() {
         doFileTest();
+    }
+
+    public void testGlobalVariableInDifferentFileInConnector() throws IOException {
+        doFileTest(globalVariable);
+    }
+
+    public void testGlobalVariableInDifferentFileInFunction() throws IOException {
+        doFileTest(globalVariable);
+    }
+
+    public void testGlobalVariableInDifferentFileInService() throws IOException {
+        doFileTest(globalVariable);
+    }
+
+    public void testGlobalVariableInDifferentPackageInConnector() throws IOException {
+        doFileTest(globalVariable, "org/test/test.bal");
+    }
+
+    public void testGlobalVariableInDifferentPackageInFunction() throws IOException {
+        doFileTest(globalVariable, "org/test/test.bal");
+    }
+
+    public void testGlobalVariableInDifferentPackageInService() throws IOException {
+        doFileTest(globalVariable, "org/test/test.bal");
     }
 }

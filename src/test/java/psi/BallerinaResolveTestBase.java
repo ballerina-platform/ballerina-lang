@@ -17,12 +17,10 @@
 package psi;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
@@ -64,6 +62,8 @@ public abstract class BallerinaResolveTestBase extends LightPlatformCodeInsightF
         int definitionIndex = getDefinitionIndex(fileContent);
         if (definitionIndex != -1 && definitionIndex < referenceIndex) {
             referenceIndex -= DEF_MARK.length();
+        } else if (referenceIndex != -1 && definitionIndex > referenceIndex) {
+            definitionIndex -= REF_MARK.length();
         }
 
         fileContent = fileContent.replace(REF_MARK, "");
@@ -115,28 +115,6 @@ public abstract class BallerinaResolveTestBase extends LightPlatformCodeInsightF
         );
     }
 
-    //    protected void doDirTest() {
-    //        String testDataPath = getTestDataPath();
-    //        String testName = getTestName(false);
-    //        File fromDir = new File(testDataPath + "/" + testName);
-    //        if (!fromDir.isDirectory()) {
-    //            throw new RuntimeException("Given file is not directory: " + fromDir);
-    //        }
-    //        //noinspection ConstantConditions
-    //        for (File file : fromDir.listFiles()) {
-    //            if (file.isDirectory()) {
-    //                myFixture.copyDirectoryToProject(testName + "/" + file.getName(), file.getName());
-    //            } else {
-    //                myFixture.copyFileToProject(testName + "/" + file.getName());
-    //            }
-    //        }
-    //        VirtualFile dirToTest = myFixture.getTempDirFixture().getFile(".");
-    //        assertNotNull(dirToTest);
-    //        BallerinaProjectLibrariesService.getInstance(myFixture.getProject()).setLibraryRootUrls(dirToTest
-    // .getUrl());
-    //        doDirectoryTest(dirToTest);
-    //    }
-
     private void doResolveTest() {
         if (myReference == null) {
             fail("no reference defined in test case");
@@ -151,8 +129,7 @@ public abstract class BallerinaResolveTestBase extends LightPlatformCodeInsightF
             if (myDefinition != null) {
                 PsiElement def = PsiTreeUtil.getParentOfType(myDefinition, resolve.getClass(), false);
                 assertSame("element resolved in non-expected element from " + getFileName(resolve) + ":\n" +
-                                resolve.getText(),
-                        def, resolve);
+                        resolve.getText(), def, resolve);
             }
         } else if (resolve != null) {
             fail("element is resolved but it wasn't should. resolved to element from " + getFileName(resolve) + ":\n"
@@ -246,17 +223,4 @@ public abstract class BallerinaResolveTestBase extends LightPlatformCodeInsightF
         }
         return result;
     }
-    //
-    //    private void doDirectoryTest(@NotNull VirtualFile file) {
-    //        VfsUtilCore.processFilesRecursively(file, new FilteringProcessor<>(
-    //                virtualFile -> !virtualFile.isDirectory() && virtualFile.getName().endsWith(".bal"),
-    //                virtualFile -> {
-    //                    PsiFile ballerinaFile = myFixture.getPsiManager().findFile(virtualFile);
-    //                    assert ballerinaFile instanceof BallerinaFile;
-    //                    processPsiFile((BallerinaFile) ballerinaFile);
-    //                    return true;
-    //                }
-    //        ));
-    //        doResolveTest();
-    //    }
 }
