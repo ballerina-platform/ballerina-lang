@@ -34,8 +34,6 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     beginVisitActionInvocationStatement(actionInvocationStatement) {
-        this.appendSource((actionInvocationStatement.whiteSpace.useDefault) ?
-                    this.getIndentation() : '');
     }
 
     beginVisitActionInvocationExpression(actionInvocationExpr) {
@@ -44,6 +42,8 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
 
     endVisitActionInvocationStatement(actionInvocationStatement) {
         this.appendSource(';' + actionInvocationStatement.getWSRegion(1));
+        this.appendSource((actionInvocationStatement.whiteSpace.useDefault) ?
+                        this.getIndentation() : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

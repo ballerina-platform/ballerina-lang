@@ -66,6 +66,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
                 + '{' + resourceDefinition.getWSRegion(4);
         this.appendSource(constructedSourceSegment);
         this.indent();
+        this.appendSource((useDefaultWS) ? this.getIndentation() : '');
     }
 
     visitResourceDefinition(resourceDefinition) {
@@ -89,9 +90,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitResourceDefinition(resourceDefinition) {
         this.outdent();
-        this.appendSource(
-            ((resourceDefinition.whiteSpace.useDefault) ? this.getIndentation() : '')
-            + "}" + resourceDefinition.getWSRegion(5));
+        this.appendSource("}" + resourceDefinition.getWSRegion(5));
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

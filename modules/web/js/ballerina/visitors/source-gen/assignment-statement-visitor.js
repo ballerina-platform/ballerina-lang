@@ -32,7 +32,7 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitAssignmentStatement(assignmentStatement) {
-        log.debug('Begin Visit Assignment Statement');
+        this.node = assignmentStatement;
     }
 
     visitLeftOperandExpression(expression) {
@@ -42,20 +42,17 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitRightOperandExpression(expression) {
-        // FIXME: right expression should neglect indentation inherited through
-        // parent scope, hence the temp swap of indentCount, should be fixed
-        // in a proper way
-        let indentCountTmp = this.indentCount;
-        this.indentCount = 0;
+        this.appendSource('=' + this.node.getWSRegion(2));
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-        this.indentCount = indentCountTmp;
         expression.accept(statementVisitor);
     }
 
     endVisitAssignmentStatement(assignmentStatement) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-        log.debug('End Visit Assignment Statement');
+        this.appendSource(';' + assignmentStatement.getWSRegion(3));
+        this.appendSource((assignmentStatement.whiteSpace.useDefault)
+            ? this.getIndentation() : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

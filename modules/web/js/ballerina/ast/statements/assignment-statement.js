@@ -28,6 +28,12 @@ class AssignmentStatement extends Statement {
         this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
         this._statementString = _.get(args, 'statementString', '');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: '\n'
+        };
     }
 
     /**

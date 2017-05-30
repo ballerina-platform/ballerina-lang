@@ -34,12 +34,10 @@ class LeftOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
         if (!_.isUndefined(leftOperandExpression.getLeftOperandExpressionString())) {
             this.appendSource(leftOperandExpression.getLeftOperandExpressionString());
         }
-        log.debug('Begin Visit Left Operand Expression');
     }
 
     endVisitLeftOperandExpression(leftOperandExpression) {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-        log.debug('End Visit Left Operand Expression');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 
