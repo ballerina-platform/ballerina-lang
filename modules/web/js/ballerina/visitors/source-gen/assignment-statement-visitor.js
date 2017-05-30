@@ -33,6 +33,10 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitAssignmentStatement(assignmentStatement) {
         this.node = assignmentStatement;
+        if (assignmentStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
     }
 
     visitLeftOperandExpression(expression) {
@@ -51,7 +55,7 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     endVisitAssignmentStatement(assignmentStatement) {
         this.appendSource(';' + assignmentStatement.getWSRegion(3));
         this.appendSource((assignmentStatement.whiteSpace.useDefault)
-            ? this.getIndentation() : '');
+            ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

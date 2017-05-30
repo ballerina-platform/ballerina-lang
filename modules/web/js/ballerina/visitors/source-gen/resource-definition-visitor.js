@@ -65,8 +65,8 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
                 + ')' + resourceDefinition.getWSRegion(3)
                 + '{' + resourceDefinition.getWSRegion(4);
         this.appendSource(constructedSourceSegment);
-        this.indent();
         this.appendSource((useDefaultWS) ? this.getIndentation() : '');
+        this.indent();
     }
 
     visitResourceDefinition(resourceDefinition) {

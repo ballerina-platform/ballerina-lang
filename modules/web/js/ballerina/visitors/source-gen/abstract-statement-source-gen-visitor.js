@@ -69,6 +69,17 @@ class AbstractStatementSourceGenVisitor extends StatementVisitor {
     getParent() {
         return this.parent;
     }
+
+    getCurrentPrecedingIndentation() {
+        return _.last(_.split(this.getParent().getGeneratedSource(), '\n'));
+    }
+
+    replaceCurrentPrecedingIndentation(newIndentation) {
+        let tokens = _.split(this.getParent().getGeneratedSource(), '\n');
+        tokens.pop();
+        tokens.push(newIndentation);
+        this.getParent().setGeneratedSource(_.join(tokens, '\n'));
+    }
 }
 
 export default AbstractStatementSourceGenVisitor;
