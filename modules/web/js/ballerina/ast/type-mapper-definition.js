@@ -134,7 +134,7 @@ class TypeMapperDefinition extends ASTNode {
         var ballerinaASTFactory = this.getFactory();
 
         var previousInputType = _.find(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isResourceParameter(child)
+            return ballerinaASTFactory.isResourceParameter(child);
         });
 
         var blockStatement = self.getBlockStatement();
@@ -157,7 +157,7 @@ class TypeMapperDefinition extends ASTNode {
         var ballerinaASTFactory = this.getFactory();
 
         var previousOutputType = _.find(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isReturnType(child)
+            return ballerinaASTFactory.isReturnType(child);
         });
 
         var blockStatement = self.getBlockStatement();
@@ -302,7 +302,7 @@ class TypeMapperDefinition extends ASTNode {
             tempVariableReferenceExpression.setVariableName(sourceVal);
             if (_.head(sourceValue) == sourceVal) {
                 sourceFieldExpression.addChild(tempVariableReferenceExpression);
-                tempRefOfFieldExpression = sourceFieldExpression
+                tempRefOfFieldExpression = sourceFieldExpression;
             } else {
                 tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);
@@ -326,7 +326,7 @@ class TypeMapperDefinition extends ASTNode {
             tempVariableReferenceExpression.setVariableName(targetVal);
             if (_.head(targetValue) == targetVal) {
                 targetFieldExpression.addChild(tempVariableReferenceExpression);
-                tempRefOfFieldExpression = targetFieldExpression
+                tempRefOfFieldExpression = targetFieldExpression;
             } else {
                 tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);
@@ -374,7 +374,7 @@ class TypeMapperDefinition extends ASTNode {
             tempVariableReferenceExpression.setVariableName(property);
             if (_.head(properties) == property) {
                 targetFieldExpression.addChild(tempVariableReferenceExpression);
-                tempRefOfFieldExpression = targetFieldExpression
+                tempRefOfFieldExpression = targetFieldExpression;
             } else {
                 tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);

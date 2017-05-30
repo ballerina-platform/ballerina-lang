@@ -89,7 +89,7 @@ function getStatementContainerWidth(currentWidth) {
     let newWidth;
     if (currentWidth > 0) {
         newWidth = currentWidth + DesignerDefaults.blockStatement.body.padding.left +
-            DesignerDefaults.blockStatement.body.padding.right
+            DesignerDefaults.blockStatement.body.padding.right;
     } else {
         newWidth = DesignerDefaults.blockStatement.width;
     }

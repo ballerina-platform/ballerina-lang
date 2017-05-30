@@ -59,7 +59,7 @@ class ASTNode extends EventChannel {
             bBox: new SimpleBBox(),
             components: {},
             dimensionsSynced: false
-        }
+        };
     }
 
     /**

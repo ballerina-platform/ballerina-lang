@@ -18,7 +18,7 @@
 
 import {statement} from './../configs/designer-defaults';
 import {blockStatement} from './../configs/designer-defaults';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory'
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ASTFactory from './../ast/ballerina-ast-factory';
@@ -259,7 +259,7 @@ class SizingUtil {
                 ASTFactory.isConnectorAction(child);
         });
         let connectors = node.filterChildren(function (child) {
-            return ASTFactory.isConnectorDeclaration(child)
+            return ASTFactory.isConnectorDeclaration(child);
         });
         let maxResourceWidth = 0;
         //Initial statement height include panel heading and panel padding.
@@ -352,7 +352,7 @@ class SizingUtil {
         } else {
             components['annotation'].h = annotationHeight;
         }
-            components['variablesPane'].h = variableDefinitionsHeight;
+        components['variablesPane'].h = variableDefinitionsHeight;
 
         components['body'].w = bodyWidth;
         components['heading'].w = bodyWidth;
@@ -570,14 +570,14 @@ class SizingUtil {
     getAnnotationHeight(node){
         let height = 0;
         let annotations = node.filterChildren((child) => {
-            return ASTFactory.isAnnotation(child)
+            return ASTFactory.isAnnotation(child);
         });
 
         _.forEach(annotations, (annotation) => {
             if(annotation.children.length == 0 ){
                 height = height + 20;
             }else{
-                height = height + ( annotation.children.length * 20 )
+                height = height + ( annotation.children.length * 20 );
             }
         });
 

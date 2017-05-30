@@ -234,7 +234,7 @@ class ConnectorDeclaration extends ASTNode {
                 node: this.parent.parent,
                 getChildrenFunc: this.parent.getConnectionDeclarations,
                 getter: this.getConnectorVariable
-            })
+            });
         } else if (this.getFactory().isServiceDefinition(this.parent)) {
             var resourceDefinitions = this.parent.getResourceDefinitions();
             _.forEach(resourceDefinitions, function (resourceDefinition) {
@@ -243,7 +243,7 @@ class ConnectorDeclaration extends ASTNode {
                     node: resourceDefinition,
                     getChildrenFunc: self.parent.getConnectionDeclarations,
                     getter: self.getConnectorVariable
-                })
+                });
             });
         } else if (this.getFactory().isConnectorAction(this.parent)) {
             uniqueIDGenObject.attributes[0].parents.push({
@@ -251,7 +251,7 @@ class ConnectorDeclaration extends ASTNode {
                 node: this.parent.parent,
                 getChildrenFunc: this.parent.getConnectionDeclarations,
                 getter: this.getConnectorVariable
-            })
+            });
         } else if (this.getFactory().isConnectorDefinition(this.parent)) {
             var connectorActions = this.parent.getConnectorActionDefinitions();
             _.forEach(connectorActions, function (connectionAction) {
@@ -260,7 +260,7 @@ class ConnectorDeclaration extends ASTNode {
                     node: connectionAction,
                     getChildrenFunc: self.parent.getConnectionDeclarations,
                     getter: self.getConnectorVariable
-                })
+                });
             });
         }
 
@@ -323,7 +323,7 @@ var generateExpression = function (self) {
 
 var shouldSkipPackageName = function(packageName) {
     return _.isUndefined(packageName) || _.isNil(packageName) ||
-        _.isEqual(packageName, 'Current Package') || _.isEqual(packageName, '')
-}
+        _.isEqual(packageName, 'Current Package') || _.isEqual(packageName, '');
+};
 
 export default ConnectorDeclaration;

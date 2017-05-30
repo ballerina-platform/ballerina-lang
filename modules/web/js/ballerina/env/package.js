@@ -482,8 +482,8 @@ class Package extends EventChannel {
             _.uniqBy(
                 _.reverse(
                     _.concat(this._structDefinitions, structDefinitions)), function (structDefinition) {
-                    return structDefinition.getStructName();
-                })
+                return structDefinition.getStructName();
+            })
         );
         /**
          * Fired when new struct defs are added to the package.

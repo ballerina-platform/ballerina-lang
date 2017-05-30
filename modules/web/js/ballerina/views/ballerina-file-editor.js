@@ -200,7 +200,7 @@ class BallerinaFileEditor extends EventChannel {
         var canvasContainer = $('<div></div>');
         canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
         var canvasTopControlsContainer = $('<div></div>')
-            .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'))
+            .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'));
         canvasContainer.append(canvasTopControlsContainer);
 
         this._$designViewContainer.append(canvasContainer);

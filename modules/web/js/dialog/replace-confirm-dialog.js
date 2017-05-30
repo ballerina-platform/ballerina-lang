@@ -38,7 +38,7 @@ class ReplaceConfirmDialog extends ModalDialog {
         var path = options.path;
         var body = this.getBody();
         body.empty();
-        body.append($("<p><br>File '" + path + "' already exists. Do you want to overwrite its contents?</p>"))
+        body.append($("<p><br>File '" + path + "' already exists. Do you want to overwrite its contents?</p>"));
 
         this.getSubmitBtn().unbind('click');
 

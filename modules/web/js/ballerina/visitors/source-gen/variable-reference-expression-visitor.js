@@ -31,7 +31,7 @@ class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisi
     }
 
     beginVisitVariableReferenceExpression(expression) {
-       log.debug('Begin Visit Variable Reference Expression');
+        log.debug('Begin Visit Variable Reference Expression');
     }
 
     visitVariableReferenceExpression(expression) {

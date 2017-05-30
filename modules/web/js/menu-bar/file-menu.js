@@ -130,7 +130,7 @@ define(([],function (){
                 disabled: false
             }
 
-            ]
+        ]
 
     };
 

@@ -78,7 +78,7 @@ function positionPanelLevelConnectors(connectors, connectorIndex, parentNode) {
             xPosition = parentNode.getViewState().bBox.getLeft() + DesignerDefaults.lifeLine.gutter.h;
         } else {
             xPosition = parentNode.getViewState().bBox.getLeft() + innerPanelNodes[0].getViewState().bBox.w +
-                DesignerDefaults.lifeLine.gutter.h + DesignerDefaults.panel.body.padding.left
+                DesignerDefaults.lifeLine.gutter.h + DesignerDefaults.panel.body.padding.left;
         }
     } else {
         xPosition = connectors[connectorIndex - 1].getViewState().components.statementContainer.getRight() +

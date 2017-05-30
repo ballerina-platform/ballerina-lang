@@ -87,7 +87,7 @@ class NewItemDialog extends ModalDialog {
         });
         input.keyup(function(e){
             if(e.keyCode == 13) {
-               self.onSubmit(data, input.val());
+                self.onSubmit(data, input.val());
             } else {
                 self.clearError();
             }

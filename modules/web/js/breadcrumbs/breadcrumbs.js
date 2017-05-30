@@ -21,65 +21,65 @@ import _ from 'lodash';
 import Backbone from 'backbone';
 import 'jquery-ui';
 
-        var BreadcrumbControl = Backbone.View.extend(
+var BreadcrumbControl = Backbone.View.extend(
         /** @lends BreadcrumbControl.prototype */
-        {
+    {
             /**
              * @augments Backbone.View
              * @constructs
              * @class BreadcrumbControl
              * @param {Object} config configuration options for the BreadcrumbControl
              */
-            initialize: function (config) {
-                if(!_.has(config, 'container')){
-                    log.error('Cannot init breadcrumbs. config container not found.')
-                }
-                var container = $(_.get(config, 'container'));
-                if(! container.length > 0){
-                    log.error('Cannot init breadcrumbs. selector ' + _.get(config, 'container') + ' returned no elements.')
-                } else {
-                    this._$parent_el = container;
-                }
-                this._options = config;
-            },
-            render: function () {
-                var list = $("<ol></ol>");
-                this._$parent_el.append(list);
-                this.$el = list;
-                list.addClass(_.get(this._options, 'cssClass.list'));
-
-                var tabController = _.get(this._options, 'application.tabController');
-                this.listenTo(tabController, "active-tab-changed", function(evt){
-                    var activeTab = evt.newActiveTab;
-                    if(_.isFunction(activeTab.getFile)){
-                        this.setPath(activeTab.getFile().getPath(), activeTab.getFile().getName());
-                    } else {
-                        this.setPath("Ballerina Composer", activeTab.getTitle());
-                    }
-                });
-
-                this.listenTo(tabController, "last-tab-removed", function(evt){
-                    this.setPath("", "");
-                });
-            },
-            setPath: function(path, file){
-                path = _.replace(path, /\\/gi, "/");
-                var pathArr = _.split(path, "/");
-
-                this.$el.empty();
-                var self = this;
-                pathArr.forEach(function(segment){
-                    if(!_.isEmpty(segment)){
-                        var li = $("<li>" + segment + "</li>");
-                        li.addClass(_.get(self._options, 'cssClass.item'));
-                        self.$el.append(li);
-                    }
-                });
-                var fileLi = $("<li>" + file + "</li>");
-                fileLi.addClass(_.get(this._options, 'cssClass.item'));
-                fileLi.addClass(_.get(this._options, 'cssClass.active'));
-                this.$el.append(fileLi);
+        initialize: function (config) {
+            if(!_.has(config, 'container')){
+                log.error('Cannot init breadcrumbs. config container not found.');
             }
-        });
+            var container = $(_.get(config, 'container'));
+            if(! container.length > 0){
+                log.error('Cannot init breadcrumbs. selector ' + _.get(config, 'container') + ' returned no elements.');
+            } else {
+                this._$parent_el = container;
+            }
+            this._options = config;
+        },
+        render: function () {
+            var list = $("<ol></ol>");
+            this._$parent_el.append(list);
+            this.$el = list;
+            list.addClass(_.get(this._options, 'cssClass.list'));
 
-        export default BreadcrumbControl;
+            var tabController = _.get(this._options, 'application.tabController');
+            this.listenTo(tabController, "active-tab-changed", function(evt){
+                var activeTab = evt.newActiveTab;
+                if(_.isFunction(activeTab.getFile)){
+                    this.setPath(activeTab.getFile().getPath(), activeTab.getFile().getName());
+                } else {
+                    this.setPath("Ballerina Composer", activeTab.getTitle());
+                }
+            });
+
+            this.listenTo(tabController, "last-tab-removed", function(evt){
+                this.setPath("", "");
+            });
+        },
+        setPath: function(path, file){
+            path = _.replace(path, /\\/gi, "/");
+            var pathArr = _.split(path, "/");
+
+            this.$el.empty();
+            var self = this;
+            pathArr.forEach(function(segment){
+                if(!_.isEmpty(segment)){
+                    var li = $("<li>" + segment + "</li>");
+                    li.addClass(_.get(self._options, 'cssClass.item'));
+                    self.$el.append(li);
+                }
+            });
+            var fileLi = $("<li>" + file + "</li>");
+            fileLi.addClass(_.get(this._options, 'cssClass.item'));
+            fileLi.addClass(_.get(this._options, 'cssClass.active'));
+            this.$el.append(fileLi);
+        }
+    });
+
+export default BreadcrumbControl;

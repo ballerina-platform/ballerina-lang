@@ -70,8 +70,8 @@ class AnnotationDefinition extends ASTNode {
 
         // Check if already variable definition exists with same identifier.
         let identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (attDef) {
-                return attDef.getAttributeName() === identifier;
-            }) !== -1;
+            return attDef.getAttributeName() === identifier;
+        }) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
@@ -105,8 +105,8 @@ class AnnotationDefinition extends ASTNode {
         }
 
         let identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), function (attachmentPoint) {
-                return _.isEqual(identifier, attachmentPoint);
-            }) !== -1;
+            return _.isEqual(identifier, attachmentPoint);
+        }) !== -1;
 
         if (identifierAlreadyExists) {
             let errorString = 'An attribute with identifier "' + identifier + '" already exists.';

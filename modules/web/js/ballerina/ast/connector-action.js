@@ -38,7 +38,7 @@ class ConnectorAction extends ASTNode {
      * @return {string} action_name - Action Name
      */
     getActionName() {
-        return this.action_name
+        return this.action_name;
     }
 
     /**

@@ -22,51 +22,51 @@ import EventChannel from 'event_channel';
 import menuDefinitions from './menu-definitions';
 import MenuGroup from './menu-group';
 
-        var MenuBar = function (options) {
-            var errMsg;
-            if(!_.has(options, 'container')){
-                errMsg = 'Unable to find configuration for container';
-                log.error(errMsg);
-                throw errMsg;
-            }
-            var container = $(_.get(options, 'container'));
-            this._$parent_el = container;
-            this._options = options;
-            this._menuGroups = {};
-        };
+var MenuBar = function (options) {
+    var errMsg;
+    if(!_.has(options, 'container')){
+        errMsg = 'Unable to find configuration for container';
+        log.error(errMsg);
+        throw errMsg;
+    }
+    var container = $(_.get(options, 'container'));
+    this._$parent_el = container;
+    this._options = options;
+    this._menuGroups = {};
+};
 
-        MenuBar.prototype = Object.create(EventChannel.prototype);
-        MenuBar.prototype.constructor = MenuBar;
+MenuBar.prototype = Object.create(EventChannel.prototype);
+MenuBar.prototype.constructor = MenuBar;
 
-        MenuBar.prototype.render = function () {
-            var parent = this._$parent_el;
-            var self = this;
-            var _options = this._options;
-            var application = _.get(this._options, "application");
+MenuBar.prototype.render = function () {
+    var parent = this._$parent_el;
+    var self = this;
+    var _options = this._options;
+    var application = _.get(this._options, "application");
 
-            // Iterate over menu groups
-            _.forEach(menuDefinitions, function (menuGroupDefinition) {
-                    var menuGroupOpts = {definition: _.cloneDeep(menuGroupDefinition)};
-                    _.set(menuGroupOpts, 'options', _.cloneDeep(_.get(_options, 'menu_group')));
-                    _.set(menuGroupOpts, 'options.parent', parent);
-                    _.set(menuGroupOpts, 'options.application', application);
-                    var menuGroup = new MenuGroup(menuGroupOpts);
-                    menuGroup.render();
-                    _.set(self._menuGroups, menuGroup.getID(), menuGroup);
-                }
+    // Iterate over menu groups
+    _.forEach(menuDefinitions, function (menuGroupDefinition) {
+        var menuGroupOpts = {definition: _.cloneDeep(menuGroupDefinition)};
+        _.set(menuGroupOpts, 'options', _.cloneDeep(_.get(_options, 'menu_group')));
+        _.set(menuGroupOpts, 'options.parent', parent);
+        _.set(menuGroupOpts, 'options.application', application);
+        var menuGroup = new MenuGroup(menuGroupOpts);
+        menuGroup.render();
+        _.set(self._menuGroups, menuGroup.getID(), menuGroup);
+    }
             );
-        };
+};
 
-        MenuBar.prototype.setVisible = function(isVisible) {
-            if(isVisible) {
-                this._$parent_el.show();
-            } else {
-                this._$parent_el.hide();
-            }
-        };
+MenuBar.prototype.setVisible = function(isVisible) {
+    if(isVisible) {
+        this._$parent_el.show();
+    } else {
+        this._$parent_el.hide();
+    }
+};
 
-        MenuBar.prototype.getMenuItemByID = function (id) {
-            return _.get(this._menuGroups, id);
-        };
+MenuBar.prototype.getMenuItemByID = function (id) {
+    return _.get(this._menuGroups, id);
+};
 
-        export default MenuBar;
+export default MenuBar;

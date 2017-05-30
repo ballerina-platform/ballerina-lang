@@ -18,7 +18,7 @@
 import log from 'log';
 import _ from 'lodash';
 import Backbone from 'backbone';
-    var DragDropManager = Backbone.Model.extend(
+var DragDropManager = Backbone.Model.extend(
     /** @lends DragDropManager.prototype */
     {
         modelName: "DragDropManager",
@@ -28,7 +28,7 @@ import Backbone from 'backbone';
          * @class Handles validations for drag and drop
          */
         initialize: function (attrs, options) {
-          this.idAttribute = this.cid;
+            this.idAttribute = this.cid;
         },
 
         /**
@@ -129,7 +129,7 @@ import Backbone from 'backbone';
          * @return {ASTNode}
          */
         getActivatedDropTarget: function () {
-             return this.get('activatedDropTarget');
+            return this.get('activatedDropTarget');
         },
 
         /**
@@ -137,10 +137,10 @@ import Backbone from 'backbone';
          * @return {number} index
          */
         getDroppedNodeIndex: function () {
-             if(this.isAtValidDropTarget() && _.isFunction(this.get('getDroppedNodeIndexCallBack'))){
-                 return this.get('getDroppedNodeIndexCallBack')(this.getNodeBeingDragged());
-             }
-             return -1;
+            if(this.isAtValidDropTarget() && _.isFunction(this.get('getDroppedNodeIndexCallBack'))){
+                return this.get('getDroppedNodeIndexCallBack')(this.getNodeBeingDragged());
+            }
+            return -1;
         },
 
         /**
@@ -148,10 +148,10 @@ import Backbone from 'backbone';
          * @fires DragDropManager#drop-target-changed
          */
         clearActivatedDropTarget: function () {
-                this.set('activatedDropTarget', undefined);
-                this.set('validateDropSourceCallback', undefined);
-                this.set('getDroppedNodeIndexCallBack', undefined);
-                this.trigger('drop-target-changed', undefined);
+            this.set('activatedDropTarget', undefined);
+            this.set('validateDropSourceCallback', undefined);
+            this.set('getDroppedNodeIndexCallBack', undefined);
+            this.trigger('drop-target-changed', undefined);
         },
 
         /**
@@ -200,4 +200,4 @@ import Backbone from 'backbone';
         }
     });
 
-    export default DragDropManager;
+export default DragDropManager;

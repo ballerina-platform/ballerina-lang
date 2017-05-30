@@ -28,91 +28,90 @@ import EventChannel from 'event_channel';
  * @constructor
  */
 class Function extends EventChannel {
- constructor(args) {
-     super(args);
-     this._name = _.get(args, 'name', '');
-     this._id = _.get(args, 'id', '');
-     this._parameters = _.get(args, 'parameters', []);
-     this._returnParams = _.get(args, 'returnParams', []);
- }
+    constructor(args) {
+        super(args);
+        this._name = _.get(args, 'name', '');
+        this._id = _.get(args, 'id', '');
+        this._parameters = _.get(args, 'parameters', []);
+        this._returnParams = _.get(args, 'returnParams', []);
+    }
 
- /**
-  * sets the name
-  * @param {string} name
-  */
- setName(name) {
-     var oldName = this._name;
-     this._name = name;
-     this.trigger("name-modified", name, oldName);
- }
+   /**
+    * sets the name
+    * @param {string} name
+    */
+    setName(name) {
+        var oldName = this._name;
+        this._name = name;
+        this.trigger("name-modified", name, oldName);
+    }
 
- /**
-  * returns the name
-  * @returns {string}
-  */
- getName() {
-     return this._name;
- }
+   /**
+    * returns the name
+    * @returns {string}
+    */
+    getName() {
+        return this._name;
+    }
 
- /**
-  * sets the id
-  * @param {string} id
-  */
- setId(id) {
-     this._id = id;
- }
+   /**
+    * sets the id
+    * @param {string} id
+    */
+    setId(id) {
+        this._id = id;
+    }
 
- /**
-  * returns the id
-  * @returns {string}
-  */
- getId() {
-     return this._id;
- }
+   /**
+    * returns the id
+    * @returns {string}
+    */
+    getId() {
+        return this._id;
+    }
 
- /**
-  * sets the parameters
-  * @param [object] parameters
-  */
- setParameters(parameters) {
-     this._parameters = parameters;
- }
+   /**
+    * sets the parameters
+    * @param [object] parameters
+    */
+    setParameters(parameters) {
+        this._parameters = parameters;
+    }
 
- /**
-  * returns the parameters
-  * @returns [object]
-  */
- getParameters() {
-     return this._parameters;
- }
+   /**
+    * returns the parameters
+    * @returns [object]
+    */
+    getParameters() {
+        return this._parameters;
+    }
 
- /**
-  * sets the returnParams
-  * @param [object] returnParams
-  */
- setReturnParams(returnParams) {
-     this._returnParams = returnParams;
- }
+   /**
+    * sets the returnParams
+    * @param [object] returnParams
+    */
+    setReturnParams(returnParams) {
+        this._returnParams = returnParams;
+    }
 
- /**
-  * returns the returnParams
-  * @returns [object]
-  */
- getReturnParams() {
-     return this._returnParams;
- }
+   /**
+    * returns the returnParams
+    * @returns [object]
+    */
+    getReturnParams() {
+        return this._returnParams;
+    }
 
- /**
-  * sets values from a json object
-  * @param {Object} jsonNode
-  */
- initFromJson(jsonNode) {
-     this.setName(jsonNode.name);
-     this.setId(jsonNode.name);
-     this.setParameters(jsonNode.parameters);
-     this.setReturnParams(jsonNode.returnParams);
- }
+   /**
+    * sets values from a json object
+    * @param {Object} jsonNode
+    */
+    initFromJson(jsonNode) {
+        this.setName(jsonNode.name);
+        this.setId(jsonNode.name);
+        this.setParameters(jsonNode.parameters);
+        this.setReturnParams(jsonNode.returnParams);
+    }
 }
 
 export default Function;
-    

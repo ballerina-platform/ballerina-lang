@@ -19,83 +19,83 @@
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 
-    var MenuItem = function(args){
-        _.assign(this, args);
-        this._application = _.get(this, 'options.application');
-    };
+var MenuItem = function(args){
+    _.assign(this, args);
+    this._application = _.get(this, 'options.application');
+};
 
-    MenuItem.prototype = Object.create(EventChannel.prototype);
-    MenuItem.prototype.constructor = MenuItem;
+MenuItem.prototype = Object.create(EventChannel.prototype);
+MenuItem.prototype.constructor = MenuItem;
 
-    MenuItem.prototype.render = function(){
-        var parent = _.get(this, 'options.parent');
+MenuItem.prototype.render = function(){
+    var parent = _.get(this, 'options.parent');
 
-        var item = $('<li></li>');
-        var title = $('<span class="pull-left"></span>');
-        var link = $('<a></a>');
-        parent.append(item);
-        item.append(link);
-        link.append(title);
+    var item = $('<li></li>');
+    var title = $('<span class="pull-left"></span>');
+    var link = $('<a></a>');
+    parent.append(item);
+    item.append(link);
+    link.append(title);
 
-        title.text(_.get(this, 'definition.label'));
-        this._linkElement = link;
-        this._title = title;
-        this._listItemElement = item;
+    title.text(_.get(this, 'definition.label'));
+    this._linkElement = link;
+    this._title = title;
+    this._listItemElement = item;
 
-        var shortcuts = _.get(this, 'definition.command.shortcuts'),
-            commandId = _.get(this, 'definition.command.id');
-        if (!_.isNil(shortcuts)) {
-            this._application.commandManager.registerCommand(commandId, {shortcuts: shortcuts});
-            this.renderShortcutLabel();
-        } else {
-            this._application.commandManager.registerCommand(commandId, {});
-        }
+    var shortcuts = _.get(this, 'definition.command.shortcuts'),
+        commandId = _.get(this, 'definition.command.id');
+    if (!_.isNil(shortcuts)) {
+        this._application.commandManager.registerCommand(commandId, {shortcuts: shortcuts});
+        this.renderShortcutLabel();
+    } else {
+        this._application.commandManager.registerCommand(commandId, {});
+    }
 
-        if (_.get(this, 'definition.disabled')) {
-            this.disable();
-        } else {
-            this.enable();
-        }
+    if (_.get(this, 'definition.disabled')) {
+        this.disable();
+    } else {
+        this.enable();
+    }
 
-    };
+};
 
-    MenuItem.prototype.getID = function(){
-        return _.get(this, 'definition.id');
-    };
+MenuItem.prototype.getID = function(){
+    return _.get(this, 'definition.id');
+};
 
-    MenuItem.prototype.renderShortcutLabel = function(){
-        var shortcuts = _.get(this, 'definition.command.shortcuts'),
-            shortcutLabel = $('<span></span>'),
-            shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac.label : shortcuts.other.label;
-        shortcutLabel.addClass(_.get(this, 'options.cssClass.shortcut'));
-        shortcutLabel.text(shortcut);
-        this._linkElement.append(shortcutLabel);
-    };
+MenuItem.prototype.renderShortcutLabel = function(){
+    var shortcuts = _.get(this, 'definition.command.shortcuts'),
+        shortcutLabel = $('<span></span>'),
+        shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac.label : shortcuts.other.label;
+    shortcutLabel.addClass(_.get(this, 'options.cssClass.shortcut'));
+    shortcutLabel.text(shortcut);
+    this._linkElement.append(shortcutLabel);
+};
 
-    MenuItem.prototype.disable = function(){
-        this._listItemElement.addClass(_.get(this, 'options.cssClass.inactive'));
-        this._listItemElement.removeClass(_.get(this, 'options.cssClass.active'));
-        this._linkElement.off("click");
-    };
+MenuItem.prototype.disable = function(){
+    this._listItemElement.addClass(_.get(this, 'options.cssClass.inactive'));
+    this._listItemElement.removeClass(_.get(this, 'options.cssClass.active'));
+    this._linkElement.off("click");
+};
 
-    MenuItem.prototype.enable = function(){
-        this._listItemElement.addClass(_.get(this, 'options.cssClass.active'));
-        this._listItemElement.removeClass(_.get(this, 'options.cssClass.inactive'));
-        var self = this;
-        this._linkElement.off("click");
-        this._linkElement.click(function () {
-            self._application.commandManager.dispatch(self.definition.command.id);
-        });
-    };
+MenuItem.prototype.enable = function(){
+    this._listItemElement.addClass(_.get(this, 'options.cssClass.active'));
+    this._listItemElement.removeClass(_.get(this, 'options.cssClass.inactive'));
+    var self = this;
+    this._linkElement.off("click");
+    this._linkElement.click(function () {
+        self._application.commandManager.dispatch(self.definition.command.id);
+    });
+};
 
-    MenuItem.prototype.addLabelSuffix = function(labelSuffix){
-       if(!_.isNil(labelSuffix)){
-           this._title.text(_.get(this, 'definition.label') + ' ' + labelSuffix);
-       }
-    };
+MenuItem.prototype.addLabelSuffix = function(labelSuffix){
+    if(!_.isNil(labelSuffix)){
+        this._title.text(_.get(this, 'definition.label') + ' ' + labelSuffix);
+    }
+};
 
-    MenuItem.prototype.clearLabelSuffix = function () {
-        this._title.text(_.get(this, 'definition.label'));
-    };
+MenuItem.prototype.clearLabelSuffix = function () {
+    this._title.text(_.get(this, 'definition.label'));
+};
 
-    export default MenuItem;
+export default MenuItem;

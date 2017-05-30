@@ -39,11 +39,11 @@ class AnnotationRenderingVisitor {
         if(node.constructor.name == 'ServiceDefinition' ||
             node.constructor.name == 'ResourceDefinition'){
             let annotations = node.filterChildren(function (child) {
-                return ASTFactory.isAnnotation(child)
+                return ASTFactory.isAnnotation(child);
             });
             if(annotations.length > 0 && !this.hiddenService){
                 let bBox = Object.assign({}, node.viewState.bBox);
-                bBox.h = node.viewState.components.annotation.h
+                bBox.h = node.viewState.components.annotation.h;
                 this.annotations.push(
                     new AnnotationContainer( bBox , annotations )
                 );

@@ -25,10 +25,10 @@ import Statement from './statement';
  * @constructor
  */
 class ElseStatement extends Statement {
- constructor() {
-     super();
-     this.type = "ElseStatement";
- }
+    constructor() {
+        super();
+        this.type = "ElseStatement";
+    }
 }
 
 export default ElseStatement;

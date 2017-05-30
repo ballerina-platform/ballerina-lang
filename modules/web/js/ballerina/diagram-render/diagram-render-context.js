@@ -77,17 +77,17 @@ class DiagramRenderContext {
      * Get the applications
      * @return {*}
      */
-     getApplication() {
-         return this._application;
-     }
+    getApplication() {
+        return this._application;
+    }
 
     /**
      * Get the language server client controller
      * @return {LangServerClientController}
      */
-     getLanguageServerClientController() {
-         return this.getApplication().langseverClientController;
-     }
+    getLanguageServerClientController() {
+        return this.getApplication().langseverClientController;
+    }
 
 }
 

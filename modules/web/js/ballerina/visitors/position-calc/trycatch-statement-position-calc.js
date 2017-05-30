@@ -45,7 +45,7 @@ class TryCatchStatementPositionCalcVisitor {
          */
         if (parentStatementContainer.w < bBox.w) {
             throw 'Invalid statement container width found, statement width should be greater than or equal to ' +
-            'statement/ statement width '
+            'statement/ statement width ';
         }
         x = parentStatementContainer.x + (parentStatementContainer.w - bBox.w)/2;
         if (currentIndex === 0) {

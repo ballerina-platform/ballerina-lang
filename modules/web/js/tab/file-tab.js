@@ -27,214 +27,214 @@ import Backend from 'ballerina/views/backend';
 import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
 import DebugManager from '../debugger/debug-manager';
 import alerts from 'alerts';
-    var FileTab;
+var FileTab;
 
-    FileTab = Tab.extend({
-        initialize: function (options) {
-            Tab.prototype.initialize.call(this, options);
-            if (!_.has(options, 'file')) {
-                this._file = new File({isTemp: true, isDirty: false}, {storage: this.getParent().getBrowserStorage()});
-            } else {
-                this._file = _.get(options, 'file');
+FileTab = Tab.extend({
+    initialize: function (options) {
+        Tab.prototype.initialize.call(this, options);
+        if (!_.has(options, 'file')) {
+            this._file = new File({isTemp: true, isDirty: false}, {storage: this.getParent().getBrowserStorage()});
+        } else {
+            this._file = _.get(options, 'file');
+        }
+        if (_.has(options, 'astRoot')) {
+            this._astRoot = _.get(options, 'astRoot');
+        }
+        // TODO convert Backend to a singleton
+        this.app = options.application;
+        this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
+        this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
+        this.deserializer = BallerinaASTDeserializer;
+        this._file.setLangserverCallbacks({
+            documentDidSaveNotification:  (options) => {
+                this.app.langseverClientController.documentDidSaveNotification(options);
             }
-            if (_.has(options, 'astRoot')) {
-                this._astRoot = _.get(options, 'astRoot');
-            }
-            //TODO convert Backend to a singleton
-            this.app = options.application;
-            this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
-            this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
-            this.deserializer = BallerinaASTDeserializer;
-            this._file.setLangserverCallbacks({
-                documentDidSaveNotification:  (options) => {
-                    this.app.langseverClientController.documentDidSaveNotification(options)
+        });
+    },
+
+    getTitle: function(){
+        return _.isNil(this._file) ? "untitled" :  this._file.getName();
+    },
+
+    getFile: function () {
+        return this._file;
+    },
+
+    render: function () {
+        Tab.prototype.render.call(this);
+        // if file already has content
+        if(!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())){
+            if(!_.isEmpty(this._file.getContent().trim())){
+                var validateResponse = this.validateBackend.parse(this._file.getContent());
+                if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
+                    this.renderBallerinaEditor(this._astRoot, true);
+                    return;
                 }
-                });
-        },
-
-        getTitle: function(){
-            return _.isNil(this._file) ? "untitled" :  this._file.getName();
-        },
-
-        getFile: function () {
-            return this._file;
-        },
-
-        render: function () {
-            Tab.prototype.render.call(this);
-            // if file already has content
-            if(!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())){
-                if(!_.isEmpty(this._file.getContent().trim())){
-                    var validateResponse = this.validateBackend.parse(this._file.getContent());
-                    if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
-                        this.renderBallerinaEditor(this._astRoot, true);
-                        return;
-                    }
-                }
-                var parseResponse = this.parseBackend.parse(this._file.getContent());
-                //if no errors display the design.
-                var root = this.deserializer.getASTModel(parseResponse);
-                this.renderBallerinaEditor(root);
-            } else if(!_.isNil(this._astRoot)) {
-                this.renderBallerinaEditor(this._astRoot, false);
-                var updatedContent = this.getBallerinaFileEditor().generateSource();
-                this._file.setContent(updatedContent);
-                this._file.setDirty(true);
-                this._file.save();
-            } else {
-                this.renderBallerinaEditor(this.createEmptyBallerinaRoot(), false);
-                var updatedContent = this.getBallerinaFileEditor().generateSource();
-                this._file.setContent(updatedContent);
-                this._file.save();
             }
-            // Send document open notification to the language server
+            var parseResponse = this.parseBackend.parse(this._file.getContent());
+            // if no errors display the design.
+            var root = this.deserializer.getASTModel(parseResponse);
+            this.renderBallerinaEditor(root);
+        } else if(!_.isNil(this._astRoot)) {
+            this.renderBallerinaEditor(this._astRoot, false);
+            var updatedContent = this.getBallerinaFileEditor().generateSource();
+            this._file.setContent(updatedContent);
+            this._file.setDirty(true);
+            this._file.save();
+        } else {
+            this.renderBallerinaEditor(this.createEmptyBallerinaRoot(), false);
+            var updatedContent = this.getBallerinaFileEditor().generateSource();
+            this._file.setContent(updatedContent);
+            this._file.save();
+        }
+        // Send document open notification to the language server
+        const docUri = this._file.isPersisted() ? this._file.getPath() : ('/temp/' + this._file.id);
+        let documentOptions = {
+            textDocument: {
+                documentUri: docUri,
+                languageId: 'ballerina',
+                version: 1,
+                text: this._file.getContent()
+            }
+        };
+        this.app.langseverClientController.documentDidOpenNotification(documentOptions);
+        $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
+    },
+
+    renderBallerinaEditor: function(astRoot, parseFailed){
+        var self = this;
+        var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
+        var backendEndpointsOptions = _.get(this.options, 'application.config.services');
+        let renderingContextOpts = {application: this.options.application};
+        var diagramRenderingContext = new DiagramRenderContext(renderingContextOpts);
+
+        var fileEditor = new BallerinaFileEditor({
+            model: astRoot,
+            parseFailed: parseFailed,
+            file: self._file,
+            container: this.$el.get(0),
+            viewOptions: ballerinaEditorOptions,
+            backendEndpointsOptions: backendEndpointsOptions,
+            debugger: DebugManager
+        });
+
+        // change tab header class to match look and feel of source view
+        fileEditor.on('source-view-activated swagger-view-activated', function(){
+            this.getHeader().addClass('inverse');
+            this.app.workspaceManager.updateMenuItems();
+        }, this);
+        fileEditor.on('design-view-activated', function(){
+            this.getHeader().removeClass('inverse');
+            this.app.workspaceManager.updateMenuItems();
+        }, this);
+
+        fileEditor.on('design-view-activated', () => {
+            const breakpoints = fileEditor._sourceView.getBreakpoints() || [];
+            fileEditor._showDesignViewBreakpoints(breakpoints);
+        }, this);
+
+        fileEditor.on('source-view-activated', () => {
+            fileEditor._showSourceViewBreakPoints();
+        });
+
+        fileEditor.on('add-breakpoint', function(row){
+            DebugManager.addBreakPoint(row, this._file.getName());
+        }, this);
+
+        fileEditor.on('remove-breakpoint', function(row){
+            DebugManager.removeBreakPoint(row, this._file.getName());
+        }, this);
+
+        this.on('tab-removed', function() {
             const docUri = this._file.isPersisted() ? this._file.getPath() : ('/temp/' + this._file.id);
+            // Send document closed notification to the language server
             let documentOptions = {
                 textDocument: {
                     documentUri: docUri,
-                    languageId: 'ballerina',
-                    version: 1,
-                    text: this._file.getContent()
+                    documentId: this._file.id
                 }
             };
-            this.app.langseverClientController.documentDidOpenNotification(documentOptions);
-            $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
-        },
+            this.app.langseverClientController.documentDidCloseNotification(documentOptions);
+            this.removeAllBreakpoints();
+        });
 
-        renderBallerinaEditor: function(astRoot, parseFailed){
-            var self = this;
-            var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
-            var backendEndpointsOptions = _.get(this.options, 'application.config.services');
-            let renderingContextOpts = {application: this.options.application};
-            var diagramRenderingContext = new DiagramRenderContext(renderingContextOpts);
-
-            var fileEditor = new BallerinaFileEditor({
-                model: astRoot,
-                parseFailed: parseFailed,
-                file: self._file,
-                container: this.$el.get(0),
-                viewOptions: ballerinaEditorOptions,
-                backendEndpointsOptions: backendEndpointsOptions,
-                debugger: DebugManager
-            });
-
-            // change tab header class to match look and feel of source view
-            fileEditor.on('source-view-activated swagger-view-activated', function(){
-                this.getHeader().addClass('inverse');
-                this.app.workspaceManager.updateMenuItems();
-            }, this);
-            fileEditor.on('design-view-activated', function(){
-                this.getHeader().removeClass('inverse');
-                this.app.workspaceManager.updateMenuItems();
-            }, this);
-
-            fileEditor.on('design-view-activated', () => {
-                const breakpoints = fileEditor._sourceView.getBreakpoints() || [];
-                fileEditor._showDesignViewBreakpoints(breakpoints);
-            }, this);
-
-            fileEditor.on('source-view-activated', () => {
-                fileEditor._showSourceViewBreakPoints();
-            });
-
-            fileEditor.on('add-breakpoint', function(row){
-                DebugManager.addBreakPoint(row, this._file.getName());
-            }, this);
-
-            fileEditor.on('remove-breakpoint', function(row){
-                DebugManager.removeBreakPoint(row, this._file.getName());
-            }, this);
-
-            this.on('tab-removed', function() {
-                const docUri = this._file.isPersisted() ? this._file.getPath() : ('/temp/' + this._file.id);
-                // Send document closed notification to the language server
-                let documentOptions = {
-                    textDocument: {
-                        documentUri: docUri,
-                        documentId: this._file.id
-                    }
-                };
-                this.app.langseverClientController.documentDidCloseNotification(documentOptions);
-                this.removeAllBreakpoints();
-            });
-
-            DebugManager.on('debug-hit', function(message){
-                var position = message.location;
-                if(position.fileName == this._file.getName()){
-                    fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
-                }
-            }, this);
-
-            this._fileEditor = fileEditor;
-            fileEditor.render(diagramRenderingContext);
-
-            fileEditor.on("content-modified", function(){
-                var updatedContent = fileEditor.getContent();
-                this._file.setContent(updatedContent);
-                this._file.setDirty(true);
-                this._file.save();
-                this.app.workspaceManager.updateMenuItems();
-                this.trigger("tab-content-modified");
-            }, this);
-
-            this._file.on("dirty-state-change", function () {
-                this.app.workspaceManager.updateSaveMenuItem();
-                this.updateHeader();
-            }, this);
-
-            fileEditor.on("dispatch-command", function (id) {
-                this.app.commandManager.dispatch(id);
-            }, this);
-
-            // bind app commands to source editor commands
-            this.app.commandManager.getCommands().forEach(function(command){
-                fileEditor.getSourceView().bindCommand(command);
-            });
-        },
-
-        updateHeader: function(){
-            if (this._file.isDirty()) {
-                this.getHeader().setText('* ' + this.getTitle());
-            } else {
-                this.getHeader().setText(this.getTitle());
+        DebugManager.on('debug-hit', function(message){
+            var position = message.location;
+            if(position.fileName == this._file.getName()){
+                fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
             }
-        },
+        }, this);
 
-        /**
-         * Re-render current ballerina file.
-         */
-        reRender: function(){
-            if(this._fileEditor){
-                this._fileEditor.reRender();
-            }
-        },
+        this._fileEditor = fileEditor;
+        fileEditor.render(diagramRenderingContext);
 
-        createEmptyBallerinaRoot: function() {
+        fileEditor.on("content-modified", function(){
+            var updatedContent = fileEditor.getContent();
+            this._file.setContent(updatedContent);
+            this._file.setDirty(true);
+            this._file.save();
+            this.app.workspaceManager.updateMenuItems();
+            this.trigger("tab-content-modified");
+        }, this);
 
-            var ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
+        this._file.on("dirty-state-change", function () {
+            this.app.workspaceManager.updateSaveMenuItem();
+            this.updateHeader();
+        }, this);
 
-            //package definition
-            var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-            packageDefinition.setPackageName("");
-            //packageDefinition.setPackageName("samples.echo");
-            ballerinaAstRoot.addChild(packageDefinition);
-            ballerinaAstRoot.setPackageDefinition(packageDefinition);
+        fileEditor.on("dispatch-command", function (id) {
+            this.app.commandManager.dispatch(id);
+        }, this);
 
-            return ballerinaAstRoot;
-        },
+        // bind app commands to source editor commands
+        this.app.commandManager.getCommands().forEach(function(command){
+            fileEditor.getSourceView().bindCommand(command);
+        });
+    },
 
-        getBallerinaFileEditor: function () {
-            return this._fileEditor;
-        },
-
-        removeAllBreakpoints: function() {
-            DebugManager.removeAllBreakpoints(this._file.getName());
-        },
-
-        getBreakPoints: function() {
-            return DebugManager.getDebugPoints(this._file.getName());
+    updateHeader: function(){
+        if (this._file.isDirty()) {
+            this.getHeader().setText('* ' + this.getTitle());
+        } else {
+            this.getHeader().setText(this.getTitle());
         }
+    },
 
-    });
+    /**
+     * Re-render current ballerina file.
+     */
+    reRender: function(){
+        if(this._fileEditor){
+            this._fileEditor.reRender();
+        }
+    },
 
-    export default FileTab;
+    createEmptyBallerinaRoot: function() {
+
+        var ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
+
+        //package definition
+        var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+        packageDefinition.setPackageName("");
+        //packageDefinition.setPackageName("samples.echo");
+        ballerinaAstRoot.addChild(packageDefinition);
+        ballerinaAstRoot.setPackageDefinition(packageDefinition);
+
+        return ballerinaAstRoot;
+    },
+
+    getBallerinaFileEditor: function () {
+        return this._fileEditor;
+    },
+
+    removeAllBreakpoints: function() {
+        DebugManager.removeAllBreakpoints(this._file.getName());
+    },
+
+    getBreakPoints: function() {
+        return DebugManager.getDebugPoints(this._file.getName());
+    }
+
+});
+
+export default FileTab;

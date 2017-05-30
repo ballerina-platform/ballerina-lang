@@ -78,7 +78,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             args.push({
                 name: argument.getType(),
                 type: argument.getType()
-            })
+            });
         });
         functionDef.setParameters(args);
 
@@ -89,7 +89,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             returnTypes.push({
                 name: returnType.getType(),
                 type: returnType.getType()
-            })
+            });
         });
         functionDef.setReturnParams(returnTypes);
 
@@ -271,10 +271,10 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         var newValue = modifiedData.data.newValue;
         var oldValue = modifiedData.data.oldValue;
         switch (attributeName) {
-            case 'connector_name':
-                connectorDefinition.setName(newValue);
-                connectorDefinition.setId(newValue);
-                break;
+        case 'connector_name':
+            connectorDefinition.setName(newValue);
+            connectorDefinition.setId(newValue);
+            break;
 
         }
     }

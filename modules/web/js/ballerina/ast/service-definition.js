@@ -98,8 +98,8 @@ class ServiceDefinition extends ASTNode {
         // Check if already variable definition statement exists with same identifier.
         var identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
                                                                                 function (variableDefinitionStatement) {
-                return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
-            }) !== -1;
+                                                                                    return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
+                                                                                }) !== -1;
 
         // If variable definition statement with the same identifier exists, then throw an error. Else create the new
         // variable definition statement.

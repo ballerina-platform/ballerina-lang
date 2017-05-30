@@ -19,65 +19,65 @@
 import _ from 'lodash';
 import Backbone from 'backbone';
 
-    var tool = Backbone.Model.extend({
-        initialize: function (args) {
-            this.name = _.get(args, 'name', null);
-            this.icon = _.get(args, 'icon', null);
-            this.iconSrc = _.get(args, 'iconSrc', null);
-            this.nodeFactoryMethod = _.get(args, 'nodeFactoryMethod', null);
-            this.dragCursorOffset = _.get(args, 'dragCursorOffset', undefined);
-            this.classNames = _.get(args, 'classNames', undefined);
+var tool = Backbone.Model.extend({
+    initialize: function (args) {
+        this.name = _.get(args, 'name', null);
+        this.icon = _.get(args, 'icon', null);
+        this.iconSrc = _.get(args, 'iconSrc', null);
+        this.nodeFactoryMethod = _.get(args, 'nodeFactoryMethod', null);
+        this.dragCursorOffset = _.get(args, 'dragCursorOffset', undefined);
+        this.classNames = _.get(args, 'classNames', undefined);
 
-            if(!_.isNil(args.meta)){
-                this.parent = args.meta.actionConnectorName;
-            }
-        },
-
-        modelName: "Tool",
-
-        defaults: {
-            id: "",
-            title: "",
-            icon: "",
-            classNames:"",
-        },
-
-        /**
-         * sets name
-         * @param {string} name
-         */
-        setName: function (name) {
-            this.set('name', name);
-            this.trigger('name-modified', name);
-        },
-
-        /**
-         * sets id
-         * @param {string} id
-         */
-        setId: function (id) {
-            this.set('id', id);
-            this.trigger('id-modified', id);
-        },
-
-        /**
-         * sets title
-         * @param {string} title
-         */
-        setTitle: function (title) {
-            this.set('title', title);
-            this.trigger('title-modified', title);
-        },
-
-        /**
-         * sets params
-         * @param {string} title
-         */
-        setParams: function (params) {
-            this.set('params', params);
-            this.trigger('params-modified', params);
+        if(!_.isNil(args.meta)){
+            this.parent = args.meta.actionConnectorName;
         }
+    },
 
-    });
+    modelName: "Tool",
 
-    export default tool;
+    defaults: {
+        id: "",
+        title: "",
+        icon: "",
+        classNames:"",
+    },
+
+    /**
+     * sets name
+     * @param {string} name
+     */
+    setName: function (name) {
+        this.set('name', name);
+        this.trigger('name-modified', name);
+    },
+
+    /**
+     * sets id
+     * @param {string} id
+     */
+    setId: function (id) {
+        this.set('id', id);
+        this.trigger('id-modified', id);
+    },
+
+    /**
+     * sets title
+     * @param {string} title
+     */
+    setTitle: function (title) {
+        this.set('title', title);
+        this.trigger('title-modified', title);
+    },
+
+    /**
+     * sets params
+     * @param {string} title
+     */
+    setParams: function (params) {
+        this.set('params', params);
+        this.trigger('params-modified', params);
+    }
+
+});
+
+export default tool;
