@@ -36,7 +36,7 @@ class Search extends EventChannel {
 
         //add events
         this.el.on('shown.bs.modal', function () {
-            self.search_box.focus()
+            self.search_box.focus();
         });
 
         this.search_box.on("keydown keyup paste", _.bindKey(this, 'search'));

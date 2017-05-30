@@ -230,8 +230,8 @@ class BallerinaASTRoot extends ASTNode {
 
         // Check if already constant declaration exists with same identifier.
         var identifierAlreadyExists = _.findIndex(this.getConstantDefinitions(), function (constantDefinition) {
-                return constantDefinition.getIdentifier() === identifier;
-            }) !== -1;
+            return constantDefinition.getIdentifier() === identifier;
+        }) !== -1;
 
         // If constant declaration with the same identifier exists, then throw an error. Else create the new constant
         // declaration.
@@ -257,12 +257,12 @@ class BallerinaASTRoot extends ASTNode {
             if (index == -1) {
                 index = _.findLastIndex(this.getChildren(), function (child) {
                     return self.getFactory().isImportDeclaration(child);
-                })
+                });
             }
 
             // If index is still -1, then consider the package definition.
             if (_.isEqual(index, -1) && !_.isNil(this.getPackageDefinition())) {
-                 index = 0;
+                index = 0;
             }
 
             this.addChild(newConstantDefinition, index + 1);
@@ -421,7 +421,7 @@ class BallerinaASTRoot extends ASTNode {
             || BallerinaASTFactory.isConnectorDefinition(node)
             || BallerinaASTFactory.isStructDefinition(node)
             || BallerinaASTFactory.isTypeMapperDefinition(node)
-            || BallerinaASTFactory.isAnnotationDefinition(node)
+            || BallerinaASTFactory.isAnnotationDefinition(node);
     }
 
     /**

@@ -18,7 +18,7 @@
 import log from 'log';
 import Backbone from 'backbone';
 
-    var Tab = Backbone.View.extend(
+var Tab = Backbone.View.extend(
     /** @lends Tab.prototype */
     {
         /**
@@ -47,7 +47,7 @@ import Backbone from 'backbone';
             this._isActive = false;
 
             if (_.has(options, 'parent')){
-               this.setParent(_.get(options, 'parent'));
+                this.setParent(_.get(options, 'parent'));
             }
 
             // create the tab template
@@ -91,13 +91,13 @@ import Backbone from 'backbone';
             this._parentTabList = parentTabList;
         },
         getTitle: function(){
-           return _.isNil(this._title) ? "untitled" : this._title;
+            return _.isNil(this._title) ? "untitled" : this._title;
         },
         setTitle: function(title){
-           this._title = title;
-           this.trigger('title-changed', title);
+            this._title = title;
+            this.trigger('title-changed', title);
         }
     });
 
-    export default Tab;
+export default Tab;
 

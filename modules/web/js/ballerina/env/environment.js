@@ -126,7 +126,7 @@ class BallerinaEnvironment extends EventChannel {
             }
         });
         self._types = _.sortBy(self._types, [function (type) {
-            return type
+            return type;
         }]);
     }
 
@@ -137,8 +137,8 @@ class BallerinaEnvironment extends EventChannel {
         let self = this;
         self._annotationAttachmentTypes = _.sortBy(['service', 'resource', 'connector', 'action', 'function',
             'typemapper', 'struct', 'const', 'parameter', 'annotation'], [function (type) {
-            return type;
-        }]);
+                return type;
+            }]);
     }
 
     searchPackage(query, exclude) {

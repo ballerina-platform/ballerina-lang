@@ -32,8 +32,8 @@ class ReturnTypeVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitReturnType(returnType) {
-       this.appendSource('( ');
-       log.debug('Begin Visit Return Type');
+        this.appendSource('( ');
+        log.debug('Begin Visit Return Type');
     }
 
     visitReturnType(returnType) {
@@ -41,9 +41,9 @@ class ReturnTypeVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitReturnType(returnType) {
-       this.appendSource(' )');
-       this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-       log.debug('End Visit Return Type');
+        this.appendSource(' )');
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        log.debug('End Visit Return Type');
     }
 }
 

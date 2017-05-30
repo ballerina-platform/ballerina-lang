@@ -38,7 +38,7 @@ class ConnectorDefinition extends ASTNode {
      * @return {string} connector_name - Connector Name
      */
     getConnectorName() {
-        return this.connector_name
+        return this.connector_name;
     }
 
     /**
@@ -46,7 +46,7 @@ class ConnectorDefinition extends ASTNode {
      * @return {string[]} annotations - Connector Annotations
      */
     getAnnotations() {
-        return this.annotations
+        return this.annotations;
     }
 
     /**
@@ -221,7 +221,7 @@ class ConnectorDefinition extends ASTNode {
             if (index === -1) {
                 index = _.findLastIndex(this.getChildren(), function (child) {
                     return self.getFactory().isConnectorDeclaration(child);
-                })
+                });
             }
 
             this.addChild(newVariableDefinitionStatement, index + 1);

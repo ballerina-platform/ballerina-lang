@@ -14,7 +14,7 @@ class ActiveArbiter {
 
     readyToDelayedActivate(statement) {
         this.timeout = setTimeout(() => {
-            this.readyToActivate(statement)
+            this.readyToActivate(statement);
         }, 500);
     }
 

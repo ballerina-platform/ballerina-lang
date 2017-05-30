@@ -28,72 +28,72 @@ import EventChannel from 'event_channel';
  * @constructor
  */
 class Annotation extends EventChannel {
- constructor(args) {
-     super(args);
-     this._name = _.get(args, 'name', '');
-     this._attachmentPoints = _.get(args, 'attachmentPoints', []);
-     this._id = _.get(args, 'id', '');
- }
- 
-  /**
-  * sets the name
-  * @param {string} name
-  */
- setName(name) {
-     var oldName = this._name;
-     this._name = name;
-     this.trigger("name-modified", name, oldName);
- }
+    constructor(args) {
+        super(args);
+        this._name = _.get(args, 'name', '');
+        this._attachmentPoints = _.get(args, 'attachmentPoints', []);
+        this._id = _.get(args, 'id', '');
+    }
 
- /**
-  * returns the name
-  * @returns {string}
-  */
- getName() {
-     return this._name;
- }
+    /**
+    * sets the name
+    * @param {string} name
+    */
+    setName(name) {
+        var oldName = this._name;
+        this._name = name;
+        this.trigger("name-modified", name, oldName);
+    }
 
- /**
-  * sets the id
-  * @param {string} id
-  */
- setId(id) {
-     this._id = id;
- }
+   /**
+    * returns the name
+    * @returns {string}
+    */
+    getName() {
+        return this._name;
+    }
 
- /**
-  * returns the id
-  * @returns {string}
-  */
- getId() {
-     return this._id;
- }
+   /**
+    * sets the id
+    * @param {string} id
+    */
+    setId(id) {
+        this._id = id;
+    }
 
- /**
-  * returns attachment points
-  * @returns {string[]}
-  */
- getAttachmentPoints(){
-     return this._attachmentPoints;
- } 
+   /**
+    * returns the id
+    * @returns {string}
+    */
+    getId() {
+        return this._id;
+    }
 
- addAttachmentPoints(attachmentPoints) {
-    this._attachmentPoints.push(attachmentPoints);
- }
+   /**
+    * returns attachment points
+    * @returns {string[]}
+    */
+    getAttachmentPoints(){
+        return this._attachmentPoints;
+    }
 
-  /**
-  * sets values from a json object
-  * @param {Object} jsonNode
-  */
- initFromJson(jsonNode) {
-     var self = this;
-     this.setName(jsonNode.name);
+    addAttachmentPoints(attachmentPoints) {
+        this._attachmentPoints.push(attachmentPoints);
+    }
 
-     _.each(jsonNode.attachmentPoints, function (attachmentPoint) {
-        self.addAttachmentPoints(attachmentPoint);
-     });
+    /**
+    * sets values from a json object
+    * @param {Object} jsonNode
+    */
+    initFromJson(jsonNode) {
+        var self = this;
+        this.setName(jsonNode.name);
 
- }
+        _.each(jsonNode.attachmentPoints, function (attachmentPoint) {
+            self.addAttachmentPoints(attachmentPoint);
+        });
+
+    }
 
 }
 

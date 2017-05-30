@@ -286,66 +286,66 @@ let config = {
             {
                 id: "StepOver",
                 shortcuts: {
-                   mac: {
-                       key: "alt+o",
-                       label: "alt+o"
-                   },
-                   other: {
-                       key: "alt+o",
-                       label: "alt+o"
-                   }
+                    mac: {
+                        key: "alt+o",
+                        label: "alt+o"
+                    },
+                    other: {
+                        key: "alt+o",
+                        label: "alt+o"
+                    }
                 }
             },
             {
                 id: "Resume",
                 shortcuts: {
-                   mac: {
-                       key: "alt+r",
-                       label: "alt+r"
-                   },
-                   other: {
-                       key: "alt+r",
-                       label: "alt+r"
-                   }
+                    mac: {
+                        key: "alt+r",
+                        label: "alt+r"
+                    },
+                    other: {
+                        key: "alt+r",
+                        label: "alt+r"
+                    }
                 }
             },
             {
                 id: "StepIn",
                 shortcuts: {
-                   mac: {
-                       key: "alt+i",
-                       label: "alt+i"
-                   },
-                   other: {
-                       key: "alt+i",
-                       label: "alt+i"
-                   }
+                    mac: {
+                        key: "alt+i",
+                        label: "alt+i"
+                    },
+                    other: {
+                        key: "alt+i",
+                        label: "alt+i"
+                    }
                 }
             },
             {
                 id: "StepOut",
                 shortcuts: {
-                   mac: {
-                       key: "alt+u",
-                       label: "alt+u"
-                   },
-                   other: {
-                       key: "alt+u",
-                       label: "alt+u"
-                   }
+                    mac: {
+                        key: "alt+u",
+                        label: "alt+u"
+                    },
+                    other: {
+                        key: "alt+u",
+                        label: "alt+u"
+                    }
                 }
             },
             {
                 id: "Stop",
                 shortcuts: {
-                   mac: {
-                       key: "alt+p",
-                       label: "alt+p"
-                   },
-                   other: {
-                       key: "alt+p",
-                       label: "alt+p"
-                   }
+                    mac: {
+                        key: "alt+p",
+                        label: "alt+p"
+                    },
+                    other: {
+                        key: "alt+p",
+                        label: "alt+p"
+                    }
                 }
             }
         ]
@@ -390,7 +390,7 @@ if(PRODUCTION != undefined && PRODUCTION){
     configUrl = "/config";
 }else{
     //following is to support development mode where we will have static config for services.
-    configUrl = "http://localhost:9091/config"
+    configUrl = "http://localhost:9091/config";
 }
 
 // lets overide configs sent from the server

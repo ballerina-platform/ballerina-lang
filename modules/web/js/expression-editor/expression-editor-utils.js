@@ -18,7 +18,7 @@ import $ from 'jquery';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
-import '../ballerina/utils/ace-mode'
+import '../ballerina/utils/ace-mode';
 import { completerFactory } from './completer-factory.js';
 var ace = global.ace;
 var Range = ace.acequire('ace/range');
@@ -180,7 +180,7 @@ class ExpressionEditor{
         let width = text.length * 8 + 40;
         if(width < this.default_with ){
             return this.default_with;
-        };
+        }
         return width;
     }
 

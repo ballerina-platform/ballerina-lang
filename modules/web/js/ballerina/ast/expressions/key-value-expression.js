@@ -24,34 +24,34 @@ import Expression from './expression';
  * @constructor
  */
 class KeyValueExpression extends Expression {
- constructor(args) {
-     super('KeyValueExpression');
-     this._key = _.get(args, 'key', '');
-     this._expression = _.get(args, 'valueExpression', '');
- }
+    constructor(args) {
+        super('KeyValueExpression');
+        this._key = _.get(args, 'key', '');
+        this._expression = _.get(args, 'valueExpression', '');
+    }
 
  /**
   * setting parameters from json
   * @param jsonNode
   */
- initFromJson(jsonNode) {
-     this.setExpression(this.generateKeyValueExpression(jsonNode), {doSilently: true});
- }
+    initFromJson(jsonNode) {
+        this.setExpression(this.generateKeyValueExpression(jsonNode), {doSilently: true});
+    }
 
  /**
   * function for generate string for key-value-expression
   * @param sonNode
   */
- generateKeyValueExpression(jsonNode) {
-     var expString = "";
-     var self = this;
-     var keyExpressionNode = self.getFactory().createFromJson(jsonNode.children[1][0]);
-     var valueExpressionNode = self.getFactory().createFromJson(jsonNode.children[0]);
-     valueExpressionNode.initFromJson(jsonNode.children[0]);
-     keyExpressionNode.initFromJson(jsonNode.children[1][0]);
-     expString += keyExpressionNode.getExpression() + ":" + valueExpressionNode.getExpression();
-     return expString;
- }
+    generateKeyValueExpression(jsonNode) {
+        var expString = "";
+        var self = this;
+        var keyExpressionNode = self.getFactory().createFromJson(jsonNode.children[1][0]);
+        var valueExpressionNode = self.getFactory().createFromJson(jsonNode.children[0]);
+        valueExpressionNode.initFromJson(jsonNode.children[0]);
+        keyExpressionNode.initFromJson(jsonNode.children[1][0]);
+        expString += keyExpressionNode.getExpression() + ":" + valueExpressionNode.getExpression();
+        return expString;
+    }
 }
 
 export default KeyValueExpression;

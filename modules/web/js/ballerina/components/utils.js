@@ -23,17 +23,17 @@ function getComponentForNodeArray(nodeArray) {
             log.error('Unknown element type :' + child.constructor.name);
             return false;
         }
-      }).map((child) => {
-          let compName = child.constructor.name;
-          if (components[compName]) {
-              return React.createElement(components[compName], {
-                  model: child,
-                  // set the key to prevent warning
-                  //see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
-                  key: child.getID()
-              }, null);
-          }
-      });
+    }).map((child) => {
+        let compName = child.constructor.name;
+        if (components[compName]) {
+            return React.createElement(components[compName], {
+                model: child,
+                // set the key to prevent warning
+                //see: https://facebook.github.io/react/docs/lists-and-keys.html#keys
+                key: child.getID()
+            }, null);
+        }
+    });
 }
 
 export {

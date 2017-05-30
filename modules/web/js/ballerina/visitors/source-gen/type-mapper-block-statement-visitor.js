@@ -44,10 +44,10 @@ class TypeMapperBlockStatementVisitor extends AbstractSourceGenVisitor {
     }
 
     visitStatement(statement) {
-       var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
-       var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-       statement.accept(statementVisitor);
-   }
+        var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
 }
 
 export default TypeMapperBlockStatementVisitor;

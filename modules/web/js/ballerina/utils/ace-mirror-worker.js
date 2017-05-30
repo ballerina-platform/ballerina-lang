@@ -1,61 +1,61 @@
 ace.define("ace/worker/mirror",["require","exports","module","ace/range","ace/document","ace/lib/lang"], function(require, exports, module) {
-"use strict";
+    "use strict";
 
-var Range = require("ace/range").Range;
-var Document = require("ace/document").Document;
-var lang = require("ace/lib/lang");
+    var Range = require("ace/range").Range;
+    var Document = require("ace/document").Document;
+    var lang = require("ace/lib/lang");
 
-var Mirror = exports.Mirror = function(sender) {
-    this.sender = sender;
-    var doc = this.doc = new Document("");
+    var Mirror = exports.Mirror = function(sender) {
+        this.sender = sender;
+        var doc = this.doc = new Document("");
 
-    var deferredUpdate = this.deferredUpdate = lang.delayedCall(this.onUpdate.bind(this));
+        var deferredUpdate = this.deferredUpdate = lang.delayedCall(this.onUpdate.bind(this));
 
-    var _self = this;
-    sender.on("change", function(e) {
-        var data = e.data;
-        if (data[0].start) {
-            doc.applyDeltas(data);
-        } else {
-            for (var i = 0; i < data.length; i += 2) {
-                if (Array.isArray(data[i+1])) {
-                    var d = {action: "insert", start: data[i], lines: data[i+1]};
-                } else {
-                    var d = {action: "remove", start: data[i], end: data[i+1]};
+        var _self = this;
+        sender.on("change", function(e) {
+            var data = e.data;
+            if (data[0].start) {
+                doc.applyDeltas(data);
+            } else {
+                for (var i = 0; i < data.length; i += 2) {
+                    if (Array.isArray(data[i+1])) {
+                        var d = {action: "insert", start: data[i], lines: data[i+1]};
+                    } else {
+                        var d = {action: "remove", start: data[i], end: data[i+1]};
+                    }
+                    doc.applyDelta(d, true);
                 }
-                doc.applyDelta(d, true);
             }
-        }
-        if (_self.$timeout)
-            return deferredUpdate.schedule(_self.$timeout);
-        _self.onUpdate();
-    });
-};
-
-(function() {
-
-    this.$timeout = 500;
-
-    this.setTimeout = function(timeout) {
-        this.$timeout = timeout;
+            if (_self.$timeout)
+                return deferredUpdate.schedule(_self.$timeout);
+            _self.onUpdate();
+        });
     };
 
-    this.setValue = function(value) {
-        this.doc.setValue(value);
-        this.deferredUpdate.schedule(this.$timeout);
-    };
+    (function() {
 
-    this.getValue = function(callbackId) {
-        this.sender.callback(this.doc.getValue(), callbackId);
-    };
+        this.$timeout = 500;
 
-    this.onUpdate = function() {
-    };
+        this.setTimeout = function(timeout) {
+            this.$timeout = timeout;
+        };
 
-    this.isPending = function() {
-        return this.deferredUpdate.isPending();
-    };
+        this.setValue = function(value) {
+            this.doc.setValue(value);
+            this.deferredUpdate.schedule(this.$timeout);
+        };
 
-}).call(Mirror.prototype);
+        this.getValue = function(callbackId) {
+            this.sender.callback(this.doc.getValue(), callbackId);
+        };
+
+        this.onUpdate = function() {
+        };
+
+        this.isPending = function() {
+            return this.deferredUpdate.isPending();
+        };
+
+    }).call(Mirror.prototype);
 
 });

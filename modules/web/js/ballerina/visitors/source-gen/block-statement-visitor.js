@@ -47,10 +47,10 @@ class BlockStatementVisitor extends AbstractSourceGenVisitor {
     }
 
     visitStatement(statement) {
-       var statementVisitorFactory = new StatementVisitorFactory();
-       var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-       statement.accept(statementVisitor);
-   }
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
 }
 
 export default BlockStatementVisitor;

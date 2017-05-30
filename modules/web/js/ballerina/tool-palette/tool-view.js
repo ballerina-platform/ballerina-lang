@@ -23,143 +23,143 @@ import Backbone from 'backbone';
 import _ from 'lodash';
 import D3Utils from 'd3utils';
 
-    var toolView = Backbone.View.extend({
+var toolView = Backbone.View.extend({
 
-        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
+    toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
             "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <i class=\"<%=cssClass%>\"></i> " +
             "<span class=\"tool-title-wrap\" ><p class=\"tool-title\"><%=name%></p></span></div>"),
-        toolTemplateVertical: _.template("<div id=\"<%=id%>-tool\" class=\"tool-block tool-container-vertical " +
+    toolTemplateVertical: _.template("<div id=\"<%=id%>-tool\" class=\"tool-block tool-container-vertical " +
             "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
             "data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon.getAttribute(\"src\")%>\" class=\"tool-image\"  />" +
             "</div><div class=\"tool-container-vertical-title\" data-placement=\"bottom\" data-toggle=\"tooltip\" " +
             "title='<%=title%>'><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
 
-        initialize: function (options) {
-            _.extend(this, _.pick(options, ["toolPalette"]));
-            this._options = options;
-            _.set(this, 'options.dragIcon.box.size', '60px');
-        },
+    initialize: function (options) {
+        _.extend(this, _.pick(options, ["toolPalette"]));
+        this._options = options;
+        _.set(this, 'options.dragIcon.box.size', '60px');
+    },
 
-        createHandleDragStopEvent: function(){
-            var toolView = this;
-            return function (event, ui) {
-                if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
-                    var indexForNewNode = toolView.toolPalette.dragDropManager.getDroppedNodeIndex();
-                    if(indexForNewNode >= 0){
-                        toolView.toolPalette.dragDropManager.getActivatedDropTarget()
+    createHandleDragStopEvent: function(){
+        var toolView = this;
+        return function (event, ui) {
+            if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
+                var indexForNewNode = toolView.toolPalette.dragDropManager.getDroppedNodeIndex();
+                if(indexForNewNode >= 0){
+                    toolView.toolPalette.dragDropManager.getActivatedDropTarget()
                             .addChild(toolView.toolPalette.dragDropManager.getNodeBeingDragged(), indexForNewNode);
-                    } else {
-                        toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(toolView.toolPalette.dragDropManager.getNodeBeingDragged());
-                    }
-                }
-                toolView.toolPalette.dragDropManager.reset();
-                toolView._$disabledIcon = undefined;
-                toolView._$draggedToolIcon = undefined;
-            };
-        },
-
-        createHandleOnDragEvent : function(){
-            var toolView = this;
-            return function (event, ui) {
-                if(!toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
-                    toolView._$disabledIcon.show();
-                    toolView._$draggedToolIcon.css('opacity', 0.1);
                 } else {
-                    toolView._$disabledIcon.hide();
-                    toolView._$draggedToolIcon.css('opacity', 1);
+                    toolView.toolPalette.dragDropManager.getActivatedDropTarget()
+                            .addChild(toolView.toolPalette.dragDropManager.getNodeBeingDragged());
                 }
-            };
-        },
-
-        createHandleDragStartEvent : function(){
-            var toolView = this;
-            return function(event,ui){
-                // Get the meta information/ arguments to create the particular tool
-                var meta = toolView.model.get('meta') || {};
-                toolView.toolPalette.dragDropManager.setNodeBeingDragged(toolView.model.nodeFactoryMethod(meta, true));
             }
-        },
+            toolView.toolPalette.dragDropManager.reset();
+            toolView._$disabledIcon = undefined;
+            toolView._$draggedToolIcon = undefined;
+        };
+    },
 
-        render: function (parent, orderVertical) {
-            var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
-            this._dragCursorOffset = dragCursorOffset;
-            var self = this;
-
-            if(!_.isNil(this.model.attributes.seperator) && this.model.attributes.seperator ){
-                parent.append("<div class='clear-fix '/><div class='tool-separator' />");
-                return;
-            }
-            // setting id for the div
-            this.$el.attr('id', this.model.id);
-            if (orderVertical) {
-                this.$el.html(this.toolTemplateVertical(this.model.attributes));
+    createHandleOnDragEvent : function(){
+        var toolView = this;
+        return function (event, ui) {
+            if(!toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
+                toolView._$disabledIcon.show();
+                toolView._$draggedToolIcon.css('opacity', 0.1);
             } else {
-                this.$el.html(this.toolTemplate(this.model.attributes));
+                toolView._$disabledIcon.hide();
+                toolView._$draggedToolIcon.css('opacity', 1);
             }
+        };
+    },
 
-            if(!_.isNil(this.model.parent)){
-                parent.find('#'+this.model.parent).after(this.$el);
-            } else {
-                parent.append(this.$el);
-            }
+    createHandleDragStartEvent : function(){
+        var toolView = this;
+        return function(event,ui){
+            // Get the meta information/ arguments to create the particular tool
+            var meta = toolView.model.get('meta') || {};
+            toolView.toolPalette.dragDropManager.setNodeBeingDragged(toolView.model.nodeFactoryMethod(meta, true));
+        };
+    },
 
-            this.$el.find('.tool-block').tooltip();
+    render: function (parent, orderVertical) {
+        var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
+        this._dragCursorOffset = dragCursorOffset;
+        var self = this;
 
-            this.$el.draggable({
-                helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
-                cursor: 'move',
-                cursorAt: dragCursorOffset,
-                containment: _.get(self._options, 'containment_element'),
-                zIndex: 10001,
-                stop: this.createHandleDragStopEvent(),
-                start : this.createHandleDragStartEvent(),
-                drag:this.createHandleOnDragEvent()
-            });
+        if(!_.isNil(this.model.attributes.seperator) && this.model.attributes.seperator ){
+            parent.append("<div class='clear-fix '/><div class='tool-separator' />");
+            return;
+        }
+        // setting id for the div
+        this.$el.attr('id', this.model.id);
+        if (orderVertical) {
+            this.$el.html(this.toolTemplateVertical(this.model.attributes));
+        } else {
+            this.$el.html(this.toolTemplate(this.model.attributes));
+        }
 
-            // registering id-modified event
-            this.model.on('id-modified', this.updateToolId, this);
-            return this;
-        },
+        if(!_.isNil(this.model.parent)){
+            parent.find('#'+this.model.parent).after(this.$el);
+        } else {
+            parent.append(this.$el);
+        }
 
-        createContainerForDraggable: function(){
-            var body = d3.select("body");
-            var div = body.append("div").attr("id", "draggingToolClone")
+        this.$el.find('.tool-block').tooltip();
+
+        this.$el.draggable({
+            helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
+            cursor: 'move',
+            cursorAt: dragCursorOffset,
+            containment: _.get(self._options, 'containment_element'),
+            zIndex: 10001,
+            stop: this.createHandleDragStopEvent(),
+            start : this.createHandleDragStartEvent(),
+            drag:this.createHandleOnDragEvent()
+        });
+
+        // registering id-modified event
+        this.model.on('id-modified', this.updateToolId, this);
+        return this;
+    },
+
+    createContainerForDraggable: function(){
+        var body = d3.select("body");
+        var div = body.append("div").attr("id", "draggingToolClone")
                         .classed(_.get(this._options, 'cssClass.dragContainer'), true);
 
-            //For validation feedback
-            var disabledIconDiv = div.append('div').classed(_.get(this._options, 'cssClass.disabledIconContainer'), true);
-            disabledIconDiv.append('i').classed(_.get(this._options, 'cssClass.disabledIcon'), true);
-            this._$disabledIcon = $(disabledIconDiv.node());
-            this._$disabledIcon.css('top', this._dragCursorOffset.top + 20);
-            this._$disabledIcon.css('left', this._dragCursorOffset.left - 10);
-            return div;
-        },
+        //For validation feedback
+        var disabledIconDiv = div.append('div').classed(_.get(this._options, 'cssClass.disabledIconContainer'), true);
+        disabledIconDiv.append('i').classed(_.get(this._options, 'cssClass.disabledIcon'), true);
+        this._$disabledIcon = $(disabledIconDiv.node());
+        this._$disabledIcon.css('top', this._dragCursorOffset.top + 20);
+        this._$disabledIcon.css('left', this._dragCursorOffset.left - 10);
+        return div;
+    },
 
-        createCloneCallback: function (view) {
-            var icon = this.model.icon,
-                self = this,
-                iconSize = _.get(this, 'options.dragIcon.box.size');
-            var self = this;
-            d3.select(icon).attr("width", iconSize).attr("height", iconSize);
-            function cloneCallBack() {
-                var div = view.createContainerForDraggable();
-                div.node().appendChild(icon);
-                self._$draggedToolIcon = $(icon);
-                return div.node();
-            }
-
-            return cloneCallBack;
-        },
-
-        /**
-         * updates tool id and change view attributes of the tool item
-         * @param {string} id - id of the tool
-         */
-        updateToolId: function (id) {
-            this.$el.find('.tool-container-vertical-title').text(id);
-            this.$el.attr('id', id);
+    createCloneCallback: function (view) {
+        var icon = this.model.icon,
+            self = this,
+            iconSize = _.get(this, 'options.dragIcon.box.size');
+        var self = this;
+        d3.select(icon).attr("width", iconSize).attr("height", iconSize);
+        function cloneCallBack() {
+            var div = view.createContainerForDraggable();
+            div.node().appendChild(icon);
+            self._$draggedToolIcon = $(icon);
+            return div.node();
         }
-    });
 
-    export default toolView;
+        return cloneCallBack;
+    },
+
+    /**
+     * updates tool id and change view attributes of the tool item
+     * @param {string} id - id of the tool
+     */
+    updateToolId: function (id) {
+        this.$el.find('.tool-container-vertical-title').text(id);
+        this.$el.attr('id', id);
+    }
+});
+
+export default toolView;

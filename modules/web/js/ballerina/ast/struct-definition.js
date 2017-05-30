@@ -131,7 +131,7 @@ class StructDefinition extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        return this.getFactory().isVariableDefinition(node)
+        return this.getFactory().isVariableDefinition(node);
     }
 
     /**

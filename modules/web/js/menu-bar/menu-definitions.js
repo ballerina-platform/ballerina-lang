@@ -20,11 +20,11 @@ import FileMenu from './file-menu';
 import EditMenu from './edit-menu';
 import HelpMenu from './help-menu';
 import CodeMenu from './code-menu';
-    var menuBar = {};
+var menuBar = {};
 
-    menuBar[FileMenu.id] = FileMenu;
-    menuBar[EditMenu.id] = EditMenu;
-    menuBar[CodeMenu.id] = CodeMenu;
-    menuBar[HelpMenu.id] = HelpMenu;
+menuBar[FileMenu.id] = FileMenu;
+menuBar[EditMenu.id] = EditMenu;
+menuBar[CodeMenu.id] = CodeMenu;
+menuBar[HelpMenu.id] = HelpMenu;
 
-    export default menuBar;
+export default menuBar;

@@ -29,7 +29,7 @@ var getModelBackend = 'http://localhost:8289/ballerina/model/content';
 
 //Ballerina AST Deserializer
 function ballerinaASTDeserializer(fileContent){
-    var backend = new Backend({'url' : getModelBackend})
+    var backend = new Backend({'url' : getModelBackend});
     var response = backend.parse(fileContent);
     var ASTModel = BallerinaASTDeserializer.getASTModel(response);
     var sourceGenVisitor = new BallerinaASTRootVisitor();
@@ -63,7 +63,7 @@ describe ('Ballerina Composer Test Suite', function() {
     testFiles.forEach(function(testFile) {
         it (testFile.replace(/^.*[\\\/]/, '') + ' file serialize/deserialize test', function() {
             var expectedSource = readFile(testFile);
-            var generatedSource = ballerinaASTDeserializer(expectedSource)
+            var generatedSource = ballerinaASTDeserializer(expectedSource);
             if (generatedSource !== expectedSource) {
                 log.error('error');
             }

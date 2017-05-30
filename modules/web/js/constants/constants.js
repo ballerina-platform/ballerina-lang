@@ -12,7 +12,7 @@
       TYPE_MAPPER_SOURCE_STRUCT_SCHEMA: 'sourceStruct',
       TYPE_MAPPER_TARGET_STRUCT_NAME: 'targetStructName',
       TYPE_MAPPER_TARGET_STRUCT_SCHEMA: 'targetStruct'
-  }
+  };
 
   export default constants;
 

@@ -69,7 +69,7 @@ class CallableDefinition extends ASTNode {
     }
 
     getWorkerDeclarations() {
-       return this.workerDeclarations;
+        return this.workerDeclarations;
     }
 
     getStatements() {

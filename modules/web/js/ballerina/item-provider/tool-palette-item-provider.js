@@ -169,7 +169,7 @@ class ToolPaletteItemProvider extends EventChannel {
 
                 // Need to remove any old group models added for this package and add the new one
                 _.remove(this._toolGroups, function(group){
-                    return group.get('toolGroupName') === pckg.getName()
+                    return group.get('toolGroupName') === pckg.getName();
                 });
 
                 // Similarly need to remove old views
@@ -242,16 +242,16 @@ class ToolPaletteItemProvider extends EventChannel {
         }]);
 
         var functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
-            return functionDef.getName()
+            return functionDef.getName();
         }]);
 
         _.each(connectorsOrdered, function (connector) {
             var packageName = _.last(_.split(pckg.getName(), '.'));
             connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
             var getParamString = function() {
-                var params = _.map(connector.getParams(), function(p){return p.identifier});
+                var params = _.map(connector.getParams(), function(p){return p.identifier;});
                 return _.join(params, ', ');
-            }
+            };
             connector.meta = {
                 connectorName: connector.getName(),
                 connectorPackageName: packageName,
@@ -387,7 +387,7 @@ class ToolPaletteItemProvider extends EventChannel {
             var icon = self.icons.connector;
 
             var getParamString = function() {
-                var params = _.map(connector.getParams(), function(p){return p.identifier});
+                var params = _.map(connector.getParams(), function(p){return p.identifier;});
                 return _.join(params, ',');
             };
 

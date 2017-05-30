@@ -29,7 +29,7 @@ class TypeMapperVariableReferenceExpressionVisitor extends AbstractExpressionSou
     }
 
     beginVisitVariableReferenceExpression(expression) {
-       log.debug('Begin Visit Type Mapper Variable Reference Expression');
+        log.debug('Begin Visit Type Mapper Variable Reference Expression');
     }
 
     visitVariableReferenceExpression(expression) {

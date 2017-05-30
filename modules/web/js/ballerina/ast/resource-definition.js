@@ -128,8 +128,8 @@ class ResourceDefinition extends ASTNode {
     addParameter(annotationType, annotationText, parameterType, parameterIdentifier) {
         // Check if already parameter exists with same identifier.
         let identifierAlreadyExists = _.findIndex(this.getParameters(), function (parameter) {
-                return parameter.getName() === parameterIdentifier;
-            }) !== -1;
+            return parameter.getName() === parameterIdentifier;
+        }) !== -1;
 
         // If parameter with the same identifier exists, then throw an error. Else create the new parameter.
         if (identifierAlreadyExists) {

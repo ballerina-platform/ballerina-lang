@@ -34,18 +34,18 @@ class PackageDefinition extends ASTNode {
      * @param name
      */
     setPackageName(packageName, options) {
-      if(!_.isNil(packageName)){
-          var self = this,
-              changeCallBack = function() {
-                  self.trigger('package-name-changed');
-              };
+        if(!_.isNil(packageName)){
+            var self = this,
+                changeCallBack = function() {
+                    self.trigger('package-name-changed');
+                };
 
-          options = options || {};
-          options.undoCallBack = changeCallBack;
-          options.redoCallBack = changeCallBack;
+            options = options || {};
+            options.undoCallBack = changeCallBack;
+            options.redoCallBack = changeCallBack;
 
-          this.setAttribute('_packageName', packageName, options);
-      }
+            this.setAttribute('_packageName', packageName, options);
+        }
     }
 
     /**
@@ -53,7 +53,7 @@ class PackageDefinition extends ASTNode {
      * @returns {String}
      */
     getPackageName() {
-      return this._packageName;
+        return this._packageName;
     }
 
     /**

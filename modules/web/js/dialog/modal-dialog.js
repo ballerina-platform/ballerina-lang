@@ -74,13 +74,13 @@ class ModalDialog extends EventChannel {
     }
 
     showError(error) {
-       this.getErrorContainer().text(error);
-       this.getErrorContainer().show();
+        this.getErrorContainer().text(error);
+        this.getErrorContainer().show();
     }
 
     clearError() {
-       this.getErrorContainer().text("");
-       this.getErrorContainer().hide();
+        this.getErrorContainer().text("");
+        this.getErrorContainer().hide();
     }
 
     hide() {

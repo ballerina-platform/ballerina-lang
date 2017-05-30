@@ -125,7 +125,7 @@ class Application {
 
     validateConfig(config) {
         if (!_.has(config, 'services.workspace.endpoint')) {
-            throw 'config services.workspace.endpoint could not be found for remote log initialization.'
+            throw 'config services.workspace.endpoint could not be found for remote log initialization.';
         } else {
             // disable ajax appender
             //log.initAjaxAppender(_.get(config, 'services.workspace.endpoint'));

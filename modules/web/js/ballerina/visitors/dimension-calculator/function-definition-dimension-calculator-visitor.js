@@ -51,7 +51,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
          * calculate the height of annotation view
          */
         let annotations = node.filterChildren(function (child) {
-            return ASTFactory.isAnnotation(child)
+            return ASTFactory.isAnnotation(child);
         });
 
         _.forEach(annotations, function (annotation) {

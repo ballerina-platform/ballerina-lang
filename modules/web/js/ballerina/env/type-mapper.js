@@ -29,105 +29,104 @@ import EventChannel from 'event_channel';
  * @constructor
  */
 class TypeMapper extends EventChannel {
- constructor(args) {
-     super(args);
-     this._name = _.get(args, 'name', '');
-     this._id = _.get(args, 'id', '');
-     this._title = _.get(args, 'title', '');
-     this._returnType = _.get(args, 'returnType', '');
-     this._sourceAndIdentifier = _.get(args, 'sourceAndIdentifier', '');
- }
+    constructor(args) {
+        super(args);
+        this._name = _.get(args, 'name', '');
+        this._id = _.get(args, 'id', '');
+        this._title = _.get(args, 'title', '');
+        this._returnType = _.get(args, 'returnType', '');
+        this._sourceAndIdentifier = _.get(args, 'sourceAndIdentifier', '');
+    }
 
- /**
-  * sets the name
-  * @param {string} name
-  */
- setName(name) {
-     this._name = name;
- }
+   /**
+    * sets the name
+    * @param {string} name
+    */
+    setName(name) {
+        this._name = name;
+    }
 
- /**
-  * returns the name
-  * @returns {string}
-  */
- getName() {
-     return this._name;
- }
+   /**
+    * returns the name
+    * @returns {string}
+    */
+    getName() {
+        return this._name;
+    }
 
- /**
-  * sets the id
-  * @param {string} id
-  */
- setId(id) {
-     this._id = id;
- }
+   /**
+    * sets the id
+    * @param {string} id
+    */
+    setId(id) {
+        this._id = id;
+    }
 
- /**
-  * returns the id
-  * @returns {string}
-  */
- getId() {
-     return this._id;
- }
+   /**
+    * returns the id
+    * @returns {string}
+    */
+    getId() {
+        return this._id;
+    }
 
- /**
-  * sets the returnType
-  * @param {string} returnType
-  */
- setReturnType(returnType) {
-     this._returnType = returnType;
- }
+   /**
+    * sets the returnType
+    * @param {string} returnType
+    */
+    setReturnType(returnType) {
+        this._returnType = returnType;
+    }
 
- /**
-  * returns the returnType
-  * @returns {string}
-  */
- getReturnType() {
-     return this._returnType;
- }
+   /**
+    * returns the returnType
+    * @returns {string}
+    */
+    getReturnType() {
+        return this._returnType;
+    }
 
- /**
-  * sets the sourceAndIdentifier
-  * @param {string} sourceAndIdentifier
-  */
- setSourceAndIdentifier(sourceAndIdentifier) {
-     this._sourceAndIdentifier = sourceAndIdentifier;
- }
+   /**
+    * sets the sourceAndIdentifier
+    * @param {string} sourceAndIdentifier
+    */
+    setSourceAndIdentifier(sourceAndIdentifier) {
+        this._sourceAndIdentifier = sourceAndIdentifier;
+    }
 
- /**
-  * returns the sourceAndIdentifier
-  * @returns {string}
-  */
- getSourceAndIdentifier() {
-     return this._sourceAndIdentifier;
- }
+   /**
+    * returns the sourceAndIdentifier
+    * @returns {string}
+    */
+    getSourceAndIdentifier() {
+        return this._sourceAndIdentifier;
+    }
 
- /**
-  * sets the title
-  * @param {string} title
-  */
- setTitle(title) {
-     this._title = title;
- }
+   /**
+    * sets the title
+    * @param {string} title
+    */
+    setTitle(title) {
+        this._title = title;
+    }
 
- /**
-  * returns the title
-  * @returns {string}
-  */
- getTitle() {
-     return this._title;
- }
+   /**
+    * returns the title
+    * @returns {string}
+    */
+    getTitle() {
+        return this._title;
+    }
 
- /**
-  * sets values from a json object
-  * @param {Object} jsonNode
-  */
- initFromJson(jsonNode) {
-     this.setName(jsonNode.name);
-     this.setId(jsonNode.name);
-     this.setTitle(jsonNode.name);
- }
+   /**
+    * sets values from a json object
+    * @param {Object} jsonNode
+    */
+    initFromJson(jsonNode) {
+        this.setName(jsonNode.name);
+        this.setId(jsonNode.name);
+        this.setTitle(jsonNode.name);
+    }
 }
 
 export default TypeMapper;
-    

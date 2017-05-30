@@ -73,7 +73,7 @@ class CommonUtils {
                     attribute.setter.call(genArgs.node, currentAttributeValue + counter, opts);
                 }
             }
-        })
+        });
     }
 }
 

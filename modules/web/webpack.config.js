@@ -1,7 +1,7 @@
 var path = require('path');
 var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin
+var UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin;
 
 var extractThemes = new ExtractTextPlugin('./themes/[name].css');
 var extractCSSBundle = new ExtractTextPlugin('./bundle.css');
@@ -20,16 +20,16 @@ var config = {
     },
     module: {
         rules: [{
-          test: /\.js$/,
-          exclude: /(node_modules|modules\/web\/lib)/,
-          use: [
-            {
-              loader: 'babel-loader',
-              query: {
-                  presets: ['es2015', 'react']
-              }
-            }
-          ]
+            test: /\.js$/,
+            exclude: /(node_modules|modules\/web\/lib)/,
+            use: [
+                {
+                    loader: 'babel-loader',
+                    query: {
+                        presets: ['es2015', 'react']
+                    }
+                }
+            ]
         },
         {
             test: /\.html$/,
@@ -74,15 +74,15 @@ var config = {
             test: /\.jsx$/,
             exclude: /(node_modules|modules\/web\/lib)/,
             use: [
-              {
-                loader: 'babel-loader',
-                query: {
-                    presets: ['es2015', 'react']
+                {
+                    loader: 'babel-loader',
+                    query: {
+                        presets: ['es2015', 'react']
+                    }
                 }
-              }
             ]
         }
-      ]
+        ]
     },
     plugins: [
         extractCSSBundle,
@@ -95,7 +95,7 @@ var config = {
         })
     ],
     devServer: {
-      publicPath: '/dist/'
+        publicPath: '/dist/'
     },
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
@@ -155,40 +155,40 @@ var config = {
 
 if (process.env.NODE_ENV === 'production') {
     config.plugins.push(new webpack.DefinePlugin({
-      PRODUCTION: JSON.stringify(true),
+        PRODUCTION: JSON.stringify(true),
 
       // React does some optimizations to it if NODE_ENV is set to 'production'
-      'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
+        'process.env': {
+            NODE_ENV: JSON.stringify('production')
+        }
     }));
 
   // Add UglifyJsPlugin only when we build for production.
   // uglyfying slows down webpack build so we avoid in when in development
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    sourceMap: true,
-    mangle: { keep_fnames: true}
-  }));
+    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+        sourceMap: true,
+        mangle: { keep_fnames: true}
+    }));
 
 }else{
-  config.plugins.push(new webpack.DefinePlugin({
-    PRODUCTION: JSON.stringify(false)
-  }));
+    config.plugins.push(new webpack.DefinePlugin({
+        PRODUCTION: JSON.stringify(false)
+    }));
 }
 
 if (process.env.NODE_ENV === 'test') {
   // we run tests on nodejs. So compile for nodejs
-  config.target = 'node';
+    config.target = 'node';
 }
 
 if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
   // we run tests on nodejs. So compile for nodejs
-  config.target = 'electron-renderer';
+    config.target = 'electron-renderer';
 
   // reassign entry so it uses the entry point for the electron app
-  config.entry = {
-    bundle: './electron-index.js'
-  }
+    config.entry = {
+        bundle: './electron-index.js'
+    };
 }
 
 module.exports = config;

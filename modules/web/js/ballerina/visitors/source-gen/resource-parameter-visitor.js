@@ -32,8 +32,8 @@ class ResourceParameterVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitResourceParameter(resourceParameter) {
-       this.appendSource('(');
-       log.debug('Begin Visit Resource Parameter');
+        this.appendSource('(');
+        log.debug('Begin Visit Resource Parameter');
     }
 
     visitResourceParameter(resourceParameter) {
@@ -41,9 +41,9 @@ class ResourceParameterVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitResourceParameter(resourceParameter) {
-       this.appendSource(' ' + resourceParameter.getIdentifier() + ')');
-       this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-       log.debug('End Visit Resource Parameter');
+        this.appendSource(' ' + resourceParameter.getIdentifier() + ')');
+        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        log.debug('End Visit Resource Parameter');
     }
 }
 

@@ -22,7 +22,7 @@ import TabList from './tab-list';
 import FileTab from './file-tab';
 import File from '../workspace/file';
 
-    var FileTabList = TabList.extend(
+var FileTabList = TabList.extend(
     /** @lends FileTabList.prototype */
     {
         /**
@@ -85,7 +85,7 @@ import File from '../workspace/file';
 
                 if(!_.isUndefined(activeTabId)){
                     var activeTab = _.find(this.getTabList(), function(t){
-                        return t.cid === activeTabId
+                        return t.cid === activeTabId;
                     });
                     if(!_.isUndefined(activeTab)){
                         this.setActiveTab(activeTab);
@@ -111,22 +111,22 @@ import File from '../workspace/file';
             var commandManager = _.get(this, 'options.application.commandManager');
             var self = this;
             var remove = function() {
-              TabList.prototype.removeTab.call(self, tab);
-              if(tab instanceof FileTab) {
-                  _.remove(self._workingFileSet, function(fileID){
-                      return _.isEqual(fileID, tab.getFile().id);
-                  });
-                  tab.trigger('tab-removed');
-                  self.getBrowserStorage().destroy(tab.getFile());
-                  self.getBrowserStorage().put('workingFileSet', self._workingFileSet);
+                TabList.prototype.removeTab.call(self, tab);
+                if(tab instanceof FileTab) {
+                    _.remove(self._workingFileSet, function(fileID){
+                        return _.isEqual(fileID, tab.getFile().id);
+                    });
+                    tab.trigger('tab-removed');
+                    self.getBrowserStorage().destroy(tab.getFile());
+                    self.getBrowserStorage().put('workingFileSet', self._workingFileSet);
                   // open welcome page upon last tab close
-                  if(_.isEmpty(self.getTabList())){
-                      var commandManager = _.get(self, 'options.application.commandManager');
-                      commandManager.dispatch("go-to-welcome-page");
-                  }
-              }
+                    if(_.isEmpty(self.getTabList())){
+                        var commandManager = _.get(self, 'options.application.commandManager');
+                        commandManager.dispatch("go-to-welcome-page");
+                    }
+                }
 
-            }
+            };
 
             if(!_.isFunction(tab.getFile)){
                 remove();
@@ -150,15 +150,15 @@ import File from '../workspace/file';
                 if(shouldSave) {
                     var done = function(saved) {
                         if(saved) {
-                          remove();
+                            remove();
                         }
                         // saved is false if cancelled. Then don't close the tab
-                    }
+                    };
                     commandManager.dispatch('save', {callback: done});
                 } else {
                     remove();
                 }
-            }
+            };
 
             commandManager.dispatch('open-close-file-confirm-dialog', {
                 file: file,
@@ -191,7 +191,7 @@ import File from '../workspace/file';
                     currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
                 if(currentActiveIndex >= 0){
                     if(currentActiveIndex < (this._tabs.length - 1)){
-                       nextTabIndex = currentActiveIndex + 1;
+                        nextTabIndex = currentActiveIndex + 1;
                     }
                 }
                 var nextTab = _.nth(this._tabs, nextTabIndex);
@@ -223,4 +223,4 @@ import File from '../workspace/file';
         }
     });
 
-    export default FileTabList;
+export default FileTabList;
