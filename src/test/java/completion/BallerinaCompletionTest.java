@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 
+package completion;
+
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
