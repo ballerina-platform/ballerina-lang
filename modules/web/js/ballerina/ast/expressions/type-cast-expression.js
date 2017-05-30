@@ -114,6 +114,10 @@ class TypeCastExpression extends Expression {
         expString += "(" + targetType + ") " + child.getExpression();
         return expString;
     }
+
+    generateExpression(){
+        return this._expression;
+    }
 }
 
 export default TypeCastExpression;
