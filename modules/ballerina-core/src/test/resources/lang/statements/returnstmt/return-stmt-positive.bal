@@ -125,16 +125,16 @@ function testForkJoin () (message, message) {
     fork {
         worker foo {
             message resp1 = null;
-            reply resp1;
+            resp1 -> fork;
         }
 
         worker bar {
             message resp2 = {};
-            reply resp2;
+            resp2 -> fork;
         }
-    }join (all) (message[] allReplies) {
-        return allReplies[0], allReplies[1];
-    } timeout (30000) (message[] msgs) {
+    }join (all) (any[][] allReplies) {
+        return (message)allReplies[0][0], (message)allReplies[1][0];
+    } timeout (30000) (any[][] msgs) {
         return null, null;
     }
 }

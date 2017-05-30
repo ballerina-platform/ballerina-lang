@@ -112,6 +112,7 @@ public class TypeLattice {
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex messageV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MESSAGE_TNAME)));
         
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(floatV, false);
@@ -121,6 +122,7 @@ public class TypeLattice {
         explicitCastLattice.addVertex(jsonV, false);
         explicitCastLattice.addVertex(anyV, false);
         explicitCastLattice.addVertex(connectorV, false);
+        explicitCastLattice.addVertex(messageV, false);
 
         explicitCastLattice.addEdge(intV, intV, NativeConversionMapper.INT_TO_INT_FUNC, InstructionCodes.NOP);
         explicitCastLattice.addEdge(intV, floatV, NativeConversionMapper.INT_TO_FLOAT_FUNC, InstructionCodes.I2F);
@@ -177,6 +179,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(jsonV, floatV, NativeConversionMapper.JSON_TO_FLOAT_FUNC, InstructionCodes.JSON2F);
         explicitCastLattice.addEdge(jsonV, booleanV, NativeConversionMapper.JSON_TO_BOOLEAN_FUNC,
                 InstructionCodes.JSON2B);
+
         // explicitCastLattice.addEdge(jsonV, mapV, NativeCastMapper.JSON_TO_MAP_FUNC);
 
         explicitCastLattice.addEdge(xmlV, xmlV, NativeCastMapper.XML_TO_XML_FUNC);

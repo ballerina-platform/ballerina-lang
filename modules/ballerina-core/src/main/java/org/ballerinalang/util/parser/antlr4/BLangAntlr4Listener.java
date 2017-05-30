@@ -1338,19 +1338,66 @@ public class BLangAntlr4Listener implements BallerinaListener {
     public void exitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx) {
     }
 
+    /**
+     * Enter a parse tree produced by the {@code invokeWorker}
+     * labeled alternative in {@link BallerinaParser#triggerWorker}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
-    public void enterTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) {
+    public void enterInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
+
     }
 
+    /**
+     * Exit a parse tree produced by the {@code invokeWorker}
+     * labeled alternative in {@link BallerinaParser#triggerWorker}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
-    public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) {
+    public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
         if (ctx.exception == null) {
             WhiteSpaceDescriptor whiteSpaceDescriptor = null;
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getWorkerInvokeStmtWS(tokenStream, ctx);
             }
-            modelBuilder.createWorkerInvocationStmt(ctx.Identifier().getText(),
-                    getCurrentLocation(ctx), whiteSpaceDescriptor);
+            if (ctx.Identifier() != null) {
+                modelBuilder.createWorkerInvocationStmt(ctx.Identifier().getText(),
+                        getCurrentLocation(ctx), whiteSpaceDescriptor);
+            } else {
+                modelBuilder.createWorkerInvocationStmt(null,
+                        getCurrentLocation(ctx), whiteSpaceDescriptor);
+            }
+        }
+    }
+
+    /**
+     * Enter a parse tree produced by the {@code invokeFork}
+     * labeled alternative in {@link BallerinaParser#triggerWorker}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterInvokeFork(BallerinaParser.InvokeForkContext ctx) {
+
+    }
+
+    /**
+     * Exit a parse tree produced by the {@code invokeFork}
+     * labeled alternative in {@link BallerinaParser#triggerWorker}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) {
+        if (ctx.exception == null) {
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getForkInvokeStmtWS(tokenStream, ctx);
+            }
+            modelBuilder.createWorkerInvocationStmt("fork",
+                        getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 
