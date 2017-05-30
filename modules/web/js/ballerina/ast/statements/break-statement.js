@@ -26,6 +26,11 @@ class BreakStatement extends Statement {
     constructor() {
         super();
         this.type = "BreakStatement";
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: '',
+            2: '\n'
+        }
     }
 
     canBeAChildOf(node) {
@@ -41,9 +46,8 @@ class BreakStatement extends Statement {
     }
 
     getStatement() {
-        return "break";
+        return 'break';
     }
 }
 
 export default BreakStatement;
-
