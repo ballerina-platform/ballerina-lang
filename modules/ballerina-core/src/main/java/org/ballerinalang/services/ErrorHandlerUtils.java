@@ -44,9 +44,9 @@ public class ErrorHandlerUtils {
         if (throwable instanceof StackOverflowError) {
             errorMsg = "fatal " + errorPrefix + "stack overflow ";
         } else if (throwable.getMessage() != null) {
-            errorMsg = errorPrefix + makeFirstLetterLowerCase(throwable.getMessage());
+            errorMsg = makeFirstLetterLowerCase(throwable.getMessage());
         } else {
-            errorMsg = errorPrefix;
+            errorMsg = "";
         }
         return errorMsg;
     }

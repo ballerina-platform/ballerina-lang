@@ -71,7 +71,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             if (service == null) {
-                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
+                balContext.setStatusCode(404);
+                throw new BallerinaException("no service found to handle incoming request received to : " + uriStr);
             }
 
             cMsg.setProperty(Constants.BASE_PATH, basePath);

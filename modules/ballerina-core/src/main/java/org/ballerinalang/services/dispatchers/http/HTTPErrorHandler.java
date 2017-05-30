@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.services.dispatchers.http;
 
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,8 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
     @Override
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback callback) {
-        callback.done(createErrorMessage(e.getMessage(), 500));
+        int statusCode = ((BallerinaException) e).getContext().getStatusCode();
+        callback.done(createErrorMessage(e.getMessage(), statusCode));
     }
 
     @Override
