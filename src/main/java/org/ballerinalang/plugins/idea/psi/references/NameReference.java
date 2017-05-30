@@ -291,7 +291,8 @@ public class NameReference extends BallerinaElementReference {
                     || definitionElement instanceof ConnectorDefinitionNode
                     || definitionElement instanceof StructDefinitionNode
                     || definitionElement instanceof ConstantDefinitionNode
-                    || definitionElement instanceof GlobalVariableDefinitionNode) {
+                    || definitionElement instanceof GlobalVariableDefinitionNode
+                    || definitionElement instanceof AnnotationDefinitionNode) {
                 PsiDirectory myDirectory = myElement.getContainingFile().getContainingDirectory();
                 PsiDirectory definitionDirectory = definitionElement.getContainingFile().getContainingDirectory();
                 if (myDirectory.equals(definitionDirectory)) {
