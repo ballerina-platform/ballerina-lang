@@ -16,13 +16,12 @@
  * under the License.
  */
 import React from 'react';
-import './import-declaration-expanded.css'
+import './import-declaration-expanded.css';
 import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
 import Renderer from './renderer';
 import SuggestionsText from './suggestions-text';
 import ImportDeclarationItem from './import-declaration-item';
-import BallerinaEnvironment from '../env/environment';
 
 export default class importDeclarationExpanded extends React.Component {
     constructor() {
@@ -30,11 +29,7 @@ export default class importDeclarationExpanded extends React.Component {
         this.state = {
             showSuggestions: false,
         };
-        this.packageSuggestions = BallerinaEnvironment.getPackages().map(p => {
-            return {
-                name: p.getName()
-            }
-        });
+
         this.handleAddImportClick = this.handleAddImportClick.bind(this);
         this.handleAddImportBlur = this.handleAddImportBlur.bind(this);
     }
@@ -108,7 +103,7 @@ export default class importDeclarationExpanded extends React.Component {
                 </g>
                 <rect x={ bBox.x } y={ lastImportElementY } height={importInputHeight} className="import-definition-decorator" />
                 <SuggestionsText x={ bBox.x + 5 } y={lastImportElementY + 5} height={importInputHeight - 10}
-                                 width={importDeclarationWidth - 10} suggestionsPool={this.packageSuggestions} show={this.state.showSuggestions}
+                                 width={importDeclarationWidth - 10} suggestionsPool={this.props.packageSuggestions} show={this.state.showSuggestions}
                                  onBlur={this.handleAddImportBlur} onEnter={this.props.onAddImport}/>
             </g>
         );

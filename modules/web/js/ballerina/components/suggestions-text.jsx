@@ -19,7 +19,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import './suggestions-text.css'
+import './suggestions-text.css';
 
 class SuggestionsText extends React.Component {
     constructor(props) {
@@ -40,6 +40,7 @@ class SuggestionsText extends React.Component {
         this.renderSuggestionsContainer = this.renderSuggestionsContainer.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
+        this.renderSuggestion = this.renderSuggestion.bind(this);
         this.storeInputReference = autosuggest => {
             if (autosuggest !== null) {
                 this.input = autosuggest.input;
@@ -48,9 +49,22 @@ class SuggestionsText extends React.Component {
     }
 
     renderSuggestion(suggestion) {
+        const {value} = this.state;
+        const sugName = suggestion.name;
+        const parts = sugName.split(value);
+        const highlightedString = [];
+
+        parts.forEach((p, i) => {
+            highlightedString.push(<span key={i}>{p}</span>);
+            if(i < parts.length - 1) {
+                // if not last
+                highlightedString.push(<span key={i+100}><b>{value}</b></span>);
+            }
+        });
+
         return (
             <div>
-                {suggestion.name}
+                {highlightedString}
             </div>
         );
     }
@@ -167,14 +181,14 @@ class SuggestionsText extends React.Component {
         const {x, y, height, width} = this.props;
 
         const style = {
-            fill: "#eee"
+            fill: '#eee'
         };
 
         if (!this.props.show) {
-            style.display = 'none'
+            style.display = 'none';
         }
 
-        return <rect x={x} y={y} height={height} width={width} style={style}/>
+        return <rect x={x} y={y} height={height} width={width} style={style}/>;
     }
 }
 
