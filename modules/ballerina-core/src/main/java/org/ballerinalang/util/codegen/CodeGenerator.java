@@ -186,7 +186,7 @@ public class CodeGenerator implements NodeVisitor {
     private boolean arrayMapAssignment;
     private boolean structAssignment;
 
-    private Stack<Stack<Instruction>> breakInstructions = new Stack<>();
+    private Stack<List<Instruction>> breakInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -831,15 +831,15 @@ public class CodeGenerator implements NodeVisitor {
         Instruction ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
         emit(ifInstruction);
 
-        breakInstructions.push(new Stack<>());
+        breakInstructions.push(new ArrayList<>());
         whileStmt.getBody().accept(this);
 
         emit(gotoInstruction);
         int nextIP = nextIP();
         ifInstruction.setOperand(1, nextIP);
-        Stack<Instruction> brkInstructions = breakInstructions.pop();
-        while (!brkInstructions.isEmpty()) {
-            brkInstructions.pop().setOperand(0, nextIP);
+        List<Instruction> brkInstructions = breakInstructions.pop();
+        for (Instruction instruction : brkInstructions) {
+            instruction.setOperand(0, nextIP);
         }
     }
 
@@ -847,7 +847,7 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(BreakStmt breakStmt) {
         Instruction gotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
         emit(gotoInstruction);
-        breakInstructions.peek().push(gotoInstruction);
+        breakInstructions.peek().add(gotoInstruction);
     }
 
     @Override
