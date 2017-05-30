@@ -149,50 +149,6 @@ public class NameReference extends BallerinaElementReference {
                     }
                 }
             }
-            //            else {
-            //                // Even though the package name is null, the name reference node might be an annotation
-            //                // node. So we need to get all annotations in the current.
-            //                PsiDirectory directory = file.getParent();
-            //                if (directory == null) {
-            //                    return new ResolveResult[0];
-            //                }
-            //                List<PsiElement> annotations = BallerinaPsiImplUtil
-            //                        .getAllAnnotationsInCurrentPackage(directory);
-            //                for (PsiElement annotation : annotations) {
-            //                    if (getElement().getText().equals(annotation.getText())) {
-            //                        results.add(new PsiElementResolveResult(annotation));
-            //                    }
-            //                }
-            //                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage
-            //                        (directory);
-            //                for (PsiElement connector : connectors) {
-            //                    if (getElement().getText().equals(connector.getText())) {
-            //                        results.add(new PsiElementResolveResult(connector));
-            //                    }
-            //                }
-            //
-            //                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(directory);
-            //                for (PsiElement struct : structs) {
-            //                    if (getElement().getText().equals(struct.getText())) {
-            //                        results.add(new PsiElementResolveResult(struct));
-            //                    }
-            //                }
-            //
-            //                List<PsiElement> globalVariables = BallerinaPsiImplUtil
-            //                        .getAllGlobalVariablesFromPackage(directory);
-            //                for (PsiElement variable : globalVariables) {
-            //                    if (getElement().getText().equals(variable.getText())) {
-            //                        results.add(new PsiElementResolveResult(variable));
-            //                    }
-            //                }
-            //                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage
-            //                        (directory);
-            //                for (PsiElement constant : constants) {
-            //                    if (getElement().getText().equals(constant.getText())) {
-            //                        results.add(new PsiElementResolveResult(constant));
-            //                    }
-            //                }
-            //            }
             return results.toArray(new ResolveResult[results.size()]);
         }
         // Get the last PackageNameNode because we only need to resolve the corresponding package.
@@ -306,10 +262,6 @@ public class NameReference extends BallerinaElementReference {
                             return false;
                         }
                     }
-                    //                    boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
-                    //                    if (!isStructField) {
-                    //                        return isValid((PsiNameIdentifierOwner) definitionElement, refName);
-                    //                    }
                 } else {
                     Map<String, String> allImports =
                             BallerinaPsiImplUtil.getAllImportsInAFile(myElement.getContainingFile());
@@ -351,16 +303,12 @@ public class NameReference extends BallerinaElementReference {
 
                 VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(myElement,
                         VariableReferenceNode.class);
-
                 if (variableReferenceNode == null) {
                     return false;
                 }
-
                 while (variableReferenceNode != null) {
-
                     PsiElement prevSibling = variableReferenceNode.getPrevSibling();
                     if (prevSibling != null) {
-
                         if (prevSibling instanceof LeafPsiElement) {
                             IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
                             if (elementType == BallerinaTypes.DOT) {
@@ -368,7 +316,6 @@ public class NameReference extends BallerinaElementReference {
                             }
                         }
                     }
-
                     PsiElement variableReferenceNodeParent = variableReferenceNode.getParent();
                     if (variableReferenceNodeParent instanceof VariableReferenceNode) {
                         variableReferenceNode = ((VariableReferenceNode) variableReferenceNodeParent);
@@ -376,15 +323,6 @@ public class NameReference extends BallerinaElementReference {
                         variableReferenceNode = null;
                     }
                 }
-
-
-                //                ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(myElement,
-                // ExpressionNode.class);
-                //                if (expressionNode != null) {
-                //                    if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
-                //                        return false;
-                //                    }
-                //                }
                 boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
                 if (!isStructField) {
                     return isValid((PsiNameIdentifierOwner) definitionElement, refName);
@@ -423,7 +361,6 @@ public class NameReference extends BallerinaElementReference {
                 if (resolvedElement == null) {
                     return false;
                 }
-
                 return resolvedElement.getParent().equals(definitionElement);
             } else if (definitionElement instanceof GlobalVariableDefinitionNode) {
                 boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);

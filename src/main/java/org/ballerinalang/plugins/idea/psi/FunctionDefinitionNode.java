@@ -49,35 +49,29 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
         // cause issues when using find usage, etc.
         if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
-
             PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
             if (resolvedElement != null) {
                 return resolvedElement;
             }
-
             VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
                     VariableReferenceNode.class);
             if (variableReferenceNode == null) {
-
-                PsiElement prevToken = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
-                        .getContainingFile(), element.getTextOffset());
-
+                PsiElement prevToken =
+                        BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
+                                element.getTextOffset());
                 if (prevToken instanceof LeafPsiElement) {
                     IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
                     if (elementType == BallerinaTypes.DOT) {
-
-                        PsiElement prevSibling = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
-                                .getContainingFile(), prevToken.getTextOffset());
-
+                        PsiElement prevSibling =
+                                BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
+                                        prevToken.getTextOffset());
                         return BallerinaPsiImplUtil.resolveField(element, prevSibling);
-
                     }
                 }
                 return null;
             }
 
             while (variableReferenceNode != null) {
-
                 PsiElement prevSibling = variableReferenceNode.getPrevSibling();
                 if (prevSibling != null) {
 
@@ -88,7 +82,6 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
                         }
                     }
                 }
-
                 PsiElement variableReferenceNodeParent = variableReferenceNode.getParent();
                 if (variableReferenceNodeParent instanceof VariableReferenceNode) {
                     variableReferenceNode = ((VariableReferenceNode) variableReferenceNodeParent);
@@ -103,9 +96,6 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
                     return null;
                 }
             }
-
-//            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
         } else if (element.getParent() instanceof TypeNameNode) {
