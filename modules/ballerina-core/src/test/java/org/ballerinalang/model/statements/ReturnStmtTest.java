@@ -95,12 +95,11 @@ public class ReturnStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(20, ((BInteger) returns[0]).intValue());
     }
-    //TODO need to fix function overloading for both native and non native
-    //TODO current code generator written in mind not to allow function overloading
-    @Test(description = "Test two return values", enabled = false)
+
+    @Test(description = "Test two return values")
     public void testReturnTwoVarDclsTwoReturnArgs() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnTwoVarDclsTwoReturnArgs", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnNoParamTwoVarDclsTwoReturnArgs", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(10, ((BInteger) returns[0]).intValue());
