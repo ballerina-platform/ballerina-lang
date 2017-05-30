@@ -146,12 +146,6 @@ class BallerinaFileEditor extends EventChannel {
                     this.getUndoManager().reset();
                 }
             }
-            // If we have added a new action/function invocation statement the particular import has to be added
-            // to the imports view
-            if (_.isEqual(event.title, 'add import')) {
-                var childModel = event.data.child;
-                self.visit(childModel);
-            }
             _.set(event, 'editor', this);
             _.set(event, 'skipInSourceView', true);
             this.getUndoManager().onUndoableOperation(event);
