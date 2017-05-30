@@ -84,6 +84,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -105,7 +106,6 @@ import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndN
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeFunctionNode;
-import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeTypeMapperNode;
 import org.ballerinalang.model.nodes.fragments.expressions.JSONArrayInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.JSONInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.MapInitExprEndNode;
@@ -144,7 +144,6 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
@@ -1016,14 +1015,13 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         calculateTempOffSet(castExpression);
         Expression rExpr = castExpression.getRExpr();
         TypeCastExpressionEndNode endLink = new TypeCastExpressionEndNode(castExpression);
-        if (castExpression.getEvalFunc() != null) {
-            castExpression.setNext(rExpr);
-            rExpr.setParent(castExpression);
-            rExpr.setNextSibling(endLink);
-            endLink.setParent(castExpression);
-            rExpr.accept(this);
-            endLink.setNext(findNext(castExpression));
-        } else {
+        castExpression.setNext(rExpr);
+        rExpr.setParent(castExpression);
+        rExpr.setNextSibling(endLink);
+        endLink.setParent(castExpression);
+        rExpr.accept(this);
+        endLink.setNext(findNext(castExpression));
+        /*else {
             Expression[] argExprs = castExpression.getArgExprs();
             LinkedNode previous = null;
             if (argExprs.length > 0) {
@@ -1085,9 +1083,14 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             // Visiting each Argument.
             Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
             callableUnitEndLink.setNext(findNext(castExpression));
-        }
+        }*/
     }
 
+    @Override
+    public void visit(TypeConversionExpr typeConversionExpression) {
+        // TODO
+    }
+    
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         calculateTempOffSet(arrayMapAccessExpr);
