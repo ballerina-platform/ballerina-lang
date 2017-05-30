@@ -26,7 +26,7 @@ import Expression from './expression';
 class VariableReferenceExpression extends Expression {
     constructor(args) {
         super('VariableReferenceExpression');
-        this._variableName = _.get(args, 'variableName');
+        this.setVariableName(_.get(args, 'variableName'));
         this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
@@ -53,20 +53,27 @@ class VariableReferenceExpression extends Expression {
      */
     initFromJson(jsonNode) {
         var self = this;
-        this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
+        let refName;
+        if (jsonNode.is_identifier_literal) {
+            refName = `|${jsonNode.variable_reference_name}|`;
+        } else {
+            refName = jsonNode.variable_reference_name;
+        }
+        this.setVariableName(refName, {doSilently: true});
         this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
     generateExpression() {
         var varDef = this.findChild(this.getFactory().isVariableDefinition);
         if (!_.isNil(varDef)) {
+            const varName = varDef.is_identifier_literal ? varDef.getName() : `|${varDef.getName()}|`;
             return (!_.isNil(varDef.getPkgPath()) ?
-                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
+                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varName;
         } else {
             return this.getVariableName();
         }
@@ -74,4 +81,3 @@ class VariableReferenceExpression extends Expression {
 }
 
 export default VariableReferenceExpression;
-

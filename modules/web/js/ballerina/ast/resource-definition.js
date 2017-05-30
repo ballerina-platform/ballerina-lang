@@ -372,7 +372,7 @@ class ResourceDefinition extends ASTNode {
                 uniqueIdentifier: 'httpMethod'
             });
             this.addChild(httpMethodAnnotation, 0);
-        }      
+        }
 
         return httpMethodAnnotation;
     }

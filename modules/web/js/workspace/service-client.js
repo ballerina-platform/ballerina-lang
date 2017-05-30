@@ -188,7 +188,7 @@ class ServiceClient extends EventChannel {
             context: this,
             url: _.get(this.application, 'config.services.workspace.endpoint') + '/write',
             data: 'location=' + btoa(file.getPath()) + '&configName=' + btoa(file.getName()) +
-                                                    '&config=' + (btoa(file.getContent())),
+                                                    '&config=' + (encodeURIComponent(file.getContent())),
             contentType: 'text/plain; charset=utf-8',
             async: false,
             success: function (response) {

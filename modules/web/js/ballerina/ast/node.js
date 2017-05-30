@@ -429,7 +429,7 @@ class ASTNode extends EventChannel {
      * @return {boolean} - True if valid, else false.
      */
     static isValidIdentifier(identifier) {
-        return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
+        return _.isUndefined(identifier) ? false : /^[a-zA-Z_][a-zA-Z0-9_][\u0000-\u007F\uD800-\uDBFF]*$/.test(identifier);
     }
 
     /**
@@ -463,6 +463,14 @@ class ASTNode extends EventChannel {
 
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
+    }
+
+    setIsIdentifierLiteral(isLiteral, options) {
+        this.setAttribute('_is_identifier_literal', isLiteral, options);
+    }
+
+    getIdentifierLiteral() {
+        return this.getAttribute('_is_identifier_literal');
     }
 
     getLineNumber() {
