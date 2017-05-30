@@ -27,15 +27,23 @@ class JoinStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
+        const props = this.props;
 
-        return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Join"}>
-                {children}
-            </BlockStatementDecorator>
-        </CompoundStatementDecorator>);
-        // return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Join"}>
-        //     {children}
-        // </BlockStatementDecorator>);
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'If condition',
+            model: props.model,
+            getterMethod: props.model.getJoinType,
+            setterMethod: props.model.setJoinType
+        };
+
+        return (
+            <CompoundStatementDecorator model={model} bBox={bBox}>
+                <BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Join"}
+                                         expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
+                    {children}
+                </BlockStatementDecorator>
+            </CompoundStatementDecorator>);
     }
 }
 

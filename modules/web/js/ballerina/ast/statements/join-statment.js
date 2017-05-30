@@ -38,8 +38,19 @@ class JoinStatement extends Statement {
         }]);
     }
 
+    setJoinType(type, options) {
+        if (!_.isNil(type)) {
+            this.setAttribute('_join_type', type, options);
+        }
+    }
+
+    getJoinType() {
+        return this._join_type;
+    }
+
     initFromJson(jsonNode) {
         let self = this;
+        self.setJoinType(jsonNode['join_type']);
         _.each(jsonNode.children, function (childNode) {
             let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);

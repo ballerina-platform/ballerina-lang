@@ -1051,6 +1051,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
         JsonObject joinStmtObj = new JsonObject();
         joinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.JOIN_STATEMENT);
+        joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_TYPE, join.getJoinType());
         this.addPosition(joinStmtObj, join.getNodeLocation());
         tempJsonArrayRef.push(new JsonArray());
         join.getJoinBlock().accept(this);
