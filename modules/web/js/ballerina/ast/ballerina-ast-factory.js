@@ -1744,12 +1744,12 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         node = BallerinaASTFactory.createTransformStatement();
         break;
     case 'fork_join_statement':
-            node = BallerinaASTFactory.createForkJoinStatement();
-            break;
-        case 'join_statement':
-            node = BallerinaASTFactory.createJoinStatement();
-            break;
-        case 'transaction_aborted_statement':
+        node = BallerinaASTFactory.createForkJoinStatement();
+        break;
+    case 'join_statement':
+        node = BallerinaASTFactory.createJoinStatement();
+        break;
+    case 'transaction_aborted_statement':
         node = BallerinaASTFactory.createTransactionAbortedStatement();
         break;
     case 'transaction_statement':
