@@ -48,6 +48,7 @@ public class Context {
     private boolean vmBasedExecutor = false;
 
     private StructureType globalMemoryBlock;
+    private BStruct errorThrown;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -137,5 +138,13 @@ public class Context {
 
     public StructureType getGlobalMemoryBlock() {
         return globalMemoryBlock;
+    }
+
+    public BStruct getError() {
+        return errorThrown;
+    }
+
+    public void setError(BStruct error) {
+        this.errorThrown = error;
     }
 }

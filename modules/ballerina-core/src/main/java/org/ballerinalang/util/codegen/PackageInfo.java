@@ -46,6 +46,8 @@ public class PackageInfo {
 
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
+    private List<LineNumberInfo> lineNumberInfoList = new ArrayList<>();
+
     // Package level variable count
     protected int[] plvCount;
 
@@ -96,6 +98,7 @@ public class PackageInfo {
     }
 
     public void addConnectorInfo(String connectorName, ConnectorInfo connectorInfo) {
+        connectorInfo.setPackageInfo(this);
         connectorInfoMap.put(connectorName, connectorInfo);
     }
 
@@ -119,6 +122,40 @@ public class PackageInfo {
 
     public List<Instruction> getInstructionList() {
         return instructionList;
+    }
+
+    // LineNumberInfo
+
+    public List<LineNumberInfo> getLineNumberInfoList() {
+        return lineNumberInfoList;
+    }
+
+    public void addLineNumberInfo(LineNumberInfo lineNumberInfo) {
+        lineNumberInfoList.add(lineNumberInfo);
+    }
+
+    public LineNumberInfo getLineNumberInfo(LineNumberInfo lineNumberInfo) {
+        int index = lineNumberInfoList.indexOf(lineNumberInfo);
+        if (index >= 0) {
+            return lineNumberInfoList.get(index);
+        }
+        return null;
+    }
+
+    public LineNumberInfo getLineNumberInfo(int currentIP) {
+        LineNumberInfo old = null;
+        for (LineNumberInfo lineNumberInfo : lineNumberInfoList) {
+            if (currentIP == lineNumberInfo.getIp()) {
+                // best case.
+                return lineNumberInfo;
+            }
+            if (old != null && currentIP > old.getIp() && currentIP < lineNumberInfo.getIp()) {
+                // TODO : Check condition currentIP > lineNumberInfo.getIP() in different scopes.
+                return old;
+            }
+            old = lineNumberInfo;
+        }
+        return null;
     }
 
     public ProgramFile getProgramFile() {

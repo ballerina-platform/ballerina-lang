@@ -43,6 +43,7 @@ import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
@@ -298,7 +299,6 @@ public class CodeGenerator implements NodeVisitor {
             int serviceNameCPIndex = currentPkgInfo.addCPEntry(serviceNameCPEntry);
 
             ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex);
-            serviceInfo.setServiceName(service.getName());
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             // Assign field indexes for Connector variables
@@ -334,6 +334,7 @@ public class CodeGenerator implements NodeVisitor {
             addWorkerInfoEntries(resourceInfo, resource.getWorkers());
 
             serviceInfo.addResourceInfo(resource.getName(), resourceInfo);
+            resourceInfo.setServiceInfo(serviceInfo);
         }
     }
 
@@ -458,6 +459,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             connectorInfo.addActionInfo(action.getName(), actionInfo);
+            actionInfo.setConnectorInfo(connectorInfo);
         }
     }
 
@@ -686,6 +688,7 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(BlockStmt blockStmt) {
         for (Statement stmt : blockStmt.getStatements()) {
+            addLineNumberInfo(stmt.getNodeLocation());
             stmt.accept(this);
 
             for (int i = 0; i < maxRegIndexes.length; i++) {
@@ -2193,6 +2196,15 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
         }
+    }
+
+    private void addLineNumberInfo(NodeLocation nodeLocation) {
+        if (nodeLocation == null) {
+            return;
+        }
+        LineNumberInfo lineNumberInfo = LineNumberInfo.Factory.create(nodeLocation, currentPkgInfo,
+                currentPkgInfo.getInstructionList().size());
+        currentPkgInfo.addLineNumberInfo(lineNumberInfo);
     }
 
     private LocalVariableInfo getLocalVariableAttributeInfo(ParameterDef parameterDef) {

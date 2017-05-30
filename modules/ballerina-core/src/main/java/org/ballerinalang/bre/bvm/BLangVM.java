@@ -43,6 +43,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -65,16 +67,22 @@ import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
  * @since 0.87
  */
 public class BLangVM {
+
+    private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
     private Context context;
     private ControlStackNew controlStack;
     private ProgramFile programFile;
@@ -568,9 +576,11 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
                     if (sf.longRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                                new BString(" / by zero")));
+                        handleError();
+                        break;
                     }
 
                     sf.longRegs[k] = sf.longRegs[i] / sf.longRegs[j];
@@ -580,9 +590,11 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
                     if (sf.doubleRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                                new BString(" / by zero")));
+                        handleError();
+                        break;
                     }
 
                     sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
@@ -592,9 +604,11 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
-                   if (sf.longRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                    if (sf.longRegs[j] == 0) {
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                                new BString(" / by zero")));
+                        handleError();
+                        break;
                     }
 
                     sf.longRegs[k] = sf.longRegs[i] % sf.longRegs[j];
@@ -604,9 +618,11 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
                     if (sf.doubleRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                                new BString(" / by zero")));
+                        handleError();
+                        break;
                     }
 
                     sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
@@ -1489,5 +1505,38 @@ public class BLangVM {
 
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                 BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
+    }
+
+    private void handleError() {
+        /* TODO implement catch and finally support. */
+        StackFrame catchingStackFrame = null; // TODO: get this from catch block.
+        while (controlStack.getCurrentFrame() != catchingStackFrame) {
+            if (controlStack.fp == 0) {
+                break;
+            }
+            controlStack.popFrame();
+        }
+        if (controlStack.getCurrentFrame() == null) {
+            // root level error handling.
+            ip = -1;
+            PrintStream err = System.err;
+            err.println(BLangVMErrorHandlerUtil.getPrintableStackTrace(context.getError()));
+            if (context.getCarbonMessage() != null) {
+                // Invoke ServiceConnector error handler.
+                Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
+                Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                        BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
+                try {
+                    optionalErrorHandler
+                            .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                            .handleError(new BallerinaException(BLangVMErrorHandlerUtil.getErrorMsg(context.getError
+                                            ())),
+                                    context.getCarbonMessage(), context.getBalCallback());
+                } catch (Exception e) {
+                    logger.error("Cannot handle error using the error handler for: " + protocol, e);
+                }
+            }
+        }
+        // TODO : Implement error handling and set next IP
     }
 }
