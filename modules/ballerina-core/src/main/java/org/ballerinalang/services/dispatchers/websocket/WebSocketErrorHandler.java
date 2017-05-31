@@ -52,7 +52,7 @@ public class WebSocketErrorHandler implements ServerConnectorErrorHandler {
             String uri = (String) carbonMessage.getProperty(Constants.TO);
             session.close(new CloseReason(
                     () -> 1001,
-                    "Server closing connection since no service found for URI: \"" + uri + "\""
+                    "Server closing connection since no service found for URI: " + uri
             ));
         }
     }
