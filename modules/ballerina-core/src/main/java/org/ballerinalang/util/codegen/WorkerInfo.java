@@ -1,49 +1,63 @@
-/*
- * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- * <p>
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+/*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.util.codegen;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * {@code WorkerInfo} contains metadata of a Ballerina worker entry in the program file.
+ * {@code WorkerInfo} represents a worker in Ballerina program file.
  *
- * @since 0.90
+ * @since 0.87
  */
-public class WorkerInfo extends CallableUnitInfo {
+public class WorkerInfo {
 
-    public WorkerInfo(String pkgPath, int pkgCPIndex, String workerName, int workerNameCPIndex) {
-        this.pkgPath = pkgPath;
-        this.pkgCPIndex = pkgCPIndex;
-        this.name = workerName;
-        this.nameCPIndex = workerNameCPIndex;
+    private String workerName;
+    private int workerNameCPIndex;
 
-        codeAttributeInfo = new CodeAttributeInfo();
-        attributeInfoMap.put(AttributeInfo.CODE_ATTRIBUTE, codeAttributeInfo);
+    private CallableUnitInfo callableUnitInfo;
+
+    private CodeAttributeInfo codeAttributeInfo;
+
+    private Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
+
+    public WorkerInfo(String workerName, int workerNameCPIndex) {
+        this.workerName = workerName;
+        this.workerNameCPIndex = workerNameCPIndex;
+        this.codeAttributeInfo = new CodeAttributeInfo();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(pkgCPIndex, nameCPIndex);
+    public String getWorkerName() {
+        return workerName;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof WorkerInfo && pkgCPIndex == (((WorkerInfo) obj).pkgCPIndex)
-                && nameCPIndex == (((WorkerInfo) obj).nameCPIndex);
+    public CodeAttributeInfo getCodeAttributeInfo() {
+        return codeAttributeInfo;
+    }
+
+    public void setCodeAttributeInfo(CodeAttributeInfo codeAttributeInfo) {
+        this.codeAttributeInfo = codeAttributeInfo;
+    }
+
+    public AttributeInfo getAttributeInfo(String attributeName) {
+        return attributeInfoMap.get(attributeName);
+    }
+
+    public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeName, attributeInfo);
     }
 }

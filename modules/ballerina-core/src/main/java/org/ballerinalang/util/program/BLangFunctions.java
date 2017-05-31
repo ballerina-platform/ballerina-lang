@@ -51,6 +51,7 @@ import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
@@ -244,8 +245,9 @@ public class BLangFunctions {
         callerSF.setRefRegs(new BRefType[refRegCount]);
 
         // Now create callee's stackframe
+        WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
-                new org.ballerinalang.bre.bvm.StackFrame(functionInfo, -1, retRegs);
+                new org.ballerinalang.bre.bvm.StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
         controlStackNew.pushFrame(calleeSF);
 
         int longParamCount = 0;
@@ -254,7 +256,7 @@ public class BLangFunctions {
         int intParamCount = 0;
         int refParamCount = 0;
 
-        CodeAttributeInfo codeAttribInfo = functionInfo.getCodeAttributeInfo();
+        CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
         long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
@@ -298,7 +300,7 @@ public class BLangFunctions {
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
-        bLangVM.execFunction(packageInfo, context, functionInfo.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
 
         longRegCount = 0;
         doubleRegCount = 0;
@@ -339,12 +341,13 @@ public class BLangFunctions {
 
     public static void invokePackageInitFunction(ProgramFile programFile, PackageInfo packageInfo, Context context) {
         FunctionInfo initFuncInfo = packageInfo.getInitFunctionInfo();
+        WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
         org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(initFuncInfo,
-                -1, new int[0]);
+                defaultWorker, -1, new int[0]);
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.execFunction(packageInfo, context, initFuncInfo.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.execFunction(packageInfo, context, defaultWorker.getCodeAttributeInfo().getCodeAddrs());
     }
 
     /**

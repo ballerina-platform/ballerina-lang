@@ -56,6 +56,6 @@ public class FunctionStmtTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "undefined-function-stmt.bal:2: undefined function 'foo'")
     public void testUndefinedFunction() {
-        BTestUtils.parseBalFile("lang/statements/undefined-function-stmt.bal");
+        BTestUtils.getProgramFile("lang/statements/undefined-function-stmt.bal");
     }
 }

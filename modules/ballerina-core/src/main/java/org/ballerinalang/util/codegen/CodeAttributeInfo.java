@@ -41,7 +41,7 @@ public class CodeAttributeInfo implements AttributeInfo {
     private int maxBValueRegs;
 
     // Base code address in the instruction array
-    private int codeAddrs;
+    private int codeAddrs = -1;
 
     public int getAttributeNameIndex() {
         return attributeNameIndex;

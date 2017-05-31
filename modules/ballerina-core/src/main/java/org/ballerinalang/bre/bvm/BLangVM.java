@@ -1057,7 +1057,8 @@ public class BLangVM {
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
 
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+        WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
         controlStack.pushFrame(calleeSF);
 
         // Copy arg values from the current StackFrame to the new StackFrame
@@ -1066,45 +1067,49 @@ public class BLangVM {
         // TODO Improve following two lines
         this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
         this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
-        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+
+        // Invoke other workers
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+
     }
 
-    public void invokeWorker(CallableUnitInfo callableUnitInfo, WorkerInvokeCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = controlStack.getCurrentFrame();
-
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
-
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
-        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+    public void invokeWorker(WorkerInfo callableUnitInfo, WorkerInvokeCPEntry funcCallCPEntry) {
+//        int[] argRegs = funcCallCPEntry.getArgRegs();
+//        BType[] paramTypes = callableUnitInfo.getParamTypes();
+//        StackFrame callerSF = controlStack.getCurrentFrame();
+//
+//        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+//        controlStack.pushFrame(calleeSF);
+//
+//        // Copy arg values from the current StackFrame to the new StackFrame
+//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+//
+//        // TODO Improve following two lines
+//        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+//        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+//        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
     }
 
-    public void replyWorker(CallableUnitInfo callableUnitInfo, WorkerReplyCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = controlStack.getCurrentFrame();
-
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
-
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
-        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+    public void replyWorker(WorkerInfo callableUnitInfo, WorkerReplyCPEntry funcCallCPEntry) {
+//        int[] argRegs = funcCallCPEntry.getArgRegs();
+//        BType[] paramTypes = callableUnitInfo.getParamTypes();
+//        StackFrame callerSF = controlStack.getCurrentFrame();
+//
+//        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+//        controlStack.pushFrame(calleeSF);
+//
+//        // Copy arg values from the current StackFrame to the new StackFrame
+//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+//
+//        // TODO Improve following two lines
+//        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+//        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+//        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
     }
 
 
-    private void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
+    public static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;

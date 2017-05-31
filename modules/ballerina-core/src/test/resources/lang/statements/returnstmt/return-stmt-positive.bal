@@ -28,7 +28,7 @@ function testReturnOneParamOneVarDclOneReturnArg(int a) (int) {
     return a + b;
 }
 
-function testReturnTwoVarDclsTwoReturnArgs() (int, string) {
+function testReturnNoParamTwoVarDclsTwoReturnArgs() (int, string) {
     int b;
     string t;
 
