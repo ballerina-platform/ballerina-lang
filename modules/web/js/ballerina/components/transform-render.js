@@ -548,8 +548,8 @@ addFunction(func, reference, onFunctionRemove) {
     var funcText = func.meta.functionName;
     //Allow multiple functions to drag and drop without conflicting
     var functionInvocationModelId = reference.getChildren()[1].getChildren()[0].getID();
-    func.name = (_.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + '-' + func.meta.functionName)
-        + functionInvocationModelId;
+    func.name = (_.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + '-' + func.meta.functionName) +
+                   functionInvocationModelId;
 
     var id = func.name + this.viewIdSeperator + this.viewId;
     if ($('#' + id).length === 0) {

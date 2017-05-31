@@ -159,20 +159,16 @@ class FunctionInvocationExpression extends Expression {
      * @return {string} action invocation statement
      */
     generateExpression() {
-        var argsString = "";
-        var children = this.getChildren();
-
-        for (var itr = 0; itr < children.length; itr++) {
-            argsString += children[itr];
-            if (itr !== children.length - 1) {
-                argsString += ', ';
-            }
-        }
+        let args = [];
+        _.forEach(this.getChildren(), child => {
+            args.push(child.generateExpression());
+        });
+        let argsString = _.join(args, ',');
 
         var functionName = (_.isNil(this.getPackageName()) || _.isEqual(this.getPackageName(), 'Current Package') )
-            ? this.getFunctionName() : this.getPackageName() + ":" + this.getFunctionName();
+            ? this.getFunctionName() : this.getPackageName() + ':' + this.getFunctionName();
 
-        return functionName + '(' + this._params +  ')';
+        return functionName + '(' + argsString +  ')';
     }
 }
 

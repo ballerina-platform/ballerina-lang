@@ -225,16 +225,39 @@ class TransformStatementDecorator extends React.Component {
 
 
            var onConnectionCallback = function(connection) {
-               var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-               var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
-               leftOperand.addChild(self.getStructAccessNode(connection.targetStruct, connection.targetProperty));
-               var rightOperand = BallerinaASTFactory.createRightOperandExpression();
-               rightOperand.addChild(self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty));
-               assignmentStmt.addChild(leftOperand);
-               assignmentStmt.addChild(rightOperand);
-               self.props.model.addChild(assignmentStmt);
+                var sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
+                var targetStruct = _.find(self.predefinedStructs, { name:connection.targetStruct});
+                let sourceExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
+                let targetExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
 
-               return assignmentStmt.id;
+                if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+                    //Connection is from source struct to target struct.
+                    let assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+                    let leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+                    leftOperand.addChild(sourceExpression);
+                    let rightOperand = BallerinaASTFactory.createRightOperandExpression();
+                    rightOperand.addChild(targetExpression);
+                    assignmentStmt.addChild(leftOperand);
+                    assignmentStmt.addChild(rightOperand);
+                    self.props.model.addChild(assignmentStmt);
+                    return assignmentStmt.id;
+                } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
+                    // Connection source is not a struct and target is a struct.
+                    // Source could be a function node.
+                    let assignmentStmt = self.findExistingAssignmentStatement(connection.targetStruct);
+                    assignmentStmt.getChildren()[0].addChild(targetExpression);
+                    return assignmentStmt.id;
+                } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+                    // Connection target is not a struct and source is a struct.
+                    // Target could be a function node.
+                    let assignmentStmt = self.findExistingAssignmentStatement(connection.sourceStruct);
+                    assignmentStmt.getChildren()[1].getChildren()[0].addChild(sourceExpression);
+                    return assignmentStmt.id;
+                } else {
+                    // Connection source and target are not structs
+                    // Source and target could be function nodes.
+                    log.warn('multiple intermediate functions are not yet supported in design view');
+                }
            };
 
            var onDisconnectionCallback = function(connection) {
@@ -268,7 +291,7 @@ class TransformStatementDecorator extends React.Component {
 					let funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
 						functionInvocationExpression.getFullPackageName());
 					let func = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
-					this.mapper.addFunction(func, node, node.getParent().removeChild);
+					this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
 				}
 			});
 	}
@@ -300,9 +323,9 @@ class TransformStatementDecorator extends React.Component {
 				let funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
 				rightExpression.getFullPackageName());
 				let func = funPackage.getFunctionDefinitionByName(rightExpression.getFunctionName());
-				this.mapper.addFunction(func, statement, statement.getParent().removeChild);
+				this.mapper.addFunction(func, statement, statement.getParent().removeChild.bind(statement.getParent()));
 
-                _.forEach(rightExpression.getParams(), parameter => {
+                _.forEach(rightExpression.getParams(), (parameter, i) => {
                     // draw source struct to function connection
                     let conLeft = {};
                     conLeft.id = leftExpression.id;
@@ -315,8 +338,8 @@ class TransformStatementDecorator extends React.Component {
                     conLeft.targetFunction = true;
                     conLeft.targetStruct = func.meta.packageName + '-' + func.getName();
                     conLeft.targetId = rightExpression.getID();
-                    conLeft.targetProperty = [func.getParameters()[0].name];
-                    conLeft.targetType = [func.getParameters()[0].type];
+                    conLeft.targetProperty = [func.getParameters()[i].name];
+                    conLeft.targetType = [func.getParameters()[i].type];
 
                     self.mapper.addConnection(conLeft);
 
@@ -326,8 +349,8 @@ class TransformStatementDecorator extends React.Component {
                     conRight.sourceFunction = true;
                     conRight.sourceStruct = func.meta.packageName + '-' + func.getName();
                     conRight.sourceId = rightExpression.getID();
-                    conRight.sourceProperty = [func.getParameters()[0].name];
-                    conRight.sourceType = [func.getParameters()[0].type];
+                    conRight.sourceProperty = [func.getParameters()[i].name];
+                    conRight.sourceType = [func.getParameters()[i].type];
 
                     conRight.targetStruct = leftExpression.getChildren()[0].getVariableName();
                     var complexTargetProp = this.createComplexProp(conRight.targetStruct,
@@ -341,6 +364,13 @@ class TransformStatementDecorator extends React.Component {
         } else {
             log.error('invalid statement type in transform statement');
         }
+    }
+
+    findExistingAssignmentStatement(id){
+        return _.find(self.props.model.getChildren(), function(child) {
+            let exp = child.getChildren()[1].getChildren()[0];
+            return (BallerinaASTFactory.isFunctionInvocationExpression(exp)) && (_.endsWith(id, exp.getID()));
+        });
     }
 
 	createComplexProp(typeName, children)
