@@ -14,10 +14,9 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.ballerinalang.services.dispatchers.websocket;
+package org.ballerinalang.services.dispatchers.ws;
 
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.osgi.service.component.annotations.Component;
