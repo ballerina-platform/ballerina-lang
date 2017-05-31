@@ -226,6 +226,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START,
                 getWhitespaceToLeft(tokenStream, ctx.connectorBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.connectorBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.connectorBody().stop.getTokenIndex()));
         return ws;
@@ -411,6 +413,8 @@ public class WhiteSpaceUtil {
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_END_TO_NEXT_TOKEN,
                     getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
         }

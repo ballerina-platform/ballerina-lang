@@ -76,7 +76,8 @@ public class WhiteSpaceRegions {
     public static final int CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER = 0;
     public static final int CONNECTOR_DEF_IDENTIFIER_TO_PARAM_LIST_START = 1;
     public static final int CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START = 2;
-    public static final int CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 3;
+    public static final int CONNECTOR_DEF_PARAM_BODY_START_TO_NEXT_TOKEN = 3;
+    public static final int CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in a action definition
     public static final int ACTION_DEF_NATIVE_KEYWORD_TO_ACTION_KEYWORD = 0;
@@ -84,7 +85,8 @@ public class WhiteSpaceRegions {
     public static final int ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START = 2;
     public static final int ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 3;
     public static final int ACTION_DEF_BODY_START_TO_LAST_TOKEN = 4;
-    public static final int ACTION_DEF_BODY_END_TO_NEXT_TOKEN = 5;
+    public static final int ACTION_DEF_BODY_START_TO_NEXT_TOKEN = 5;
+    public static final int ACTION_DEF_BODY_END_TO_NEXT_TOKEN = 6;
 
     // whitespace regions in a struct definition
     public static final int STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER = 0;
