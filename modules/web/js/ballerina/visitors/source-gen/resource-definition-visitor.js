@@ -44,19 +44,19 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         let useDefaultWS = resourceDefinition.whiteSpace.useDefault;
-        let constructedSourceSegment = (useDefaultWS) ? '\n' : '';
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
+        let constructedSourceSegment = '';
         _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment +=
-                          ((useDefaultWS) ? this.getIndentation() : '')
-                          + annotationNode.toString()
-                          + ((useDefaultWS) ? '\n' : '');
+                constructedSourceSegment += annotationNode.toString()
+                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
             }
         });
 
-        constructedSourceSegment +=
-                  ((useDefaultWS) ? this.getIndentation() : '')
-                  + 'resource' + resourceDefinition.getWSRegion(0)
+        constructedSourceSegment += 'resource' + resourceDefinition.getWSRegion(0)
                   + resourceDefinition.getResourceName()
                   + resourceDefinition.getWSRegion(1)
                   + '(';
@@ -91,6 +91,8 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
     endVisitResourceDefinition(resourceDefinition) {
         this.outdent();
         this.appendSource("}" + resourceDefinition.getWSRegion(5));
+        this.appendSource((resourceDefinition.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

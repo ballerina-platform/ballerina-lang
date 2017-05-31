@@ -48,13 +48,10 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
         let constructedSourceSegment = '';
         _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
             annotationNode => {
-                constructedSourceSegment +=
-                      ((useDefaultWS) ? this.getIndentation() : '')
-                      + annotationNode.toString()
-                      + ((useDefaultWS) ? '\n' : '');
+                constructedSourceSegment += annotationNode.toString()
+                      + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
             });
-        constructedSourceSegment += ((useDefaultWS) ? this.getIndentation() : '')
-              + 'service' + serviceDefinition.getWSRegion(0)
+        constructedSourceSegment += 'service' + serviceDefinition.getWSRegion(0)
               + serviceDefinition.getServiceName()
               + serviceDefinition.getWSRegion(1) + '{'
               + serviceDefinition.getWSRegion(2);

@@ -54,10 +54,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         let constructedSourceSegment = '';
         _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment +=
-                ((useDefaultWS) ? this.getIndentation() : '')
-                + annotationNode.toString()
-                + ((useDefaultWS) ? '\n' : '');
+                constructedSourceSegment += annotationNode.toString()
+                  + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
             }
         });
 
@@ -72,8 +70,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += ((useDefaultWS) ? this.getIndentation() : '')
-          + 'connector' + connectorDefinition.getWSRegion(0) + connectorDefinition.getConnectorName()
+        constructedSourceSegment += 'connector'
+          + connectorDefinition.getWSRegion(0) + connectorDefinition.getConnectorName()
           + connectorDefinition.getWSRegion(1) + '(' + argumentsSrc + ')'
           + connectorDefinition.getWSRegion(2) + '{' + connectorDefinition.getWSRegion(3);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
