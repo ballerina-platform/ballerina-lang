@@ -57,7 +57,12 @@ class SimpleTypeName extends ASTNode {
      */
     initFromJson(jsonNode) {
         this.setTypeName(jsonNode.type_name, {doSilently: true});
-        this.setTypeName(jsonNode.type_name, {doSilently: true});
+        this.setPackageName(jsonNode.package_name, {doSilently: true});
+    }
+
+    toString() {
+        return this.getPackageName() + this.getWSRegion(1) + ':' + this.getWSRegion(2)
+                + this.getTypeName() + this.getWSRegion(3);
     }
 }
 

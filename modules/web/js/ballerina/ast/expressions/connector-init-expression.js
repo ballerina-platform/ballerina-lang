@@ -24,52 +24,100 @@ import Expression from './expression';
  * @constructor
  */
 class ConnectorInitExpression extends Expression {
+
     constructor(args) {
-        super('VariableReferenceExpression');
-        this.setVariableName(_.get(args, 'variableName'));
-        this.setExpression(this.generateExpression(), {doSilently: true});
+        super('ConnectorInitExpression');
+        this._arguments = _.get(args, 'arguments', []);
+        this._connectorName = _.get(args, 'connectorName');
     }
 
     /**
-     * Setter for Variable Name
-     * @param variableName
+     * set connector name
+     * @param {SimpleTypeName} SimpleTypeName
      */
-    setVariableName(variableName, options) {
-        this.setAttribute('_variableName', variableName, options);
+    setConnectorName(connectorName, opts) {
+        this.setAttribute('_connectorName', connectorName, opts);
     }
 
     /**
-     * Getter for Variable Name
-     * @returns variableName
+     * get connector name
+     * @return {SimpleTypeName} SimpleTypeName
      */
-    getVariableName() {
-        return this._variableName;
+    getConnectorName() {
+        return this._connectorName;
     }
 
     /**
-     * initialize VariableReferenceExpression from json object
+     * set args
+     * @param {Expression[]} argumets
+     */
+    setArgs(args, opts) {
+        this.setAttribute('_arguments', args, opts);
+    }
+
+    /**
+     * get args
+     * @return {Expression[]} argumets
+     */
+    getArgs() {
+        return this._arguments;
+    }
+
+    accept(visitor) {
+        super.accept(visitor);
+        this.getArgs().forEach((arg) => {
+            visitor.visit(arg);
+            if (visitor.canVisit(arg)) {
+                arg.accept(visitor);
+            }
+        });
+        let connectorName = this.getConnectorName();
+        if (!_.isNil(connectorName)) {
+            visitor.visit();
+            if (visitor.canVisit(connectorName)) {
+                connectorName.accept(visitor);
+            }
+        }
+    }
+
+    /**
+     * initialize ConnectorInitExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.variable_reference_name] - Variable name of the VariableReferenceExpression
      */
     initFromJson(jsonNode) {
-        var self = this;
+        let self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-        this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
-        this.setExpression(this.generateExpression(), {doSilently: true});
+        let argExprs = [];
+        _.each(jsonNode.arguments, function (argNode) {
+            let expr = self.getFactory().createFromJson(argNode);
+            argExprs.push(expr);
+            expr.initFromJson(argNode);
+        });
+        let connectorName;
+        if (!_.isNil(jsonNode.connector_name)) {
+            connectorName = self.getFactory().createFromJson(jsonNode.connector_name);
+            connectorName.initFromJson(jsonNode.connector_name);
+        }
+        this.setConnectorName(connectorName, {doSilently: true});
+        this.setArgs(argExprs, {doSilently: true});
     }
 
     generateExpression() {
-        var varDef = this.findChild(this.getFactory().isVariableDefinition);
-        if (!_.isNil(varDef)) {
-            return (!_.isNil(varDef.getPkgPath()) ?
-                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
-        } else {
-            return this.getVariableName();
-        }
+        let expr = 'create' + this.getWSRegion(1)
+          + this.getConnectorName().toString()
+          + this.getWSRegion(2) + '(';
+        this.getArgs().forEach((arg, index) => {
+            expr += (index !== 0 && arg.whiteSpace.useDefault) ? ' ' : '';
+            expr += arg.generateExpression();
+            if (index < this.getArgs().length) {
+                expr += ',';
+            }
+        });
+        return expr;
     }
 }
 
