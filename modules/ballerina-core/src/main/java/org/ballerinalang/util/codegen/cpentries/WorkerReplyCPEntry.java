@@ -19,6 +19,11 @@ package org.ballerinalang.util.codegen.cpentries;
 
 import java.util.Arrays;
 
+/**
+ * {@code WorkerReplyCPEntry} represents a Ballerina worker reply in the constant pool.
+ *
+ * @since 0.90
+ */
 public class WorkerReplyCPEntry implements ConstantPoolEntry {
     // Registers which contains worker incoming arguments
     private int[] argRegs;

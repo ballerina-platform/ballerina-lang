@@ -122,8 +122,8 @@ public class BLangVM {
         int i;
         int j;
         int k;
-        int lvIndex;
-        int cpIndex;
+        int lvIndex; // Index of the local variable
+        int cpIndex; // Index of the constant pool
         int fieldIndex;
 
         int[] fieldCount;

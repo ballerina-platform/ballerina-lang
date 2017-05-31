@@ -166,6 +166,7 @@ public interface InstructionCodes {
     int ANY2JSON = 158;
     int ANY2MAP = 159;
     int NULL2JSON = 160;
+    int ANY2MSG = 161;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;

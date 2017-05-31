@@ -19,6 +19,11 @@ package org.ballerinalang.util.codegen;
 
 import java.util.Objects;
 
+/**
+ * {@code WorkerInfo} contains metadata of a Ballerina worker entry in the program file.
+ *
+ * @since 0.90
+ */
 public class WorkerInfo extends CallableUnitInfo {
 
     public WorkerInfo(String pkgPath, int pkgCPIndex, String workerName, int workerNameCPIndex) {

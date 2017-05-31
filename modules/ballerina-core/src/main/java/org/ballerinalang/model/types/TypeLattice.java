@@ -170,6 +170,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, connectorV, NativeCastMapper.ANY_TO_CONNECTOR_FUNC);
         explicitCastLattice.addEdge(anyV, anyV, NativeCastMapper.ANY_TO_ANY_FUNC, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, mapV, NativeCastMapper.ANY_TO_MAP_FUNC, InstructionCodes.ANY2MAP);
+        explicitCastLattice.addEdge(anyV, messageV, NativeCastMapper.ANY_TO_MESSAGE_FUNC, InstructionCodes.ANY2MSG);
 
         explicitCastLattice.addEdge(jsonV, jsonV, NativeCastMapper.JSON_TO_JSON_FUNC, InstructionCodes.NOP);
         explicitCastLattice.addEdge(jsonV, anyV, NativeCastMapper.JSON_TO_ANY_FUNC, InstructionCodes.NOP);

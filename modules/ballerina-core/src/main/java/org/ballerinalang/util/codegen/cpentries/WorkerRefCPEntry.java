@@ -20,7 +20,11 @@ package org.ballerinalang.util.codegen.cpentries;
 import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.Objects;
-
+/**
+ * {@code WorkerRefCPEntry} represents a Ballerina worker in the constant pool.
+ *
+ * @since 0.90
+ */
 public class WorkerRefCPEntry implements ConstantPoolEntry {
     // Index to a valid Package entry in the constant pool
     private int packageCPIndex;
