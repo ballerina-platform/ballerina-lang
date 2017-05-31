@@ -27,31 +27,11 @@ class ConnectorDefinitionPositionCalcVisitor {
     }
 
     beginVisit(node) {
+        log.debug('begin visit ConnectorDefinitionPositionCalcVisitor');
+        // populate outer panel BBox positions.
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
-
-        //// Positioning parameters.
-        // Setting positions of parameters.
-        let viewState = node.getViewState();
-
-        // Positioning the opening bracket component of parameters.
-        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth
-            + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding;
-        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
-
-        // Positioning the parameters
-        let nextXPositionOfParameter = viewState.components.openingParameter.x
-            + viewState.components.openingParameter.w;
-        if (node.getArguments().length > 0) {
-            for (let i = 0; i < node.getArguments().length; i++) {
-                let resourceParameter = node.getArguments()[i];
-                nextXPositionOfParameter = this.createPositioningForParameter(resourceParameter,
-                    nextXPositionOfParameter, viewState.bBox.y + viewState.components.annotation.h);
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
-        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
+        // populate panel heading positions.
+        PositioningUtils.populatePanelHeadingPositioning(node, this.createPositioningForParameter);
     }
 
     visit(node) {

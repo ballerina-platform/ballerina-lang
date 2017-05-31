@@ -28,57 +28,11 @@ class ConnectorActionPositionCalcVisitor {
     }
 
     beginVisit(node) {
-        PositioningUtils.populateInnerPanelDecoratorBBoxPosition(node);
-        let viewState = node.getViewState();
-        //// Positioning parameters
-        // Setting positions of function parameters.
-        // Positioning the opening bracket component of the parameters.
-        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth
-            + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding;
-        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
-
-        // Positioning the resource parameters
-        let nextXPositionOfParameter = viewState.components.openingParameter.x +
-            viewState.components.openingParameter.w;
-        if (node.getArguments().length > 0) {
-            for (let i = 0; i < node.getArguments().length; i++) {
-                let argument = node.getArguments()[i];
-                nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
-                    viewState.bBox.y + viewState.components.annotation.h);
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
-        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
-
-        //// Positioning return types
-        // Setting positions of return types.
-        // Positioning the Return type icon component.
-        viewState.components.returnTypesIcon.x = viewState.components.closingParameter.x
-            + viewState.components.closingParameter.w + 10;
-        viewState.components.returnTypesIcon.y = viewState.bBox.y + viewState.components.annotation.h + 18;
-
-        // Positioning the opening bracket component of the return types.
-        viewState.components.openingReturnType.x = viewState.components.returnTypesIcon.x
-            + viewState.components.returnTypesIcon.w;
-        viewState.components.openingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
-
-        // Positioning the parameters
-        let nextXPositionOfReturnType = viewState.components.openingReturnType.x
-            + viewState.components.openingReturnType.w;
-        if (node.getReturnTypes().length > 0) {
-            for (let i = 0; i < node.getReturnTypes().length; i++) {
-                let returnType = node.getReturnTypes()[i];
-                nextXPositionOfReturnType = this.createPositionForTitleNode(returnType, nextXPositionOfReturnType,
-                    viewState.bBox.y + viewState.components.annotation.h);
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingReturnType.x = nextXPositionOfReturnType + 110;
-        viewState.components.closingReturnType.y = viewState.bBox.y + viewState.components.annotation.h;
         log.debug('begin visit ConnectorActionPositionCalcVisitor');
+        // populate inner panel BBox positions
+        PositioningUtils.populateInnerPanelDecoratorBBoxPosition(node);
+        // populate panel heading positions.
+        PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }
 
     visit(node) {

@@ -36,50 +36,11 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateOuterPanelDecoratorBBox(node);
+        util.populateOuterPanelDecoratorBBox(node, node.getAnnotationName());
         let viewState = node.getViewState();
-
         this.annotationAttributeDefinitionDimension(node);
-
         viewState.bBox.h = viewState.components['heading'].h + viewState.components['body'].h
             + viewState.components['annotation'].h;
-        viewState.bBox.w = viewState.components['body'].w;
-
-        const textWidth = util.getTextWidth(node.getAnnotationName());
-        viewState.titleWidth = textWidth.w;
-        viewState.trimmedTitle = textWidth.text;
-
-        //// Creating components for parameters of the annotation
-        // Creating component for opening bracket of the parameters view.
-        viewState.components.openingParameter = {};
-        viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
-
-        // Creating component for closing bracket of the parameters view.
-        viewState.components.closingParameter = {};
-        viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
-
-        let componentWidth = viewState.components['heading'].w > viewState.components['body'].w
-            ? viewState.components['heading'].w : viewState.components['body'].w;
-
-        viewState.bBox.w = componentWidth +
-            this.annotationAttachmentPointWidth(node) +
-            viewState.titleWidth + 14 + (DesignerDefaults.panel.wrapper.gutter.h * 2) + 100;
-    }
-
-    /**
-     * Calculate Attachment point text width for annotation attachments.
-     * @param {AnnotationDefinition} node - Annotation Definition Node.
-     * @return {number} width - return sum of the widths of attachment texts.
-     * */
-    annotationAttachmentPointWidth(node) {
-        let width = 0;
-        if (node.getAttachmentPoints().length > 0) {
-            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
-                width += util.getTextWidth(node.getAttachmentPoints()[i], 0).w;
-            }
-        }
-
-        return width;
     }
 
     /**
