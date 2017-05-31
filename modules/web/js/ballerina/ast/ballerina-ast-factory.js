@@ -97,6 +97,7 @@ import annotationEntry from './annotations/annotation-entry';
 import annotationEntryArray from './annotations/annotation-entry-array';
 import transformStatement from './statements/transform-statement';
 import forkJoinStatement from './statements/fork-join-statment';
+import timeoutStatement from './statements/timeout-statment';
 import joinStatement from './statements/join-statment';
 import transactionAbortedStatement from './statements/transactionaborted-statement';
 import transactionStatement from './statements/transaction-statement';
@@ -359,6 +360,9 @@ BallerinaASTFactory.createJoinStatement = function (args) {
     return new joinStatement(args);
 };
 
+BallerinaASTFactory.createTimeoutStatement = function (args) {
+    return new timeoutStatement(args);
+};
 
 /**
  * Creates Variable Definition Statement
@@ -843,6 +847,15 @@ BallerinaASTFactory.isJoinStatement = function (child) {
  */
 BallerinaASTFactory.isForkJoinStatement = function (child) {
     return child instanceof forkJoinStatement;
+};
+
+/**
+ * instanceof check for ForkTimeoutStatement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isTimeoutStatement = function (child) {
+    return child instanceof timeoutStatement;
 };
 
 /**
@@ -1748,6 +1761,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'join_statement':
         node = BallerinaASTFactory.createJoinStatement();
+        break;
+    case 'timeout_statement':
+        node = BallerinaASTFactory.createTimeoutStatement();
         break;
     case 'transaction_aborted_statement':
         node = BallerinaASTFactory.createTransactionAbortedStatement();

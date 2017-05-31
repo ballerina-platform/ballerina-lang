@@ -389,6 +389,10 @@ class StatementVisitor extends ASTVisitor {
         return false;
     }
 
+    canVisitTimeoutStatement(statement) {
+        return false;
+    }
+
     canVisitJoinStatement(statement) {
         return false;
     }
@@ -519,6 +523,8 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitThrowStatement(node);
         }  else if (ASTFactory.isCommentStatement(node)) {
             return this.canVisitCommentStatement(node);
+        } else if (ASTFactory.isTimeoutStatement(node)) {
+            return this.canVisitTimeoutStatement(node);
         } else if (ASTFactory.isForkJoinStatement(node)) {
             return this.canVisitForkJoinStatement(node);
         } else if (ASTFactory.isJoinStatement(node)) {
@@ -594,6 +600,8 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.beginVisitAbortStatement(node);
+        } else if (ASTFactory.isTimeoutStatement(node)) {
+            return this.beginVisitTimeoutStatement(node);
         } else if (ASTFactory.isForkJoinStatement(node)) {
             return this.beginVisitForkJoinStatement(node);
         }
@@ -661,6 +669,8 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.endVisitAbortStatement(node);
+        } else if (ASTFactory.isTimeoutStatement(node)) {
+            return this.endVisitTimeoutStatement(node);
         } else if (ASTFactory.isForkJoinStatement(node)) {
             return this.endVisitForkJoinStatement(node);
         }

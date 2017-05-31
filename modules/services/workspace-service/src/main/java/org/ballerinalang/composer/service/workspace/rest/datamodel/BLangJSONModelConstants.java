@@ -345,4 +345,6 @@ public class BLangJSONModelConstants {
     public static final String JOIN_TYPE = "join_type";
 
     public static final String IS_IDENTIFIER_LITERAL = "is_identifier_literal";
+
+    public static final String TIMEOUT_STATEMENT = "timeout_statement";
 }

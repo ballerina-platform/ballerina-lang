@@ -39,51 +39,67 @@ class ForkJoinStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit ForkJoinStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
-        let components = {};
-        let statementWidth = DesignerDefaults.fork.lifeLineGutterH;
-        let statementHeight = 0;
+        let bodyW = DesignerDefaults.fork.lifeLineGutterH;
         const workers = node.filterChildren(function (child) {
             return ASTFactory.isWorkerDeclaration(child);
         });
         const join = node.filterChildren(function (child) {
             return ASTFactory.isJoinStatement(child);
         });
+        const timeout = node.filterChildren(function (child) {
+            return ASTFactory.isTimeoutStatement(child);
+        });
         let childWithMaxHeight = _.maxBy(workers, function (child) {
             return child.getViewState().bBox.h;
         });
 
-        statementHeight = childWithMaxHeight.getViewState().bBox.h;
+        let bodyH = childWithMaxHeight.getViewState().bBox.h + DesignerDefaults.statement.gutter.v * 2;
 
         _.forEach(workers, function (child) {
-            statementWidth += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;
+            bodyW += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;
         });
 
         let dropZoneHeight = DesignerDefaults.statement.gutter.v;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
 
-        let h = statementHeight + DesignerDefaults.statement.gutter.v * 2;
-
-        viewState.components['body'] = new SimpleBBox(0, 0, statementWidth, h);
-        h += dropZoneHeight + DesignerDefaults.blockStatement.heading.height;
-
-        if (join.length > 0) {
+        let hOfLowerParts;
+        if (join.length > 0 && timeout.length > 0) {
             const joinBBox = join[0].viewState.bBox;
             const joinStatementsBBox = join[0].viewState.components.statementContainer;
-            h += joinBBox.h;
-            const halfW = statementWidth / 2;
-            if (joinBBox.w > halfW) {
-                statementWidth = joinBBox.w * 2;
+            const timeoutBBox = timeout[0].viewState.bBox;
+            const timeoutStatementsBBox = timeout[0].viewState.components.statementContainer;
+            if (joinBBox.h > timeoutBBox.h) {
+                hOfLowerParts = joinBBox.h;
+                timeoutBBox.h = hOfLowerParts;
+                timeoutStatementsBBox.h = hOfLowerParts;
             } else {
-                joinBBox.w = halfW;
-                joinStatementsBBox.w = halfW;
+                hOfLowerParts = timeoutBBox.h;
+                joinBBox.h = hOfLowerParts;
+                joinStatementsBBox.h = hOfLowerParts;
             }
+            const halfW = Math.max(timeoutBBox.w, joinBBox.w, bodyW / 2);
 
+            joinBBox.w = halfW;
+            joinStatementsBBox.w = halfW;
+            timeoutBBox.w = halfW;
+            timeoutStatementsBBox.w = halfW;
+            bodyW = halfW * 2;
 
+        } else if (join.length > 0) {
+            const joinBBox = join[0].viewState.bBox;
+            const joinStatementsBBox = join[0].viewState.components.statementContainer;
+            hOfLowerParts = joinBBox.h;
+
+            const newW = Math.max(joinBBox.w, bodyW);
+            joinBBox.w = newW;
+            joinStatementsBBox.w = newW;
+            bodyW = newW;
         }
-        viewState.bBox.h = h;
-        viewState.bBox.w = statementWidth;
 
+        viewState.components['body'] = new SimpleBBox(0, 0, bodyW, bodyH);
+        viewState.bBox.h = bodyH + dropZoneHeight + DesignerDefaults.blockStatement.heading.height + hOfLowerParts;
+        viewState.bBox.w = bodyW;
     }
 }
 

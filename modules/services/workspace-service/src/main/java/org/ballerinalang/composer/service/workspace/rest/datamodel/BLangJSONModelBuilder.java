@@ -1047,18 +1047,39 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             worker.accept(this);
         }
 
-
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
-        JsonObject joinStmtObj = new JsonObject();
-        joinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.JOIN_STATEMENT);
-        joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_TYPE, join.getJoinType());
-        this.addPosition(joinStmtObj, join.getNodeLocation());
-        tempJsonArrayRef.push(new JsonArray());
-        join.getJoinBlock().accept(this);
+        String joinType = join.getJoinType();
+        if (joinType != null) {
+            JsonObject joinStmtObj = new JsonObject();
+            joinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.JOIN_STATEMENT);
+            joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_TYPE, joinType);
+            this.addPosition(joinStmtObj, join.getNodeLocation());
 
-        joinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(joinStmtObj);
+            tempJsonArrayRef.push(new JsonArray());
+            join.getJoinBlock().accept(this);
+            joinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+
+            tempJsonArrayRef.peek().add(joinStmtObj);
+        }
+
+        ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
+        Expression timeoutExpression = timeout.getTimeoutExpression();
+        if (timeoutExpression != null) {
+            JsonObject timeoutStmtObj = new JsonObject();
+            timeoutStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                    BLangJSONModelConstants.TIMEOUT_STATEMENT);
+            this.addPosition(timeoutStmtObj, timeout.getNodeLocation());
+            tempJsonArrayRef.push(new JsonArray());
+            Statement timeoutBlock = timeout.getTimeoutBlock();
+            if (timeoutBlock != null) {
+                timeoutBlock.accept(this);
+            }
+
+            timeoutStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(timeoutStmtObj);
+        }
 
         forkJoinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
