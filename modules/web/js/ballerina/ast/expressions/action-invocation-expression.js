@@ -32,6 +32,7 @@ class ActionInvocationExpression extends Expression {
         this._actionConnectorName = _.get(args, 'actionConnectorName', undefined);
         this._arguments = _.get(args, "arguments", []);
         this._connector = _.get(args, 'connector');
+        this._connectorExpr = _.get(args, 'connectorExpr');
         this._fullPackageName = _.get(args, 'fullPackageName', undefined);
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
@@ -124,9 +125,9 @@ class ActionInvocationExpression extends Expression {
         this.setActionConnectorName(jsonNode.action_connector_name, {doSilently: true});
 
         if (jsonNode.children.length > 0) {
-            var connectorExp = this.getFactory().createFromJson(jsonNode.children[0]);
-            connectorExp.initFromJson(jsonNode.children[0]);
-            var connector = this.getInvocationConnector(connectorExp.getExpression());
+            this._connectorExpr = this.getFactory().createFromJson(jsonNode.children[0]);
+            this._connectorExpr.initFromJson(jsonNode.children[0]);
+            var connector = this.getInvocationConnector(this._connectorExpr.getExpression());
             this.setConnector(connector, {doSilently: true});
 
             var self = this;
@@ -189,12 +190,20 @@ class ActionInvocationExpression extends Expression {
             }
         }
 
-        if (!_.isUndefined(this.getConnector()) && !_.isNil(this.getConnector())) {
-            if (!_.isEmpty(argsString)) {
-                argsString = this.getConnector().getConnectorVariable() + ", " + argsString;
-            } else {
-                argsString = this.getConnector().getConnectorVariable();
-            }
+        let connectorRef = '';
+
+        // Get the Connector expression reference name
+        if (!_.isNil(this.getConnector())) {
+            connectorRef = this.getConnector().getConnectorVariable();
+        } else if (!_.isNil(this._connectorExpr)) {
+            connectorRef = this._connectorExpr.getExpression();
+        }
+
+        // Append the connector reference expression name to the arguments string
+        if (!_.isEmpty(argsString)) {
+            argsString = connectorRef + ", " + argsString;
+        } else {
+            argsString = connectorRef;
         }
 
         var expression = this.getActionConnectorName() + '.' + this.getActionName() + '(' + argsString +  ')';

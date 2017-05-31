@@ -64,6 +64,7 @@ import rightOperandExpression from './statements/right-operand-expression';
 import instanceCreationExpression from './expressions/instance-creation-expression';
 import thenBody from './then-body';
 import ifCondition from './if-condition';
+import elseIfCondition from './else-if-condition';
 import arrayMapAccessExpression from './expressions/array-map-access-expression';
 import keyValueExpression from './expressions/key-value-expression';
 import binaryExpression from './expressions/binary-expression';
@@ -80,6 +81,7 @@ import structType from './struct-type';
 import fieldAccessExpression from './expressions/field-access-expression';
 import blockStatement from './statements/block-statement';
 import typeCastExpression from './expressions/type-cast-expression';
+import typeConversionExpression from './expressions/type-conversion-expression';
 import variableDefinition from './variable-definition';
 import breakStatement from './statements/break-statement';
 import throwStatement from './statements/throw-statement';
@@ -422,6 +424,14 @@ BallerinaASTFactory.createTypeCastExpression = function (args) {
 };
 
 /**
+ * creates TypeConversionExpression
+ * @param args
+ */
+BallerinaASTFactory.createTypeConversionExpression = function (args) {
+    return new typeConversionExpression(args);
+};
+
+/**
  * creates WorkerInvocationStatement
  * @param args
  */
@@ -587,6 +597,15 @@ BallerinaASTFactory.createThenBody = function (args) {
  */
 BallerinaASTFactory.createIfCondition = function (args) {
     return new ifCondition(args);
+};
+
+/**
+ * creates ElseIfCondition
+ * @param {Object} args - Arguments for creating a new instance creation.
+ * @returns {ElseIfCondition}
+ */
+BallerinaASTFactory.createElseIfCondition = function (args) {
+    return new elseIfCondition(args);
 };
 
 /**
@@ -960,6 +979,15 @@ BallerinaASTFactory.isTypeCastExpression = function (child) {
 };
 
 /**
+ * instanceof check for TypeConversionExpression
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isTypeConversionExpression = function (child) {
+    return child instanceof typeConversionExpression;
+};
+
+/**
  * instanceof check for If-Else Statement
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
@@ -1228,6 +1256,15 @@ BallerinaASTFactory.isThenBody = function (child) {
  */
 BallerinaASTFactory.isIfCondition = function (child) {
     return child instanceof ifCondition;
+};
+
+/**
+ * instanceof check for ElseIfCondition
+ * @param {ASTNode} child - The ast node.
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isElseIfCondition = function (child) {
+    return child instanceof elseIfCondition;
 };
 
 /**
@@ -1529,6 +1566,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'if_condition':
         node = BallerinaASTFactory.createIfCondition();
         break;
+    case 'else_if_condition':
+        node = BallerinaASTFactory.createElseIfCondition();
+        break;
     case 'equal_expression':
         node = BallerinaASTFactory.createBinaryExpression({"operator": "=="});
         break;
@@ -1591,6 +1631,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'type_cast_expression':
         node = BallerinaASTFactory.createTypeCastExpression();
+        break;
+    case 'type_conversion_expression':
+        node = BallerinaASTFactory.createTypeConversionExpression();
         break;
     case 'type_mapper_definition':
         node = BallerinaASTFactory.createTypeMapperDefinition();

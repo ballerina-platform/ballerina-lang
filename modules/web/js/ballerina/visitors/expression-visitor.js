@@ -75,6 +75,19 @@ class ExpressionVisitor extends ASTVisitor {
     endVisitTypeCastExpression(expression) {
     }
 
+    canVisitTypeConversionExpression(expression) {
+        return false;
+    }
+
+    beginVisitTypeConversionExpression(expression) {
+    }
+
+    visitTypeConversionExpression(expression) {
+    }
+
+    endVisitTypeConversionExpression(expression) {
+    }
+
     /**
      * @param node {ASTNode}
      */
@@ -87,6 +100,8 @@ class ExpressionVisitor extends ASTVisitor {
             return this.visitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.visitTypeCastExpression(node);
+        } else if (ASTFactory.isTypeConversionExpression(node)) {
+            return this.visitTypeConversionExpression(node);
         }
     }
 
@@ -102,6 +117,8 @@ class ExpressionVisitor extends ASTVisitor {
             return this.canVisitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.canVisitTypeCastExpression(node);
+        } else if (ASTFactory.isTypeConversionExpression(node)) {
+            return this.canVisitTypeConversionExpression(node);
         }
     }
 
@@ -117,6 +134,8 @@ class ExpressionVisitor extends ASTVisitor {
             this.beginVisitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             this.beginVisitTypeCastExpression(node);
+        } else if (ASTFactory.isTypeConversionExpression(node)) {
+            this.beginVisitTypeConversionExpression(node);
         }
     }
 
@@ -132,6 +151,8 @@ class ExpressionVisitor extends ASTVisitor {
             return this.endVisitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.endVisitTypeCastExpression(node);
+        } else if (ASTFactory.isTypeConversionExpression(node)) {
+            return this.endVisitTypeConversionExpression(node);
         }
     }
 }
