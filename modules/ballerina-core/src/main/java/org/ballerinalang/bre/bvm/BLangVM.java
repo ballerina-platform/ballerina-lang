@@ -107,7 +107,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-//        traceCode();
+        traceCode();
         exec();
     }
 
@@ -590,7 +590,7 @@ public class BLangVM {
                     k = operands[2];
 
                     // TODO improve error handling in VM
-                    if (sf.longRegs[j] == 0) {
+                   if (sf.longRegs[j] == 0) {
                         throw new BallerinaException(" / by zero");
                     }
 
@@ -629,26 +629,6 @@ public class BLangVM {
                         sf.intRegs[k] = 1;
                     } else {
                         sf.intRegs[k] = -1;
-                    }
-                    break;
-                case InstructionCodes.IAND:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (Boolean.valueOf(sf.intRegs[i] == 1) && Boolean.valueOf(sf.intRegs[j] == 1)) {
-                        sf.intRegs[k] = 1;
-                    } else {
-                        sf.intRegs[k] = 0;
-                    }
-                    break;
-                case InstructionCodes.IOR:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    if (Boolean.valueOf(sf.intRegs[i] == 1) || Boolean.valueOf(sf.intRegs[j] == 1)) {
-                        sf.intRegs[k] = 1;
-                    } else {
-                        sf.intRegs[k] = 0;
                     }
                     break;
                 case InstructionCodes.IFEQ:

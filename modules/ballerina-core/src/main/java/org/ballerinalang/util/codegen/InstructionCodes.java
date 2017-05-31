@@ -123,8 +123,6 @@ public interface InstructionCodes {
     int IFGE = 113;
     int IFGT = 114;
     int IFLE = 115;
-    int IOR = 116;
-    int IAND = 117;
 
     int GOTO = 119;
     int CALL = 120;
