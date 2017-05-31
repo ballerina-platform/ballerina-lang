@@ -90,17 +90,18 @@ public class ConfigServiceImpl {
      * @return
      */
     public JsonObject getComposerConfig(Request request) {
+        String host = getHostName(request);
         if (apiPath == null || "".equals(apiPath)) {
-            apiPath = "http://" + request.getProperties().get("LOCAL_NAME") + ":" + apiPort;
+            apiPath = "http://" + host + ":" + apiPort;
         }
         if (launcherPath == null || "".equals(launcherPath)) {
-            launcherPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + launcherPort;
+            launcherPath = "ws://" + host + ":" + launcherPort;
         }
         if (debuggerPath == null || "".equals(debuggerPath)) {
-            debuggerPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + debuggerPort;
+            debuggerPath = "ws://" + host + ":" + debuggerPort;
         }
         if (langserverPath == null || "".equals(langserverPath)) {
-            langserverPath = "ws://" + request.getProperties().get("LOCAL_NAME") + ":" + langserverPort;
+            langserverPath = "ws://" + host + ":" + langserverPort;
         }
 
         JsonObject workspace = new JsonObject();
@@ -209,5 +210,11 @@ public class ConfigServiceImpl {
 
     public String getDebuggerPath() {
         return debuggerPath;
+    }
+
+    public String getHostName(Request request) {
+        String hostHeader = request.getHeader("Host");
+        String[] split = hostHeader.split(":");
+        return split[0];
     }
 }
