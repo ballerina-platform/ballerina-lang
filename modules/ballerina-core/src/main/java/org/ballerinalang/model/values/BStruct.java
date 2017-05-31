@@ -38,14 +38,17 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
     private int[] intFields;
     private BRefType[] refFields;
 
+    private BType structType;
+
     // TODO Remove this when old executor is removed
     private BType[] fieldTypes;
 
     /**
      * Creates a struct with a single memory block.
      */
-    public BStruct() {
+    public BStruct(BType structType) {
         this(null, new BValue[0]);
+        this.structType = structType;
     }
 
     /**
@@ -117,7 +120,8 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
 
     @Override
     public BType getType() {
-        return structDef;
+        // TODO Temporary solution until the blocking executor is removed.
+        return structDef == null ? structType : structDef;
     }
 
     public BStruct getStackTrace() {

@@ -347,21 +347,39 @@ public class CodeGenerator implements NodeVisitor {
             StructInfo structInfo = new StructInfo(currentPkgCPIndex, structNameCPIndex);
             currentPkgInfo.addStructInfo(structDef.getName(), structInfo);
 
+            BStructType structType = new BStructType(structDef.getName(), structDef.getPackagePath());
+            structInfo.setType(structType);
+
+        }
+
+        for (StructDef structDef : structDefs) {
+            StructInfo structInfo = currentPkgInfo.getStructInfo(structDef.getName());
+
             VariableDefStmt[] fieldDefStmts = structDef.getFieldDefStmts();
+            // TODO Remove
             BType[] structFieldTypes = new BType[fieldDefStmts.length];
+            BStructType.StructField[] structFields = new BStructType.StructField[fieldDefStmts.length];
             for (int i = 0; i < fieldDefStmts.length; i++) {
                 VariableDefStmt fieldDefStmt = fieldDefStmts[i];
                 VariableDef fieldDef = fieldDefStmt.getVariableDef();
-                BType fieldType = fieldDef.getType();
+
+                // Get the VM type -
+                BType fieldType = getVMTypeFromSig(fieldDef.getType().getSig());
                 structFieldTypes[i] = fieldType;
 
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
                 StructVarLocation structVarLocation = new StructVarLocation(fieldIndex);
                 fieldDef.setMemoryLocation(structVarLocation);
+
+                // Add struct field to the BStructType
+                BStructType.StructField structField = new BStructType.StructField(fieldType, fieldDef.getName());
+                structFields[i] = structField;
             }
 
             structInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
+            // TODO Remove
             structInfo.setFieldTypes(structFieldTypes);
+            ((BStructType) structInfo.getType()).setStructFields(structFields);
             resetIndexes(fieldIndexes);
         }
     }
@@ -374,6 +392,9 @@ public class CodeGenerator implements NodeVisitor {
 
             ConnectorInfo connectorInfo = new ConnectorInfo(currentPkgCPIndex, connectorNameCPIndex);
             currentPkgInfo.addConnectorInfo(connectorDef.getName(), connectorInfo);
+
+            BConnectorType connectorType = new BConnectorType(connectorDef.getName(), connectorDef.getPackagePath());
+            connectorInfo.setType(connectorType);
 
             // TODO Temporary solution to get both executors working
             int fieldTypeCount = 0;
@@ -1811,12 +1832,13 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     private BType getVMTypeFromSig(TypeSignature typeSig) {
-        if (typeSig.getSigChar().equals(TypeSignature.SIG_VOID)) {
-            // TODO Handle this condition if(typeSig.equals("V"))
-            return null;
-        }
+//        if (typeSig.getSigChar().equals(TypeSignature.SIG_VOID)) {
+//            // TODO Handle this condition if(typeSig.equals("V"))
+//            return null;
+//        }
 
-        // TODO Need to cache these new connectors
+        // TODO Need to cache these new connectors and structs
+        PackageInfo packageInfo;
 
         switch (typeSig.getSigChar()) {
             case TypeSignature.SIG_INT:
@@ -1832,9 +1854,13 @@ public class CodeGenerator implements NodeVisitor {
             case TypeSignature.SIG_ANY:
                 return BTypes.typeAny;
             case TypeSignature.SIG_STRUCT:
-                return new BStructType(typeSig.getName(), typeSig.getPkgPath(), null, null);
+                packageInfo = programFile.getPackageInfo(typeSig.getPkgPath());
+                StructInfo structInfo = packageInfo.getStructInfo(typeSig.getName());
+                return structInfo.getType();
             case TypeSignature.SIG_CONNECTOR:
-                return new BConnectorType(typeSig.getName(), typeSig.getPkgPath());
+                packageInfo = programFile.getPackageInfo(typeSig.getPkgPath());
+                ConnectorInfo connectorInfo = packageInfo.getConnectorInfo(typeSig.getName());
+                return connectorInfo.getType();
             case TypeSignature.SIG_ARRAY:
                 TypeSignature elementTypeSig = typeSig.getElementTypeSig();
                 BType elementType = getVMTypeFromSig(elementTypeSig);

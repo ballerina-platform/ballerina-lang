@@ -38,11 +38,14 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     private int[] intFields;
     private BRefType[] refFields;
 
+    private BType connectorType;
+
     // TODO Remove this when old executor is removed
     private BType[] fieldTypes;
 
-    public BConnector() {
+    public BConnector(BType connectorType) {
         this(null, new BValue[0]);
+        this.connectorType = connectorType;
     }
 
     public BConnector(Connector connector, BValue[] connectorMemBlock) {

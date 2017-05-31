@@ -63,7 +63,7 @@ public class Context {
     public Context(ProgramFile programFile) {
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
-        this.globalMemoryBlock = new BStruct();
+        this.globalMemoryBlock = new BStruct(null);
         globalMemoryBlock.init(programFile.getGlobalVarIndexes());
     }
 
