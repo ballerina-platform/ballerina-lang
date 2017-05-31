@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
