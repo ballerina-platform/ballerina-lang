@@ -66,6 +66,7 @@ class BallerinaFileEditor extends EventChannel {
         this._debugger = _.get(args, 'debugger');
         this._file = _.get(args, 'file');
         this._id = _.get(args, 'id', 'Ballerina Composer');
+        this._programPackages = _.get(args, 'programPackages');
         this._viewOptions = _.get(args, 'viewOptions', {});
         this._container = _.get(args, 'container');
         this._backendEndpointsOptions = _.get(args, 'backendEndpointsOptions', {});
@@ -206,7 +207,11 @@ class BallerinaFileEditor extends EventChannel {
             throw errMsg;
         }
 
-        var toolPaletteItemProvider = new ToolPaletteItemProvider();
+        this._environment =  new PackageScopedEnvironment();
+        this._environment.addPackages(this._programPackages); 
+        this._package = this._environment.getCurrentPackage();
+
+        var toolPaletteItemProvider = new ToolPaletteItemProvider({editor: this});
         var toolPaletteContainer = $(this._container)
                                     .find(_.get(viewOptions, 'design_view.tool_palette.container'))
                                     .get(0);
@@ -221,9 +226,6 @@ class BallerinaFileEditor extends EventChannel {
 
         // init undo manager
         this._undoManager = new UndoManager();
-
-        this._environment =  new PackageScopedEnvironment();
-        this._package = this._environment.getCurrentPackage();
     }
 
     /**
@@ -463,7 +465,7 @@ class BallerinaFileEditor extends EventChannel {
             if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                 var source = self._sourceView.getContent();
                 if(!_.isEmpty(source.trim())){
-                    var validateResponse = self.validatorBackend.parse(source.trim());
+                    var validateResponse = self.validatorBackend.parse({content: source.trim()});
                     //TODO : error messages from backend come as error or errors. Make this consistent.
                     if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
                         // syntax errors found
@@ -478,7 +480,7 @@ class BallerinaFileEditor extends EventChannel {
                 }
                 self._parseFailed = false;
                 //if no errors display the design.
-                var response = self.parserBackend.parse(source);
+                var response = self.parserBackend.parse({name: self._file.getName(), path: self._file.getPath(), package: self._astRoot, content: source});
                 if (response.error && !_.isEmpty(response.message)) {
                     alerts.error('Cannot switch to design view due to syntax errors : ' + response.message);
                     return;
@@ -533,9 +535,27 @@ class BallerinaFileEditor extends EventChannel {
      * @returns {Object}
      */
     generateCurrentPackage() {
-        var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
-        this._model.accept(symbolTableGenVisitor);
-        return symbolTableGenVisitor.getPackage();
+        var currentPackage;
+        var packages = this._environment.getPackages();
+        var currentPackageArray = _.filter(packages, (pkg) => {
+            return !_.isEmpty(this._model.children) && (pkg.getName() ===  this._model.children[0].getPackageName());
+        });
+        // Check whether the program contains a package name or it is in the dafault package
+        if(!_.isEmpty(currentPackageArray)){
+            // Update Current package object after the package resolving
+            currentPackage = _.clone(currentPackageArray[0]);
+            currentPackage.setName('Current Package');
+            _.remove(packages, function (pkg) {
+                return _.isEqual(pkg.getName(), 'Current Package');
+            });
+            packages.push(currentPackage);
+        }else{
+            // If the program in the default package this will traverse through the model and update the Current package.
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
+            this._model.accept(symbolTableGenVisitor);
+            currentPackage = symbolTableGenVisitor.getPackage();
+        }
+        return currentPackage;
     }
 
     /**
@@ -710,7 +730,7 @@ class BallerinaFileEditor extends EventChannel {
         };
 
         //add import suggestions
-        var packages = BallerinaEnvironment.getPackages();
+        var packages = self._environment.getPackages();
         var packageNames = _.map(packages, function(p){return p._name;});
 
         importValueText.typeahead({
@@ -741,7 +761,7 @@ class BallerinaFileEditor extends EventChannel {
                     currentASTRoot.addImport(newImportDeclaration);
 
                     // add import to the tool pallet
-                    var newPackage = BallerinaEnvironment.searchPackage(newImportDeclaration.getPackageName())[0];
+                    var newPackage = self._environment.searchPackage(newImportDeclaration.getPackageName())[0];
                     // Only add to tool palette if the user input exactly matches an existing package.
                     if(!_.isUndefined(newPackage) && (newPackage.getName() === importTestValue)) {
                         self.toolPalette.getItemProvider().addImportToolGroup(newPackage);

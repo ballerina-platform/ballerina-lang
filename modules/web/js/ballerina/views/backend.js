@@ -40,8 +40,8 @@ class Backend {
      * validate source
      * @param source - Source content
      */
-    parse(source) {
-        var content = { 'content': source };  
+    parse(opts) {
+        var content = { 'fileName': opts.name, 'filePath': opts.path, 'packageName': opts.package, 'content': opts.content };  
         var data = {};
         $.ajax({
             type: 'POST',
