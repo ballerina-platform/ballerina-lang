@@ -190,6 +190,8 @@ public class BLangJSONModelConstants {
 
     public static final String BASIC_LITERAL_VALUE = "basic_literal_value";
 
+    public static final String NULL_LITERAL_EXPRESSION = "null_literal_expression";
+
     public static final String BASIC_LITERAL_TYPE = "basic_literal_type";
 
     public static final String UNARY_EXPRESSION = "unary_expression";

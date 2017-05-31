@@ -1341,7 +1341,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(NullLiteral nullLiteral) {
-
+        JsonObject nullLiteralObj = new JsonObject();
+        nullLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.NULL_LITERAL_EXPRESSION);
+        this.addPosition(nullLiteralObj, nullLiteral.getNodeLocation());
+        this.addWhitespaceDescriptor(nullLiteralObj, nullLiteral.getWhiteSpaceDescriptor());
+        tempJsonArrayRef.peek().add(nullLiteralObj);
     }
 
     @Override
