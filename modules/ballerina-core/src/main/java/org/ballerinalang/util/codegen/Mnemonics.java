@@ -109,6 +109,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FNEG] = "fneg";
 
         mnemonics[InstructionCodes.ICMP] = "icmp";
+        mnemonics[InstructionCodes.IADD] = "iadd";
+        mnemonics[InstructionCodes.IOR] = "ior";
         mnemonics[InstructionCodes.FCMP] = "fcmp";
         mnemonics[InstructionCodes.SCMP] = "scmp";
         mnemonics[InstructionCodes.BCMP] = "bcmp";

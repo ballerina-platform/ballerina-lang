@@ -1018,12 +1018,12 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AndExpression andExpression) {
-
+        emitBinaryAndORExpr(andExpression, InstructionCodes.IAND);
     }
 
     @Override
     public void visit(OrExpression orExpression) {
-
+        emitBinaryAndORExpr(orExpression, InstructionCodes.IOR);
     }
 
 
@@ -1847,6 +1847,18 @@ public class CodeGenerator implements NodeVisitor {
 
         expr.setTempOffset(exprOffset);
         emit(opcode, expr.getLExpr().getTempOffset(), expr.getRExpr().getTempOffset(), exprOffset);
+    }
+
+    private void emitBinaryAndORExpr(BinaryExpression expr, int baseOpcode) {
+        expr.getLExpr().accept(this);
+        expr.getRExpr().accept(this);
+
+        int exprOffset = -1;
+
+        exprOffset = ++regIndexes[BOOL_OFFSET];
+
+        expr.setTempOffset(exprOffset);
+        emit(baseOpcode, expr.getLExpr().getTempOffset(), expr.getRExpr().getTempOffset(), exprOffset);
     }
 
     private int emit(int opcode, int... operands) {

@@ -631,6 +631,26 @@ public class BLangVM {
                         sf.intRegs[k] = -1;
                     }
                     break;
+                case InstructionCodes.IAND:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (Boolean.valueOf(sf.intRegs[i] == 1) && Boolean.valueOf(sf.intRegs[j] == 1)) {
+                        sf.intRegs[k] = 1;
+                    } else {
+                        sf.intRegs[k] = 0;
+                    }
+                    break;
+                case InstructionCodes.IOR:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (Boolean.valueOf(sf.intRegs[i] == 1) || Boolean.valueOf(sf.intRegs[j] == 1)) {
+                        sf.intRegs[k] = 1;
+                    } else {
+                        sf.intRegs[k] = 0;
+                    }
+                    break;
                 case InstructionCodes.IFEQ:
                     i = operands[0];
                     j = operands[1];
