@@ -111,6 +111,7 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BString;
 
 import java.util.Stack;
@@ -1570,8 +1571,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(connectorInitExprObj, connectorInitExpr.getWhiteSpaceDescriptor());
         connectorInitExprObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.CONNECTOR_INIT_EXPR);
-        connectorInitExprObj.addProperty(BLangJSONModelConstants.CONNECTOR_NAME,
-                connectorInitExpr.getTypeName().toString());
+        connectorInitExprObj.add(BLangJSONModelConstants.CONNECTOR_NAME,
+                simpleTypeNameToJson(connectorInitExpr.getTypeName()));
         tempJsonArrayRef.push(new JsonArray());
         if (connectorInitExpr.getArgExprs() != null) {
             for (Expression expression : connectorInitExpr.getArgExprs()) {
@@ -1817,6 +1818,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             JsonObject wsDescriptor = whiteSpaceDescriptorToJson(whiteSpaceDescriptor);
             jsonObj.add(BLangJSONModelConstants.WHITESPACE_DESCRIPTOR, wsDescriptor);
         }
+    }
+
+    private JsonObject simpleTypeNameToJson(SimpleTypeName simpleTypeName) {
+        JsonObject simpleTypeNameObj = new JsonObject();
+        simpleTypeNameObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+                                        BLangJSONModelConstants.SIMPLE_TYPE_NAME);
+        this.addWhitespaceDescriptor(simpleTypeNameObj, simpleTypeName.getWhiteSpaceDescriptor());
+        simpleTypeNameObj.addProperty(BLangJSONModelConstants.TYPE_NAME, simpleTypeName.getName());
+        simpleTypeNameObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, simpleTypeName.getPackageName());
+        return simpleTypeNameObj;
     }
 
     private JsonObject whiteSpaceDescriptorToJson(WhiteSpaceDescriptor whiteSpaceDescriptor) {

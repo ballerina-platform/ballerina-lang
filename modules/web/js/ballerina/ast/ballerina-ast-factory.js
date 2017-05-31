@@ -103,6 +103,7 @@ import transactionStatement from './statements/transaction-statement';
 import abortedStatement from './statements/aborted-statement';
 import abortStatement from './statements/abort-statement';
 import connectorInitExpression from './expressions/connector-init-expression';
+import simpleTypeName from './simple-type-name';
 
 /**
  * @class BallerinaASTFactory
@@ -116,6 +117,14 @@ var BallerinaASTFactory = {};
  */
 BallerinaASTFactory.createBallerinaAstRoot = function (args) {
     return new ballerinaAstRoot(args);
+};
+
+/**
+ * creates SimpleTypeName
+ * @param args
+ */
+BallerinaASTFactory.createSimpleTypeName = function (args) {
+    return new simpleTypeName(args);
 };
 
 /**
@@ -809,6 +818,15 @@ BallerinaASTFactory.createAbortStatement = function (args) {
  */
 BallerinaASTFactory.isBallerinaAstRoot = function (child) {
     return child instanceof ballerinaAstRoot;
+};
+
+/**
+ * instanceof check for SimpleTypeName
+ * @param {Object} child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isSimpleTypeName = function (child) {
+    return child instanceof simpleTypeName;
 };
 
 /**
@@ -1547,6 +1565,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     var nodeType = jsonNode.type;
 
     switch (nodeType) {
+    case 'simple_type_name':
+        node = BallerinaASTFactory.createSimpleTypeName();
+        break;
     case 'package':
         node = BallerinaASTFactory.createPackageDefinition();
         break;
