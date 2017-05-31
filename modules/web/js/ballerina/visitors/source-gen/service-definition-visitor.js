@@ -16,10 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ResourceDefinitionVisitor from './resource-definition-visitor';
-import VariableDeclarationVisitor from './variable-declaration-visitor';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -43,7 +41,11 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         let useDefaultWS = serviceDefinition.whiteSpace.useDefault;
-        let constructedSourceSegment = (useDefaultWS) ? ('\n' + this.getIndentation()) : '' ;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
+        let constructedSourceSegment = '';
         _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
             annotationNode => {
                 constructedSourceSegment +=
@@ -63,6 +65,8 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
     endVisitServiceDefinition(serviceDefinition) {
         this.outdent();
         this.appendSource('}' + serviceDefinition.getWSRegion(3));
+        this.appendSource((serviceDefinition.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
