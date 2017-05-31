@@ -33,6 +33,7 @@ import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,8 +130,9 @@ public class ServerConnectorMessageHandler {
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
 
         // Now create callee's stackframe
+        WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
-                new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, -1, new int[0]);
+                new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         controlStackNew.pushFrame(calleeSF);
 
         int longParamCount = 0;
@@ -139,7 +141,7 @@ public class ServerConnectorMessageHandler {
         int intParamCount = 0;
         int refParamCount = 0;
 
-        CodeAttributeInfo codeAttribInfo = resourceInfo.getCodeAttributeInfo();
+        CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
         long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
@@ -160,13 +162,13 @@ public class ServerConnectorMessageHandler {
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
-        bLangVM.execFunction(packageInfo, context, resourceInfo.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
 //        BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
 //        try {
-            callback.done(cMsg);
+        callback.done(cMsg);
 //            if (connectorCallback.isNonBlockingExecutor()) {
 //                // Continue Non-Blocking
 //                BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();

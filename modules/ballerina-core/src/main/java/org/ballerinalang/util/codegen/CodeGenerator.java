@@ -36,6 +36,7 @@ import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
@@ -172,7 +173,6 @@ public class CodeGenerator implements NodeVisitor {
     private int[] gvIndexes = {-1, -1, -1, -1, -1};
 
     private ProgramFile programFile = new ProgramFile();
-    private CallableUnitInfo callableUnitInfo;
     private String currentPkgPath;
     private int currentPkgCPIndex = -1;
     private PackageInfo currentPkgInfo;
@@ -229,7 +229,7 @@ public class CodeGenerator implements NodeVisitor {
             dependentPkg.accept(this);
         }
 
-        currentPkgPath = bLangPackage.getPackagePath();
+        String currentPkgPath = bLangPackage.getPackagePath();
         UTF8CPEntry pkgPathCPEntry = new UTF8CPEntry(currentPkgPath);
         currentPkgInfo = new PackageInfo(currentPkgPath);
         currentPkgInfo.setProgramFile(programFile);
@@ -256,7 +256,7 @@ public class CodeGenerator implements NodeVisitor {
 
         // Create function info for the package function
         BallerinaFunction pkgInitFunction = bLangPackage.getInitFunction();
-        createFunctionInfoEntries(new Function[] {pkgInitFunction});
+        createFunctionInfoEntries(new Function[]{pkgInitFunction});
 
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
             compilationUnit.accept(this);
@@ -327,6 +327,7 @@ public class CodeGenerator implements NodeVisitor {
                     resource.getName(), resourceNameCPIndex);
             resourceInfo.setParamTypes(getParamTypes(resource.getParameterDefs()));
             resourceInfo.setPackageInfo(currentPkgInfo);
+            addWorkerInfoEntries(resourceInfo, resource.getWorkers());
 
             serviceInfo.addResourceInfo(resource.getName(), resourceInfo);
         }
@@ -424,8 +425,12 @@ public class CodeGenerator implements NodeVisitor {
                     action.getName(), actionNameCPIndex);
             actionInfo.setParamTypes(getParamTypes(action.getParameterDefs()));
             actionInfo.setRetParamTypes(getParamTypes(action.getReturnParameters()));
-            actionInfo.setNative(action.isNative());
             actionInfo.setPackageInfo(currentPkgInfo);
+            actionInfo.setNative(action.isNative());
+
+            if (action instanceof BallerinaAction) {
+                addWorkerInfoEntries(actionInfo, ((BallerinaAction) action).getWorkers());
+            }
 
             connectorInfo.addActionInfo(action.getName(), actionInfo);
         }
@@ -442,10 +447,30 @@ public class CodeGenerator implements NodeVisitor {
                     function.getName(), funcNameCPIndex);
             funcInfo.setParamTypes(getParamTypes(function.getParameterDefs()));
             funcInfo.setRetParamTypes(getParamTypes(function.getReturnParameters()));
-            funcInfo.setNative(function.isNative());
             funcInfo.setPackageInfo(currentPkgInfo);
+            funcInfo.setNative(function.isNative());
+
+            if (function instanceof BallerinaFunction) {
+                addWorkerInfoEntries(funcInfo, ((BallerinaFunction) function).getWorkers());
+            }
 
             currentPkgInfo.addFunctionInfo(function.getName(), funcInfo);
+        }
+    }
+
+    private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, Worker[] workers) {
+        // Create default worker
+        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry("default");
+        int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+        WorkerInfo defaultWorkerInfo = new WorkerInfo("default", workerNameCPIndex);
+        callableUnitInfo.setDefaultWorkerInfo(defaultWorkerInfo);
+
+        // Create other workers if any
+        for (Worker worker : workers) {
+            workerNameCPEntry = new UTF8CPEntry(worker.getName());
+            workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+            WorkerInfo workerInfo = new WorkerInfo(worker.getName(), workerNameCPIndex);
+            callableUnitInfo.addWorkerInfo(worker.getName(), workerInfo);
         }
     }
 
@@ -505,64 +530,13 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(Resource resource) {
-        callableUnitInfo = currentServiceInfo.getResourceInfo(resource.getName());
-
-        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
-        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
-        callableUnitInfo.codeAttributeInfo.setAttributeNameIndex(codeAttribNameIndex);
-        callableUnitInfo.codeAttributeInfo.setCodeAddrs(nextIP());
-
-        // Read annotations attached to this function
-        AnnotationAttachment[] annotationAttachments = resource.getAnnotations();
-        if (annotationAttachments.length > 0) {
-            AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
-            callableUnitInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
-        }
-
-        // Add local variable indexes to the parameters and return parameters
-        visitCallableUnitParameterDefs(resource.getParameterDefs(), callableUnitInfo);
-
-        resource.getCallableUnitBody().accept(this);
-
-        endCallableUnit();
+        ResourceInfo resourceInfo = currentServiceInfo.getResourceInfo(resource.getName());
+        visitCallableUnit(resource, resourceInfo, resource.getWorkers());
     }
 
     @Override
     public void visit(BallerinaFunction function) {
-        callableUnitInfo = currentPkgInfo.getFunctionInfo(function.getName());
-
-        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
-        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
-        callableUnitInfo.codeAttributeInfo.setAttributeNameIndex(codeAttribNameIndex);
-        callableUnitInfo.codeAttributeInfo.setCodeAddrs(nextIP());
-
-        // Read annotations attached to this function
-        AnnotationAttachment[] annotationAttachments = function.getAnnotations();
-        if (annotationAttachments.length > 0) {
-            AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
-            callableUnitInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
-        }
-
-        // Add local variable indexes to the parameters and return parameters
-        visitCallableUnitParameterDefs(function.getParameterDefs(), callableUnitInfo);
-
-        // Visit return parameter defs
-        for (ParameterDef parameterDef : function.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
-                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
-            }
-
-            parameterDef.accept(this);
-        }
-
-        if (!function.isNative()) {
-            function.getCallableUnitBody().accept(this);
-        }
-
-        endCallableUnit();
+        visitCallableUnit(function, currentPkgInfo.getFunctionInfo(function.getName()), function.getWorkers());
     }
 
     @Override
@@ -575,39 +549,8 @@ public class CodeGenerator implements NodeVisitor {
         ConnectorInfo connectorInfo = currentPkgInfo.getConnectorInfo(action.getConnectorDef().getName());
 
         // Now find out the ActionInfo
-        callableUnitInfo = connectorInfo.getActionInfo(action.getName());
-
-        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry("Code");
-        int codeAttribNameCPIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
-        callableUnitInfo.codeAttributeInfo.setAttributeNameIndex(codeAttribNameCPIndex);
-        callableUnitInfo.codeAttributeInfo.setCodeAddrs(nextIP());
-
-        // Read annotations attached to this function
-        AnnotationAttachment[] annotationAttachments = action.getAnnotations();
-        if (annotationAttachments.length > 0) {
-            AnnotationAttributeInfo paramAnnotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
-            callableUnitInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, paramAnnotationsAttribute);
-        }
-
-        // Add local variable indexes to the parameters and return parameters
-        visitCallableUnitParameterDefs(action.getParameterDefs(), callableUnitInfo);
-
-        for (ParameterDef parameterDef : action.getReturnParameters()) {
-            // Check whether these are unnamed set of return types.
-            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
-            if (parameterDef.getName() != null) {
-                int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
-                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
-            }
-
-            parameterDef.accept(this);
-        }
-
-        if (!action.isNative()) {
-            action.getCallableUnitBody().accept(this);
-        }
-
-        endCallableUnit();
+        ActionInfo actionInfo = connectorInfo.getActionInfo(action.getName());
+        visitCallableUnit(action, actionInfo, action.getWorkers());
     }
 
     @Override
@@ -661,7 +604,7 @@ public class CodeGenerator implements NodeVisitor {
         VariableDef variableDef = varDefStmt.getVariableDef();
 
         MemoryLocation memoryLocation = varDefStmt.getVariableDef().getMemoryLocation();
-        if (memoryLocation instanceof StackVarLocation) {
+        if (memoryLocation instanceof StackVarLocation || memoryLocation instanceof WorkerVarLocation) {
             OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableDef.getType().getTag(),
                     InstructionCodes.ISTORE, lvIndexes);
             opcode = opcodeAndIndex.opcode;
@@ -1658,19 +1601,18 @@ public class CodeGenerator implements NodeVisitor {
 
     // Private methods
 
-    private void endCallableUnit() {
-        callableUnitInfo.codeAttributeInfo.setMaxLongLocalVars(lvIndexes[INT_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxDoubleLocalVars(lvIndexes[FLOAT_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxStringLocalVars(lvIndexes[STRING_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxIntLocalVars(lvIndexes[BOOL_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
+    private void endWorkerInfoUnit(CodeAttributeInfo codeAttributeInfo) {
+        codeAttributeInfo.setMaxLongLocalVars(lvIndexes[INT_OFFSET] + 1);
+        codeAttributeInfo.setMaxDoubleLocalVars(lvIndexes[FLOAT_OFFSET] + 1);
+        codeAttributeInfo.setMaxStringLocalVars(lvIndexes[STRING_OFFSET] + 1);
+        codeAttributeInfo.setMaxIntLocalVars(lvIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
 
-        callableUnitInfo.codeAttributeInfo.setMaxLongRegs(maxRegIndexes[INT_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxDoubleRegs(maxRegIndexes[FLOAT_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxStringRegs(maxRegIndexes[STRING_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxIntRegs(maxRegIndexes[BOOL_OFFSET] + 1);
-        callableUnitInfo.codeAttributeInfo.setMaxBValueRegs(maxRegIndexes[REF_OFFSET] + 1);
-        callableUnitInfo = null;
+        codeAttributeInfo.setMaxLongRegs(maxRegIndexes[INT_OFFSET] + 1);
+        codeAttributeInfo.setMaxDoubleRegs(maxRegIndexes[FLOAT_OFFSET] + 1);
+        codeAttributeInfo.setMaxStringRegs(maxRegIndexes[STRING_OFFSET] + 1);
+        codeAttributeInfo.setMaxIntRegs(maxRegIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxBValueRegs(maxRegIndexes[REF_OFFSET] + 1);
 
         resetIndexes(lvIndexes);
         resetIndexes(regIndexes);
@@ -2037,6 +1979,65 @@ public class CodeGenerator implements NodeVisitor {
 
         if (paramAnnotationFound) {
             callableUnitInfo.addAttributeInfo(AttributeInfo.PARAMETER_ANNOTATIONS_ATTRIBUTE, paramAttributeInfo);
+        }
+    }
+
+    private void visitCallableUnit(CallableUnit callableUnit, CallableUnitInfo callableUnitInfo, Worker[] workers) {
+        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
+        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
+
+        // Read annotations attached to this callableUnit
+        AnnotationAttachment[] annotationAttachments = callableUnit.getAnnotations();
+        if (annotationAttachments.length > 0) {
+            AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
+            callableUnitInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
+        }
+
+        // Add local variable indexes to the parameters and return parameters
+        visitCallableUnitParameterDefs(callableUnit.getParameterDefs(), callableUnitInfo);
+
+        // Visit return parameter defs
+        for (ParameterDef parameterDef : callableUnit.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (parameterDef.getName() != null) {
+                int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
+                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            }
+
+            parameterDef.accept(this);
+        }
+
+        if (!callableUnit.isNative()) {
+            // Clone lvIndex array here. This array contain local variable indexes of the input and out parameters
+            //  and they are common for all the workers.
+            int[] lvIndexesCopy = lvIndexes.clone();
+
+            WorkerInfo defaultWorker = callableUnitInfo.getDefaultWorkerInfo();
+            defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
+            defaultWorker.getCodeAttributeInfo().setCodeAddrs(nextIP());
+
+            // Visit the callableUnit body
+            callableUnit.getCallableUnitBody().accept(this);
+
+            // Set local variables and reg indexes and reset instance variables to defaults
+            endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
+
+            // Now visit each Worker
+            for (Worker worker : workers) {
+                WorkerInfo workerInfo = callableUnitInfo.getWorkerInfo(worker.getName());
+                workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
+                workerInfo.getCodeAttributeInfo().setCodeAddrs(nextIP());
+
+                lvIndexes = lvIndexesCopy.clone();
+                worker.getCallableUnitBody().accept(this);
+                endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
+            }
+
+        } else {
+            WorkerInfo defaultWorker = callableUnitInfo.getDefaultWorkerInfo();
+            defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
+            endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
         }
     }
 

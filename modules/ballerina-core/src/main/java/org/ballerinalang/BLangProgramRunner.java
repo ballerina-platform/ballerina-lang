@@ -45,6 +45,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -142,14 +143,16 @@ public class BLangProgramRunner {
             arrayArgs.add(i, args[i]);
         }
 
+        WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
         org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(mainFuncInfo,
-                -1, new int[0]);
+                defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefLocalVars()[0] = arrayArgs;
         controlStackNew.pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
         // TODO invoke package <init> function
-        bLangVM.execFunction(mainPkgInfo, bContext, mainFuncInfo.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.execFunction(mainPkgInfo, bContext, defaultWorkerInfo.
+                getCodeAttributeInfo().getCodeAddrs());
     }
 
     @Deprecated
