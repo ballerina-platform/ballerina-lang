@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -37,7 +36,8 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource(this.getIndentation() + 'try {\n');
+        this.appendSource('try' + tryStatement.getWSRegion(1) + '{' + tryStatement.getWSRegion(2));
+        this.appendSource((tryStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
         log.debug('Begin Visit Try Statement');
     }
@@ -52,7 +52,7 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitTryStatement(tryStatement) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}");
+        this.appendSource('}' + tryStatement.getWSRegion(3));
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Try Statement');
     }

@@ -28,8 +28,17 @@ class CatchStatement extends ConditionalStatement {
     constructor(args) {
         super();
         this._parameter = _.get(args, "parameter", "exception e");
-
         this.type = "CatchStatement";
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: '',
+            3: ' ',
+            4: '',
+            5: ' ',
+            6: '\n',
+            7: '\n'
+        }
     }
 
     setParameter(parameter, options) {
@@ -53,4 +62,3 @@ class CatchStatement extends ConditionalStatement {
 }
 
 export default CatchStatement;
-

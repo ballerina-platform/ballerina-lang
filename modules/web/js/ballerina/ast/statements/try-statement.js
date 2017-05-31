@@ -26,6 +26,12 @@ class TryStatement extends Statement {
     constructor() {
         super();
         this.type = "TryStatement";
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: ' ',
+            2: '\n',
+            3: ' '
+        }
     }
 
     initFromJson(jsonNode) {

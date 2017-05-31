@@ -908,6 +908,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             JsonObject tryBlockObj = new JsonObject();
             tryBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TRY_BLOCK);
             this.addPosition(tryBlockObj, tryCatchStmt.getTryBlock().getNodeLocation());
+            this.addWhitespaceDescriptor(tryBlockObj, tryCatchStmt.getWhiteSpaceDescriptor()
+                                                        .getChildDescriptor("TryClause"));
             tempJsonArrayRef.push(new JsonArray());
             tryCatchStmt.getTryBlock().accept(this);
             tryBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -926,6 +928,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             catchBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.CATCH_BLOCK);
 
             this.addPosition(catchBlockObj, catchBlocks[0].getCatchBlockStmt().getNodeLocation());
+            this.addWhitespaceDescriptor(catchBlockObj, catchBlocks[0].getWhiteSpaceDescriptor());
             tempJsonArrayRef.push(new JsonArray());
             catchBlocks[0].getCatchBlockStmt().accept(this);
             catchBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
