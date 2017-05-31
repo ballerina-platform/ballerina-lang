@@ -369,12 +369,9 @@ public class NameReference extends BallerinaElementReference {
                 if (!isStructField) {
                     return isValid((PsiNameIdentifierOwner) definitionElement, refName);
                 }
-            } else if (definitionElement instanceof FunctionDefinitionNode) {
-                FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(myElement,
-                        FunctionInvocationNode.class);
-                if (functionInvocationNode != null) {
-                    return isValid((PsiNameIdentifierOwner) definitionElement, refName);
-                }
+            } else if (definitionElement instanceof FunctionDefinitionNode
+                    || definitionElement instanceof AnnotationDefinitionNode) {
+                return isValid((PsiNameIdentifierOwner) definitionElement, refName);
             }
         }
         return false;
