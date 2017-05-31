@@ -607,6 +607,9 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_EXCEPTION_WRAPPER_END_TO_BODY_START,
                 getWhitespaceToRight(tokenStream,
                         getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -619,6 +622,9 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(
+                        tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_END_NEXT_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.catchClauses().start.getTokenIndex()));
         return ws;
@@ -631,7 +637,10 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FINALLY_CLAUSE_FINALLY_KEYWORD_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_END_NEXT_TOKEN,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FINALLY_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(
+                        tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FINALLY_CLAUSE_END_TO_NEXT_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }

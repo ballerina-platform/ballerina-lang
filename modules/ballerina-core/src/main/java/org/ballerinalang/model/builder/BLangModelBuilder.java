@@ -1379,12 +1379,7 @@ public class BLangModelBuilder {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         if (whiteSpaceDescriptor != null) {
-            WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
-            if (ws == null) {
-                ws = new WhiteSpaceDescriptor();
-                tryCatchStmtBuilder.setWhiteSpaceDescriptor(ws);
-            }
-            tryCatchStmtBuilder.getLastCatchBlock().setWhiteSpaceDescriptor(ws);
+            tryCatchStmtBuilder.getLastCatchBlock().setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         }
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
