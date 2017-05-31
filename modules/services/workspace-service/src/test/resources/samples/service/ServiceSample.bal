@@ -1,5 +1,3 @@
-package test.samples;
-
 @http:BasePath{ value: "/Hello"}
 service HelloService {
 
