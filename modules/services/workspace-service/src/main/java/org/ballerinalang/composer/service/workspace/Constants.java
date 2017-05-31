@@ -42,6 +42,8 @@ public class Constants {
     public static final String SYS_BAL_COMPOSER_HOME = "bal.composer.home";
 
     public static final String COMPOSER_HOME_NOT_FOUND_ERROR_MESSAGE = "Error: Unable to find ballerina composer home.";
+
+    public static final int DIRECTORY_DEPTH = 30;
 }
 
 

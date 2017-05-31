@@ -27,6 +27,7 @@ import Backend from 'ballerina/views/backend';
 import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
 import DebugManager from '../debugger/debug-manager';
 import alerts from 'alerts';
+import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
 var FileTab;
 
 FileTab = Tab.extend({
@@ -40,7 +41,15 @@ FileTab = Tab.extend({
         if (_.has(options, 'astRoot')) {
             this._astRoot = _.get(options, 'astRoot');
         }
-        // TODO convert Backend to a singleton
+        if (_.has(options, 'parseResponse')) {
+            this._parseResponse = _.get(options, 'parseResponse');
+        }
+        if(_.has(options, 'programPackages')){
+            this._programPackages = _.get(options, 'programPackages');
+        }else{
+            this._programPackages = [];
+        }
+        //TODO convert Backend to a singleton
         this.app = options.application;
         this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
         this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
@@ -65,18 +74,17 @@ FileTab = Tab.extend({
         // if file already has content
         if(!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())){
             if(!_.isEmpty(this._file.getContent().trim())){
-                var validateResponse = this.validateBackend.parse(this._file.getContent());
+                var validateResponse = this.validateBackend.parse({name: this._file.getName(), path: this._file.getPath(), package: this._astRoot, content: this._file.getContent()});
                 if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
-                    this.renderBallerinaEditor(this._astRoot, true);
+                    this.renderBallerinaEditor(this._parseResponse, true);
                     return;
                 }
             }
-            var parseResponse = this.parseBackend.parse(this._file.getContent());
-            // if no errors display the design.
-            var root = this.deserializer.getASTModel(parseResponse);
-            this.renderBallerinaEditor(root);
-        } else if(!_.isNil(this._astRoot)) {
-            this.renderBallerinaEditor(this._astRoot, false);
+            var parseResponse = this.parseBackend.parse({name: this._file.getName(), path: this._file.getPath(), package: this._astRoot, content: this._file.getContent()});
+            //if no errors display the design.
+            this.renderBallerinaEditor(parseResponse);
+        } else if(!_.isNil(this._parseResponse)) {
+            this.renderBallerinaEditor(this._parseResponse, false);
             var updatedContent = this.getBallerinaFileEditor().generateSource();
             this._file.setContent(updatedContent);
             this._file.setDirty(true);
@@ -101,12 +109,22 @@ FileTab = Tab.extend({
         $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
     },
 
-    renderBallerinaEditor: function(astRoot, parseFailed){
+    renderBallerinaEditor: function(parseResponse, parseFailed){
         var self = this;
         var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
         var backendEndpointsOptions = _.get(this.options, 'application.config.services');
         let renderingContextOpts = {application: this.options.application};
         var diagramRenderingContext = new DiagramRenderContext(renderingContextOpts);
+
+
+        var astRoot = this.deserializer.getASTModel(parseResponse);
+
+        var packages = parseResponse.packages;
+        _.each(packages, (packageNode) => {
+            var pckg = BallerinaEnvFactory.createPackage();
+            pckg.initFromJson(packageNode);
+            this._programPackages.push(pckg);
+        });
 
         var fileEditor = new BallerinaFileEditor({
             model: astRoot,
@@ -115,7 +133,8 @@ FileTab = Tab.extend({
             container: this.$el.get(0),
             viewOptions: ballerinaEditorOptions,
             backendEndpointsOptions: backendEndpointsOptions,
-            debugger: DebugManager
+            debugger: DebugManager,
+            programPackages: self._programPackages
         });
 
         // change tab header class to match look and feel of source view
@@ -213,10 +232,10 @@ FileTab = Tab.extend({
 
         var ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
 
-        //package definition
+        // package definition
         var packageDefinition = BallerinaASTFactory.createPackageDefinition();
         packageDefinition.setPackageName("");
-        //packageDefinition.setPackageName("samples.echo");
+        // packageDefinition.setPackageName("samples.echo");
         ballerinaAstRoot.addChild(packageDefinition);
         ballerinaAstRoot.setPackageDefinition(packageDefinition);
 

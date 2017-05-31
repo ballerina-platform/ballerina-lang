@@ -91,7 +91,7 @@ var FirstLaunchWelcomePage = Backbone.View.extend({
                             "parentContainer": "#inner-samples",
                             "firstItem": i === 0,
                             "clickEventCallback": function () {
-                                var root = "";
+                                var response = "";
                                 $.ajax({
                                     url: _.get(self._options.application, "config.services.parser.endpoint"),
                                     type: "POST",
@@ -104,7 +104,7 @@ var FirstLaunchWelcomePage = Backbone.View.extend({
                                             if (!_.isUndefined(data.errorMessage)) {
                                                 alerts.error("Unable to parse the source: " + data.errorMessage);
                                             } else {
-                                                root = BallerinaASTDeserializer.getASTModel(data);
+                                                response = data;
                                             }
                                         } else {
                                             log.error("Error while parsing the source: " + JSON.stringify(xhr));
@@ -116,7 +116,7 @@ var FirstLaunchWelcomePage = Backbone.View.extend({
                                         alerts.error("Error while parsing the source.");
                                     }
                                 });
-                                command.dispatch("create-new-tab", {tabOptions: {astRoot: root}});
+                                command.dispatch("create-new-tab", {tabOptions: {parseResponse: response}});
                                 browserStorage.put("pref:passedFirstLaunch", true);
                             }
                         };

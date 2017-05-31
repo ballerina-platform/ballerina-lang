@@ -27,8 +27,16 @@ class PackageScopedEnvironment {
 
     init() {
         this._packages = _.union(this._packages, Environment.getPackages());
-        this._currentPackage = new Package({name:'Current Package'});
+        this._currentPackage = new Package({ name: 'Current Package' });
         this._packages.push(this._currentPackage);
+    }
+
+    /**
+     * Add given package array to the existing package array
+     * @param {Package[]} packages - package array to be added 
+     */
+    addPackages(packages) {
+        this._packages = _.union(this._packages, packages);
     }
 
     getCurrentPackage() {
@@ -36,7 +44,7 @@ class PackageScopedEnvironment {
     }
 
     resetCurrentPackage() {
-        this._currentPackage = new Package({name:'Current Package'});
+        this._currentPackage = new Package({ name: 'Current Package' });
     }
 
     /**
