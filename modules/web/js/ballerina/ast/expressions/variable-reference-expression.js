@@ -28,6 +28,7 @@ class VariableReferenceExpression extends Expression {
         super('VariableReferenceExpression');
         this.setVariableName(_.get(args, 'variableName'));
         this.setExpression(this.generateExpression(), {doSilently: true});
+        this._packageName = _.get(args, 'packageName');
     }
 
     /**
@@ -47,9 +48,26 @@ class VariableReferenceExpression extends Expression {
     }
 
     /**
+     * Get the package name
+     * @returns {string} package name
+     */
+    getPackageName() {
+        return this._packageName;
+    }
+
+    /**
+     * Set the package name
+     * @param {string} packageName
+     * @param {object} options
+     */
+    setPackageName(packageName, options) {
+        this.setAttribute('_packageName', packageName, options);
+    }
+
+    /**
      * initialize VariableReferenceExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.variable_reference_name] - Variable name of the VariableReferenceExpression
+     * @param {string} [jsonNode.variable_reference_name, jsonNode.package_name] - Variable name of the VariableReferenceExpression
      */
     initFromJson(jsonNode) {
         var self = this;
@@ -59,6 +77,7 @@ class VariableReferenceExpression extends Expression {
             child.initFromJson(childNode);
         });
         this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
+        this.setPackageName(jsonNode.package_name, {doSilently: true});
         this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
@@ -68,7 +87,7 @@ class VariableReferenceExpression extends Expression {
             return (!_.isNil(varDef.getPkgPath()) ?
                 varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
         } else {
-            return this.getVariableName();
+            return !_.isNil(this.getPackageName()) ? (this.getPackageName() + ':' + this.getVariableName()) : this.getVariableName();
         }
     }
 }
