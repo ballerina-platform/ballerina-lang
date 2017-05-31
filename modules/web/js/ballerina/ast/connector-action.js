@@ -31,6 +31,15 @@ class ConnectorAction extends ASTNode {
         super('ConnectorAction');
         this.action_name = _.get(args, 'action_name');
         this.arguments = _.get(args, 'arguments', []);
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: ' ',
+            4: ' ',
+            5: '\n',
+            6: '\n'
+        };
     }
 
     /**
@@ -138,11 +147,13 @@ class ConnectorAction extends ASTNode {
      */
     getReturnTypesAsString() {
         let returnTypes = [];
-        _.forEach(this.getReturnTypes(), function (returnTypeChild) {
-            returnTypes.push(returnTypeChild.getParameterDefinitionAsString());
+        _.forEach(this.getReturnTypes(), function (returnTypeChild, index) {
+            let returnTypeTxt = (index !== 0 && returnTypeChild.whiteSpace.useDefault) ? ' ' : '';
+            returnTypeTxt += returnTypeChild.getParameterDefinitionAsString();
+            returnTypes.push(returnTypeTxt);
         });
 
-        return _.join(returnTypes, " , ");
+        return _.join(returnTypes, ',');
     }
 
     /**
