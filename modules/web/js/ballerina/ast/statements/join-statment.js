@@ -48,9 +48,23 @@ class JoinStatement extends Statement {
         return this._join_type;
     }
 
+    setParameter(type, options) {
+        if (!_.isNil(type)) {
+            this.setAttribute('_param', type, options);
+        }
+    }
+
+    getParameter() {
+        return this._param;
+    }
+
     initFromJson(jsonNode) {
         let self = this;
         self.setJoinType(jsonNode['join_type']);
+        const paramJsonNode = jsonNode['param'];
+        const paramASTNode = self.getFactory().createFromJson(paramJsonNode);
+        paramASTNode.initFromJson(paramJsonNode);
+        self.setParameter(paramASTNode);
         _.each(jsonNode.children, function (childNode) {
             let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);

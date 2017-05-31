@@ -31,7 +31,7 @@ class JoinStatement extends React.Component {
 
         this.editorOptions = {
             propertyType: 'text',
-            key: 'If condition',
+            key: 'Join Condition',
             model: props.model,
             getterMethod: props.model.getJoinType,
             setterMethod: props.model.setJoinType
@@ -39,7 +39,7 @@ class JoinStatement extends React.Component {
 
         return (
             <CompoundStatementDecorator model={model} bBox={bBox}>
-                <BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Join"}
+                <BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Join"} parameter={model.getParameter()}
                                          expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
                     {children}
                 </BlockStatementDecorator>

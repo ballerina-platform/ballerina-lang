@@ -1056,6 +1056,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             this.addPosition(joinStmtObj, join.getNodeLocation());
 
             tempJsonArrayRef.push(new JsonArray());
+
+            tempJsonArrayRef.push(new JsonArray());
+            join.getJoinResult().accept(this);
+            JsonArray param = this.tempJsonArrayRef.peek();
+            joinStmtObj.add("param", param.get(0));
+            tempJsonArrayRef.pop();
+
             join.getJoinBlock().accept(this);
             joinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
@@ -1067,6 +1074,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         Expression timeoutExpression = timeout.getTimeoutExpression();
         if (timeoutExpression != null) {
             JsonObject timeoutStmtObj = new JsonObject();
+
+            tempJsonArrayRef.push(new JsonArray());
+            timeoutExpression.accept(this);
+            JsonArray timeoutExpressionArr = this.tempJsonArrayRef.peek();
+            timeoutStmtObj.add("expression", timeoutExpressionArr.get(0));
+            tempJsonArrayRef.pop();
+
             timeoutStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                     BLangJSONModelConstants.TIMEOUT_STATEMENT);
             this.addPosition(timeoutStmtObj, timeout.getNodeLocation());
