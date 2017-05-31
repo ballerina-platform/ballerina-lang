@@ -75,4 +75,9 @@ public final class BString extends BValueType {
     public boolean equals(Object obj) {
         return ((BString) obj).stringValue().equals(value);
     }
+    
+    @Override
+    public BValue copy() {
+        return new BString(value);
+    }
 }

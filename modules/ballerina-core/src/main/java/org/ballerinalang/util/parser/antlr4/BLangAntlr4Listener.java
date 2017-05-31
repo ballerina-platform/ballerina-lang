@@ -55,6 +55,7 @@ import org.ballerinalang.util.parser.BallerinaParser.ReferenceTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.StructBodyContext;
+import org.ballerinalang.util.parser.BallerinaParser.TypeConversionExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.TypeMapperSignatureContext;
 import org.ballerinalang.util.parser.BallerinaParser.ValueTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.ValueTypeTypeExpressionContext;
@@ -1698,6 +1699,22 @@ public class BLangAntlr4Listener implements BallerinaListener {
         modelBuilder.createTypeCastExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop());
     }
 
+    @Override
+    public void enterTypeConversionExpression(TypeConversionExpressionContext ctx) {
+    }
+    
+    @Override
+    public void exitTypeConversionExpression(TypeConversionExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTypeConversionExpWS(tokenStream, ctx);
+        }
+        modelBuilder.createTypeConversionExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop());
+    }
+    
     @Override
     public void enterBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) {
     }
