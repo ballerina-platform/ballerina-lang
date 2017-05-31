@@ -64,7 +64,7 @@ public class WorkspaceServiceConfig {
     }
 
     public String getLangserverPath() {
-        return debuggerPath;
+        return langserverPath;
     }
 
     public void setLangserverPath(String debuggerPath) {
