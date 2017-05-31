@@ -288,12 +288,17 @@ class TransformStatementDecorator extends React.Component {
             if (BallerinaASTFactory.isAssignmentStatement(node) &&
 					BallerinaASTFactory.isFunctionInvocationExpression(node.getChildren()[1].getChildren()[0])) {
                 let functionInvocationExpression = node.getChildren()[1].getChildren()[0];
-                let funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
-						functionInvocationExpression.getFullPackageName());
-                let func = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+                let func = this.getFunctionDefinition(functionInvocationExpression);
                 this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
             }
         });
+    }
+
+    getFunctionDefinition(functionInvocationExpression) {
+        let funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
+						functionInvocationExpression.getFullPackageName());
+        let func = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+        return func;
     }
 
     createConnection(statement){
@@ -502,6 +507,9 @@ class TransformStatementDecorator extends React.Component {
             dragDropManager.setActivatedDropTarget(dropTarget,
 				(nodeBeingDragged) => {
 					// This drop zone is for assignment statements only.
+                    // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
+                    // is an Assignment Statement, that implies there is a return parameter . If there is no
+                    // return parameter, then it is a Function Invocation Statement, which is validated with below check.
                     return model.getFactory().isAssignmentStatement(nodeBeingDragged);
                 },
 				() => {
