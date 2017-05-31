@@ -19,7 +19,7 @@ import React from "react";
 import BlockStatementDecorator from "./block-statement-decorator";
 import CompoundStatementDecorator from "./compound-statement-decorator";
 import PropTypes from 'prop-types';
-import {statement} from './../configs/designer-defaults';
+import {statement, blockStatement} from './../configs/designer-defaults';
 import {getComponentForNodeArray} from './utils';
 import SimpleBBox from './../ast/simple-bounding-box';
 
@@ -27,12 +27,16 @@ class ForkJoinStatement extends React.Component {
 
     render() {
         let model = this.props.model,
-            bBox = model.viewState.bBox;
+            bBox = model.viewState.bBox,
+            bodyBBox = model.viewState.components.body;
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
-        const forkBBox = new SimpleBBox(bBox.x, bBox.y + statement.gutter.v, bBox.w, bBox.h - statement.gutter.v);
+
+        const forkBBox = new SimpleBBox(bBox.x, bBox.y + statement.gutter.v, bBox.w, bodyBBox.h
+            + blockStatement.heading.height);
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            <BlockStatementDecorator dropTarget={model} bBox={forkBBox} title={"Fork"}>
+            <BlockStatementDecorator hideLifeLine={true} dropTarget={model} bBox={forkBBox} title={"Fork"}>
+
                 {children}
             </BlockStatementDecorator>
         </CompoundStatementDecorator>);

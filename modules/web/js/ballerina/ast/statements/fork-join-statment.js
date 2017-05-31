@@ -38,6 +38,16 @@ class ForkJoinStatement extends Statement {
         }]);
     }
 
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    canBeParentOf(node) {
+        return this.getFactory().isWorkerDeclaration(node);
+    }
+
     initFromJson(jsonNode) {
         let self = this;
         _.each(jsonNode.children, function (childNode) {

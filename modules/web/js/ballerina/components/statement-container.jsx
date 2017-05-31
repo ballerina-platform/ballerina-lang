@@ -95,8 +95,11 @@ class StatementContainer extends React.Component {
   							(nodeBeingDragged) => {
   									// IMPORTANT: override node's default validation logic
   									// This drop zone is for statements only.
-  									// Statements should only be allowed here.
-  									return dropTarget.getFactory().isStatement(nodeBeingDragged);
+                                    // Unless it's in a Fork, in that case only Worker are allowed.
+                                const factory = dropTarget.getFactory();
+                                return factory.isStatement(nodeBeingDragged) ||
+                                    (factory.isForkJoinStatement(dropTarget) && factory.isWorkerDeclaration(nodeBeingDragged) );
+
   							}
             );
   					this.setState({statementDropZoneActivated: true,

@@ -62,8 +62,9 @@ class BlockStatementDecorator extends React.Component {
 
         return (<g>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
+            {this.props.hideLifeLine &&
             <line x1={bBox.getCenterX()} y1={bBox.y} x2={bBox.getCenterX()} y2={bBox.getBottom()}
-                  className="life-line-hider"/>
+                  className="life-line-hider"/>}
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"
                   onClick={(e) => this.openExpressionEditor(e)}/>
             <text x={title_x} y={title_y} className="statement-text">{title}</text>

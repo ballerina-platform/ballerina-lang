@@ -178,6 +178,16 @@ var createTransformStatementTool = {
     nodeFactoryMethod: BallerinaASTFactory.createTransformStatement
 };
 
+var createTransformStatementTool = {
+    id: "Fork",
+    name: "Fork",
+    iconSrc: require("./../../../images/tool-icons/fork-join.svg"),
+    cssClass: "icon fw fw-fork-join",
+    title: "Fork",
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createForkJoinStatement
+    // nodeFactoryMethod: BallerinaASTFactory.createForkJoinStatement
+};
+
 // TODO: change the icon with the new one
 var createVariableDefinitionStatementTool = {
     id: "VariableDefinition",

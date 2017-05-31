@@ -53,7 +53,8 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             return child.getViewState().bBox.h;
         });
 
-        let bodyH = childWithMaxHeight.getViewState().bBox.h + DesignerDefaults.statement.gutter.v * 2;
+        let bodyH = (childWithMaxHeight ? childWithMaxHeight.getViewState().bBox.h : 0 )
+            + DesignerDefaults.statement.gutter.v * 2;
 
         _.forEach(workers, function (child) {
             bodyW += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;
@@ -95,6 +96,8 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             joinBBox.w = newW;
             joinStatementsBBox.w = newW;
             bodyW = newW;
+        } else {
+            throw "Missing join in a fork statement.";
         }
 
         viewState.components['body'] = new SimpleBBox(0, 0, bodyW, bodyH);
