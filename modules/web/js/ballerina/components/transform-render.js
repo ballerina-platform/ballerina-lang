@@ -46,7 +46,7 @@ class TransformRender
         this.placeHolderName = 'transformOverlay-content';
         this.onConnection = onConnectionCallback;
         this.midpoint = 0.1;
-        this.midpointVariance = 0.05;
+        this.midpointVariance = 0.01;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
         this.connectionPool = [];
@@ -875,13 +875,13 @@ class TransformRender
 
         //Traverse through all the connection svg lines
         _.forEach(svgLines, svgLine => {
-        //Get bottom and right values relative to the type mapper parent div
-            var bottom = svgLine.getBoundingClientRect().bottom - $('#' + self.placeHolderName).offset().top + 10;
-            var right = svgLine.getBoundingClientRect().right - $('#' + self.placeHolderName).offset().left + 10;
+            //Get bottom and right values relative to the type mapper parent div
+            var arrowBotton = svgLine.children[2].getBoundingClientRect().bottom;
+            var right = svgLine.getBoundingClientRect().right;
 
             //Calculate the yPointer value  based on the bottom value of the direct connections
-            if (bottom > yPointer && svgLine.getBoundingClientRect().width > 600) {
-                yPointer = bottom;
+            if (arrowBotton > yPointer && svgLine.getBoundingClientRect().width > 600) {
+                yPointer = arrowBotton;
             }
         });
 
