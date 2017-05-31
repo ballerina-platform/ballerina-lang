@@ -29,8 +29,8 @@ class TimeoutStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitTimeoutStatement(timeoutStatement) {
-        //TODO Need to read timeout condition and aggregatedResponse dynamically
-        this.appendSource('timeout (all) (message[] aggregatedResponse){');
+        this.node = timeoutStatement;
+        this.appendSource('timeout (300) (message[] aggregatedResponse){\n');
         log.debug('Begin Visit Timeout Statement');
     }
 
@@ -42,9 +42,11 @@ class TimeoutStatementVisitor extends AbstractStatementSourceGenVisitor {
 
 
     visitStatement(statement) {
-        let statementVisitorFactory = new StatementVisitorFactory();
-        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
+        if (!_.isEqual(this.node, statement)) {
+            let statementVisitorFactory = new StatementVisitorFactory();
+            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 }
 

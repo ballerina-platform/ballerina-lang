@@ -38,13 +38,16 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
 DefaultBallerinaASTFactory.createForkJoinStatement = function (args) {
     let forkJoinStatement = BallerinaASTFactory.createForkJoinStatement(args);
     const joinStatement = BallerinaASTFactory.createJoinStatement();
+    const type = BallerinaASTFactory.createParameterDefinition({typeName:'message[]',name:'m'});
+    joinStatement.setParameter(type);
+    joinStatement.setJoinType('all');
     const worker1Declaration = BallerinaASTFactory.createWorkerDeclaration();
     const worker2Declaration = BallerinaASTFactory.createWorkerDeclaration();
-    worker1Declaration.setWorkerName("forkWorker1");
-    worker2Declaration.setWorkerName("forkWorker2");
-    forkJoinStatement.addChild(joinStatement);
-    forkJoinStatement.addChild(worker1Declaration);
+    worker1Declaration.setWorkerName('forkWorker1');
+    worker2Declaration.setWorkerName('forkWorker2');
     forkJoinStatement.addChild(worker2Declaration);
+    forkJoinStatement.addChild(worker1Declaration);
+    forkJoinStatement.addChild(joinStatement);
     return forkJoinStatement;
 };
 

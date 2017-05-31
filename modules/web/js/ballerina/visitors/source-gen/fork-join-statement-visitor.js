@@ -18,10 +18,12 @@
 import log from "log";
 import AbstractStatementSourceGenVisitor from "./abstract-statement-source-gen-visitor";
 import StatementVisitorFactory from "./statement-visitor-factory";
+import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
 class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
         super(parent);
+        this.closed = false;
     }
 
     canVisitForkJoinStatement(forkJoinStatement) {
@@ -29,21 +31,37 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitForkJoinStatement(forkJoinStatement) {
-        this.appendSource('fork (message m){');
+        this.node = forkJoinStatement;
+        this.closed = false;
+        this.appendSource('fork {');
         log.debug('Begin Visit Fork Statement');
     }
 
+    visitWorkerDeclaration(workerDeclaration) {
+        const workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
+        workerDeclaration.accept(workerDeclarationVisitor);
+    }
+
     endVisitForkJoinStatement(forkJoinStatement) {
-        this.appendSource("}\n");
+        if (!this.closed) {
+            this.appendSource("}\n");
+            this.closed = true;
+        }
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Fork Statement');
     }
 
 
     visitStatement(statement) {
-        let statementVisitorFactory = new StatementVisitorFactory();
-        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        // statement.accept(statementVisitor);
+        if (!_.isEqual(this.node, statement)) {
+            if (!this.closed) {
+                this.appendSource("}\n");
+                this.closed = true;
+            }
+            let statementVisitorFactory = new StatementVisitorFactory();
+            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 }
 

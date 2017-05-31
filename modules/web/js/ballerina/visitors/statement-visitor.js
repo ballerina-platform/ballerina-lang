@@ -466,6 +466,8 @@ class StatementVisitor extends ASTVisitor {
             return this.visitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.visitAbortStatement(node);
+        } else if (ASTFactory.isJoinStatement(node)) {
+            return this.visitJoinStatement(node);
         }
     }
 
@@ -604,6 +606,8 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitTimeoutStatement(node);
         } else if (ASTFactory.isForkJoinStatement(node)) {
             return this.beginVisitForkJoinStatement(node);
+        } else if (ASTFactory.isJoinStatement(node)) {
+            return this.beginVisitJoinStatement(node);
         }
     }
 
@@ -673,6 +677,8 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitTimeoutStatement(node);
         } else if (ASTFactory.isForkJoinStatement(node)) {
             return this.endVisitForkJoinStatement(node);
+        } else if (ASTFactory.isJoinStatement(node)) {
+            return this.endVisitJoinStatement(node);
         }
     }
 }

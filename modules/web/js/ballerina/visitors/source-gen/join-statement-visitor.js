@@ -29,8 +29,9 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitJoinStatement(joinStatement) {
-        //TODO Need to read join condition and aggregatedResponse dynamically
-        this.appendSource('join (all) (message[] aggregatedResponse){');
+        this.node = joinStatement;
+        this.appendSource('join (' + joinStatement.getJoinType() + ') (' +
+            joinStatement.getParameter().getParameterDefinitionAsString() + '){\n');
         log.debug('Begin Visit Join Statement');
     }
 
@@ -42,9 +43,11 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
 
 
     visitStatement(statement) {
-        let statementVisitorFactory = new StatementVisitorFactory();
-        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
+        if (!_.isEqual(this.node, statement)) {
+            let statementVisitorFactory = new StatementVisitorFactory();
+            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        }
     }
 }
 
