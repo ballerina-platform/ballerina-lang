@@ -66,7 +66,7 @@ class TransformStatementDecorator extends React.Component {
         this.setState({innerDropZoneExist: true});
     }
 
-    	stopDragZones() {
+    stopDragZones() {
         this.setState({innerDropZoneExist: false});
     }
 
@@ -74,39 +74,39 @@ class TransformStatementDecorator extends React.Component {
         this.props.model.remove();
     }
 
-    	onJumptoCodeLine() {
-    			const {viewState: {fullExpression}} = this.props;
-    			const {renderingContext: {ballerinaFileEditor}} = this.context;
+    onJumptoCodeLine() {
+        const {viewState: {fullExpression}} = this.props;
+        const {renderingContext: {ballerinaFileEditor}} = this.context;
 
-    			const container = ballerinaFileEditor._container;
-    			$(container).find('.view-source-btn').trigger('click');
-    			ballerinaFileEditor.getSourceView().jumpToLine({expression: fullExpression});
-    	}
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+        ballerinaFileEditor.getSourceView().jumpToLine({expression: fullExpression});
+    }
 
-    	renderBreakpointIndicator() {
-    			const breakpointSize = 14;
-    			const pointX = this.statementBox.x + this.statementBox.w - breakpointSize/2;
-    			const pointY = this.statementBox.y - breakpointSize/2;
-    			return (
-    					<Breakpoint
-    							x={pointX}
-    							y={pointY}
-    							size={breakpointSize}
-    							isBreakpoint={this.props.model.isBreakpoint}
-    							onClick = { () => this.onBreakpointClick() }
-    					/>
-    			);
-    	}
+    renderBreakpointIndicator() {
+        const breakpointSize = 14;
+        const pointX = this.statementBox.x + this.statementBox.w - breakpointSize/2;
+        const pointY = this.statementBox.y - breakpointSize/2;
+        return (
+                <Breakpoint
+                        x={pointX}
+                        y={pointY}
+                        size={breakpointSize}
+                        isBreakpoint={this.props.model.isBreakpoint}
+                        onClick = { () => this.onBreakpointClick() }
+                />
+        );
+    }
 
-    	onBreakpointClick() {
-    			const { model } = this.props;
-    			const { isBreakpoint = false } = model;
-    			if(model.isBreakpoint) {
-    					model.removeBreakpoint();
-    			} else {
-    					model.addBreakpoint();
-    			}
-    	}
+    onBreakpointClick() {
+        const { model } = this.props;
+        const { isBreakpoint = false } = model;
+        if (model.isBreakpoint) {
+                model.removeBreakpoint();
+        } else {
+                model.addBreakpoint();
+        }
+    }
 
     onExpand() {
         self = this;
@@ -148,15 +148,15 @@ class TransformStatementDecorator extends React.Component {
         $('#tab-content-wrapper').append(transformOverlay);
 
         this.transformOverlayDiv = document.getElementById('transformOverlay');
-		  this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+		this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
 
-		  this.transformOverlayContentDiv.addEventListener('mouseover', e => {
-			  this.onTransformDropZoneActivate(e);
-		  });
+		this.transformOverlayContentDiv.addEventListener('mouseover', e => {
+			this.onTransformDropZoneActivate(e);
+		});
 
-		  this.transformOverlayContentDiv.addEventListener('mouseout', e => {
-			  this.onTransformDropZoneDeactivate(e);
-		  });
+		this.transformOverlayContentDiv.addEventListener('mouseout', e => {
+	        this.onTransformDropZoneDeactivate(e);
+		});
 
         var span = document.getElementsByClassName('close-transform')[0];
 
@@ -396,6 +396,7 @@ class TransformStatementDecorator extends React.Component {
 
         return prop;
     }
+
     createType(name, predefinedStruct) {
         var struct = {};
         struct.name = name;
@@ -419,65 +420,65 @@ class TransformStatementDecorator extends React.Component {
     }
 
     render() {
-    		const { viewState, expression ,model} = this.props;
-    		let bBox = viewState.bBox;
-    		let innerZoneHeight = viewState.components['drop-zone'].h;
+        const { viewState, expression ,model} = this.props;
+        let bBox = viewState.bBox;
+        let innerZoneHeight = viewState.components['drop-zone'].h;
 
-    		// calculate the bBox for the statement
-    		this.statementBox = {};
-    		this.statementBox.h = bBox.h - innerZoneHeight;
-    		this.statementBox.y = bBox.y + innerZoneHeight;
-    		this.statementBox.w = bBox.w;
-    		this.statementBox.x = bBox.x;
-    		// we need to draw a drop box above and a statement box
-    		const text_x = bBox.x + (bBox.w / 2);
-    		const text_y = this.statementBox.y + (this.statementBox.h / 2);
+        // calculate the bBox for the statement
+        this.statementBox = {};
+        this.statementBox.h = bBox.h - innerZoneHeight;
+        this.statementBox.y = bBox.y + innerZoneHeight;
+        this.statementBox.w = bBox.w;
+        this.statementBox.x = bBox.x;
+        // we need to draw a drop box above and a statement box
+        const text_x = bBox.x + (bBox.w / 2);
+        const text_y = this.statementBox.y + (this.statementBox.h / 2);
         const expand_button_x = bBox.x + (bBox.w / 2) + 40;
         const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 10;
-    		const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
-    		const innerDropZoneActivated = this.state.innerDropZoneActivated;
-    		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-    		const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-    											+ ((innerDropZoneDropNotAllowed) ? ' block' : '');
+        const drop_zone_x = bBox.x + (bBox.w - lifeLine.width)/2;
+        const innerDropZoneActivated = this.state.innerDropZoneActivated;
+        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
+                                            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
 
-    		const actionBbox = new SimpleBBox();
+        const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : {fill:'none'};
         const iconSize = 14;
-    		actionBbox.w = DesignerDefaults.actionBox.width;
-    		actionBbox.h = DesignerDefaults.actionBox.height;
-    		actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
-    		actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
-    		let statementRectClass = 'transform-statement-rect';
-    		if(model.isDebugHit) {
-    				statementRectClass = `${statementRectClass} debug-hit`;
-    		}
+        actionBbox.w = DesignerDefaults.actionBox.width;
+        actionBbox.h = DesignerDefaults.actionBox.height;
+        actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
+        actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+        let statementRectClass = 'transform-statement-rect';
+        if (model.isDebugHit) {
+                statementRectClass = `${statementRectClass} debug-hit`;
+        }
 
-    		return (
-           <g className="statement"
-               onMouseOut={ this.setActionVisibility.bind(this, false) }
-               onMouseOver={ this.setActionVisibility.bind(this, true)}>
-    						<rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
-    			                className={dropZoneClassName} {...fill}
-    						 		onMouseOver={(e) => this.onDropZoneActivate(e)}
-    								onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
-    						<rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
-    							  onClick={(e) => this.onExpand()} />
-    						<g className="statement-body">
-    							<text x={text_x} y={text_y} className="transform-action" onClick={(e) =>this.onExpand()}>{expression}</text>
-    							 <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={ iconSize } height={ iconSize } onClick={(e) =>this.onExpand()} xlinkHref={ ImageUtil.getSVGIconString('expand')}/>
-    						</g>
-						<ActionBox
-                            bBox={ actionBbox }
-                            show={ this.state.active }
-                            onDelete={ () => this.onDelete() }
-                            onJumptoCodeLine={ () => this.onJumptoCodeLine() }
-						/>
-						{		model.isBreakpoint &&
-								this.renderBreakpointIndicator()
-						}
-    				{this.props.children}
-    				</g>);
-    	}
+        return (
+        <g className="statement"
+            onMouseOut={ this.setActionVisibility.bind(this, false) }
+            onMouseOver={ this.setActionVisibility.bind(this, true)}>
+            <rect x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
+                className={dropZoneClassName} {...fill}
+                    onMouseOver={(e) => this.onDropZoneActivate(e)}
+                    onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+            <rect x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
+                    onClick={(e) => this.onExpand()} />
+            <g className="statement-body">
+                <text x={text_x} y={text_y} className="transform-action" onClick={(e) =>this.onExpand()}>{expression}</text>
+                    <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={ iconSize } height={ iconSize } onClick={(e) =>this.onExpand()} xlinkHref={ ImageUtil.getSVGIconString('expand')}/>
+            </g>
+            <ActionBox
+                bBox={ actionBbox }
+                show={ this.state.active }
+                onDelete={ () => this.onDelete() }
+                onJumptoCodeLine={ () => this.onJumptoCodeLine() }
+            />
+            {		model.isBreakpoint &&
+                    this.renderBreakpointIndicator()
+            }
+            {this.props.children}
+        </g>);
+    }
 
     setActionVisibility (show) {
         if (!this.context.dragDropManager.isOnDrag()) {
@@ -501,11 +502,12 @@ class TransformStatementDecorator extends React.Component {
             dragDropManager.setActivatedDropTarget(dropTarget,
 				(nodeBeingDragged) => {
 					// This drop zone is for assignment statements only.
-    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
-},
+                    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
+                },
 				() => {
-    return dropTarget.getChildren().length;
-});
+                    return dropTarget.getChildren().length;
+                }
+            );
         }
         e.stopPropagation();
     }
@@ -514,8 +516,8 @@ class TransformStatementDecorator extends React.Component {
         this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
         const dragDropManager = this.context.dragDropManager,
             dropTarget = this.props.model.getParent();
-        if(dragDropManager.isOnDrag()){
-            if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 dragDropManager.clearActivatedDropTarget();
                 this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
             }
@@ -526,21 +528,21 @@ class TransformStatementDecorator extends React.Component {
         const dragDropManager = this.context.dragDropManager,
             dropTarget = this.props.model.getParent(),
             model = this.props.model;
-        if(dragDropManager.isOnDrag()) {
-            if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
                 return;
             }
             dragDropManager.setActivatedDropTarget(dropTarget,
-							(nodeBeingDragged) => {
-									// IMPORTANT: override node's default validation logic
-									// This drop zone is for statements only.
-									// Statements should only be allowed here.
-    return model.getFactory().isStatement(nodeBeingDragged);
-},
-							() => {
-    return dropTarget.getIndexOfChild(model);
-}
-					);
+				(nodeBeingDragged) => {
+                    // IMPORTANT: override node's default validation logic
+                    // This drop zone is for statements only.
+                    // Statements should only be allowed here.
+                    return model.getFactory().isStatement(nodeBeingDragged);
+                },
+				() => {
+                    return dropTarget.getIndexOfChild(model);
+                }
+			);
             this.setState({innerDropZoneActivated: true,
                 innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
             });
@@ -554,8 +556,8 @@ class TransformStatementDecorator extends React.Component {
     onDropZoneDeactivate (e) {
         const dragDropManager = this.context.dragDropManager,
 			  dropTarget = this.props.model.getParent();
-        if(dragDropManager.isOnDrag()){
-            if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 dragDropManager.clearActivatedDropTarget();
                 this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
             }
@@ -564,63 +566,62 @@ class TransformStatementDecorator extends React.Component {
     }
 
     onArrowStartPointMouseOver (e) {
-    		e.target.style.fill = '#444';
-    		e.target.style.fillOpacity = 0.5;
-    		e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
-    	}
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0.5;
+        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
+    }
 
-    	onArrowStartPointMouseOut (e) {
-    		e.target.style.fill = '#444';
-    		e.target.style.fillOpacity = 0;
-    	}
+    onArrowStartPointMouseOut (e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0;
+    }
 
-    	onMouseDown (e) {
-    		const messageManager = this.context.messageManager;
-    		const model = this.props.model;
-    		const bBox = model.getViewState().bBox;
-    		const statement_h = this.statementBox.h;
-    		const messageStartX = bBox.x +  bBox.w;
-    		const messageStartY = this.statementBox.y +  statement_h/2;
-    		let actionInvocation;
-    		if (ASTFactory.isAssignmentStatement(model)) {
-    			actionInvocation = model.getChildren()[1].getChildren()[0];
-    		} else if (ASTFactory.isVariableDefinitionStatement(model)) {
-    			actionInvocation = model.getChildren()[1];
-    		}
-    		messageManager.setSource(actionInvocation);
-    		messageManager.setIsOnDrag(true);
-    		messageManager.setMessageStart(messageStartX, messageStartY);
+    onMouseDown (e) {
+        const messageManager = this.context.messageManager;
+        const model = this.props.model;
+        const bBox = model.getViewState().bBox;
+        const statement_h = this.statementBox.h;
+        const messageStartX = bBox.x +  bBox.w;
+        const messageStartY = this.statementBox.y +  statement_h/2;
+        let actionInvocation;
+        if (ASTFactory.isAssignmentStatement(model)) {
+            actionInvocation = model.getChildren()[1].getChildren()[0];
+        } else if (ASTFactory.isVariableDefinitionStatement(model)) {
+            actionInvocation = model.getChildren()[1];
+        }
+        messageManager.setSource(actionInvocation);
+        messageManager.setIsOnDrag(true);
+        messageManager.setMessageStart(messageStartX, messageStartY);
 
-    		messageManager.setTargetValidationCallback(function (destination) {
-    			return actionInvocation.messageDrawTargetAllowed(destination);
-    		});
+        messageManager.setTargetValidationCallback(function (destination) {
+            return actionInvocation.messageDrawTargetAllowed(destination);
+        });
 
-    		messageManager.startDrawMessage(function (source, destination) {
-    			source.setAttribute('_connector', destination);
-    		});
-    	}
+        messageManager.startDrawMessage(function (source, destination) {
+            source.setAttribute('_connector', destination);
+        });
+    }
 
-    	onMouseUp (e) {
-    		const messageManager = this.context.messageManager;
-    		messageManager.reset();
-    	}
+    onMouseUp (e) {
+        const messageManager = this.context.messageManager;
+        messageManager.reset();
+    }
 
-    	openExpressionEditor(e){
-    		let options = this.props.editorOptions;
-    		let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
-    		if(options){
-    			new ExpressionEditor( this.statementBox , this.context.container ,
-    				(text) => this.onUpdate(text), options , packageScope );
-    		}
-    	}
+    openExpressionEditor(e){
+        let options = this.props.editorOptions;
+        let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        if (options) {
+            new ExpressionEditor( this.statementBox , this.context.container ,
+                (text) => this.onUpdate(text), options , packageScope );
+        }
+    }
 
-    	onUpdate(text){
-    	}
+    onUpdate(text){
+    }
 
     loadSchemaToComboBox(comboBoxId, name) {
         $('#' + comboBoxId).append('<option value="' + name + '">' + name + '</option>');
     }
-
 
     createAccessNode(name, property) {
         var structExpression = BallerinaASTFactory.createFieldAccessExpression();
@@ -659,7 +660,6 @@ class TransformStatementDecorator extends React.Component {
         var targetSelection = _.find(predefinedStructs, { name: currentSelection});
         self.mapper.addTargetType(targetSelection);
     }
-
 }
 
 TransformStatementDecorator.propTypes = {
