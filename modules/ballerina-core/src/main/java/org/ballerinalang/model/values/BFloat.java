@@ -48,7 +48,8 @@ public final class BFloat extends BValueType {
         return false;
     }
 
-    @Override public byte[] blobValue() {
+    @Override
+    public byte[] blobValue() {
         return null;
     }
 
