@@ -107,7 +107,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-        traceCode();
+     //   traceCode();
         exec();
     }
 
