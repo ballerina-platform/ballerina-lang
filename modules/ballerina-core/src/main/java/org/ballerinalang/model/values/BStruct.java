@@ -19,6 +19,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.types.BType;
 
+import java.util.HashMap;
+
 /**
  * The {@code BStruct} represents the value of a user defined struct in Ballerina.
  *
@@ -29,6 +31,7 @@ public final class BStruct implements BRefType<StructDef> {
     private StructDef structDef;
     private BValue[] structMemBlock;
     private BStruct stackTrace;
+    private HashMap<String, Object> nativeData = new HashMap<>();
 
     /**
      * Creates a struct with a single memory block.
@@ -105,5 +108,25 @@ public final class BStruct implements BRefType<StructDef> {
             newStructMemBlock[i] = value == null ? null : value.copy();
         }
         return new BStruct(structDef, newStructMemBlock);
+    }
+
+    /**
+     * Add natively accessible data to a struct.
+     *
+     * @param key key to store data with
+     * @param data data to be stored
+     */
+    public void addNativeData(String key, Object data) {
+        nativeData.put(key, data);
+    }
+
+    /**
+     * Get natively accessible data from struct.
+     *
+     * @param key key by which data was stored
+     * @return data which was stored with given key or null if no value corresponding to key
+     */
+    public Object getNativeData(String key) {
+        return nativeData.get(key);
     }
 }
