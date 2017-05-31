@@ -48,6 +48,10 @@ public final class BFloat extends BValueType {
         return false;
     }
 
+    @Override public byte[] blobValue() {
+        return null;
+    }
+
     @Override
     public String stringValue() {
         return Double.toString(value);

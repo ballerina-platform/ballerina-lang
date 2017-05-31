@@ -61,6 +61,10 @@ public final class BString extends BValueType {
         return false;
     }
 
+    @Override public byte[] blobValue() {
+        return null;
+    }
+
     @Override
     public String stringValue() {
         return this.value;

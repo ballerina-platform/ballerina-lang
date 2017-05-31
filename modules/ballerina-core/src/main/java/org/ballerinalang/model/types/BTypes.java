@@ -170,7 +170,8 @@ public class BTypes {
         if (type == BTypes.typeInt ||
                 type == BTypes.typeString ||
                 type == BTypes.typeFloat ||
-                type == BTypes.typeBoolean) {
+                type == BTypes.typeBoolean ||
+                type == BTypes.typeBlob) {
             return true;
         }
 

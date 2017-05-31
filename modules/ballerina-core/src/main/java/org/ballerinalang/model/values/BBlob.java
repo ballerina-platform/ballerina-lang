@@ -19,15 +19,12 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 
 /**
  * The {@code BBlob} represents a byte array.
  * {@link BBlob} will be useful for storing byte values.
- *
- * @since 0.9.0
  */
-public class BBlob extends BallerinaMessageDataSource implements BRefType<byte[]> {
+public class BBlob extends BValueType {
 
     private byte[] value;
 
@@ -35,23 +32,38 @@ public class BBlob extends BallerinaMessageDataSource implements BRefType<byte[]
         this.value = value;
     }
 
-    @Override public byte[] value() {
-        return value;
-    }
-
-    @Override public String stringValue() {
+    @Override
+    public String stringValue() {
         return null;
     }
 
-    @Override public BType getType() {
+    @Override
+    public BType getType() {
         return BTypes.typeBlob;
     }
 
-    @Override public BValue copy() {
+    @Override
+    public BValue copy() {
         return new BBlob(value);
     }
 
-    @Override public byte[] getDataObject() {
+    @Override
+    public long intValue() {
+        return 0;
+    }
+
+    @Override
+    public double floatValue() {
+        return 0;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return false;
+    }
+
+    @Override
+    public byte[] blobValue() {
         return value;
     }
 }
