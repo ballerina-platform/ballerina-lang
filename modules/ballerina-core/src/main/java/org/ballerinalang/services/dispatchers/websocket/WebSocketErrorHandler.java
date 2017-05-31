@@ -19,6 +19,7 @@
 
 package org.ballerinalang.services.dispatchers.websocket;
 
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,9 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+
+import javax.websocket.CloseReason;
+import javax.websocket.Session;
 
 /**
  * Error handler for WebSocket protocol.
@@ -42,9 +46,14 @@ public class WebSocketErrorHandler implements ServerConnectorErrorHandler {
 
     @Override
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        //This debug log will be used in error debugging in the server connector.
-        if (logger.isDebugEnabled()) {
-            logger.debug("Error occurred : " + e.getMessage(), e);
+        if (e.getMessage().startsWith("error in ballerina program: no Service found to handle the service request")) {
+            ErrorHandlerUtils.printError(e);
+            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+            String uri = (String) carbonMessage.getProperty(Constants.TO);
+            session.close(new CloseReason(
+                    () -> 1001,
+                    "Server closing connection since no service found for URI: \"" + uri + "\""
+            ));
         }
     }
 
