@@ -45,7 +45,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         String serviceUri = (String) cMsg.getProperty(Constants.TO);
         serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
-            return null;
+            throw new BallerinaException("Internal error occurred during service dispatching");
         }
 
         String basePath = "";
@@ -60,16 +60,16 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         }
 
         if (service == null) {
-            return null;
+            throw new BallerinaException("no service found to handle the service request received to " + serviceUri);
         }
         String webSocketUpgradePath = findWebSocketUpgradePath(service);
         if (webSocketUpgradePath == null) {
-            return null;
+            throw new BallerinaException("no service found to handle the service request received to " + serviceUri);
         }
         if (webSocketUpgradePath.equals(serviceUri)) {
             return service;
         }
-        return null;
+        throw new BallerinaException("no service found to handle the service request received to " + serviceUri);
     }
 
     @Override

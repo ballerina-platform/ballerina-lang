@@ -46,7 +46,7 @@ public class WebSocketErrorHandler implements ServerConnectorErrorHandler {
 
     @Override
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
-        if (e.getMessage().startsWith("error in ballerina program: no Service found to handle the service request")) {
+        if (e.getMessage().startsWith("error in ballerina program: no service found to handle the service request")) {
             ErrorHandlerUtils.printError(e);
             Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
             String uri = (String) carbonMessage.getProperty(Constants.TO);
