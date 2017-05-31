@@ -35,17 +35,6 @@ class JoinStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End Visit JoinStatementDimensionCalculatorVisitor');
-        // let viewState = node.getViewState();
-        // let components = {};
-        // const h = _.sumBy(node.children, child => child.viewState.bBox.h);
-        // const w = _.maxBy(node.children, child => child.viewState.bBox.w).viewState.bBox.w;
-        // components['statementContainer'] = new SimpleBBox();
-        // components['statementContainer'].h = h;
-        // components['statementContainer'].w = w;
-        // viewState.bBox.w = w;
-        // viewState.bBox.h = h + DesignerDefaults.blockStatement.heading.height + DesignerDefaults.statement.gutter.v;
-        // viewState.components = components;
-
         util.populateCompoundStatementChild(node);
     }
 }
