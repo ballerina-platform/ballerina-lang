@@ -1176,8 +1176,17 @@ public class BallerinaPsiImplUtil {
                 }
             }
         }
-        return BallerinaPsiImplUtil.resolveElement(scopeNode, element, "//variableDefinitionStatement/Identifier",
+        PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(scopeNode, element,
+                "//variableDefinitionStatement/Identifier",
                 "/parameter/Identifier");
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement commonContext = PsiTreeUtil.findCommonContext(element, resolvedElement);
+        if (!(commonContext instanceof BallerinaFile)) {
+            return resolvedElement;
+        }
+        return null;
     }
 
     public static boolean isStructField(PsiElement element) {
@@ -1202,7 +1211,16 @@ public class BallerinaPsiImplUtil {
                 return true;
             }
         }
-
+        //Eg: return person.name;
+        PsiElement[] children = expressionNode.getChildren();
+        if (children.length > 0) {
+            if (children[0] instanceof VariableReferenceNode) {
+                PsiElement[] superChildren = children[0].getChildren();
+                if (superChildren.length == 3) {
+                    return ".".equals(superChildren[1].getText());
+                }
+            }
+        }
         return false;
     }
 }

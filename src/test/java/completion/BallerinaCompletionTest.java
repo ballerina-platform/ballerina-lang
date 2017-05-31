@@ -844,7 +844,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     public void testConnectorCreationPackageAutoCompletion() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
         doCheckResult("test.bal", "import org.test; function A(){ test:TestConnector con = create " +
-                "te<caret> }", "import org.test; function A(){ test:TestConnector con = create test: }", null);
+                "tes<caret> }", "import org.test; function A(){ test:TestConnector con = create test: }", null);
     }
 
     public void testConnectorCreationCreateKeyword() {
@@ -957,6 +957,13 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("transform");
         doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    /**
+     * Test statement level lookups
+     */
+    public void testStrings() {
+        doTest("function test() { int a; system:println(\"<caret>\") }");
     }
 
     /**
