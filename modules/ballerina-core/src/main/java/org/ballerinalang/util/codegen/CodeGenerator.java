@@ -141,6 +141,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Generates Ballerina bytecode instructions.
@@ -184,6 +185,8 @@ public class CodeGenerator implements NodeVisitor {
     private boolean varAssignment;
     private boolean arrayMapAssignment;
     private boolean structAssignment;
+
+    private Stack<List<Instruction>> breakInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -771,15 +774,23 @@ public class CodeGenerator implements NodeVisitor {
         Instruction ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
         emit(ifInstruction);
 
+        breakInstructions.push(new ArrayList<>());
         whileStmt.getBody().accept(this);
 
         emit(gotoInstruction);
-        ifInstruction.setOperand(1, nextIP());
+        int nextIP = nextIP();
+        ifInstruction.setOperand(1, nextIP);
+        List<Instruction> brkInstructions = breakInstructions.pop();
+        for (Instruction instruction : brkInstructions) {
+            instruction.setOperand(0, nextIP);
+        }
     }
 
     @Override
     public void visit(BreakStmt breakStmt) {
-
+        Instruction gotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
+        emit(gotoInstruction);
+        breakInstructions.peek().add(gotoInstruction);
     }
 
     @Override
@@ -819,7 +830,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TransformStmt transformStmt) {
-
+        transformStmt.getBody().accept(this);
     }
 
     @Override
