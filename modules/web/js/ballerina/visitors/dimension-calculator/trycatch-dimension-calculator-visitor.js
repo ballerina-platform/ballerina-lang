@@ -46,7 +46,7 @@ class TryCatchStatementDimensionCalculatorVisitor {
         });
 
         if (sortedChildren.length <= 0) {
-            throw 'Invalid number of children for if-else statement';
+            throw 'Invalid number of children for try-catch statement';
         }
         let childWithMaxWidth = sortedChildren[sortedChildren.length -1];
         statementWidth = childWithMaxWidth.getViewState().bBox.w;

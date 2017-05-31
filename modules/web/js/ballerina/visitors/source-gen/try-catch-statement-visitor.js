@@ -31,14 +31,14 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitTryStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        let statementVisitorFactory = new StatementVisitorFactory();
+        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
     visitCatchStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        let statementVisitorFactory = new StatementVisitorFactory();
+        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 

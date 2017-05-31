@@ -18,8 +18,6 @@
 import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
-import TryStatement from './try-statement';
-import CatchStatement from './catch-statement';
 
 /**
  * Class for try-catch statement in ballerina.
@@ -33,7 +31,8 @@ class TryCatchStatement extends Statement {
 
     /**
      * setter for catch block exception
-     * @param exception
+     * @param {string} exception
+     * @param {object} options
      */
     setExceptionType(exception, options) {
         if (!_.isNil(exception)) {
@@ -44,16 +43,17 @@ class TryCatchStatement extends Statement {
     }
 
     /**
-    * getter for catch block exception type
-    */
+     * getter for catch block exception type
+     * @return {string} _exceptionType
+     */
     getExceptionType() {
         return this._exceptionType;
     }
 
     initFromJson(jsonNode) {
-        var self = this;
+        let self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+            let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
