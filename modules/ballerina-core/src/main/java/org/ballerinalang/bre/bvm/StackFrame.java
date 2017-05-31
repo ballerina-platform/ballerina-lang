@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.Arrays;
 
@@ -50,6 +51,7 @@ public class StackFrame {
 
     CallableUnitInfo callableUnitInfo;
     PackageInfo packageInfo;
+    WorkerInfo workerInfo;
 
     // To Support old native function and action invocation
     // TODO Refactor this when native function and action invocations are improved.
@@ -62,10 +64,11 @@ public class StackFrame {
         this.retRegIndexes = retRegIndexes;
     }
 
-    public StackFrame(CallableUnitInfo callableUnitInfo, int retAddrs, int[] retRegIndexes) {
+    public StackFrame(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, int retAddrs, int[] retRegIndexes) {
         this.callableUnitInfo = callableUnitInfo;
         this.packageInfo = callableUnitInfo.getPackageInfo();
-        CodeAttributeInfo codeAttribInfo = callableUnitInfo.getCodeAttributeInfo();
+        this.workerInfo = workerInfo;
+        CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
         this.longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         this.doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
