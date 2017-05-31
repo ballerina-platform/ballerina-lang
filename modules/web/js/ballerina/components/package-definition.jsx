@@ -29,7 +29,7 @@ import GlobalExpanded from './globals-expanded';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
-import BallerinaEnvironment from '../env/environment';
+import BallerinaEnvironment from '../env/package-scoped-environment';
 
 class PackageDefinition extends React.Component {
 
@@ -145,7 +145,7 @@ class PackageDefinition extends React.Component {
         const imports = astRoot.children.filter(c => {return c.constructor.name === 'ImportDeclaration';});
         const globals = astRoot.children.filter(c => {return c.constructor.name === 'ConstantDefinition';});
 
-        const packageSuggestions = BallerinaEnvironment.getPackages()
+        const packageSuggestions =  this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
             .filter(p => !imports.map(p => (p.getPackageName())).includes(p.getName()))
             .map(p => ({name: p.getName()}));
 
@@ -202,5 +202,9 @@ class PackageDefinition extends React.Component {
         );
     }
 }
+
+PackageDefinition.contextTypes = {
+	 renderingContext: PropTypes.instanceOf(Object).isRequired
+};
 
 export default PackageDefinition;

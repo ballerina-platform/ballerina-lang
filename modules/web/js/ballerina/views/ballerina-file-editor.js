@@ -207,7 +207,11 @@ class BallerinaFileEditor extends EventChannel {
             throw errMsg;
         }
 
-        var toolPaletteItemProvider = new ToolPaletteItemProvider();
+        this._environment =  new PackageScopedEnvironment();
+        this._environment.addPackages(this._programPackages); 
+        this._package = this._environment.getCurrentPackage();
+
+        var toolPaletteItemProvider = new ToolPaletteItemProvider({editor: this});
         var toolPaletteContainer = $(this._container)
                                     .find(_.get(viewOptions, 'design_view.tool_palette.container'))
                                     .get(0);
@@ -217,10 +221,6 @@ class BallerinaFileEditor extends EventChannel {
         toolPaletteOpts.ballerinaFileEditor = this;
         this.toolPalette = new ToolPalette(toolPaletteOpts);
         this.messageManager = new MessageManager({fileEditor: this});
-
-        this._environment =  new PackageScopedEnvironment();
-        this._environment.addPackages(this._programPackages); 
-        this._package = this._environment.getCurrentPackage();
 
         //this._createImportDeclarationPane(canvasContainer);
 

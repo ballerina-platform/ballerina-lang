@@ -268,6 +268,7 @@ public class BLangFileRestService {
                     }
                 }
             }
+            stream.close();
         } catch (IOException e) {
             // we are ignoring any exception and proceed.
             return;

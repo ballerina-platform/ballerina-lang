@@ -24,7 +24,6 @@ import _ from 'lodash';
 import Package from './../env/package';
 import ToolPalette from './../tool-palette/tool-palette';
 import ToolGroup from './../tool-palette/tool-group';
-import Environment from './../env/environment';
 import InitialTools from './initial-definitions';
 import EventChannel from 'event_channel';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
@@ -38,6 +37,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 class ToolPaletteItemProvider extends EventChannel {
     constructor(args) {
         super();
+        this._ballerinaFileEditor = _.get(args, 'editor');
         // array which contains initial tool groups
         this._initialToolGroups = _.get(args, 'initialToolGroups', []);
         // array which contains all the tool groups for a particular tool palette item provider
@@ -50,7 +50,7 @@ class ToolPaletteItemProvider extends EventChannel {
         this._defaultImportedPackages = [];
         _.forEach(["ballerina.net.http", "ballerina.lang.*"],
             function (defaultPackageString) {
-                var packagesToImport = Environment.searchPackage(defaultPackageString);
+                var packagesToImport = self._ballerinaFileEditor._environment.searchPackage(defaultPackageString);
                 _.forEach(packagesToImport, function (packageToImport) {
                     self._defaultImportedPackages.push(packageToImport);
                 });
@@ -536,7 +536,7 @@ class ToolPaletteItemProvider extends EventChannel {
      * @param packageString
      */
     getPackageToImport(packageString) {
-        return Environment.searchPackage(packageString);
+        return this._ballerinaFileEditor._environment.searchPackage(packageString);
     }
 }
 

@@ -67,7 +67,7 @@ class PackageScopedEnvironment {
             var existing = _.filter(exclude_packages, function (ex) {
                 return pckg.getName() == ex;
             });
-            return (existing.length == 0) && (_.includes(pckg.getName().toUpperCase(), search_text.toUpperCase()));
+            return (existing.length == 0) && (pckg.getName().toUpperCase() === search_text.toUpperCase());
         });
         return result;
     }
