@@ -59,6 +59,7 @@ import typeName from './type-name';
 import argument from './argument';
 import backTickExpression from './expressions/back-tick-expression';
 import basicLiteralExpression from './expressions/basic-literal-expression';
+import nullLiteralExpression from './expressions/null-literal-expression';
 import leftOperandExpression from './statements/left-operand-expression';
 import rightOperandExpression from './statements/right-operand-expression';
 import instanceCreationExpression from './expressions/instance-creation-expression';
@@ -551,6 +552,15 @@ BallerinaASTFactory.createBackTickExpression = function (args) {
  */
 BallerinaASTFactory.createBasicLiteralExpression = function (args) {
     return new basicLiteralExpression(args);
+};
+
+/**
+ * creates NullLiteralExpression
+ * @param args
+ * @returns {nullLiteralExpression}
+ */
+BallerinaASTFactory.createNullLiteralExpression = function (args) {
+    return new nullLiteralExpression(args);
 };
 
 /**
@@ -1205,6 +1215,15 @@ BallerinaASTFactory.isBasicLiteralExpression = function (child) {
 };
 
 /**
+ * instanceof check for NullLiteralExpression
+ * @param child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isNullLiteralExpression = function (child) {
+    return child instanceof nullLiteralExpression;
+};
+
+/**
  * instanceof check for VariableReferenceExpression
  * @param child
  * @returns {boolean}
@@ -1547,6 +1566,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'basic_literal_expression' :
         node = BallerinaASTFactory.createBasicLiteralExpression();
+        break;
+    case 'null_literal_expression' :
+        node = BallerinaASTFactory.createNullLiteralExpression();
         break;
     case 'left_operand_expression':
         node = BallerinaASTFactory.createLeftOperandExpression();
