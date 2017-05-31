@@ -128,6 +128,9 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
+    private static final LookupElementBuilder TRUE;
+    private static final LookupElementBuilder FALSE;
+    private static final LookupElementBuilder NULL;
 
 
     static {
@@ -176,6 +179,9 @@ public class BallerinaCompletionUtils {
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
+        TRUE = createKeywordLookupElement("true");
+        FALSE = createKeywordLookupElement("false");
+        NULL = createKeywordLookupElement("null");
     }
 
     private BallerinaCompletionUtils() {
@@ -356,6 +362,12 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, TRY);
         addKeywordAsLookup(resultSet, CATCH);
         addKeywordAsLookup(resultSet, FINALLY);
+    }
+
+    static void addValueKeywords(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, TRUE);
+        addKeywordAsLookup(resultSet, FALSE);
+        addKeywordAsLookup(resultSet, NULL);
     }
 
     /**
@@ -800,6 +812,7 @@ public class BallerinaCompletionUtils {
         addParametersAsLookups(resultSet, element);
         addConstantsAsLookups(resultSet, file);
         addGlobalVariablesAsLookups(resultSet, file);
+        addValueKeywords(resultSet);
     }
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
@@ -820,21 +833,21 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Adds a struct field as a lookup.
+     * Adds a field as a lookup. Field can be either a struct field or annotation field.
      *
-     * @param resultSet            result list which is used to add lookups
-     * @param fieldNameIdentifier  element which can be used to resolve and get the struct variable definition
-     * @param structDefinitionNode struct definition node if available
-     * @param typeName             type of the struct
-     * @param withInsertHandler    whether to add an insert handler
-     * @param withAutoCompletion   whether to invoke auto complete popup
+     * @param resultSet           result list which is used to add lookups
+     * @param fieldNameIdentifier element which can be used to get the field text
+     * @param definitionNode      struct/annotation definition node to get the tail text
+     * @param typeName            type of the field
+     * @param withInsertHandler   whether to add an insert handler
+     * @param withAutoCompletion  whether to invoke auto complete popup
      */
     static void addFieldAsLookup(@NotNull CompletionResultSet resultSet, PsiElement fieldNameIdentifier,
-                                 PsiElement structDefinitionNode, TypeNameNode typeName, boolean withInsertHandler,
+                                 PsiElement definitionNode, TypeNameNode typeName, boolean withInsertHandler,
                                  boolean withAutoCompletion) {
         LookupElementBuilder builder = LookupElementBuilder.create(fieldNameIdentifier.getText())
                 .withTypeText(typeName.getText()).withIcon(BallerinaIcons.FIELD)
-                .withTailText(" -> " + structDefinitionNode.getText(), true);
+                .withTailText(" -> " + definitionNode.getText(), true);
         if (withInsertHandler) {
             if (withAutoCompletion) {
                 builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);

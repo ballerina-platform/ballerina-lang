@@ -43,6 +43,7 @@ import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
@@ -159,6 +160,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handlePsiErrorElement(parameters, resultSet);
         } else if (parent instanceof VariableDefinitionNode) {
             identifyAndAddSuggestions(parameters, resultSet);
+        } else if (parent instanceof AnnotationAttributeNode) {
+            handleAnnotationAttributeNode(parameters, resultSet);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -376,6 +379,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                         return;
                                     }
                                     suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
+                                } else if (prevElement.getParent() instanceof AnnotationAttributeNode) {
+                                    addValueKeywords(resultSet);
                                 } else {
                                     suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true,
                                             true, true);
@@ -1308,6 +1313,34 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 // Add all actions as lookup elements.
                 addActionsAsLookups(resultSet, allActions);
             }
+        }
+    }
+
+    private void handleAnnotationAttributeNode(@NotNull CompletionParameters parameters,
+                                               @NotNull CompletionResultSet resultSet) {
+
+        PsiElement element = parameters.getPosition();
+        AnnotationAttachmentNode attachmentNode = PsiTreeUtil.getParentOfType(element, AnnotationAttachmentNode.class);
+        if (attachmentNode == null) {
+            return;
+        }
+        AnnotationDefinitionNode definitionNode = BallerinaPsiImplUtil.getAnnotationDefinitionNode(attachmentNode);
+        if (definitionNode == null) {
+            return;
+        }
+
+        List<FieldDefinitionNode> annotationFields = BallerinaPsiImplUtil.getAnnotationFields(definitionNode);
+        for (FieldDefinitionNode annotationField : annotationFields) {
+            PsiElement fieldNameIdentifier = annotationField.getNameIdentifier();
+            if (fieldNameIdentifier == null) {
+                continue;
+            }
+            TypeNameNode typeName = PsiTreeUtil.findChildOfType(annotationField, TypeNameNode.class);
+            if (typeName == null) {
+                continue;
+            }
+            addFieldAsLookup(resultSet, annotationField.getNameIdentifier(), definitionNode.getNameIdentifier(),
+                    typeName, true, true);
         }
     }
 
