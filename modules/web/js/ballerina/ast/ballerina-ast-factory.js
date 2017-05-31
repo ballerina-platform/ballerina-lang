@@ -102,6 +102,7 @@ import transactionAbortedStatement from './statements/transactionaborted-stateme
 import transactionStatement from './statements/transaction-statement';
 import abortedStatement from './statements/aborted-statement';
 import abortStatement from './statements/abort-statement';
+import connectorInitExpression from './expressions/connector-init-expression';
 
 /**
  * @class BallerinaASTFactory
@@ -664,6 +665,15 @@ BallerinaASTFactory.createBinaryExpression = function (args) {
  * */
 BallerinaASTFactory.createUnaryExpression = function (args) {
     return new unaryExpression(args);
+};
+
+/**
+ * Create ConnectorInitExpression
+ * @param {Object} args - Arguments for the creating new expression creation
+ * @return {ConnectorInitExpression}
+ * */
+BallerinaASTFactory.createConnectorInitExpression= function (args) {
+    return new connectorInitExpression(args);
 };
 
 
@@ -1344,6 +1354,15 @@ BallerinaASTFactory.isBinaryExpression = function (child) {
 };
 
 /**
+ * instanceof check for ConnectorInitExpression
+ * @param {ASTNode} child - The ast node.
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isConnectorInitExpression = function (child) {
+    return child instanceof connectorInitExpression;
+};
+
+/**
  * instanceof check for arrayMapAccessExpression
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
@@ -1680,6 +1699,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'unary_expression':
         node = BallerinaASTFactory.createUnaryExpression({"operator": jsonNode.operator});
+        break;
+    case 'connector_init_expr':
+        node = BallerinaASTFactory.createConnectorInitExpression();
         break;
     case 'array_map_access_expression':
         node = BallerinaASTFactory.createArrayMapAccessExpression();
