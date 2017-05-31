@@ -67,7 +67,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
-import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -192,7 +192,7 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     void visit(VariableDefStmtEndNode variableDefStmtEndNode);
 
-    void visit(TransactionRollbackStmtEndNode transactionRollbackStmtEndNode);
+    void visit(TransactionStmtEndNode transactionStmtEndNode);
 
     /* Node Fragments - Expressions */
 

@@ -26,11 +26,11 @@ import org.ballerinalang.model.statements.TransactionStmt;
  *
  * @since 0.87
  */
-public class TransactionRollbackStmtEndNode extends AbstractLinkedNode {
+public class TransactionStmtEndNode extends AbstractLinkedNode {
 
     private TransactionStmt statement;
 
-    public TransactionRollbackStmtEndNode(TransactionStmt stmt) {
+    public TransactionStmtEndNode(TransactionStmt stmt) {
         this.statement = stmt;
         this.parent = stmt;
     }

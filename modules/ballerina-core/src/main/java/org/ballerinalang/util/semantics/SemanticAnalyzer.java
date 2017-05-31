@@ -1372,8 +1372,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(TransactionStmt transactionStmt) {
         transactionStmtCount++;
         transactionStmt.getTransactionBlock().accept(this);
-        transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
-        transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
+        TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
+        if (abortedBlock != null) {
+            abortedBlock.getAbortedBlockStmt().accept(this);
+        }
+        TransactionStmt.CommittedBlock committedBlock = transactionStmt.getCommittedBlock();
+        if (committedBlock != null) {
+            committedBlock.getCommittedBlockStmt().accept(this);
+        }
         transactionStmtCount--;
     }
 

@@ -1482,7 +1482,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startTransactionhStmt(getCurrentLocation(ctx));
+            modelBuilder.startTransactionStmt(getCurrentLocation(ctx));
         }
     }
 
@@ -1491,6 +1491,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception == null) {
             modelBuilder.addTransactionStmt();
         }
+    }
+
+    @Override
+    public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addTransactionBlockStmt();
+    }
+
+    @Override
+    public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+
     }
 
     @Override

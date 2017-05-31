@@ -120,7 +120,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
-import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -666,7 +666,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(TransactionStmt transactionStmt) {
-        TransactionRollbackStmtEndNode endNode = new TransactionRollbackStmtEndNode(transactionStmt);
+        TransactionStmtEndNode endNode = new TransactionStmtEndNode(transactionStmt);
         Statement transactionBlock = transactionStmt.getTransactionBlock();
         Statement abortedBlock = transactionStmt.getAbortedBlock().getAbortedBlockStmt();
         Statement committedBlock = transactionStmt.getCommittedBlock().getCommittedBlockStmt();

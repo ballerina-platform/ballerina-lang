@@ -1673,7 +1673,7 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
-    public void startTransactionhStmt(NodeLocation location) {
+    public void startTransactionStmt(NodeLocation location) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = new TransactionStmt.TransactionStmtBuilder();
         transactionStmtBuilder.setLocation(location);
         transactionStmtBuilderStack.push(transactionStmtBuilder);
@@ -1682,13 +1682,17 @@ public class BLangModelBuilder {
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void startAbortedClause(NodeLocation location) {
+    public void addTransactionBlockStmt() {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
-        // Creating Transaction clause.
+        // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt transactionBlock = blockStmtBuilder.build();
         transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
+    }
+
+    public void startAbortedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Staring parsing aborted clause.
         TransactionStmt.AbortedBlock abortedBlock = new TransactionStmt.AbortedBlock(currentScope);
         transactionStmtBuilder.setAbortedBlock(abortedBlock);

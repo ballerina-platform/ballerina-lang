@@ -976,6 +976,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}

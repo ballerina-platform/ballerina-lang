@@ -818,6 +818,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionHandlers}.
+	 * @param ctx the parse tree
+	 */
+	void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionHandlers}.
+	 * @param ctx the parse tree
+	 */
+	void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortedClause}.
 	 * @param ctx the parse tree
 	 */

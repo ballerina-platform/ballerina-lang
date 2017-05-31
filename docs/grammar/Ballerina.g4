@@ -381,9 +381,12 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' abortedClause committedClause
+    :   'transaction' '{' statement* '}' transactionHandlers
     ;
 
+transactionHandlers
+    : abortedClause? committedClause?
+    ;
 abortedClause
     :   'aborted' '{' statement* '}'
     ;
