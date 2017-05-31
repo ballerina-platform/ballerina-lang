@@ -386,6 +386,7 @@ transactionStatement
 
 transactionHandlers
     : abortedClause? committedClause?
+    | committedClause? abortedClause?
     ;
 abortedClause
     :   'aborted' '{' statement* '}'
