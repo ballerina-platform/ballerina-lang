@@ -1876,8 +1876,8 @@ public class CodeGenerator implements NodeVisitor {
 
         int lastIp = nextIP();
         //override goto instruction pointer dummy value
-        evalLeftBoolExpr.setOperand(1, lastIp-1);
-        evalRightBoolExpr.setOperand(1, lastIp-1);
+        evalLeftBoolExpr.setOperand(1, lastIp - 1);
+        evalRightBoolExpr.setOperand(1, lastIp - 1);
         gotoLast.setOperand(0, lastIp);
 
 
@@ -1917,8 +1917,8 @@ public class CodeGenerator implements NodeVisitor {
 
         int nextIp = nextIP();
         //override goto instruction pointer dummy value
-        evalLeftBoolExpr.setOperand(1, nextIp-1);
-        evalRightBoolExpr.setOperand(1, nextIp-1);
+        evalLeftBoolExpr.setOperand(1, nextIp - 1);
+        evalRightBoolExpr.setOperand(1, nextIp - 1);
         gotoLast.setOperand(0, nextIp);
 
         //calculate offset for whole binary expr
