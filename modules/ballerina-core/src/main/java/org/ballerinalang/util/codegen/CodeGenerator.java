@@ -1789,7 +1789,9 @@ public class CodeGenerator implements NodeVisitor {
         int opcode;
         if (expr instanceof EqualExpression) {
             opcode = InstructionCodes.IFNE;
-        } else if (expr instanceof NotEqualExpression) {
+        } else if (expr instanceof NotEqualExpression ||
+                expr instanceof OrExpression ||
+                expr instanceof AndExpression) {
             opcode = InstructionCodes.IFEQ;
         } else if (expr instanceof LessThanExpression) {
             opcode = InstructionCodes.IFGE;
