@@ -29,6 +29,10 @@ class CommentStatement extends Statement {
         super();
         this.type = "CommentStatement";
         this._commentString = _.get(args, 'commentString', "");
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '\n'
+        };
     }
 
     /**
@@ -62,4 +66,3 @@ class CommentStatement extends Statement {
 }
 
 export default CommentStatement;
-
