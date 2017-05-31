@@ -647,6 +647,26 @@ public class BLangVM {
                         sf.intRegs[k] = -1;
                     }
                     break;
+                case InstructionCodes.SCMP:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.stringRegs[i] == sf.stringRegs[j]) {
+                        sf.intRegs[k] = 0;
+                    } else {
+                        sf.intRegs[k] = -1;
+                    }
+                    break;
+                case InstructionCodes.BCMP:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.intRegs[i] == sf.intRegs[j]) {
+                        sf.intRegs[k] = 0;
+                    } else {
+                        sf.intRegs[k] = -1;
+                    }
+                    break;
                 case InstructionCodes.IFEQ:
                     i = operands[0];
                     j = operands[1];
