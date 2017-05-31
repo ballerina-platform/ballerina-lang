@@ -761,6 +761,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 elseIfBlock.getElseIfBody().accept(this);
                 elseIfObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
                 tempJsonArrayRef.pop();
+                tempJsonArrayRef.push(new JsonArray());
+                elseIfBlock.getElseIfCondition().accept(this);
+                elseIfObj.add(BLangJSONModelConstants.IF_STATEMENT_ELSE_IF_CONDITION, tempJsonArrayRef.peek());
+                tempJsonArrayRef.pop();
                 tempJsonArrayRef.peek().add(elseIfObj);
             }
             ifElseStmtObj.add(BLangJSONModelConstants.ELSE_IF_BLOCKS, tempJsonArrayRef.peek());
@@ -1358,7 +1362,19 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(TypeConversionExpr typeConversionExpr) {
+        JsonObject typeConversionExprObj = new JsonObject();
+        this.addPosition(typeConversionExprObj, typeConversionExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(typeConversionExprObj, typeConversionExpr.getWhiteSpaceDescriptor());
+        typeConversionExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
+                .TYPE_CONVERSION_EXPRESSION);
+        typeConversionExprObj.addProperty(BLangJSONModelConstants.TARGET_TYPE,
+                typeConversionExpr.getTypeName().toString());
 
+        tempJsonArrayRef.push(new JsonArray());
+        typeConversionExpr.getRExpr().accept(this);
+        typeConversionExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(typeConversionExprObj);
     }
 
     @Override

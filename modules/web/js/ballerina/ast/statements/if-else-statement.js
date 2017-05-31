@@ -134,7 +134,9 @@ class IfElseStatement extends Statement {
         });
 
         _.each(jsonNode.else_if_blocks, function (elseIfNode) {
-            let elseIfStatement = new ElseIfStatement('testCondition');
+            let elseIfCondition = self.getFactory().createFromJson(elseIfNode.else_if_condition[0]);
+            elseIfCondition.initFromJson(elseIfNode.else_if_condition[0]);
+            let elseIfStatement = new ElseIfStatement(elseIfCondition.getExpression());
             self._elseIfStatements.push(elseIfStatement);
             self.addChild(elseIfStatement);
             _.each(elseIfNode.children, function (childNode) {

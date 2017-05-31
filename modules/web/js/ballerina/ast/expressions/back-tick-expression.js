@@ -57,6 +57,7 @@ class BackTickExpression extends Expression {
 
     generateExpression() {
         this._expression = '`' + this.getBackTickEnclosedString() + '`';
+        return this._expression;
     }
 }
 

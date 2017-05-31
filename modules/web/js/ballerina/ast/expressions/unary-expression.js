@@ -55,6 +55,10 @@ class UnaryExpression extends Expression {
         return expString;
     }
 
+    generateExpression() {
+        return this._expression;
+    }
+
     /**
      * Get the operator.
      * @return {String} Operator

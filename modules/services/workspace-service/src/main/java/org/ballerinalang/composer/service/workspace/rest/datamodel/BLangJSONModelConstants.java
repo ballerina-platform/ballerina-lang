@@ -278,6 +278,8 @@ public class BLangJSONModelConstants {
 
     public static final String TYPE_CAST_EXPRESSION = "type_cast_expression";
 
+    public static final String TYPE_CONVERSION_EXPRESSION = "type_conversion_expression";
+
     public static final String TARGET_TYPE = "target_type";
 
     public static final String TYPE_NAME = "type_name";
