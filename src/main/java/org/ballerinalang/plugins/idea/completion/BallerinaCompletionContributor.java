@@ -1319,7 +1319,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void handleAnnotationAttributeNode(@NotNull CompletionParameters parameters,
                                                @NotNull CompletionResultSet resultSet) {
 
-        PsiElement element = parameters.getPosition();
+        PsiElement element = parameters.getOriginalPosition();
         AnnotationAttachmentNode attachmentNode = PsiTreeUtil.getParentOfType(element, AnnotationAttachmentNode.class);
         if (attachmentNode == null) {
             return;
@@ -1358,8 +1358,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiElement parentPrevSibling = parent.getPrevSibling();
         PsiElement superParent = parent.getParent();
         if (superParent instanceof ExpressionNode || superParent instanceof AnnotationAttributeValueNode
-                || superParent instanceof AnnotationAttachmentNode || superParent instanceof SimpleLiteralNode
-                || superParent instanceof ConstantDefinitionNode) {
+                || superParent instanceof SimpleLiteralNode || superParent instanceof ConstantDefinitionNode) {
             return;
         }
         if (superParent instanceof ResourceDefinitionNode || superParent instanceof ServiceBodyNode) {
@@ -1403,6 +1402,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleStatementNode(parameters, resultSet);
         } else if (superParent instanceof ValueTypeNameNode) {
             addValueTypesAsLookups(resultSet);
+        } else if (superParent instanceof AnnotationAttachmentNode) {
+            addValueKeywords(resultSet);
         } else {
             // Handle all other situations.
             if (parentPrevSibling == null) {
