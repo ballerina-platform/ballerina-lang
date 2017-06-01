@@ -51,6 +51,8 @@ import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -139,6 +141,7 @@ public class BLangVM {
         FunctionInfo functionInfo;
         ActionRefCPEntry actionRefCPEntry;
         ActionInfo actionInfo;
+        StructureTypeInfo structureTypeInfo;
         StringCPEntry stringCPEntry;
 
         // TODO use HALT Instruction in the while condition
@@ -987,9 +990,10 @@ public class BLangVM {
                     cpIndex = operands[0];
                     i = operands[1];
                     structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-                    fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
-                    BStruct bStruct = new BStruct();
-                    bStruct.setFieldTypes(structureRefCPEntry.getStructureTypeInfo().getFieldTypes());
+                    structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
+                    fieldCount = structureTypeInfo.getFieldCount();
+                    BStruct bStruct = new BStruct(structureTypeInfo.getType());
+                    bStruct.setFieldTypes(structureTypeInfo.getFieldTypes());
                     bStruct.init(fieldCount);
                     sf.refRegs[i] = bStruct;
                     break;
@@ -997,9 +1001,10 @@ public class BLangVM {
                     cpIndex = operands[0];
                     i = operands[1];
                     structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-                    fieldCount = structureRefCPEntry.getStructureTypeInfo().getFieldCount();
-                    BConnector bConnector = new BConnector();
-                    bConnector.setFieldTypes(structureRefCPEntry.getStructureTypeInfo().getFieldTypes());
+                    structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
+                    fieldCount = structureTypeInfo.getFieldCount();
+                    BConnector bConnector = new BConnector(structureTypeInfo.getType());
+                    bConnector.setFieldTypes(structureTypeInfo.getFieldTypes());
                     bConnector.init(fieldCount);
                     sf.refRegs[i] = bConnector;
                     break;
@@ -1031,7 +1036,8 @@ public class BLangVM {
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
 
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+        WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
         controlStack.pushFrame(calleeSF);
 
         // Copy arg values from the current StackFrame to the new StackFrame
@@ -1040,10 +1046,14 @@ public class BLangVM {
         // TODO Improve following two lines
         this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
         this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
-        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+
+        // Invoke other workers
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+
     }
 
-    private void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
+    public static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;

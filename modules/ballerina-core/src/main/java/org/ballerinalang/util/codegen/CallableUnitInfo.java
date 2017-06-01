@@ -46,6 +46,9 @@ public class CallableUnitInfo {
 
     private PackageInfo packageInfo;
 
+    protected WorkerInfo defaultWorkerInfo;
+    protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
+
     public String getName() {
         return name;
     }
@@ -96,6 +99,26 @@ public class CallableUnitInfo {
 
     public void setRetParamTypes(BType[] retParamType) {
         this.retParamTypes = retParamType;
+    }
+
+    public WorkerInfo getDefaultWorkerInfo() {
+        return defaultWorkerInfo;
+    }
+
+    public void setDefaultWorkerInfo(WorkerInfo defaultWorkerInfo) {
+        this.defaultWorkerInfo = defaultWorkerInfo;
+    }
+
+    public WorkerInfo getWorkerInfo(String workerName) {
+        return workerInfoMap.get(workerName);
+    }
+
+    public void addWorkerInfo(String attributeName, WorkerInfo workerInfo) {
+        workerInfoMap.put(attributeName, workerInfo);
+    }
+
+    public Map<String, WorkerInfo> getWorkerInfoMap() {
+        return workerInfoMap;
     }
 
     public CodeAttributeInfo getCodeAttributeInfo() {

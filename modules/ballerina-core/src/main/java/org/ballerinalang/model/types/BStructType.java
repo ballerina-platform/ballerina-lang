@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.Identifier;
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
@@ -29,19 +27,24 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BStructType extends BType {
 
-    private Identifier identifier;
+    private StructField[] structFields;
 
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
      * @param pkgPath package of the struct
-     * @param symbolScope symbol scope of the struct
-     * @param identifier identifier with string name
      */
-    public BStructType(String typeName, String pkgPath, SymbolScope symbolScope, Identifier identifier) {
-        super(typeName, pkgPath, symbolScope, BStruct.class);
-        this.identifier = identifier;
+    public BStructType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, null, BStruct.class);
+    }
+
+    public StructField[] getStructFields() {
+        return structFields;
+    }
+
+    public void setStructFields(StructField[] structFields) {
+        this.structFields = structFields;
     }
 
     @Override
@@ -51,7 +54,7 @@ public class BStructType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BStruct();
+        return (V) new BStruct(this);
     }
 
     @Override
@@ -65,13 +68,28 @@ public class BStructType extends BType {
         return TypeTags.STRUCT_TAG;
     }
 
-    public String getName() {
-        return identifier.getName();
-    }
 
-    @Override
-    public Identifier getIdentifier() {
-        return identifier;
+    /**
+     * This class represents struct field.
+     *
+     * @since 0.88
+     */
+    public static class StructField {
+        private BType fieldType;
+        private String fieldName;
+
+        public StructField(BType fieldType, String fieldName) {
+            this.fieldType = fieldType;
+            this.fieldName = fieldName;
+        }
+
+        public BType getFieldType() {
+            return fieldType;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
     }
 }
 

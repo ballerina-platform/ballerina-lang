@@ -56,7 +56,7 @@ public class BConnectorType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BConnector();
+        return (V) new BConnector(this);
     }
 
     @Override

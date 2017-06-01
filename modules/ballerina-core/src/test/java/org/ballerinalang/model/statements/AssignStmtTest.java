@@ -19,13 +19,13 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -37,18 +37,18 @@ import org.testng.annotations.Test;
  */
 public class AssignStmtTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/assignment/assign-stmt.bal");
+        programFile = BTestUtils.getProgramFile("lang/statements/assignment/assign-stmt.bal");
     }
 
     @Test(description = "Test successful assignment")
     public void testIntAssignmentStatement() {
         // Int assignment test
         BValue[] args = { new BInteger(100) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntAssignStmt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -59,7 +59,7 @@ public class AssignStmtTest {
 
         // Float assignment test
         args = new BValue[] { new BFloat(2.3f) };
-        returns = BLangFunctions.invoke(bLangProgram, "testFloatAssignStmt", args);
+        returns = BLangFunctions.invokeNew(programFile, "testFloatAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -70,7 +70,7 @@ public class AssignStmtTest {
 
         // Boolean assignment test
         args = new BValue[] { new BBoolean(true) };
-        returns = BLangFunctions.invoke(bLangProgram, "testBooleanAssignStmt", args);
+        returns = BLangFunctions.invokeNew(programFile, "testBooleanAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -80,7 +80,7 @@ public class AssignStmtTest {
 
         // String assignment test
         args = new BValue[] { new BString("Test Value") };
-        returns = BLangFunctions.invoke(bLangProgram, "testStringAssignStmt", args);
+        returns = BLangFunctions.invokeNew(programFile, "testStringAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -90,10 +90,10 @@ public class AssignStmtTest {
         Assert.assertEquals(actualString, expectedString);
 
         // Array index to int assignment test
-        BArray<BInteger> bIntegerBArray = new BArray<>(BInteger.class);
-        bIntegerBArray.add(0, new BInteger(150));
-        args = new BValue[] { bIntegerBArray };
-        returns = BLangFunctions.invoke(bLangProgram, "testArrayIndexToIntAssignStmt", args);
+        BIntArray arrayValue = new BIntArray();
+        arrayValue.add(0, 150);
+        args = new BValue[] { arrayValue };
+        returns = BLangFunctions.invokeNew(programFile, "testArrayIndexToIntAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -104,7 +104,7 @@ public class AssignStmtTest {
 
         // Array index to int assignment test
         args = new BValue[] { new BInteger(250) };
-        returns = BLangFunctions.invoke(bLangProgram, "testIntToArrayAssignStmt", args);
+        returns = BLangFunctions.invokeNew(programFile, "testIntToArrayAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -118,7 +118,7 @@ public class AssignStmtTest {
     public void testAssignmentStmtWithMultiReturnFunc() {
         // Int assignment test
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMultiReturn", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMultiReturn", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -130,6 +130,6 @@ public class AssignStmtTest {
     @Test(expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "constant-assignment.bal:6: cannot assign a value to constant 'a'")
     public void testAssignmentToConst() {
-        BTestUtils.parseBalFile("lang/expressions/constant-assignment.bal");
+        BTestUtils.getProgramFile("lang/expressions/constant-assignment.bal");
     }
 }

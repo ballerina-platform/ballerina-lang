@@ -45,9 +45,12 @@ public class ControlStackNew {
     public StackFrame popFrame() {
         StackFrame poppedFrame = currentFrame;
         stackFrames[fp] = null;
-        if (fp != 0) {
+        if (fp > 0) {
             currentFrame = stackFrames[--fp];
+        }  else {
+            fp--;
         }
+
         return poppedFrame;
     }
 

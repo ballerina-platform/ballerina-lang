@@ -33,6 +33,8 @@ public class StructureTypeInfo {
     // TODO Remove. Temporary field
     protected BType[] fieldTypes;
 
+    protected BType structureType;
+
     public StructureTypeInfo(int pkgPathCPIndex, int nameCPIndex) {
         this.pkgPathCPIndex = pkgPathCPIndex;
         this.nameCPIndex = nameCPIndex;
@@ -52,5 +54,13 @@ public class StructureTypeInfo {
 
     public void setFieldTypes(BType[] fieldTypes) {
         this.fieldTypes = fieldTypes;
+    }
+
+    public BType getType() {
+        return structureType;
+    }
+
+    public void setType(BType type) {
+        this.structureType = type;
     }
 }
