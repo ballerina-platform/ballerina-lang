@@ -65,7 +65,6 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 return resource;
             }
         } catch (Throwable e) {
-            // TODO: Why no context??
             throw new BallerinaException(e.getMessage());
         }
 
