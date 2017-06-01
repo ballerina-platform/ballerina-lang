@@ -169,26 +169,28 @@ class BlockStatementDecorator extends React.Component {
         const utilClassName = this.state.active=== 'hidden' ? 'hide-action' :
             ( this.state.active=== 'visible' ? 'show-action' : 'delayed-hide-action');
 
+        const expressionEditor = this.openExpressionEditor.bind(this, this.props.expression, this.props.editorOptions);
+        const paramEditor = this.openExpressionEditor.bind(this, this.props.parameter, this.props.parameterEditorOptions);
         return (<g onMouseOut={ this.setActionVisibility.bind(this, false) }
                    onMouseOver={ this.setActionVisibility.bind(this, true) }>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"
-                  onClick={(e) => this.openExpressionEditor(e)}/>
+                  onClick={expressionEditor}/>
             <text x={title_x} y={title_y} className="statement-text">{title}</text>
 
             {(expression) &&
             <text x={expression_x} y={title_y} className="condition-text"
-                  onClick={(e) => this.openExpressionEditor(e)}>
+                  onClick={expressionEditor}>
                 {expression.text}
             </text>}
 
-            {(parameter) &&
+            {parameter &&
             <g>
                 <line x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
                       x2={paramSeparator_x}
                       className="parameter-separator"/>
                 <text x={expression_x + blockStatement.heading.paramOffsetX} y={title_y} className="condition-text"
-                      onClick={(e) => this.openParameterEditor(e)}>
+                      onClick={paramEditor}>
                     ( {parameter.getParameterDefinitionAsString()} )
                 </text>
             </g>}
@@ -215,15 +217,11 @@ class BlockStatementDecorator extends React.Component {
 
     }
 
-    openExpressionEditor(e) {
-        let options = this.props.editorOptions;
+    openExpressionEditor(value, options, e) {
         let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
-        if (this.props.expression && options) {
+        if (value && options) {
             new ExpressionEditor(this.conditionBox, this.context.container, (text) => this.onUpdate(text), options, packageScope);
         }
-    }
-
-    openParameterEditor(e) {
     }
 
     onUpdate(text) {

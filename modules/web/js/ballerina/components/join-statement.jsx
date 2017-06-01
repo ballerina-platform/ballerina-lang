@@ -36,6 +36,13 @@ class JoinStatement extends React.Component {
             getterMethod: props.model.getJoinType,
             setterMethod: props.model.setJoinType
         };
+        const parameterEditorOptions = {
+            propertyType: 'text',
+            key: 'Join Condition',
+            model: props.model,
+            getterMethod: props.model.getParameterAsString,
+            setterMethod: props.model.setParameterAsString
+        };
 
 
         let lifeLineY1;
@@ -49,6 +56,7 @@ class JoinStatement extends React.Component {
         return (
             <CompoundStatementDecorator model={model} bBox={bBox} onDelete={this.onDelete.bind(this)}>
                 <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Join'} parameter={model.getParameter()}
+                                         parameterEditorOptions={parameterEditorOptions}
                                          expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
                     {model.children.length > 0 &&
                     <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
