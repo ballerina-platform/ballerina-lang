@@ -201,15 +201,23 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START,
                 getWhitespaceToRight(tokenStream,
                         ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                       getFirstTokenWithText(ctx.callableUnitSignature().children, STARTING_PAREN).getTokenIndex()));
         if (ctx.callableUnitSignature().returnParameters() != null) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
                     getWhitespaceToLeft(tokenStream,
+                            ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_RETURN_PARAM_START_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream,
                             ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
         }
         Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN,
                     getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
         }
