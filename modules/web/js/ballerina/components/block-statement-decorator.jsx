@@ -87,7 +87,7 @@ class BlockStatementDecorator extends React.Component {
             </g>}
 
             <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline"/>
-            <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget}>
+            <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
                 {this.props.children}
             </StatementContainer>
         </g>);

@@ -97,9 +97,8 @@ class StatementContainer extends React.Component {
   									// This drop zone is for statements only.
                                     // Unless it's in a Fork, in that case only Worker are allowed.
                                 const factory = dropTarget.getFactory();
-                                return factory.isStatement(nodeBeingDragged) ||
-                                    (factory.isForkJoinStatement(dropTarget) && factory.isWorkerDeclaration(nodeBeingDragged) );
-
+                                const callback = this.props.draggable;
+                                return callback ? callback(dropTarget, nodeBeingDragged) : factory.isStatement(nodeBeingDragged);
   							}
             );
   					this.setState({statementDropZoneActivated: true,

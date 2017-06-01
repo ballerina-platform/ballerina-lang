@@ -35,11 +35,17 @@ class ForkJoinStatement extends React.Component {
         const forkBBox = new SimpleBBox(bBox.x, bBox.y + statement.gutter.v, bBox.w, bodyBBox.h
             + blockStatement.heading.height);
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            <BlockStatementDecorator hideLifeLine={true} dropTarget={model} bBox={forkBBox} title={'Fork'}>
+            <BlockStatementDecorator hideLifeLine={true} dropTarget={model} bBox={forkBBox}
+                                     title={'Fork'} draggable={this.isWorker}>
 
                 {children}
             </BlockStatementDecorator>
         </CompoundStatementDecorator>);
+    }
+
+    isWorker(dropTarget, nodeBeingDragged) {
+        const factory = dropTarget.getFactory();
+        return factory.isWorkerDeclaration(nodeBeingDragged);
     }
 }
 
