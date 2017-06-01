@@ -16,19 +16,116 @@
  * under the License.
  */
 
-import React from "react";
+import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {blockStatement, statement} from '../configs/designer-defaults.js';
+import {blockStatement, statement, actionBox} from '../configs/designer-defaults.js';
 import StatementContainer from './statement-container';
 import ASTNode from '../ast/node';
 import SimpleBBox from '../ast/simple-bounding-box';
 import './block-statement-decorator.css'
 import ExpressionEditor from 'expression_editor_utils';
+import ActionBox from './action-box';
+import DragDropManager from '../tool-palette/drag-drop-manager';
+import ActiveArbiter from './active-arbiter';
+import Breakpoint from './breakpoint';
 
 class BlockStatementDecorator extends React.Component {
 
+    constructor() {
+        super();
+        this.state = {
+            active: 'hidden'
+        };
+        this.onDelete = this.onDelete.bind(this);
+        this.onBreakpointClick = this.onBreakpointClick.bind(this);
+        this.onJumptoCodeLine = this.onJumptoCodeLine.bind(this);
+    }
+
+    setActionVisibility(show, e) {
+        if (!this.context.dragDropManager.isOnDrag()) {
+            const myRoot = ReactDOM.findDOMNode(this);
+            if (show) {
+                let isInChildStatement = this.isInStatementWithinMe(e.target);
+                let isFromChildStatement = this.isInStatementWithinMe(e.relatedTarget);
+
+                if (!isInChildStatement) {
+                    if (isFromChildStatement) {
+                        this.context.activeArbiter.readyToDelayedActivate(this);
+                    } else {
+                        this.context.activeArbiter.readyToActivate(this);
+                    }
+                }
+            } else {
+                let elm = e.relatedTarget;
+                let isInMe = false;
+                while (elm && elm.getAttribute) {
+                    if (elm === myRoot) {
+                        isInMe = true;
+                    }
+                    elm = elm.parentNode;
+                }
+                if (!isInMe) {
+                    this.context.activeArbiter.readyToDeactivate(this);
+                }
+            }
+        }
+    }
+
+    isInStatementWithinMe(elmToCheck) {
+        const thisNode = ReactDOM.findDOMNode(this);
+        const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
+        let isInStatement = false;
+        let elm = elmToCheck;
+        while (elm && elm !== thisNode && elm.getAttribute) {
+            if (regex.test(elm.getAttribute('class'))) {
+                isInStatement = true;
+            }
+            elm = elm.parentNode;
+        }
+        return isInStatement;
+    }
+
+    onDelete() {
+        this.props.model.remove();
+    }
+
+    onBreakpointClick() {
+        const { model } = this.props;
+        const { isBreakpoint = false } = model;
+        if(model.isBreakpoint) {
+            model.removeBreakpoint();
+        } else {
+            model.addBreakpoint();
+        }
+    }
+
+    onJumptoCodeLine() {
+        const {renderingContext: {ballerinaFileEditor}} = this.context;
+
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+    }
+
+    renderBreakpointIndicator() {
+        const breakpointSize = 14;
+        const { bBox } = this.props;
+        const pointX = bBox.x + bBox.w - breakpointSize/2;
+        const pointY = bBox.y - breakpointSize/2 + statement.gutter.v;
+        return (
+            <Breakpoint
+                x={pointX}
+                y={pointY}
+                size={breakpointSize}
+                isBreakpoint={this.props.model.isBreakpoint}
+                onClick = { () => this.onBreakpointClick() }
+            />
+        );
+    }
+
     render() {
-        const {bBox, title, dropTarget, expression, parameter} = this.props;
+        const {bBox, title, dropTarget, expression, parameter, model} = this.props;
+
         let title_h = blockStatement.heading.height;
         let title_w = blockStatement.heading.width;
 
@@ -60,7 +157,18 @@ class BlockStatementDecorator extends React.Component {
 
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, title_h);
 
-        return (<g>
+        const actionBoxBbox = {
+            x: bBox.x + ( bBox.w - actionBox.width) / 2,
+            y: bBox.y + title_h + actionBox.padding.top,
+            w: actionBox.width,
+            h: actionBox.height,
+        };
+
+        const utilClassName = this.state.active=== 'hidden' ? 'hide-action' :
+            ( this.state.active=== 'visible' ? 'show-action' : 'delayed-hide-action');
+
+        return (<g onMouseOut={ this.setActionVisibility.bind(this, false) }
+                   onMouseOver={ this.setActionVisibility.bind(this, true) }>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
             {this.props.hideLifeLine &&
             <line x1={bBox.getCenterX()} y1={bBox.y} x2={bBox.getCenterX()} y2={bBox.getBottom()}
@@ -90,6 +198,20 @@ class BlockStatementDecorator extends React.Component {
             <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
                 {this.props.children}
             </StatementContainer>
+            <ActionBox
+                bBox={ actionBoxBbox }
+                show={ this.state.active }
+                isBreakpoint={ model.isBreakpoint }
+                onDelete={ this.onDelete }
+                onJumptoCodeLine={ this.onJumptoCodeLine }
+                onBreakpointClick={ this.onBreakpointClick }
+            />
+            {
+                <g className={utilClassName}>
+                    {this.props.utilities || null}
+                </g>
+            }
+            { model.isBreakpoint && this.renderBreakpointIndicator() }
         </g>);
 
     }
@@ -122,7 +244,8 @@ BlockStatementDecorator.propTypes = {
 BlockStatementDecorator.contextTypes = {
     container: PropTypes.instanceOf(Object).isRequired,
     renderingContext: PropTypes.instanceOf(Object).isRequired,
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
-
 
 export default BlockStatementDecorator;

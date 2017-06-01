@@ -1,3 +1,5 @@
+package ballerina.net.http;
+
 import ballerina.doc;
 
 @doc:Description { value:"Gets the request URL from the message"}

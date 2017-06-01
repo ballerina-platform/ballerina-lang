@@ -1,3 +1,5 @@
+package ballerina.net.jms;
+
 annotation JMSSource attach service {
     string destination;
     string factoryInitial;

@@ -1,3 +1,5 @@
+package ballerina.net.http.swagger;
+
 annotation ServiceInfo attach service {
     string title;
     string version;

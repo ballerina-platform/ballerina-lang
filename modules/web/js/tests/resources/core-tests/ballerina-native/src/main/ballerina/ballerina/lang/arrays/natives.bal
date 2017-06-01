@@ -1,3 +1,5 @@
+package ballerina.lang.arrays;
+
 import ballerina.doc;
 
 @doc:Description { value:"Returns the length of the specified message object array"}

@@ -15,20 +15,66 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
 import {getComponentForNodeArray} from './utils';
+import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 
 class ElseIfStatement extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            showAddButton: false
+        };
+        this.onAddElseIfClick = this.onAddElseIfClick.bind(this);
+        this.onMouseEnter = this.onMouseEnter.bind(this);
+        this.onMouseOut = this.onMouseOut.bind(this);
+    }
+
+    onMouseEnter() {
+        this.setState({showAddButton: true});
+    }
+
+    onMouseOut() {
+        this.setState({showAddButton: false});
+    }
+
+    onAddElseIfClick() {
+        const newElseIfStatement = BallerinaASTFactory.createElseIfStatement();
+        const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
+        this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
+    }
 
     render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox;
+        const {model} = this.props;
+        const {bBox} = model.viewState;
+        const {expression} = model.viewState.components;
+        const parent = model.parent;
+
+        const editorOptions = {
+            propertyType: 'text',
+            key: 'If condition',
+            model: this.props.model,
+            getterMethod: this.props.model.getCondition,
+            setterMethod: this.props.model.setCondition
+        };
+
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Else If"}>
-            {children}
-        </BlockStatementDecorator>);
+
+        const addElseIfBtn = (
+            <g onClick={this.onAddElseIfClick}>
+                <rect x={bBox.x+bBox.w-20} y={bBox.y+bBox.h-20} width={20} height={20} className='add-else-if-button'/>
+                <text x={bBox.x+bBox.w-15} y={bBox.y+bBox.h-10} width={20} height={20} className='add-else-if-button-label'>{'+'}</text>
+            </g>
+        );
+
+        return (
+            <BlockStatementDecorator dropTarget={model} model={model} bBox={bBox} title={'Else If'} expression={expression}
+                utilities={addElseIfBtn} editorOptions={editorOptions}>
+                {children}
+            </BlockStatementDecorator>
+        );
     }
 }
 

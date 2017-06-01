@@ -1,3 +1,5 @@
+package ballerina.doc;
+
 annotation Description {
     string value;
 }

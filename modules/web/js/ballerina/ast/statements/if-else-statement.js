@@ -37,7 +37,7 @@ class IfElseStatement extends Statement {
         this._ifStatement = ifStatement;
 
         this._elseIfStatements = [];
-        this.type = "IfElseStatement";
+        this.type = 'IfElseStatement';
     }
 
     getIfStatement() {
@@ -45,7 +45,8 @@ class IfElseStatement extends Statement {
     }
 
     getElseStatement() {
-        return this._elseStatement;
+        const isElseStatement = BallerinaASTFactory.isElseStatement;
+        return this.children.find(c => (BallerinaASTFactory.isElseStatement(c)));
     }
 
     getElseIfStatement() {
@@ -97,7 +98,27 @@ class IfElseStatement extends Statement {
             index = elseStatementIndex;
         }
 
+        if(BallerinaASTFactory.isElseStatement(child)){
+            this._elseStatement = child;
+        }
+
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+    }
+
+    addElseStatement(elseStatement) {
+        this._elseStatement = elseStatement;
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, elseStatement);
+    }
+
+    addElseIfStatement(elseIfStatement, index) {
+        const elseStatementIndex = _.findIndex(this.getChildren(), function (node) {
+            return BallerinaASTFactory.isElseStatement(node);
+        });
+
+        this._elseIfStatements.push(elseIfStatement);
+
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(
+            this, elseIfStatement, index || elseStatementIndex);
     }
 
     /**
@@ -120,7 +141,7 @@ class IfElseStatement extends Statement {
                 _.each(childNode.children, function (childNode) {
                     var child = undefined;
                     var childNodeTemp = undefined;
-                    if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                    if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                         child = self.getFactory().createConnectorDeclaration();
                         childNodeTemp = childNode;
                     } else {
@@ -143,7 +164,7 @@ class IfElseStatement extends Statement {
                 var child = undefined;
                 var childNodeTemp = undefined;
                 //TODO : generalize this logic
-                if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                     child = self.getFactory().createConnectorDeclaration();
                     childNodeTemp = childNode;
                 } else {
@@ -165,7 +186,7 @@ class IfElseStatement extends Statement {
             var child = undefined;
             var childNodeTemp = undefined;
             //TODO : generalize this logic
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -179,4 +200,3 @@ class IfElseStatement extends Statement {
 }
 
 export default IfElseStatement;
-

@@ -1,3 +1,5 @@
+package ballerina.data.sql;
+
 import ballerina.doc;
 
 @doc:Description { value: "Parameter struct "}

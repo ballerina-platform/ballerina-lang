@@ -1,3 +1,5 @@
+package samples.parser;
+
 import ballerina.lang.system;
 import ballerina.lang.system;
 

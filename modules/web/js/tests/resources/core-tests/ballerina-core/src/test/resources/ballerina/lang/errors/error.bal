@@ -1,3 +1,5 @@
+package ballerina.lang.errors;
+
 struct Error {
     string msg;
     Error cause;

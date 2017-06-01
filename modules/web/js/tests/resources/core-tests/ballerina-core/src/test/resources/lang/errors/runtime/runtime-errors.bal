@@ -1,3 +1,5 @@
+package lang.errors.runtime;
+
 function arrayIndexOutOfBoundTest() {
     string name;
     string[] animals;

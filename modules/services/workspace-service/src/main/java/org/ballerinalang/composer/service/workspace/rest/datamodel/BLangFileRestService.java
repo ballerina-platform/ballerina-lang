@@ -191,7 +191,16 @@ public class BLangFileRestService {
                 // find program directory
                 java.nio.file.Path parentDir = filePath.getParent();
                 for (int i = 0; i < directoryCount; ++i) {
-                    parentDir = parentDir.getParent();
+                    if (parentDir != null) {
+                        parentDir = parentDir.getParent();
+                    } else {
+                        return;
+                    }
+                }
+
+                // we shouldn't proceed if the parent directory is null
+                if (parentDir == null) {
+                    return;
                 }
 
                 // get packages in program directory

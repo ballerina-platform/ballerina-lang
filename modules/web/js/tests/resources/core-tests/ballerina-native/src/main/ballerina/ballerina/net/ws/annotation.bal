@@ -1,3 +1,5 @@
+package ballerina.net.ws;
+
 annotation WebSocketUpgradePath attach service {
     string value;
 }

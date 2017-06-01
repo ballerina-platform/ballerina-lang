@@ -1,3 +1,5 @@
+package lang.expressions.type.unsupported.lt;
+
 function checkLessThanForUnsupportedType() (boolean){
 	json j1;
 	json j2;

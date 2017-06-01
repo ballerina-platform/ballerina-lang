@@ -1,3 +1,5 @@
+package ballerina.utils;
+
 import ballerina.doc;
 
 @doc:Description { value:"Returns a hash of a given string using the SHA-256 algorithm "}

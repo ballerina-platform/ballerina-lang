@@ -1,3 +1,5 @@
+package ballerina.lang.datatables;
+
 import ballerina.doc;
 
 @doc:Description { value:"Releases the database connection."}

@@ -46,8 +46,8 @@ class Backend {
         $.ajax({
             type: 'POST',
             context: this,
-            url: 'http://localhost:8289/ballerina/model/content',
-            data: JSON.stringify({content:opts.content}),
+            url: this._url,
+            data: JSON.stringify(content),
             contentType: 'application/json; charset=utf-8',
             async: false,
             dataType: 'json',

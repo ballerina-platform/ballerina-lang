@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
 import {getComponentForNodeArray} from './utils';
 
@@ -26,9 +26,11 @@ class ElseStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Else"}>
-            {children}
-        </BlockStatementDecorator>);
+        return (
+            <BlockStatementDecorator dropTarget={model} model={model} bBox={bBox} title={'Else'}>
+                {children}
+            </BlockStatementDecorator>
+        );
     }
 }
 
