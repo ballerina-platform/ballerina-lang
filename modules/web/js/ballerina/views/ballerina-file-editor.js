@@ -388,7 +388,7 @@ class BallerinaFileEditor extends EventChannel {
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
                     if(!_.isEmpty(source.trim())){
-                        var validateResponse = self.validatorBackend.parse(source.trim());
+                        var validateResponse = self.validatorBackend.parse({content:source.trim()});
                         //TODO : error messages from backend come as error or errors. Make this consistent.
                         if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
                             // syntax errors found
@@ -403,7 +403,7 @@ class BallerinaFileEditor extends EventChannel {
                     }
                     self._parseFailed = false;
                     //if no errors display the design.
-                    var response = self.parserBackend.parse(source);
+                    var response = self.parserBackend.parse({content:source});
                     if (response.error && !_.isEmpty(response.message)) {
                         alerts.error('Cannot switch to Swagger view due to syntax errors : ' + response.message);
                         return;
@@ -614,7 +614,7 @@ class BallerinaFileEditor extends EventChannel {
         var root;
         var source = this._sourceView.getContent();
         if (!_.isEmpty(source.trim())) {
-            var response = this.parserBackend.parse(source);
+            var response = this.parserBackend.parse({content:source});
            //if there are errors display the error.
            //@todo: proper error handling need to get the service specs
             if (response.error !== undefined && response.error) {
@@ -852,7 +852,7 @@ class BallerinaFileEditor extends EventChannel {
     }
 
     getModelFromSource(source) {
-        var response = this.parserBackend.parse(source);
+        var response = this.parserBackend.parse({content:source});
         if (response.error && !_.isEmpty(response.message)) {
             return response.message;
         }
