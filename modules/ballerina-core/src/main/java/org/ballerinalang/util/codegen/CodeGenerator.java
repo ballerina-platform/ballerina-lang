@@ -948,9 +948,9 @@ public class CodeGenerator implements NodeVisitor {
             emit(opcode, rExpr.getTempOffset(), exprIndex);
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
-
-            // TODO
-            exprIndex = rExpr.getTempOffset();
+            opcode = InstructionCodes.NOT;
+            exprIndex = ++regIndexes[BOOL_OFFSET];
+            emit(opcode, rExpr.getTempOffset(), exprIndex);
         } else {
             // "+" operator
             // Nothing to do

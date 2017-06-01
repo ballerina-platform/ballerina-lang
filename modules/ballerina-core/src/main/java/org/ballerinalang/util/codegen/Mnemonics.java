@@ -107,6 +107,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FMOD] = "fmod";
         mnemonics[InstructionCodes.INEG] = "ineg";
         mnemonics[InstructionCodes.FNEG] = "fneg";
+        mnemonics[InstructionCodes.NOT] = "not";
 
         mnemonics[InstructionCodes.ICMP] = "icmp";
         mnemonics[InstructionCodes.FCMP] = "fcmp";
