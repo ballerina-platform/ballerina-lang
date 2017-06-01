@@ -68,9 +68,12 @@ public class WhiteSpaceRegions {
     public static final int FUNCTION_DEF_NATIVE_KEYWORD_TO_FUNCTION_KEYWORD = 0;
     public static final int FUNCTION_DEF_FUNCTION_KEYWORD_TO_IDENTIFIER_START = 1;
     public static final int FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START = 2;
-    public static final int FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 3;
-    public static final int FUNCTION_DEF_BODY_START_TO_LAST_TOKEN = 4;
-    public static final int FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN = 5;
+    public static final int FUNCTION_DEF_PARAM_LIST_START_TO_NEXT_TOKEN = 3;
+    public static final int FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 4;
+    public static final int FUNCTION_DEF_RETURN_PARAM_START_TO_NEXT_TOKEN = 5;
+    public static final int FUNCTION_DEF_BODY_START_TO_LAST_TOKEN = 6;
+    public static final int FUNCTION_DEF_BODY_START_TO_NEXT_TOKEN = 7;
+    public static final int FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN = 8;
 
     // whitespace regions in a connector definition
     public static final int CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER = 0;
