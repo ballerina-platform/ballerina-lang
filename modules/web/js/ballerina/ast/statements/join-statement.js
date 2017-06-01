@@ -29,7 +29,8 @@ class JoinStatement extends Statement {
     constructor(args) {
         super('JoinStatement');
         this._joinType = _.get(args, "joinType", "all");
-        this._param = _.get(args, "param", new ParameterDefinition({typeName: 'message[]', name: 'm'}));
+        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'message[]', name: 'm'});
+        this._joinParameter = _.get(args, "joinParam", parameterDefinition);
     }
 
     getWorkerDeclarations() {
@@ -58,18 +59,18 @@ class JoinStatement extends Statement {
 
     setParameter(type, options) {
         if (!_.isNil(type)) {
-            this.setAttribute('_param', type, options);
+            this.setAttribute('_joinParameter', type, options);
         }
     }
 
     getParameter() {
-        return this._param;
+        return this._joinParameter;
     }
 
     initFromJson(jsonNode) {
         const self = this;
         self.setJoinType(jsonNode['join_type']);
-        const paramJsonNode = jsonNode['param'];
+        const paramJsonNode = jsonNode['join_parameter'];
         const paramASTNode = self.getFactory().createFromJson(paramJsonNode);
         paramASTNode.initFromJson(paramJsonNode);
         self.setParameter(paramASTNode);

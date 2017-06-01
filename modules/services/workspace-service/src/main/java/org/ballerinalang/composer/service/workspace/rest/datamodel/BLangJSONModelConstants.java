@@ -348,5 +348,5 @@ public class BLangJSONModelConstants {
 
     public static final String TIMEOUT_STATEMENT = "timeout_statement";
 
-    public static final String JOIN_PARAMETER = "param";
+    public static final String JOIN_PARAMETER = "join_parameter";
 }
