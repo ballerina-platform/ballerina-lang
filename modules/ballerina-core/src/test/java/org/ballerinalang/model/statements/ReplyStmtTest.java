@@ -40,7 +40,7 @@ public class ReplyStmtTest {
             expectedExceptionsMessageRegExp = "reply-from-function.bal:1: reply statement cannot be used in a " +
             "function definition")
     public void testReplyFromFunction() {
-        BTestUtils.parseBalFile("lang/statements/replyStmt/reply-from-function.bal");
+        BTestUtils.getProgramFile("lang/statements/replyStmt/reply-from-function.bal");
     }
     
     @Test(description = "Test reply statement in a action",
@@ -48,6 +48,6 @@ public class ReplyStmtTest {
             expectedExceptionsMessageRegExp = "reply-from-action.bal:5: reply statement cannot be used in a action " +
             "definition")
     public void testReplyFromAction() {
-        BTestUtils.parseBalFile("lang/statements/replyStmt/reply-from-action.bal");
+        BTestUtils.getProgramFile("lang/statements/replyStmt/reply-from-action.bal");
     }
 }

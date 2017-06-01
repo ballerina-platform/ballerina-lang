@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 
@@ -33,8 +32,6 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
 public abstract class AbstractStatement implements Statement {
     protected NodeLocation location;
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
-    public LinkedNode next;
-    protected LinkedNode sibling, parent;
     protected boolean alwaysReturns;
 
     public AbstractStatement(NodeLocation location) {
@@ -52,40 +49,6 @@ public abstract class AbstractStatement implements Statement {
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return whiteSpaceDescriptor;
-    }
-
-    @Override
-    public LinkedNode next() {
-        return next;
-    }
-
-    @Override
-    public void setNext(LinkedNode linkedNode) {
-        // Validation for incorrect Linking.
-        if (next != null && next != linkedNode && !next.getClass().equals(linkedNode.getClass())) {
-            throw new IllegalStateException(this.getClass() + " got different next." + next + " " + linkedNode);
-        }
-        this.next = linkedNode;
-    }
-
-    @Override
-    public LinkedNode getNextSibling() {
-        return sibling;
-    }
-
-    @Override
-    public void setNextSibling(LinkedNode linkedNode) {
-        this.sibling = linkedNode;
-    }
-
-    @Override
-    public LinkedNode getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(LinkedNode linkedNode) {
-        this.parent = linkedNode;
     }
 
     public void setAlwaysReturns(boolean alwaysReturns) {

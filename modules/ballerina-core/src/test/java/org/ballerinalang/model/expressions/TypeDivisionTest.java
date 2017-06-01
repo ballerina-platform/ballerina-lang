@@ -18,11 +18,11 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,17 +33,18 @@ import org.testng.annotations.Test;
  */
 public class TypeDivisionTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
+
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/type-division.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/type-division.bal");
     }
 
     @Test
     public void testIntDivisionFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivideByFloat", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "intDivideByFloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "5.0";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -52,7 +53,7 @@ public class TypeDivisionTest {
     @Test
     public void testFloatDivisionInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivideByInt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatDivideByInt", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "5.0";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -61,7 +62,7 @@ public class TypeDivisionTest {
     @Test
     public void testIntGTFloat() {
         BValue[] args = {new BInteger(110), new BFloat(22L)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intGTFloat", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "intGTFloat", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -70,7 +71,7 @@ public class TypeDivisionTest {
     @Test
     public void testFloatGTInt() {
         BValue[] args = {new BFloat(110f), new BInteger(22)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatGTInt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatGTInt", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);

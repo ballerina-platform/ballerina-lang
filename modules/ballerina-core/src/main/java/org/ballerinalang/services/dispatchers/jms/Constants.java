@@ -50,4 +50,5 @@ public class Constants {
     // jms protocol name
     public static final String PROTOCOL_JMS = "jms";
     public static final String JMS_SERVICE_ID = "JMS_SERVICE_ID";
+    public static final String JMS_PACKAGE = "ballerina.net.jms";
 }

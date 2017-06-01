@@ -45,4 +45,14 @@ public class BAnyType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return null;
     }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_ANY);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ANY_TAG;
+    }
 }

@@ -48,6 +48,7 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     protected List<Expression> expressionList = new ArrayList<>();
     private WorkerDataChannel workerDataChannel;
 
+    private int[] offsets;
 
     public WorkerInvocationStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor) {
@@ -113,6 +114,14 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
+    }
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
     @Override
