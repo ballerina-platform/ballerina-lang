@@ -77,7 +77,7 @@ class TransformStatement extends Statement {
      * @param {ASTNode} child - child node
      */
     removeChild(child, ignoreModifiedTreeEvent, willVisit) {
-        if (!_.isUndefined(willVisit) && willVisit != true) {
+        if (!_.isUndefined(willVisit) && willVisit !== true) {
             var parentModelChildren = this.children;
             for (var itr = 0; itr < parentModelChildren.length; itr++) {
                 if (parentModelChildren[itr].id === child.id) {
