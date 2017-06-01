@@ -120,7 +120,7 @@ public class ServerConnectorMessageHandler {
         ControlStackNew controlStackNew = context.getControlStackNew();
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
 
-        // Now create callee's stackframe
+        // Now create callee's stack-frame
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
                 new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, -1, new int[0]);
         controlStackNew.pushFrame(calleeSF);
@@ -135,20 +135,20 @@ public class ServerConnectorMessageHandler {
 
         int stringParamCount = 0;
         int intParamCount = 0;
-        int longParamCount = 0;
         int doubleParamCount = 0;
-        int refParamCount = 0;
-
-        refLocalVars[0] = new BMessage(carbonMessage);
-
+        int longParamCount = 0;
+        String[] paramNameArray = resourceInfo.getParamNames();
+        BType[] bTypes = resourceInfo.getParamTypes();
         Map<String, String> resourceArgumentValues =
                 (Map<String, String>) carbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
 
-        String[] paramNameArray = resourceInfo.getParamNames();
-        BType[] bTypes = resourceInfo.getParamTypes();
         for (int i = 0; i < paramNameArray.length; i++) {
             BType btype = bTypes[i];
             String value = resourceArgumentValues.get(paramNameArray[i]);
+
+            if (value == null) {
+                continue;
+            }
 
             if (btype == BTypes.typeString) {
                 stringLocalVars[stringParamCount++] = value;
@@ -156,11 +156,15 @@ public class ServerConnectorMessageHandler {
                 intLocalVars[intParamCount++] = Integer.getInteger(value);
             } else if (btype == BTypes.typeFloat) {
                 doubleLocalVars[doubleParamCount++] = new Double(value);
+            } else if (btype == BTypes.typeInt) {
+                longLocalVars[longParamCount++] = Long.getLong(value);
+            } else {
+                throw new BallerinaException("Unsupported parameter type for parameter " + value);
             }
         }
 
+        // It is given that first parameter of the resource is carbon message.
         refLocalVars[0] = new BMessage(carbonMessage);
-
         calleeSF.setLongLocalVars(longLocalVars);
         calleeSF.setDoubleLocalVars(doubleLocalVars);
         calleeSF.setStringLocalVars(stringLocalVars);
@@ -172,17 +176,7 @@ public class ServerConnectorMessageHandler {
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
-//        BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
-//        try {
-            callback.done(cMsg);
-//            if (connectorCallback.isNonBlockingExecutor()) {
-//                // Continue Non-Blocking
-//                BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
-//                executor.continueExecution(connectorCallback.getCurrentNode().next());
-//            }
-//        } catch (Throwable throwable) {
-//            handleErrorFromOutbound(cMsg, connectorCallback.getContext(), throwable);
-//        }
+        callback.done(cMsg);
     }
 
     public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback,

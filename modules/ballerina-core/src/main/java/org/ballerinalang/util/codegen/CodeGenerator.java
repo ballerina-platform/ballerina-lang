@@ -326,6 +326,7 @@ public class CodeGenerator implements NodeVisitor {
             ResourceInfo resourceInfo = new ResourceInfo(currentPkgPath, currentPkgCPIndex,
                     resource.getName(), resourceNameCPIndex);
             resourceInfo.setParamTypes(getParamTypes(resource.getParameterDefs()));
+            resourceInfo.setParamNames(getParameterNames(resource.getParameterDefs()));
             resourceInfo.setPackageInfo(currentPkgInfo);
 
             serviceInfo.addResourceInfo(resource.getName(), resourceInfo);
@@ -1781,6 +1782,34 @@ public class CodeGenerator implements NodeVisitor {
         return types;
     }
 
+    private String[] getParameterNames(ParameterDef[] paramDefs) {
+        if (paramDefs.length == 0) {
+            return new String[0];
+        }
+
+        String[] names = new String[paramDefs.length];
+        AnnotationAttachment[] annotationAttachments;
+        for (int i = 0; i < paramDefs.length; i++) {
+            annotationAttachments = paramDefs[i].getAnnotations();
+            boolean isAnnotated = false;
+            // TODO: We need to support Matrix Param as well
+            for (AnnotationAttachment annotationAttachment : annotationAttachments) {
+                if ("PathParam".equalsIgnoreCase(annotationAttachment.getName())
+                    || "QueryParam".equalsIgnoreCase(annotationAttachment.getName())) {
+                    names[i] = annotationAttachment.getAttributeNameValuePairs()
+                            .get("value").getLiteralValue().stringValue();
+                    isAnnotated = true;
+                    break;
+                }
+            }
+            if (!isAnnotated) {
+                names[i] = paramDefs[i].getName();
+            }
+        }
+
+        return names;
+    }
+
     private int nextIP() {
         return currentPkgInfo.getInstructionList().size();
     }
@@ -2014,11 +2043,13 @@ public class CodeGenerator implements NodeVisitor {
         boolean paramAnnotationFound = false;
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
                 parameterDefs.length);
+        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(parameterDefs.length);
         for (int i = 0; i < parameterDefs.length; i++) {
             ParameterDef parameterDef = parameterDefs[i];
             int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
             parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
             parameterDef.accept(this);
+            LocalVariableInfo localVariableDetails = getLocalVariableAttributeInfo(parameterDef);
 
             AnnotationAttachment[] paramAnnotationAttachments = parameterDef.getAnnotations();
             if (paramAnnotationAttachments.length == 0) {
@@ -2030,14 +2061,23 @@ public class CodeGenerator implements NodeVisitor {
             for (AnnotationAttachment annotationAttachment : paramAnnotationAttachments) {
                 AnnotationAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
                 paramAttachmentInfo.addAnnotationAttachmentInfo(attachmentInfo);
+                localVariableDetails.addAttachmentIndex(attachmentInfo.nameCPIndex);
             }
 
             paramAttributeInfo.addParamAnnotationAttachmentInfo(i, paramAttachmentInfo);
+            localVariableAttributeInfo.addLocaleVaraibleDetails(localVariableDetails);
         }
 
+        callableUnitInfo.addAttributeInfo(AttributeInfo.LOCALVARIABLES_ATTRIBUTE, localVariableAttributeInfo);
         if (paramAnnotationFound) {
             callableUnitInfo.addAttributeInfo(AttributeInfo.PARAMETER_ANNOTATIONS_ATTRIBUTE, paramAttributeInfo);
         }
+    }
+
+    private LocalVariableInfo getLocalVariableAttributeInfo(ParameterDef parameterDef) {
+        UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(parameterDef.getName());
+        int annotationNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
+        return new LocalVariableInfo(annotationNameCPIndex);
     }
 
     /**
