@@ -19,6 +19,7 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -32,6 +33,7 @@ public abstract class Node {
     protected List<Node> childNodesList = new LinkedList<>();
 
     protected ResourceInfo resource;
+    protected boolean isFirstTraverse = true;
 
     protected Node(String token) {
         this.token = token;
@@ -101,7 +103,12 @@ public abstract class Node {
     }
 
     public void setResource(ResourceInfo resource) {
-        this.resource = resource;
+        if (isFirstTraverse) {
+            this.resource = resource;
+            isFirstTraverse = false;
+        } else {
+            throw new BallerinaException("Seems two resources have the same addressable URI");
+        }
     }
 
     abstract String expand(Map<String,String> variables);
