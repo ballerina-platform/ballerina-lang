@@ -151,4 +151,52 @@
         </context>
     </template>
 
+    <template description='Iterate Statement' id='ballerina_lang_iterate' name='ballerina_lang_iterate'
+              toReformat='false' toShortenFQNames='true' value='iterate ($VAR$ : $EXPRESSION$) {&#10;    $END$&#10;}'>
+        <variable name="VAR" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
+    <template description='While Loop' id='ballerina_lang_while' name='ballerina_lang_while'
+              toReformat='false' toShortenFQNames='true' value='while ($CONDITION$) {&#10;    $END$&#10;}'>
+        <variable name="CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
+    <template description='Continue Statement' id='ballerina_lang_continue' name='ballerina_lang_continue'
+              toReformat='false' toShortenFQNames='true' value='continue;'>
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
+    <template description='Break Statement' id='ballerina_lang_break' name='ballerina_lang_break'
+              toReformat='false' toShortenFQNames='true' value='break;'>
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
+    <template description='Throw Statement' id='ballerina_lang_throw' name='ballerina_lang_throw'
+              toReformat='false' toShortenFQNames='true' value='throw $EXPRESSION$;'>
+        <variable name="EXPRESSION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
 </templateSet>

@@ -35,7 +35,8 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "xml", "json", "map", "datatable");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally");
+            "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally", "iterate", "while",
+            "continue", "break", "throw");
     private static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
@@ -593,12 +594,15 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("timeout");
         expectedLookups.add("transaction");
         expectedLookups.add("finally");
+        expectedLookups.add("continue");
+        expectedLookups.add("iterate");
+        expectedLookups.add("while");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
         doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
-                "abort", "aborted", "try", "true");
+                "abort", "aborted", "try", "true", "break", "iterate", "throw");
     }
 
     public void testInvokingFunctionInDifferentFile1() {
@@ -1406,7 +1410,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     public void testConnectorBodyVariableDeclarationPackage() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doTest("import org.test; connector C(){ te<caret> }", "test", "aborted");
+        doTest("import org.test; connector C(){ te<caret> }", "test", "aborted", "iterate");
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {
@@ -1749,17 +1753,42 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doCheckResult("test.bal", "function test(){ finally<caret> }", "function test(){ finally {\n    \n} }", null);
     }
 
-    public void testIfKeywordAfterStatement() {
+    public void testIterateKeyword() {
+        doCheckResult("test.bal", "function test(){ iterate<caret> }", "function test(){ iterate ( : ) {\n    \n} }",
+                null);
+    }
+
+    public void testWhileKeyword() {
+        doCheckResult("test.bal", "function test(){ while<caret> }", "function test(){ while () {\n    \n} }",
+                null);
+    }
+
+    public void testContinueKeyword() {
+        doCheckResult("test.bal", "function test(){ continue<caret> }", "function test(){ continue; }", null);
+    }
+
+    public void testBreakKeyword() {
+        doCheckResult("test.bal", "function test(){ break<caret> }", "function test(){ break; }", null);
+    }
+
+    public void testThrowKeyword() {
+        doCheckResult("test.bal", "function test(){ throw<caret> }", "function test(){ throw ; }", null);
+    }
+
+    /**
+     * Keywords in statements.
+     */
+    public void testKeywordAfterStatement() {
         doCheckResult("test.bal", "function test(){ int a; if<caret> }", "function test(){ int a; if () {\n    " +
                 "\n} }", null);
     }
 
-    public void testIfKeywordBeforeStatement() {
+    public void testKeywordBeforeStatement() {
         doCheckResult("test.bal", "function test(){ if<caret> int a; }", "function test(){ if () {\n    \n} int a; }",
                 null);
     }
 
-    public void testIfKeywordBetweenStatements() {
+    public void testKeywordBetweenStatements() {
         doCheckResult("test.bal", "function test(){ int a; if<caret> int b; }", "function test(){ int a; if () {\n" +
                 "    \n} int b; }", null);
     }

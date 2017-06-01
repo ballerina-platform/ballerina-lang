@@ -128,6 +128,12 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
+    private static final LookupElementBuilder ITERATE;
+    private static final LookupElementBuilder WHILE;
+    private static final LookupElementBuilder CONTINUE;
+    private static final LookupElementBuilder BREAK;
+    private static final LookupElementBuilder THROW;
+
     private static final LookupElementBuilder TRUE;
     private static final LookupElementBuilder FALSE;
     private static final LookupElementBuilder NULL;
@@ -179,6 +185,12 @@ public class BallerinaCompletionUtils {
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
+        ITERATE = createKeywordLookupElement("iterate");
+        WHILE = createKeywordLookupElement("while");
+        CONTINUE = createKeywordLookupElement("continue");
+        BREAK = createKeywordLookupElement("break");
+        THROW = createKeywordLookupElement("throw");
+
         TRUE = createKeywordLookupElement("true");
         FALSE = createKeywordLookupElement("false");
         NULL = createKeywordLookupElement("null");
@@ -362,6 +374,11 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, TRY);
         addKeywordAsLookup(resultSet, CATCH);
         addKeywordAsLookup(resultSet, FINALLY);
+        addKeywordAsLookup(resultSet, ITERATE);
+        addKeywordAsLookup(resultSet, WHILE);
+        addKeywordAsLookup(resultSet, CONTINUE);
+        addKeywordAsLookup(resultSet, BREAK);
+        addKeywordAsLookup(resultSet, THROW);
     }
 
     static void addValueKeywords(@NotNull CompletionResultSet resultSet) {
