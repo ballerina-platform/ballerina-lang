@@ -40,7 +40,13 @@ class IfStatement extends React.Component {
     onAddElseClick() {
         const parent = this.props.model.parent;
         if(parent.getElseStatement()) {
-            const newElseIfStatement = BallerinaASTFactory.createElseIfStatement();
+            const condition = BallerinaASTFactory.createBasicLiteralExpression({
+                basicLiteralType: 'boolean',
+                basicLiteralValue: true
+            });
+            const newElseIfStatement = BallerinaASTFactory.createElseIfStatement({
+                condition: condition
+            });
             const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
             this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
         } else {

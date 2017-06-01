@@ -24,10 +24,10 @@ import ConditionalStatement from './conditional-statement';
  * @constructor
  */
 class ElseIfStatement extends ConditionalStatement {
-    constructor(condition) {
+    constructor(args) {
         super();
-        if(!_.isNil(condition)){
-            this._condition = condition;
+        if(!_.isNil(_.get(args, 'condition'))){
+            this._condition = _.get(args, 'condition');
         }
         this.type = "ElseIfStatement";
         this.whiteSpace.defaultDescriptor.regions = {

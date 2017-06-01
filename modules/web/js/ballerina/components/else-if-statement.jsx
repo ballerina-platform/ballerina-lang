@@ -55,9 +55,9 @@ class ElseIfStatement extends React.Component {
         const editorOptions = {
             propertyType: 'text',
             key: 'If condition',
-            model: this.props.model,
-            getterMethod: this.props.model.getCondition,
-            setterMethod: this.props.model.setCondition
+            model: this.props.model.getCondition(),
+            getterMethod: this.props.model.getCondition().generateExpression,
+            setterMethod: this.props.model.getCondition().setExpression
         };
 
         const children = getComponentForNodeArray(this.props.model.getChildren());
