@@ -1060,7 +1060,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tempJsonArrayRef.push(new JsonArray());
             join.getJoinResult().accept(this);
             JsonArray param = this.tempJsonArrayRef.peek();
-            joinStmtObj.add("param", param.get(0));
+            joinStmtObj.add(BLangJSONModelConstants.JOIN_PARAMETER, param.get(0));
             tempJsonArrayRef.pop();
 
             join.getJoinBlock().accept(this);
@@ -1078,7 +1078,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tempJsonArrayRef.push(new JsonArray());
             timeoutExpression.accept(this);
             JsonArray timeoutExpressionArr = this.tempJsonArrayRef.peek();
-            timeoutStmtObj.add("expression", timeoutExpressionArr.get(0));
+            timeoutStmtObj.add(BLangJSONModelConstants.EXPRESSION, timeoutExpressionArr.get(0));
             tempJsonArrayRef.pop();
 
             timeoutStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
