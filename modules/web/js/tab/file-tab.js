@@ -90,7 +90,7 @@ FileTab = Tab.extend({
             this._file.setDirty(true);
             this._file.save();
         } else {
-            this.renderBallerinaEditor(this.createEmptyBallerinaRoot(), false);
+            this.renderBallerinaEditor(undefined, false, this.createEmptyBallerinaRoot());
             var updatedContent = this.getBallerinaFileEditor().generateSource();
             this._file.setContent(updatedContent);
             this._file.save();
@@ -109,22 +109,31 @@ FileTab = Tab.extend({
         $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
     },
 
-    renderBallerinaEditor: function(parseResponse, parseFailed){
+    /**
+     * Rendering Ballerina editor. Either you an provide ASTRoot element or a parseResponse recieved from the backend service
+     * @param parseResponse - response recieved from the deserilizer backend service for a particular .bal content
+     * @param parseFailed - whether the parsing failed
+     * @param root - ASTRoot to render
+     */
+    renderBallerinaEditor: function(parseResponse, parseFailed, root){
         var self = this;
         var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
         var backendEndpointsOptions = _.get(this.options, 'application.config.services');
         let renderingContextOpts = {application: this.options.application};
         var diagramRenderingContext = new DiagramRenderContext(renderingContextOpts);
 
-
-        var astRoot = this.deserializer.getASTModel(parseResponse);
-
-        var packages = parseResponse.packages;
-        _.each(packages, (packageNode) => {
-            var pckg = BallerinaEnvFactory.createPackage();
-            pckg.initFromJson(packageNode);
-            this._programPackages.push(pckg);
-        });
+        var astRoot;
+        if(!_.isUndefined(parseResponse)){
+            astRoot = this.deserializer.getASTModel(parseResponse);
+            var packages = parseResponse.packages;
+            _.each(packages, (packageNode) => {
+                var pckg = BallerinaEnvFactory.createPackage();
+                pckg.initFromJson(packageNode);
+                this._programPackages.push(pckg);
+            });
+        } else{
+            astRoot = root;
+        }
 
         var fileEditor = new BallerinaFileEditor({
             model: astRoot,
