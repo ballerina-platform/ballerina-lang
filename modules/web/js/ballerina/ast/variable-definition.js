@@ -80,9 +80,6 @@ class VariableDefinition extends ASTNode {
     setPkgName(pkgName, options) {
         if (!_.isNil(pkgName)) {
             this.setAttribute('_pkgName', pkgName, options);
-        } else {
-            log.error('Invalid pkg path [' + pkgName + '] Provided');
-            throw 'Invalid pkg path [' + pkgName + '] Provided';
         }
     }
 
