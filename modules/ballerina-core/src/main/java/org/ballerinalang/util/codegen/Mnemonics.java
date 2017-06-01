@@ -107,6 +107,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FMOD] = "fmod";
         mnemonics[InstructionCodes.INEG] = "ineg";
         mnemonics[InstructionCodes.FNEG] = "fneg";
+        mnemonics[InstructionCodes.NOT] = "not";
 
         mnemonics[InstructionCodes.ICMP] = "icmp";
         mnemonics[InstructionCodes.FCMP] = "fcmp";
@@ -160,6 +161,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
+        mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";

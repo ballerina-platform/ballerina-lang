@@ -109,7 +109,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-//        traceCode();
+     //   traceCode();
         exec();
     }
 
@@ -593,7 +593,7 @@ public class BLangVM {
                     k = operands[2];
 
                     // TODO improve error handling in VM
-                    if (sf.longRegs[j] == 0) {
+                   if (sf.longRegs[j] == 0) {
                         throw new BallerinaException(" / by zero");
                     }
 
@@ -621,7 +621,11 @@ public class BLangVM {
                     j = operands[1];
                     sf.doubleRegs[j] = -sf.doubleRegs[i];
                     break;
-
+                case InstructionCodes.NOT:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
+                    break;
                 case InstructionCodes.ICMP:
                     i = operands[0];
                     j = operands[1];
@@ -630,6 +634,38 @@ public class BLangVM {
                         sf.intRegs[k] = 0;
                     } else if (sf.longRegs[i] > sf.longRegs[j]) {
                         sf.intRegs[k] = 1;
+                    } else {
+                        sf.intRegs[k] = -1;
+                    }
+                    break;
+                case InstructionCodes.FCMP:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.doubleRegs[i] == sf.doubleRegs[j]) {
+                        sf.intRegs[k] = 0;
+                    } else if (sf.doubleRegs[i] > sf.doubleRegs[j]) {
+                        sf.intRegs[k] = 1;
+                    } else {
+                        sf.intRegs[k] = -1;
+                    }
+                    break;
+                case InstructionCodes.SCMP:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.stringRegs[i] == sf.stringRegs[j]) {
+                        sf.intRegs[k] = 0;
+                    } else {
+                        sf.intRegs[k] = -1;
+                    }
+                    break;
+                case InstructionCodes.BCMP:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    if (sf.intRegs[i] == sf.intRegs[j]) {
+                        sf.intRegs[k] = 0;
                     } else {
                         sf.intRegs[k] = -1;
                     }
@@ -955,7 +991,13 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BJSON("null");
                     break;
-
+                case InstructionCodes.CHECKCAST:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    checkCast();
+                    // TODO
+                    break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
@@ -1315,6 +1357,11 @@ public class BLangVM {
                     structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
             }
         }
+    }
+
+    private boolean checkCast() {
+        // TODO
+        return false;
     }
 
     // TODO Refactor these methods and move them to a proper util class
