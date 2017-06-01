@@ -115,17 +115,29 @@ class TransformStatementDecorator extends React.Component {
         var targetId = 'targetStructs' + this.props.model.id;
 
         var sourceContent = $('<div class="leftType">' +
-              '<div class="source-view">' +
-              '<select id="' + sourceId + '" class="type-mapper-combo">' +
-              '<option value="-1">--Select--</option>' +
-              '</select>' +
+                '<div class="source-view">' +
+                '<select id="' + sourceId + '" class="type-mapper-combo">' +
+                '<option value="-1">--Select--</option>' +
+                '</select>'+
+                ' <span id="btn-add-source" class="btn-add-type fw-stack fw-lg btn btn-add">'+
+                '            <i class="fw fw-add fw-stack-1x"></i>'+
+                '          </span>'+
+                '           <span id="btn-remove-source" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
+                '            <i class="fw fw-delete fw-stack-1x"></i>'+
+                '          </span>' +
               '</div></div>');
 
         var targetContent = $('<div class="rightType">' +
-              '<div class="target-view">' +
-              '<select id="' + targetId + '" class="type-mapper-combo">' +
-              '<option value="-1">--Select--</option>' +
-              '</select>' +
+                '<div class="target-view">' +
+                '<select id="' + targetId + '" class="type-mapper-combo">' +
+                '<option value="-1">--Select--</option>' +
+                '</select>' +
+                ' <span id="btn-add-target" class="btn-add-type fw-stack fw-lg btn btn-add">'+
+                '            <i class="fw fw-add fw-stack-1x"></i>'+
+                '          </span>'+
+                '           <span id="btn-remove-target" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
+                '            <i class="fw fw-delete fw-stack-1x"></i>'+
+                '          </span>' +
               '</div></div>');
 
         var transformNameText = $('<p class="transform-header-text "><i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
@@ -178,40 +190,48 @@ class TransformStatementDecorator extends React.Component {
         });
         $('.type-mapper-combo').select2();
 
-        $('#' + sourceId).on('select2:selecting', function (e) {
-            var currentSelection = e.params.args.data.id;
-            var previousSelection = $('#' + sourceId).val();
-            if (currentSelection == -1) {
-                self.mapper.removeType(previousSelection);
-                self.props.model.children = [];
-            } else if (currentSelection != $('#' + targetId).val()) {
-                self.mapper.removeType(previousSelection);
-                self.setSource(currentSelection, self.predefinedStructs);
+        $('#btn-add-source').click(function (e) {
+            var currentSelection = $('#' + sourceId).val();
+            if ( self.setSource(currentSelection, self.predefinedStructs)) {
                 var inputDef = BallerinaASTFactory
                                         .createVariableReferenceExpression({variableName: currentSelection});
-                self.props.model.setInput([inputDef]);
-                self.props.model.children = [];
-            } else {
-                return false;
+                var inputs = self.props.model.getInput();
+                inputs.push(inputDef);
+                self.props.model.setInput(inputs);
             }
         });
 
-        $('#' + targetId).on('select2:selecting', function (e) {
-            var currentSelection = e.params.args.data.id;
-            var previousSelection = $('#' + targetId).val();
-            if (currentSelection == -1) {
-                self.mapper.removeType(previousSelection);
-                self.props.model.children = [];
-            } else if (currentSelection != $('#' + sourceId).val()) {
-                self.mapper.removeType(previousSelection);
-                self.setTarget(currentSelection, self.predefinedStructs);
+        $('#btn-remove-source').click(function (e) {
+             var currentSelection = $('#' + sourceId).val();
+             if (currentSelection != -1) {
+                self.mapper.removeType(currentSelection);
+                self.props.model.setInput([]);
+                var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
+                currentSelectionObj.added = false;
+                 self.props.model.children = [];
+             }
+        });
+
+        $('#btn-add-target').click(function (e) {
+            var currentSelection = $('#' + targetId).val();
+            if (self.setTarget(currentSelection, self.predefinedStructs)) {
                 var outDef = BallerinaASTFactory
                                         .createVariableReferenceExpression({variableName: currentSelection});
-                self.props.model.setOutput([outDef]);
-                self.props.model.children = [];
-            } else {
-                return false;
+                var outputs = self.props.model.getOutput();
+                outputs.push(outDef)
+                self.props.model.setOutput(outputs);
             }
+        });
+
+        $('#btn-remove-target').click(function (e) {
+             var currentSelection = $('#' + targetId).val();
+             if (currentSelection != -1) {
+                self.mapper.removeType(currentSelection);
+                self.props.model.setOutput([]);
+                var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
+                currentSelectionObj.added = false;
+                 self.props.model.children = [];
+             }
         });
 
         $(window).on('resize', function(){
@@ -268,17 +288,13 @@ class TransformStatementDecorator extends React.Component {
         this.mapper = new TransformRender(onConnectionCallback, onDisconnectionCallback);
         this.transformOverlayDiv.style.display = 'block';
 
-        if(self.props.model.getInput() != null && self.props.model.getInput().length > 0) {
-            var sourceType = self.props.model.getInput()[0].getExpression();
-            $('#' + sourceId).val(sourceType).trigger('change');
-            self.setSource(sourceType, self.predefinedStructs);
-        }
+         _.forEach(self.props.model.getInput(), input => {
+            self.setSource(input.getExpression(), self.predefinedStructs);
+         });
 
-        if(self.props.model.getOutput() != null && self.props.model.getOutput().length > 0) {
-            var targetType = self.props.model.getOutput()[0].getExpression();
-            $('#' + targetId).val(targetType).trigger('change');
-            self.setTarget(targetType, self.predefinedStructs);
-        }
+         _.forEach(self.props.model.getOutput(), output => {
+            self.setTarget(output.getExpression(), self.predefinedStructs);
+         });
 
         _.forEach(this.props.model.getChildren(), statement => {
             this.createConnection(statement);
@@ -661,12 +677,24 @@ class TransformStatementDecorator extends React.Component {
 
     setSource(currentSelection, predefinedStructs) {
         var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
-        self.mapper.addSourceType(sourceSelection);
+        if(!sourceSelection.added) {
+            self.mapper.addSourceType(sourceSelection);
+            sourceSelection.added = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     setTarget(currentSelection, predefinedStructs) {
         var targetSelection = _.find(predefinedStructs, { name: currentSelection});
-        self.mapper.addTargetType(targetSelection);
+        if(!targetSelection.added) {
+            self.mapper.addTargetType(targetSelection);
+            targetSelection.added = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

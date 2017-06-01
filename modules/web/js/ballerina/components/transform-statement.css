@@ -149,7 +149,7 @@ svg.plumbConnect path {
 .type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
     top:10px;
     left:10px;
-    width:270px;
+    width:220px;
     position:absolute;
 }
 
@@ -234,4 +234,18 @@ svg.plumbConnect path {
 .type-mapper-con-remove {
     font-size: 0.94em;
     color: #666769;
+}
+
+.btn-add-type {
+    color: #666769;
+    top:10px;
+    left:235px;
+    position:absolute;
+}
+
+.btn-remove-type {
+    color: #666769;
+    top:10px;
+    left:260px;
+    position:absolute;
 }
