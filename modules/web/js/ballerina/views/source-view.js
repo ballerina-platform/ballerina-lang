@@ -174,7 +174,14 @@ class SourceView extends EventChannel {
     }
 
     format(doSilently) {
-        let  parserRes = this._fileEditor.parserBackend.parse(this._editor.getSession().getValue());
+        let  parserRes = this._fileEditor.parserBackend.parse(
+            {
+                name: this._fileEditor.getFile().getName(),
+                path: this._fileEditor.getFile().getPath(),
+                content: this._editor.getSession().getValue(),
+                package: 'Current Package'
+            }
+        );
         if (parserRes.error && !_.isEmpty(parserRes.message)) {
             alerts.error('Cannot format due to syntax errors : ' + parserRes.message);
             return;
