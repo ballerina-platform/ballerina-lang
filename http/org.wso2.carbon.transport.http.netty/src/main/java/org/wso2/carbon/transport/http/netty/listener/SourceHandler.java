@@ -126,7 +126,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
              */
             HttpRequest httpRequest = (HttpRequest) msg;
             HttpHeaders headers = httpRequest.headers();
-            if (Constants.UPGRADE.equalsIgnoreCase(headers.get(Constants.CONNECTION)) &&
+            if (isConnectionUpgrade(headers) &&
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
                 log.info("Upgrading the connection from Http to WebSocket for " +
                                      "channel : " + ctx.channel());
@@ -155,6 +155,21 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             }
         }
 
+    }
+
+    public boolean isConnectionUpgrade(HttpHeaders headers) {
+        if (!headers.contains(Constants.CONNECTION)) {
+            return false;
+        }
+
+        String connectionHeaderValues = headers.get(Constants.CONNECTION);
+        for (String connectionValue: connectionHeaderValues.split(",")) {
+            if (Constants.UPGRADE.equalsIgnoreCase(connectionValue.trim())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /*
