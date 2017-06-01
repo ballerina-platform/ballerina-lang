@@ -73,7 +73,7 @@ class ConnectorInitExpression extends Expression {
         });
         let connectorName = this.getConnectorName();
         if (!_.isNil(connectorName)) {
-            visitor.visit();
+            visitor.visit(connectorName);
             if (visitor.canVisit(connectorName)) {
                 connectorName.accept(visitor);
             }

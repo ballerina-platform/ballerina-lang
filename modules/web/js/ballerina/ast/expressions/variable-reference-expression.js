@@ -84,8 +84,8 @@ class VariableReferenceExpression extends Expression {
     generateExpression() {
         var varDef = this.findChild(this.getFactory().isVariableDefinition);
         if (!_.isNil(varDef)) {
-            return (!_.isNil(varDef.getPkgPath()) ?
-                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
+            return (!_.isNil(varDef.getPkgName()) ?
+                varDef.getPkgName() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
         } else {
             return !_.isNil(this.getPackageName()) ? (this.getPackageName() + ':' + this.getVariableName()) : this.getVariableName();
         }

@@ -256,7 +256,7 @@ class ToolPaletteItemProvider extends EventChannel {
                     }
                 );
                 let varDef = BallerinaASTFactory
-                      .createVariableDefinition({typeName: packageName + ':' + connector.getName()});
+                      .createVariableDefinition({pkgPath:packageName, typeName: connector.getName()});
                 let varRef = BallerinaASTFactory
                   .createVariableReferenceExpression();
                 varRef.addChild(varDef);
