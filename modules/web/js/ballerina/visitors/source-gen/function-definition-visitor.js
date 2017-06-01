@@ -57,8 +57,8 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += this.getIndentation() + 'function ' + functionDefinition.getFunctionName() + '(' +
-            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{\n';
+        constructedSourceSegment += this.getIndentation() + (functionDefinition.isNative() ? 'native ' : '') + 'function ' + functionDefinition.getFunctionName() + '(' +
+            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + (functionDefinition.isNative() ? '' : '{\n');
         this.appendSource(constructedSourceSegment);
         this.indent();
         log.debug('Begin Visit FunctionDefinition');
@@ -70,7 +70,7 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitFunctionDefinition(functionDefinition) {
         this.outdent();
-        this.appendSource("}\n");
+        this.appendSource(functionDefinition.isNative() ? ';' : '}\n');
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }
