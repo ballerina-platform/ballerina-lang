@@ -104,9 +104,10 @@ public class BallerinaCompletionUtils {
 
     // Reference types
     private static final LookupElementBuilder MESSAGE;
-    private static final LookupElementBuilder XML;
-    private static final LookupElementBuilder JSON;
     private static final LookupElementBuilder MAP;
+    private static final LookupElementBuilder XML;
+    private static final LookupElementBuilder XML_DOCUMENT;
+    private static final LookupElementBuilder JSON;
     private static final LookupElementBuilder DATATABLE;
 
     // Other keywords
@@ -162,9 +163,10 @@ public class BallerinaCompletionUtils {
         STRING = createTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
 
         MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
-        XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
-        JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
+        XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
+        XML_DOCUMENT = createTypeLookupElement("xmlDocument", AddSpaceInsertHandler.INSTANCE);
+        JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
         DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
 
         REPLY = createKeywordLookupElement("reply");
@@ -297,9 +299,10 @@ public class BallerinaCompletionUtils {
      */
     private static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XML_DOCUMENT, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_PRIORITY));
     }
 

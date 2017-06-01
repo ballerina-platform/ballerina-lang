@@ -33,7 +33,8 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
             "function", "connector", "struct", "typemapper", "annotation");
     private static final List<String> ANY_TYPE = Collections.singletonList("any");
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
-    private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "xml", "json", "map", "datatable");
+    private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "xmlDocument", "json",
+            "datatable");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
             "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally", "iterate", "while",
             "continue", "break", "throw");
