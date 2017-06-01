@@ -106,7 +106,8 @@ public class WhiteSpaceRegions {
     public static final int CONST_DEF_VAL_TYPE_TO_IDENTIFIER = 1;
     public static final int CONST_DEF_IDENTIFIER_TO_EQUAL_OPERATOR = 2;
     public static final int CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START = 3;
-    public static final int CONST_DEF_END_TO_NEXT_TOKEN = 4;
+    public static final int CONST_DEF_LITERAL_END_TO_NEXT_TOKEN = 4;
+    public static final int CONST_DEF_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in a annotation definition
     public static final int ANNOTATION_DEF_ANNOTATION_KEYWORD_TO_IDENTIFIER = 0;

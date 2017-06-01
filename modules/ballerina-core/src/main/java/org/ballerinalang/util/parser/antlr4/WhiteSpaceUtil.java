@@ -278,6 +278,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_LITERAL_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.simpleLiteral().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -367,7 +369,7 @@ public class WhiteSpaceUtil {
                                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START,
                                    getWhitespaceToRight(tokenStream,
-                                         getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
+                                           getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
         }
         ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_END_TO_LAST_TOKEN,
                                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
