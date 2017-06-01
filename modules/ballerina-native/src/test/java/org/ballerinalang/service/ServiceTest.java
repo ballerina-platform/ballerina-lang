@@ -76,7 +76,7 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         CarbonMessage invoke = Services.invoke(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                "no service found to handle incoming request recieved to : /foo/message");
+                "no service found to handle incoming request received to : /foo/message");
     }
 
     @Test(description = "Test for resource dispatcher availability check")
