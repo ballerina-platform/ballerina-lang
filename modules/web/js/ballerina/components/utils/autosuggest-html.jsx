@@ -20,6 +20,12 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { util } from './../../visitors/sizing-utils';
 
+/**
+ * Autosuggest wrapper for html
+ * 
+ * @class AutoSuggestHtml
+ * @extends {React.Component}
+ */
 class AutoSuggestHtml extends React.Component {
     constructor(props) {
         super(props);
@@ -35,6 +41,13 @@ class AutoSuggestHtml extends React.Component {
         };
     }
 
+    /**
+     * Renderings the autosuggest component.
+     * 
+     * @returns A JSX of the component.
+     * 
+     * @memberof AutoSuggestHtml
+     */
     render() {
         // Input properties for the package name
         const inputProps = {
@@ -55,39 +68,80 @@ class AutoSuggestHtml extends React.Component {
             renderSuggestion={this.renderSuggestion.bind(this)}
             shouldRenderSuggestions={() => true}
             ref={this.storeInputReference}
-            inputProps={inputProps} />
+            inputProps={inputProps} />;
     }
 
+    /**
+     * Event when a text is set.
+     * 
+     * @param {string} value The value of new input value.
+     * 
+     * @memberof AutoSuggestHtml
+     */
     setInputText(value) {
         this.setState({
             inputValue: value
         });
     }
 
+    /**
+     * Event for fetching new suggestions
+     * 
+     * @param {any} { value } Searched keyword to be filtered with.
+     * 
+     * @memberof AutoSuggestHtml
+     */
     onSuggestionsFetchRequested({ value }) {
         this.setState({
             suggestions: this.getSuggestions(value)
         });
-    };
+    }
 
+    /**
+     * Event for changing input value.
+     * 
+     * @param {any} event The actualy event.
+     * @param {any} { newValue } The new value.
+     * 
+     * @memberof AutoSuggestHtml
+     */
     onChange(event, { newValue }) {
         this.setState({
             inputValue: newValue
         });
-    };
+    }
 
+    /**
+     * When the suggest list is cleared
+     * 
+     * 
+     * @memberof AutoSuggestHtml
+     */
     onSuggestionsClearRequested() {
         this.setState({
             suggestions: []
         });
-    };
+    }
 
+    /**
+     * Event when the component is updated. Focus on the input element
+     * 
+     * @param {any} prevProps 
+     * 
+     * @memberof AutoSuggestHtml
+     */
     componentDidUpdate(prevProps) {
         if (prevProps.show) {
             this.input && this.input.focus();
         }
     }
 
+    /**
+     * Event when the component is mounted. Focus on the input element
+     * 
+     * 
+     * @memberof AutoSuggestHtml
+     */
     componentDidMount() {
         this.input && this.input.focus();
     }
@@ -97,6 +151,14 @@ class AutoSuggestHtml extends React.Component {
         return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
+    /**
+     * Filtering the suggestions
+     * 
+     * @param {any} searchKeyword 
+     * @returns 
+     * 
+     * @memberof AutoSuggestHtml
+     */
     getSuggestions(searchKeyword) {
         const escapedValue = this.escapeRegexCharacters(searchKeyword.trim());
 
@@ -105,7 +167,7 @@ class AutoSuggestHtml extends React.Component {
             return {
                 name: item
             };
-        })
+        });
 
         return itemsMap.filter(item => regex.test(item.name));
     }
@@ -117,7 +179,7 @@ class AutoSuggestHtml extends React.Component {
     renderSuggestion(suggestion) {
         return (
             <span>{suggestion.name}</span>
-        )
+        );
     }
 }
 

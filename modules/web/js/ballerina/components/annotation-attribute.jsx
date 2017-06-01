@@ -26,7 +26,14 @@ import AutoSuggestHtml from './utils/autosuggest-html';
 import BallerinaEnvironment from '../env/environment';
 import { util } from './../visitors/sizing-utils';
 
+/**
+ * React component for an annotation entry({@link AnnotationEntry}).
+ * 
+ * @class AnnotationAttribute
+ * @extends {React.Component}
+ */
 class AnnotationAttribute extends React.Component {
+
     constructor(props) {
         super(props);
 
@@ -35,7 +42,7 @@ class AnnotationAttribute extends React.Component {
             rightValueLength = util.getTextWidth(props.model.getRightValue(), 150, 1000).w + 10;
         }
 
-        if (!_.isUndefined(props.model.getLeftValue()) || props.model.getLeftValue() == '') {
+        if (!_.isUndefined(props.model.getLeftValue()) || props.model.getLeftValue() === '') {
             this.state = {
                 isLeftValueInEdit: props.model.getLeftValue() === '',
                 isRightValueInEdit: props.model.getRightValue() === '' || props.model.getRightValue() === '""',
@@ -54,6 +61,13 @@ class AnnotationAttribute extends React.Component {
         }
     }
 
+    /**
+     * Rendering the component.
+     * 
+     * @returns JSX markup for annotation entry.
+     * 
+     * @memberof AnnotationAttribute
+     */
     render() {
         let model = this.props.model;
 
@@ -94,8 +108,8 @@ class AnnotationAttribute extends React.Component {
 
             if (this.state.isRightValueInEdit) {
                 value = <td className='annotation-attribute-value' onClick={this.onRightValueClick.bind(this)}>
-                    <input type='text' placeholder='value' value={this.state.rightValue} 
-                        onChange={this.onRightValueChange.bind(this)} onBlur={(e) => { this.setState({ isRightValueInEdit: false})}}
+                    <input type='text' placeholder='value' value={this.state.rightValue}
+                        onChange={this.onRightValueChange.bind(this)} onBlur={() => { this.setState({ isRightValueInEdit: false }); }}
                         ref={(input) => { this.rightValueInput = input; }} style={{ width: this.state.rightValueLength }} />
                     {endingComma}{removeIcon}
                 </td>;
@@ -104,7 +118,7 @@ class AnnotationAttribute extends React.Component {
                     {this.state.rightValue}{endingComma}{removeIcon}</td>;
             }
 
-            return <tr>{key}{value}</tr>
+            return <tr>{key}{value}</tr>;
         } else if (ASTFactory.isAnnotationEntryArray(model.getRightValue())) {
             let addIcon = <div className='annotation-attribute-add' onClick={this.addAnnotationEntry.bind(this)}>
                 <i className='fw fw-add'></i>
@@ -119,7 +133,7 @@ class AnnotationAttribute extends React.Component {
                     annotationAttributes = this.getAnnotationAttributesByAST(model.getParent().getParent(), model.getParent().getLeftValue());
                 }
 
-                for (let [index, annotationEntry] of annotationEntries.entries()) {
+                for (let annotationEntry of annotationEntries) {
                     let arrayEntryRemoveIcon = <div className='annotation-array-entry-remove' onClick={this.onArrayEntryRemoveIcon.bind(this, annotationEntry)}>
                         <i className='fw fw-cancel'></i>
                     </div>;
@@ -179,7 +193,7 @@ class AnnotationAttribute extends React.Component {
                     [] {addIcon}{removeIcon}
                 </td>;
             }
-            return <tr>{key}{value}</tr>
+            return <tr>{key}{value}</tr>;
         } else if (ASTFactory.isAnnotation(model.getRightValue())) {
             let haveEndingComma = false;
             if (ASTFactory.isAnnotationEntryArray(model.getParent())) {
@@ -193,10 +207,16 @@ class AnnotationAttribute extends React.Component {
             value = <td className='annotation-attribute-value'>
                 <Annotation model={model.getRightValue()} haveEndingComma={haveEndingComma} removeIcon={removeIcon} />
             </td>;
-            return <tr>{key}{value}</tr>
+            return <tr>{key}{value}</tr>;
         }
     }
 
+    /**
+     * Focusing on the right side value if this.state.setRightValueFocus is true.
+     * 
+     * 
+     * @memberof AnnotationAttribute
+     */
     componentDidMount() {
         if (this.state.setRightValueFocus) {
             this.rightValueInput.focus();
@@ -204,6 +224,12 @@ class AnnotationAttribute extends React.Component {
         }
     }
 
+    /**
+     * Focusing on the right side value if this.state.setRightValueFocus is true.
+     * 
+     * 
+     * @memberof AnnotationAttribute
+     */
     componentDidUpdate() {
         if (this.state.setRightValueFocus && this.rightValueInput) {
             this.rightValueInput.focus();
@@ -211,20 +237,26 @@ class AnnotationAttribute extends React.Component {
         }
     }
 
-    onClick() {
-        if (this.state.isInEdit) {
-            this.setState({ isInEdit: false });
-        } else {
-            this.setState({ isInEdit: true });
-        }
-    }
-
+    /**
+     * Event when the left side value is changed
+     * 
+     * @param {any} event The actual event.
+     * 
+     * @memberof AnnotationAttribute
+     */
     onLeftValueChange(event) {
         this.setState({
             leftValue: event.target.value
-        })
+        });
     }
 
+    /**
+     * Event when the right side value is changed,
+     * 
+     * @param {any} event The actual event.
+     * 
+     * @memberof AnnotationAttribute
+     */
     onRightValueChange(event) {
         this.setState({
             rightValue: event.target.value,
@@ -234,11 +266,24 @@ class AnnotationAttribute extends React.Component {
         this.props.model.setRightValue(event.target.value, { doSilently: true });
     }
 
+    /**
+     * Event for deleting/removing an attribute.
+     * 
+     * 
+     * @memberof AnnotationAttribute
+     */
     deleteAttribute() {
         this.props.model.parent.removeChild(this.props.model);
         this.setState(this.state);
     }
 
+    /**
+     * Event for editing a left side value.
+     * 
+     * @param {any} e The actual event.
+     * 
+     * @memberof AnnotationAttribute
+     */
     onLeftValueClick(e) {
         this.setState({
             isLeftValueInEdit: true
@@ -246,6 +291,13 @@ class AnnotationAttribute extends React.Component {
         e.stopPropagation();
     }
 
+    /**
+     * Event for editing a right side value
+     * 
+     * @param {any} e The actual event
+     * 
+     * @memberof AnnotationAttribute
+     */
     onRightValueClick(e) {
         this.setState({
             isRightValueInEdit: true,
@@ -254,22 +306,37 @@ class AnnotationAttribute extends React.Component {
         e.stopPropagation();
     }
 
+    /**
+     * Getting the list of values for the left side value(key).
+     *  
+     * @returns An array of string as suggestions.
+     * 
+     * @memberof AnnotationAttribute
+     */
     getLeftValuesForSuggestions() {
         let leftValueSuggestions = this.props.annotationAttributes.map(annotationAttribute => {
             return annotationAttribute.getIdentifier();
-        })
+        });
 
         if (ASTFactory.isAnnotation(this.props.model.getParent())) {
-            for(let annotationEntry of this.props.model.getParent().getChildren()) {
+            for (let annotationEntry of this.props.model.getParent().getChildren()) {
                 leftValueSuggestions = leftValueSuggestions.filter(suggestion => {
                     return suggestion !== annotationEntry.getLeftValue() || suggestion === this.props.model.getLeftValue();
-                })
+                });
             }
         }
 
         return leftValueSuggestions;
     }
 
+    /**
+     * Event for when left side value is selected.
+     * 
+     * @param {any} event The actual event
+     * @param {any} { suggestionValue } The selected value.
+     * 
+     * @memberof AnnotationAttribute
+     */
     onLeftValueSelected(event, { suggestionValue }) {
         if (suggestionValue !== this.props.model.getLeftValue()) {
             this.props.model.setLeftValue(suggestionValue);
@@ -325,6 +392,12 @@ class AnnotationAttribute extends React.Component {
         });
     }
 
+    /**
+     * Event for adding an AST for an arrayed type right value.
+     * 
+     * 
+     * @memberof AnnotationAttribute
+     */
     addAnnotationEntry() {
         let selectedAnnotationAttribute = this.props.annotationAttributes.filter(annotationAttribute => {
             return annotationAttribute.getIdentifier() === this.props.model.getLeftValue();
@@ -343,7 +416,7 @@ class AnnotationAttribute extends React.Component {
                 fullPackageName: selectedAnnotationAttribute.getPackagePath(),
                 packageName: selectedAnnotationAttribute.getPackagePath().split('.').pop(),
                 identifier: valueType
-            })
+            });
 
             let newAnnotationEntry = ASTFactory.createAnnotationEntry({ leftValue: '', rightValue: newAnnotation });
             annotationEntryArray.addChild(newAnnotationEntry);
@@ -352,6 +425,15 @@ class AnnotationAttribute extends React.Component {
         this.setState(this.state);
     }
 
+    /**
+     * Gets an array of annotation attribute definitions.
+     * 
+     * @param {any} annotationAST The annotation AST
+     * @param {any} annotationAttributeIdentifier The identifier of the annotation AST.
+     * @returns An array of {@link AnnotationAttributeDefinition}
+     * 
+     * @memberof AnnotationAttribute
+     */
     getAnnotationAttributesByAST(annotationAST, annotationAttributeIdentifier) {
         let packageNameOfAttribute;
         let annotationDefinitionIdentifier;
@@ -375,6 +457,15 @@ class AnnotationAttribute extends React.Component {
         return this.getAnnotationAttributes(packageNameOfAttribute, annotationDefinitionIdentifier);
     }
 
+    /**
+     * Gets an array of annotation attribute definitions.
+     * 
+     * @param {any} fullPackageName The complete package name.
+     * @param {any} identifier The identifier of the attribute.
+     * @returns An array of {@link AnnotationAttributeDefinition}
+     * 
+     * @memberof AnnotationAttribute
+     */
     getAnnotationAttributes(fullPackageName, identifier) {
         let annotationAttributes = [];
         for (let packageDefintion of BallerinaEnvironment.getPackages()) {
@@ -392,6 +483,13 @@ class AnnotationAttribute extends React.Component {
         return annotationAttributes;
     }
 
+    /**
+     * Remove icon click event for removing child from a {@link AnnotationEntryArray}.
+     * 
+     * @param {object} model 
+     * 
+     * @memberof AnnotationAttribute
+     */
     onArrayEntryRemoveIcon(model) {
         model.getParent().removeChild(model);
         this.setState(this.state);

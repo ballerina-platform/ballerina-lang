@@ -24,6 +24,12 @@ import AutoSuggestHtml from './utils/autosuggest-html';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import _ from 'lodash';
 
+/**
+ * React component for an {@link Annotation} AST
+ * 
+ * @class Annotation
+ * @extends {React.Component}
+ */
 class Annotation extends React.Component {
     constructor(props) {
         super(props);
@@ -34,6 +40,13 @@ class Annotation extends React.Component {
         };
     }
 
+    /**
+     * Renders the view for an annotation
+     * 
+     * @returns JSX of the annotation component.
+     * 
+     * @memberof Annotation
+     */
     render() {
         let model = this.props.model;
 
@@ -43,7 +56,7 @@ class Annotation extends React.Component {
         } else {
             removeIcon = <div className='annotation-remove' onClick={this.deleteAnnotation.bind(this)}>
                 <i className='fw fw-cancel'></i>
-            </div>
+            </div>;
         }
 
         let key;
@@ -65,8 +78,8 @@ class Annotation extends React.Component {
             this.getAnnotationAttributes(model.getFullPackageName(), model.getIdentifier()).length > 0) { 
             addIcon = <div className='annotation-attribute-add' onClick={this.addAnnotationAttribute.bind(this)}>
                 <i className='fw fw-add'></i>
-            </div>
-        };
+            </div>;
+        }
         if (model.children.length === 0) {
             key = <tr>
                 {annotationKeyPart}
@@ -126,6 +139,14 @@ class Annotation extends React.Component {
         </table>;
     }
 
+    /**
+     * Renders the view for editing
+     * 
+     * @param {object} model The annotation AST model
+     * @returns A JSX of editing the annotation.
+     * 
+     * @memberof Annotation
+     */
     renderEditView(model) {
         if (this.state.packageNameSelected) {
             return <td className='annotation-key'>
@@ -154,16 +175,36 @@ class Annotation extends React.Component {
         }
     }
 
+    /**
+     * Event when clicking on an annotation allowing to edit.
+     * 
+     * @param {any} e The actual event
+     * 
+     * @memberof Annotation
+     */
     onClickAnnotation(e) {
         this.setState({ isInEdit: true });
         e.preventDefault();
         e.stopPropagation();
     }
 
+    /**
+     * Event for deleting an annotation.
+     * 
+     * 
+     * @memberof Annotation
+     */
     deleteAnnotation() {
         this.props.model.parent.removeChild(this.props.model);
     }
 
+    /**
+     * Get the supported package names as suggestions
+     * 
+     * @returns An array of package names
+     * 
+     * @memberof Annotation
+     */
     getPackageNamesForSuggestion() {
         let packageNames = new Set();
         let attachmentType = '';
@@ -199,6 +240,14 @@ class Annotation extends React.Component {
         return Array.from(packageNames);
     }
 
+    /**
+     * Event when a package is selected from a dropdown.
+     * 
+     * @param {any} event The actual event
+     * @param {any} { suggestionValue } The selected value
+     * 
+     * @memberof Annotation
+     */
     onPackageNameSelected(event, { suggestionValue }) {
         this.setState({
             packageNameSelected: true,
@@ -221,6 +270,13 @@ class Annotation extends React.Component {
         }
     }
 
+    /**
+     * Gets the identifiers as suggestions.
+     * 
+     * @returns An array of identifiers
+     * 
+     * @memberof Annotation
+     */
     getIdentifiersForSuggestion() {
         let annotationIdentifiers = [];
         for (let packageDefintion of BallerinaEnvironment.getPackages()) {
@@ -235,6 +291,14 @@ class Annotation extends React.Component {
         return annotationIdentifiers;
     }
 
+    /**
+     * Event for selecting an identifier from the dropdown
+     * 
+     * @param {any} event The actual event
+     * @param {any} { suggestionValue } The selected value.
+     * 
+     * @memberof Annotation
+     */
     onIdentifierSelected(event, { suggestionValue }) {
         this.setState({
             isInEdit: false
@@ -242,6 +306,13 @@ class Annotation extends React.Component {
         this.props.model.setIdentifier(suggestionValue);
     }
 
+    /**
+     * Keydown event when editing the identifier of the annotation.
+     * 
+     * @param {any} e The actual event
+     * 
+     * @memberof Annotation
+     */
     onIdentifierKeyDown(e) {
         if (e.keyCode === 8 && e.target.value === '') {
             this.props.model.setIdentifier('', { doSilently: true });
@@ -252,11 +323,26 @@ class Annotation extends React.Component {
         }
     }
 
+    /**
+     * Adds new attribute to the annotation.
+     * 
+     * 
+     * @memberof Annotation
+     */
     addAnnotationAttribute() {
         this.props.model.addChild(ASTFactory.createAnnotationEntry({ leftValue: '', rightValue: '' }));
         this.setState(this.state);
     }
 
+    /**
+     * Gets an array of annotation attribute definitions.
+     * 
+     * @param {any} fullPackageName The complete package name.
+     * @param {any} identifier The identifier of the attribute.
+     * @returns An array of {@link AnnotationAttributeDefinition}
+     * 
+     * @memberof AnnotationAttribute
+     */
     getAnnotationAttributes(fullPackageName, identifier) {
         let annotationAttributes = [];
         for (let packageDefintion of BallerinaEnvironment.getPackages()) {

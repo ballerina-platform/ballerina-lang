@@ -24,6 +24,12 @@ import BallerinaEnvironment from '../env/environment';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import _ from 'lodash';
 
+/**
+ * React component for the annotation container.
+ * 
+ * @class AnnotationContainer
+ * @extends {React.Component}
+ */
 class AnnotationContainer extends React.Component {
     constructor(props) {
         super(props);

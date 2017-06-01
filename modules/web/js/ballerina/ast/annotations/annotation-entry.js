@@ -92,14 +92,6 @@ class AnnotationEntry extends ASTNode {
         }
     }
 
-    getPrefixAsString() {
-        if (!_.isUndefined(this._leftValue) && !_.isEmpty(this._leftValue)) {
-            return this._leftValue + ':';
-        } else {
-            return undefined;
-        }
-    }
-
     /**
      * Setting parameters from json
      * @param {object} jsonNode to initialize from
