@@ -203,6 +203,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     }
 
     private String findTheMostSpecificBasePath(String requestURIPath, Map<String, ServiceInfo> services) {
+        // TODO: Could improve the logic here with CopyOnWriteArray
         Object[] keys = services.keySet().toArray();
         Arrays.sort(keys, (o1, o2) -> o2.toString().length() - o1.toString().length());
 
