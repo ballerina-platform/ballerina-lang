@@ -647,6 +647,9 @@ class ASTVisitor extends EventChannel {
     visitAnnotationEntryArray(annotationEntryArray){
     }
 
+    visitJoinStatement(joinStatement){
+    }
+
     endVisitAnnotationEntryArray(annotationEntryArray){
     }
 }

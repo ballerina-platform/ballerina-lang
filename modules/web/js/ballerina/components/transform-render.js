@@ -517,8 +517,12 @@ class TransformRender
     makeType(struct, posX, posY, reference, type) {
         this.references.push({name: struct.id, refObj: reference});
         var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
-        var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
+        var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct');
         var structName = $('<div>');
+
+        structName.append(structIcon);
+        structName.append($('<span>').text(struct.name));
+        newStruct.append(structName);
         var subPlaceHolder;
 
         if(type == 'source' ) {
@@ -865,13 +869,18 @@ class TransformRender
  */
     reposition(self) {
         var funcs = $('#' + self.placeHolderName + '> .func');
-        var structs = $('#' + self.placeHolderName + '> .struct');
-        var xPointer = 700;
-        var yPointer = 180;
+        var sourceStructs = $('.leftType > .struct');
+        var targetStructs = $('.rightType > .struct');
+        var xFunctionPointer = 700;
+        var yFunctionPointer = 180;
+        var xSourcePointer = 0;
+        var ySourcePointer = 50;
+        var xTargetPointer = 0;
+        var yTargetPointer = 50;
         var bottomGap = 0;
         var functionGap = 30;
         var svgLines = $('#' + self.placeHolderName + '> svg');
-        var typeMapperHeight = 0;
+        var transformHeight = 0;
 
         //Traverse through all the connection svg lines
         _.forEach(svgLines, svgLine => {
@@ -879,32 +888,43 @@ class TransformRender
             var arrowBotton = svgLine.children[2].getBoundingClientRect().bottom;
             var right = svgLine.getBoundingClientRect().right;
 
-            //Calculate the yPointer value  based on the bottom value of the direct connections
-            if (arrowBotton > yPointer && svgLine.getBoundingClientRect().width > 600) {
-                yPointer = arrowBotton;
+            //Calculate the yFunctionPointer value  based on the bottom value of the direct connections
+            if (arrowBotton > yFunctionPointer && svgLine.getBoundingClientRect().width > 600) {
+                yFunctionPointer = arrowBotton;
             }
         });
 
         //Traverse through all the function divs
         _.forEach(funcs, func => {
-            //Position functions and increase yPointer with gaps
-            $('#'+ func.id).css('left', xPointer+ 'px');
-            $('#'+ func.id).css('top', yPointer + 'px');
-            yPointer +=  $('#'+ func.id).height() + functionGap;
+            //Position functions and increase yFunctionPointer with gaps
+            $('#'+ func.id).css('left', xFunctionPointer+ 'px');
+            $('#'+ func.id).css('top', yFunctionPointer + 'px');
+            yFunctionPointer +=  $('#'+ func.id).height() + functionGap;
 
         });
 
-        _.forEach(structs, struct => {
-            if (typeMapperHeight < $('#'+ struct.id).height() + bottomGap) {
-                typeMapperHeight = $('#'+ struct.id).height() + bottomGap;
-            }
+        _.forEach(sourceStructs, structType => {
+            //Position functions and increase yFunctionPointer with gaps
+            $('#'+ structType.id).css('left', xSourcePointer+ 'px');
+            $('#'+ structType.id).css('top', ySourcePointer + 'px');
+            ySourcePointer +=  $('#'+ structType.id).height() + functionGap;
+
         });
 
-        if (typeMapperHeight < yPointer +  bottomGap) {
-            typeMapperHeight = yPointer +  bottomGap;
+        _.forEach(targetStructs, structType => {
+            //Position functions and increase yFunctionPointer with gaps
+            $('#'+ structType.id).css('left', xTargetPointer+ 'px');
+            $('#'+ structType.id).css('top', yTargetPointer + 'px');
+            yTargetPointer +=  $('#'+ structType.id).height() + functionGap;
+
+        });
+
+        var maxY = Math.max(yFunctionPointer, ySourcePointer, yTargetPointer);
+        if (transformHeight < maxY +  bottomGap) {
+            transformHeight = maxY +  bottomGap;
         }
 
-        $('.leftType, .rightType').height(typeMapperHeight);
+        $('.leftType, .rightType').height(transformHeight);
         self.jsPlumbInstance.repaintEverything();
     }
 

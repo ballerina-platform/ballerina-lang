@@ -35,6 +35,19 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
     return serviceDef;
 };
 
+DefaultBallerinaASTFactory.createForkJoinStatement = function (args) {
+    const forkJoinStatement = BallerinaASTFactory.createForkJoinStatement(args);
+    const joinStatement = BallerinaASTFactory.createJoinStatement();
+    const worker1Declaration = BallerinaASTFactory.createWorkerDeclaration();
+    const worker2Declaration = BallerinaASTFactory.createWorkerDeclaration();
+    worker1Declaration.setWorkerName('forkWorker1');
+    worker2Declaration.setWorkerName('forkWorker2');
+    forkJoinStatement.addChild(joinStatement);
+    forkJoinStatement.addChild(worker1Declaration);
+    forkJoinStatement.addChild(worker2Declaration);
+    return forkJoinStatement;
+};
+
 /**
  * creates ResourceDefinition
  * @param args
@@ -182,7 +195,7 @@ DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
  */
 DefaultBallerinaASTFactory.createThrowStatement = function (args) {
     var throwStatement = BallerinaASTFactory.createThrowStatement(args);
-    throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableName: "e"}));
+    throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableName: 'e'}));
     return throwStatement;
 };
 

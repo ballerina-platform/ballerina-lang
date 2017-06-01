@@ -18,6 +18,7 @@
 
 import log from 'log';
 import _ from 'lodash';
+import ASTFactory from './../../ast/ballerina-ast-factory';
 import WorkerDeclaration from './../../ast/worker-declaration';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
@@ -33,6 +34,7 @@ class WorkerDeclarationPositionCalcVisitor {
         let viewState = node.getViewState();
         let bBox = viewState.bBox;
         let parent = node.getParent();
+        const isInFork = ASTFactory.isForkJoinStatement(parent);
         let parentViewState = parent.getViewState();
         let workers = _.filter(parent.getChildren(), function (child) {
             return child instanceof WorkerDeclaration;
@@ -54,16 +56,19 @@ class WorkerDeclarationPositionCalcVisitor {
                 x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
                     parentViewState.components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h;
             } else {
-                x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
+                x = parentViewState.components.body.getLeft() +
+                    (isInFork ? DesignerDefaults.fork.lifeLineGutterH : DesignerDefaults.lifeLine.gutter.h);
             }
         } else if (workerIndex > 0) {
             const previousWorker = workers[workerIndex - 1];
             const previousStatementContainer = previousWorker.getViewState().components.statementContainer;
-            x = previousStatementContainer.getRight() + DesignerDefaults.lifeLine.gutter.h;
+            x = previousStatementContainer.getRight() +
+                (isInFork ? DesignerDefaults.fork.lifeLineGutterH : DesignerDefaults.lifeLine.gutter.h);
         } else {
-            throw "Invalid index found for Worker Declaration";
+            throw 'Invalid index found for Worker Declaration';
         }
-        y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
+        y = parentViewState.components.body.getTop() +
+            (isInFork ? DesignerDefaults.fork.padding.top : DesignerDefaults.innerPanel.body.padding.top);
 
         bBox.x = x;
         bBox.y = y;
