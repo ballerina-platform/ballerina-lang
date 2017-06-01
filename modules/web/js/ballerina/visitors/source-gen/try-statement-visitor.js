@@ -44,8 +44,8 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     visitStatement(statement) {
         if(!_.isEqual(this.node, statement)) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            let statementVisitorFactory = new StatementVisitorFactory();
+            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }

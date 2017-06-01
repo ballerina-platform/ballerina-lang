@@ -74,7 +74,7 @@ class SizingUtil {
         };
     }
 
-    getOnlyTextWidth(text, options={}) {
+    getOnlyTextWidth(text, options = {}) {
         const {fontSize} = options;
         this.textElement.innerHTML = _.escape(text);
         const currentFZ = this.textElement.style.fontSize;
@@ -105,7 +105,7 @@ class SizingUtil {
         return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
     }
 
-    populateCompoundStatementChild(node, expression = undefined ) {
+    populateCompoundStatementChild(node, expression = undefined) {
         let viewState = node.getViewState();
         let components = {};
         components['statementContainer'] = new SimpleBBox();
@@ -133,10 +133,10 @@ class SizingUtil {
 
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjest the block statement
-        if(expression != undefined){
+        if (expression != undefined) {
             // see how much space we have to draw the condition
             let available = statementContainerWidth - blockStatement.heading.width - 10;
-            components['expression'] = this.getTextWidth(expression,0,available);
+            components['expression'] = this.getTextWidth(expression, 0, available);
         }
 
         components['statementContainer'].h = statementContainerHeight;
@@ -151,6 +151,10 @@ class SizingUtil {
     populatePanelDecoratorBBox(node, name) {
         let viewState = node.getViewState();
         let components = {};
+
+        const textWidth = util.getTextWidth(name);
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
 
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
@@ -233,23 +237,18 @@ class SizingUtil {
 
         components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
-        components['heading'].w = components['body'].w;
         components['annotation'].w = components['body'].w;
 
         viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
-        viewState.bBox.w = components['body'].w;
-
-        const textWidth = util.getTextWidth(name);
-        viewState.titleWidth = textWidth.w;
-        viewState.trimmedTitle = textWidth.text;
 
         components['parametersPrefixContainer'] = {};
         components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
 
         viewState.components = components;
+        this.populateHeadingWidth(node);
     }
 
-    populateOuterPanelDecoratorBBox(node) {
+    populateOuterPanelDecoratorBBox(node, name) {
         let viewState = node.getViewState();
         let components = {};
         let totalResourceHeight = 0;
@@ -266,6 +265,10 @@ class SizingUtil {
         let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         // Set the width initial value to the padding left and right
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
+
+        const textWidth = this.getTextWidth(name);
+        viewState.titleWidth = textWidth.w;
+        viewState.trimmedTitle = textWidth.text;
 
         const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);
 
@@ -290,7 +293,6 @@ class SizingUtil {
         _.forEach(resources, function (resource) {
             resource.getViewState().bBox.w = maxResourceWidth;
             resource.getViewState().components.body.w = maxResourceWidth;
-            resource.getViewState().components.heading.w = maxResourceWidth;
         });
 
         // Add the max resource width to the body width
@@ -324,7 +326,7 @@ class SizingUtil {
         } else if (totalResourceHeight > 0) {
             bodyHeight = totalResourceHeight + DesignerDefaults.panel.body.padding.top +
                 DesignerDefaults.panel.body.padding.bottom + DesignerDefaults.panel.wrapper.gutter.v * (resources.length - 1);
-        } else if(ASTFactory.isStructDefinition(node)){
+        } else if (ASTFactory.isStructDefinition(node)) {
             bodyHeight = DesignerDefaults.structDefinition.body.height;
         } else {
             // There are no connectors as well as resources, since we set the default height
@@ -355,13 +357,11 @@ class SizingUtil {
         components['variablesPane'].h = variableDefinitionsHeight;
 
         components['body'].w = bodyWidth;
-        components['heading'].w = bodyWidth;
         components['annotation'].w = bodyWidth;
 
         viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
-        viewState.bBox.w = components['body'].w;
-
         viewState.components = components;
+        this.populateHeadingWidth(node);
     }
 
     getStatementHeightBefore(statement) {
@@ -391,10 +391,10 @@ class SizingUtil {
     getTotalHeightUpto(parent, childNode) {
         const self = this;
 
-        const statementChildren = _.filter(parent.getChildren(), function(child) {
+        const statementChildren = _.filter(parent.getChildren(), function (child) {
             return BallerinaASTFactory.isStatement(child);
         });
-        const nodeIndex = _.findIndex(statementChildren, function(child){
+        const nodeIndex = _.findIndex(statementChildren, function (child) {
             return child.id === childNode.id;
         });
 
@@ -567,22 +567,22 @@ class SizingUtil {
         }
     }
 
-    getAnnotationHeight(node){
+    getAnnotationHeight(node) {
         let height = 0;
         let annotations = node.filterChildren((child) => {
             return ASTFactory.isAnnotation(child);
         });
 
         _.forEach(annotations, (annotation) => {
-            if(annotation.children.length == 0 ){
+            if (annotation.children.length == 0) {
                 height = height + 20;
-            }else{
+            } else {
                 height = height + ( annotation.children.length * 20 );
             }
         });
 
         //add padding
-        if(annotations.length > 0){
+        if (annotations.length > 0) {
             height = height + 7 * 2;
         }
         // add a gap for add new annotation.
@@ -594,7 +594,7 @@ class SizingUtil {
     getConnectorLevelVariablesHeight(node) {
         let height = 65;
 
-        if(!node.viewState.variablesExpanded){
+        if (!node.viewState.variablesExpanded) {
             return 35;
         }
 
@@ -607,6 +607,115 @@ class SizingUtil {
         }
 
         return height;
+    }
+
+    populateHeadingWidth(node) {
+        let viewState = node.getViewState();
+        //// Creating components for parameters
+        if (node.getArguments) {
+            // Creating component for opening bracket of the parameters view.
+            viewState.components.openingParameter = {};
+            viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
+
+            // Creating component for closing bracket of the parameters view.
+            viewState.components.closingParameter = {};
+            viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
+
+            viewState.components['heading'].w += viewState.components.openingParameter.w
+                + viewState.components.closingParameter.w
+                + this.getParameterTypeWidth(node) + 100;
+        }
+
+        //// Creating components for attachment points of the annotation
+        if (node.getAttachmentPoints) {
+            // Creating component for opening bracket of the parameters view.
+            viewState.components.openingParameter = {};
+            viewState.components.openingParameter.w = util.getTextWidth('(', 0).w;
+
+            // Creating component for closing bracket of the parameters view.
+            viewState.components.closingParameter = {};
+            viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
+
+            viewState.components['heading'].w = viewState.components.openingParameter.w
+                + viewState.components.closingParameter.w
+                + this.annotationAttachmentPointWidth(node) + 100;
+        }
+
+        //// Creating components for return types
+        if (node.getReturnTypes) {
+            // Creating component for the Return type text.
+            viewState.components.returnTypesIcon = {};
+            viewState.components.returnTypesIcon.w = util.getTextWidth('returns', 0).w;
+
+            // Creating component for opening bracket of the return types view.
+            viewState.components.openingReturnType = {};
+            viewState.components.openingReturnType.w = util.getTextWidth('(', 0).w;
+
+            // Creating component for closing bracket of the return types view.
+            viewState.components.closingReturnType = {};
+            viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
+
+            viewState.components['heading'].w += viewState.components.returnTypesIcon.w
+                + viewState.components.openingReturnType.w
+                + viewState.components.closingReturnType.w
+                + this.getReturnTypeWidth(node) + 100;
+        }
+
+        viewState.components['heading'].w += viewState.titleWidth + 100;
+
+        // Get the largest among component heading width and component body width.
+        let componentWidth = viewState.components['heading'].w > viewState.components['body'].w
+            ? viewState.components['heading'].w : viewState.components['body'].w;
+
+        viewState.bBox.w = componentWidth + (DesignerDefaults.panel.wrapper.gutter.h * 2);
+    }
+
+    /**
+     * Calculate Parameters' text width for the node.
+     * @param {ASTNode} node
+     * @return {number} width - return sum of widths of parameter texts.
+     * */
+    getParameterTypeWidth(node) {
+        let width = 0;
+        if (node.getArguments().length > 0) {
+            for (let i = 0; i < node.getArguments().length; i++) {
+                // 21 is delete button and separator widths.
+                width += util.getTextWidth(node.getArguments()[i].getParameterDefinitionAsString(), 0).w + 21;
+            }
+        }
+
+        return width;
+    }
+
+    /**
+     * Calculate Return Parameters' text width for node.
+     * @param {ASTNode} node
+     * @return {number} width - return sum of widths of return parameter texts.
+     * */
+    getReturnTypeWidth(node) {
+        let width = 0;
+        if (node.getReturnTypes().length > 0) {
+            for (let i = 0; i < node.getReturnTypes().length; i++) {
+                width += util.getTextWidth(node.getReturnTypes()[i].getParameterDefinitionAsString(), 0).w + 21;
+            }
+        }
+        return width;
+    }
+
+    /**
+     * Calculate Attachment point text width for annotation attachments.
+     * @param {AnnotationDefinition} node - Annotation Definition Node.
+     * @return {number} width - return sum of the widths of attachment texts.
+     * */
+    annotationAttachmentPointWidth(node) {
+        let width = 0;
+        if (node.getAttachmentPoints().length > 0) {
+            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
+                width += util.getTextWidth(node.getAttachmentPoints()[i], 0).w + 21;
+            }
+        }
+
+        return width;
     }
 }
 

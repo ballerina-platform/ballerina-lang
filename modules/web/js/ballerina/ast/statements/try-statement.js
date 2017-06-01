@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import Statement from './statement';
 
 /**
@@ -30,9 +29,9 @@ class TryStatement extends Statement {
     }
 
     initFromJson(jsonNode) {
-        var self = this;
+        let self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+            let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

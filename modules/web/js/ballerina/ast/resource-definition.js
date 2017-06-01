@@ -58,7 +58,7 @@ class ResourceDefinition extends ASTNode {
         return variableDefinitionStatements;
     }
 
-    getParameters() {
+    getArguments() {
         return this.getArgumentParameterDefinitionHolder().getChildren();
     }
 
@@ -106,7 +106,7 @@ class ResourceDefinition extends ASTNode {
      */
     getParametersAsString() {
         let paramsAsString = "";
-        let params = this.getParameters();
+        let params = this.getArguments();
 
         _.forEach(params, function (parameter, index) {
             paramsAsString += parameter.getParameterDefinitionAsString();

@@ -40,13 +40,8 @@ class ServiceDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
+        log.debug('end visit ServiceDefinitionDimensionCalc');
         util.populateOuterPanelDecoratorBBox(node);
-
-        const viewState = node.viewState;
-
-        const textWidth = util.getTextWidth(node.getServiceName());
-        viewState.titleWidth = textWidth.w;
-        viewState.trimmedTitle = textWidth.text;
     }
 }
 

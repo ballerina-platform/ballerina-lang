@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
-import { util } from './../sizing-utils';
+import {util} from './../sizing-utils';
 
 class ResourceDefinitionPositionCalcVisitor {
 
@@ -29,39 +29,19 @@ class ResourceDefinitionPositionCalcVisitor {
     }
 
     beginVisit(node) {
+        log.debug('begin visit ResourceDefinitionPositionCalc');
+        // populate inner panel BBox position.
         PositioningUtils.populateInnerPanelDecoratorBBoxPosition(node);
-
-        //// Positioning parameters
-        // Setting positions of parameters.
-        let viewState = node.getViewState();
-
-        viewState.titleWidth = util.getTextWidth(node.getResourceName()).w;
-
-        // Positioning the opening bracket component of the parameters.
-        viewState.components.openingParameter.x = viewState.bBox.x + viewState.titleWidth
-            + DesignerDefaults.panelHeading.iconSize.width + DesignerDefaults.panelHeading.iconSize.padding;
-        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
-
-        // Positioning the parameters
-        let nextXPositionOfParameter = viewState.components.openingParameter.x
-            + viewState.components.openingParameter.w;
-        if (node.getArgumentParameterDefinitionHolder().getChildren().length > 0) {
-            for (let i = 0; i < node.getArgumentParameterDefinitionHolder().getChildren().length; i++) {
-                let resourceParameter = node.getArgumentParameterDefinitionHolder().getChildren()[i];
-                nextXPositionOfParameter = this.createPositioningForParameter(resourceParameter,
-                    nextXPositionOfParameter, viewState.bBox.y + viewState.components.annotation.h);
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
-        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
+        // populate panel heading positions.
+        PositioningUtils.populatePanelHeadingPositioning(node, this.createPositioningForParameter);
     }
 
     visit(node) {
+        log.debug('visit ResourceDefinitionPositionCalc');
     }
 
     endVisit(node) {
+        log.debug('end visit ResourceDefinitionPositionCalc');
     }
 
     /**

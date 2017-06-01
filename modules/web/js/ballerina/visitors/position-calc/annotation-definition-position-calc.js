@@ -28,40 +28,18 @@ class AnnotationDefinitionPositionCalcVisitor {
      * @return {boolean}
      * */
     canVisit(node) {
+        log.debug("can visit AnnotationPositionCalc");
         return true;
     }
 
     beginVisit(node) {
-        let viewState = node.getViewState();
+        log.debug("begin visit AnnotationPositionCalc");
+
+        // populate outer panel BBox position.
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
 
-        /// Positioning parameters
-        // Setting positions of function parameters.
-        // Positioning the opening bracket component of the parameters.
-        viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth
-            + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding;
-        viewState.components.openingParameter.y = viewState.bBox.y;
-
-        viewState.attachments = {};
-        // Positioning the resource parameters
-        let nextXPositionOfParameter = viewState.components.openingParameter.x
-            + viewState.components.openingParameter.w;
-        if (node.getAttachmentPoints().length > 0) {
-            for (let i = 0; i < node.getAttachmentPoints().length; i++) {
-                let attachment = {
-                    attachment: node.getAttachmentPoints()[i],
-                    model: node
-                };
-                nextXPositionOfParameter = this.createPositionForTitleNode(attachment, nextXPositionOfParameter,
-                    viewState.bBox.y);
-            }
-        }
-
-        // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
-        viewState.components.closingParameter.y = viewState.bBox.y;
+        // populate panel heading positioning.
+        PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }
 
     visit(node) {
