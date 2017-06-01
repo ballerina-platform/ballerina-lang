@@ -150,4 +150,8 @@ public class LineNumberInfo {
         }
     }
 
+    @Override
+    public String toString() {
+        return "\t" + getFileName() + ":" + lineNumber + "\t\t" + ip;
+    }
 }

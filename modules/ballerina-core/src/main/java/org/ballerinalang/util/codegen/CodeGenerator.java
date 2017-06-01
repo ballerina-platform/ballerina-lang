@@ -348,6 +348,7 @@ public class CodeGenerator implements NodeVisitor {
 
             StructInfo structInfo = new StructInfo(currentPkgCPIndex, structNameCPIndex);
             currentPkgInfo.addStructInfo(structDef.getName(), structInfo);
+            structInfo.setPackageInfo(currentPkgInfo);
 
             BStructType structType = new BStructType(structDef.getName(), structDef.getPackagePath());
             structInfo.setType(structType);
@@ -820,12 +821,69 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
+        List<int[]> unhandledErrorRangeList = new ArrayList<>();
+        // Handle try block.
+        int fromIP = nextIP();
+        tryCatchStmt.getTryBlock().accept(this);
+        int toIP = nextIP() - 1;
+        // Append finally block instructions.
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+        }
+        emit(gotoEndOfTryCatchBlock);
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+        // Handle catch blocks.
+        int order = 0;
+        for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            int targetIP = nextIP();
+            // Define local variable index for Error.
+            ParameterDef paramDef = catchBlock.getParameterDef();
+            int lvIndex = ++lvIndexes[REF_OFFSET];
+            paramDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            emit(new Instruction(InstructionCodes.ERRSTORE, lvIndex));
+            // Visit Catch Block.
+            catchBlock.getCatchBlockStmt().accept(this);
+            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+            // Append finally block instructions.
+            if (tryCatchStmt.getFinallyBlock() != null) {
+                tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+            }
+            emit(gotoEndOfTryCatchBlock);
+            // Create Error table entry for this catch block
+            StructDef structDef = (StructDef) catchBlock.getParameterDef().getType();
+            int pkgCPIndex = addPackageCPEntry(structDef.getPackagePath());
+            UTF8CPEntry structNameCPEntry = new UTF8CPEntry(structDef.getName());
+            int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+            PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) currentPkgInfo.getConstPool().get(pkgCPIndex);
+            structureRefCPEntry.setStructureTypeInfo(
+                    packageRefCPEntry.getPackageInfo().getStructInfo(structDef.getName()));
 
+            int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
+            currentPkgInfo.addErrorTableEntry(errorTableEntry);
+            errorTableEntry.setPackageInfo(currentPkgInfo);
+        }
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            // Create Error table entry for unhandled errors in try and catch(s) blocks
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
+                currentPkgInfo.addErrorTableEntry(errorTableEntry);
+                errorTableEntry.setPackageInfo(currentPkgInfo);
+            }
+            // Append finally block instruction.
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+            emit(new Instruction(InstructionCodes.THROW, -1));
+        }
+        gotoEndOfTryCatchBlock.setOperand(0, nextIP());
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
-
+        throwStmt.getExpr().accept(this);
+        Instruction throwInstruction = new Instruction(InstructionCodes.THROW, throwStmt.getExpr().getTempOffset());
+        emit(throwInstruction);
     }
 
     @Override
@@ -1280,7 +1338,9 @@ public class CodeGenerator implements NodeVisitor {
         int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
 
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-        structureRefCPEntry.setStructureTypeInfo(currentPkgInfo.getStructInfo(structDef.getName()));
+        PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) currentPkgInfo.getConstPool().get(pkgCPIndex);
+        structureRefCPEntry.setStructureTypeInfo(
+                packageRefCPEntry.getPackageInfo().getStructInfo(structDef.getName()));
         int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
         //Emit an instruction to create a new struct.
@@ -1991,6 +2051,8 @@ public class CodeGenerator implements NodeVisitor {
         int pkgNameIndex = currentPkgInfo.addCPEntry(pkgNameCPEntry);
 
         PackageRefCPEntry pkgCPEntry = new PackageRefCPEntry(pkgNameIndex);
+        // Cache Value.
+        pkgCPEntry.setPackageInfo(programFile.getPackageInfo(pkgPath));
         return currentPkgInfo.addCPEntry(pkgCPEntry);
     }
 

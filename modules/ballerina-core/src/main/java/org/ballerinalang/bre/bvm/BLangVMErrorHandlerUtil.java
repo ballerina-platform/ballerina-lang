@@ -35,11 +35,15 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Util Class for handling Error in Ballerina VM.
  */
 public class BLangVMErrorHandlerUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(BLangVMErrorHandlerUtil.class);
 
     public static final String ERROR_PCK = "ballerina.lang.errors";
     public static final String STRUCT_ERROR = "Error";
@@ -67,9 +71,31 @@ public class BLangVMErrorHandlerUtil {
         BStruct error = createBStruct(structInfo, values);
         // Set StackTrace.
         StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, programFile, ip));
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, programFile, ip - 1));
         error.setStackTrace(bStackTrace);
         return error;
+    }
+
+
+    /**
+     * Set StackTrace for given Error Struct.
+     *
+     * @param context     current Context
+     * @param programFile {@link ProgramFile} instance that is executing
+     * @param ip          current instruction pointer
+     * @param error       error Struct to be set the stackTrace.
+     */
+    public static void setStackTrace(Context context, ProgramFile programFile, int ip, BStruct error) {
+        PackageInfo errorPackageInfo = programFile.getPackageInfo(ERROR_PCK);
+        if (error == null) {
+            // This shouldn't execute.
+            logger.warn("Error struct is null. Default Error is created.");
+            StructInfo structInfo = errorPackageInfo.getStructInfo(STRUCT_ERROR);
+            error = createBStruct(structInfo);
+        }
+        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, programFile, ip - 1));
+        error.setStackTrace(bStackTrace);
     }
 
     /**
@@ -88,7 +114,7 @@ public class BLangVMErrorHandlerUtil {
         int currentIP = ip;
         BValue[] values;
         // Ignore caller stack frame.
-        for (int i = controlStack.fp; i > 1; i--) {
+        for (int i = controlStack.fp; i >= 1; i--) {
             values = new BValue[4];
             StackFrame stackFrame = controlStack.getStack()[i];
             CallableUnitInfo callableUnitInfo = stackFrame.callableUnitInfo;

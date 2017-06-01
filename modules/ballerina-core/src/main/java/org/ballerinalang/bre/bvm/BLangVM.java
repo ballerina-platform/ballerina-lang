@@ -47,6 +47,7 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -99,12 +100,18 @@ public class BLangVM {
     }
 
     // TODO Remove
-    private void traceCode() {
+    private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
             printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
                     getOperandsLine(code[i].getOperands()));
         }
+
+        printStream.println("ErrorTable\n\t\tfrom\tto\ttarget\terror");
+        packageInfo.getErrorTableEntriesList().forEach(error -> printStream.println(error.toString()));
+
+        printStream.println("LineNumberTable\n\tline\t\tip");
+        packageInfo.getLineNumberInfoList().forEach(line -> printStream.println(line.toString()));
     }
 
     public void execFunction(PackageInfo packageInfo, Context context, int ip) {
@@ -117,7 +124,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-     //   traceCode();
+        //traceCode(packageInfo);
         exec();
     }
 
@@ -781,6 +788,21 @@ public class BLangVM {
                     }
                     context.getBalCallback().done(message != null ? message.value() : null);
                     ip = -1;
+                    break;
+                case InstructionCodes.THROW:
+                    i = operands[0];
+                    if (i >= 0) {
+                        BStruct error = (BStruct) sf.refRegs[i];
+                        BLangVMErrorHandlerUtil.setStackTrace(context, programFile, ip, error);
+                        context.setError(error);
+                    }
+                    handleError();
+                    break;
+                case InstructionCodes.ERRSTORE:
+                    i = operands[0];
+                    sf.refLocalVars[i] = context.getError();
+                    // clear error.
+                    context.setError(null);
                     break;
                 case InstructionCodes.I2F:
                     i = operands[0];
@@ -1508,13 +1530,20 @@ public class BLangVM {
     }
 
     private void handleError() {
-        /* TODO implement catch and finally support. */
-        StackFrame catchingStackFrame = null; // TODO: get this from catch block.
-        while (controlStack.getCurrentFrame() != catchingStackFrame) {
-            if (controlStack.fp == 0) {
+        int currentIP = ip - 1;
+        StackFrame currentFrame = controlStack.getCurrentFrame();
+        ErrorTableEntry match = null;
+        while (controlStack.fp >= 0) {
+            match = ErrorTableEntry.getMatch(currentFrame.packageInfo, currentIP, context.getError());
+            if (match != null) {
                 break;
             }
             controlStack.popFrame();
+            if (controlStack.getCurrentFrame() == null) {
+                break;
+            }
+            currentFrame = controlStack.getCurrentFrame();
+            currentIP = currentFrame.retAddrs - 1;
         }
         if (controlStack.getCurrentFrame() == null) {
             // root level error handling.
@@ -1533,10 +1562,17 @@ public class BLangVM {
                                             ())),
                                     context.getCarbonMessage(), context.getBalCallback());
                 } catch (Exception e) {
-                    logger.error("Cannot handle error using the error handler for: " + protocol, e);
+                    logger.error("cannot handle error using the error handler for: " + protocol, e);
                 }
             }
+            return;
         }
-        // TODO : Implement error handling and set next IP
+        // match should be not null at this point.
+        if (match != null) {
+            ip = match.getIpTarget();
+            return;
+        }
+        ip = -1;
+        logger.error("fatal error. incorrect error table entry.");
     }
 }

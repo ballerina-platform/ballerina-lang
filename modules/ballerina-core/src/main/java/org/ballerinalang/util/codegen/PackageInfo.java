@@ -46,7 +46,11 @@ public class PackageInfo {
 
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
+    // TODO : Move this into CallableUnitInfo
     private List<LineNumberInfo> lineNumberInfoList = new ArrayList<>();
+
+    // TODO : Move this into CallableUnitInfo
+    private List<ErrorTableEntry> errorTableEntriesList = new ArrayList<>();
 
     // Package level variable count
     protected int[] plvCount;
@@ -156,6 +160,14 @@ public class PackageInfo {
             old = lineNumberInfo;
         }
         return null;
+    }
+
+    public List<ErrorTableEntry> getErrorTableEntriesList() {
+        return errorTableEntriesList;
+    }
+
+    public void addErrorTableEntry(ErrorTableEntry errorTableEntry) {
+        errorTableEntriesList.add(errorTableEntry);
     }
 
     public ProgramFile getProgramFile() {

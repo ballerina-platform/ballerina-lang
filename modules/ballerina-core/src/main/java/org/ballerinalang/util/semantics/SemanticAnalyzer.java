@@ -3681,7 +3681,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         int length = statements.length;
         Statement lastStatement = statements[length - 1];
         if (!(lastStatement instanceof ReturnStmt)) {
-            ReturnStmt returnStmt = new ReturnStmt(lastStatement.getNodeLocation(), null, new Expression[0]);
+            NodeLocation location = lastStatement.getNodeLocation();
+            ReturnStmt returnStmt = new ReturnStmt(
+                    new NodeLocation(location.getFileName(), location.getLineNumber() + 1), null, new Expression[0]);
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = returnStmt;
             blockStmt.setStatements(statements);
@@ -3693,7 +3695,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         int length = statements.length;
         Statement lastStatement = statements[length - 1];
         if (!(lastStatement instanceof ReplyStmt)) {
-            ReplyStmt replyStmt = new ReplyStmt(lastStatement.getNodeLocation(), null, null);
+            NodeLocation location = lastStatement.getNodeLocation();
+            ReplyStmt replyStmt = new ReplyStmt(
+                    new NodeLocation(location.getFileName(), location.getLineNumber() + 1), null, null);
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = replyStmt;
             blockStmt.setStatements(statements);
