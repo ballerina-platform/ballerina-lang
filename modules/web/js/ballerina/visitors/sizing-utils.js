@@ -153,7 +153,7 @@ class SizingUtil {
         let components = {};
 
         const textWidth = util.getTextWidth(name);
-        viewState.titleWidth = textWidth.w;
+        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right;
         viewState.trimmedTitle = textWidth.text;
 
         components['heading'] = new SimpleBBox();
@@ -267,7 +267,7 @@ class SizingUtil {
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
         const textWidth = this.getTextWidth(name);
-        viewState.titleWidth = textWidth.w;
+        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right;
         viewState.trimmedTitle = textWidth.text;
 
         const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);

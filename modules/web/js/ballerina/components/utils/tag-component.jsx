@@ -18,6 +18,7 @@
 import React from 'react';
 import EditableText from './../editable-text';
 import SuggestionsText from './../suggestions-text';
+import {util} from './../../visitors/sizing-utils';
 import './tag-component.css';
 
 const DEFAULT_INPUT_VALUE = "+ Add Value";
