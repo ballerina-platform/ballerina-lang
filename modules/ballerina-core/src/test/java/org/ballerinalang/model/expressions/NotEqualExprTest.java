@@ -19,12 +19,12 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -36,17 +36,17 @@ import org.testng.annotations.Test;
  */
 public class NotEqualExprTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/not-equal-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/not-equal-expr.bal");
     }
 
     @Test(description = "Test two int equality")
     public void testIntNotEqualExpr() {
         BValue[] args = { new BInteger(5), new BInteger(5) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkIntEquality", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "checkIntEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
@@ -54,7 +54,7 @@ public class NotEqualExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BInteger(5), new BInteger(6) };
-        returns = BLangFunctions.invoke(bLangProgram, "checkIntEquality", args);
+        returns = BLangFunctions.invokeNew(programFile, "checkIntEquality", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -67,7 +67,7 @@ public class NotEqualExprTest {
     @Test(description = "Test two float equality")
     public void testFloatNotEqualExpr() {
         BValue[] args = { new BFloat(5.34f), new BFloat(5.34f) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkFloatEquality", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "checkFloatEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
@@ -75,7 +75,7 @@ public class NotEqualExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BFloat(8.0001f), new BFloat(6.9992f) };
-        returns = BLangFunctions.invoke(bLangProgram, "checkFloatEquality", args);
+        returns = BLangFunctions.invokeNew(programFile, "checkFloatEquality", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -88,7 +88,7 @@ public class NotEqualExprTest {
     @Test(description = "Test two boolean equality")
     public void testBooleanNotEqualExpr() {
         BValue[] args = { new BBoolean(true), new BBoolean(true) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkBooleanEquality", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "checkBooleanEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
@@ -96,7 +96,7 @@ public class NotEqualExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[] { new BBoolean(true), new BBoolean(false) };
-        returns = BLangFunctions.invoke(bLangProgram, "checkBooleanEquality", args);
+        returns = BLangFunctions.invokeNew(programFile, "checkBooleanEquality", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -109,7 +109,7 @@ public class NotEqualExprTest {
     @Test(description = "Test two string equality")
     public void testStringNotEqualExpr() {
         BValue[] args = { new BString("This is Ballerina !!!"), new BString("This is Ballerina !!!") };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkStringEquality", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "checkStringEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         long actual = ((BInteger) returns[0]).intValue();
@@ -118,7 +118,7 @@ public class NotEqualExprTest {
 
         args = new BValue[] { new BString("This is Ballerina !!!"),
                               new BString("This is Ballerina !!!. No it's not.") };
-        returns = BLangFunctions.invoke(bLangProgram, "checkStringEquality", args);
+        returns = BLangFunctions.invokeNew(programFile, "checkStringEquality", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -137,7 +137,7 @@ public class NotEqualExprTest {
             expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]eq[/\\\\]"
                     + "incompatible-type-equal-expr.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleEquality() {
-        BTestUtils.parseBalFile("lang/expressions/type/incompatible/eq");
+        BTestUtils.getProgramFile("lang/expressions/type/incompatible/eq");
     }
     
     @Test(description = "Test checking equality of unsupported types (json)",
@@ -146,7 +146,7 @@ public class NotEqualExprTest {
                   "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]eq[/\\\\]" +
                   "unsupported-type-equal-expr.bal:9: invalid operation: operator == not defined on 'json'")
     public void testUnsupportedTypeEquality() {
-        BTestUtils.parseBalFile("lang/expressions/type/unsupported/eq");
+        BTestUtils.getProgramFile("lang/expressions/type/unsupported/eq");
     }
     
     @Test(description = "Test checking not-equality of unsupported types (json)",
@@ -155,6 +155,6 @@ public class NotEqualExprTest {
                   "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]neq[/\\\\]" +
                   "unsupported-type-not-equal-expr.bal:9: invalid operation: operator != not defined on 'json'")
     public void testUnsupportedTypeNotEquality() {
-        BTestUtils.parseBalFile("lang/expressions/type/unsupported/neq");
+        BTestUtils.getProgramFile("lang/expressions/type/unsupported/neq");
     }
 }

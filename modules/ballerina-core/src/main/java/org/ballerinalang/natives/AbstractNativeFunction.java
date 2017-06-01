@@ -89,7 +89,15 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            BValue result = context.getControlStack().getCurrentFrame().values[index];
+
+            // TODO This logic go away when we remove old blocking executor
+            BValue result;
+            if (context.isVMBasedExecutor()) {
+                result = context.getControlStackNew().getCurrentFrame().argValues[index];
+            } else {
+                result = context.getControlStack().getCurrentFrame().values[index];
+            }
+
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -114,7 +122,15 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public void executeNative(Context context) {
         try {
             BValue[] retVals = execute(context);
-            BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+
+            // TODO This logic go away when we remove old blocking executor
+            BValue[] returnRefs;
+            if (context.isVMBasedExecutor()) {
+                returnRefs = context.getControlStackNew().getCurrentFrame().returnValues;
+            } else {
+                returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+            }
+
             if (returnRefs.length != 0) {
                 for (int i = 0; i < returnRefs.length; i++) {
                     if (i < retVals.length) {
@@ -127,11 +143,11 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         } catch (RuntimeException e) {
 //            BException exception = new BException(e.getMessage());
             // TODO : Fix this once we remove Blocking executor
-            if (context.getExecutor() != null) {
-//                context.getExecutor().handleBException(exception);
-            } else {
+//            if (context.getExecutor() != null) {
+////                context.getExecutor().handleBException(exception);
+//            } else {
                 throw e;
-            }
+//            }
         }
     }
 

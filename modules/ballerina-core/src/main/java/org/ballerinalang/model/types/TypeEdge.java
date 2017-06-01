@@ -27,12 +27,23 @@ public class TypeEdge {
     private TypeVertex source, target;
     private TriFunction<BValue, BType, Boolean, BValue[]> typeMapperFunction;
     private String packageName;
+    private boolean safe;
+    private int opcode = -1;
 
     public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean, 
             BValue[]> typeMapperFunction) {
         this.source = source;
         this.target = target;
         this.typeMapperFunction = typeMapperFunction;
+        this.packageName = TypeConstants.NATIVE_PACKAGE;
+    }
+
+    public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean,
+            BValue[]> typeMapperFunction, boolean safe, int opcode) {
+        this.source = source;
+        this.target = target;
+        this.typeMapperFunction = typeMapperFunction;
+        this.opcode = opcode;
         this.packageName = TypeConstants.NATIVE_PACKAGE;
     }
 
@@ -54,6 +65,14 @@ public class TypeEdge {
 
     public TriFunction<BValue, BType, Boolean, BValue[]> getTypeMapperFunction() {
         return typeMapperFunction;
+    }
+
+    public boolean isSafe() {
+        return safe;
+    }
+
+    public int getOpcode() {
+        return opcode;
     }
 
     /**

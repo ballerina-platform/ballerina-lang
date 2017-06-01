@@ -59,7 +59,7 @@ public class CallableUnitBuilder {
     protected List<Worker> workerList = new ArrayList<>();
     protected BlockStmt body;
 
-    SymbolScope getCurrentScope() {
+    public SymbolScope getCurrentScope() {
         return currentScope;
     }
 

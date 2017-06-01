@@ -21,6 +21,8 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeSignature;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
@@ -94,7 +96,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
     /**
      * Get the size of the allocated memory for the struct.
-     * 
+     *
      * @return Size of the allocated memory
      */
     public int getStructMemorySize() {
@@ -103,7 +105,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
     /**
      * Set the size of memory to allocate for the struct.
-     * 
+     *
      * @param structMemorySize Size of memory to allocate
      */
     public void setStructMemorySize(int structMemorySize) {
@@ -112,7 +114,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
     /**
      * Get the struct initializing function.
-     * 
+     *
      * @return Struct initializing function
      */
     public BallerinaFunction getInitFunction() {
@@ -121,13 +123,13 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
     /**
      * Set the struct initializing function.
-     * 
+     *
      * @param initFunction Struct initializing function
      */
     public void setInitFunction(BallerinaFunction initFunction) {
         this.initFunction = initFunction;
     }
-    
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -193,7 +195,18 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
     public <V extends BValue> V getEmptyValue() {
         return null;
     }
-    
+
+    @Override
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_STRUCT, packagePath, typeName);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.STRUCT_TAG;
+    }
+
     public boolean equals(Object obj) {
         if (obj instanceof StructDef) {
             StructDef other = (StructDef) obj;
@@ -202,7 +215,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope, St
 
         return false;
     }
-    
+
     /**
      * Builder class to build a Struct.
      *

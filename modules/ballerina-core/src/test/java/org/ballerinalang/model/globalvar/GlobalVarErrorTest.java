@@ -38,7 +38,7 @@ public class GlobalVarErrorTest {
             expectedExceptionsMessageRegExp = "global-var-error-function.bal:6: struct child fields cannot have " +
             "package identifiers: 'xyz:name'", enabled = false)
     public void testStructFieldWithChildPackagePaths() {
-        BTestUtils.parseBalFile("lang/globalvar/global-var-error-function.bal");
+        BTestUtils.getProgramFile("lang/globalvar/global-var-error-function.bal");
     }
 
 }

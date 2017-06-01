@@ -19,9 +19,9 @@
 package org.ballerinalang.model.constant;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,8 +39,9 @@ public class ConstantAccessTest {
 
     @Test(description = "Test accessing constant from other packages")
     public void testAccessingConstantFromOtherPkg() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/constant/main");
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "accessConstantFromOtherPkg");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/constant/main");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.constant.main",
+                "accessConstantFromOtherPkg");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
@@ -48,8 +49,9 @@ public class ConstantAccessTest {
 
     @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/constant/main");
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "assignConstFromOtherPkgToGlobalVar");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/constant/main");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.constant.main",
+                "assignConstFromOtherPkgToGlobalVar");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
