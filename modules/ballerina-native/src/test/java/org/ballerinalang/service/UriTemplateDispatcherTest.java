@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.service;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,11 +35,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class UriTemplateDispatcherTest {
 
-    private BLangProgram application;
+    private ProgramFile application;
 
     @BeforeClass()
     public void setup() {
-        application = EnvironmentInitializer.setup("lang/service/uritemplate/uri-template.bal");
+        application = EnvironmentInitializer.setupProgramFile("lang/service/uritemplate/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",

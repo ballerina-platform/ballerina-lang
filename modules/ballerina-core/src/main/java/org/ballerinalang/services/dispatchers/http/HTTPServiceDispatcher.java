@@ -207,7 +207,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         Arrays.sort(keys, (o1, o2) -> o2.toString().length() - o1.toString().length());
 
         for (Object key : keys) {
-            if (requestURIPath.contains(key.toString())) {
+            if (requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
                 return key.toString();
             }
         }

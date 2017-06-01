@@ -21,6 +21,8 @@ package org.ballerinalang.runtime;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -41,7 +43,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -56,9 +58,6 @@ public class ServerConnectorMessageHandler {
     private static PrintStream outStream = System.err;
 
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
-        // Create the Ballerina Context
-//        Context balContext = new Context(cMsg);
-//        balContext.setServerConnectorProtocol(cMsg.getProperty("PROTOCOL"));
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
@@ -98,8 +97,6 @@ public class ServerConnectorMessageHandler {
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
-            // Delegate the execution to the BalProgram Executor
-//            BalProgramExecutor.execute(cMsg, callback, resource, service, balContext);
             invokeResource(cMsg, callback, resource, service);
 
         } catch (Throwable throwable) {
@@ -119,11 +116,6 @@ public class ServerConnectorMessageHandler {
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
 
-        // TODO : This is not supported yet. Fix this.
-        if (resourceInfo.getParamTypes().length > 1) {
-            throw new RuntimeException("Resource with Param not supported yet. ");
-        }
-
         Context context = new Context();
         ControlStackNew controlStackNew = context.getControlStackNew();
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
@@ -133,25 +125,41 @@ public class ServerConnectorMessageHandler {
                 new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, -1, new int[0]);
         controlStackNew.pushFrame(calleeSF);
 
-        int longParamCount = 0;
-        int doubleParamCount = 0;
-        int stringParamCount = 0;
-        int intParamCount = 0;
-        int refParamCount = 0;
-
         CodeAttributeInfo codeAttribInfo = resourceInfo.getCodeAttributeInfo();
 
+        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
-        String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
-        // Setting the zero values for strings
-        Arrays.fill(stringLocalVars, "");
-
-        int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+
+        int stringParamCount = 0;
+        int intParamCount = 0;
+        int longParamCount = 0;
+        int doubleParamCount = 0;
+        int refParamCount = 0;
+
         refLocalVars[0] = new BMessage(carbonMessage);
 
-        // TODO : handle other resource parameters.
+        Map<String, String> resourceArgumentValues =
+                (Map<String, String>) carbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
+
+        String[] paramNameArray = resourceInfo.getParamNames();
+        BType[] bTypes = resourceInfo.getParamTypes();
+        for (int i = 0; i < paramNameArray.length; i++) {
+            BType btype = bTypes[i];
+            String value = resourceArgumentValues.get(paramNameArray[i]);
+
+            if (btype == BTypes.typeString) {
+                stringLocalVars[stringParamCount++] = value;
+            } else if (btype == BTypes.typeInt) {
+                intLocalVars[intParamCount++] = Integer.getInteger(value);
+            } else if (btype == BTypes.typeFloat) {
+                doubleLocalVars[doubleParamCount++] = new Double(value);
+            }
+        }
+
+        refLocalVars[0] = new BMessage(carbonMessage);
 
         calleeSF.setLongLocalVars(longLocalVars);
         calleeSF.setDoubleLocalVars(doubleLocalVars);
