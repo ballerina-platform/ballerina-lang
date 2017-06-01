@@ -43,6 +43,7 @@ import TransactionAbortedStatementVisitor from './transaction-aborted-statement-
 import TransactionStatementVisitor from './transaction-statement-visitor';
 import AbortedStatementVisitor from './aborted-statement-visitor';
 import AbortStatementVisitor from './abort-statement-visitor';
+import CommittedStatementVisitor from './committed-statement-visitor';
 
 class StatementVisitorFactor {
     getStatementVisitor(statement, parent) {
@@ -100,6 +101,8 @@ class StatementVisitorFactor {
             return new AbortedStatementVisitor(parent);
         } else if (ASTFactory.isAbortStatement(statement)) {
             return new AbortStatementVisitor(parent);
+        } else if (ASTFactory.isCommittedStatement(statement)) {
+            return new CommittedStatementVisitor(parent);
         }
     }
 }

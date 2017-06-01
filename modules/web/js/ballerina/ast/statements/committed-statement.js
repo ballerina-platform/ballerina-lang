@@ -16,37 +16,25 @@
  * under the License.
  */
 import Statement from './statement';
-
-class AbortStatement extends Statement {
+import _ from "lodash";
+class CommittedStatement extends Statement {
     constructor() {
         super();
-        this.type = "AbortStatement";
+        this.type = 'CommittedStatement';
     }
 
     /**
-     * Define what type of nodes that this node can be added as a child.
-     * @param {ASTNode} node - Parent node that this node becoming a child of.
-     * @return {boolean} true|false.
-     * */
-    canBeAChildOf(node) {
-        return this.getFactory().isTransactionStatement(node);
-    }
-
-    /**
-     * initialize the node from the node json object.
-     * @param {object} jsonNode - json model for the node.
+     * Initialize the node from the node json.
+     * @param {object} jsonNode - Json model for the node.
      * */
     initFromJson(jsonNode) {
-        // No Children Available to Iterate Through.
-    }
-
-    /**
-     * Get the statement keyword.
-     * @return {string} Statement
-     * */
-    getStatement() {
-        return "abort";
+        let self = this;
+        _.each(jsonNode.children, function (childNode) {
+            let child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     }
 }
 
-export default AbortStatement;
+export default CommittedStatement;

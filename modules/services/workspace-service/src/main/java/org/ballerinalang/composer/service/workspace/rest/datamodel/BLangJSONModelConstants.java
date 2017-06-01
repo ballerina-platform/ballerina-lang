@@ -338,5 +338,7 @@ public class BLangJSONModelConstants {
 
     public static final String ABORTED_STATEMENT = "aborted_statement";
 
+    public static final String COMMITTED_STATEMENT = "committed_statement";
+
     public static final String IS_IDENTIFIER_LITERAL = "is_identifier_literal";
 }

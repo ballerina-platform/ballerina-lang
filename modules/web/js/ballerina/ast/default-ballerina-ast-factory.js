@@ -206,6 +206,8 @@ DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
     transactionAbortedStatement.addChild(transactionStatement);
     var abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
     transactionAbortedStatement.addChild(abortedStatement);
+    var committedStatement = BallerinaASTFactory.createCommittedStatement(args);
+    transactionAbortedStatement.addChild(committedStatement);
     return transactionAbortedStatement;
 };
 

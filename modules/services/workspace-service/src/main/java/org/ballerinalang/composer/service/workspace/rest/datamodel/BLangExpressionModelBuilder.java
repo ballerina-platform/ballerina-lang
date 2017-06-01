@@ -95,7 +95,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -748,7 +748,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
 
     }
 
