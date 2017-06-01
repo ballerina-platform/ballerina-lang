@@ -86,6 +86,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         log.debug("WebSocket Client disconnected!");
+        cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, 1001,
+                                       "Server is going away");
+        setupCarbonMessage(ctx);
+        publishToMessageProcessor(cMsg, ctx);
     }
 
     @Override

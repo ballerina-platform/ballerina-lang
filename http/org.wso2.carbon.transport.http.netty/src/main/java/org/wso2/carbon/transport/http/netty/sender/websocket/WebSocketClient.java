@@ -139,7 +139,13 @@ public class WebSocketClient {
         final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
         final int port;
         if (uri.getPort() == -1) {
-            throw new URISyntaxException(url, "Cannot find a valid port");
+            if ("ws".equalsIgnoreCase(scheme)) {
+                port = 80;
+            } else if ("wss".equalsIgnoreCase(scheme)) {
+                port = 443;
+            } else {
+                port = -1;
+            }
         } else {
             port = uri.getPort();
         }
