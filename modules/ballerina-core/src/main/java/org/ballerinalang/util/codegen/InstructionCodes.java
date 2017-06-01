@@ -160,14 +160,15 @@ public interface InstructionCodes {
     int JSON2B = 153;
 
     // Type cast
-    int ANY2I = 154;
-    int ANY2F = 155;
-    int ANY2S = 156;
-    int ANY2B = 157;
-    int ANY2JSON = 158;
-    int ANY2MAP = 159;
-    int NULL2JSON = 160;
-    int CHECKCAST = 161;
+    int ANY2I = 155;
+    int ANY2F = 156;
+    int ANY2S = 157;
+    int ANY2B = 158;
+    int ANY2JSON = 159;
+    int ANY2T = 160;
+    int ANY2MAP = 161;
+    int NULL2JSON = 162;
+    int CHECKCAST = 163;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;

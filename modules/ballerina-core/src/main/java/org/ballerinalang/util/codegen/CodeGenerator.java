@@ -135,6 +135,7 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -655,8 +656,8 @@ public class CodeGenerator implements NodeVisitor {
         rExpr.accept(this);
 
         int[] rhsExprRegIndexes;
-        if (assignStmt.getRExpr() instanceof CallableUnitInvocationExpr) {
-            rhsExprRegIndexes = ((CallableUnitInvocationExpr) assignStmt.getRExpr()).getOffsets();
+        if (assignStmt.getRExpr() instanceof ExecutableMultiReturnExpr) {
+            rhsExprRegIndexes = ((ExecutableMultiReturnExpr) assignStmt.getRExpr()).getOffsets();
         } else {
             rhsExprRegIndexes = new int[]{assignStmt.getRExpr().getTempOffset()};
         }
@@ -667,6 +668,9 @@ public class CodeGenerator implements NodeVisitor {
             Expression lExpr = lhsExprs[i];
 
             if (lExpr instanceof VariableRefExpr) {
+                if (((VariableRefExpr) lExpr).getVarName().equals("_")) {
+                    continue;
+                }
                 varAssignment = true;
                 lExpr.accept(this);
                 varAssignment = false;
@@ -1108,23 +1112,40 @@ public class CodeGenerator implements NodeVisitor {
         Expression rExpr = typeCastExpr.getRExpr();
         rExpr.accept(this);
 
-        // TODO Handle multi-return support
-
+        // TODO Improve following logic
         int opCode = typeCastExpr.getOpcode();
-//        if (opCode < 0) {
-//            throw new IllegalStateException("Instruction not supported");
-//        }
 
-        // Ignore  NOP opcode
-        if (opCode != 0) {
+        // Ignore NOP opcode
+        if (opCode == InstructionCodes.CHECKCAST) {
+            TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(typeCastExpr.getType().getSig()));
+            int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
             int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
-            typeCastExpr.setTempOffset(targetRegIndex);
-            typeCastExpr.setOffsets(new int[]{targetRegIndex});
-            emit(opCode, rExpr.getTempOffset(), targetRegIndex, -1);
+
+            if (typeCastExpr.isMultiReturnExpr()) {
+                typeCastExpr.setOffsets(new int[]{targetRegIndex, ++regIndexes[REF_OFFSET]});
+            } else {
+                typeCastExpr.setOffsets(new int[]{targetRegIndex});
+            }
+            emit(opCode, rExpr.getTempOffset(), typeCPindex, targetRegIndex);
+
+        } else if (opCode != 0) {
+            int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
+
+            int errorRegIndex = -1;
+            if (typeCastExpr.isMultiReturnExpr()) {
+                errorRegIndex = ++regIndexes[REF_OFFSET];
+                typeCastExpr.setOffsets(new int[]{targetRegIndex, errorRegIndex});
+            } else {
+                typeCastExpr.setOffsets(new int[]{targetRegIndex});
+            }
+            emit(opCode, rExpr.getTempOffset(), targetRegIndex, errorRegIndex);
+
         } else {
-            // TODO improve
-            typeCastExpr.setTempOffset(rExpr.getTempOffset());
-            typeCastExpr.setOffsets(new int[]{rExpr.getTempOffset()});
+            if (typeCastExpr.isMultiReturnExpr()) {
+                typeCastExpr.setOffsets(new int[]{rExpr.getTempOffset(), -1});
+            } else {
+                typeCastExpr.setOffsets(new int[]{rExpr.getTempOffset()});
+            }
         }
     }
 
