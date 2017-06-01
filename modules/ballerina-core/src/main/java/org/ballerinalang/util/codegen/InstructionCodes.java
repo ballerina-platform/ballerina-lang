@@ -166,6 +166,7 @@ public interface InstructionCodes {
     int ANY2JSON = 158;
     int ANY2MAP = 159;
     int NULL2JSON = 160;
+    int CHECKCAST = 161;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;

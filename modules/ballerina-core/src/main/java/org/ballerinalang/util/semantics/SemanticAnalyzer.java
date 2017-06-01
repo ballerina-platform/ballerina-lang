@@ -132,6 +132,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -139,6 +140,7 @@ import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.natives.typemappers.TypeMappingUtils;
 import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
+import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -965,10 +967,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType rhsType;
-        if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
+        if (rExpr instanceof ExecutableMultiReturnExpr) {
             rExpr.accept(this);
-            CallableUnitInvocationExpr invocationExpr = (CallableUnitInvocationExpr) rExpr;
-            BType[] returnTypes = invocationExpr.getTypes();
+            ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) rExpr;
+            BType[] returnTypes = multiReturnExpr.getTypes();
 
             if (returnTypes.length != 1) {
                 BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH,
@@ -2138,80 +2140,100 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(TypeCastExpression typeCastExpression) {
+    public void visit(TypeCastExpression typeCastExpr) {
         // Evaluate the expression and set the type
-        Expression rExpr = typeCastExpression.getRExpr();
+        Expression rExpr = typeCastExpr.getRExpr();
         visitSingleValueExpr(rExpr);
         BType sourceType = rExpr.getType();
-        BType targetType = typeCastExpression.getType();
+        BType targetType = typeCastExpr.getType();
         if (targetType == null) {
-            targetType = BTypes.resolveType(typeCastExpression.getTypeName(), currentScope, null);
-            typeCastExpression.setType(targetType);
+            targetType = BTypes.resolveType(typeCastExpr.getTypeName(), currentScope, typeCastExpr.getNodeLocation());
+            typeCastExpr.setType(targetType);
         }
         
         // casting a null literal is not supported.
         if (rExpr instanceof NullLiteral) {
-            BLangExceptionHelper.throwSemanticError(typeCastExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
+            BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
                 sourceType, targetType);
         }
-        
-        boolean isMultiReturn = typeCastExpression.isMultiReturnExpr();
-        
+
+        boolean isMultiReturn = typeCastExpr.isMultiReturnExpr();
+
         // Find the eval function from explicit casting lattice
         TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
-            typeCastExpression.setOpcode(newEdge.getOpcode());
-            typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
-        } else if (sourceType instanceof StructDef && targetType instanceof StructDef) {
-            typeCastExpression.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
+            typeCastExpr.setOpcode(newEdge.getOpcode());
+            typeCastExpr.setEvalFunc(newEdge.getTypeMapperFunction());
+
+            if (!isMultiReturn) {
+                typeCastExpr.setTypes(new BType[] { targetType });
+                return;
+            }
+
         } else {
-            // TODO: print a suggestion
-            BLangExceptionHelper.throwSemanticError(typeCastExpression, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
-                    sourceType, targetType);
+            // TODO Remove the this else if block once the old interpreter is removed
+            if (sourceType instanceof StructDef && targetType instanceof StructDef) {
+                typeCastExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
+            }
+
+            boolean isUnsafeCastPossible = false;
+            if (isMultiReturn) {
+                isUnsafeCastPossible = checkUnsafeCastPossible(sourceType, targetType);
+            }
+
+            if (isUnsafeCastPossible) {
+                typeCastExpr.setOpcode(InstructionCodes.CHECKCAST);
+            } else {
+                // TODO: print a suggestion
+                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
+                        sourceType, targetType);
+            }
         }
-        
-        if (!isMultiReturn) {
-            return;
-        }
-        
+
         // If this is a multi-value return conversion expression, set the return types. 
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
-            BLangExceptionHelper.throwSemanticError(typeCastExpression, 
+            BLangExceptionHelper.throwSemanticError(typeCastExpr,
                 SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
         }
-        typeCastExpression.setTypes(new BType[] { targetType, (BType) error });
+        typeCastExpr.setTypes(new BType[] { targetType, (BType) error });
     }
     
 
     @Override
-    public void visit(TypeConversionExpr typeConversionExpression) {
+    public void visit(TypeConversionExpr typeConversionExpr) {
         // Evaluate the expression and set the type
-        Expression rExpr = typeConversionExpression.getRExpr();
+        Expression rExpr = typeConversionExpr.getRExpr();
         visitSingleValueExpr(rExpr);
         BType sourceType = rExpr.getType();
-        BType targetType = typeConversionExpression.getType();
+        BType targetType = typeConversionExpr.getType();
         if (targetType == null) {
-            targetType = BTypes.resolveType(typeConversionExpression.getTypeName(), currentScope, null);
-            typeConversionExpression.setType(targetType);
+            targetType = BTypes.resolveType(typeConversionExpr.getTypeName(), currentScope, null);
+            typeConversionExpr.setType(targetType);
         }
         
         // casting a null literal is not supported.
         if (rExpr instanceof NullLiteral) {
-            BLangExceptionHelper.throwSemanticError(typeConversionExpression, 
+            BLangExceptionHelper.throwSemanticError(typeConversionExpr,
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
         
-        boolean isMultiReturn = typeConversionExpression.isMultiReturnExpr();
+        boolean isMultiReturn = typeConversionExpr.isMultiReturnExpr();
         
         // Find the eval function from the conversion lattice
         TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
-            typeConversionExpression.setOpcode(newEdge.getOpcode());
-            typeConversionExpression.setEvalFunc(newEdge.getTypeMapperFunction());
+            typeConversionExpr.setOpcode(newEdge.getOpcode());
+            typeConversionExpr.setEvalFunc(newEdge.getTypeMapperFunction());
+
+            if (!isMultiReturn) {
+                typeConversionExpr.setTypes(new BType[] { targetType });
+                return;
+            }
+
         } else {
             // TODO: print a suggestion
-            BLangExceptionHelper.throwSemanticError(typeConversionExpression, 
+            BLangExceptionHelper.throwSemanticError(typeConversionExpr,
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
 
@@ -2222,10 +2244,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // If this is a multi-value return conversion expression, set the return types. 
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
-            BLangExceptionHelper.throwSemanticError(typeConversionExpression, 
+            BLangExceptionHelper.throwSemanticError(typeConversionExpr,
                 SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
         }
-        typeConversionExpression.setTypes(new BType[] { targetType, (BType) error });
+        typeConversionExpr.setTypes(new BType[] { targetType, (BType) error });
     }
 
     @Override
@@ -3621,6 +3643,33 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         return lhsType == rhsType;
+    }
+
+    private boolean checkUnsafeCastPossible(BType sourceType, BType targetType) {
+
+        // 1) If either source type or target type is of type 'any', then an unsafe cast possible;
+        if (sourceType == BTypes.typeAny || targetType == BTypes.typeAny) {
+            return true;
+        }
+
+        // 2) If both types are struct types, unsafe cast is possible
+        if (sourceType instanceof StructDef && targetType instanceof StructDef) {
+            return true;
+        }
+
+        // 3) If both types are not array types, unsafe cast is not possible now.
+        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType targetArrayType = (BArrayType) targetType;
+            BArrayType sourceArrayType = (BArrayType) sourceType;
+
+            if (sourceArrayType.getDimensions() < targetArrayType.getDimensions()) {
+                return false;
+            }
+
+            return checkUnsafeCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
+        }
+
+        return false;
     }
 
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {

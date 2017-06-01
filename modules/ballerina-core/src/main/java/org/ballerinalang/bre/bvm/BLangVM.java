@@ -955,7 +955,13 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BJSON("null");
                     break;
-
+                case InstructionCodes.CHECKCAST:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    checkCast();
+                    // TODO
+                    break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
@@ -1315,6 +1321,11 @@ public class BLangVM {
                     structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
             }
         }
+    }
+
+    private boolean checkCast() {
+        // TODO
+        return false;
     }
 
     // TODO Refactor these methods and move them to a proper util class
