@@ -97,7 +97,7 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             joinStatementsBBox.w = newW;
             bodyW = newW;
         } else {
-            throw "Missing join in a fork statement.";
+            throw 'Missing join in a fork statement.';
         }
 
         viewState.components['body'] = new SimpleBBox(0, 0, bodyW, bodyH);

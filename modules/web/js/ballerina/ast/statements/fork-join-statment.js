@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,10 +18,15 @@
 import _ from 'lodash';
 import Statement from './statement';
 
+/**
+ * Class for ForkJoin node in ballerina.
+ * Must add a JoinStatement child to work properly.
+ * @param args none.
+ * @constructor
+ */
 class ForkJoinStatement extends Statement {
     constructor(args) {
-        super();
-        this.type = "ForkJoinStatement";
+        super('ForkJoinStatement');
     }
 
     getWorkerDeclarations() {

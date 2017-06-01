@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from "log";
-import {util} from "./../sizing-utils";
+import log from 'log';
+import {util} from './../sizing-utils';
 
 class TimeoutStatementDimensionCalculatorVisitor {
 
@@ -35,17 +35,6 @@ class TimeoutStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End Visit TimeoutStatementDimensionCalculatorVisitor');
-        // let viewState = node.getViewState();
-        // let components = {};
-        // const h = _.sumBy(node.children, child => child.viewState.bBox.h);
-        // const w = _.maxBy(node.children, child => child.viewState.bBox.w).viewState.bBox.w;
-        // components['statementContainer'] = new SimpleBBox();
-        // components['statementContainer'].h = h;
-        // components['statementContainer'].w = w;
-        // viewState.bBox.w = w;
-        // viewState.bBox.h = h + DesignerDefaults.blockStatement.heading.height + DesignerDefaults.statement.gutter.v;
-        // viewState.components = components;
-
         util.populateCompoundStatementChild(node);
     }
 }

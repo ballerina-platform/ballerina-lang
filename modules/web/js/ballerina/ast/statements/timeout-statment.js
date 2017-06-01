@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,10 +18,15 @@
 import _ from 'lodash';
 import Statement from './statement';
 
+/**
+ * Class for Timeout clause in ballerina.
+ * Must always be added to ForkJoinStatement as a child
+ * @param args none.
+ * @constructor
+ */
 class TimeoutStatement extends Statement {
     constructor(args) {
-        super();
-        this.type = "TimeoutStatement";
+        super('TimeoutStatement');
     }
 
     getWorkerDeclarations() {

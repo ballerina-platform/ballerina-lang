@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from "log";
-import AbstractStatementSourceGenVisitor from "./abstract-statement-source-gen-visitor";
-import StatementVisitorFactory from "./statement-visitor-factory";
+import log from 'log';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
 
 class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -36,7 +36,7 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitJoinStatement(joinStatement) {
-        this.appendSource("}\n");
+        this.appendSource('}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Join Statement');
     }

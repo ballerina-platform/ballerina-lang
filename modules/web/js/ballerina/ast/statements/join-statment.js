@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,11 +17,19 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import ParameterDefinition from '../parameter-definition'
 
+/**
+ * Class for Join clause in ballerina.
+ * Must always be added to ForkJoinStatement as a child
+ * @param args {{joinType:string, param: ParameterDefinition}} join type and the param definition.
+ * @constructor
+ */
 class JoinStatement extends Statement {
     constructor(args) {
-        super();
-        this.type = "JoinStatement";
+        super('JoinStatement');
+        this._joinType = _.get(args, "joinType", "all");
+        this._param = _.get(args, "param", new ParameterDefinition({typeName: 'message[]', name: 'm'}));
     }
 
     getWorkerDeclarations() {
@@ -40,12 +48,12 @@ class JoinStatement extends Statement {
 
     setJoinType(type, options) {
         if (!_.isNil(type)) {
-            this.setAttribute('_join_type', type, options);
+            this.setAttribute('_joinType', type, options);
         }
     }
 
     getJoinType() {
-        return this._join_type;
+        return this._joinType;
     }
 
     setParameter(type, options) {
@@ -59,7 +67,7 @@ class JoinStatement extends Statement {
     }
 
     initFromJson(jsonNode) {
-        let self = this;
+        const self = this;
         self.setJoinType(jsonNode['join_type']);
         const paramJsonNode = jsonNode['param'];
         const paramASTNode = self.getFactory().createFromJson(paramJsonNode);

@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import log from "log";
-import * as DesignerDefaults from "./../../configs/designer-defaults";
+import log from 'log';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class JoinStatementPositionCalcVisitor {
 

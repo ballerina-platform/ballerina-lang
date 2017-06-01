@@ -65,7 +65,7 @@ class WorkerDeclarationPositionCalcVisitor {
             x = previousStatementContainer.getRight() +
                 (isInFork ? DesignerDefaults.fork.lifeLineGutterH : DesignerDefaults.lifeLine.gutter.h);
         } else {
-            throw "Invalid index found for Worker Declaration";
+            throw 'Invalid index found for Worker Declaration';
         }
         y = parentViewState.components.body.getTop() +
             (isInFork ? DesignerDefaults.fork.padding.top : DesignerDefaults.innerPanel.body.padding.top);

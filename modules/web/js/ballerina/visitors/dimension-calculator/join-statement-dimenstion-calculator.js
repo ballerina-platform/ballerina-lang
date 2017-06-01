@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from "log";
-import {util} from "./../sizing-utils";
+import log from 'log';
+import {util} from './../sizing-utils';
 
 class JoinStatementDimensionCalculatorVisitor {
 

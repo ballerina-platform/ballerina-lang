@@ -29,13 +29,10 @@ class TimeoutStatement extends React.Component {
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Timeout"}>
+            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Timeout'}>
                 {children}
             </BlockStatementDecorator>
         </CompoundStatementDecorator>);
-        // return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Timeout"}>
-        //     {children}
-        // </BlockStatementDecorator>);
     }
 }
 
