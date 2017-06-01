@@ -1123,7 +1123,7 @@ public class BLangModelBuilder {
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
-
+        variableDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
             if (rhsExpr != null) {
                 if (rhsExpr instanceof ActionInvocationExpr) {
