@@ -335,6 +335,7 @@ class TransformStatementDecorator extends React.Component {
             if (BallerinaASTFactory.isFieldAccessExpression(rightExpression)) {
                 let con = {};
                 con.id = statement.id;
+                let leftExpression = leftExpressions.getChildren()[0];
                 con.sourceStruct = rightExpression.getChildren()[0].getVariableName();
                 var complexSourceProp = this.createComplexProp(con.sourceStruct,
                                            rightExpression.getChildren()[1].getChildren());
@@ -422,25 +423,27 @@ class TransformStatementDecorator extends React.Component {
 
     createComplexProp(typeName, children)
     {
-        var prop = {};
+        let prop = {};
         prop.names = [];
         prop.types = [];
 
-        if (children.length == 1) {
-            var propName = children[0].getBasicLiteralValue();
-            var struct = _.find(self.predefinedStructs, { name:typeName});
-            var propType =  _.find(struct.properties, { name:propName}).type;
-            prop.types.push(propType);
-            prop.names.push(propName);
-        } else {
-            var propName = children[0].getBasicLiteralValue();
-            var struct = _.find(self.predefinedStructs, { name:typeName});
-            var propType =  _.find(struct.properties, { name:propName}).type;
-            prop = self.createComplexProp(propName, children[1].getChildren());
-            prop.types.push(propType);
-            prop.names.push(propName);
+        let propName = children[0].getBasicLiteralValue();
+        let struct = _.find(self.predefinedStructs, { name:typeName});
+        if (_.isUndefined(struct)) {
+            alerts.error('Struct definition for variable "' + typeName + '" cannot be found');
+            return;
         }
-
+        let structProp =  _.find(struct.properties, { name:propName});
+        if (_.isUndefined(structProp)) {
+            alerts.error('Struct field "' + propName + '" cannot be found in variable "' + typeName + '"');
+            return;
+        }
+        let propType = structProp.type;
+        if (children.length > 1) {
+            prop = self.createComplexProp(propName, children[1].getChildren());
+        }
+        prop.types.push(propType);
+        prop.names.push(propName);
         return prop;
     }
 
