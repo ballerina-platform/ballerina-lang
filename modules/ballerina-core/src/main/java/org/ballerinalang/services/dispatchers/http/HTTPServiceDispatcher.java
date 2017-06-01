@@ -47,44 +47,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
     @Deprecated
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
-
-//        try {
-//            String interfaceId = getInterface(cMsg);
-//            Map<String, Service> servicesOnInterface = HTTPServicesRegistry
-//                    .getInstance().getServicesByInterface(interfaceId);
-//            if (servicesOnInterface == null) {
-//                throw new BallerinaException("No services found for interface : " + interfaceId);
-//            }
-//            String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
-//            //replace multiple slashes from single slash if exist in request path to enable
-//            // dispatchers when request path contains multiple slashes
-//            URI requestUri = URI.create(uriStr.replaceAll("//+", Constants.DEFAULT_BASE_PATH));
-//            if (requestUri == null) {
-//                throw new BallerinaException("uri not found in the message or found an invalid URI.");
-//            }
-//
-//            // Most of the time we will find service from here
-//            String basePath = findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
-//            Service service = servicesOnInterface.get(basePath);
-//            if (service == null) {
-//                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
-//            }
-//
-//            String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
-//            cMsg.setProperty(Constants.BASE_PATH, basePath);
-//            cMsg.setProperty(Constants.SUB_PATH, subPath);
-//            cMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
-//            //store query params comes with request as it is
-//            cMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
-//
-//            return service;
-//        } catch (Throwable e) {
-//            throw new BallerinaException(e.getMessage(), balContext);
-//        }
         return null;
     }
-
-
 
     @Override
     public String getProtocol() {
@@ -92,29 +56,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     }
 
     @Override
-    public void serviceRegistered(Service service) {
-//        HTTPServicesRegistry.getInstance().registerService(service);
-//        for (Resource resource : service.getResources()) {
-//            AnnotationAttachment subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP
-//                    , Constants.ANNOTATION_NAME_PATH);
-//            String subPathAnnotationVal;
-//            if (subPathAnnotation != null && subPathAnnotation.getValue() != null  &&
-//                    !subPathAnnotation.getValue().trim().isEmpty()) {
-//                subPathAnnotationVal = subPathAnnotation.getValue();
-//            } else {
-//                if (log.isDebugEnabled()) {
-//                    log.debug("Path not specified in the Resource, using default sub path");
-//                }
-//                subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
-//            }
-//
-//            try {
-//                service.getUriTemplate().parse(subPathAnnotationVal, resource);
-//            } catch (URITemplateException e) {
-//                log.error("Failed to parse URIs", e);
-//            }
-//        }
-    }
+    public void serviceRegistered(Service service) {}
 
     @Override
     public void serviceUnregistered(Service service) {
