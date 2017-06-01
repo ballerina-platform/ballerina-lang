@@ -1037,7 +1037,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
         JsonObject forkJoinStmtObj = new JsonObject();
-        forkJoinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.FORK_JOIN_STATEMENT);
+        forkJoinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.FORK_JOIN_STATEMENT);
         this.addPosition(forkJoinStmtObj, forkJoinStmt.getNodeLocation());
         this.addWhitespaceDescriptor(forkJoinStmtObj, forkJoinStmt.getWhiteSpaceDescriptor());
         JsonArray children = new JsonArray();
