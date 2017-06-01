@@ -29,11 +29,9 @@ import java.util.Map;
 public abstract class Node {
 
     protected String token;
-
-    protected List<Node> childNodesList = new LinkedList<>();
-
     protected ResourceInfo resource;
     protected boolean isFirstTraverse = true;
+    protected List<Node> childNodesList = new LinkedList<>();
 
     protected Node(String token) {
         this.token = token;
