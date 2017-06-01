@@ -262,9 +262,11 @@ public class BLangJSONModelConstants {
 
     public static final String ELSE_IF_STATEMENT = "else_if_statement";
 
-    public static final String ELSE_IF_BLOCKS = "else_if_blocks";
+    public static final String ELSE_IF_STATEMENTS = "else_if_statements";
 
     public static final String STATEMENT = "statement";
+
+    public static final String CONDITION = "condition";
 
     public static final String EXPRESSION = "expression";
 

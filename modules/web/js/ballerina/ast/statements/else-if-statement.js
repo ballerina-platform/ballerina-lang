@@ -30,6 +30,15 @@ class ElseIfStatement extends ConditionalStatement {
             this._condition = condition;
         }
         this.type = "ElseIfStatement";
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: ' ',
+            4: ' ',
+            5: '\n',
+            6: ' '
+        };
     }
 
     setCondition(condition, options) {
@@ -41,7 +50,27 @@ class ElseIfStatement extends ConditionalStatement {
     getCondition() {
         return this._condition;
     }
+
+    initFromJson(jsonNode) {
+        if (!_.isNil(jsonNode.condition)) {
+            let condition = this.getFactory().createFromJson(jsonNode.condition);
+            condition.initFromJson(jsonNode.condition);
+            this.setCondition(condition);
+            condition.setParent(this);
+        }
+        _.each(jsonNode.children, (childNode) => {
+            var child = undefined;
+            // FIXME Keeping existing fragile logic to detect connector declaration as it is for now. We should refactor this
+            if (childNode.type === "variable_definition_statement" &&
+                !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                child = this.getFactory().createConnectorDeclaration();
+            } else {
+                child = this.getFactory().createFromJson(childNode);
+            }
+            this.addChild(child);
+            child.initFromJson(childNode);
+        });
+    }
 }
 
 export default ElseIfStatement;
-

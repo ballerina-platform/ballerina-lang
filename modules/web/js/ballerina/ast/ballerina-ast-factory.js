@@ -63,8 +63,6 @@ import leftOperandExpression from './statements/left-operand-expression';
 import rightOperandExpression from './statements/right-operand-expression';
 import instanceCreationExpression from './expressions/instance-creation-expression';
 import thenBody from './then-body';
-import ifCondition from './if-condition';
-import elseIfCondition from './else-if-condition';
 import arrayMapAccessExpression from './expressions/array-map-access-expression';
 import keyValueExpression from './expressions/key-value-expression';
 import binaryExpression from './expressions/binary-expression';
@@ -312,11 +310,11 @@ BallerinaASTFactory.createIfElseStatement = function (args) {
 };
 
 /**
- * creates Else Statement
+ * creates If Statement
  * @param args
  */
-BallerinaASTFactory.createElseStatement = function (args) {
-    return new elseStatement(args);
+BallerinaASTFactory.createIfStatement = function (args) {
+    return new ifStatement(args);
 };
 
 /**
@@ -325,6 +323,14 @@ BallerinaASTFactory.createElseStatement = function (args) {
  */
 BallerinaASTFactory.createElseIfStatement = function (args) {
     return new elseIfStatement(args);
+};
+
+/**
+ * creates Else Statement
+ * @param args
+ */
+BallerinaASTFactory.createElseStatement = function (args) {
+    return new elseStatement(args);
 };
 
 /**
@@ -638,24 +644,6 @@ BallerinaASTFactory.createInstanceCreationExpression = function (args) {
  */
 BallerinaASTFactory.createThenBody = function (args) {
     return new thenBody(args);
-};
-
-/**
- * creates IfCondition
- * @param {Object} args - Arguments for creating a new instance creation.
- * @returns {IfCondition}
- */
-BallerinaASTFactory.createIfCondition = function (args) {
-    return new ifCondition(args);
-};
-
-/**
- * creates ElseIfCondition
- * @param {Object} args - Arguments for creating a new instance creation.
- * @returns {ElseIfCondition}
- */
-BallerinaASTFactory.createElseIfCondition = function (args) {
-    return new elseIfCondition(args);
 };
 
 /**
@@ -1345,24 +1333,6 @@ BallerinaASTFactory.isThenBody = function (child) {
 };
 
 /**
- * instanceof check for IfCondition
- * @param {ASTNode} child - The ast node.
- * @returns {boolean} - true if same type, else false
- */
-BallerinaASTFactory.isIfCondition = function (child) {
-    return child instanceof ifCondition;
-};
-
-/**
- * instanceof check for ElseIfCondition
- * @param {ASTNode} child - The ast node.
- * @returns {boolean} - true if same type, else false
- */
-BallerinaASTFactory.isElseIfCondition = function (child) {
-    return child instanceof elseIfCondition;
-};
-
-/**
  * instanceof check for binaryExpression
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
@@ -1667,17 +1637,20 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'if_else_statement' :
         node = BallerinaASTFactory.createIfElseStatement();
         break;
+    case 'if_statement' :
+        node = BallerinaASTFactory.createIfStatement();
+        break;
+    case 'else_if_statement' :
+        node = BallerinaASTFactory.createElseIfStatement();
+        break;
+    case 'else_statement' :
+        node = BallerinaASTFactory.createElseStatement();
+        break;
     case 'instance_creation_expression':
         node = BallerinaASTFactory.createInstanceCreationExpression();
         break;
     case 'then_body':
         node = BallerinaASTFactory.createThenBody();
-        break;
-    case 'if_condition':
-        node = BallerinaASTFactory.createIfCondition();
-        break;
-    case 'else_if_condition':
-        node = BallerinaASTFactory.createElseIfCondition();
         break;
     case 'equal_expression':
         node = BallerinaASTFactory.createBinaryExpression({"operator": "=="});

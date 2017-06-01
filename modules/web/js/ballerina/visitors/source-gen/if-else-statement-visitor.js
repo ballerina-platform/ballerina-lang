@@ -30,6 +30,14 @@ class IfElseStatementVisitor extends AbstractStatementSourceGenVisitor {
         return true;
     }
 
+    beginVisitIfElseStatement(statement) {
+        this.parentNode = statement;
+        if (statement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+    }
+
     visitIfStatement(statement) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
@@ -49,7 +57,9 @@ class IfElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitIfElseStatement(statement) {
-        this.getParent().appendSource( '\n' + this.getGeneratedSource() + '\n');
+        this.appendSource((statement.whiteSpace.useDefault)
+          ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

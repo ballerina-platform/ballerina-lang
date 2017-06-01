@@ -54,6 +54,7 @@ import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
+import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
@@ -720,57 +721,65 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addPosition(ifElseStmtObj, ifElseStmt.getNodeLocation());
         this.addWhitespaceDescriptor(ifElseStmtObj, ifElseStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
+        // create if statement
         if (ifElseStmt.getThenBody() != null) {
-            tempJsonArrayRef.push(new JsonArray());
-
-            JsonObject thenBodyObj = new JsonObject();
-            thenBodyObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                    .IF_STATEMENT_THEN_BODY);
-            this.addPosition(thenBodyObj, ifElseStmt.getThenBody().getNodeLocation());
-            tempJsonArrayRef.push(new JsonArray());
-            ifElseStmt.getThenBody().accept(this);
-            thenBodyObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().add(thenBodyObj);
-
-            JsonObject ifConditionObj = new JsonObject();
-            ifConditionObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                    .IF_STATEMENT_IF_CONDITION);
+            JsonObject ifStmtObj = new JsonObject();
+            ifStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.IF_STATEMENT);
+            this.addPosition(ifStmtObj, ifElseStmt.getNodeLocation());
+            this.addWhitespaceDescriptor(ifStmtObj, ifElseStmt.getWhiteSpaceDescriptor()
+                                    .getChildDescriptor(BLangModelBuilder.IF_CLAUSE));
             tempJsonArrayRef.push(new JsonArray());
             ifElseStmt.getCondition().accept(this);
-            ifConditionObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            // add condition expr of if
+            ifStmtObj.add(BLangJSONModelConstants.CONDITION, tempJsonArrayRef.peek().get(0));
             tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().add(ifConditionObj);
-
-            ifElseStmtObj.add(BLangJSONModelConstants.IF_STATEMENT, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-        }
-        if (ifElseStmt.getElseBody() != null) {
             tempJsonArrayRef.push(new JsonArray());
-            this.addPosition(ifElseStmtObj, ifElseStmt.getThenBody().getNodeLocation());
-            ifElseStmt.getElseBody().accept(this);
-            ifElseStmtObj.add(BLangJSONModelConstants.ELSE_STATEMENT, tempJsonArrayRef.peek());
+            ifElseStmt.getThenBody().accept(this);
+            // add children of if block
+            ifStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
+            // add if statement to parent if-else stmt
+            ifElseStmtObj.add(BLangJSONModelConstants.IF_STATEMENT, ifStmtObj);
         }
+        // create else statement
+        if (ifElseStmt.getElseBody() != null) {
+            JsonObject elseStmtObj = new JsonObject();
+            this.addPosition(elseStmtObj, ifElseStmt.getElseBody().getNodeLocation());
+            this.addWhitespaceDescriptor(elseStmtObj, ifElseStmt.getWhiteSpaceDescriptor()
+                    .getChildDescriptor(BLangModelBuilder.ELSE_CLAUSE));
+            elseStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.ELSE_STATEMENT);
+            tempJsonArrayRef.push(new JsonArray());
+            ifElseStmt.getElseBody().accept(this);
+            // add children of else block
+            elseStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            // add else statement to parent if-else stmt
+            ifElseStmtObj.add(BLangJSONModelConstants.ELSE_STATEMENT, elseStmtObj);
+        }
+        // create else-if statements
         if (ifElseStmt.getElseIfBlocks().length > 0) {
             tempJsonArrayRef.push(new JsonArray());
             IfElseStmt.ElseIfBlock[] elseIfBlocks = ifElseStmt.getElseIfBlocks();
             for (IfElseStmt.ElseIfBlock elseIfBlock : elseIfBlocks) {
-                JsonObject elseIfObj = new JsonObject();
-                elseIfObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                JsonObject elseIfStmtObj = new JsonObject();
+                elseIfStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                         BLangJSONModelConstants.ELSE_IF_STATEMENT);
-                this.addWhitespaceDescriptor(elseIfObj, elseIfBlock.getWhiteSpaceDescriptor());
-                tempJsonArrayRef.push(new JsonArray());
-                elseIfBlock.getElseIfBody().accept(this);
-                elseIfObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-                tempJsonArrayRef.pop();
+                this.addPosition(elseIfStmtObj, elseIfBlock.getNodeLocation());
+                this.addWhitespaceDescriptor(elseIfStmtObj, elseIfBlock.getWhiteSpaceDescriptor());
                 tempJsonArrayRef.push(new JsonArray());
                 elseIfBlock.getElseIfCondition().accept(this);
-                elseIfObj.add(BLangJSONModelConstants.IF_STATEMENT_ELSE_IF_CONDITION, tempJsonArrayRef.peek());
+                // add else if condition expr
+                elseIfStmtObj.add(BLangJSONModelConstants.CONDITION, tempJsonArrayRef.peek().get(0));
                 tempJsonArrayRef.pop();
-                tempJsonArrayRef.peek().add(elseIfObj);
+                tempJsonArrayRef.push(new JsonArray());
+                elseIfBlock.getElseIfBody().accept(this);
+                // add children of else if block
+                elseIfStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+                tempJsonArrayRef.pop();
+                tempJsonArrayRef.peek().add(elseIfStmtObj);
             }
-            ifElseStmtObj.add(BLangJSONModelConstants.ELSE_IF_BLOCKS, tempJsonArrayRef.peek());
+            // add else if blocks to parent if-else stmt
+            ifElseStmtObj.add(BLangJSONModelConstants.ELSE_IF_STATEMENTS, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
         }
         tempJsonArrayRef.pop();
