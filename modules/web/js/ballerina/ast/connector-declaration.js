@@ -31,6 +31,13 @@ class ConnectorDeclaration extends ASTNode {
     constructor(options) {
         super('ConnectorDeclaration');
         this.children = _.get(options, 'childrenFactory', () => {return [];}).call();
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: '',
+            4: '\n'
+        };
     }
 
     setConnectorVariable(connectorVariable, options) {
@@ -165,6 +172,10 @@ class ConnectorDeclaration extends ASTNode {
      */
     initFromJson(jsonNode) {
         var self = this;
+        if (!_.isNil(jsonNode.whitespace_descriptor)) {
+            this.whiteSpace.currentDescriptor = jsonNode.whitespace_descriptor;
+            this.whiteSpace.useDefault = false;
+        }
         _.each(jsonNode.children, function (childNode) {
             let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
@@ -189,7 +200,7 @@ class ConnectorDeclaration extends ASTNode {
         }
 
         if (!_.isNil(this.getConnectorVariable())) {
-            expression += this.getConnectorVariable() + " = ";
+            expression += this.getConnectorVariable() + this.getWSRegion(1) + "=" + this.getWSRegion(2);
         }
 
         expression += "create ";

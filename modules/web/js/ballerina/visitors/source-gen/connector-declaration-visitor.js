@@ -33,6 +33,10 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitConnectorDeclaration(connectorDeclaration) {
+        if (connectorDeclaration.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
         this.appendSource(connectorDeclaration.generateExpression());
         log.debug('Begin Visit Connector Declaration');
     }
@@ -42,8 +46,11 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitConnectorDeclaration(connectorDeclaration) {
-        this.appendSource(";\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(connectorDeclaration.getWSRegion(3) + ';'
+                + connectorDeclaration.getWSRegion(4));
+        this.appendSource((connectorDeclaration.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Connector Declaration');
     }
 }
