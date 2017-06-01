@@ -307,8 +307,8 @@ public class WorkspaceUtils {
      * @param returnParams list of return params
      * @return {Function} function
      * */
-    private static Function createNewFunction(String name, List<AnnotationAttachment> annotations, List<Parameter> params,
-                                       List<Parameter> returnParams) {
+    private static Function createNewFunction(String name, List<AnnotationAttachment> annotations,
+                                              List<Parameter> params, List<Parameter> returnParams) {
         Function function = new Function();
         function.setName(name);
         function.setAnnotations(annotations);
@@ -326,8 +326,9 @@ public class WorkspaceUtils {
      * @param returnParams list of return params
      * @return {Connector} connector
      * */
-    private static Connector createNewConnector(String name, List<AnnotationAttachment> annotations, List<Action> actions,
-                                         List<Parameter> params, List<Parameter> returnParams) {
+    private static Connector createNewConnector(String name, List<AnnotationAttachment> annotations,
+                                                List<Action> actions, List<Parameter> params,
+                                                List<Parameter> returnParams) {
         Connector connector = new Connector();
         connector.setName(name);
         connector.setActions(actions);

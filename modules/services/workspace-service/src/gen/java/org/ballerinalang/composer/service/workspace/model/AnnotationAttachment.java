@@ -85,7 +85,8 @@ public class AnnotationAttachment {
      * @param annotationAttachment The model to be converted.
      * @return Converted model.
      */
-    public static AnnotationAttachment convertToPackageModel(org.ballerinalang.model.AnnotationAttachment annotationAttachment) {
+    public static AnnotationAttachment convertToPackageModel(
+                                                    org.ballerinalang.model.AnnotationAttachment annotationAttachment) {
         if (null != annotationAttachment) {
             AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
             tempAnnotationAttachment.setName(annotationAttachment.getName());
@@ -98,7 +99,8 @@ public class AnnotationAttachment {
     
             for (Map.Entry<String, org.ballerinalang.model.AnnotationAttributeValue> annotationAttributeValueEntry :
                     annotationAttachment.getAttributeNameValuePairs().entrySet()) {
-                tempAnnotationAttachment.getAttributeNameValPairs().put(annotationAttributeValueEntry.getKey(), AnnotationAttributeValue.convertToPackageModel(annotationAttributeValueEntry.getValue()));
+                tempAnnotationAttachment.getAttributeNameValPairs().put(annotationAttributeValueEntry.getKey(),
+                            AnnotationAttributeValue.convertToPackageModel(annotationAttributeValueEntry.getValue()));
             }
         
             return tempAnnotationAttachment;

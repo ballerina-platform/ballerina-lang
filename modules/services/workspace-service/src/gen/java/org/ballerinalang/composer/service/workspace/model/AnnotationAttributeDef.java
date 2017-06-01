@@ -72,7 +72,8 @@ public class AnnotationAttributeDef {
      * @param annotationAttributeDef The model to be converted.
      * @return Converted model.
      */
-    public static AnnotationAttributeDef convertToPackageModel(org.ballerinalang.model.AnnotationAttributeDef annotationAttributeDef) {
+    public static AnnotationAttributeDef convertToPackageModel(
+                                                org.ballerinalang.model.AnnotationAttributeDef annotationAttributeDef) {
         AnnotationAttributeDef tempAnnotationAttributeDef = new AnnotationAttributeDef();
         tempAnnotationAttributeDef.setBType(annotationAttributeDef.getTypeName().getName());
         tempAnnotationAttributeDef.setArrayType(annotationAttributeDef.getTypeName().isArrayType());

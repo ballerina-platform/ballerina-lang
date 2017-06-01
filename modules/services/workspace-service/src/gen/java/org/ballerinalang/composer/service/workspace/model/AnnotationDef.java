@@ -52,7 +52,8 @@ public class AnnotationDef {
         tempAnnotation.setAttachmentPoints(Arrays.asList(annotationDef.getAttachmentPoints()));
     
         for (org.ballerinalang.model.AnnotationAttributeDef annotationAttributeDef : annotationDef.getAttributeDefs()) {
-            AnnotationAttributeDef tempAnnotationAttributeDef = AnnotationAttributeDef.convertToPackageModel(annotationAttributeDef);
+            AnnotationAttributeDef tempAnnotationAttributeDef = AnnotationAttributeDef.convertToPackageModel(
+                                                                                                annotationAttributeDef);
             tempAnnotation.getAnnotationAttributeDefs().add(tempAnnotationAttributeDef);
         }
         
