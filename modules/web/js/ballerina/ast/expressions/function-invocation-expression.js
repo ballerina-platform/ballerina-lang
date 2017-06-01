@@ -120,13 +120,13 @@ class FunctionInvocationExpression extends Expression {
             this.setFullPackageName(jsonNode.package_path, {doSilently: true});
         }
         this.setFunctionName(jsonNode.function_name, {doSilently: true});
-        this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
-        this.setExpression(this.generateExpression());
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
+        this.setExpression(this.generateExpression());
+        this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
     }
 
     /**
