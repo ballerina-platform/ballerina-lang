@@ -38,12 +38,16 @@ class JoinStatement extends React.Component {
         };
 
         return (
-            <CompoundStatementDecorator model={model} bBox={bBox}>
+            <CompoundStatementDecorator model={model} bBox={bBox} onDelete={this.onDelete.bind(this)}>
                 <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Join'} parameter={model.getParameter()}
                                          expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
                     {children}
                 </BlockStatementDecorator>
             </CompoundStatementDecorator>);
+    }
+
+    onDelete(){
+        this.props.model.parent.remove();
     }
 }
 
