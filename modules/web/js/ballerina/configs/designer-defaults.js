@@ -30,7 +30,12 @@ export const panel = {
             bottom: 0,
             left: 0
         },
-        height: 25
+        height: 25,
+        title: {
+            margin: {
+                right: 15
+            }
+        }
     },
     body: {
         padding: {
