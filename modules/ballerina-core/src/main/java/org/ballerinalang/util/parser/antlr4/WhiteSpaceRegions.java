@@ -164,20 +164,25 @@ public class WhiteSpaceRegions {
     // whitespace regions in a if clause
     public static final int IF_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START = 1;
-    public static final int IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 2;
-    public static final int IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 3;
+    public static final int IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION = 2;
+    public static final int IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 3;
+    public static final int IF_CLAUSE_BODY_START_TO_NEXT_TOKEN = 4;
+    public static final int IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in a else if clause
     public static final int ELSE_IF_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int ELSE_IF_CLAUSE_ELSE_KEYWORD_TO_IF_KEYWORD = 1;
     public static final int ELSE_IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START = 2;
-    public static final int ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 3;
-    public static final int ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 4;
+    public static final int ELSE_IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION = 3;
+    public static final int ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 4;
+    public static final int ELSE_IF_CLAUSE_BODY_START_TO_NEXT_TOKEN = 5;
+    public static final int ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 6;
 
     // whitespace regions in a else clause
     public static final int ELSE_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START = 1;
-    public static final int ELSE_CLAUSE_END_TO_NEXT_TOKEN = 2;
+    public static final int ELSE_CLAUSE_BODY_START_TO_NEXT_TOKEN = 2;
+    public static final int ELSE_CLAUSE_END_TO_NEXT_TOKEN = 3;
 
     // whitespace regions in a while statement
     public static final int WHILE_STMT_PRECEDING_WHITESPACE = 0;

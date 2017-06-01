@@ -532,8 +532,13 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START,
                 getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE)
+                        .getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -548,8 +553,13 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, IF_KEYWORD).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START,
                 getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE)
+                        .getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -562,6 +572,9 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START,
                 getWhitespaceToLeft(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
                         getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
