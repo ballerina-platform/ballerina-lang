@@ -33,20 +33,7 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitConnectorDeclaration(connectorDeclaration) {
-        /**
-         * set the configuration start for the connector declaration
-         * If we need to add additional parameters which are dynamically added to the configuration start
-         * that particular source generation has to be constructed here
-         */
-        var connectorPkg = ((!_.isNil(connectorDeclaration.getConnectorPkgName()))
-        && connectorDeclaration.getConnectorPkgName() !== ''
-            && (!_.isEqual(connectorDeclaration.getConnectorPkgName(), 'Current Package'))) ?
-            (connectorDeclaration.getConnectorPkgName() + ":") : "";
-        var constructedSource = connectorPkg +
-            connectorDeclaration.getConnectorName() + ' ' + connectorDeclaration.getConnectorVariable() +
-            ' = create ' + connectorPkg + connectorDeclaration.getConnectorName() +
-            '(' + connectorDeclaration.getParams() + ')';
-        this.appendSource(constructedSource);
+        this.appendSource(connectorDeclaration.generateExpression());
         log.debug('Begin Visit Connector Declaration');
     }
 

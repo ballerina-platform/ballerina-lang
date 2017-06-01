@@ -23,6 +23,7 @@ class SimpleTypeName extends ASTNode {
         super('SimpleTypeName');
         this._typeName = _.get(args, 'typeName', '');
         this._packageName = _.get(args, 'packageName', '');
+        this._fullPackageName = _.get(args, 'fullPackageName', '');
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: '',
@@ -38,7 +39,7 @@ class SimpleTypeName extends ASTNode {
     }
 
     getTypeName() {
-        return this._typename;
+        return this._typeName;
     }
 
     setPackageName(packageName, options) {
@@ -47,8 +48,18 @@ class SimpleTypeName extends ASTNode {
         }
     }
 
+    setFullPackageName(packageName, options) {
+        if (!_.isNil(packageName)) {
+            this.setAttribute('_fullPackageName', packageName, options);
+        }
+    }
+
     getPackageName() {
         return this._packageName;
+    }
+
+    getFullPackageName() {
+        return this._fullPackageName;
     }
 
     /**
@@ -58,6 +69,7 @@ class SimpleTypeName extends ASTNode {
     initFromJson(jsonNode) {
         this.setTypeName(jsonNode.type_name, {doSilently: true});
         this.setPackageName(jsonNode.package_name, {doSilently: true});
+        this.setFullPackageName(jsonNode.full_package_name, {doSilently: true});
     }
 
     toString() {

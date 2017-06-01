@@ -246,17 +246,32 @@ class ToolPaletteItemProvider extends EventChannel {
         }]);
 
         _.each(connectorsOrdered, function (connector) {
-            var packageName = _.last(_.split(pckg.getName(), '.'));
+            let packageName = _.last(_.split(pckg.getName(), '.'));
             connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
-            var getParamString = function() {
-                var params = _.map(connector.getParams(), function(p){return p.identifier;});
-                return _.join(params, ', ');
-            };
+            let createConnectorDeclChildren = function() {
+                let params =  _.map(connector.getParams(),
+                    (param) => {
+                        return BallerinaASTFactory
+                          .createVariableReferenceExpression({variableName: param.identifier});
+                    }
+                );
+                let varDef = BallerinaASTFactory
+                      .createVariableDefinition({typeName: packageName + ':' + connector.getName()});
+                let varRef = BallerinaASTFactory
+                  .createVariableReferenceExpression();
+                varRef.addChild(varDef);
+                let connectorName = BallerinaASTFactory.createSimpleTypeName({typeName:connector.getName(),
+                    packageName: packageName, fullPackageName: pckg.getName()});
+
+                let connectorInit = BallerinaASTFactory.createConnectorInitExpression({arguments: params,
+                    connectorName: connectorName})
+                let children = [];
+                children.push(varRef);
+                children.push(connectorInit);
+                return children;
+            }
             connector.meta = {
-                connectorName: connector.getName(),
-                connectorPackageName: packageName,
-                fullPackageName: pckg.getName(),
-                params: getParamString()
+                childrenFactory: createConnectorDeclChildren
             };
             //TODO : use a generic icon
             connector.icon = self.icons.connector;
@@ -271,11 +286,6 @@ class ToolPaletteItemProvider extends EventChannel {
                 _.forEach(connector.getActions(), function (action) {
                     self.updateToolItem(toolGroupID, action, '', newName, 'actionConnectorName');
                 });
-            });
-
-            connector.on('param-added', function (newName, oldName) {
-                var paramString = getParamString();
-                self.updateToolItem(toolGroupID, connector, 'params', paramString, 'params');
             });
 
             var actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
@@ -386,16 +396,31 @@ class ToolPaletteItemProvider extends EventChannel {
             var toolGroupID = pckg.getName() + "-tool-group";
             var icon = self.icons.connector;
 
-            var getParamString = function() {
-                var params = _.map(connector.getParams(), function(p){return p.identifier;});
-                return _.join(params, ',');
-            };
+            let createConnectorDeclChildren = function() {
+                let params =  _.map(connector.getParams(),
+                    (param) => {
+                        return BallerinaASTFactory
+                          .createVariableReferenceExpression({variableName: param.identifier});
+                    }
+                );
+                let varDef = BallerinaASTFactory
+                      .createVariableDefinition({typeName: packageName + ':' + connector.getName()});
+                let varRef = BallerinaASTFactory
+                  .createVariableReferenceExpression();
+                varRef.addChild(varDef);
+                let connectorName = BallerinaASTFactory.createSimpleTypeName({typeName:connector.getName(),
+                    packageName: packageName});
+
+                let connectorInit = BallerinaASTFactory.createConnectorInitExpression({arguments: params,
+                    connectorName: connectorName})
+                let children = [];
+                children.push(varRef);
+                children.push(connectorInit);
+                return children;
+            }
 
             connector.meta = {
-                connectorName: connector.getName(),
-                connectorPackageName: packageName,
-                fullPackageName: pckg.getName(),
-                params: getParamString()
+                childrenFactory: createConnectorDeclChildren
             };
 
             this.addToToolGroup(toolGroupID, connector, nodeFactoryMethod, icon);
