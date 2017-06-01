@@ -57,54 +57,11 @@ class WhileStatement extends React.Component {
             setterMethod: model.setCondition
         };
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-                    <rect x={bBox.x} y={bBox.y} width={bBox.w} height={model.viewState.components['drop-zone'].h}
-                      className={dropZoneClassName}
-                      onMouseOver={(e) => this.onDropZoneActivate(e)}
-                      onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
                     <BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"}
                                              expression={expression} editorOptions={this.editorOptions}>
                         {children}
                     </BlockStatementDecorator>
                 </CompoundStatementDecorator>);
-	}
-
-  onDropZoneActivate (e) {
-			const dragDropManager = this.context.dragDropManager,
-						dropTarget = this.props.model.getParent(),
-						model = this.props.model;
-			if(dragDropManager.isOnDrag()) {
-					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
-							return;
-					}
-					dragDropManager.setActivatedDropTarget(dropTarget,
-							(nodeBeingDragged) => {
-									// IMPORTANT: override node's default validation logic
-									// This drop zone is for statements only.
-									// Statements should only be allowed here.
-									return model.getFactory().isStatement(nodeBeingDragged);
-							},
-							() => {
-									return dropTarget.getIndexOfChild(model);
-							}
-					);
-					this.setState({innerDropZoneActivated: true,
-							innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
-					});
-					dragDropManager.once('drop-target-changed', function(){
-							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
-					}, this);
-			}
-	}
-
-	onDropZoneDeactivate (e) {
-			const dragDropManager = this.context.dragDropManager,
-						dropTarget = this.props.model.getParent();
-			if(dragDropManager.isOnDrag()){
-					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
-							dragDropManager.clearActivatedDropTarget();
-							this.setState({innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false});
-					}
-			}
 	}
 }
 
