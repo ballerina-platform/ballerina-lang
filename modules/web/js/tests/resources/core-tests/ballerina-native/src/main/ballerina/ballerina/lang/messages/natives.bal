@@ -1,5 +1,3 @@
-package ballerina.lang.messages;
-
 import ballerina.doc;
 
 @doc:Description { value:"Gets the message payload in JSON format"}

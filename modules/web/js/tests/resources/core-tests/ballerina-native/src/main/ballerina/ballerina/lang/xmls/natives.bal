@@ -1,5 +1,3 @@
-package ballerina.lang.xmls;
-
 import ballerina.doc;
 
 @doc:Description { value:"Sets the string value of an element that matches the given XPath. If the XPath matches an existing element, that element's value will be updated. If the XPath does not match an existing element, this operation will have no effect. Namespaces are supported."}

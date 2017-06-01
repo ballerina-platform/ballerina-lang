@@ -1,5 +1,3 @@
-package ballerina.lang.jsons;
-
 import ballerina.doc;
 
 @doc:Description { value:"Inserts a Boolean to a JSON array. This function will add a new Boolean element to the end of the JSON array identified by the given JSONPath."}

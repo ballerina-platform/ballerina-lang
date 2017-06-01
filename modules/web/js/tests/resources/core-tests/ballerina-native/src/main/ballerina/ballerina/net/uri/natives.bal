@@ -1,5 +1,3 @@
-package ballerina.net.uri;
-
 import ballerina.doc;
 
 @doc:Description { value:"Gets a query parameter value for a given key"}

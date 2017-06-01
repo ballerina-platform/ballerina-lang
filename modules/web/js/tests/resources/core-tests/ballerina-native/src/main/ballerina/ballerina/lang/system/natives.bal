@@ -1,5 +1,3 @@
-package ballerina.lang.system;
-
 import ballerina.doc;
 
 @doc:Description { value:"Logs an integer value"}

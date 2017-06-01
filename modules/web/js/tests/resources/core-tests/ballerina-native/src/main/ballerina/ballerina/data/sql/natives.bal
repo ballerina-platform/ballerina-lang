@@ -1,5 +1,3 @@
-package ballerina.data.sql;
-
 import ballerina.doc;
 
 connector ClientConnector (map options) {

@@ -1,5 +1,3 @@
-package lang.expressions.type.cast.foo;
-
 import lang.expressions.type.cast.foo.bar;
 
 struct Person {

@@ -1,5 +1,3 @@
-package ballerina.net.ws;
-
 import ballerina.doc;
 
 @doc:Description { value:"This pushes text from server to the the same client who sent the message."}

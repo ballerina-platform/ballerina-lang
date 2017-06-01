@@ -1,5 +1,3 @@
-package ballerina.lang.type;
-
 import ballerina.lang.messages;
 
 typemapper string2message (string payload) (message) {

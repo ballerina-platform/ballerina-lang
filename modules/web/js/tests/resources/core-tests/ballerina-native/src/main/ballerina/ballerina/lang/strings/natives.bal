@@ -1,5 +1,3 @@
-package ballerina.lang.strings;
-
 import ballerina.doc;
 
 @doc:Description { value:"Returns a string with all the characters converted to uppercase"}

@@ -1,5 +1,3 @@
-package ballerina.lang.maps;
-
 import ballerina.doc;
 
 @doc:Description { value:"Removes the specified element from the map"}
