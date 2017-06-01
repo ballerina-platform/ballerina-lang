@@ -31,9 +31,8 @@ class ElseStatement extends Statement {
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
-            2: ' ',
-            3: '\n',
-            4: '\n'
+            2: '\n',
+            3: '\n'
         };
     }
 

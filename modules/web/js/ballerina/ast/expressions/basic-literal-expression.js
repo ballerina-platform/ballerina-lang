@@ -52,6 +52,9 @@ class BasicLiteralExpression extends Expression {
     getBasicLiteralValue(){
         return this._basicLiteralValue;
     }
+    setExpression(literal){
+        this._basicLiteralValue = literal;
+    }
 
     getBasicLiteralType(){
         return this._basicLiteralType;
@@ -66,4 +69,3 @@ class BasicLiteralExpression extends Expression {
 }
 
 export default BasicLiteralExpression;
-

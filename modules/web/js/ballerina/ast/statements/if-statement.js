@@ -31,10 +31,21 @@ class IfStatement extends ConditionalStatement {
     constructor(args) {
         super();
         this.type = "IfStatement";
+        if(!_.isNil(_.get(args, 'condition'))){
+            this.setCondition(_.get(args, 'condition'));
+        } else {
+            // create default condition
+            this.setCondition(this.getFactory().createBasicLiteralExpression(
+                {
+                    basicLiteralType: 'boolean',
+                    basicLiteralValue: true
+                }
+            ))
+        }
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
-            2: ' ',
+            2: '',
             3: ' ',
             4: '\n',
             5: ' '

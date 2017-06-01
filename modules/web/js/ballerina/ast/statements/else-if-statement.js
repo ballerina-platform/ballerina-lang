@@ -34,7 +34,7 @@ class ElseIfStatement extends ConditionalStatement {
             0: '',
             1: ' ',
             2: ' ',
-            3: ' ',
+            3: '',
             4: ' ',
             5: '\n',
             6: ' '

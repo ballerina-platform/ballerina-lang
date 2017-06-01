@@ -29,9 +29,9 @@ class IfStatement extends React.Component {
         this.editorOptions = {
             propertyType: 'text',
             key: 'If condition',
-            model: props.model,
-            getterMethod: props.model.getCondition,
-            setterMethod: props.model.setCondition
+            model: props.model.getCondition(),
+            getterMethod: props.model.getCondition().generateExpression,
+            setterMethod: props.model.getCondition().setExpression
         };
 
         this.onAddElseClick = this.onAddElseClick.bind(this);
@@ -54,7 +54,6 @@ class IfStatement extends React.Component {
             bBox = model.viewState.bBox,
             expression = model.viewState.components['expression'];
         const children = getComponentForNodeArray(this.props.model.getChildren());
-
         const addElseBtn = (
             <g onClick={this.onAddElseClick}>
                 <rect x={bBox.x+bBox.w-20} y={bBox.y+bBox.h-20} width={20} height={20} className='add-else-button'/>
