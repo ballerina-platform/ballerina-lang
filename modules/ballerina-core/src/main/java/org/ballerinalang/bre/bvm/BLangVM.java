@@ -109,7 +109,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-//        traceCode();
+     //   traceCode();
         exec();
     }
 
@@ -593,7 +593,7 @@ public class BLangVM {
                     k = operands[2];
 
                     // TODO improve error handling in VM
-                    if (sf.longRegs[j] == 0) {
+                   if (sf.longRegs[j] == 0) {
                         throw new BallerinaException(" / by zero");
                     }
 
