@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.services.dispatchers.uri.URITemplate;
+import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.services.dispatchers.uri.parser.Literal;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +39,7 @@ public class ServiceInfo extends StructureTypeInfo {
     private int intiFuncCPIndex;
 
     private FunctionInfo initFuncInfo;
+    private URITemplate uriTemplate;
 
     // Cache values.
     private String serviceName;
@@ -104,6 +109,13 @@ public class ServiceInfo extends StructureTypeInfo {
             }
         }
         return null;
+    }
+
+    public URITemplate getUriTemplate() throws URITemplateException {
+        if (uriTemplate == null) {
+            uriTemplate = new URITemplate(new Literal("/"));
+        }
+        return uriTemplate;
     }
 
 }
