@@ -38,6 +38,17 @@ class FunctionDefinition extends CallableDefinition {
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
         this._isNative = _.get(args, 'isNative', false);
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: '',
+            4: ' ',
+            5: '',
+            6: ' ',
+            7: '\n',
+            8: '\n'
+        };
     }
 
     setFunctionName(name, options) {
