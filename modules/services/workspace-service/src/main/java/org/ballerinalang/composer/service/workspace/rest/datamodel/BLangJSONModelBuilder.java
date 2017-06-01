@@ -1121,9 +1121,26 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject basicLiteralObj = new JsonObject();
         basicLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.BASIC_LITERAL_EXPRESSION);
+
+        String basicLiteralValue;
+        if ((basicLiteral.getTypeName().getName().equals("float") ||
+                basicLiteral.getTypeName().getName().equals("double")) &&
+                        basicLiteral.getBValue().stringValue().contains("E")) {
+            // float or the double has been represented in the scientific notation. We need to convert it back to
+            // the normal representation
+            String[] tokens = basicLiteral.getBValue().stringValue().split("E");
+            int decPointIndex = tokens[0].indexOf('.');
+            String tempStringRepresentation = tokens[0].substring(0, decPointIndex) +
+                    tokens[0].substring(decPointIndex + 1);
+            int newDecPointIndex = decPointIndex + Integer.parseInt(tokens[1]);
+            basicLiteralValue = tempStringRepresentation.substring(0, newDecPointIndex) + "." +
+                    tempStringRepresentation.substring(newDecPointIndex);
+        } else {
+            basicLiteralValue = basicLiteral.getBValue().stringValue();
+        }
+
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_TYPE, basicLiteral.getTypeName().getName());
-        basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE, basicLiteral.getBValue().stringValue
-                ());
+        basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE, basicLiteralValue);
         this.addPosition(basicLiteralObj, basicLiteral.getNodeLocation());
         this.addWhitespaceDescriptor(basicLiteralObj, basicLiteral.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(basicLiteralObj);
