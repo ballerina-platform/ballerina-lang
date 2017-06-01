@@ -122,13 +122,12 @@ public class ServerConnectorMessageHandler {
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
 
         // Now create callee's stack-frame
-        // Now create callee's stackframe
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
         org.ballerinalang.bre.bvm.StackFrame calleeSF =
                 new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         controlStackNew.pushFrame(calleeSF);
 
-        CodeAttributeInfo codeAttribInfo = resourceInfo.getCodeAttributeInfo();
+        CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];

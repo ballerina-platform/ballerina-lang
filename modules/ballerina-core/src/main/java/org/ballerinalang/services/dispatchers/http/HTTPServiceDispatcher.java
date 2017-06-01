@@ -142,7 +142,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             String basePath = findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
             ServiceInfo service = servicesOnInterface.get(basePath);
             if (service == null) {
-                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
+                throw new BallerinaException("no service found to handle incoming request received to : " + uriStr);
             }
 
             String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);

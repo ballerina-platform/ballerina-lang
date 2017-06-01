@@ -39,12 +39,10 @@ import java.nio.ByteBuffer;
  */
 public class ServiceTest {
 
-//    BLangProgram bLangProgram;
     ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-//        bLangProgram = EnvironmentInitializer.setup("lang/service/echoService.bal");
         programFile = EnvironmentInitializer.setupProgramFile("lang/service/echoService.bal");
     }
 
@@ -57,7 +55,6 @@ public class ServiceTest {
     }
 
     @Test(description = "Test for protocol availability check", expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* protocol not defined .*")
             expectedExceptionsMessageRegExp = ".*Cannot handle error using the error handler for.*")
     public void testProtocolAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
@@ -67,7 +64,6 @@ public class ServiceTest {
 
     @Test(description = "Test for service dispatcher availability check",
             expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* no service dispatcher available .*")
             expectedExceptionsMessageRegExp = ".*Cannot handle error using the error handler for.*")
     public void testServiceDispatcherAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
@@ -80,7 +76,7 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         CarbonMessage invoke = Services.invoke(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                "error in ballerina program: no service found to handle incoming request recieved to : /foo/message");
+                "error in ballerina program: no service found to handle incoming request received to : /foo/message");
     }
 
     @Test(description = "Test for resource dispatcher availability check")

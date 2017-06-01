@@ -75,33 +75,6 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
             throws BallerinaException {
-
-//        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-//        String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
-//        subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
-//
-//        try {
-//            Map<String, String> resourceArgumentValues = new HashMap<>();
-//
-//            Resource resource = service.getUriTemplate().matches(subPath, resourceArgumentValues);
-//            if (resource != null
-//                    && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
-//
-//                if (cMsg.getProperty(Constants.QUERY_STR) != null) {
-//                    QueryParamProcessor.processQueryParams
-//                            ((String) cMsg.getProperty(Constants.QUERY_STR))
-//                            .forEach((resourceArgumentValues::put));
-//                }
-//                cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
-//                return resource;
-//            }
-//        } catch (Throwable e) {
-//            throw new BallerinaException(e.getMessage(), balContext);
-//        }
-//
-//        // Throw an exception if the resource is not found.
-//        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
-
         return null;
     }
 
