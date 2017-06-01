@@ -17,17 +17,29 @@
 */
 package org.ballerinalang.util.codegen;
 
-/**
- * {@code AttributeInfo} contains metadata of a construct in Ballerina.
- *
- * // TODO Improve this explanation
- *
- * @since 0.87
- */
-public interface AttributeInfo {
+import java.util.ArrayList;
+import java.util.List;
 
-    String CODE_ATTRIBUTE = "CodeAttribute";
-    String ANNOTATIONS_ATTRIBUTE = "AnnotationsAttribute";
-    String PARAMETER_ANNOTATIONS_ATTRIBUTE = "ParameterAnnotationsAttribute";
-    String LOCALVARIABLES_ATTRIBUTE = "LocalVariableAttribute";
+/**
+ * {@code LocalVariableAttributeInfo} contains common metadata of
+ * a given local variable.
+ *
+ * @since 0.88
+ */
+public class LocalVariableInfo {
+
+    int variableNameIndex;
+    List<Integer> attachmentsIndex = new ArrayList<>();
+
+    public LocalVariableInfo(int variableNameIndex) {
+        this.variableNameIndex = variableNameIndex;
+    }
+
+    public void addAttachmentIndex(int index) {
+        attachmentsIndex.add(index);
+    }
+
+    public int getAttachmentIndex(int index) {
+        return attachmentsIndex.get(index);
+    }
 }

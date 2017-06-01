@@ -26,6 +26,8 @@ import java.util.Objects;
  */
 public class ResourceInfo extends CallableUnitInfo {
 
+    protected String[] paramNames;
+
     public ResourceInfo(String pkgPath, int pkgCPIndex, String actionName, int resNameCPIndex) {
         this.pkgPath = pkgPath;
         this.pkgCPIndex = pkgCPIndex;
@@ -46,5 +48,13 @@ public class ResourceInfo extends CallableUnitInfo {
         return obj instanceof ResourceInfo
                 && pkgCPIndex == (((ResourceInfo) obj).pkgCPIndex)
                 && nameCPIndex == (((ResourceInfo) obj).nameCPIndex);
+    }
+
+    public String[] getParamNames() {
+        return paramNames;
+    }
+
+    public void setParamNames(String[] paramNames) {
+        this.paramNames = paramNames;
     }
 }
