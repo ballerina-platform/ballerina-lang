@@ -854,7 +854,7 @@ public class CodeGenerator implements NodeVisitor {
         transformStmt.getBody().accept(this);
     }
 
-    @java.lang.Override
+    @Override
     public void visit(TransactionStmt transactionStmt) {
 
     }
