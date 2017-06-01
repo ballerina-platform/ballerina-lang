@@ -948,9 +948,9 @@ public class CodeGenerator implements NodeVisitor {
             emit(opcode, rExpr.getTempOffset(), exprIndex);
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
-
-            // TODO
-            exprIndex = rExpr.getTempOffset();
+            opcode = InstructionCodes.NOT;
+            exprIndex = ++regIndexes[BOOL_OFFSET];
+            emit(opcode, rExpr.getTempOffset(), exprIndex);
         } else {
             // "+" operator
             // Nothing to do
@@ -993,12 +993,12 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AndExpression andExpression) {
-
+        emitBinaryAndExpr(andExpression);
     }
 
     @Override
     public void visit(OrExpression orExpression) {
-
+        emitBinaryORExpr(orExpression);
     }
 
 
@@ -1763,7 +1763,9 @@ public class CodeGenerator implements NodeVisitor {
         int opcode;
         if (expr instanceof EqualExpression) {
             opcode = InstructionCodes.IFNE;
-        } else if (expr instanceof NotEqualExpression) {
+        } else if (expr instanceof NotEqualExpression ||
+                expr instanceof OrExpression ||
+                expr instanceof AndExpression) {
             opcode = InstructionCodes.IFEQ;
         } else if (expr instanceof LessThanExpression) {
             opcode = InstructionCodes.IFGE;
@@ -1821,6 +1823,87 @@ public class CodeGenerator implements NodeVisitor {
 
         expr.setTempOffset(exprOffset);
         emit(opcode, expr.getLExpr().getTempOffset(), expr.getRExpr().getTempOffset(), exprOffset);
+    }
+
+    private void emitBinaryAndExpr(BinaryExpression expr) {
+        //accept left expr
+        expr.getLExpr().accept(this);
+
+        //evaluate left expr first - if false goto (lastIp-1) if true accept right expr
+        Instruction evalLeftBoolExpr = new Instruction(InstructionCodes.IFEQ, expr.getLExpr().getTempOffset(), 0);
+        emit(evalLeftBoolExpr);
+
+
+        //accept right expr
+        expr.getRExpr().accept(this);
+        //evaluate right instruction next - if false goto (lastIp-1) if true set whole binary expr as true
+        Instruction evalRightBoolExpr = new Instruction(InstructionCodes.IFEQ, expr.getRExpr().getTempOffset(), 0);
+        emit(evalRightBoolExpr);
+        Instruction setBoolOne = new Instruction(InstructionCodes.BCONST_1, 0);
+        emit(setBoolOne);
+        //goto last expr
+        Instruction gotoLast = new Instruction(InstructionCodes.GOTO, 0);
+        emit(gotoLast);
+
+
+        //if left is zero, whole expr is zero, this is instruction (lastIp-1)
+        Instruction setBoolZero = new Instruction(InstructionCodes.BCONST_0, 0);
+        emit(setBoolZero);
+
+        int lastIp = nextIP();
+        //override goto instruction pointer dummy value
+        evalLeftBoolExpr.setOperand(1, lastIp - 1);
+        evalRightBoolExpr.setOperand(1, lastIp - 1);
+        gotoLast.setOperand(0, lastIp);
+
+
+        //calculate offset for whole binary expr
+        int exprOffset = -1;
+        exprOffset = ++regIndexes[BOOL_OFFSET];
+        expr.setTempOffset(exprOffset);
+        //override binary expr dummy value
+        setBoolOne.setOperand(0, exprOffset);
+        setBoolZero.setOperand(0, exprOffset);
+
+    }
+
+    private void emitBinaryORExpr(BinaryExpression expr) {
+        //accept left expr
+        expr.getLExpr().accept(this);
+
+        //evaluate left expr first - if true goto (lastIp-1) if false accept right expr
+        Instruction evalLeftBoolExpr = new Instruction(InstructionCodes.IFNE, expr.getLExpr().getTempOffset(), 0);
+        emit(evalLeftBoolExpr);
+
+        //accept right expr
+        expr.getRExpr().accept(this);
+        //evaluate right instruction next - if true goto (lastIp-1) if false set whole binary expr as false
+        Instruction evalRightBoolExpr = new Instruction(InstructionCodes.IFNE, expr.getRExpr().getTempOffset(), 0);
+        emit(evalRightBoolExpr);
+        Instruction setBoolOne = new Instruction(InstructionCodes.BCONST_0, 0);
+        emit(setBoolOne);
+        Instruction gotoLast = new Instruction(InstructionCodes.GOTO, 0);
+        emit(gotoLast);
+
+
+        //if left is true, whole expr is true, this is instruction (lastIp-1)
+        Instruction setBoolZero = new Instruction(InstructionCodes.BCONST_1, 0);
+        emit(setBoolZero);
+
+
+        int nextIp = nextIP();
+        //override goto instruction pointer dummy value
+        evalLeftBoolExpr.setOperand(1, nextIp - 1);
+        evalRightBoolExpr.setOperand(1, nextIp - 1);
+        gotoLast.setOperand(0, nextIp);
+
+        //calculate offset for whole binary expr
+        int exprOffset = -1;
+        exprOffset = ++regIndexes[BOOL_OFFSET];
+        expr.setTempOffset(exprOffset);
+        //override binary expr offset dummy value
+        setBoolOne.setOperand(0, exprOffset);
+        setBoolZero.setOperand(0, exprOffset);
     }
 
     private int emit(int opcode, int... operands) {
