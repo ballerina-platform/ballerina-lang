@@ -32,6 +32,7 @@ public class TypeSignature {
     public static final String SIG_ANY = "A";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
+    public static final String SIG_BLOB = "L";
 
     private String sigChar;
     private TypeSignature elementTypeSig;
