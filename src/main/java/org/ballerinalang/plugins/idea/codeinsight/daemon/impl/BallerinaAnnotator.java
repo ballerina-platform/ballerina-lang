@@ -29,6 +29,8 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingColors;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -36,6 +38,10 @@ import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ParameterListNode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +56,11 @@ public class BallerinaAnnotator implements Annotator {
     private static final Pattern VALID_ESCAPE_CHAR_PATTERN = Pattern.compile(VALID_ESCAPE_CHARACTERS);
     private static final String INVALID_ESCAPE_CHARACTERS = "((\\\\\\\\)+|(\\\\[^btnfr\"'\\\\]))|(\\\\(?!.))";
     private static final Pattern INVALID_ESCAPE_CHAR_PATTERN = Pattern.compile(INVALID_ESCAPE_CHARACTERS);
+
+    private static final String QUERY_PARAMETERS = "\\w+=(\\{([^&]+)})";
+    private static final Pattern QUERY_PARAMETERS_PATTERN = Pattern.compile(QUERY_PARAMETERS);
+    private static final String PATH_PARAMETERS = "/(\\{(\\w+?)})";
+    private static final Pattern PATH_PARAMETERS_PATTERN = Pattern.compile(PATH_PARAMETERS);
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -85,7 +96,7 @@ public class BallerinaAnnotator implements Annotator {
             Annotation annotation = holder.createInfoAnnotation(element, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
         } else if (elementType == BallerinaTypes.QUOTED_STRING) {
-            // In here, we annotate escape characters.
+            // In here, we annotate valid escape characters.
             String text = element.getText();
             Matcher matcher = VALID_ESCAPE_CHAR_PATTERN.matcher(text);
             // Get the start offset of the element.
@@ -102,6 +113,7 @@ public class BallerinaAnnotator implements Annotator {
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.VALID_STRING_ESCAPE);
             }
 
+            // Annotate invalid escape characters.
             matcher = INVALID_ESCAPE_CHAR_PATTERN.matcher(text);
             // Get the start offset of the element.
             startOffset = ((LeafPsiElement) element).getStartOffset();
@@ -111,11 +123,77 @@ public class BallerinaAnnotator implements Annotator {
                 String group = matcher.group(3);
                 if (group != null) {
                     // Calculate the start and end offsets and create the range.
-                    TextRange range = new TextRange(startOffset + matcher.start(),
-                            startOffset + matcher.start() + group.length());
+                    TextRange range = new TextRange(startOffset + matcher.start(3),
+                            startOffset + matcher.start(3) + group.length());
                     // Create the annotation.
                     Annotation annotation = holder.createInfoAnnotation(range, "Invalid string escape");
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.INVALID_STRING_ESCAPE);
+                }
+            }
+
+            AnnotationAttributeNode annotationAttributeNode = PsiTreeUtil.getParentOfType(element,
+                    AnnotationAttributeNode.class);
+            if (annotationAttributeNode != null) {
+                // Annotate query parameters in annotation attachments.
+                matcher = QUERY_PARAMETERS_PATTERN.matcher(text);
+                // Get the start offset of the element.
+                startOffset = ((LeafPsiElement) element).getStartOffset();
+                // Iterate through each match.
+                while (matcher.find()) {
+                    // Get the matching value without the enclosing {}.
+                    String value = matcher.group(2);
+                    if (value == null) {
+                        continue;
+                    }
+                    // Calculate the start and end offsets and create the range. We need to add 2 to include the
+                    // {} ignored.
+                    TextRange range = new TextRange(startOffset + matcher.start(1),
+                            startOffset + matcher.start(1) + value.length() + 2);
+                    // Check whether a matching resource parameter is available.
+                    boolean isMatchAvailable = isMatchingQueryParamAvailable(annotationAttributeNode, value,
+                            "QueryParam");
+                    // Create the annotation.
+                    if (isMatchAvailable) {
+                        Annotation annotation = holder.createInfoAnnotation(range,
+                                "Query parameter '" + value + "'");
+                        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);
+                    } else {
+                        Annotation annotation = holder.createErrorAnnotation(range,
+                                "Query parameter '" + value + "' not found in the resource signature");
+                        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.INVALID_STRING_ESCAPE);
+                    }
+                }
+            }
+
+            if (annotationAttributeNode != null) {
+                // Annotate query parameters in annotation attachments.
+                matcher = PATH_PARAMETERS_PATTERN.matcher(text);
+                // Get the start offset of the element.
+                startOffset = ((LeafPsiElement) element).getStartOffset();
+                // Iterate through each match.
+                while (matcher.find()) {
+                    // Get the matching value without the enclosing {}.
+                    String value = matcher.group(2);
+                    if (value == null) {
+                        continue;
+                    }
+                    // Calculate the start and end offsets and create the range. We need to add 2 to include the
+                    // {} ignored.
+                    TextRange range = new TextRange(startOffset + matcher.start(1),
+                            startOffset + matcher.start(1) + value.length() + 2);
+                    // Check whether a matching resource parameter is available.
+                    boolean isMatchAvailable = isMatchingQueryParamAvailable(annotationAttributeNode, value,
+                            "PathParam");
+                    // Create the annotation.
+                    if (isMatchAvailable) {
+                        Annotation annotation = holder.createInfoAnnotation(range,
+                                "Path parameter '" + value + "'");
+                        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);
+                    } else {
+                        Annotation annotation = holder.createErrorAnnotation(range,
+                                "Path parameter '" + value + "' not found in the resource signature");
+                        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.INVALID_STRING_ESCAPE);
+                    }
                 }
             }
         } else if (element instanceof IdentifierPSINode) {
@@ -132,6 +210,65 @@ public class BallerinaAnnotator implements Annotator {
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
             }
         }
+    }
+
+    private boolean isMatchingQueryParamAvailable(@NotNull AnnotationAttributeNode annotationAttributeNode,
+                                                  @NotNull String value, @NotNull String type) {
+        ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(annotationAttributeNode,
+                ResourceDefinitionNode.class);
+        if (resourceDefinitionNode == null) {
+            return false;
+        }
+        ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(resourceDefinitionNode,
+                ParameterListNode.class);
+        if (parameterListNode == null) {
+            return false;
+        }
+        ParameterNode[] parameterNodes = PsiTreeUtil.getChildrenOfType(parameterListNode, ParameterNode.class);
+        if (parameterNodes == null) {
+            return false;
+        }
+        for (ParameterNode parameterNode : parameterNodes) {
+            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getChildOfType(parameterNode,
+                    AnnotationAttachmentNode.class);
+            if (annotationAttachmentNode == null) {
+                continue;
+            }
+            NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(annotationAttachmentNode,
+                    NameReferenceNode.class);
+            if (nameReferenceNode == null) {
+                continue;
+            }
+            PsiElement paramType = nameReferenceNode.getNameIdentifier();
+            if (paramType == null) {
+                continue;
+            }
+            if (!type.equals(paramType.getText())) {
+                continue;
+            }
+            Collection<AnnotationAttributeValueNode> annotationAttributeValueNodes =
+                    PsiTreeUtil.findChildrenOfType(annotationAttachmentNode, AnnotationAttributeValueNode.class);
+            for (AnnotationAttributeValueNode annotationAttributeValueNode : annotationAttributeValueNodes) {
+                SimpleLiteralNode simpleLiteralNode = PsiTreeUtil.getChildOfType(annotationAttributeValueNode,
+                        SimpleLiteralNode.class);
+                if (simpleLiteralNode == null || simpleLiteralNode.getFirstChild() == null) {
+                    continue;
+                }
+                PsiElement firstChild = simpleLiteralNode.getFirstChild();
+                if (!(firstChild instanceof LeafPsiElement)) {
+                    continue;
+                }
+                if (((LeafPsiElement) firstChild).getElementType() != BallerinaTypes.QUOTED_STRING) {
+                    continue;
+                }
+                String text = firstChild.getText();
+                text = text.substring(1, text.length() - 1);
+                if (value.equals(text)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void annotateConstants(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
