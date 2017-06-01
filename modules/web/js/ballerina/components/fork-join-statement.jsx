@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
-import CompoundStatementDecorator from "./compound-statement-decorator";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
+import CompoundStatementDecorator from './compound-statement-decorator';
 import PropTypes from 'prop-types';
 import {statement, blockStatement} from './../configs/designer-defaults';
 import {getComponentForNodeArray} from './utils';
@@ -31,19 +31,17 @@ class ForkJoinStatement extends React.Component {
             bodyBBox = model.viewState.components.body;
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
-
         const forkBBox = new SimpleBBox(bBox.x, bBox.y + statement.gutter.v, bBox.w, bodyBBox.h
             + blockStatement.heading.height);
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             <BlockStatementDecorator hideLifeLine={true} dropTarget={model} bBox={forkBBox}
-                                     title={'Fork'} draggable={this.isWorker}>
-
+                                     title={'Fork'} draggable={ForkJoinStatement.isWorker}>
                 {children}
             </BlockStatementDecorator>
         </CompoundStatementDecorator>);
     }
 
-    isWorker(dropTarget, nodeBeingDragged) {
+    static isWorker(dropTarget, nodeBeingDragged) {
         const factory = dropTarget.getFactory();
         return factory.isWorkerDeclaration(nodeBeingDragged);
     }

@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
-import CompoundStatementDecorator from "./compound-statement-decorator";
-import PropTypes from "prop-types";
-import {getComponentForNodeArray} from "./utils";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
+import CompoundStatementDecorator from './compound-statement-decorator';
+import PropTypes from 'prop-types';
+import {getComponentForNodeArray} from './utils';
 
 class JoinStatement extends React.Component {
 
@@ -39,7 +39,7 @@ class JoinStatement extends React.Component {
 
         return (
             <CompoundStatementDecorator model={model} bBox={bBox}>
-                <BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Join"} parameter={model.getParameter()}
+                <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Join'} parameter={model.getParameter()}
                                          expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
                     {children}
                 </BlockStatementDecorator>

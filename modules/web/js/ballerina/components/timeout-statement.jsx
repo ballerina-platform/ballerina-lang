@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
-import CompoundStatementDecorator from "./compound-statement-decorator";
-import PropTypes from "prop-types";
-import {getComponentForNodeArray} from "./utils";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
+import CompoundStatementDecorator from './compound-statement-decorator';
+import PropTypes from 'prop-types';
+import {getComponentForNodeArray} from './utils';
 
 class TimeoutStatement extends React.Component {
 
