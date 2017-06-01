@@ -75,7 +75,7 @@ class ForkJoinStatement extends Statement {
                     index--;
                 }
             } else if (!factory.isTimeoutStatement(child)) {
-                throw "Illegal chile type in join";
+                throw "Illegal child type in join";
             }
             super.addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent)
         } else {
