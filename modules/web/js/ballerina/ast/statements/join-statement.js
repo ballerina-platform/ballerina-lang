@@ -71,12 +71,15 @@ class JoinStatement extends Statement {
     }
 
     setParameterAsString(str) {
-        const index = str.search(/\s+\S+$/);
-        const factory = this.getFactory();
-        const typeName = str.substr(0, index);
-        const name = str.substr(index);
-        const parameterDefinition = factory.createParameterDefinition({typeName, name});
-        this.setParameter(parameterDefinition);
+        const myRegexp = /^\s*([^\s\[\]]+\s*\[\s*]\s*)([^\s\[\]]+)\s*$/g;
+        const match = myRegexp.exec(str);
+        if (match) {
+            const factory = this.getFactory();
+            const typeName = match[1];
+            const name = match[2];
+            const parameterDefinition = factory.createParameterDefinition({typeName, name});
+            this.setParameter(parameterDefinition);
+        }
     }
 
     initFromJson(jsonNode) {

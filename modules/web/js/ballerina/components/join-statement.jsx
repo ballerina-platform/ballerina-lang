@@ -28,6 +28,7 @@ class JoinStatement extends React.Component {
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         const props = this.props;
+        const parameterBbox = this.props.model.viewState.components.param;
 
         this.editorOptions = {
             propertyType: 'text',
@@ -55,7 +56,7 @@ class JoinStatement extends React.Component {
         }
         return (
             <CompoundStatementDecorator model={model} bBox={bBox} onDelete={this.onDelete.bind(this)}>
-                <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Join'} parameter={model.getParameter()}
+                <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Join'} parameterBbox={parameterBbox}
                                          parameterEditorOptions={parameterEditorOptions}
                                          expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
                     {model.children.length > 0 &&

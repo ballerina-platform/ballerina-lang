@@ -125,7 +125,7 @@ class BlockStatementDecorator extends React.Component {
     }
 
     render() {
-        const {bBox, title, dropTarget, expression, parameter } = this.props;
+        const {bBox, title, dropTarget, expression} = this.props;
         const model = this.props.model || dropTarget;
 
         let title_h = blockStatement.heading.height;
@@ -155,7 +155,12 @@ class BlockStatementDecorator extends React.Component {
         if (expression) {
             expression_x = p3_x + statement.padding.left;
         }
-        const paramSeparator_x = blockStatement.heading.paramSeparatorOffsetX + expression_x;
+        let paramSeparator_x = 0;
+        let parameterText = null;
+        if (this.props.parameterBbox && this.props.parameterEditorOptions) {
+            paramSeparator_x = this.props.parameterBbox.x;
+            parameterText = this.props.parameterEditorOptions.getterMethod.call(this.props.parameterEditorOptions.model);
+        }
 
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, title_h);
 
@@ -170,12 +175,12 @@ class BlockStatementDecorator extends React.Component {
             ( this.state.active=== 'visible' ? 'show-action' : 'delayed-hide-action');
 
         const expressionEditor = this.openExpressionEditor.bind(this, this.props.expression, this.props.editorOptions);
-        const paramEditor = this.openExpressionEditor.bind(this, this.props.parameter, this.props.parameterEditorOptions);
+        const paramEditor = this.openExpressionEditor.bind(this, parameterText, this.props.parameterEditorOptions);
         return (<g onMouseOut={ this.setActionVisibility.bind(this, false) }
                    onMouseOver={ this.setActionVisibility.bind(this, true) }>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"
-                  onClick={expressionEditor}/>
+                  onClick={!parameterText && expressionEditor}/>
             <text x={title_x} y={title_y} className="statement-text">{title}</text>
 
             {(expression) &&
@@ -184,14 +189,14 @@ class BlockStatementDecorator extends React.Component {
                 {expression.text}
             </text>}
 
-            {parameter &&
+            {parameterText &&
             <g>
                 <line x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
                       x2={paramSeparator_x}
                       className="parameter-separator"/>
-                <text x={expression_x + blockStatement.heading.paramOffsetX} y={title_y} className="condition-text"
+                <text x={paramSeparator_x + blockStatement.heading.paramPaddingX} y={title_y} className="condition-text"
                       onClick={paramEditor}>
-                    ( {parameter.getParameterDefinitionAsString()} )
+                    ( {parameterText} )
                 </text>
             </g>}
 
