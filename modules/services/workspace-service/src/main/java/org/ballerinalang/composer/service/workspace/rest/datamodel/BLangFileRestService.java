@@ -198,6 +198,11 @@ public class BLangFileRestService {
                     }
                 }
 
+                // we shouldn't proceed if the parent directory is null
+                if (parentDir == null) {
+                    return;
+                }
+
                 // get packages in program directory
                 Map<String, ModelPackage> packages = getPackagesInProgramDirectory(parentDir);
                 Collection<ModelPackage> modelPackages = packages.values();
