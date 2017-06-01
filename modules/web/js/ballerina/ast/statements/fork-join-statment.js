@@ -61,6 +61,27 @@ class ForkJoinStatement extends Statement {
             child.initFromJson(childNode);
         });
     }
+
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent) {
+        if (_.isUndefined(index)) {
+            const factory = this.getFactory();
+            let index = this.children.length;
+            if (factory.isWorkerDeclaration(child)) {
+                while (factory.isJoinStatement(this.children[index - 1]) || factory.isTimeoutStatement(this.children[index - 1])) {
+                    index--;
+                }
+            } else if (factory.isJoinStatement(child)) {
+                while (factory.isTimeoutStatement(this.children[index - 1])) {
+                    index--;
+                }
+            } else if (!factory.isTimeoutStatement(child)) {
+                throw "Illegal chile type in join";
+            }
+            super.addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent)
+        } else {
+            super.addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent)
+        }
+    }
 }
 
 export default ForkJoinStatement;

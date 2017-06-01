@@ -42,9 +42,9 @@ DefaultBallerinaASTFactory.createForkJoinStatement = function (args) {
     const worker2Declaration = BallerinaASTFactory.createWorkerDeclaration();
     worker1Declaration.setWorkerName('forkWorker1');
     worker2Declaration.setWorkerName('forkWorker2');
-    forkJoinStatement.addChild(worker2Declaration);
-    forkJoinStatement.addChild(worker1Declaration);
     forkJoinStatement.addChild(joinStatement);
+    forkJoinStatement.addChild(worker1Declaration);
+    forkJoinStatement.addChild(worker2Declaration);
     return forkJoinStatement;
 };
 
