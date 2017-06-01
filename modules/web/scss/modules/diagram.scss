@@ -118,6 +118,10 @@
     cursor: pointer;
 }
 
+.package-definition-head {
+    cursor: pointer;
+}
+
 .package-definition-label {
     dominant-baseline: central;
     fill: $package-definition-color;
@@ -248,6 +252,7 @@
 
 .parameter-prefix-text, .parameter-text {
     dominant-baseline: text-before-edge;
+    cursor: default;
 }
 
 .parameter-space {

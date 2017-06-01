@@ -62,7 +62,7 @@ class PackageDefinition extends React.Component {
 
     handlePackageIconClick() {
         this.setState({packageDefExpanded: true});
-        if(!this.state.packageDefValue){
+        if (!this.state.packageDefValue) {
             this.setState({packageNameEditing: true});
         }
     }
@@ -81,7 +81,7 @@ class PackageDefinition extends React.Component {
     handleAddGlobal(value) {
         const match = this.globalDecRegex.exec(value);
 
-        if(match && match[1] && match[2] && match[3]){
+        if (match && match[1] && match[2] && match[3]) {
             this.props.model.parent.addConstantDefinition(match[1], match[2], match[3]);
         }
     }
@@ -95,7 +95,7 @@ class PackageDefinition extends React.Component {
     }
 
     onPackageInputBlur() {
-        if(!this.state.packageDefValue || this.state.packageDefValue.trim().length === 0){
+        if (!this.state.packageDefValue || this.state.packageDefValue.trim().length === 0) {
             this.setState({
                 packageDefExpanded: false,
                 packageNameEditing: false
@@ -142,69 +142,91 @@ class PackageDefinition extends React.Component {
         };
 
         const astRoot = this.props.model.parent;
-        const imports = astRoot.children.filter(c => {return c.constructor.name === 'ImportDeclaration';});
-        const globals = astRoot.children.filter(c => {return c.constructor.name === 'ConstantDefinition';});
+        const imports = astRoot.children.filter(c => {
+            return c.constructor.name === 'ImportDeclaration';
+        });
+        const globals = astRoot.children.filter(c => {
+            return c.constructor.name === 'ConstantDefinition';
+        });
 
-        const packageSuggestions =  this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
+        const packageSuggestions = this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
             .filter(p => !imports.map(p => (p.getPackageName())).includes(p.getName()))
             .map(p => ({name: p.getName()}));
 
         const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue;
 
-        if(packageDefExpanded) {
+        if (packageDefExpanded) {
             importsBbox.x += packageDefTextWidth;
             globalsBbox.x += packageDefTextWidth;
         }
 
-        if(importsExpanded) {
+        if (importsExpanded) {
             expandedGlobalsBbox.y += imports.length * 30 + 77;
             globalsBbox.x -= 135;
         }
 
         return (
             <g>
-                <rect x={ bBox.x } y={ bBox.y } width={headerHeight} height={headerHeight} onClick={this.handlePackageIconClick}
-                      rx={headerHeight/2} ry={headerHeight/2} className="package-definition-header"/>
+                <g className="package-definition-head">
+                    <rect x={ bBox.x } y={ bBox.y } width={headerHeight} height={headerHeight}
+                          onClick={this.handlePackageIconClick}
+                          rx={headerHeight / 2} ry={headerHeight / 2}
+                          className="package-definition-header"/>
+                    {
+                        packageDefExpanded && (
+                            <g>
+                                <rect x={ bBox.x } y={ bBox.y } width={packageDefTextWidth + headerHeight}
+                                      height={headerHeight}
+                                      onClick={() => {
+                                          this.onPackageClick();
+                                      }}
+                                      className="package-definition-header"/>
+                                <EditableText x={bBox.x + headerHeight} y={bBox.y + headerHeight / 2 }
+                                              width={packageDefTextWidth - 5}
+                                              onBlur={() => {
+                                                  this.onPackageInputBlur();
+                                              }}
+                                              onClick={() => {
+                                                  this.onPackageClick();
+                                              }}
+                                              editing={this.state.packageNameEditing}
+                                              onChange={e => {
+                                                  this.onPackageInputChange(e);
+                                              }}>
+                                    {this.state.packageDefValue || ''}
+                                </EditableText>
+                            </g>
+                        )
+                    }(
+                    <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('package') }
+                           onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight - iconSize) / 2 }
+                           y={bBox.y + (headerHeight - iconSize) / 2}/>
+                </g>
                 {
-                    packageDefExpanded && (
-                        <g>
-                            <rect x={ bBox.x } y={ bBox.y } width={packageDefTextWidth + headerHeight} height={headerHeight} onClick={() => {this.onPackageClick();}}
-                              className="package-definition-header"/>
-                          <EditableText x={bBox.x + headerHeight} y={bBox.y + headerHeight / 2 } width={packageDefTextWidth - 5}
-                                     onBlur={() => {this.onPackageInputBlur();}} onClick={() => {this.onPackageClick();}}
-                                     editing={this.state.packageNameEditing} onChange={e => {this.onPackageInputChange(e);}}>
-                                     {this.state.packageDefValue || ''}
-                            </EditableText>
-                        </g>
-                    )
-               }(
-               <image width={ iconSize } height={ iconSize } xlinkHref={ ImageUtil.getSVGIconString('package') }
-                      onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight-iconSize)/2 }
-                      y={bBox.y + (headerHeight-iconSize)/2}/>
-               {
                     importsExpanded ?
-                         <ImportDeclarationExpanded
+                        <ImportDeclarationExpanded
                             bBox={expandedImportsBbox} imports={imports} packageSuggestions={packageSuggestions}
                             onCollapse={this.handleImportsBadgeClick} onAddImport={this.handleAddImport}
                             onDeleteImport={this.handleDeleteImport}/> :
-                         <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsBadgeClick} />
-               }
-               {
+                        <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsBadgeClick}/>
+                }
+                {
                     globalsExpanded ?
-                         <GlobalExpanded
+                        <GlobalExpanded
                             bBox={expandedGlobalsBbox} globals={globals} onCollapse={this.handleGlobalsBadgeClick}
-                            title={'Globals'} addText={'+ Add Global'} onAddNewValue={this.handleAddGlobal} onDeleteClick={this.handleDeleteGlobal}
+                            title={'Globals'} addText={'+ Add Global'} onAddNewValue={this.handleAddGlobal}
+                            onDeleteClick={this.handleDeleteGlobal}
                             getValue={ g => (g.getConstantDefinitionAsString())}/> :
-                         <GlobalDefinitions bBox={globalsBbox} numberOfItems={globals.length}
-                             title={'Globals'} onExpand={this.handleGlobalsBadgeClick} />
-               }
+                        <GlobalDefinitions bBox={globalsBbox} numberOfItems={globals.length}
+                                           title={'Globals'} onExpand={this.handleGlobalsBadgeClick}/>
+                }
             </g>
         );
     }
 }
 
 PackageDefinition.contextTypes = {
-	 renderingContext: PropTypes.instanceOf(Object).isRequired
+    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default PackageDefinition;

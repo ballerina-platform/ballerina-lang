@@ -96,7 +96,7 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
             ASTFactory.isConnectorAction(child);
     });
     let x, y, headerX, headerY, bodyX, bodyY;
-    var currentResourceIndex = _.findIndex(resources, node);
+    let currentResourceIndex = _.findIndex(resources, node);
 
     headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
 
