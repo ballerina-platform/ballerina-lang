@@ -178,6 +178,15 @@ var createTransformStatementTool = {
     nodeFactoryMethod: BallerinaASTFactory.createTransformStatement
 };
 
+var createJoinStatementTool = {
+    id: "Fork",
+    name: "Fork",
+    iconSrc: require("./../../../images/tool-icons/fork-join.svg"),
+    cssClass: "icon fw fw-fork-join",
+    title: "Fork",
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createForkJoinStatement
+};
+
 // TODO: change the icon with the new one
 var createVariableDefinitionStatementTool = {
     id: "VariableDefinition",
@@ -264,7 +273,7 @@ var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTo
     createVariableDefinitionStatementTool, createFunctionInvocationTool, createReturnStatementTool,
     createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool,
     createThrowStatementTool, createWorkerInvocationStatementTool, createWorkerReplyStatementTool,
-    createTransformStatementTool, createAbortStatementTool, createTransactionAbortedStatementTool];
+    createTransformStatementTool, createJoinStatementTool, createAbortStatementTool, createTransactionAbortedStatementTool];
 
 // Create statements tool group
 var statements = new ToolGroup({

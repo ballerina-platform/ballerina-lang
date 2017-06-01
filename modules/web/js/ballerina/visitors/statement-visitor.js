@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -389,6 +389,14 @@ class StatementVisitor extends ASTVisitor {
         return false;
     }
 
+    canVisitTimeoutStatement(statement) {
+        return false;
+    }
+
+    canVisitJoinStatement(statement) {
+        return false;
+    }
+
     beginVisitCommentStatement(statement) {
     }
 
@@ -458,6 +466,8 @@ class StatementVisitor extends ASTVisitor {
             return this.visitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.visitAbortStatement(node);
+        } else if (ASTFactory.isJoinStatement(node)) {
+            return this.visitJoinStatement(node);
         }
     }
 
@@ -515,6 +525,12 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitThrowStatement(node);
         }  else if (ASTFactory.isCommentStatement(node)) {
             return this.canVisitCommentStatement(node);
+        } else if (ASTFactory.isTimeoutStatement(node)) {
+            return this.canVisitTimeoutStatement(node);
+        } else if (ASTFactory.isForkJoinStatement(node)) {
+            return this.canVisitForkJoinStatement(node);
+        } else if (ASTFactory.isJoinStatement(node)) {
+            return this.canVisitJoinStatement(node);
         } else if (ASTFactory.isTransactionAbortedStatement(node)) {
             return this.canVisitTransactionAbortedStatement(node);
         } else if (ASTFactory.isTransactionStatement(node)) {
@@ -586,6 +602,12 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.beginVisitAbortStatement(node);
+        } else if (ASTFactory.isTimeoutStatement(node)) {
+            return this.beginVisitTimeoutStatement(node);
+        } else if (ASTFactory.isForkJoinStatement(node)) {
+            return this.beginVisitForkJoinStatement(node);
+        } else if (ASTFactory.isJoinStatement(node)) {
+            return this.beginVisitJoinStatement(node);
         }
     }
 
@@ -651,6 +673,12 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.endVisitAbortStatement(node);
+        } else if (ASTFactory.isTimeoutStatement(node)) {
+            return this.endVisitTimeoutStatement(node);
+        } else if (ASTFactory.isForkJoinStatement(node)) {
+            return this.endVisitForkJoinStatement(node);
+        } else if (ASTFactory.isJoinStatement(node)) {
+            return this.endVisitJoinStatement(node);
         }
     }
 }

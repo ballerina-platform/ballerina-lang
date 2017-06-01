@@ -1036,7 +1036,68 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        JsonObject forkJoinStmtObj = new JsonObject();
+        forkJoinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.FORK_JOIN_STATEMENT);
+        this.addPosition(forkJoinStmtObj, forkJoinStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(forkJoinStmtObj, forkJoinStmt.getWhiteSpaceDescriptor());
+        JsonArray children = new JsonArray();
+        tempJsonArrayRef.push(children);
+        Worker[] workers = forkJoinStmt.getWorkers();
+        for (Worker worker : workers) {
+            worker.accept(this);
+        }
 
+        ForkJoinStmt.Join join = forkJoinStmt.getJoin();
+        String joinType = join.getJoinType();
+        if (joinType != null) {
+            JsonObject joinStmtObj = new JsonObject();
+            joinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.JOIN_STATEMENT);
+            joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_TYPE, joinType);
+            this.addPosition(joinStmtObj, join.getNodeLocation());
+
+            tempJsonArrayRef.push(new JsonArray());
+
+            tempJsonArrayRef.push(new JsonArray());
+            join.getJoinResult().accept(this);
+            JsonArray param = this.tempJsonArrayRef.peek();
+            joinStmtObj.add(BLangJSONModelConstants.JOIN_PARAMETER, param.get(0));
+            tempJsonArrayRef.pop();
+
+            join.getJoinBlock().accept(this);
+            joinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+
+            tempJsonArrayRef.peek().add(joinStmtObj);
+        }
+
+        ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
+        Expression timeoutExpression = timeout.getTimeoutExpression();
+        if (timeoutExpression != null) {
+            JsonObject timeoutStmtObj = new JsonObject();
+
+            tempJsonArrayRef.push(new JsonArray());
+            timeoutExpression.accept(this);
+            JsonArray timeoutExpressionArr = this.tempJsonArrayRef.peek();
+            timeoutStmtObj.add(BLangJSONModelConstants.EXPRESSION, timeoutExpressionArr.get(0));
+            tempJsonArrayRef.pop();
+
+            timeoutStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                    BLangJSONModelConstants.TIMEOUT_STATEMENT);
+            this.addPosition(timeoutStmtObj, timeout.getNodeLocation());
+            tempJsonArrayRef.push(new JsonArray());
+            Statement timeoutBlock = timeout.getTimeoutBlock();
+            if (timeoutBlock != null) {
+                timeoutBlock.accept(this);
+            }
+
+            timeoutStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(timeoutStmtObj);
+        }
+
+        forkJoinStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(forkJoinStmtObj);
     }
 
     @Override

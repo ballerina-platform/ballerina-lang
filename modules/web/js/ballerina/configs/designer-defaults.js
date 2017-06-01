@@ -120,7 +120,9 @@ export const blockStatement = {
     width: 140,
     heading: {
         width: 50,
-        height: statement.height
+        height: statement.height,
+        paramOffsetX: 30,
+        paramSeparatorOffsetX: 23
     },
     body: {
         padding: {
@@ -131,6 +133,14 @@ export const blockStatement = {
         },
         height: 100
     }
+};
+
+export const fork = {
+    padding: {
+        top: statement.gutter.v,
+        bottom: statement.gutter.v,
+    },
+    lifeLineGutterH: 6
 };
 
 export const canvas = {
