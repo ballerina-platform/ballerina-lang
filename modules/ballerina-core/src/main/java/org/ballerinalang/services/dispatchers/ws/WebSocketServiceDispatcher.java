@@ -118,9 +118,8 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        if (findWebSocketUpgradePath(service) != null) {
-            super.serviceRegistered(service);
-        }
+        // Nothing goes here since all the WebSocket services are registered as HTTP endpoints too.
+        // TODO: Implement a separate ServicesRegistry for WebSocket
     }
 
     private String findWebSocketUpgradePath(ServiceInfo service) {
