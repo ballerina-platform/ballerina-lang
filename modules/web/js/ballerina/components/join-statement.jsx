@@ -37,10 +37,22 @@ class JoinStatement extends React.Component {
             setterMethod: props.model.setJoinType
         };
 
+
+        let lifeLineY1;
+        let lifeLineY2;
+        if (model.children.length > 0) {
+            const firstChild = model.children[0].viewState;
+            lifeLineY1 = firstChild.bBox.y + firstChild.components['drop-zone'].h;
+            const lastChild = model.children[model.children.length - 1].viewState;
+            lifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
+        }
         return (
             <CompoundStatementDecorator model={model} bBox={bBox} onDelete={this.onDelete.bind(this)}>
                 <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Join'} parameter={model.getParameter()}
                                          expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
+                    {model.children.length > 0 &&
+                    <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
+                          className="join-lifeline"/> }
                     {children}
                 </BlockStatementDecorator>
             </CompoundStatementDecorator>);
