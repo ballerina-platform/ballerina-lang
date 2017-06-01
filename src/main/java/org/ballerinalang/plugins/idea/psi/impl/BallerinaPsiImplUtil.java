@@ -804,6 +804,11 @@ public class BallerinaPsiImplUtil {
         if (resolved == null) {
             // Get the parent directory which is the package.
             PsiDirectory parentDirectory = element.getContainingFile().getParent();
+
+            // If this happens, that means the element does not have any parent directory. That means the
+            // VirtualFile only exist in memory. The reason can be calling parameters.getPosition() which will
+            // return the PsiElement from the file modified in the memory. So use parameters.getOriginalPosition()
+            // instead in the CompletionContributor if necessary.
             if (parentDirectory == null) {
                 for (String xpath : xpaths) {
                     List<PsiElement> matchingElements = getAllMatchingElementsFromFile(element.getContainingFile(),
