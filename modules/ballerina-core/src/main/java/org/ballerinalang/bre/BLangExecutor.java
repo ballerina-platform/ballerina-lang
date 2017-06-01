@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
@@ -194,6 +195,8 @@ public class BLangExecutor implements NodeExecutor {
         if (lExprs.length > 1) {
             // This statement contains multiple assignments
             rValues = ((ExecutableMultiReturnExpr) rExpr).executeMultiReturn(this);
+        } else if (rExpr == null) {
+            rValues = new BValue[]{lExprs[0].getType().getZeroValue()};
         } else {
             rValues = new BValue[]{rExpr.execute(this)};
         }
@@ -479,7 +482,10 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(ReplyStmt replyStmt) {
         // TODO revisit this logic
         Expression expr = replyStmt.getReplyExpr();
-        BMessage bMessage = (BMessage) expr.execute(this);
+        BMessage bMessage = null;
+        if (expr != null) {
+            bMessage = (BMessage) expr.execute(this);
+        }
         bContext.getBalCallback().done(bMessage != null ? bMessage.value() : null);
         returnedOrReplied = true;
     }
@@ -967,6 +973,9 @@ public class BLangExecutor implements NodeExecutor {
                 stringVal = null;
             } else if (value instanceof BString) {
                 stringVal = "\"" + value.stringValue() + "\"";
+            } else if (value instanceof BJSON) {
+                JsonNode jsonNode = ((BJSON) value).value();
+                stringVal = jsonNode.toString();
             } else  {
                 stringVal = value.stringValue();
             }
@@ -986,7 +995,10 @@ public class BLangExecutor implements NodeExecutor {
                 stringVal = null;
             } else if (value instanceof BString) {
                 stringVal = "\"" + value.stringValue() + "\"";
-            } else  {
+            } else if (value instanceof BJSON) {
+                JsonNode jsonNode = ((BJSON) value).value();
+                stringVal = jsonNode.toString();
+            } else {
                 stringVal = value.stringValue();
             }
             stringJoiner.add(stringVal);
@@ -1554,6 +1566,9 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        returnedOrReplied = false;
     }
 
     private void invokeConnectorInitAction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
@@ -1575,6 +1590,9 @@ public class BLangExecutor implements NodeExecutor {
         AbstractNativeAction nativeAction = (AbstractNativeAction) action;
         nativeAction.execute(bContext);
         controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        returnedOrReplied = false;
     }
 
     private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
@@ -1686,6 +1704,9 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        returnedOrReplied = false;
     }
 
     /**

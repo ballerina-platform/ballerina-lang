@@ -26,6 +26,9 @@ import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplate;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     @Override
+    @Deprecated
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
             throws BallerinaException {
 
@@ -85,6 +89,58 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             }
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
+        }
+
+        // Throw an exception if the resource is not found.
+        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
+    }
+
+    @Override
+    public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
+            BallerinaException {
+        String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+        String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
+
+        try {
+            for (ResourceInfo resource : service.getResourceInfoList()) {
+
+                AnnotationAttachmentInfo pathAnnotationInfo = resource.getAnnotationAttachmentInfo(
+                        Constants.HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PATH);
+                String subPathAnnotationVal;
+                if (pathAnnotationInfo != null
+                        && pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null
+                        && !pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE)
+                        .getStringValue().trim().isEmpty()) {
+                    subPathAnnotationVal = pathAnnotationInfo.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE)
+                            .getStringValue();
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Path not specified in the Resource, using default sub path");
+                    }
+                    subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
+                }
+
+                Map<String, String> resourceArgumentValues = new HashMap<>();
+                //to enable dispatchers with query params products/{productId}?regID={regID}
+                //queryStr is the encoded value of query params
+                String rawQueryStr = cMsg.getProperty(Constants.RAW_QUERY_STR) != null
+                        ? "?" + cMsg.getProperty(Constants.RAW_QUERY_STR)
+                        : "";
+                if ((matches(subPathAnnotationVal, (subPath + rawQueryStr), resourceArgumentValues) ||
+                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
+                        && (resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null)) {
+
+                    if (cMsg.getProperty(Constants.QUERY_STR) != null) {
+                        QueryParamProcessor.processQueryParams
+                                ((String) cMsg.getProperty(Constants.QUERY_STR))
+                                .forEach((resourceArgumentValues::put));
+                    }
+                    cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
+                    return resource;
+                }
+            }
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage());
         }
 
         // Throw an exception if the resource is not found.

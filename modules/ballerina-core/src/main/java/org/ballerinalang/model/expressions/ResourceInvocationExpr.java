@@ -66,4 +66,14 @@ public class ResourceInvocationExpr extends AbstractExpression implements Execut
     @Override
     public void setTypes(BType[] types) {
     }
+
+    @Override
+    public int[] getOffsets() {
+        return new int[0];
+    }
+
+    @Override
+    public void setOffsets(int[] offsets) {
+
+    }
 }

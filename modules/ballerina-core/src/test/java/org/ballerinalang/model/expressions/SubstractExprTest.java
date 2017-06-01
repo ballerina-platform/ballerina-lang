@@ -36,7 +36,7 @@ public class SubstractExprTest {
             expectedExceptionsMessageRegExp = "substract-incompatible-types.bal:5: invalid operation: " +
                     "incompatible types 'int' and 'string'")
     public void testAddIncompatibleTypes() {
-        BTestUtils.parseBalFile("lang/expressions/substract-incompatible-types.bal");
+        BTestUtils.getProgramFile("lang/expressions/substract-incompatible-types.bal");
     }
     
     @Test(description = "Test substracting values of unsupported types (json)",
@@ -44,6 +44,6 @@ public class SubstractExprTest {
             expectedExceptionsMessageRegExp = "substract-unsupported-types.bal:10: invalid operation: " +
                     "operator - not defined on 'json'")
     public void testSubtractUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/substract-unsupported-types.bal");
+        BTestUtils.getProgramFile("lang/expressions/substract-unsupported-types.bal");
     }
 }

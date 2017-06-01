@@ -18,7 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -36,16 +36,16 @@ import org.testng.annotations.Test;
  * b = 10.1L;
  */
 public class BIntegerValueTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/values/integer-value.bal");
+        bLangProgram = BTestUtils.getProgramFile("lang/values/integer-value.bal");
     }
 
     @Test(description = "Test long value assignment")
     public void testIntegerValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerValue");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntegerValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
@@ -54,7 +54,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test negative long value assignment")
     public void testNegativeIntegerValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNegativeIntegerValue");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testNegativeIntegerValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
@@ -63,7 +63,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value assignment from a value returned by function")
     public void testIntegerValueAssignmentByReturnValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerValueAssignmentByReturnValue");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntegerValueAssignmentByReturnValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
@@ -73,7 +73,7 @@ public class BIntegerValueTest {
     @Test(description = "Test long value assignment")
     public void testIntegerParameter() {
         BValue[] args = {new BInteger(20)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerParameter", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntegerParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
@@ -82,7 +82,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Addition")
     public void testIntegerValueAddition() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerAddition");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntegerAddition");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
@@ -91,7 +91,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Subtraction")
     public void testIntegerValueSubtraction() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerSubtraction");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntegerSubtraction");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
@@ -100,7 +100,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Multiplication")
     public void testIntegerValueMultiplication() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerMultiplication");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntegerMultiplication");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];
@@ -109,7 +109,7 @@ public class BIntegerValueTest {
 
     @Test(description = "Test long value Division")
     public void testIntegerValueDivision() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntegerDivision");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntegerDivision");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger intValue = (BInteger) returns[0];

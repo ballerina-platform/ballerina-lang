@@ -18,10 +18,10 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -31,17 +31,17 @@ import org.testng.annotations.Test;
  * Test assignment statement with implicit casting (widening).
  */
 public class AssignWithWideningTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/assignment/assign-with-implicit-cast.bal");
+        programFile = BTestUtils.getProgramFile("lang/statements/assignment/assign-with-implicit-cast.bal");
     }
 
     @Test(description = "Test assignment of int to float")
     public void testAssignmentStatementIntToFloat() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntCastFloatStmt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntCastFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -54,7 +54,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test binary expression with int and float")
     public void testBinaryExpressionIntToFloat() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBinaryExpressionIntAndFloatStmt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testBinaryExpressionIntAndFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
