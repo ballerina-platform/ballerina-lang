@@ -131,7 +131,7 @@ class PanelDecorator extends React.Component {
                     xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}/>
                 {titleComponents}
                 <g className="panel-header-controls">
-                    <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={55} height={25}
+                    <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={55} height={titleHeight}
                           className="panel-header-controls-wrapper"/>
                     <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize}
                            height={iconSize} className="control"
