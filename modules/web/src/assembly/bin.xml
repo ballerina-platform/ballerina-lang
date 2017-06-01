@@ -33,6 +33,7 @@
                 <include>images/**</include>
                 <include>lib/**</include>
                 <include>resources/**</include>
+                <include>favicon.ico</include>
                 <include>index.html</include>
             </includes>
         </fileSet>
