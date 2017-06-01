@@ -57,10 +57,12 @@
 }
 
 .struct {
-    width: 400px;
+    width: 299px;
     height: auto;
     color: #3d3d3d;
     position: absolute;
+    border-top: 1px;
+    border-style: dotted none none none;
 }
 .property {
     padding: 5;
@@ -173,7 +175,8 @@ svg.plumbConnect path {
     height: 100%;
     min-width: 900px;
     z-index: 999;
-    pointer-events: auto
+    pointer-events: auto;
+    overflow-y: scroll;
 }
 
 /* The Close Button */
