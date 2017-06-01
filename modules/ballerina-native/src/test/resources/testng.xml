@@ -21,80 +21,80 @@ under the License.
 
 <suite name="ballerina-natives-test-suite">
 
-    <!--&lt;!&ndash; Native Function Related Test Cases. &ndash;&gt;-->
-    <!--<test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.nativeimpl.functions"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <!-- Native Function Related Test Cases. -->
+    <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.nativeimpl.functions"/>
+        </packages>
+    </test>
 
-    <!--&lt;!&ndash; Native Connectors Related Test Cases &ndash;&gt;-->
-    <!--<test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.nativeimpl.actions"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <!-- Native Connectors Related Test Cases -->
+    <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.nativeimpl.actions"/>
+        </packages>
+    </test>
 
-    <!--&lt;!&ndash; Native TypeConvertors Related Test Cases &ndash;&gt;-->
-    <!--<test name="ballerina-native-type-convertors-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.nativeimpl.typemappers"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <!-- Native TypeConvertors Related Test Cases -->
+    <test name="ballerina-native-type-convertors-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.nativeimpl.typemappers"/>
+        </packages>
+    </test>
 
-    <!--&lt;!&ndash; Worker Related Test Cases &ndash;&gt;-->
-    <!--<test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.core.lang.worker"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <!-- Worker Related Test Cases -->
+    <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.core.lang.worker"/>
+        </packages>
+    </test>
 
-    <!--&lt;!&ndash; Service Related Test Cases &ndash;&gt;-->
+    <!-- Service Related Test Cases -->
 
-    <!--<test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--&lt;!&ndash; TODO : Add other testcases. &ndash;&gt;-->
-            <!--<class name="org.ballerinalang.service.ServiceTest"/>-->
-            <!--<class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>-->
-            <!--<class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!-- TODO : Add other testcases. -->
+            <class name="org.ballerinalang.service.ServiceTest"/>
+            <class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>
+            <class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>
+        </classes>
+    </test>
 
-    <!--<test name="ballerina-any-type-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-any-type-test-suite">
+        <classes>
+            <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
+        </classes>
+    </test>
 
-    <!--&lt;!&ndash; TODO : Fix this. &ndash;&gt;-->
-    <!--&lt;!&ndash;<test name="ballerina-global-var-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>-->
-            <!--<class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>-->
-        <!--</classes>-->
-    <!--</test>&ndash;&gt;-->
+    <!-- TODO : Fix this. -->
+    <!--<test name="ballerina-global-var-test-suite">
+        <classes>
+            <class name="org.ballerinalang.globalvar.GlobalVarServiceTest"/>
+            <class name="org.ballerinalang.globalvar.GlobalVarServicePkgTest"/>
+        </classes>
+    </test>-->
 
     <!-- WebSocket Test Cases -->
     <test name="websocket-test-cases" parallel="false">
         <classes>
-            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>-->
-            <!--<class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>-->
+            <class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>
+            <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>
             <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>
         </classes>
     </test>
 
-    <!--&lt;!&ndash; TODO : Fix This &ndash;&gt;-->
-    <!--&lt;!&ndash;<test name="ballerina-identifier-literal-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>-->
-        <!--</classes>-->
-    <!--</test>&ndash;&gt;-->
+    <!-- TODO : Fix This -->
+    <!--<test name="ballerina-identifier-literal-test-suite">
+        <classes>
+            <class name="org.ballerinalang.identifierliteral.IdentifierLiteralServiceTest"/>
+        </classes>
+    </test>-->
 
-    <!--<test name="ballerina-error-test-suite">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.core.lang.error.TestErrorReturn"/>-->
-            <!--<class name="org.ballerinalang.core.lang.error.TryCatchThrowStmtTest"/>-->
-            <!--<class name="org.ballerinalang.core.lang.error.TestFinallyBlock"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-error-test-suite">
+        <classes>
+            <class name="org.ballerinalang.core.lang.error.TestErrorReturn"/>
+            <class name="org.ballerinalang.core.lang.error.TryCatchThrowStmtTest"/>
+            <class name="org.ballerinalang.core.lang.error.TestFinallyBlock"/>
+        </classes>
+    </test>
 </suite>

@@ -122,6 +122,7 @@ public class ServerConnectorMessageHandler {
         Context context = new Context(packageInfo.getProgramFile());
         context.setServiceInfo(serviceInfo);
         context.setCarbonMessage(carbonMessage);
+        ControlStackNew controlStackNew = context.getControlStackNew();
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
         ControlStackNew controlStackNew = context.getControlStackNew();
 

@@ -89,6 +89,10 @@ public class Context {
         return this.cMsg;
     }
 
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
+    }
+
     public Object getProperty(String key) {
         return this.properties.get(key);
     }
