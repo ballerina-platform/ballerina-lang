@@ -132,7 +132,6 @@ public class ServerConnectorMessageHandler {
 
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
-        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         long[] longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
         double[] doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
         BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
@@ -141,7 +140,6 @@ public class ServerConnectorMessageHandler {
         int intParamCount = 0;
         int doubleParamCount = 0;
         int longParamCount = 0;
-        int byteParamCount = 0;
         String[] paramNameArray = resourceInfo.getParamNames();
         BType[] bTypes = resourceInfo.getParamTypes();
         Map<String, String> resourceArgumentValues =
@@ -163,9 +161,7 @@ public class ServerConnectorMessageHandler {
                 doubleLocalVars[doubleParamCount++] = new Double(value);
             } else if (btype == BTypes.typeInt) {
                 longLocalVars[longParamCount++] = Long.getLong(value);
-            } else if (btype == BTypes.typeInt) {
-                longLocalVars[byteParamCount++] = Long.getLong(value);
-            }else {
+            } else {
                 throw new BallerinaException("Unsupported parameter type for parameter " + value);
             }
         }
@@ -177,7 +173,6 @@ public class ServerConnectorMessageHandler {
         calleeSF.setStringLocalVars(stringLocalVars);
         calleeSF.setIntLocalVars(intLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
-        calleeSF.setByteLocalVars(byteLocalVars);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
