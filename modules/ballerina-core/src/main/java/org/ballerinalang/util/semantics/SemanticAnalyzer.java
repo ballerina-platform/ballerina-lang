@@ -3706,4 +3706,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         boolean assignable;
         TypeCastExpression implicitCastExpr;
     }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+    }
 }
