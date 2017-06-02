@@ -36,6 +36,7 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     private double[] doubleFields;
     private String[] stringFields;
     private int[] intFields;
+    private byte[][] byteFields;
     private BRefType[] refFields;
 
     private BType connectorType;
@@ -102,6 +103,7 @@ public final class BConnector implements BRefType<Connector>, StructureType {
         Arrays.fill(stringFields, "");
         intFields = new int[fieldIndexes[3]];
         refFields = new BRefType[fieldIndexes[4]];
+        byteFields = new byte[fieldIndexes[5]][];
     }
 
     @Override
@@ -142,6 +144,17 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     @Override
     public void setBooleanField(int index, int value) {
         intFields[index] = value;
+    }
+
+
+    @Override
+    public byte[] getBlobField(int index) {
+        return byteFields[index];
+    }
+
+    @Override
+    public void setBlobField(int index, byte[] value) {
+        byteFields[index] = value;
     }
 
     @Override

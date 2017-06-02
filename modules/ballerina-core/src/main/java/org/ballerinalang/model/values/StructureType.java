@@ -40,6 +40,10 @@ public interface StructureType {
 
     int getBooleanField(int index);
 
+    byte[] getBlobField(int index);
+
+    void setBlobField(int index, byte[] value);
+
     void setBooleanField(int index, int value);
 
     BRefType getRefField(int index);

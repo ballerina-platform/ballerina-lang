@@ -150,6 +150,7 @@ public class ServerConnectorMessageHandler {
         Arrays.fill(stringLocalVars, "");
 
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
         refLocalVars[0] = new BMessage(carbonMessage);
 
@@ -160,6 +161,7 @@ public class ServerConnectorMessageHandler {
         calleeSF.setStringLocalVars(stringLocalVars);
         calleeSF.setIntLocalVars(intLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
+        calleeSF.setByteLocalVars(byteLocalVars);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());

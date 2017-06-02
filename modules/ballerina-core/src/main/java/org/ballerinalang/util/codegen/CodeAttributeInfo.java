@@ -32,6 +32,7 @@ public class CodeAttributeInfo implements AttributeInfo {
     private int maxDoubleLocalVars;
     private int maxStringLocalVars;
     private int maxBValueLocalVars;
+    private int maxByteLocalVars;
 
     // 4 bytes per register
     private int maxIntRegs;
@@ -39,6 +40,7 @@ public class CodeAttributeInfo implements AttributeInfo {
     private int maxDoubleRegs;
     private int maxStringRegs;
     private int maxBValueRegs;
+    private int maxByteRegs;
 
     // Base code address in the instruction array
     private int codeAddrs = -1;
@@ -137,5 +139,21 @@ public class CodeAttributeInfo implements AttributeInfo {
 
     public void setCodeAddrs(int codeAddrs) {
         this.codeAddrs = codeAddrs;
+    }
+
+    public int getMaxByteLocalVars() {
+        return maxByteLocalVars;
+    }
+
+    public void setMaxByteLocalVars(int maxByteLocalVars) {
+        this.maxByteLocalVars = maxByteLocalVars;
+    }
+
+    public int getMaxByteRegs() {
+        return maxByteRegs;
+    }
+
+    public void setMaxByteRegs(int maxByteRegs) {
+        this.maxByteRegs = maxByteRegs;
     }
 }

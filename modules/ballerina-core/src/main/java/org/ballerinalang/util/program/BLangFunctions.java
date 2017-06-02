@@ -36,6 +36,7 @@ import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
@@ -213,6 +214,7 @@ public class BLangFunctions {
         int stringRegCount = 0;
         int intRegCount = 0;
         int refRegCount = 0;
+        int byteRegCount = 0;
 
         // Calculate registers to store return values
         BType[] retTypes = functionInfo.getRetParamTypes();
@@ -232,6 +234,9 @@ public class BLangFunctions {
                 case TypeTags.BOOLEAN_TAG:
                     retRegs[i] = intRegCount++;
                     break;
+                case TypeTags.BLOB_TAG:
+                    retRegs[i] = byteRegCount++;
+                    break;
                 default:
                     retRegs[i] = refRegCount++;
                     break;
@@ -243,6 +248,7 @@ public class BLangFunctions {
         callerSF.setStringRegs(new String[stringRegCount]);
         callerSF.setIntRegs(new int[intRegCount]);
         callerSF.setRefRegs(new BRefType[refRegCount]);
+        callerSF.setByteRegs(new byte[byteRegCount][]);
 
         // Now create callee's stackframe
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
@@ -255,6 +261,7 @@ public class BLangFunctions {
         int stringParamCount = 0;
         int intParamCount = 0;
         int refParamCount = 0;
+        int byteParamCount = 0;
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
@@ -265,6 +272,7 @@ public class BLangFunctions {
         Arrays.fill(stringLocalVars, "");
 
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
@@ -286,6 +294,10 @@ public class BLangFunctions {
                     intLocalVars[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
                     intParamCount++;
                     break;
+                case TypeTags.BLOB_TAG:
+                    byteLocalVars[byteParamCount] = ((BBlob) args[i]).blobValue();
+                    byteParamCount++;
+                    break;
                 default:
                     refLocalVars[refParamCount] = (BRefType) args[i];
                     refParamCount++;
@@ -297,6 +309,7 @@ public class BLangFunctions {
         calleeSF.setDoubleLocalVars(doubleLocalVars);
         calleeSF.setStringLocalVars(stringLocalVars);
         calleeSF.setIntLocalVars(intLocalVars);
+        calleeSF.setByteLocalVars(byteLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
@@ -307,6 +320,7 @@ public class BLangFunctions {
         stringRegCount = 0;
         intRegCount = 0;
         refRegCount = 0;
+        byteRegCount = 0;
         BValue[] returnValues = new BValue[retTypes.length];
         for (int i = 0; i < returnValues.length; i++) {
             BType retType = retTypes[i];
@@ -323,6 +337,9 @@ public class BLangFunctions {
                 case TypeTags.BOOLEAN_TAG:
                     boolean boolValue = callerSF.getIntRegs()[intRegCount++] == 1;
                     returnValues[i] = new BBoolean(boolValue);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    returnValues[i] = new BBlob(callerSF.getByteRegs()[byteRegCount++]);
                     break;
                 default:
                     returnValues[i] = callerSF.getRefRegs()[refRegCount++];
@@ -438,6 +455,8 @@ public class BLangFunctions {
             bType = BTypes.typeMap;
         } else if (bValue instanceof BDataTable) {
             bType = BTypes.typeDatatable;
+        } else if (bValue instanceof BBlob) {
+            bType = BTypes.typeBlob;
         }
 
         return bType;
