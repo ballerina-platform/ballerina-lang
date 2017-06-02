@@ -26,6 +26,11 @@ import Expression from './expression';
 class ReferenceTypeInitExpression extends Expression {
     constructor(args) {
         super('ReferenceTypeInitExpression');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '',
+            2: ''
+        };
     }
 
     /**
@@ -41,10 +46,19 @@ class ReferenceTypeInitExpression extends Expression {
             child.initFromJson(childNode);
             generateExpression +=child.getExpression() + ",";
         });
-        this.setExpression("{" + (generateExpression.substring(0, generateExpression.length-1)) + "}",{doSilently: true});
+        this.setExpression('{' + this.getWSRegion(1)
+            + (generateExpression.substring(0, generateExpression.length-1))
+            + '}' + this.getWSRegion(2),{doSilently: true});
     }
 
     generateExpression() {
+        var generateExpression = '';
+        this.children.forEach((child) => {
+            generateExpression += child.getExpression() + ',';
+        })
+        this.setExpression('{' + this.getWSRegion(1)
+            + (generateExpression.substring(0, generateExpression.length-1))
+            + '}' + this.getWSRegion(2),{doSilently: true});
         return this.getExpression();
     }
 }

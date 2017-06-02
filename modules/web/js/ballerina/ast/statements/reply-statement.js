@@ -29,6 +29,11 @@ class ReplyStatement extends Statement {
         super();
         this._message = _.get(args, 'message') || '';
         this.type = "ReplyStatement";
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '\n'
+        };
     }
 
     setReplyMessage(message, options) {
