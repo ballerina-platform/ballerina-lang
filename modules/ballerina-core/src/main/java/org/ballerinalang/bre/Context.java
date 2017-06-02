@@ -19,8 +19,11 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
+import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -46,9 +49,13 @@ public class Context {
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
     private int startIP;
-    private ProgramFile programFile;
-
     private BStruct errorThrown;
+
+    // TODO : Temporary solution to make non-blocking working.
+    public BValue[] nativeArgValues;
+    public ProgramFile programFile;
+    public FunctionCallCPEntry funcCallCPEntry;
+    public ActionInfo actionInfo;
 
     public Context() {
         this.controlStack = new ControlStack();

@@ -35,7 +35,7 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     private BValue valueRef;
 
-    private boolean blockingExecution;
+    private boolean nonBlockingExecution;
 
     // Reference for post validation.
     private AbstractNativeAction nativeAction;
@@ -53,8 +53,8 @@ public class BalConnectorCallback extends DefaultBalCallback {
         return valueRef;
     }
 
-    public void setBlockingExecution(boolean blockingExecution) {
-        this.blockingExecution = blockingExecution;
+    public void setNonBlockingExecution(boolean nonBlockingExecution) {
+        this.nonBlockingExecution = nonBlockingExecution;
     }
 
     public AbstractNativeAction getNativeAction() {
@@ -77,12 +77,12 @@ public class BalConnectorCallback extends DefaultBalCallback {
         }
         responseArrived = true;
         // Release Thread.
-        if (blockingExecution) {
+        if (nonBlockingExecution) {
+            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
+        } else {
             synchronized (context) {
                 context.notifyAll();
             }
-        } else {
-            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
         }
     }
 

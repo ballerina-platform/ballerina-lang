@@ -136,6 +136,20 @@ public class BLangVM {
         //traceCode(packageInfo);
         if (context.getError() != null) {
             handleError();
+        } else if (context.actionInfo != null) {
+            // // TODO : Temporary to solution make non-blocking working.
+            BType[] retTypes = context.actionInfo.getRetParamTypes();
+            StackFrame calleeSF = controlStack.popFrame();
+            this.constPool = controlStack.currentFrame.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+            this.code = controlStack.currentFrame.packageInfo.getInstructionList().toArray(new Instruction[0]);
+            handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
+                    calleeSF.returnValues, retTypes);
+
+            // TODO Remove
+            prepareStructureTypeFromNativeAction(context.nativeArgValues);
+            context.nativeArgValues = null;
+            context.funcCallCPEntry = null;
+            context.actionInfo = null;
         }
         exec();
     }
@@ -1439,13 +1453,28 @@ public class BLangVM {
             if (!context.isInTransaction() && nativeAction.isNonBlockingAction()) {
                 // Enable non-blocking.
                 context.setStartIP(ip);
+                // TODO : Temporary solution to make non-blocking working.
+                if (caleeSF.packageInfo == null) {
+                    caleeSF.packageInfo = actionInfo.getPackageInfo();
+                }
+                context.programFile = programFile;
+                context.nativeArgValues = nativeArgValues;
+                context.funcCallCPEntry = funcCallCPEntry;
+                context.actionInfo = actionInfo;
                 BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
                 connectorCallback.setNativeAction(nativeAction);
                 nativeAction.execute(context, connectorCallback);
                 ip = -1;
+                return;
                 // release thread.
             } else {
                 nativeAction.execute(context);
+                // Copy return values to the callers stack
+                controlStack.popFrame();
+                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+
+                // TODO Remove
+                prepareStructureTypeFromNativeAction(nativeArgValues);
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrorHandlerUtil.createError(this.context, ip, e.getMessage()));
@@ -1453,15 +1482,9 @@ public class BLangVM {
             handleError();
             return;
         }
-        // Copy return values to the callers stack
-        controlStack.popFrame();
-        handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
-
-        // TODO Remove 
-        prepareStructureTypeFromNativeAction(nativeArgValues);
     }
 
-    private BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
+    public static BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
         BValue[] nativeArgValues = new BValue[paramTypes.length];
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
@@ -1486,8 +1509,8 @@ public class BLangVM {
         return nativeArgValues;
     }
 
-    private void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
-                                                    BValue[] returnValues, BType[] retTypes) {
+    public static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
+                                                          BValue[] returnValues, BType[] retTypes) {
         for (int i = 0; i < returnValues.length; i++) {
             int callersRetRegIndex = returnRegIndexes[i];
             BType retType = retTypes[i];
@@ -1553,7 +1576,7 @@ public class BLangVM {
     }
 
     // TODO Remove this once all the native actions are refactored
-    private void prepareStructureTypeFromNativeAction(BValue[] bValues) {
+    public static void prepareStructureTypeFromNativeAction(BValue[] bValues) {
         for (BValue bValue : bValues) {
             if (bValue instanceof StructureType) {
                 prepareStructureTypeFromNativeAction((StructureType) bValue);
@@ -1561,7 +1584,7 @@ public class BLangVM {
         }
     }
 
-    private void prepareStructureTypeFromNativeAction(StructureType structureType) {
+    public static void prepareStructureTypeFromNativeAction(StructureType structureType) {
         BType[] fieldTypes = structureType.getFieldTypes();
         BValue[] memoryBlock = structureType.getMemoryBlock();
         int longRegIndex = -1;

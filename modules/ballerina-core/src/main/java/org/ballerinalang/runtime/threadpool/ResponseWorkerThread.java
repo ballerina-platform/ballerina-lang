@@ -40,7 +40,7 @@ public class ResponseWorkerThread extends WorkerThread {
     }
 
     public void run() {
-//        // TODO : Fix this properly.
+//        // TODO : Fix this properly. Handle workers.
 //        // Connector callback's done method is called from different locations, i.e: MessageProcessor, from Netty etc.
 //        // Because of this we have to start new thread from the callback, if non-blocking is enabled.
         BalConnectorCallback connectorCallback = (BalConnectorCallback) this.callback;
@@ -53,7 +53,11 @@ public class ResponseWorkerThread extends WorkerThread {
             BStruct err = BLangVMErrorHandlerUtil.createError(context, context.getStartIP() - 1, e.getMessage());
             context.setError(err);
         }
-        //
-        bLangVM.run(context);
+        // TODO : Fix error handling
+        try {
+            bLangVM.run(context);
+        } catch (Exception e) {
+            logger.error("unhandled exception ", e);
+        }
     }
 }
