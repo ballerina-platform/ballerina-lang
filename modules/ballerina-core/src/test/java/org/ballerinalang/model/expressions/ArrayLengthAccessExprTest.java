@@ -19,6 +19,8 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -36,6 +38,7 @@ import org.testng.annotations.Test;
 public class ArrayLengthAccessExprTest {
 
     private ProgramFile bLangProgram;
+    private BLangProgram program;
 
     @BeforeClass
     public void setup() {
