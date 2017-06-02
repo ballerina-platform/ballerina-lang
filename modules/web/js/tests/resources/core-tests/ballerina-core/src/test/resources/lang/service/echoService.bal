@@ -7,7 +7,7 @@ service echo {
     string serviceLevelStr;
 
     @GET {}
-    @Path ("/message")
+    @Path {value:"/message"}
     resource echo (message m) {
         reply m;
     }
