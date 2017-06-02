@@ -876,8 +876,8 @@ class TransformRender
         var funcs = $('.middle-content  > .func');
         var sourceStructs = $('.leftType > .struct');
         var targetStructs = $('.rightType > .struct');
-        var xFunctionPointer = 0;
-        var yFunctionPointer = 50;
+        var xFunctionPointer = ($(".middle-content").width()-300)/2;
+        var yFunctionPointer = 120;
         var xSourcePointer = 0;
         var ySourcePointer = 50;
         var xTargetPointer = 0;
