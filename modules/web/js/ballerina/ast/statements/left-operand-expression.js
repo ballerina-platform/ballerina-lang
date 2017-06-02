@@ -35,6 +35,7 @@ class LeftOperandExpression extends Statement {
      * @returns {undefined|string}
      */
     getLeftOperandExpressionString() {
+        this.generateExpression();
         return this._left_operand_expression_string;
     }
 
@@ -109,4 +110,3 @@ class LeftOperandExpression extends Statement {
 }
 
 export default LeftOperandExpression;
-

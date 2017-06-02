@@ -44,7 +44,8 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
           + 'import'
           + importDeclaration.getWSRegion(0)
           + importDeclaration.getPackageName()
-          + importDeclaration.getWSRegion(1);
+          + ((importDeclaration.whiteSpace.useDefault
+            && _.isNil(importDeclaration.getAsName())) ? '' : importDeclaration.getWSRegion(1));
         if (!_.isNil(importDeclaration.getAsName())) {
             constructedSourceSegment += (
                 'as' + importDeclaration.getWSRegion(2)

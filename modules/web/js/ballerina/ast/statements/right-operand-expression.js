@@ -43,6 +43,7 @@ class RightOperandExpression extends Statement {
      * @returns {string} - The expression
      */
     getRightOperandExpressionString() {
+        this.generateExpression();
         return this._right_operand_expression_string;
     }
 
@@ -72,10 +73,9 @@ class RightOperandExpression extends Statement {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
-            self.setRightOperandExpressionString(child.getExpression(), {doSilently: true});
+            self.setRightOperandExpressionString(child.generateExpression(), {doSilently: true});
         });
     }
 }
 
 export default RightOperandExpression;
-
