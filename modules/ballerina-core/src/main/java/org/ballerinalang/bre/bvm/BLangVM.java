@@ -1464,7 +1464,7 @@ public class BLangVM {
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
         try {
-            if (!context.isInTransaction() && nativeAction.isNonBlockingAction()) {
+            if (!context.initFunction && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
                 // Enable non-blocking.
                 context.setStartIP(ip);
                 // TODO : Temporary solution to make non-blocking working.

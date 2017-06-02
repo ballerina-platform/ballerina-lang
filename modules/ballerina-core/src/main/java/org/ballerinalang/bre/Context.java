@@ -52,6 +52,7 @@ public class Context {
     private BStruct errorThrown;
 
     // TODO : Temporary solution to make non-blocking working.
+    public boolean initFunction = false;
     public BValue[] nativeArgValues;
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;
