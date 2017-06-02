@@ -144,11 +144,11 @@ class TransformStatementDecorator extends React.Component {
               '</div></div>');
 
         var transformNameText = $('<p class="transform-header-text "><i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
-        var transformHeader = $('<div id ="transformHeader" class ="transform-header"></div>');
+        var transformHeader = $('<div id ="transformHeader" class ="transform-header"><span class="close-transform">&times;</span></div>');
+        var transformHeaderPadding = $('<div id ="transformHeaderPadding" class ="transform-header-padding"></div>');
         var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
         var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content clearfix">'+
-                                                   ' <span class="close-transform">&times;</span>'+
                                               '    </div>');
 
         var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
@@ -157,6 +157,7 @@ class TransformStatementDecorator extends React.Component {
 
         transformOverlayContent.append(transformHeader);
         transformHeader.append(transformNameText);
+        transformOverlayContent.append(transformHeaderPadding);
         transformOverlayContent.append(sourceContent);
         transformOverlayContent.append(middleContent);
         transformOverlayContent.append(targetContent);

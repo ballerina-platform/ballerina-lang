@@ -99,10 +99,14 @@ class TransformRender
 
             document.addEventListener('click', (eClick) => {
                 if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != 'path')
-            {
+                {
                     $('#' + self.contextMenu).hide();
                 }
             }, false);
+
+            $( ".leftType, .middle-content, .rightType" ).scroll(function() {
+                $('#' + self.contextMenu).hide();
+            });
 
             $('#typeMapperConRemove').click(() => {
                 self.disconnect(connection);
