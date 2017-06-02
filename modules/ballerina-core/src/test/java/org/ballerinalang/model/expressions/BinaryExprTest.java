@@ -34,15 +34,13 @@ import org.testng.annotations.Test;
 public class BinaryExprTest {
 
     private ProgramFile programFile;
-    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
         programFile = BTestUtils.getProgramFile("lang/expressions/binary-expr.bal");
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/binary-expr.bal");
     }
 
-    @Test(description = "Test binary logical expression", enabled = false)
+    @Test(description = "Test binary logical expression")
     public void testBinaryExpr() {
         // stone + value
         boolean stone = true;
@@ -123,7 +121,7 @@ public class BinaryExprTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    @Test(description = "Test multiple binary expressions", enabled = false)
+    @Test(description = "Test multiple binary expressions")
     public void multiBinaryExpressionTest() {
         boolean one = true;
         boolean two = false;

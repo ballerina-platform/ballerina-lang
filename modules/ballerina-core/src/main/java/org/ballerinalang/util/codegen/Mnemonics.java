@@ -169,6 +169,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
         mnemonics[InstructionCodes.JSONNEWARRAY] = "jsonnewarray";
+        mnemonics[InstructionCodes.ALENGTH] = "arraylength";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";

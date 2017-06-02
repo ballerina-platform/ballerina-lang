@@ -55,6 +55,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -1423,6 +1424,14 @@ public class CodeGenerator implements NodeVisitor {
                 }
 
             } else {
+                //handle ArrayLengthExpression separately, once done break out of the loop
+                //if not handle other cases
+                if (childSFAccessExpr.getVarRef() instanceof ArrayLengthExpression) {
+                    childSFAccessExpr.getVarRef().accept(this);
+                    fieldAccessExpr.setTempOffset(childSFAccessExpr.getVarRef().getTempOffset());
+                    break;
+                }
+
                 ReferenceExpr referenceExpr = (ReferenceExpr) childSFAccessExpr.getVarRef();
                 if (referenceExpr instanceof VariableRefExpr) {
                     varAssignment = isAssignment;
@@ -1443,6 +1452,13 @@ public class CodeGenerator implements NodeVisitor {
             }
             childSFAccessExpr = childSFAccessExpr.getFieldExpr();
         }
+    }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+        int arrayLengthIndex = ++regIndexes[INT_OFFSET];
+        arrayLengthExpression.setOffset(arrayLengthIndex);
+        emit(InstructionCodes.ALENGTH, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
     }
 
     @Override

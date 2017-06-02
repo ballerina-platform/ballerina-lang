@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
@@ -34,6 +35,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -109,7 +111,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-     //   traceCode();
+        traceCode();
         exec();
     }
 
@@ -1001,6 +1003,16 @@ public class BLangVM {
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
+                    break;
+                case InstructionCodes.ALENGTH:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        //TODO improve error message to be more informative
+                        throw new BallerinaException("array is null.");
+                    }
+                    BNewArray array = (BNewArray) sf.refRegs[i];
+                    sf.longRegs[j] = array.size();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];
