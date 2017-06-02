@@ -69,6 +69,14 @@ public class ServiceInfo extends StructureTypeInfo {
         attributeInfoMap.put(attributeName, attributeInfo);
     }
 
+    public FunctionInfo getInitFunctionInfo() {
+        return initFuncInfo;
+    }
+
+    public void setInitFunctionInfo(FunctionInfo initFuncInfo) {
+        this.initFuncInfo = initFuncInfo;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(pkgPathCPIndex, nameCPIndex);

@@ -199,7 +199,7 @@ public class BLangFunctions {
         }
 
         ControlStackNew controlStackNew = context.getControlStackNew();
-        invokePackageInitFunction(bLangProgram, packageInfo, context);
+        invokeFunction(bLangProgram, packageInfo, packageInfo.getInitFunctionInfo(), context);
 
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
         // registers to hold function arguments as well as return values from the callee.
@@ -341,6 +341,17 @@ public class BLangFunctions {
 
     public static void invokePackageInitFunction(ProgramFile programFile, PackageInfo packageInfo, Context context) {
         FunctionInfo initFuncInfo = packageInfo.getInitFunctionInfo();
+        WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
+        org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(initFuncInfo,
+                defaultWorker, -1, new int[0]);
+        context.getControlStackNew().pushFrame(stackFrame);
+
+        BLangVM bLangVM = new BLangVM(programFile);
+        bLangVM.execFunction(packageInfo, context, defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+    }
+
+    public static void invokeFunction(ProgramFile programFile, PackageInfo packageInfo,
+                                                 FunctionInfo initFuncInfo, Context context) {
         WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
         org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(initFuncInfo,
                 defaultWorker, -1, new int[0]);

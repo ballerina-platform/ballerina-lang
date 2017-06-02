@@ -90,6 +90,7 @@ public class BLangVM {
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
+        this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
     // TODO Remove
@@ -107,7 +108,6 @@ public class BLangVM {
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
-        this.globalMemBlock = context.getGlobalMemoryBlock();
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 

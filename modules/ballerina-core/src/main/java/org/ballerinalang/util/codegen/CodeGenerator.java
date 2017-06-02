@@ -312,9 +312,10 @@ public class CodeGenerator implements NodeVisitor {
                 varDef.setMemoryLocation(globalVarLocation);
             }
 
-            // TODO Create the init function info
-//            createFunctionInfoEntries(new Function[]{serviceInfo.getInitFunction()});
-
+            // Create the init function info
+            createFunctionInfoEntries(new Function[]{service.getInitFunction()});
+            serviceInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(service.getInitFunction().getName()));
+            
             // Create resource info entries for all resource
             createResourceInfoEntries(service.getResources(), serviceInfo);
         }
@@ -522,8 +523,8 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(Service service) {
-//        BallerinaFunction initFunction = connectorDef.getInitFunction();
-//        visit(initFunction);
+        BallerinaFunction initFunction = service.getInitFunction();
+        visit(initFunction);
 
         currentServiceInfo = currentPkgInfo.getServiceInfo(service.getName());
         AnnotationAttachment[] annotationAttachments = service.getAnnotations();

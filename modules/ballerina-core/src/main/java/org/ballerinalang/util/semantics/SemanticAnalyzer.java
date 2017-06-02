@@ -362,6 +362,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             variableDefStmt.accept(this);
         }
 
+        createServiceInitFunction(service);
+
         // Visit the set of resources in a service
         for (Resource resource : service.getResources()) {
             resource.accept(this);
@@ -3217,21 +3219,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             currentScope.define(service.getSymbolName(), service);
 
-            // Create the '<init>' function and inject it to the connector;
-            BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
-                    service.getNodeLocation(), service);
-            for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
-                blockStmtBuilder.addStmt(variableDefStmt);
-            }
-
-            BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
-                    new BallerinaFunction.BallerinaFunctionBuilder(service);
-            functionBuilder.setNodeLocation(service.getNodeLocation());
-            functionBuilder.setIdentifier(new Identifier(service.getName() + ".<init>"));
-            functionBuilder.setPkgPath(service.getPackagePath());
-            functionBuilder.setBody(blockStmtBuilder.build());
-            service.setInitFunction(functionBuilder.buildFunction());
-
             // Define resources
             openScope(service);
 
@@ -3363,6 +3350,33 @@ public class SemanticAnalyzer implements NodeVisitor {
         blockStmtBuilder.addStmt(returnStmt);
         functionBuilder.setBody(blockStmtBuilder.build());
         connectorDef.setInitFunction(functionBuilder.buildFunction());
+    }
+
+    /**
+     * Create the '<init>' function and inject it to the service.
+     *
+     * @param service service model object
+     */
+    private void createServiceInitFunction(Service service) {
+        NodeLocation location = service.getNodeLocation();
+        BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
+                new BallerinaFunction.BallerinaFunctionBuilder(service);
+        functionBuilder.setNodeLocation(location);
+        functionBuilder.setIdentifier(new Identifier(service.getName() + ".<init>"));
+        functionBuilder.setPkgPath(service.getPackagePath());
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, service);
+        for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
+            AssignStmt assignStmt = new AssignStmt(variableDefStmt.getNodeLocation(),
+                    new Expression[]{variableDefStmt.getLExpr()}, variableDefStmt.getRExpr());
+            blockStmtBuilder.addStmt(assignStmt);
+        }
+
+        // Adding the return statement
+        ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
+        blockStmtBuilder.addStmt(returnStmt);
+        functionBuilder.setBody(blockStmtBuilder.build());
+        service.setInitFunction(functionBuilder.buildFunction());
     }
 
     private void resolveWorkerInteractions(WorkerInteractionDataHolder[] workerInteractionDataHolders) {
