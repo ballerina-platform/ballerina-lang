@@ -74,7 +74,7 @@ class BlockStatementDecorator extends React.Component {
 
     isInStatementWithinMe(elmToCheck) {
         const thisNode = ReactDOM.findDOMNode(this);
-        const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
+        const regex = new RegExp('(^|\\s)((compound-)?statement|life-line-group)(\\s|$)');
         let isInStatement = false;
         let elm = elmToCheck;
         while (elm && elm !== thisNode && elm.getAttribute) {
