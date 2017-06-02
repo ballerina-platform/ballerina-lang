@@ -56,6 +56,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -313,9 +314,10 @@ public class CodeGenerator implements NodeVisitor {
                 varDef.setMemoryLocation(globalVarLocation);
             }
 
-            // TODO Create the init function info
-//            createFunctionInfoEntries(new Function[]{serviceInfo.getInitFunction()});
-
+            // Create the init function info
+            createFunctionInfoEntries(new Function[]{service.getInitFunction()});
+            serviceInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(service.getInitFunction().getName()));
+            
             // Create resource info entries for all resource
             createResourceInfoEntries(service.getResources(), serviceInfo);
         }
@@ -526,8 +528,8 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(Service service) {
-//        BallerinaFunction initFunction = connectorDef.getInitFunction();
-//        visit(initFunction);
+        BallerinaFunction initFunction = service.getInitFunction();
+        visit(initFunction);
 
         currentServiceInfo = currentPkgInfo.getServiceInfo(service.getName());
         AnnotationAttachment[] annotationAttachments = service.getAnnotations();
@@ -1362,14 +1364,14 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(StructInitExpr structInitExpr) {
         StructDef structDef = (StructDef) structInitExpr.getType();
         int pkgCPIndex = addPackageCPEntry(structDef.getPackagePath());
+        PackageInfo structDefPkgInfo = programFile.getPackageInfo(structDef.getPackagePath());
 
         UTF8CPEntry structNameCPEntry = new UTF8CPEntry(structDef.getName());
         int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
 
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-        PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) currentPkgInfo.getConstPool().get(pkgCPIndex);
-        structureRefCPEntry.setStructureTypeInfo(
-                packageRefCPEntry.getPackageInfo().getStructInfo(structDef.getName()));
+        StructInfo structInfo = structDefPkgInfo.getStructInfo(structDef.getName());
+        structureRefCPEntry.setStructureTypeInfo(structInfo);
         int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
         //Emit an instruction to create a new struct.
@@ -1516,6 +1518,14 @@ public class CodeGenerator implements NodeVisitor {
                 }
 
             } else {
+                //handle ArrayLengthExpression separately, once done break out of the loop
+                //if not handle other cases
+                if (childSFAccessExpr.getVarRef() instanceof ArrayLengthExpression) {
+                    childSFAccessExpr.getVarRef().accept(this);
+                    fieldAccessExpr.setTempOffset(childSFAccessExpr.getVarRef().getTempOffset());
+                    break;
+                }
+
                 ReferenceExpr referenceExpr = (ReferenceExpr) childSFAccessExpr.getVarRef();
                 if (referenceExpr instanceof VariableRefExpr) {
                     varAssignment = isAssignment;
@@ -1536,6 +1546,13 @@ public class CodeGenerator implements NodeVisitor {
             }
             childSFAccessExpr = childSFAccessExpr.getFieldExpr();
         }
+    }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+        int arrayLengthIndex = ++regIndexes[INT_OFFSET];
+        arrayLengthExpression.setOffset(arrayLengthIndex);
+        emit(InstructionCodes.ARRAYLEN, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
     }
 
     @Override

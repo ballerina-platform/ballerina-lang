@@ -35,6 +35,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -99,6 +100,7 @@ public class BLangVM {
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
+        this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
     // TODO Remove
@@ -122,7 +124,6 @@ public class BLangVM {
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
-        this.globalMemBlock = context.getGlobalMemoryBlock();
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
@@ -1061,6 +1062,16 @@ public class BLangVM {
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
+                    break;
+                case InstructionCodes.ARRAYLEN:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        //TODO improve error message to be more informative
+                        throw new BallerinaException("array is null.");
+                    }
+                    BNewArray array = (BNewArray) sf.refRegs[i];
+                    sf.longRegs[j] = array.size();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];
