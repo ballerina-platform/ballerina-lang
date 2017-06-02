@@ -245,7 +245,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
             + viewState.titleWidth
             + DesignerDefaults.panelHeading.iconSize.width
             + DesignerDefaults.panelHeading.iconSize.padding;
-        viewState.components.openingParameter.y = viewState.bBox.y;
+        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
         viewState.attachments = {};
         // Positioning the resource parameters
@@ -258,13 +258,13 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
                     model: node
                 };
                 nextXPositionOfParameter = createPositionForTitleNode(attachment, nextXPositionOfParameter,
-                    viewState.bBox.y);
+                    (viewState.bBox.y + viewState.components.annotation.h));
             }
         }
 
         // Positioning the closing bracket component of the parameters.
         viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
-        viewState.components.closingParameter.y = viewState.bBox.y;
+        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 
     if (node.getReturnTypes) {
