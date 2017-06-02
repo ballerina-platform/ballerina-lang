@@ -128,6 +128,8 @@ class TransformStatementDecorator extends React.Component {
                 '          </span>' +
               '</div></div>');
 
+        var middleContent =  $('<div class="middle-content"></div>');
+
         var targetContent = $('<div class="rightType">' +
                 '<div class="target-view">' +
                 '<select id="' + targetId + '" class="type-mapper-combo">' +
@@ -141,23 +143,29 @@ class TransformStatementDecorator extends React.Component {
                 '          </span>' +
               '</div></div>');
 
-        var transformNameText = $('<p class="transform-header-text "><i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
-        var transformHeader = $('<div id ="transformHeader" class ="transform-header"></div>');
+        var transformNameText = $('<p class="transform-header-text ">'
+                                +'<i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
+        var transformHeader = $('<div id ="transformHeader" class ="transform-header">'
+                                +'<span class="close-transform">&times;</span></div>');
+        var transformHeaderPadding = $('<div id ="transformHeaderPadding" class ="transform-header-padding"></div>');
         var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
-        var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content clearfix">'+
-                                                   ' <span class="close-transform">&times;</span>'+
+        var transformOverlayContent = $('<div id = "transformOverlay-content" class="transformOverlay-content">'+
                                               '    </div>');
 
         var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
                                      '  </div>' );
+        var transformFooter = $('<div id ="transformFooter" class ="transform-footer"></div>');
 
         transformOverlayContent.append(transformHeader);
         transformHeader.append(transformNameText);
+        transformOverlayContent.append(transformHeaderPadding);
         transformOverlayContent.append(sourceContent);
+        transformOverlayContent.append(middleContent);
         transformOverlayContent.append(targetContent);
         transformOverlay.append(transformOverlayContent);
         transformOverlayContent.append(transformMenuDiv);
+        transformOverlayContent.append(transformFooter)
         $('#tab-content-wrapper').append(transformOverlay);
 
         this.transformOverlayDiv = document.getElementById('transformOverlay');
@@ -239,11 +247,14 @@ class TransformStatementDecorator extends React.Component {
             self.mapper.reposition(self.mapper);
         });
 
+        $(".leftType, .rightType, .middle-content").on('scroll', function(){
+            self.mapper.reposition(self.mapper);
+        });
+
         span.onclick = function() {
             document.getElementById('transformOverlay').style.display = 'none';
             $(transformOverlay).remove();
         };
-
 
         var onConnectionCallback = function(connection) {
             let sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
