@@ -762,7 +762,12 @@ public class CodeGenerator implements NodeVisitor {
         int opcode = getIfOpcode(ifCondExpr);
 
         // TODO operand2 should be the jump address  else-if or else or to the next instruction after then block
-        Instruction ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
+        Instruction ifInstruction;
+        if(opcode == InstructionCodes.IFNOTNULL || opcode == InstructionCodes.IFNULL) {
+            ifInstruction = new Instruction(opcode, ifCondExpr.getTempOffset(), 0);
+        } else {
+            ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
+        }
         emit(ifInstruction);
 
         ifElseStmt.getThenBody().accept(this);
@@ -2001,10 +2006,22 @@ public class CodeGenerator implements NodeVisitor {
     private int getIfOpcode(Expression expr) {
         int opcode;
         if (expr instanceof EqualExpression) {
+
+            if(isNullCheckAvailable((BinaryExpression) expr)) {
+                opcode = InstructionCodes.IFNOTNULL;
+                return opcode;
+            }
+
             opcode = InstructionCodes.IFNE;
         } else if (expr instanceof NotEqualExpression ||
                 expr instanceof OrExpression ||
                 expr instanceof AndExpression) {
+
+            if(isNullCheckAvailable((BinaryExpression) expr)) {
+                opcode = InstructionCodes.IFNULL;
+                return opcode;
+            }
+
             opcode = InstructionCodes.IFEQ;
         } else if (expr instanceof LessThanExpression) {
             opcode = InstructionCodes.IFGE;
@@ -2032,8 +2049,19 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     private void emitBinaryCompareAndEqualityExpr(BinaryExpression expr, int baseOpcode) {
-        expr.getLExpr().accept(this);
-        expr.getRExpr().accept(this);
+        Expression lExpr = expr.getLExpr();
+        lExpr.accept(this);
+        Expression rExpr = expr.getRExpr();
+        rExpr.accept(this);
+
+        if (isNullCheckAvailable(expr)) {
+            if (lExpr.getType() == BTypes.typeNull) {
+                expr.setTempOffset(rExpr.getTempOffset());
+            } else {
+                expr.setTempOffset(lExpr.getTempOffset());
+            }
+            return;
+        }
 
         int opcode = -1;
         int exprOffset = -1;
@@ -2062,6 +2090,14 @@ public class CodeGenerator implements NodeVisitor {
 
         expr.setTempOffset(exprOffset);
         emit(opcode, expr.getLExpr().getTempOffset(), expr.getRExpr().getTempOffset(), exprOffset);
+    }
+
+    // TODO Remove this method.
+    private boolean isNullCheckAvailable(BinaryExpression expr) {
+        if (expr.getLExpr().getType() == BTypes.typeNull || expr.getRExpr().getType() == BTypes.typeNull) {
+            return true;
+        }
+        return false;
     }
 
     private void emitBinaryAndExpr(BinaryExpression expr) {

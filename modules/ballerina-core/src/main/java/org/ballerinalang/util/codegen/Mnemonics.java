@@ -119,6 +119,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.IFGE] = "ifge";
         mnemonics[InstructionCodes.IFGT] = "ifgt";
         mnemonics[InstructionCodes.IFLE] = "ifle";
+        mnemonics[InstructionCodes.IFNULL] = "ifnull";
+        mnemonics[InstructionCodes.IFNOTNULL] = "ifnotnull";
 
         mnemonics[InstructionCodes.GOTO] = "goto";
         mnemonics[InstructionCodes.CALL] = "call";
