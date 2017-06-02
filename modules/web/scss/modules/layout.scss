@@ -99,6 +99,23 @@
             background-color: $welcome-tile-view-wrapper-bgcolor;
             min-height: 100px;
             margin: 15px;
+            cursor: pointer;
+
+            &.multiple {
+              box-shadow: 0 0.0625em 0.1875em 0 rgba(0, 0, 0, 0.1),
+                          0 0.5em 0 -0.25em #fff,
+                          0 0.5em 0.1875em -0.25em rgba(0, 0, 0, 0.1),
+                          0 1em 0 -0.5em #fff,
+                          0 1em 0.1875em -0.5em rgba(0, 0, 0, 0.1);
+              position: relative;
+
+              &:before {
+                @include font-wso2('ballerina-service');
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+              }
+            }
 
             & > img{
               max-width: 90%;
