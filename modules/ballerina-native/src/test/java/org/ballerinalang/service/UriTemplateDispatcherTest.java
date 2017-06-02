@@ -75,7 +75,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
         //checking the exception message
         String errorMessage = response.getMessageDataSource().getMessageAsString();
-        Assert.assertTrue(errorMessage.contains("no resource found to handle the request to Service"),
+        Assert.assertTrue(errorMessage.contains("no matching resource found for Path"),
                 "Expected error not found.");
     }
 
@@ -106,7 +106,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
         //checking the exception message
         String errorMessage = response.getMessageDataSource().getMessageAsString();
-        Assert.assertTrue(errorMessage.contains("no resource found to handle the request to Service"),
+        Assert.assertTrue(errorMessage.contains("no matching resource found for Path"),
                 "Expected error not found.");
     }
 

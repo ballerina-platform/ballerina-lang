@@ -71,7 +71,9 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             if (service == null) {
-                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
+                balContext.getCarbonMessage().setProperty
+                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
+                throw new BallerinaException("no service found to handle incoming request received to : " + uriStr);
             }
 
             cMsg.setProperty(Constants.BASE_PATH, basePath);

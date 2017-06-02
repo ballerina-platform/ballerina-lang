@@ -82,13 +82,21 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                     return resource;
                 }
+                if ((resource.getAnnotation(Constants.PROTOCOL_HTTP, method) == null) &&
+                        (matches(subPathAnnotationVal, (subPath + rawQueryStr), resourceArgumentValues) ||
+                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))) {
+                    balContext.getCarbonMessage().setProperty
+                            (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 405);
+                    throw new BallerinaException(null, balContext);
+                }
             }
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
         }
 
         // Throw an exception if the resource is not found.
-        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
+        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method,
+                balContext);
     }
 
     public static boolean matches(String uriTemplate, String reqPath,
