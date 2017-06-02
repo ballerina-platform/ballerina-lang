@@ -52,7 +52,6 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(actual, "this is a IL with global var");
     }
 
-
     @Test(description = "Test defining constant with Identifier Literal and refer within a function")
     public void testConstantWithIdentifierLiteral() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getConstWithIL");

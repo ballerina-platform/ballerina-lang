@@ -40,6 +40,10 @@ public interface ReferenceExpr extends Expression {
      */
     SymbolName getSymbolName();
 
+    boolean isLHSExpr();
+
+    void setLHSExpr(boolean lhsExpr);
+
     String getPkgName();
 
     String getPkgPath();

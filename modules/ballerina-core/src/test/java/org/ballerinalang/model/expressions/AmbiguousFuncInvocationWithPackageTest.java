@@ -44,6 +44,6 @@ public class AmbiguousFuncInvocationWithPackageTest {
                     "'lang.expressions.pkg.func:ambiguousFunc\\((float|any)\\)' and " +
                     "'lang.expressions.pkg.func:ambiguousFunc\\((float|any)\\)' matches")
     public void testFuncInvocationWithAmbiguousFunction() {
-        BTestUtils.parseBalFile("lang/expressions/pkg/main/");
+        BTestUtils.getProgramFile("lang/expressions/pkg/main/");
     }
 }

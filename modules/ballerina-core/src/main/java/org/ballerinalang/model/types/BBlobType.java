@@ -42,4 +42,12 @@ public class BBlobType extends BType {
     @Override public <V extends BValue> V getEmptyValue() {
         return null;
     }
+
+    @Override public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_BLOB);
+    }
+
+    @Override public int getTag() {
+        return TypeTags.BLOB_TAG;
+    }
 }

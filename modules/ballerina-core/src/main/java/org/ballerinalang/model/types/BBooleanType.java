@@ -46,4 +46,14 @@ class BBooleanType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) BBoolean.FALSE;
     }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_BOOLEAN);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.BOOLEAN_TAG;
+    }
 }

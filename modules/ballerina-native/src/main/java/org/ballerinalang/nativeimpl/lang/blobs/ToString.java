@@ -55,9 +55,9 @@ public class ToString extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         try {
-            BBlob msg = (BBlob) getArgument(ctx, 0);
+            BBlob blob = (BBlob) getArgument(ctx, 0);
             BString encoding = (BString) getArgument(ctx, 1);
-            byte[] arr = msg.value();
+            byte[] arr = blob.blobValue();
             String s = new String(arr, encoding.stringValue());
             return getBValues(new BString(s));
         } catch (UnsupportedEncodingException e) {
