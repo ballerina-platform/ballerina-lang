@@ -37,13 +37,7 @@ public class LangModelUtils {
     }
 
     public static FunctionSymbolName getFuncSymNameWithParams(String identifier, String pkgPath, BType[] types) {
-        //with current usage, "types" cannot be null here
-        StringBuilder sBuilder = new StringBuilder(identifier);
-        for (BType type : types) {
-            sBuilder.append(".").append(type);
-        }
-
-        return new FunctionSymbolName(sBuilder.toString(), identifier, pkgPath, types.length);
+        return new FunctionSymbolName(identifier, pkgPath, types.length);
     }
 
     public static SymbolName getTypeMapperSymName(String pkgName, BType source, BType target) {
