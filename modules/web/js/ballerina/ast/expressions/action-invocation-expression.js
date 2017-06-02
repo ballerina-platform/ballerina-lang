@@ -38,7 +38,9 @@ class ActionInvocationExpression extends Expression {
             0: '',
             1: '',
             2: '',
-            3: ''
+            3: '',
+            4: '',
+            5: ''
         };
         this.whiteSpace.defaultDescriptor.children = {
             nameRef: {
@@ -222,7 +224,7 @@ class ActionInvocationExpression extends Expression {
 
         var expression = this.getActionConnectorName() + this.getWSRegion(1)
                 + '.' + this.getWSRegion(2) + this.getActionName() + this.getWSRegion(3)
-                + '(' + argsString +  ')' + this.getWSRegion(4);
+                + '(' + this.getWSRegion(4) + argsString +  ')' + this.getWSRegion(5);
         if(!_.isUndefined(this.getActionPackageName()) && !_.isNil(this.getActionPackageName())
                 && !_.isEqual(this.getActionPackageName(), 'Current Package')){
             expression = this.getActionPackageName() + this.getChildWSRegion('nameRef', 1) + ":"
