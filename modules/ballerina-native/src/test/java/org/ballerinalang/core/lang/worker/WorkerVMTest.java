@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -26,34 +26,32 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-/**
- * Test cases for calling worker in functions.
- */
-public class WorkerCallingFunction {
-    //private BLangProgram bLangProgram;
+public class WorkerVMTest {
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/worker-calling-function.bal");
-        bProgramFile = BTestUtils.getProgramFile("samples/worker-calling-function.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-vm.bal");
+        //bProgramFile = BTestUtils.getProgramFile("samples/multi-function-vm.bal");
     }
 
-//    @Test(description = "Test worker calling function")
-//    public void testWorkerCallingFunction() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWorker");
+
+    @Test(description = "Test simple worker in vm")
+    public void testVMWorkerInFunction() {
+        BValue[] args = {new BInteger(100)};
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testWorkerInVM", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(returns[0].stringValue(), "1000");
+    }
+
+//    @Test(description = "Test multiple function calls in vm")
+//    public void testVMMultiFunction() {
+//        BValue[] args = {new BInteger(100)};
+//        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "foo", args);
 //        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BMessage);
-//        final String expected = "{\"name\":\"chanaka\"}";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
+//        Assert.assertTrue(returns[0] instanceof BInteger);
+//        Assert.assertEquals(returns[0].stringValue(), "1000");
 //    }
 
-    @Test(description = "Test worker calling function")
-    public void testWorkerCallingFunction() {
-        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testWorkerInVM");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMessage);
-        final String expected = "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
 }
