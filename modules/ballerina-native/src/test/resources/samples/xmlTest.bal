@@ -9,12 +9,12 @@ function getXML(xml msg, string xPath) (xml) {
 }
 
 function setString(xml msg, string xPath, string value) (xml) {
-    xmls:set(msg, xPath, value);
+    xmls:setString(msg, xPath, value);
     return msg;
 }
 
 function setXML(xml msg, string xPath, xml value) (xml) {
-    xmls:set(msg, xPath, value);
+    xmls:setXml(msg, xPath, value);
     return msg;
 }
 
@@ -46,7 +46,7 @@ function xmlSetString1()(xml) {
                  <doctorName></doctorName>
                  <appointmentDate></appointmentDate>
          </CheckAvailability>`;
-     xmls:set(payload, "/CheckAvailability/doctorName", doctorName);
+     xmls:setString(payload, "/CheckAvailability/doctorName", doctorName);
      return payload;
  }
 
@@ -58,6 +58,6 @@ function xmlSetString1()(xml) {
                  <doctorName>NValue</doctorName>
                  <appointmentDate></appointmentDate>
          </CheckAvailability>`;
-     xmls:set(payload, "/CheckAvailability/doctorName/text()", doctorName);
+     xmls:setString(payload, "/CheckAvailability/doctorName/text()", doctorName);
      return payload;
  }

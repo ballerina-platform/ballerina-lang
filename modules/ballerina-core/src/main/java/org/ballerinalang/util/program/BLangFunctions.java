@@ -312,7 +312,7 @@ public class BLangFunctions {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
-                    returnValues[i] = new BInteger(callerSF.getLongRegs()[retRegs[i]]);
+                    returnValues[i] = new BInteger(callerSF.getLongRegs()[longRegCount++]);
                     break;
                 case TypeTags.FLOAT_TAG:
                     returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);

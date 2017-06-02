@@ -210,14 +210,6 @@ public class BNullValueTest   {
         BTestUtils.parseBalFile("lang/values/null/invalid-function-call-with-nulll.bal");
     }
     
-    @Test(description = "Test passing null to a ambguous function", 
-            expectedExceptions = SemanticException.class, 
-            expectedExceptionsMessageRegExp = "ambiguous-function-call-with-nulll.bal:2: function reference 'foo' " +
-            "is ambiguous, functions 'foo\\(xml\\)' and 'foo\\(json\\)' matches")
-    void testAmbiguousFunctionCallWithNull() {
-        BTestUtils.parseBalFile("lang/values/null/ambiguous-function-call-with-nulll.bal");
-    }
-    
     @Test(description = "Test accessing an element in a null array",
             expectedExceptions = BallerinaException.class, 
             expectedExceptionsMessageRegExp = "connector argument value is null")
