@@ -1294,12 +1294,14 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(StructInitExpr structInitExpr) {
         StructDef structDef = (StructDef) structInitExpr.getType();
         int pkgCPIndex = addPackageCPEntry(structDef.getPackagePath());
+        PackageInfo structDefPkgInfo = programFile.getPackageInfo(structDef.getPackagePath());
 
         UTF8CPEntry structNameCPEntry = new UTF8CPEntry(structDef.getName());
         int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
 
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-        structureRefCPEntry.setStructureTypeInfo(currentPkgInfo.getStructInfo(structDef.getName()));
+        StructInfo structInfo = structDefPkgInfo.getStructInfo(structDef.getName());
+        structureRefCPEntry.setStructureTypeInfo(structInfo);
         int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
         //Emit an instruction to create a new struct.
