@@ -54,6 +54,6 @@ public class BNullType extends BType {
 
     @Override
     public int getTag() {
-        return 0;
+        return TypeTags.NULL_TAG;
     }
 }

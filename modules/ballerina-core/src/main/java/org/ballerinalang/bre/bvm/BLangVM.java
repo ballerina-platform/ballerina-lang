@@ -131,7 +131,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-        //traceCode(packageInfo);
+//        traceCode(packageInfo);
         exec();
     }
 
@@ -737,12 +737,26 @@ public class BLangVM {
                     j = operands[1];
                     if (sf.intRegs[i] > 0) {
                         ip = j;
-                    }
+                    }   
                     break;
                 case InstructionCodes.IFLE:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] <= 0) {
+                        ip = j;
+                    }
+                    break;
+                case InstructionCodes.IFNULL:
+                    i = operands[0];
+                    j = operands[1];
+                    if(sf.refRegs[i] == null) {
+                        ip = j;
+                    }
+                    break;
+                case InstructionCodes.IFNOTNULL:
+                    i = operands[0];
+                    j = operands[1];
+                    if(sf.refRegs[i] != null) {
                         ip = j;
                     }
                     break;
