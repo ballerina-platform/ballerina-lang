@@ -19,9 +19,9 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,11 +32,11 @@ import org.testng.annotations.Test;
  */
 public class BinaryExprTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/binary-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/binary-expr.bal");
     }
 
     @Test(description = "Test binary logical expression")
@@ -45,7 +45,7 @@ public class BinaryExprTest {
         boolean stone = true;
         boolean value = true;
         BValue[] args = { new BBoolean(stone), new BBoolean(value) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "makeChild", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actual = ((BBoolean) returns[0]).booleanValue();
@@ -56,7 +56,7 @@ public class BinaryExprTest {
         stone = true;
         value = false;
         args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
-        returns = BLangFunctions.invoke(bLangProgram, "makeChild", args);
+        returns = BLangFunctions.invokeNew(programFile, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
@@ -67,7 +67,7 @@ public class BinaryExprTest {
         stone = false;
         value = true;
         args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
-        returns = BLangFunctions.invoke(bLangProgram, "makeChild", args);
+        returns = BLangFunctions.invokeNew(programFile, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
@@ -78,7 +78,7 @@ public class BinaryExprTest {
         stone = false;
         value = false;
         args = new BValue[] { new BBoolean(stone), new BBoolean(value) };
-        returns = BLangFunctions.invoke(bLangProgram, "makeChild", args);
+        returns = BLangFunctions.invokeNew(programFile, "makeChild", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         actual = ((BBoolean) returns[0]).booleanValue();
@@ -95,7 +95,7 @@ public class BinaryExprTest {
         boolean expectedResult = one & two & three;
 
         BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "multiBinaryANDExpression", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "multiBinaryANDExpression", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
@@ -111,8 +111,8 @@ public class BinaryExprTest {
 
         boolean expectedResult = one || two || three;
 
-        BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "multiBinaryORExpression", args);
+        BValue[] args = {new BBoolean(one), new BBoolean(two), new BBoolean(three)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "multiBinaryORExpression", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();
@@ -129,7 +129,7 @@ public class BinaryExprTest {
         boolean expectedResult = (!one || (two && three)) || (!three || (one && two));
 
         BValue[] args = { new BBoolean(one), new BBoolean(two), new BBoolean(three) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "multiBinaryExpression", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "multiBinaryExpression", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actualResult = ((BBoolean) returns[0]).booleanValue();

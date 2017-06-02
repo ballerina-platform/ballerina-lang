@@ -30,9 +30,12 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * <p>{@code CallableUnitBuilder} is responsible for building Functions, Actions and Resources from parser events.</p>
@@ -57,6 +60,7 @@ public class CallableUnitBuilder {
     protected List<ParameterDef> parameterDefList = new ArrayList<>();
     protected List<ParameterDef> returnParamList = new ArrayList<>();
     protected List<Worker> workerList = new ArrayList<>();
+    protected Queue<Statement> workerInteractionStatements = new LinkedList<>();
     protected BlockStmt body;
 
     public SymbolScope getCurrentScope() {
@@ -97,6 +101,10 @@ public class CallableUnitBuilder {
 
     public void addWorker(Worker worker) {
         this.workerList.add(worker);
+    }
+
+    public void addWorkerInteractionStatement(Statement workerInteraction) {
+        this.workerInteractionStatements.add(workerInteraction);
     }
 
     public void setBody(BlockStmt body) {

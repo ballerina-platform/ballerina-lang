@@ -19,8 +19,6 @@ package org.ballerinalang.model.expressions;
 
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -52,19 +50,6 @@ public class FuncInvocationWithImplicitCastTest {
 
         String actual = returns[0].stringValue();
         String expected = "7.modified";
-        Assert.assertEquals(actual, expected);
-    }
-
-    @Test(description = "Test Function invocation with exact match, when cast possible")
-    public void testFunctionInvocationWithExactMatchWhenCastPossible() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/expressions/func-invocation-with-implicit-cast.bal");
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testExactMatchWhenCastPossible");
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = 18;
         Assert.assertEquals(actual, expected);
     }
 

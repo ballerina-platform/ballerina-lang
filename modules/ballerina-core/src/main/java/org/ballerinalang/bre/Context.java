@@ -19,7 +19,6 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.runtime.BalCallback;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -47,7 +46,7 @@ public class Context {
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
 
-    private StructureType globalMemoryBlock;
+    private BStruct errorThrown;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -63,8 +62,6 @@ public class Context {
     public Context(ProgramFile programFile) {
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
-        this.globalMemoryBlock = new BStruct(null);
-        globalMemoryBlock.init(programFile.getGlobalVarIndexes());
     }
 
     public ControlStack getControlStack() {
@@ -135,7 +132,11 @@ public class Context {
         this.vmBasedExecutor = vmBasedExecutor;
     }
 
-    public StructureType getGlobalMemoryBlock() {
-        return globalMemoryBlock;
+    public BStruct getError() {
+        return errorThrown;
+    }
+
+    public void setError(BStruct error) {
+        this.errorThrown = error;
     }
 }

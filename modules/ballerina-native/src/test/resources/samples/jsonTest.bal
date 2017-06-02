@@ -47,53 +47,53 @@ function setJson(json msg, string jsonPath, json value) (json) {
 
 
 function addStringToObject(json msg, string jsonPath, string key, string value) (json) {
-    jsons:add(msg, jsonPath, key, value);
+    jsons:addToObject(msg, jsonPath, key, value);
     return msg;
 }
 
 function addIntToObject(json msg, string jsonPath, string key, int value) (json) {
-    jsons:add(msg, jsonPath, key, value);
+    jsons:addToObject(msg, jsonPath, key, value);
     return msg;
 }
 
 function addFloatToObject(json msg, string jsonPath, string key, float value) (json) {
-    jsons:add(msg, jsonPath, key, value);
+    jsons:addToObject(msg, jsonPath, key, value);
     return msg;
 }
 
 function addBooleanToObject(json msg, string jsonPath, string key, boolean value) (json) {
-    jsons:add(msg, jsonPath, key, value);
+    jsons:addToObject(msg, jsonPath, key, value);
     return msg;
 }
 
 function addElementToObject(json msg, string jsonPath, string key, json value) (json) {
-    jsons:add(msg, jsonPath, key, value);
+    jsons:addToObject(msg, jsonPath, key, value);
     return msg;
 }
 
 
 function addStringToArray(json msg, string jsonPath, string value) (json){
-    jsons:add(msg, jsonPath, value);
+    jsons:addToArray(msg, jsonPath, value);
     return msg;
 }
 
 function addIntToArray(json msg, string jsonPath, int value) (json){
-    jsons:add(msg, jsonPath, value);
+    jsons:addToArray(msg, jsonPath, value);
     return msg;
 }
 
 function addFloatToArray(json msg, string jsonPath, float value) (json){
-    jsons:add(msg, jsonPath, value);
+    jsons:addToArray(msg, jsonPath, value);
     return msg;
 }
 
 function addBooleanToArray(json msg, string jsonPath, boolean value) (json){
-    jsons:add(msg, jsonPath, value);
+    jsons:addToArray(msg, jsonPath, value);
     return msg;
 }
 
 function addElementToArray(json msg, string jsonPath, json value) (json){
-    jsons:add(msg, jsonPath, value);
+    jsons:addToArray(msg, jsonPath, value);
     return msg;
 }
 

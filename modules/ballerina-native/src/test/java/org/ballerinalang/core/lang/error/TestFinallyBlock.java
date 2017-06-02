@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,18 +33,18 @@ import org.testng.annotations.Test;
  */
 public class TestFinallyBlock {
 
-    BLangProgram bLangProgram;
+    ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/errors/test_finally.bal");
+        programFile = BTestUtils.getProgramFile("lang/errors/test_finally.bal");
 
     }
 
     @Test
     public void testThrowErrorFromFinallyBlock() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "test1", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "finally block error");
@@ -54,7 +55,7 @@ public class TestFinallyBlock {
     @Test
     public void testReturnFromFinallyBlock() {
         BValue[] args = {new BInteger(11)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "test2", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test2", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "finally block");
@@ -63,7 +64,7 @@ public class TestFinallyBlock {
     @Test(description = "check finally while returning.")
     public void testReturnWithFinallyBlock() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "test3", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test3", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "try");
@@ -71,17 +72,19 @@ public class TestFinallyBlock {
 
     @Test(description = "check finally while returning for reference type.")
     public void testReturnReferenceTypeWithFinallyBlock() {
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/errors/test_finally.bal");
         BValue[] args = {};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "test4", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BStruct) returns[0]).getValue(0).stringValue(), "try innerFinally outerFinally");
+//        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally outerFinally");
     }
 
     @Test(description = "check while condition in a finally block")
     public void testWhileInaFinallyBlock() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "test5", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test5", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "start123end");

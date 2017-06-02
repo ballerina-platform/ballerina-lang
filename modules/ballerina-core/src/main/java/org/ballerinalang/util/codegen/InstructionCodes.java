@@ -120,6 +120,7 @@ public interface InstructionCodes {
     int FMOD = 86;
     int INEG = 87;
     int FNEG = 88;
+    int NOT = 89;
 
     int ICMP = 100;
     int FCMP = 101;
@@ -139,6 +140,8 @@ public interface InstructionCodes {
     int NACALL = 123;
     int RET = 124;
     int REP = 125;
+    int THROW = 126;
+    int ERRSTORE = 127;
 
     // Type Cast/Conversion related instructions
     int I2F = 130;
@@ -167,13 +170,19 @@ public interface InstructionCodes {
     int JSON2B = 153;
 
     // Type cast
-    int ANY2I = 154;
-    int ANY2F = 155;
-    int ANY2S = 156;
-    int ANY2B = 157;
-    int ANY2JSON = 158;
-    int ANY2MAP = 159;
-    int NULL2JSON = 160;
+    int ANY2I = 155;
+    int ANY2F = 156;
+    int ANY2S = 157;
+    int ANY2B = 158;
+    int ANY2JSON = 159;
+    int ANY2T = 160;
+    int ANY2MAP = 161;
+    int NULL2JSON = 162;
+    int CHECKCAST = 163;
+    int ANY2MSG = 164;
+
+    int WRKINVOKE = 190;
+    int WRKREPLY = 191;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
@@ -182,6 +191,7 @@ public interface InstructionCodes {
     int RNEWARRAY = 204;
     int LNEWARRAY = 205;
     int JSONNEWARRAY = 206;
+    int ARRAYLEN = 207;
 
     int NEWSTRUCT = 210;
     int NEWCONNECTOR = 211;
