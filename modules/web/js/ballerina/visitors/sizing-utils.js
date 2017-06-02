@@ -581,8 +581,8 @@ class SizingUtil {
         let height = defaultHeight;
         if (ASTFactory.isServiceDefinition(node) || ASTFactory.isResourceDefinition(node) ||
             ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
-            ASTFactory.isConnectorAction(node || ASTFactory.isAnnotationDefinition(node) ||
-                ASTFactory.isStructDefinition(node))) {
+            ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
+            ASTFactory.isStructDefinition(node)) {
             for(let annotation of node.getChildrenOfType(ASTFactory.isAnnotation)) {
                 height += this.getAnnotationHeight(annotation);
             }
