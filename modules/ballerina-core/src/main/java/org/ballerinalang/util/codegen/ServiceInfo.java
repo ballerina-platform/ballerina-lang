@@ -41,10 +41,6 @@ public class ServiceInfo extends StructureTypeInfo {
     private FunctionInfo initFuncInfo;
     private URITemplate uriTemplate;
 
-    // Cache values.
-    private String serviceName;
-    private PackageInfo packageInfo;
-
     public ServiceInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
         super(pkgPathCPIndex, connectorNameCPIndex);
     }
@@ -87,22 +83,6 @@ public class ServiceInfo extends StructureTypeInfo {
         return obj instanceof ServiceInfo
                 && pkgPathCPIndex == (((ServiceInfo) obj).pkgPathCPIndex)
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public PackageInfo getPackageInfo() {
-        return packageInfo;
-    }
-
-    protected void setPackageInfo(PackageInfo packageInfo) {
-        this.packageInfo = packageInfo;
     }
 
     public AnnotationAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
