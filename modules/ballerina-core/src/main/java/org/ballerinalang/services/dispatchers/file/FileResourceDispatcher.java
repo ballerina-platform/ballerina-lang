@@ -57,14 +57,14 @@ public class FileResourceDispatcher implements ResourceDispatcher {
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
             BallerinaException {
         if (log.isDebugEnabled()) {
-            log.debug("Starting to find resource in the file service " + service.getServiceName() + " to "
+            log.debug("Starting to find resource in the file service " + service.getName() + " to "
                     + "deliver the message");
         }
         ResourceInfo[] resourceInfoList = service.getResourceInfoList();
         if (resourceInfoList.length != 1) {
             throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE
                     + "' has to have only one resource associated to itself. " + "Found " + resourceInfoList.length
-                    + " resources in Service: " + service.getServiceName());
+                    + " resources in Service: " + service.getName());
         }
         return resourceInfoList[0];
     }

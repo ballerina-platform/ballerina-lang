@@ -19,14 +19,13 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * This class contains helper functions to invoke workers
@@ -53,8 +52,7 @@ public class BLangVMWorkers {
             BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
             BLangVM bLangVM = new BLangVM(programFile);
-            ExecutorService executor = Executors.newSingleThreadExecutor(
-                    new BLangThreadFactory(workerInfo.getWorkerName()));
+            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
             WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, callableUnitInfo, workerContext, workerInfo);
             executor.submit(workerRunner);
         }

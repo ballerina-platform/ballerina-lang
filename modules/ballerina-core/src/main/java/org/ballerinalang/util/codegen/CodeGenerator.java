@@ -43,6 +43,7 @@ import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
@@ -127,6 +128,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -138,6 +140,9 @@ import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
@@ -189,6 +194,7 @@ public class CodeGenerator implements NodeVisitor {
     private boolean structAssignment;
 
     private Stack<List<Instruction>> breakInstructions = new Stack<>();
+    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
     private Stack<List<Instruction>> abortInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
@@ -301,7 +307,6 @@ public class CodeGenerator implements NodeVisitor {
             int serviceNameCPIndex = currentPkgInfo.addCPEntry(serviceNameCPEntry);
 
             ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex);
-            serviceInfo.setServiceName(service.getName());
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             // Assign field indexes for Connector variables
@@ -338,6 +343,7 @@ public class CodeGenerator implements NodeVisitor {
             addWorkerInfoEntries(resourceInfo, resource.getWorkers());
 
             serviceInfo.addResourceInfo(resource.getName(), resourceInfo);
+            resourceInfo.setServiceInfo(serviceInfo);
         }
     }
 
@@ -351,6 +357,7 @@ public class CodeGenerator implements NodeVisitor {
 
             StructInfo structInfo = new StructInfo(currentPkgCPIndex, structNameCPIndex);
             currentPkgInfo.addStructInfo(structDef.getName(), structInfo);
+            structInfo.setPackageInfo(currentPkgInfo);
 
             BStructType structType = new BStructType(structDef.getName(), structDef.getPackagePath());
             structInfo.setType(structType);
@@ -462,6 +469,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             connectorInfo.addActionInfo(action.getName(), actionInfo);
+            actionInfo.setConnectorInfo(connectorInfo);
         }
     }
 
@@ -578,12 +586,45 @@ public class CodeGenerator implements NodeVisitor {
         ConnectorInfo connectorInfo = currentPkgInfo.getConnectorInfo(action.getConnectorDef().getName());
 
         // Now find out the ActionInfo
+
         ActionInfo actionInfo = connectorInfo.getActionInfo(action.getName());
         visitCallableUnit(action, actionInfo, action.getWorkers());
     }
 
     @Override
     public void visit(Worker worker) {
+//        callableUnitInfo = currentPkgInfo.getWorkerInfo(worker.getName());
+//
+//        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
+//        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
+//        callableUnitInfo.codeAttributeInfo.setAttributeNameIndex(codeAttribNameIndex);
+//        callableUnitInfo.codeAttributeInfo.setCodeAddrs(nextIP());
+//
+//        // Read annotations attached to this function
+//        AnnotationAttachment[] annotationAttachments = worker.getAnnotations();
+//        if (annotationAttachments.length > 0) {
+//            AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
+//            callableUnitInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
+//        }
+//
+//        // Add local variable indexes to the parameters and return parameters
+//        visitCallableUnitParameterDefs(worker.getParameterDefs(), callableUnitInfo);
+//
+//        // Visit return parameter defs
+//        for (ParameterDef parameterDef : worker.getReturnParameters()) {
+//            // Check whether these are unnamed set of return types.
+//            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+//            if (parameterDef.getName() != null) {
+//                int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
+//                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+//            }
+//
+//            parameterDef.accept(this);
+//        }
+//
+//        worker.getCallableUnitBody().accept(this);
+//
+//        endCallableUnit();
 
     }
 
@@ -693,6 +734,7 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(BlockStmt blockStmt) {
         for (Statement stmt : blockStmt.getStatements()) {
+            addLineNumberInfo(stmt.getNodeLocation());
             stmt.accept(this);
 
             for (int i = 0; i < maxRegIndexes.length; i++) {
@@ -773,6 +815,9 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ReturnStmt returnStmt) {
         int[] regIndexes;
+//        for (int i = finallyBlocks.size() - 1; i >= 0; i--) {
+//            finallyBlocks.get(i).getFinallyBlockStmt().accept(this);
+//        }
         if (returnStmt.getExprs().length == 1 &&
                 returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr) {
             ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) returnStmt.getExprs()[0];
@@ -824,12 +869,73 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            finallyBlocks.push(tryCatchStmt.getFinallyBlock());
+        }
+        List<int[]> unhandledErrorRangeList = new ArrayList<>();
+        // Handle try block.
+        int fromIP = nextIP();
+        tryCatchStmt.getTryBlock().accept(this);
+        int toIP = nextIP() - 1;
+        // Append finally block instructions.
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+        }
+        emit(gotoEndOfTryCatchBlock);
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+        // Handle catch blocks.
+        int order = 0;
+        for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            int targetIP = nextIP();
+            // Define local variable index for Error.
+            ParameterDef paramDef = catchBlock.getParameterDef();
+            int lvIndex = ++lvIndexes[REF_OFFSET];
+            paramDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            emit(new Instruction(InstructionCodes.ERRSTORE, lvIndex));
+            // Visit Catch Block.
+            catchBlock.getCatchBlockStmt().accept(this);
+            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+            // Append finally block instructions.
+            if (tryCatchStmt.getFinallyBlock() != null) {
+                tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+            }
+            emit(gotoEndOfTryCatchBlock);
+            // Create Error table entry for this catch block
+            StructDef structDef = (StructDef) catchBlock.getParameterDef().getType();
+            int pkgCPIndex = addPackageCPEntry(structDef.getPackagePath());
+            UTF8CPEntry structNameCPEntry = new UTF8CPEntry(structDef.getName());
+            int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+            PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) currentPkgInfo.getConstPool().get(pkgCPIndex);
+            structureRefCPEntry.setStructureTypeInfo(
+                    packageRefCPEntry.getPackageInfo().getStructInfo(structDef.getName()));
 
+            int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
+            currentPkgInfo.addErrorTableEntry(errorTableEntry);
+            errorTableEntry.setPackageInfo(currentPkgInfo);
+        }
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            // Create Error table entry for unhandled errors in try and catch(s) blocks
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
+                currentPkgInfo.addErrorTableEntry(errorTableEntry);
+                errorTableEntry.setPackageInfo(currentPkgInfo);
+            }
+            // Append finally block instruction.
+            finallyBlocks.pop();
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+            emit(new Instruction(InstructionCodes.THROW, -1));
+        }
+        gotoEndOfTryCatchBlock.setOperand(0, nextIP());
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
-
+        throwStmt.getExpr().accept(this);
+        Instruction throwInstruction = new Instruction(InstructionCodes.THROW, throwStmt.getExpr().getTempOffset());
+        emit(throwInstruction);
     }
 
     @Override
@@ -844,11 +950,75 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        int pkgCPIndex = addPackageCPEntry(workerInvocationStmt.getPackagePath());
+        String workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
+                workerInvocationStmt.getWorkerDataChannel().getChannelName();
+        UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(workerInvocationName);
+        int workerInvocationNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
 
+        WorkerDataChannel workerDataChannel = workerInvocationStmt.getWorkerDataChannel();
+
+        WorkerDataChannelRefCPEntry workerInvocationRefCPEntry =
+                new WorkerDataChannelRefCPEntry(pkgCPIndex, workerInvocationNameCPIndex);
+        workerInvocationRefCPEntry.setWorkerDataChannel(workerDataChannel);
+        int workerInvocationRefCPIndex = currentPkgInfo.addCPEntry(workerInvocationRefCPEntry);
+        int workerInvocationIndex = getWorkerInvocationCPIndex(workerInvocationStmt);
+        emit(InstructionCodes.WRKINVOKE, workerInvocationRefCPIndex, workerInvocationIndex);
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
+        int pkgCPIndex = addPackageCPEntry(workerReplyStmt.getPackagePath());
+        String workerReplyName = workerReplyStmt.getEnclosingCallableUnitName() + "." +
+                workerReplyStmt.getWorkerDataChannel().getChannelName();
+        UTF8CPEntry workerReplyNameCPEntry = new UTF8CPEntry(workerReplyName);
+        int workerReplyNameCPIndex = currentPkgInfo.addCPEntry(workerReplyNameCPEntry);
+
+        WorkerDataChannel workerDataChannel = workerReplyStmt.getWorkerDataChannel();
+
+        WorkerDataChannelRefCPEntry workerReplyRefCPEntry =
+                new WorkerDataChannelRefCPEntry(pkgCPIndex, workerReplyNameCPIndex);
+        workerReplyRefCPEntry.setWorkerDataChannel(workerDataChannel);
+        int workerReplyRefCPIndex = currentPkgInfo.addCPEntry(workerReplyRefCPEntry);
+        int workerReplyIndex = getWorkerReplyCPIndex(workerReplyStmt);
+        emit(InstructionCodes.WRKREPLY, workerReplyRefCPIndex, workerReplyIndex);
+        // Generate store instructions to store the values.
+        int[] rhsExprRegIndexes = workerReplyStmt.getOffsets();
+        Expression[] lhsExprs = workerReplyStmt.getExpressionList();
+        for (int i = 0; i < lhsExprs.length; i++) {
+            rhsExprRegIndex = rhsExprRegIndexes[i];
+            Expression lExpr = lhsExprs[i];
+
+            if (lExpr instanceof VariableRefExpr) {
+                varAssignment = true;
+                lExpr.accept(this);
+                varAssignment = false;
+            } else if (lExpr instanceof ArrayMapAccessExpr) {
+                arrayMapAssignment = true;
+                lExpr.accept(this);
+                arrayMapAssignment = false;
+            } else if (lExpr instanceof FieldAccessExpr) {
+                structAssignment = true;
+                lExpr.accept(this);
+                structAssignment = false;
+            }
+        }
+//        int pkgCPIndex = addPackageCPEntry(workerReplyStmt.getPackagePath());
+//
+//        String workerName = workerReplyStmt.getWorkerName();
+//        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName);
+//        int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+//
+//        // Find the package info entry of the function and from the package info entry find the function info entry
+//        String pkgPath = workerReplyStmt.getPackagePath();
+//        PackageInfo workerPackageInfo = programFile.getPackageInfo(pkgPath);
+//        WorkerInfo workerInfo = workerPackageInfo.getWorkerInfo(workerName);
+//
+//        WorkerDataChannelRefCPEntry funcRefCPEntry = new WorkerDataChannelRefCPEntry(pkgCPIndex, workerNameCPIndex);
+//        funcRefCPEntry.setWorkerInfo(workerInfo);
+//        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+//        int funcCallIndex = getCallableUnitCallCPIndex(workerReplyStmt);
+//        emit(InstructionCodes.WRKREPLY, funcRefCPIndex, funcCallIndex);
 
     }
 
@@ -1324,12 +1494,14 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(StructInitExpr structInitExpr) {
         StructDef structDef = (StructDef) structInitExpr.getType();
         int pkgCPIndex = addPackageCPEntry(structDef.getPackagePath());
+        PackageInfo structDefPkgInfo = programFile.getPackageInfo(structDef.getPackagePath());
 
         UTF8CPEntry structNameCPEntry = new UTF8CPEntry(structDef.getName());
         int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
 
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-        structureRefCPEntry.setStructureTypeInfo(currentPkgInfo.getStructInfo(structDef.getName()));
+        StructInfo structInfo = structDefPkgInfo.getStructInfo(structDef.getName());
+        structureRefCPEntry.setStructureTypeInfo(structInfo);
         int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
         //Emit an instruction to create a new struct.
@@ -1509,7 +1681,7 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ArrayLengthExpression arrayLengthExpression) {
         int arrayLengthIndex = ++regIndexes[INT_OFFSET];
-        arrayLengthExpression.setOffset(arrayLengthIndex);
+        arrayLengthExpression.setTempOffset(arrayLengthIndex);
         emit(InstructionCodes.ARRAYLEN, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
     }
 
@@ -2055,7 +2227,40 @@ public class CodeGenerator implements NodeVisitor {
         int pkgNameIndex = currentPkgInfo.addCPEntry(pkgNameCPEntry);
 
         PackageRefCPEntry pkgCPEntry = new PackageRefCPEntry(pkgNameIndex);
+        // Cache Value.
+        pkgCPEntry.setPackageInfo(programFile.getPackageInfo(pkgPath));
         return currentPkgInfo.addCPEntry(pkgCPEntry);
+    }
+
+    private int getWorkerInvocationCPIndex(WorkerInvocationStmt workerInvocationStmt) {
+        Expression[] argExprs = workerInvocationStmt.getExpressionList();
+        int[] argRegs = new int[argExprs.length];
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            argExpr.accept(this);
+            argRegs[i] = argExpr.getTempOffset();
+        }
+
+        int[] retRegs = new int[0];
+        WorkerInvokeCPEntry workerInvokeCPEntry = new WorkerInvokeCPEntry
+                (argRegs, retRegs, workerInvocationStmt.getTypes());
+        return currentPkgInfo.addCPEntry(workerInvokeCPEntry);
+    }
+
+    private int getWorkerReplyCPIndex(WorkerReplyStmt workerReplyStmt) {
+
+        int[] retRegs = new int[0];
+        // Calculate registers to store return values
+        BType[] retTypes = workerReplyStmt.getTypes();
+        int[] argRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            argRegs[i] = getNextIndex(retType.getTag(), regIndexes);
+        }
+
+        workerReplyStmt.setOffsets(argRegs);
+        WorkerReplyCPEntry workerReplyCPEntry = new WorkerReplyCPEntry(argRegs, retRegs, workerReplyStmt.getTypes());
+        return currentPkgInfo.addCPEntry(workerReplyCPEntry);
     }
 
     private int getCallableUnitCallCPIndex(CallableUnitInvocationExpr invocationExpr) {
@@ -2260,6 +2465,15 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
         }
+    }
+
+    private void addLineNumberInfo(NodeLocation nodeLocation) {
+        if (nodeLocation == null) {
+            return;
+        }
+        LineNumberInfo lineNumberInfo = LineNumberInfo.Factory.create(nodeLocation, currentPkgInfo,
+                currentPkgInfo.getInstructionList().size());
+        currentPkgInfo.addLineNumberInfo(lineNumberInfo);
     }
 
     private LocalVariableInfo getLocalVariableAttributeInfo(ParameterDef parameterDef) {

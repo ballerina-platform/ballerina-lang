@@ -132,10 +132,8 @@ public interface InstructionCodes {
     int NACALL = 123;
     int RET = 124;
     int REP = 125;
-
-    int ABORT = 126;
-    int TRBGN = 127;
-    int TREND = 128;
+    int THROW = 126;
+    int ERRSTORE = 127;
 
     // Type Cast/Conversion related instructions
     int I2F = 130;
@@ -173,6 +171,14 @@ public interface InstructionCodes {
     int ANY2MAP = 161;
     int NULL2JSON = 162;
     int CHECKCAST = 163;
+    int ANY2MSG = 164;
+
+    int ABORT = 165;
+    int TRBGN = 166;
+    int TREND = 167;
+
+    int WRKINVOKE = 190;
+    int WRKREPLY = 191;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
