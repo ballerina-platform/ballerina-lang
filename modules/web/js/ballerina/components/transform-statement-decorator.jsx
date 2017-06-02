@@ -143,12 +143,14 @@ class TransformStatementDecorator extends React.Component {
                 '          </span>' +
               '</div></div>');
 
-        var transformNameText = $('<p class="transform-header-text "><i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
-        var transformHeader = $('<div id ="transformHeader" class ="transform-header"><span class="close-transform">&times;</span></div>');
+        var transformNameText = $('<p class="transform-header-text ">'
+                                +'<i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
+        var transformHeader = $('<div id ="transformHeader" class ="transform-header">'
+                                +'<span class="close-transform">&times;</span></div>');
         var transformHeaderPadding = $('<div id ="transformHeaderPadding" class ="transform-header-padding"></div>');
         var transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
-        var transformOverlayContent =  $('<div id = "transformOverlay-content" class="transformOverlay-content clearfix">'+
+        var transformOverlayContent = $('<div id = "transformOverlay-content" class="transformOverlay-content">'+
                                               '    </div>');
 
         var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
@@ -249,12 +251,10 @@ class TransformStatementDecorator extends React.Component {
             self.mapper.reposition(self.mapper);
         });
 
-
         span.onclick = function() {
             document.getElementById('transformOverlay').style.display = 'none';
             $(transformOverlay).remove();
         };
-
 
         var onConnectionCallback = function(connection) {
             let sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
