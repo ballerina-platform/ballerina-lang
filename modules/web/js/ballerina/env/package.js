@@ -270,7 +270,7 @@ class Package extends EventChannel {
      */
     addAnnotationDefinitions(annotationDefinitions){
         var err;
-        if(!_.isArray(annotationDefinitions) && !(BallerinaEnvFactory.isAnnotation(annotationDefinitions))){
+        if(!_.isArray(annotationDefinitions) && !(BallerinaEnvFactory.isAnnotationDefinition(annotationDefinitions))){
             err = "Adding annotation def failed. Not an instance of AnnotationDefinition" + annotationDefinitions;
             log.error(err);
             throw err;
@@ -528,7 +528,7 @@ class Package extends EventChannel {
         });
 
         _.each(jsonNode.annotations, function(annotationNode){
-            var annotationDef = BallerinaEnvFactory.createAnnotation();
+            var annotationDef = BallerinaEnvFactory.createAnnotationDefinition();
             annotationDef.initFromJson(annotationNode);
             self.addAnnotationDefinitions(annotationDef);
         });

@@ -131,11 +131,17 @@
     background: #f4f4f4;
     overflow: auto;
     padding: 7px;
+    z-index: 1;
+    overflow: visible;
 }
 
 .annotation-table td {
     height: 20px;
-    line-height: 20px;
+    line-height: 10px;
+}
+
+.annotation-table td .react-autosuggest__container {
+    line-height: 15px;
 }
 
 .annotation-key .package-name {

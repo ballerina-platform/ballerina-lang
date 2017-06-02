@@ -16,31 +16,94 @@
 
 package org.ballerinalang.composer.service.workspace.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Annotation attribute value.
+ * Represents the value of a annotation's attribute pair.
  */
 public class AnnotationAttributeValue {
-
-    AnnotationAttachment annotationValue;
-    private List<AnnotationAttributeValue> valueArray = new ArrayList<AnnotationAttributeValue>();
-
-    public List<AnnotationAttributeValue> getValueArray() {
-        return valueArray;
+    
+    @JsonProperty("bValue")
+    private String bValue;
+    
+    @JsonProperty("annotationValue")
+    private AnnotationAttachment annotationValue;
+    
+    @JsonProperty("valueArray")
+    private List<AnnotationAttributeValue> valueArray;
+    
+    public String getBValue() {
+        return bValue;
     }
-
-    public void setValueArray(List<AnnotationAttributeValue> valueArray) {
-        this.valueArray = valueArray;
+    
+    public void setBValue(String bValue) {
+        this.bValue = bValue;
     }
-
+    
     public AnnotationAttachment getAnnotationValue() {
         return annotationValue;
     }
-
+    
     public void setAnnotationValue(AnnotationAttachment annotationValue) {
         this.annotationValue = annotationValue;
     }
-
+    
+    public List<AnnotationAttributeValue> getValueArray() {
+        return valueArray;
+    }
+    
+    public void setValueArray(List<AnnotationAttributeValue> valueArray) {
+        this.valueArray = valueArray;
+    }
+    
+    /**
+     * Adds a value to array type value
+     * @param annotationAttributeValue The attribute to be added.
+     */
+    public void addToValueArray(AnnotationAttributeValue annotationAttributeValue) {
+        if (null == this.valueArray) {
+            this.valueArray = new ArrayList<>();
+        }
+        
+        this.valueArray.add(annotationAttributeValue);
+    }
+    
+    /**
+     * Converts a {@link org.ballerinalang.model.AnnotationAttributeValue} to {@link AnnotationAttributeValue}.
+     * @param annotationAttributeValue The model to be converted.
+     * @return Converted model.
+     */
+    public static AnnotationAttributeValue convertToPackageModel(
+                                            org.ballerinalang.model.AnnotationAttributeValue annotationAttributeValue) {
+        if (null != annotationAttributeValue) {
+            AnnotationAttributeValue tempAnnotationAttributeValue = new AnnotationAttributeValue();
+            tempAnnotationAttributeValue.setBValue(annotationAttributeValue.getLiteralValue().stringValue());
+            tempAnnotationAttributeValue.setAnnotationValue(AnnotationAttachment.convertToPackageModel(
+                                                                        annotationAttributeValue.getAnnotationValue()));
+            
+            if (null != annotationAttributeValue.getValueArray()) {
+                for (org.ballerinalang.model.AnnotationAttributeValue attributeValue :
+                                                                            annotationAttributeValue.getValueArray()) {
+                    tempAnnotationAttributeValue.addToValueArray(AnnotationAttributeValue.convertToPackageModel(
+                                                                                                    attributeValue));
+                }
+            }
+    
+            return tempAnnotationAttributeValue;
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "AnnotationAttributeValue{" + "bValue='" + bValue + '\'' + ", annotationValue=" + annotationValue + "," +
+               " valueArray=" + valueArray + '}';
+    }
 }

@@ -19,9 +19,10 @@ let keyIndex = 0;
 
 class AnnotationContainer {
 
-    constructor(bBox, annotations){
+    constructor(bBox, annotations, parentNode){
         this.bBox = bBox;
         this.annotations = annotations;
+        this.parentNode = parentNode;
     }
 
     getID(){

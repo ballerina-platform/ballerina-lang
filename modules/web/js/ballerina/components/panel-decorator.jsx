@@ -46,10 +46,6 @@ class PanelDecorator extends React.Component {
         this.props.model.setAttribute('viewState.collapsed', !this.props.model.viewState.collapsed);
     }
 
-    onAnnotaionCollapseClick() {
-        this.props.model.setAttribute('viewState.annotationViewCollapsed', !this.props.model.viewState.annotationViewCollapsed);
-    }
-
     onDelete() {
         this.props.model.remove();
     }
@@ -119,7 +115,7 @@ class PanelDecorator extends React.Component {
                       className="headingRect" data-original-title="" title=""></rect>
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
                 <EditableText
-                    x={bBox.x + titleHeight} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                    x={bBox.x + titleHeight + iconSize + 15} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                     width={titleWidth.w}
                     onBlur={() => { this.onTitleInputBlur() }}
                     onClick={() => { this.onTitleClick() }}
@@ -131,6 +127,8 @@ class PanelDecorator extends React.Component {
                 </EditableText>
                 <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}
                        xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
+                <image x={bBox.x + iconSize + 15} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}
+                    xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}/>
                 {titleComponents}
                 <g className="panel-header-controls">
                     <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={55} height={25}
@@ -239,6 +237,10 @@ class PanelDecorator extends React.Component {
             });
         }
         return annotationString;
+    }
+
+    onAnnotationEditButtonClick() {
+        this.props.model.setAttribute('viewState.showAnnotationContainer', !this.props.model.viewState.showAnnotationContainer);
     }
 }
 

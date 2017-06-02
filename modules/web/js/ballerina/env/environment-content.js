@@ -15,7 +15,6 @@
  */
 
 import $ from 'jquery';
-import _ from 'lodash';
 var environment_content = {};
 
 /**
@@ -27,16 +26,16 @@ environment_content.getPackages = function (app) {
 
     // TODO: remove the following hard coded url and use a value from application config
     $.ajax({
-        type: "GET",
+        type: 'GET',
         url: packageServiceURL,
-        contentType: "application/json; charset=utf-8",
+        contentType: 'application/json; charset=utf-8',
         async: false,
-        dataType: "json",
+        dataType: 'json',
         success: function (response) {
             data = response;
         },
         error: function (xhr, textStatus, errorThrown) {
-            data = { "error": true, "message": "Unable to retrieve packages." };
+            data = { 'error': true, 'message': 'Unable to retrieve packages.' };
         }
     });
     return data;
@@ -50,16 +49,16 @@ environment_content.getNativeTypes = function (app) {
     var data = [];
     // TODO: remove the following hard coded url and use a value from application config
     $.ajax({
-        type: "GET",
+        type: 'GET',
         url: programNativeTypesServiceURL,
-        contentType: "application/json; charset=utf-8",
+        contentType: 'application/json; charset=utf-8',
         async: false,
-        dataType: "json",
+        dataType: 'json',
         success: function (response) {
             data = response;
         },
         error: function (xhr, textStatus, errorThrown) {
-            data = { "error": true, "message": "Unable to retrieve native types." };
+            data = { 'error': true, 'message': 'Unable to retrieve native types.' };
         }
     });
     return data;

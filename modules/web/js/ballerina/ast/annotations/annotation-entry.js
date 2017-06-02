@@ -44,6 +44,12 @@ class AnnotationEntry extends ASTNode {
          * @type {string|Annotation|AnnotationEntryArray}
          */
         this._rightValue = _.get(args, 'rightValue');
+
+        if (!_.isUndefined(this._rightValue) && !_.isString(this._rightValue)) {
+            this._rightValue.on('tree-modified', (event) => {
+                this.trigger('tree-modified', event);
+            });
+        }
     }
 
     setLeftValue(leftValue, options) {
@@ -56,6 +62,11 @@ class AnnotationEntry extends ASTNode {
 
     setRightValue(rightValue, options) {
         this.setAttribute('_rightValue', rightValue, options);
+        if (!_.isString(rightValue)) {
+            rightValue.on('tree-modified', (event) => {
+                this.trigger('tree-modified', event);
+            });
+        }
     }
 
     getRightValue() {

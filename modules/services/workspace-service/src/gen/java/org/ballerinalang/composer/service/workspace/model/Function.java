@@ -36,7 +36,7 @@ public class Function {
     private String description = null;
 
     @JsonProperty("annotations")
-    private List<Annotation> annotations = new ArrayList<Annotation>();
+    private List<AnnotationAttachment> annotations = new ArrayList<>();
 
     @JsonProperty("parameters")
     private List<Parameter> parameters = new ArrayList<Parameter>();
@@ -82,12 +82,12 @@ public class Function {
         this.description = description;
     }
 
-    public Function annotations(List<Annotation> annotations) {
+    public Function annotations(List<AnnotationAttachment> annotations) {
         this.annotations = annotations;
         return this;
     }
 
-    public Function addAnnotationsItem(Annotation annotationsItem) {
+    public Function addAnnotationsItem(AnnotationAttachment annotationsItem) {
         this.annotations.add(annotationsItem);
         return this;
     }
@@ -98,11 +98,11 @@ public class Function {
      * @return annotations
      **/
     @ApiModelProperty(value = "")
-    public List<Annotation> getAnnotations() {
+    public List<AnnotationAttachment> getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(List<Annotation> annotations) {
+    public void setAnnotations(List<AnnotationAttachment> annotations) {
         this.annotations = annotations;
     }
 
@@ -156,7 +156,7 @@ public class Function {
 
 
     @Override
-    public boolean equals(java.lang.Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -193,7 +193,7 @@ public class Function {
     /**
      * Convert the given object to string with each line indented by 4 spaces (except the first line).
      */
-    private String toIndentedString(java.lang.Object o) {
+    private String toIndentedString(Object o) {
         if (o == null) {
             return "null";
         }

@@ -17,59 +17,104 @@
 package org.ballerinalang.composer.service.workspace.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.ballerinalang.model.AttachmentPoint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Annotation attachment.
+ * Represents an annotation attached to certain objects({@link Action}, {@link Connector}).
  */
 public class AnnotationAttachment {
-
     @JsonProperty("name")
-    private String name = null;
-
-    @JsonProperty("annotations")
-    private List<Annotation> annotations = new ArrayList<Annotation>();
-
-    @JsonProperty("attributeNameValPairs")
-    private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
-
+    private String name;
+    
+    @JsonProperty("packageName")
+    private String packageName;
+    
+    @JsonProperty("packagePath")
+    private String packagePath;
+    
     @JsonProperty("attachedPoint")
-    AttachmentPoint attachedPoint = null;
-
+    private String attachedPoint;
+    
+    @JsonProperty("attributeNameValPairs")
+    private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap();
+    
     public String getName() {
         return name;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
-
-    public List<Annotation> getAnnotations() {
-        return annotations;
+    
+    public String getPackageName() {
+        return packageName;
     }
-
-    public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
+    
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
-
+    
+    public String getPackagePath() {
+        return packagePath;
+    }
+    
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
+    }
+    
+    public String getAttachedPoint() {
+        return attachedPoint;
+    }
+    
+    public void setAttachedPoint(String attachedPoint) {
+        this.attachedPoint = attachedPoint;
+    }
+    
     public Map<String, AnnotationAttributeValue> getAttributeNameValPairs() {
         return attributeNameValPairs;
     }
-
+    
     public void setAttributeNameValPairs(Map<String, AnnotationAttributeValue> attributeNameValPairs) {
         this.attributeNameValPairs = attributeNameValPairs;
     }
-
-    public AttachmentPoint getAttachedPoint() {
-        return attachedPoint;
+    
+    /**
+     * Converts a {@link org.ballerinalang.model.AnnotationAttachment} to {@link AnnotationAttachment}.
+     * @param annotationAttachment The model to be converted.
+     * @return Converted model.
+     */
+    public static AnnotationAttachment convertToPackageModel(
+                                                    org.ballerinalang.model.AnnotationAttachment annotationAttachment) {
+        if (null != annotationAttachment) {
+            AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
+            tempAnnotationAttachment.setName(annotationAttachment.getName());
+            tempAnnotationAttachment.setPackageName(annotationAttachment.getPkgName());
+            tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
+            
+            if (null != annotationAttachment.getAttachedPoint()) {
+                tempAnnotationAttachment.setAttachedPoint(annotationAttachment.getAttachedPoint().getValue());
+            }
+    
+            for (Map.Entry<String, org.ballerinalang.model.AnnotationAttributeValue> annotationAttributeValueEntry :
+                    annotationAttachment.getAttributeNameValuePairs().entrySet()) {
+                tempAnnotationAttachment.getAttributeNameValPairs().put(annotationAttributeValueEntry.getKey(),
+                            AnnotationAttributeValue.convertToPackageModel(annotationAttributeValueEntry.getValue()));
+            }
+        
+            return tempAnnotationAttachment;
+        } else {
+            return null;
+        }
     }
-
-    public void setAttachedPoint(AttachmentPoint attachedPoint) {
-        this.attachedPoint = attachedPoint;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "AnnotationAttachment{" + "name='" + name + '\'' + ", packagePath='" + packagePath + '\'' + ", " +
+               "attachedPoint='" + attachedPoint + '\'' + '}';
     }
 }
