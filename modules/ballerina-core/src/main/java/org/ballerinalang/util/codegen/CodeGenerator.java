@@ -276,7 +276,8 @@ public class CodeGenerator implements NodeVisitor {
         // Visit package init function
         pkgInitFunction.accept(this);
         currentPkgInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(pkgInitFunction.getName()));
-
+        
+        currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
     }
@@ -321,7 +322,7 @@ public class CodeGenerator implements NodeVisitor {
             // Create the init function info
             createFunctionInfoEntries(new Function[]{service.getInitFunction()});
             serviceInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(service.getInitFunction().getName()));
-            
+
             // Create resource info entries for all resource
             createResourceInfoEntries(service.getResources(), serviceInfo);
         }
@@ -763,7 +764,7 @@ public class CodeGenerator implements NodeVisitor {
 
         // TODO operand2 should be the jump address  else-if or else or to the next instruction after then block
         Instruction ifInstruction;
-        if(opcode == InstructionCodes.IFNOTNULL || opcode == InstructionCodes.IFNULL) {
+        if (opcode == InstructionCodes.IFNOTNULL || opcode == InstructionCodes.IFNULL) {
             ifInstruction = new Instruction(opcode, ifCondExpr.getTempOffset(), 0);
         } else {
             ifInstruction = new Instruction(opcode, regIndexes[BOOL_OFFSET], 0);
@@ -911,7 +912,7 @@ public class CodeGenerator implements NodeVisitor {
             UTF8CPEntry structNameCPEntry = new UTF8CPEntry(structDef.getName());
             int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-            PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) currentPkgInfo.getConstPool().get(pkgCPIndex);
+            PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) currentPkgInfo.getCPEntry(pkgCPIndex);
             structureRefCPEntry.setStructureTypeInfo(
                     packageRefCPEntry.getPackageInfo().getStructInfo(structDef.getName()));
 
@@ -1984,7 +1985,7 @@ public class CodeGenerator implements NodeVisitor {
             // TODO: We need to support Matrix Param as well
             for (AnnotationAttachment annotationAttachment : annotationAttachments) {
                 if ("PathParam".equalsIgnoreCase(annotationAttachment.getName())
-                    || "QueryParam".equalsIgnoreCase(annotationAttachment.getName())) {
+                        || "QueryParam".equalsIgnoreCase(annotationAttachment.getName())) {
                     names[i] = annotationAttachment.getAttributeNameValuePairs()
                             .get("value").getLiteralValue().stringValue();
                     isAnnotated = true;
@@ -2000,14 +2001,14 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     private int nextIP() {
-        return currentPkgInfo.getInstructionList().size();
+        return currentPkgInfo.getInstructionCount();
     }
 
     private int getIfOpcode(Expression expr) {
         int opcode;
         if (expr instanceof EqualExpression) {
 
-            if(isNullCheckAvailable((BinaryExpression) expr)) {
+            if (isNullCheckAvailable((BinaryExpression) expr)) {
                 opcode = InstructionCodes.IFNOTNULL;
                 return opcode;
             }
@@ -2017,7 +2018,7 @@ public class CodeGenerator implements NodeVisitor {
                 expr instanceof OrExpression ||
                 expr instanceof AndExpression) {
 
-            if(isNullCheckAvailable((BinaryExpression) expr)) {
+            if (isNullCheckAvailable((BinaryExpression) expr)) {
                 opcode = InstructionCodes.IFNULL;
                 return opcode;
             }
@@ -2479,7 +2480,7 @@ public class CodeGenerator implements NodeVisitor {
             return;
         }
         LineNumberInfo lineNumberInfo = LineNumberInfo.Factory.create(nodeLocation, currentPkgInfo,
-                currentPkgInfo.getInstructionList().size());
+                currentPkgInfo.getInstructionCount());
         currentPkgInfo.addLineNumberInfo(lineNumberInfo);
     }
 

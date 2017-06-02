@@ -34,8 +34,10 @@ public class PackageInfo {
     private String pkgPath;
     private FunctionInfo initFunctionInfo;
 
-    private List<ConstantPoolEntry> constPool = new ArrayList<>();
+    private ConstantPoolEntry[] constPool;
+    private List<ConstantPoolEntry> constantPoolEntries = new ArrayList<>();
 
+    private Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
 
     private Map<String, FunctionInfo> functionInfoMap = new HashMap<>();
@@ -65,19 +67,23 @@ public class PackageInfo {
     // CP
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
-        if (constPool.contains(cpEntry)) {
-            return constPool.indexOf(cpEntry);
+        if (constantPoolEntries.contains(cpEntry)) {
+            return constantPoolEntries.indexOf(cpEntry);
         }
 
-        constPool.add(cpEntry);
-        return constPool.size() - 1;
+        constantPoolEntries.add(cpEntry);
+        return constantPoolEntries.size() - 1;
+    }
+
+    public ConstantPoolEntry getCPEntry(int index) {
+        return constantPoolEntries.get(index);
     }
 
     public int getCPEntryIndex(ConstantPoolEntry cpEntry) {
-        return constPool.indexOf(cpEntry);
+        return constantPoolEntries.indexOf(cpEntry);
     }
 
-    public List<ConstantPoolEntry> getConstPool() {
+    public ConstantPoolEntry[] getConstPool() {
         return constPool;
     }
 
@@ -124,8 +130,12 @@ public class PackageInfo {
         return instructionList.size() - 1;
     }
 
-    public List<Instruction> getInstructionList() {
-        return instructionList;
+    public Instruction[] getInstructions() {
+        return instructions;
+    }
+
+    public int getInstructionCount() {
+        return instructionList.size();
     }
 
     // LineNumberInfo
@@ -184,5 +194,10 @@ public class PackageInfo {
 
     public void setInitFunctionInfo(FunctionInfo initFunctionInfo) {
         this.initFunctionInfo = initFunctionInfo;
+    }
+
+    public void complete() {
+        this.constPool = constantPoolEntries.toArray(new ConstantPoolEntry[0]);
+        this.instructions = instructionList.toArray(new Instruction[0]);
     }
 }

@@ -60,8 +60,8 @@ public class ErrorTableEntry {
         if (errorStructCPEntryIndex < 0) {
             return;
         }
-        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) packageInfo.getConstPool().get
-                (errorStructCPEntryIndex);
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
+                packageInfo.getCPEntry(errorStructCPEntryIndex);
         this.error = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
     }
 

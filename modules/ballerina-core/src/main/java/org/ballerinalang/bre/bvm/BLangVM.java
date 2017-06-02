@@ -125,8 +125,8 @@ public class BLangVM {
 
     public void run(Context context) {
         StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
-        this.constPool = currentFrame.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = currentFrame.packageInfo.getInstructionList().toArray(new Instruction[0]);
+        this.constPool = currentFrame.packageInfo.getConstPool();
+        this.code = currentFrame.packageInfo.getInstructions();
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
@@ -140,8 +140,8 @@ public class BLangVM {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
-            this.constPool = controlStack.currentFrame.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-            this.code = controlStack.currentFrame.packageInfo.getInstructionList().toArray(new Instruction[0]);
+            this.constPool = controlStack.currentFrame.packageInfo.getConstPool();
+            this.code = controlStack.currentFrame.packageInfo.getInstructions();
             handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
                     calleeSF.returnValues, retTypes);
 
@@ -752,7 +752,7 @@ public class BLangVM {
                     j = operands[1];
                     if (sf.intRegs[i] > 0) {
                         ip = j;
-                    }   
+                    }
                     break;
                 case InstructionCodes.IFLE:
                     i = operands[0];
@@ -764,14 +764,14 @@ public class BLangVM {
                 case InstructionCodes.IFNULL:
                     i = operands[0];
                     j = operands[1];
-                    if(sf.refRegs[i] == null) {
+                    if (sf.refRegs[i] == null) {
                         ip = j;
                     }
                     break;
                 case InstructionCodes.IFNOTNULL:
                     i = operands[0];
                     j = operands[1];
-                    if(sf.refRegs[i] != null) {
+                    if (sf.refRegs[i] != null) {
                         ip = j;
                     }
                     break;
@@ -1212,8 +1212,8 @@ public class BLangVM {
         copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
         // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+        this.constPool = calleeSF.packageInfo.getConstPool();
+        this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
         // Invoke other workers
@@ -1393,8 +1393,8 @@ public class BLangVM {
             }
 
             // TODO Improve
-            this.constPool = callersSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-            this.code = callersSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+            this.constPool = callersSF.packageInfo.getConstPool();
+            this.code = callersSF.packageInfo.getInstructions();
         }
 
         ip = currentSF.retAddrs;
@@ -1832,8 +1832,8 @@ public class BLangVM {
         // match should be not null at this point.
         if (match != null) {
             PackageInfo packageInfo = currentFrame.packageInfo;
-            this.constPool = packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-            this.code = packageInfo.getInstructionList().toArray(new Instruction[0]);
+            this.constPool = packageInfo.getConstPool();
+            this.code = packageInfo.getInstructions();
             ip = match.getIpTarget();
             return;
         }

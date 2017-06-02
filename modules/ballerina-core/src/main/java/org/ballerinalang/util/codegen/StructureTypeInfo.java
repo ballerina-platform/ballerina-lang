@@ -79,6 +79,6 @@ public class StructureTypeInfo {
     protected void setPackageInfo(PackageInfo packageInfo) {
         this.packageInfo = packageInfo;
         // Update Cache values.
-        name = ((UTF8CPEntry) packageInfo.getConstPool().get(nameCPIndex)).getValue();
+        name = ((UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex)).getValue();
     }
 }
