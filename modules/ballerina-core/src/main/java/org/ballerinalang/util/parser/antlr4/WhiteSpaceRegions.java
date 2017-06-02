@@ -299,7 +299,8 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a map struct literal
     public static final int MAP_STRUCT_LITERAL_PRECEDING_WHITESPACE = 0;
-    public static final int MAP_STRUCT_LITERAL_FOLLOWING_WHITESPACE = 1;
+    public static final int MAP_STRUCT_LITERAL_BODY_START_TO_NEXT_TOKEN = 1;
+    public static final int MAP_STRUCT_LITERAL_FOLLOWING_WHITESPACE = 2;
 
     // whitespace regions in a connector init expr
     public static final int CONNECTOR_INIT_EXP_PRECEDING_WHITESPACE = 0;
