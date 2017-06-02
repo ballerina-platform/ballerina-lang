@@ -40,6 +40,7 @@ public class TypeConstants {
     static final String DATATABLE_TNAME = "datatable";
     static final String ANY_TNAME = "any";
     public static final String NULL_TNAME = "null";
+    public static final String BLOB_TNAME = "blob";
     public static final String VOID_TNAME = "void";
 
 
@@ -53,6 +54,7 @@ public class TypeConstants {
     public static final String ARRAY_TSIG = "[";
     public static final String VOID_TSIG = "V";
     public static final String ANY_TSIG = "A";
+    public static final String BLOB_TSIG = "L";
 
 
 }

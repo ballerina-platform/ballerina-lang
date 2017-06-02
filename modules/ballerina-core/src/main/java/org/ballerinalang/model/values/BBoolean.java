@@ -61,6 +61,11 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     @Override
+    public byte[] blobValue() {
+        return null;
+    }
+
+    @Override
     public String stringValue() {
         return Boolean.toString(value);
     }

@@ -47,6 +47,7 @@ public class BTypes {
     public static BType typeAny;
     public static BType typeConnector;
     public static BType typeNull;
+    public static BType typeBlob;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -71,6 +72,7 @@ public class BTypes {
         globalScope.define(typeAny.getSymbolName(), typeAny);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
         globalScope.define(typeNull.getSymbolName(), typeNull);
+        globalScope.define(typeBlob.getSymbolName(), typeBlob);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
         builtInTypeNames.add(TypeConstants.STRING_TNAME);
@@ -85,6 +87,7 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
         builtInTypeNames.add(TypeConstants.ANY_TNAME);
         builtInTypeNames.add(TypeConstants.NULL_TNAME);
+        builtInTypeNames.add(TypeConstants.BLOB_TNAME);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -105,6 +108,7 @@ public class BTypes {
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
+        typeBlob = new BBlobType(TypeConstants.BLOB_TNAME, null, globalScope);
 
         initialized = true;
     }
@@ -168,7 +172,8 @@ public class BTypes {
         if (type == BTypes.typeInt ||
                 type == BTypes.typeString ||
                 type == BTypes.typeFloat ||
-                type == BTypes.typeBoolean) {
+                type == BTypes.typeBoolean ||
+                type == BTypes.typeBlob) {
             return true;
         }
 

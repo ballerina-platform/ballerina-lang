@@ -21,6 +21,8 @@ import static org.ballerinalang.model.types.TypeConstants.ANY_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.ANY_TSIG;
 import static org.ballerinalang.model.types.TypeConstants.ARRAY_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.ARRAY_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.BLOB_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.BLOB_TSIG;
 import static org.ballerinalang.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.ballerinalang.model.types.TypeConstants.BOOLEAN_TSIG;
 import static org.ballerinalang.model.types.TypeConstants.CONNECTOR_TNAME;
@@ -62,7 +64,8 @@ public enum TypeEnum {
     ANY(ANY_TNAME, ANY_TSIG),
     ARRAY(ARRAY_TNAME, ARRAY_TSIG),
     CONNECTOR(CONNECTOR_TNAME, CONNECTOR_TSIG),
-    EMPTY("", VOID_TSIG);
+    EMPTY("", VOID_TSIG),
+    BLOB(BLOB_TNAME, BLOB_TSIG);
 
     private String name;
     private String sig;
