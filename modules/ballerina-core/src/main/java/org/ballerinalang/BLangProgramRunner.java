@@ -96,20 +96,38 @@ public class BLangProgramRunner {
         if (servicePackageNameList.length == 0) {
             throw new RuntimeException("no service found in '" + programFile.getProgramFilePath() + "'");
         }
+
+        // This is required to invoke package/service init functions;
+        Context bContext = new Context(programFile);
+
         int serviceCount = 0;
         for (String packageName : servicePackageNameList) {
             PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-            if (packageInfo != null) {
-                for (ServiceInfo serviceInfo : packageInfo.getServiceInfoList()) {
-                    DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-                            dispatcher.serviceRegistered(serviceInfo));
-                    serviceCount++;
-                }
+            if (packageInfo == null) {
+                // TODO Handle this condition. Throw a proper error
+                // This error cannot happen, because this condition has been validated before
+                throw new RuntimeException("error in ballerina program");
+            }
+
+            // Invoke package init function
+            BLangFunctions.invokeFunction(programFile, packageInfo, packageInfo.getInitFunctionInfo(), bContext);
+
+            for (ServiceInfo serviceInfo : packageInfo.getServiceInfoList()) {
+                // Invoke service init function
+                BLangFunctions.invokeFunction(programFile, packageInfo,
+                        serviceInfo.getInitFunctionInfo(), bContext);
+
+                // Deploy service
+                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
+                        dispatcher.serviceRegistered(serviceInfo));
+                serviceCount++;
             }
         }
+
         if (serviceCount == 0) {
             throw new RuntimeException("no service found in '" + programFile.getProgramFilePath() + "'");
         }
+
         if (ModeResolver.getInstance().isDebugEnabled()) {
             DebugManager debugManager = DebugManager.getInstance();
             // This will start the websocket server.
@@ -135,7 +153,7 @@ public class BLangProgramRunner {
         // TODO Validate main function signature - input and output parameters
 
         // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(programFile, mainPkgInfo, bContext);
+        BLangFunctions.invokeFunction(programFile, mainPkgInfo, mainPkgInfo.getInitFunctionInfo(), bContext);
 
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
