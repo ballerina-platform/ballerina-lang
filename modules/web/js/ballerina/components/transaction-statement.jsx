@@ -31,7 +31,7 @@ class TransactionStatement extends React.Component {
         let titleWidth = model.viewState.titleWidth;
         let children = getComponentForNodeArray(this.props.model.getChildren());
         return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-                                         title={"Transaction"}>
+                                         title={"Transaction"} model={model.parent}>
             {children}
         </BlockStatementDecorator>);
     }
