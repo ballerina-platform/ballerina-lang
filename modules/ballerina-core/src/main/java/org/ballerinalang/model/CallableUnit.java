@@ -21,7 +21,6 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.Queue;
 

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.util.codegen.cpentries;
 
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
+import org.ballerinalang.model.types.BType;
 
 import java.util.Arrays;
 
@@ -27,21 +27,17 @@ import java.util.Arrays;
  * @since 0.90
  */
 public class WorkerReplyCPEntry implements ConstantPoolEntry {
-    WorkerDataChannel workerDataChannel;
+    BType[] bTypes;
     // Registers which contains worker incoming arguments
     private int[] argRegs;
 
     // Registers to which return  values to be copied
     private int[] retRegs;
 
-    public WorkerReplyCPEntry(int[] argRegs, int[] retRegs, WorkerDataChannel workerDataChannel) {
+    public WorkerReplyCPEntry(int[] argRegs, int[] retRegs, BType[] bTypes) {
         this.argRegs = argRegs;
         this.retRegs = retRegs;
-        this.workerDataChannel = workerDataChannel;
-    }
-
-    public WorkerDataChannel getWorkerDataChannel() {
-        return workerDataChannel;
+        this.bTypes = bTypes;
     }
 
     public int[] getArgRegs() {
@@ -50,6 +46,11 @@ public class WorkerReplyCPEntry implements ConstantPoolEntry {
 
     public int[] getRetRegs() {
         return retRegs;
+    }
+
+
+    public BType[] getTypes() {
+        return bTypes;
     }
 
     public ConstantPoolEntry.EntryType getEntryType() {

@@ -17,25 +17,24 @@
  */
 package org.ballerinalang.util.codegen.cpentries;
 
-import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
 import java.util.Objects;
 /**
- * {@code WorkerRefCPEntry} represents a Ballerina worker in the constant pool.
+ * {@code WorkerDataChannelRefCPEntry} represents a Ballerina worker in the constant pool.
  *
  * @since 0.90
  */
-public class WorkerRefCPEntry implements ConstantPoolEntry {
+public class WorkerDataChannelRefCPEntry implements ConstantPoolEntry {
     // Index to a valid Package entry in the constant pool
     private int packageCPIndex;
 
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
 
-    // TODO
-    private WorkerInfo workerInfo;
+    private WorkerDataChannel workerDataChannel;
 
-    public WorkerRefCPEntry(int packageCPIndex, int nameCPIndex) {
+    public WorkerDataChannelRefCPEntry(int packageCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
         this.nameCPIndex = nameCPIndex;
     }
@@ -48,12 +47,12 @@ public class WorkerRefCPEntry implements ConstantPoolEntry {
         return nameCPIndex;
     }
 
-    public WorkerInfo getWorkerInfo() {
-        return workerInfo;
+    public WorkerDataChannel getWorkerDataChannel() {
+        return workerDataChannel;
     }
 
-    public void setWorkerInfo(WorkerInfo workerInfo) {
-        this.workerInfo = workerInfo;
+    public void setWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+        this.workerDataChannel = workerDataChannel;
     }
 
     public EntryType getEntryType() {
@@ -67,7 +66,8 @@ public class WorkerRefCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof WorkerRefCPEntry && packageCPIndex == (((WorkerRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((WorkerRefCPEntry) obj).nameCPIndex;
+        return obj instanceof WorkerDataChannelRefCPEntry && packageCPIndex ==
+                (((WorkerDataChannelRefCPEntry) obj).packageCPIndex) &&
+                nameCPIndex == ((WorkerDataChannelRefCPEntry) obj).nameCPIndex;
     }
 }

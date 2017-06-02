@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -31,17 +32,26 @@ public class WorkerVMTest {
     @BeforeClass
     public void setup() {
         bProgramFile = BTestUtils.getProgramFile("samples/worker-vm.bal");
+        //bProgramFile = BTestUtils.getProgramFile("samples/multi-function-vm.bal");
     }
 
 
     @Test(description = "Test simple worker in vm")
     public void testVMWorkerInFunction() {
         BValue[] args = {new BInteger(100)};
-        BLangFunctions.invokeNew(bProgramFile, "testVMWorker", args);
-//        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testVMWorker", args);
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testWorkerInVM", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(returns[0].stringValue(), "1000");
+    }
+
+//    @Test(description = "Test multiple function calls in vm")
+//    public void testVMMultiFunction() {
+//        BValue[] args = {new BInteger(100)};
+//        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "foo", args);
 //        Assert.assertEquals(returns.length, 1);
 //        Assert.assertTrue(returns[0] instanceof BInteger);
-//        Assert.assertEquals(returns[0].stringValue(), "100");
-    }
+//        Assert.assertEquals(returns[0].stringValue(), "1000");
+//    }
 
 }

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -28,17 +28,28 @@ import org.testng.annotations.Test;
 
 public class WorkerNewTest {
 
-    private BLangProgram bLangProgram;
+    //private BLangProgram bLangProgram;
+    private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/worker-multi-interaction.bal");
+        //bLangProgram = BTestUtils.parseBalFile("samples/worker-multi-interaction.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-multi-interaction.bal");
     }
 
 
+//    @Test(description = "Test worker interaction 3 workers")
+//    public void testWorkerScenario1() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWorkerScenario1");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertTrue(returns[0] instanceof BBoolean);
+//        final String expected = "true";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
+
     @Test(description = "Test worker interaction 3 workers")
     public void testWorkerScenario1() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWorkerScenario1");
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testWorkerInVM");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final String expected = "true";

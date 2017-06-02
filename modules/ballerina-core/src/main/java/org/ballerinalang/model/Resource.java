@@ -23,7 +23,6 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;

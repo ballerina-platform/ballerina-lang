@@ -504,7 +504,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                                 ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
                                 ((WorkerReplyStmt) worker.getWorkerInteractionStatements().peek()).
                                         setWorkerDataChannel(workerDataChannel);
-
+                                ((WorkerInvocationStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
+                                ((WorkerInvocationStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
                                 processedStatements.add(statement);
                                 statementCompleted = true;
@@ -556,7 +557,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                                 ((WorkerReplyStmt) statement).setWorkerDataChannel(workerDataChannel);
                                 ((WorkerInvocationStmt) worker.getWorkerInteractionStatements().peek()).
                                         setWorkerDataChannel(workerDataChannel);
-
+                                ((WorkerReplyStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
+                                ((WorkerReplyStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
                                 processedStatements.add(statement);
                                 statementCompleted = true;
@@ -1249,10 +1251,11 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (stmt instanceof ReplyStmt) {
                     BLangExceptionHelper.throwSemanticError(stmt,
                             SemanticErrors.REPLY_STMT_NOT_ALLOWED_HERE);
-                } else if (stmt instanceof ReturnStmt) {
-                    BLangExceptionHelper.throwSemanticError(stmt,
-                            SemanticErrors.RETURN_STMT_NOT_ALLOWED_HERE);
                 }
+//                else if (stmt instanceof ReturnStmt) {
+//                    BLangExceptionHelper.throwSemanticError(stmt,
+//                            SemanticErrors.RETURN_STMT_NOT_ALLOWED_HERE);
+//                }
             }
 
             if (stmt instanceof BreakStmt || stmt instanceof ReplyStmt || stmt instanceof AbortStmt) {
@@ -1428,9 +1431,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
 
         Expression[] expressions = workerInvocationStmt.getExpressionList();
+        BType[] bTypes = new BType[expressions.length];
+        int p = 0;
         for (Expression expression : expressions) {
             expression.accept(this);
+            bTypes[p++] = expression.getType();
         }
+
+        workerInvocationStmt.setTypes(bTypes);
+
 
         if (workerInvocationStmt.getCallableUnitName() != null &&
                 !workerInvocationStmt.getCallableUnitName().equals("default") &&
@@ -1438,12 +1447,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             linkWorker(workerInvocationStmt);
 
             //Find the return types of this function invocation expression.
-            ParameterDef[] returnParams = workerInvocationStmt.getCallableUnit().getReturnParameters();
-            BType[] returnTypes = new BType[returnParams.length];
-            for (int i = 0; i < returnParams.length; i++) {
-                returnTypes[i] = returnParams[i].getType();
-            }
-            workerInvocationStmt.setTypes(returnTypes);
+//            ParameterDef[] returnParams = workerInvocationStmt.getCallableUnit().getReturnParameters();
+//            BType[] returnTypes = new BType[returnParams.length];
+//            for (int i = 0; i < returnParams.length; i++) {
+//                returnTypes[i] = returnParams[i].getType();
+//            }
+//            workerInvocationStmt.setTypes(returnTypes);
         }
     }
 
@@ -1453,9 +1462,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName workerSymbol = new SymbolName(workerName);
 
         Expression[] expressions = workerReplyStmt.getExpressionList();
+        BType[] bTypes = new BType[expressions.length];
+        int p = 0;
         for (Expression expression : expressions) {
             expression.accept(this);
+            bTypes[p++] = expression.getType();
         }
+
+        workerReplyStmt.setTypes(bTypes);
 
         if (!workerName.equals("default")) {
             BLangSymbol worker = currentScope.resolve(workerSymbol);

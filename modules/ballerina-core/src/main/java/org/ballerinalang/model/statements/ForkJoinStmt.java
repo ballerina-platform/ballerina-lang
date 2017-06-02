@@ -34,7 +34,6 @@ import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;

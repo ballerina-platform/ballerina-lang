@@ -1536,7 +1536,8 @@ public class BLangModelBuilder {
 
     public void createWorkerInvocationStmt(String workerName, NodeLocation sourceLocation,
                                            WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        List<Expression> exprList = exprListStack.peek();
+        //List<Expression> exprList = exprListStack.peek();
+        List<Expression> exprList = exprListStack.pop();
         WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(workerName, exprList, sourceLocation,
                 whiteSpaceDescriptor);
         currentCUBuilder.addWorkerInteractionStatement(workerInvocationStmt);
@@ -1546,7 +1547,8 @@ public class BLangModelBuilder {
 
     public void createWorkerReplyStmt(String workerName, NodeLocation sourceLocation,
                                       WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        List<Expression> exprList = exprListStack.peek();
+        //List<Expression> exprList = exprListStack.peek();
+        List<Expression> exprList = exprListStack.pop();
         WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(workerName, exprList, sourceLocation,
                 whiteSpaceDescriptor);
         currentCUBuilder.addWorkerInteractionStatement(workerReplyStmt);

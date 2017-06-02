@@ -43,6 +43,10 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
     protected List<Expression> expressionList = new ArrayList<>();
     private Worker worker;
     private WorkerDataChannel workerDataChannel;
+    private BType[] bTypes;
+    private int[] offsets = new int[0];
+    private String enclosingCallableUnitName;
+    private String packagePath;
 
     public WorkerReplyStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation,
                            WhiteSpaceDescriptor whiteSpaceDescriptor) {
@@ -58,6 +62,15 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
 
     public void setWorkerName(String workerName) {
         this.workerName = workerName;
+    }
+
+
+    public String getEnclosingCallableUnitName() {
+        return enclosingCallableUnitName;
+    }
+
+    public void setEnclosingCallableUnitName(String enclosingCallableUnitName) {
+        this.enclosingCallableUnitName = enclosingCallableUnitName;
     }
 
     public Expression[] getExpressionList() {
@@ -102,9 +115,12 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
 
     @Override
     public String getPackagePath() {
-        return null;
+        return this.packagePath;
     }
 
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
+    }
     /**
      * Returns an arrays of arguments of this callable unit invocation expression.
      *
@@ -173,7 +189,7 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
      */
     @Override
     public BType[] getTypes() {
-        return new BType[0];
+        return this.bTypes;
     }
 
     /**
@@ -183,16 +199,16 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
      */
     @Override
     public void setTypes(BType[] types) {
-
+        this.bTypes = types;
     }
 
     @Override
     public int[] getOffsets() {
-        return new int[0];
+        return this.offsets;
     }
 
     @Override
     public void setOffsets(int[] offsets) {
-
+        this.offsets = offsets;
     }
 }
