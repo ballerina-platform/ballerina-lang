@@ -58,7 +58,7 @@ public class TransformStmtTest {
 
     @Test(description = "Test one to one simple transformation")
     public void testFunctionsInTransform() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "functionsInTransform");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "functionsInTransform");
 
         Assert.assertEquals(returns.length, 3);
 
