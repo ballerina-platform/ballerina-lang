@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.websocket.Session;
@@ -50,6 +51,11 @@ import javax.websocket.Session;
 public class RemoveConnectionFromGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
+        }
+
         CarbonMessage carbonMessage = context.getCarbonMessage();
         String connectionGroupName = getArgument(context, 0).stringValue();
         Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);

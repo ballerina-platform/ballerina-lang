@@ -53,6 +53,11 @@ public class BroadcastText extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
+        }
+
         String text = getArgument(context, 0).stringValue();
         String serviceName = context.getServiceInfo().getServiceName();
         List<Session> sessions = WebSocketConnectionManager.getInstance().getBroadcastConnectionList(serviceName);

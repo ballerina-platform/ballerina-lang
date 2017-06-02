@@ -55,6 +55,11 @@ import javax.websocket.Session;
 public class PushTextToGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
+        }
+
         String connectionGroupName = getArgument(context, 0).stringValue();
         String text = getArgument(context, 1).stringValue();
         List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);

@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Remove connection from the connection store.
@@ -46,6 +47,11 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 public class RemoveStoredConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
+        }
+
         String connectionName = getArgument(context, 0).stringValue();
         WebSocketConnectionManager.getInstance().removeConnectionFromStore(connectionName);
         return VOID_RETURN;
