@@ -87,7 +87,8 @@ class BlockStatementDecorator extends React.Component {
     }
 
     onDelete() {
-        this.props.model.remove();
+        const model = this.props.model || this.props.dropTarget;
+        model.remove();
     }
 
     onBreakpointClick() {
@@ -124,7 +125,8 @@ class BlockStatementDecorator extends React.Component {
     }
 
     render() {
-        const {bBox, title, dropTarget, expression, parameter, model} = this.props;
+        const {bBox, title, dropTarget, expression, parameter } = this.props;
+        const model = this.props.model || dropTarget;
 
         let title_h = blockStatement.heading.height;
         let title_w = blockStatement.heading.width;
