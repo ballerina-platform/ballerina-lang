@@ -39,7 +39,7 @@ import java.io.IOException;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
-        functionName = "readBlob",
+        functionName = "read",
         args = {@Argument(name = "is", type = TypeEnum.STRUCT, structType = "File",
                 structPackage = "ballerina.lang.files"),
                 @Argument(name = "number", type = TypeEnum.INT)},
@@ -57,7 +57,7 @@ import java.io.IOException;
         value = "The blob containing files read") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "numberRead",
         value = "The number of bytes actually read") })
-public class ReadBlob extends AbstractNativeFunction {
+public class Read extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {

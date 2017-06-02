@@ -14,8 +14,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -40,15 +42,17 @@ public class Copy extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
 
+        InputStream inputStream = null;
         OutputStream outputStream = null;
         BStruct source = (BStruct) getArgument(context, 0);
         BStruct destination = (BStruct) getArgument(context, 1);
 
         try {
-            BufferedInputStream inputStream = (BufferedInputStream) source.getNativeData("stream");
-            if (inputStream == null) {
-                throw new BallerinaException("The file is not opened yet");
-            }
+
+            String path = source.getValue(0).stringValue();
+            File file = new File(path);
+            inputStream = new BufferedInputStream(new FileInputStream(file));
+
             File destinationFile = new File(destination.getValue(0).stringValue());
             File parent = destinationFile.getParentFile();
             if (parent != null) {
@@ -76,6 +80,7 @@ public class Copy extends AbstractNativeFunction {
         } catch (IOException e) {
             throw new BallerinaException("Error while copying file");
         } finally {
+            closeQuietly(inputStream);
             closeQuietly(outputStream);
         }
         return VOID_RETURN;

@@ -3,7 +3,6 @@ package org.ballerinalang.nativeimpl.lang.files;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -24,11 +23,10 @@ import java.io.OutputStream;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
-        functionName = "writeBlob",
+        functionName = "write",
         args = {@Argument(name = "blob", type = TypeEnum.BLOB),
                 @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
-                        structPackage = "ballerina.lang.files"),
-                @Argument(name = "append", type = TypeEnum.BOOLEAN)},
+                        structPackage = "ballerina.lang.files")},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
@@ -37,16 +35,13 @@ import java.io.OutputStream;
         value = "Blob content to be written") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "The file which the blob should be written to") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "append",
-        value = "Append the content to the file") })
-public class WriteBlob extends AbstractNativeFunction {
+public class Write extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
 
         OutputStream outputStream = null;
         BBlob content = (BBlob) getArgument(context, 0);
         BStruct destination = (BStruct) getArgument(context, 1);
-        BBoolean append = (BBoolean) getArgument(context, 2);
         try {
             File destinationFile = new File(destination.getValue(0).stringValue());
             File parent = destinationFile.getParentFile();
@@ -62,8 +57,8 @@ public class WriteBlob extends AbstractNativeFunction {
                     throw new BallerinaException("Error in writing file");
                 }
             }
-            outputStream = new FileOutputStream(destinationFile, append.booleanValue());
-            outputStream.write(content.value());
+            outputStream = new FileOutputStream(destinationFile, true);
+            outputStream.write(content.blobValue());
             outputStream.flush();
 
         } catch (IOException e) {

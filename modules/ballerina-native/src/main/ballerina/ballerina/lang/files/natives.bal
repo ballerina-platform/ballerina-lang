@@ -15,7 +15,7 @@ native function open (File file);
 @doc:Param { value:"number: The number of bytes to be read" }
 @doc:Return { value:"data: The blob containing files read" }
 @doc:Return { value:"numberRead: The number of bytes actually read" }
-native function readBlob (File file, int number) (blob, int);
+native function read (File file, int number) (blob, int);
 
 @doc:Description { value:"This function copies a file from a given location to another"}
 @doc:Param { value:"target: File/Directory that should be copied" }
@@ -27,11 +27,6 @@ native function copy (File source, File destination);
 @doc:Param { value:"destination: The location where the File/Directory should be moved to" }
 native function move (File target, File destination);
 
-@doc:Description { value:"This function archives a file to a given location"}
-@doc:Param { value:"target: File/Directory that should be archived" }
-@doc:Param { value:"destination: The location where the Archived file should be written" }
-native function archive (File target, File destination);
-
 @doc:Description { value:"This function deletes a file from a given location"}
 @doc:Param { value:"target: File/Directory that should be deleted" }
 native function delete (File target);
@@ -39,7 +34,7 @@ native function delete (File target);
 @doc:Description { value:"This function writes a file using the given blob"}
 @doc:Param { value:"blob: Content" }
 @doc:Param { value:"file: Path of the file" }
-native function writeBlob (blob inputStream, File file, boolean append);
+native function write (blob inputStream, File file);
 
 struct File {
     string path;
