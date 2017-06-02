@@ -147,7 +147,7 @@ public class TryCatchStmt extends AbstractStatement {
 
         private final SymbolScope enclosingScope;
         private Map<SymbolName, BLangSymbol> symbolMap;
-        private BlockStmt catchBlock;
+        private BlockStmt finallyBlock;
 
         public FinallyBlock(SymbolScope enclosingScope) {
             this.enclosingScope = enclosingScope;
@@ -180,11 +180,11 @@ public class TryCatchStmt extends AbstractStatement {
         }
 
         public BlockStmt getFinallyBlockStmt() {
-            return catchBlock;
+            return finallyBlock;
         }
 
         void setFinallyBlockStmt(BlockStmt catchBlock) {
-            this.catchBlock = catchBlock;
+            this.finallyBlock = catchBlock;
         }
 
     }

@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMErrorHandlerUtil;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
@@ -302,6 +303,11 @@ public class BLangFunctions {
         BLangVM bLangVM = new BLangVM(bLangProgram);
         bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
 
+        if (context.getError() != null) {
+            throw new BallerinaException(".*uncaught error: " +
+                    BLangVMErrorHandlerUtil.getErrorMsg(context.getError()));
+        }
+
         longRegCount = 0;
         doubleRegCount = 0;
         stringRegCount = 0;
@@ -312,7 +318,7 @@ public class BLangFunctions {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
-                    returnValues[i] = new BInteger(callerSF.getLongRegs()[retRegs[i]]);
+                    returnValues[i] = new BInteger(callerSF.getLongRegs()[longRegCount++]);
                     break;
                 case TypeTags.FLOAT_TAG:
                     returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);

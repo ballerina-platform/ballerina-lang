@@ -18,6 +18,7 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.runtime.BalCallback;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -44,6 +45,8 @@ public class Context {
 
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
+
+    private BStruct errorThrown;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -127,5 +130,13 @@ public class Context {
 
     public void setVMBasedExecutor(boolean vmBasedExecutor) {
         this.vmBasedExecutor = vmBasedExecutor;
+    }
+
+    public BStruct getError() {
+        return errorThrown;
+    }
+
+    public void setError(BStruct error) {
+        this.errorThrown = error;
     }
 }

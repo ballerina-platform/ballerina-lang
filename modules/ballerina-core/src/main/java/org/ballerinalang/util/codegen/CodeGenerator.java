@@ -43,6 +43,7 @@ import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
@@ -193,6 +194,7 @@ public class CodeGenerator implements NodeVisitor {
     private boolean structAssignment;
 
     private Stack<List<Instruction>> breakInstructions = new Stack<>();
+    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -304,7 +306,6 @@ public class CodeGenerator implements NodeVisitor {
             int serviceNameCPIndex = currentPkgInfo.addCPEntry(serviceNameCPEntry);
 
             ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex);
-            serviceInfo.setServiceName(service.getName());
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             // Assign field indexes for Connector variables
@@ -341,6 +342,7 @@ public class CodeGenerator implements NodeVisitor {
             addWorkerInfoEntries(resourceInfo, resource.getWorkers());
 
             serviceInfo.addResourceInfo(resource.getName(), resourceInfo);
+            resourceInfo.setServiceInfo(serviceInfo);
         }
     }
 
@@ -354,6 +356,7 @@ public class CodeGenerator implements NodeVisitor {
 
             StructInfo structInfo = new StructInfo(currentPkgCPIndex, structNameCPIndex);
             currentPkgInfo.addStructInfo(structDef.getName(), structInfo);
+            structInfo.setPackageInfo(currentPkgInfo);
 
             BStructType structType = new BStructType(structDef.getName(), structDef.getPackagePath());
             structInfo.setType(structType);
@@ -465,6 +468,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             connectorInfo.addActionInfo(action.getName(), actionInfo);
+            actionInfo.setConnectorInfo(connectorInfo);
         }
     }
 
@@ -729,6 +733,7 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(BlockStmt blockStmt) {
         for (Statement stmt : blockStmt.getStatements()) {
+            addLineNumberInfo(stmt.getNodeLocation());
             stmt.accept(this);
 
             for (int i = 0; i < maxRegIndexes.length; i++) {
@@ -809,6 +814,9 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ReturnStmt returnStmt) {
         int[] regIndexes;
+//        for (int i = finallyBlocks.size() - 1; i >= 0; i--) {
+//            finallyBlocks.get(i).getFinallyBlockStmt().accept(this);
+//        }
         if (returnStmt.getExprs().length == 1 &&
                 returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr) {
             ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) returnStmt.getExprs()[0];
@@ -860,12 +868,73 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            finallyBlocks.push(tryCatchStmt.getFinallyBlock());
+        }
+        List<int[]> unhandledErrorRangeList = new ArrayList<>();
+        // Handle try block.
+        int fromIP = nextIP();
+        tryCatchStmt.getTryBlock().accept(this);
+        int toIP = nextIP() - 1;
+        // Append finally block instructions.
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+        }
+        emit(gotoEndOfTryCatchBlock);
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+        // Handle catch blocks.
+        int order = 0;
+        for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            int targetIP = nextIP();
+            // Define local variable index for Error.
+            ParameterDef paramDef = catchBlock.getParameterDef();
+            int lvIndex = ++lvIndexes[REF_OFFSET];
+            paramDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            emit(new Instruction(InstructionCodes.ERRSTORE, lvIndex));
+            // Visit Catch Block.
+            catchBlock.getCatchBlockStmt().accept(this);
+            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+            // Append finally block instructions.
+            if (tryCatchStmt.getFinallyBlock() != null) {
+                tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+            }
+            emit(gotoEndOfTryCatchBlock);
+            // Create Error table entry for this catch block
+            StructDef structDef = (StructDef) catchBlock.getParameterDef().getType();
+            int pkgCPIndex = addPackageCPEntry(structDef.getPackagePath());
+            UTF8CPEntry structNameCPEntry = new UTF8CPEntry(structDef.getName());
+            int structNameCPIndex = currentPkgInfo.addCPEntry(structNameCPEntry);
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+            PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) currentPkgInfo.getConstPool().get(pkgCPIndex);
+            structureRefCPEntry.setStructureTypeInfo(
+                    packageRefCPEntry.getPackageInfo().getStructInfo(structDef.getName()));
 
+            int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
+            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
+            currentPkgInfo.addErrorTableEntry(errorTableEntry);
+            errorTableEntry.setPackageInfo(currentPkgInfo);
+        }
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            // Create Error table entry for unhandled errors in try and catch(s) blocks
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
+                currentPkgInfo.addErrorTableEntry(errorTableEntry);
+                errorTableEntry.setPackageInfo(currentPkgInfo);
+            }
+            // Append finally block instruction.
+            finallyBlocks.pop();
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+            emit(new Instruction(InstructionCodes.THROW, -1));
+        }
+        gotoEndOfTryCatchBlock.setOperand(0, nextIP());
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
-
+        throwStmt.getExpr().accept(this);
+        Instruction throwInstruction = new Instruction(InstructionCodes.THROW, throwStmt.getExpr().getTempOffset());
+        emit(throwInstruction);
     }
 
     @Override
@@ -1583,7 +1652,7 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ArrayLengthExpression arrayLengthExpression) {
         int arrayLengthIndex = ++regIndexes[INT_OFFSET];
-        arrayLengthExpression.setOffset(arrayLengthIndex);
+        arrayLengthExpression.setTempOffset(arrayLengthIndex);
         emit(InstructionCodes.ARRAYLEN, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
     }
 
@@ -2129,6 +2198,8 @@ public class CodeGenerator implements NodeVisitor {
         int pkgNameIndex = currentPkgInfo.addCPEntry(pkgNameCPEntry);
 
         PackageRefCPEntry pkgCPEntry = new PackageRefCPEntry(pkgNameIndex);
+        // Cache Value.
+        pkgCPEntry.setPackageInfo(programFile.getPackageInfo(pkgPath));
         return currentPkgInfo.addCPEntry(pkgCPEntry);
     }
 
@@ -2365,6 +2436,15 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
         }
+    }
+
+    private void addLineNumberInfo(NodeLocation nodeLocation) {
+        if (nodeLocation == null) {
+            return;
+        }
+        LineNumberInfo lineNumberInfo = LineNumberInfo.Factory.create(nodeLocation, currentPkgInfo,
+                currentPkgInfo.getInstructionList().size());
+        currentPkgInfo.addLineNumberInfo(lineNumberInfo);
     }
 
     private LocalVariableInfo getLocalVariableAttributeInfo(ParameterDef parameterDef) {
