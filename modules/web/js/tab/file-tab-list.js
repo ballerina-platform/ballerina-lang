@@ -94,6 +94,7 @@ var FileTabList = TabList.extend(
             }
         },
         setActiveTab: function(tab) {
+            $('#transformOverlay').remove();
             TabList.prototype.setActiveTab.call(this, tab);
         },
         addTab: function(tab) {

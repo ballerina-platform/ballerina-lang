@@ -128,6 +128,8 @@ class TransformStatementDecorator extends React.Component {
                 '          </span>' +
               '</div></div>');
 
+        var middleContent =  $('<div class="middle-content"></div>');
+
         var targetContent = $('<div class="rightType">' +
                 '<div class="target-view">' +
                 '<select id="' + targetId + '" class="type-mapper-combo">' +
@@ -151,13 +153,16 @@ class TransformStatementDecorator extends React.Component {
 
         var transformOverlay = $( '<div id="transformOverlay" class="transformOverlay">'+
                                      '  </div>' );
+        var transformFooter = $('<div id ="transformFooter" class ="transform-footer"></div>');
 
         transformOverlayContent.append(transformHeader);
         transformHeader.append(transformNameText);
         transformOverlayContent.append(sourceContent);
+        transformOverlayContent.append(middleContent);
         transformOverlayContent.append(targetContent);
         transformOverlay.append(transformOverlayContent);
         transformOverlayContent.append(transformMenuDiv);
+        transformOverlayContent.append(transformFooter)
         $('#tab-content-wrapper').append(transformOverlay);
 
         this.transformOverlayDiv = document.getElementById('transformOverlay');
@@ -238,6 +243,11 @@ class TransformStatementDecorator extends React.Component {
         $(window).on('resize', function(){
             self.mapper.reposition(self.mapper);
         });
+
+        $(".leftType, .rightType, .middle-content").on('scroll', function(){
+            self.mapper.reposition(self.mapper);
+        });
+
 
         span.onclick = function() {
             document.getElementById('transformOverlay').style.display = 'none';
