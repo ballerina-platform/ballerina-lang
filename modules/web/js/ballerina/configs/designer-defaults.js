@@ -16,6 +16,7 @@
  * under the License.
  */
 
+
 export const panel = {
     wrapper: {
         gutter: {
@@ -30,7 +31,7 @@ export const panel = {
             bottom: 0,
             left: 0
         },
-        height: 25,
+        height: 30,
         title: {
             margin: {
                 right: 15
