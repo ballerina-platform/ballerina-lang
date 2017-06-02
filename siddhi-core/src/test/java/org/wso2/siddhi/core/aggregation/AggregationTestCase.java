@@ -73,47 +73,29 @@ public class AggregationTestCase {
 
     @Test
     public void functionTest3() throws InterruptedException {
-//        log.info("function test 3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int, timestamp long);";
         String query = " define aggregation test " +
                 "from cseEventStream " +
                 "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1 " +
                 "group by symbol " +
-                "aggregate every sec, min ;";
-        //String query = " @info(name = 'query1') from cseEventStream select symbol, sum(volume) as vol group by symbol insert into outputStream; ";
+                "aggregate by timestamp every sec...min ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
-//        executionPlanRuntime.addCallback("query1", new QueryCallback() {
-//            int count = 0;
-//            @Override
-//            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-//                EventPrinter.print(timestamp, inEvents, removeEvents);
-//                for (Event inEvent : inEvents) {
-//                    count++;
-//                    if (count == 1) {
-//                        //Assert.assertEquals(50.0f, inEvent.getData()[1]);
-//                    } else if (count == 2) {
-//                        //Assert.assertEquals(70.0f, inEvent.getData()[1]);
-//                    } else if (count == 3) {
-//                        //Assert.assertEquals(44.0f, inEvent.getData()[1]);
-//                    }
-//                }
-//            }
-//        });
-
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10});
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90l, 6, 1496289950l});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10, 1496289990l});
         Thread.sleep(2000);
-        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200l, 56}); // TODO: 5/18/17 check with null later
-        inputHandler.send(new Object[]{"IBM", 50f, null, 200l, 56});
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200l, 56, 1496291990l}); // TODO: 5/18/17 check with null later
+        inputHandler.send(new Object[]{"WSO2", 100f, null, 200l, 56, 1496291990l});
+        Thread.sleep(2000);
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200l, 56, 1496292992l});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200l, 56, 1496292993l});
         Thread.sleep(100);
-//        junit.framework.Assert.assertEquals(3, count);
         executionPlanRuntime.shutdown();
 
     }
@@ -142,7 +124,7 @@ public class AggregationTestCase {
                         "define stream TempStream (temp int, roomNo string, deviceID string);" +
                         "" +
                         "@info(name = 'query1') " +
-                "from TempStream#window.time(3 millisec) " +
+                "from TempStream#window.timeBatch(1 sec) " +
                 "select avg(temp) as avgTemp, roomNo, deviceID " +
                 "group by roomNo " +
                 "insert into AvgTempStream;";
@@ -180,6 +162,7 @@ public class AggregationTestCase {
         inputHandler.send(new Object[]{30, "A", "192.10.1.5"});
         inputHandler.send(new Object[]{55, "B", "192.10.1.3"});
         inputHandler.send(new Object[]{66, "A", "192.10.1.3"});
+        Thread.sleep(2000);
         inputHandler.send(new Object[]{54, "A", "192.10.1.9"});
         inputHandler.send(new Object[]{60, "B", "192.10.1.3"});
         /*inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4"});

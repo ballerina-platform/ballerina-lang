@@ -45,6 +45,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     protected Executor next;
     private StreamEventConverter streamEventConverter;
     private MetaStreamEvent metaStreamEvent;
+    private MetaStreamEvent originalMetaStreamEvent;
     private StreamEventPool streamEventPool;
     protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
     protected int stateProcessorsSize;
@@ -195,6 +196,10 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
         this.metaStreamEvent = metaStreamEvent;
     }
 
+    public void setOriginalMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
+        this.originalMetaStreamEvent = metaStreamEvent;
+    }
+
     public boolean toTable() {
         return metaStreamEvent.isTableEvent();
     }
@@ -216,7 +221,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     }
 
     public void init() {
-        streamEventConverter = AggregatorEventConverterFactory.constructEventConverter(metaStreamEvent);
+        streamEventConverter = AggregatorEventConverterFactory.constructEventConverter(metaStreamEvent, originalMetaStreamEvent);
     }
 
     public void addStatefulProcessor(PreStateProcessor stateProcessor) {

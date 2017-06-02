@@ -10,7 +10,9 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
+import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.GroupByKeyGeneratorForIncremental;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
@@ -120,6 +122,7 @@ public class AggregationParser {
 
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
             Variable groupByVar = getGroupByAttribute(definition.getSelector());
+            Variable externalTimeStampVar = definition.getAggregateAttribute();
 
             // New stream definition created to match new meta
             StreamDefinition streamDefinition = new StreamDefinition();
@@ -129,9 +132,13 @@ public class AggregationParser {
 
             //List to hold new function attributes which reflect attribute name changes (e.g. from price1 to sumprice1)
             List<AttributeFunction> newFunctionsAttributes = new ArrayList<>();
+
+            // List of original attributes
+            List<Attribute> currentAttributes = streamDefinitionMap.get(((SingleInputStream) inputStream).getStreamId())
+                    .getAttributeList();
             // Make list of new attributes
-            List<Attribute> newMetaAttributes = createMetaAttributes(functionsAttributes, streamDefinitionMap,
-                    inputStream, groupByVar, newFunctionsAttributes);
+            List<Attribute> newMetaAttributes = createMetaAttributes(functionsAttributes, currentAttributes,
+                    groupByVar, newFunctionsAttributes, definition.getAggregateAttribute());
 
             /*** Following is related to new MetaStreamEvent creation ***/
 
@@ -143,13 +150,18 @@ public class AggregationParser {
             metaStreamEvent.initializeAfterWindowData();
             for (Attribute newMetaAttribute : newMetaAttributes) {
                 metaStreamEvent.addData(newMetaAttribute);
-                streamDefinition.attribute(newMetaAttribute.getName(), newMetaAttribute.getType());
                 attributeList.add(newMetaAttribute); // TODO: 5/24/17 Is this correct?
+                streamDefinition.attribute(newMetaAttribute.getName(), newMetaAttribute.getType());
                 executors.add(new VariableExpressionExecutor(newMetaAttribute, -1, 0)); // TODO: 5/24/17 this adds new
                                                                                         // variable expression executor
                                                                                         // for groupBy too. but it's
                                                                                         // already there. Is it ok?
             }
+
+            //Stream definition associated with new meta must reflect name changes (e.g. price1 to sumprice1)
+            /*for (Attribute originalAttribute:currentAttributes) {
+                if (newMetaAttributes)
+            }*/
 
             metaStreamEvent.addInputDefinition(streamDefinition);
 
@@ -159,11 +171,11 @@ public class AggregationParser {
 
             IncrementalExecutor child = build(newFunctionsAttributes,
                     incrementalDurations.get(incrementalDurations.size() - 1), null, metaStreamEvent, 0, tableMap,
-                    executors, executionPlanContext, true, 0, aggregatorName, groupByVar);
+                    executors, executionPlanContext, true, 0, aggregatorName, groupByVar, externalTimeStampVar);
             IncrementalExecutor root;
             for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
                 root = build(newFunctionsAttributes, incrementalDurations.get(i), child, metaStreamEvent, 0, tableMap,
-                        executors, executionPlanContext, true, 0, aggregatorName, groupByVar);
+                        executors, executionPlanContext, true, 0, aggregatorName, groupByVar, externalTimeStampVar);
                 child = root;
             }
 
@@ -192,29 +204,34 @@ public class AggregationParser {
     private static IncrementalExecutor build(List<AttributeFunction> functionsAttributes, TimePeriod.Duration duration,
             IncrementalExecutor child, MetaComplexEvent metaEvent, int currentState, Map<String, Table> tableMap,
             List<VariableExpressionExecutor> executorList, ExecutionPlanContext executionPlanContext, boolean groupBy,
-            int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
+            int defaultStreamEventIndex, String aggregatorName, Variable groupByVariable, Variable timeStampVariable) {
+
+        List<Variable> groupByList = new ArrayList<>();
+        groupByList.add(groupByVariable); // TODO: 5/30/17 we must later get a list from parser itself
+        GroupByKeyGeneratorForIncremental groupByKeyGenerator = new GroupByKeyGeneratorForIncremental(groupByList, metaEvent, tableMap, executorList, executionPlanContext, aggregatorName);
+
         switch (duration) {
         case SECONDS:
             return IncrementalExecutor.second(functionsAttributes, child, metaEvent, currentState, tableMap,
-                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
         case MINUTES:
             return IncrementalExecutor.minute(functionsAttributes, child, metaEvent, currentState, tableMap,
-                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
         case HOURS:
             return IncrementalExecutor.hour(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
         case DAYS:
             return IncrementalExecutor.day(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
         case WEEKS:
             return IncrementalExecutor.week(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
         case MONTHS:
             return IncrementalExecutor.month(functionsAttributes, child, metaEvent, currentState, tableMap,
-                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
         case YEARS:
             return IncrementalExecutor.year(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, queryName, groupByVariable);
+                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
         default:
             throw new EnumConstantNotPresentException(TimePeriod.Duration.class,
                     "Aggregation is not defined for time period " + duration);
@@ -299,10 +316,10 @@ public class AggregationParser {
     }
 
     private static List<Attribute> createMetaAttributes(List<AttributeFunction> functionsAttributes,
-            Map<String, AbstractDefinition> streamDefinitionMap, InputStream inputStream, Variable groupByVariable, List<AttributeFunction> newFunctionsAttributes) {
+            List<Attribute> currentAttributes, Variable groupByVariable,
+            List<AttributeFunction> newFunctionsAttributes, Variable externalTimestamp) {
+
         List<Attribute> newMetaAttributes = new ArrayList<>();
-        List<Attribute> currentAttributes = streamDefinitionMap.get(((SingleInputStream) inputStream).getStreamId())
-                .getAttributeList();
         String attributeName;
 
         // Create map of current attribute names and types
@@ -315,6 +332,7 @@ public class AggregationParser {
         String groupByAttributeName = groupByVariable.getAttributeName();
         newMetaAttributes.add(new Attribute(groupByAttributeName,
                 (Attribute.Type) currentAttributeNameType.get(groupByAttributeName)));
+
 
         // Create and add attributes related to base aggregate functions
         for (AttributeFunction attributeFunction : functionsAttributes) {
@@ -373,6 +391,17 @@ public class AggregationParser {
                 throw new ExecutionPlanValidationException("Unknown attribute function");
             }
         }
+
+        // If an external timestamp is given, add that to newMetaAttributes
+        if (externalTimestamp!=null) {
+            String externalTimestampName = externalTimestamp.getAttributeName();
+            if (currentAttributeNameType.get(externalTimestampName)
+                    != Attribute.Type.LONG) {
+                throw new ExecutionPlanValidationException("External timestamp must be of type Long");
+            }
+            newMetaAttributes.add(new Attribute(externalTimestampName, Attribute.Type.LONG));
+        }
+
         return newMetaAttributes;
     }
 }

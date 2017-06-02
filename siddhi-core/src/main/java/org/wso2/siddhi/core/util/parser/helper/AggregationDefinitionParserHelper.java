@@ -165,6 +165,7 @@ public class AggregationDefinitionParserHelper {
         StreamEventPool streamEventPool = new StreamEventPool(metaStreamEvent, 5);
         ExecuteStreamReceiver executeStreamReceiver = aggregationRuntime.getExecuteStreamReceiver();
         executeStreamReceiver.setMetaStreamEvent(metaStreamEvent);
+        executeStreamReceiver.setOriginalMetaStreamEvent((MetaStreamEvent) singleStreamRuntime.getMetaComplexEvent());
         executeStreamReceiver.setStreamEventPool(streamEventPool);
         executeStreamReceiver.setLockWrapper(lockWrapper);
         executeStreamReceiver.init();

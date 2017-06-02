@@ -1,45 +1,32 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.event.state.populater.StateEventPopulator;
+import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.partition.PartitionRuntime;
-import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.input.InputManager;
-import org.wso2.siddhi.core.stream.input.source.Source;
-import org.wso2.siddhi.core.stream.output.sink.Sink;
+import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.core.util.ElementIdGenerator;
+import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.extension.holder.TableExtensionHolder;
-import org.wso2.siddhi.core.util.lock.LockSynchronizer;
+import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
-import org.wso2.siddhi.core.util.parser.QueryParser;
-import org.wso2.siddhi.core.util.snapshot.SnapshotService;
-import org.wso2.siddhi.core.window.Window;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
-import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
@@ -47,9 +34,9 @@ import org.wso2.siddhi.query.api.expression.Variable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class IncrementalExecutor implements Executor{
+public class IncrementalExecutor implements Executor, Job {
     // compositeAggregators contains a map of CompositeAggregator
     public List<CompositeAggregator> compositeAggregators;
     // basicExecutorDetails contains basic executors such as sum, count, and etc
@@ -57,7 +44,8 @@ public class IncrementalExecutor implements Executor{
     public List<ExpressionExecutorDetails> basicExecutorDetails;
     public ExecutionPlanContext executionPlanContext;
     // groupByExecutor is used to get the value of group by clause
-    public ExpressionExecutor groupByExecutor;
+    private ExpressionExecutor groupByExecutor;
+    private ExpressionExecutor externalTimeStampExecutor = null;
     public long nextEmitTime = -1;
     public long startTime = 0;
     public TimePeriod.Duration duration;
@@ -66,31 +54,75 @@ public class IncrementalExecutor implements Executor{
     // we initialize this array and keep function values.
     public ConcurrentMap<String, ConcurrentMap<String, Object>> storeAggregatorFunctions;
     public IncrementalExecutor next;
-    public Variable groupByVariable;
     public List<Attribute> FilteredAttributes;
     //Table to write data to
     public InMemoryTable inMemoryTable;
     public TableDefinition tableDefinition;
+    public StreamEventCloner streamEventCloner;
+    private StateEventPopulator eventPopulator;
+    private GroupByKeyGeneratorForIncremental groupByKeyGenerator;
+    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
+    private Scheduler scheduler;
+    private String jobName;
+    private final String jobGroup = "IncrementalWindowGroup";
+    private final StreamEvent resetEvent;
+    private int onAfterWindowLength;
+    private Date date;
 
     private IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child,
                                 List<AttributeFunction> functionAttributes, MetaComplexEvent metaEvent,
                                 int currentState, Map<String, Table> tableMap,
                                 List<VariableExpressionExecutor> executorList,
                                 ExecutionPlanContext executionPlanContext, boolean groupBy,
-                                int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
+                                int defaultStreamEventIndex, String aggregatorName, Variable groupByVariable,
+                                GroupByKeyGeneratorForIncremental groupByKeyGenerator,
+                                Variable timeStampVariable) {
         this.duration = duration;
         this.child = child;
         this.compositeAggregators = createIncrementalAggregators(functionAttributes);
         this.basicExecutorDetails = basicFunctionExecutors(metaEvent, currentState, tableMap, executorList,
-                executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName);
         this.groupByExecutor = generateGroupByExecutor(groupByVariable, metaEvent, currentState, tableMap,
-                executorList, executionPlanContext, defaultStreamEventIndex, queryName);
+                executorList, executionPlanContext, defaultStreamEventIndex, aggregatorName);
+        if (timeStampVariable!=null){
+            this.externalTimeStampExecutor = generateTimeStampExecutor(timeStampVariable, metaEvent, currentState, tableMap,
+                    executorList, executionPlanContext, defaultStreamEventIndex, aggregatorName);
+        }
         storeAggregatorFunctions = new ConcurrentHashMap<>();
         this.executionPlanContext = executionPlanContext;
-        this.groupByVariable = groupByVariable;
+        this.groupByKeyGenerator = groupByKeyGenerator;
+        this.onAfterWindowLength = ((MetaStreamEvent)metaEvent).getOnAfterWindowData().size();
+
+        //Create a dummy event to reset aggregates
+        this.resetEvent = new StreamEvent(0,onAfterWindowLength,0);
+        resetEvent.setType(ComplexEvent.Type.RESET);
+
+        this.date = new Date();
+
+
+        List<Variable> groupByList = new ArrayList<>();
+        groupByList.add(groupByVariable); // TODO: 5/30/17 we must later get a list from parser itself
+
         setNextExecutor();
 
-        initDefaultTable(tableMap);
+        initDefaultTable(tableMap, aggregatorName);
+
+        createStreamEventCloner((MetaStreamEvent) metaEvent);
+
+        setEventPopulator(metaEvent);
+
+//        scheduleCronJob("*/1 * * * * ?", "aaaaaa"); // TODO: 5/31/17 change to 0th second
+
+        EntryValveProcessor entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
+        Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(),
+                    entryValveProcessor, this.executionPlanContext);
+        LockWrapper lockWrapper = new LockWrapper(aggregatorName);
+        lockWrapper.setLock(new ReentrantLock());
+        scheduler.init(lockWrapper, aggregatorName);
+        scheduler.setStreamEventPool(new StreamEventPool((MetaStreamEvent) metaEvent,5));
+        setScheduler(scheduler);
+//            ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);
+
     }
 
     public List<CompositeAggregator> createIncrementalAggregators(List<AttributeFunction> functionAttributes) {
@@ -143,13 +175,36 @@ public class IncrementalExecutor implements Executor{
      * @param queryName
      * @return
      */
-    public ExpressionExecutor generateGroupByExecutor(Variable groupByClause, MetaComplexEvent metaEvent,
+    private ExpressionExecutor generateGroupByExecutor(Variable groupByClause, MetaComplexEvent metaEvent,
                                                        int currentState, Map<String, Table> tableMap,
                                                        List<VariableExpressionExecutor> executorList,
                                                        ExecutionPlanContext executionPlanContext,
                                                        int defaultStreamEventIndex, String queryName) {
 
         ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(groupByClause, metaEvent,
+                currentState, tableMap, executorList, executionPlanContext, true,
+                defaultStreamEventIndex, queryName);
+        return variableExpressionExecutor;
+    }
+
+    /**
+     *
+     * @param timeStampVariable
+     * @param metaEvent
+     * @param currentState
+     * @param tableMap
+     * @param executorList
+     * @param executionPlanContext
+     * @param defaultStreamEventIndex
+     * @param queryName
+     * @return
+     */
+    private ExpressionExecutor generateTimeStampExecutor(Variable timeStampVariable, MetaComplexEvent metaEvent,
+                                                         int currentState, Map<String, Table> tableMap,
+                                                         List<VariableExpressionExecutor> executorList,
+                                                         ExecutionPlanContext executionPlanContext,
+                                                         int defaultStreamEventIndex, String queryName) {
+        ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(timeStampVariable, metaEvent,
                 currentState, tableMap, executorList, executionPlanContext, true,
                 defaultStreamEventIndex, queryName);
         return variableExpressionExecutor;
@@ -169,10 +224,10 @@ public class IncrementalExecutor implements Executor{
      * @return
      */
     public List<ExpressionExecutorDetails> basicFunctionExecutors(MetaComplexEvent metaEvent,
-                                                                   int currentState, Map<String, Table> tableMap,
-                                                                   List<VariableExpressionExecutor> executorList,
-                                                                   ExecutionPlanContext executionPlanContext, boolean groupBy,
-                                                                   int defaultStreamEventIndex, String queryName) {
+                                                                  int currentState, Map<String, Table> tableMap,
+                                                                  List<VariableExpressionExecutor> executorList,
+                                                                  ExecutionPlanContext executionPlanContext, boolean groupBy,
+                                                                  int defaultStreamEventIndex, String queryName) {
         Set<BaseExpressionDetails> baseAggregators = new HashSet<>();
         for(CompositeAggregator compositeAggregator : this.compositeAggregators){
             Expression[] bases = compositeAggregator.getBaseAggregators();
@@ -194,194 +249,58 @@ public class IncrementalExecutor implements Executor{
         }
         return baseFunctionExecutors;
     }
+    // TODO: 5/31/17 following was written for cron job
+    /*@Override
+    public void execute(ComplexEventChunk streamEventChunk) {
+        //Logic: When events come, process and store in storeAggregatorFunctions
+        //       Have a cron job to read data in storeAggregatorFunctions and form an event chunk -> send to next
+        //       executor and send reset event to groupByExecutor (reset should happen before current event is processed)
+
+
+        if (streamEventChunk.getFirst() != null) {
+            processGroupBy(streamEventChunk);
+        }
+    }*/
 
     @Override
-    public void execute(ComplexEventChunk complexEventChunk) {
-        // TODO: 5/27/17 per group start time or first event arrival time?
-//        long currentTime = this.executionPlanContext.getTimestampGenerator().currentTime();
-        ComplexEvent complexEvent =complexEventChunk.getFirst();
-        long currentTime = complexEvent.getTimestamp(); // TODO: 5/27/17 this or getTimestampGenerator?
-        if (nextEmitTime==-1) {
-            nextEmitTime = getNextEmitTime(currentTime);
-        }
-        if (currentTime > nextEmitTime) {
-            long timeStampOfBaseAggregate = getStartTime(nextEmitTime);
-            nextEmitTime = getNextEmitTime(nextEmitTime);
-
-            //send complex event with aggregate values if child not null. This should be for each group by
-            // TODO: 5/27/17 this executes in the wrong way. group by doesn't work. Second, minute not working independently
-            if (getNextExecutor()!= null) {
-
-
-
-                //Before sending to next executor, persist data
-
-                /*TableDefinition tableDefinition = TableDefinition.id("test_second");
-                tableDefinition.annotation(Annotation.annotation("store").
-                        element("type","rdbms").
-                        element("jdbc.url", "jdbc:mysql://localhost:3306/aggr").
-                        element("username", "root").
-                        element("password","root").element("field.length", "symbol:100"));
-
-                tableDefinition.attribute("symbol", Attribute.Type.STRING).
-                        attribute("sumprice1", Attribute.Type.DOUBLE).
-                        attribute("countprice1", Attribute.Type.LONG).
-                        attribute("timestamp", Attribute.Type.LONG);
-
-                StreamDefinition streamDefinition = StreamDefinition.id("StockStream").
-                        attribute("symbol", Attribute.Type.STRING).
-                        attribute("sumprice1", Attribute.Type.DOUBLE).
-                        attribute("countprice1", Attribute.Type.LONG).
-                        attribute("timestamp", Attribute.Type.LONG);
-
-                Query query = new Query();
-                query.annotation(Annotation.annotation("info").element("name", "query1"));
-                query.from(InputStream.stream("StockStream")).insertInto("test_second");
-
-                SiddhiManager siddhiManager = new SiddhiManager();
-                siddhiManager.setExtension("store:rdbms", Table.class);
-                ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-                executionPlan.defineStream(streamDefinition);
-                executionPlan.defineTable(tableDefinition);
-                executionPlan.addQuery(query);
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");*/
-
-
-
-               /*SiddhiManager siddhiManager = new SiddhiManager();
-//                siddhiManager.setExtension("store:rdbms", RDBMSEventTable.class);
-                String url = "jdbc:mysql://localhost:3306/aggr";
-                String streams = "" +
-                        "define stream StockStream (symbol string, sumprice1 double, countprice1 long, timestamp long); " +
-                        "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
-                        "username=\"root\", password=\"root\",field.length=\"symbol:100\")\n" +
-                        "define table test_second (symbol string, sumprice1 double, countprice1 long, timestamp long); ";
-
-                String query = "" +
-                        "@info(name = 'query1') " +
-                        "from StockStream   " +
-                        "insert into test_second ;";
-
-
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");*/
-
-                for (String groupByKey: storeAggregatorFunctions.keySet()) {
-                    //Create new on after window data to send aggregates to next iterator
-                    List<Object> newOnAfterWindowData = new ArrayList<>();
-                    newOnAfterWindowData.add(groupByKey);
-                    ConcurrentMap<String, Object> aggregatesPerGroupBy = storeAggregatorFunctions.remove(groupByKey);
-                    for (String aggregateKey: aggregatesPerGroupBy.keySet()) {
-                        // TODO: 5/27/17 this if else is a hack!!! change
-                        if (aggregateKey.startsWith("sum")) {
-                            newOnAfterWindowData.add(((Double)aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
-                        } else if (aggregateKey.startsWith("count")) {
-                            newOnAfterWindowData.add(((Long)aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
-                        }
-                    }
-
-
-
-                    /*List<Object> temp = newOnAfterWindowData;
-                    temp.add(timeStampOfBaseAggregate);
-                    executionPlanRuntime.start();
-                    try {
-                        stockStream.send(temp.toArray());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    executionPlanRuntime.shutdown();*/
-
-
-                    StreamEvent tempStream = (StreamEvent) complexEvent;
-                    complexEventChunk.clear(); //first is set to null
-                    tempStream.setTimestamp(timeStampOfBaseAggregate);
-                    tempStream.setOnAfterWindowData(newOnAfterWindowData.toArray());
-                    complexEventChunk.add(tempStream); //tempStream would be added as first
-
-                    /*for (int i=0; i<newOnAfterWindowData.toArray().length; i++){
-                        complexEventChunk.getFirst().setOutputData(newOnAfterWindowData.toArray()[i], i);
-                    }*/
-
-                    inMemoryTable.add(timeStampOfBaseAggregate, newOnAfterWindowData.toArray()); //write to table before sending to next executor
-                    System.out.println(inMemoryTable.getElementId()+"..."+inMemoryTable.currentState());
-                    getNextExecutor().execute(complexEventChunk); //pass this new complex event to next incremental aggregator
+    public void execute(ComplexEventChunk streamEventChunk) {
+        if (externalTimeStampExecutor!=null) {
+            //User specified timestamp must be used
+            while (streamEventChunk.hasNext()) {
+                StreamEvent event = (StreamEvent)streamEventChunk.next();
+                //Create new chunk to hold one stream event only
+                ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<>();
+                newEventChunk.add(event);
+                long externalTimeStamp = (long) externalTimeStampExecutor.execute(event);
+                if (nextEmitTime == -1) {
+                    nextEmitTime = getNextEmitTime(externalTimeStamp);
+//                scheduler.notifyAt(nextEmitTime);
                 }
+                if (externalTimeStamp > nextEmitTime) {
+                    long timeStampOfBaseAggregate = getStartTime(nextEmitTime);
+                    nextEmitTime = getNextEmitTime(externalTimeStamp);
+                    dispatchEvents(timeStampOfBaseAggregate);
+                }
+                processGroupBy(newEventChunk);
             }
-        }
 
-        String groupByOutput = groupByExecutor.execute(complexEvent).toString();
-        ConcurrentHashMap<String, Object> baseValuesPerGroupBy = new ConcurrentHashMap<>();
-        for (ExpressionExecutorDetails basicExecutor:basicExecutorDetails) {
-            baseValuesPerGroupBy.put(basicExecutor.getExecutorName(), basicExecutor.getExecutor().execute(complexEvent));
-        }
-        storeAggregatorFunctions.put(groupByOutput, baseValuesPerGroupBy);
-        if (this.duration== TimePeriod.Duration.SECONDS){
-            System.out.println(complexEvent);
-            System.out.println(storeAggregatorFunctions);
+        } else {
 
+            long currentTime = this.executionPlanContext.getTimestampGenerator().currentTime();
+            if (nextEmitTime == -1) {
+                nextEmitTime = getNextEmitTime(currentTime);
+//                scheduler.notifyAt(nextEmitTime);
+            }
+            if (currentTime > nextEmitTime) {
+                long timeStampOfBaseAggregate = getStartTime(nextEmitTime);
+                nextEmitTime = getNextEmitTime(currentTime);
+                dispatchEvents(timeStampOfBaseAggregate);
+            }
+            processGroupBy(streamEventChunk);
         }
-
     }
 
 
-    /*@Override
-    public void execute(ComplexEventChunk complexEventChunk) {
-        if (nextEmitTime == -1) {
-            long currentTime = this.executionPlanContext.getTimestampGenerator().currentTime();
-            nextEmitTime = getNextEmitTime(currentTime);
-        }
-        boolean sendEvents;
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-        if (currentTime >= nextEmitTime) {
-            nextEmitTime += 1000; // TODO: 3/29/17 :
-            sendEvents = true;
-        } else {
-            sendEvents = false;
-        }
-        // TODO: 3/27/17 Based on the output type correctly pass this
-        // TODO: 3/29/17 Handle multiple group by clauses
-
-        // TODO: 5/25/17 why are we getting 60 as 3rd value in chunk???
-        // TODO: 5/25/17 in GroupByAggregationAttributeExecutor String key = QuerySelector.getThreadLocalGroupByKey(); is null
-
-
-
-            String groupByOutput = (String) this.groupByExecutor.execute(complexEventChunk.getFirst()); // TODO: 5/17/17 this is wrong. Change
-            for (ExpressionExecutorDetails executorDTO : basicExecutorDetails) {
-                ExpressionExecutor expressionExecutor = executorDTO.getExecutor();
-                Object value = expressionExecutor.execute(complexEventChunk.getFirst()); // TODO: 5/17/17 Wrong. Change
-                String functionName = executorDTO.getExecutorName();
-                if (storeAggregatorFunctions.containsKey(groupByOutput)) {
-                    ConcurrentMap<String, Object> individualMap = storeAggregatorFunctions.get(groupByOutput);
-                    if (individualMap.containsKey(functionName)) {
-                        if (value instanceof Double) {
-                            double newValue = (double)individualMap.get(functionName) +  (double)value; // TODO: 3/28/17 correct this
-                            individualMap.put(functionName, newValue);
-                        } else if (value instanceof Integer) {
-                            int newValue = (int)individualMap.get(functionName) +  (int)value; // TODO: 3/28/17 correct this
-                            individualMap.put(functionName, newValue);
-                        }
-
-                    } else {
-                        individualMap.put(functionName, value);
-                    }
-                } else {
-                    ConcurrentMap<String, Object> individualMap = new ConcurrentHashMap<>();
-                    individualMap.put(functionName, value);
-                    storeAggregatorFunctions.put(groupByOutput, individualMap);
-                }
-            }
-
-            if (sendEvents) {
-            // 1. Extract relevant data from HashMap. Create an event and send it
-            // calculateAggregators(groupBy)
-            // 2. Update the child
-            }
-
-
-    }*/
 
     public static IncrementalExecutor second(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
                                              MetaComplexEvent metaEvent,
@@ -389,10 +308,10 @@ public class IncrementalExecutor implements Executor{
                                              List<VariableExpressionExecutor> executorList,
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
                                              int defaultStreamEventIndex, String queryName,
-                                             Variable groupByVariable) {
+                                             Variable groupByVariable, GroupByKeyGeneratorForIncremental groupByKeyGenerator, Variable timeStampVariable) {
         return new IncrementalExecutor(TimePeriod.Duration.SECONDS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
-                defaultStreamEventIndex, queryName, groupByVariable);
+                defaultStreamEventIndex, queryName, groupByVariable, groupByKeyGenerator, timeStampVariable);
     }
 
     public static IncrementalExecutor minute(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -401,10 +320,10 @@ public class IncrementalExecutor implements Executor{
                                              List<VariableExpressionExecutor> executorList,
                                              ExecutionPlanContext executionPlanContext, boolean groupBy,
                                              int defaultStreamEventIndex, String queryName,
-                                             Variable groupByVariable) {
+                                             Variable groupByVariable, GroupByKeyGeneratorForIncremental groupByKeyGenerator, Variable timeStampVariable) {
         return new IncrementalExecutor(TimePeriod.Duration.MINUTES, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
-                defaultStreamEventIndex, queryName, groupByVariable);
+                defaultStreamEventIndex, queryName, groupByVariable, groupByKeyGenerator, timeStampVariable);
     }
 
     public static IncrementalExecutor hour(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -413,10 +332,10 @@ public class IncrementalExecutor implements Executor{
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
                                            int defaultStreamEventIndex, String queryName,
-                                           Variable groupByVariable) {
+                                           Variable groupByVariable, GroupByKeyGeneratorForIncremental groupByKeyGenerator, Variable timeStampVariable) {
         return new IncrementalExecutor(TimePeriod.Duration.HOURS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
-                defaultStreamEventIndex, queryName, groupByVariable);
+                defaultStreamEventIndex, queryName, groupByVariable, groupByKeyGenerator, timeStampVariable);
     }
 
     public static IncrementalExecutor day(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -425,10 +344,10 @@ public class IncrementalExecutor implements Executor{
                                           List<VariableExpressionExecutor> executorList,
                                           ExecutionPlanContext executionPlanContext, boolean groupBy,
                                           int defaultStreamEventIndex, String queryName,
-                                          Variable groupByVariable) {
+                                          Variable groupByVariable, GroupByKeyGeneratorForIncremental groupByKeyGenerator, Variable timeStampVariable) {
         return new IncrementalExecutor(TimePeriod.Duration.DAYS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
-                defaultStreamEventIndex, queryName, groupByVariable);
+                defaultStreamEventIndex, queryName, groupByVariable, groupByKeyGenerator, timeStampVariable);
     }
 
     public static IncrementalExecutor week(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -436,10 +355,11 @@ public class IncrementalExecutor implements Executor{
                                            int currentState, Map<String, Table> tableMap,
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
-                                           int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
+                                           int defaultStreamEventIndex, String queryName, Variable groupByVariable,
+                                           GroupByKeyGeneratorForIncremental groupByKeyGenerator, Variable timeStampVariable) {
         return new IncrementalExecutor(TimePeriod.Duration.WEEKS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
-                defaultStreamEventIndex, queryName, groupByVariable);
+                defaultStreamEventIndex, queryName, groupByVariable, groupByKeyGenerator, timeStampVariable);
     }
 
     public static IncrementalExecutor month(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -447,10 +367,11 @@ public class IncrementalExecutor implements Executor{
                                             int currentState, Map<String, Table> tableMap,
                                             List<VariableExpressionExecutor> executorList,
                                             ExecutionPlanContext executionPlanContext, boolean groupBy,
-                                            int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
+                                            int defaultStreamEventIndex, String queryName, Variable groupByVariable,
+                                            GroupByKeyGeneratorForIncremental groupByKeyGenerator, Variable timeStampVariable) {
         return new IncrementalExecutor(TimePeriod.Duration.MONTHS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
-                defaultStreamEventIndex, queryName, groupByVariable);
+                defaultStreamEventIndex, queryName, groupByVariable, groupByKeyGenerator, timeStampVariable);
     }
 
     public static IncrementalExecutor year(List<AttributeFunction> functionAttributes, IncrementalExecutor child,
@@ -458,10 +379,11 @@ public class IncrementalExecutor implements Executor{
                                            int currentState, Map<String, Table> tableMap,
                                            List<VariableExpressionExecutor> executorList,
                                            ExecutionPlanContext executionPlanContext, boolean groupBy,
-                                           int defaultStreamEventIndex, String queryName, Variable groupByVariable) {
+                                           int defaultStreamEventIndex, String queryName, Variable groupByVariable,
+                                           GroupByKeyGeneratorForIncremental groupByKeyGenerator, Variable timeStampVariable) {
         return new IncrementalExecutor(TimePeriod.Duration.YEARS, child, functionAttributes,
                 metaEvent, currentState, tableMap, executorList, executionPlanContext, groupBy,
-                defaultStreamEventIndex, queryName, groupByVariable);
+                defaultStreamEventIndex, queryName, groupByVariable, groupByKeyGenerator, timeStampVariable);
     }
 
 
@@ -488,6 +410,13 @@ public class IncrementalExecutor implements Executor{
     @Override
     public Executor cloneExecutor(String key) {
         return null;
+    }
+
+    @Override
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        JobDataMap dataMap = jobExecutionContext.getJobDetail().getJobDataMap();
+        IncrementalExecutor executor = (IncrementalExecutor) dataMap.get("windowProcessor");
+//        executor.dispatchEvents();
     }
 
     public class ExpressionExecutorDetails {
@@ -570,11 +499,12 @@ public class IncrementalExecutor implements Executor{
     }*/
 
     private long getNextEmitTime(long currentTime) {
+//        long time = date.getTime();
         switch (this.duration) {
             case SECONDS:
-                return currentTime + 1000;
+                return currentTime-currentTime%1000 + 1000;
             case MINUTES:
-                return currentTime + 60000;
+                return currentTime-currentTime%60000 + 60000;
             // TODO: 5/26/17 add rest
             default:
                 return -1; // TODO: 5/26/17 This must be corrected
@@ -593,12 +523,12 @@ public class IncrementalExecutor implements Executor{
         }
     }
 
-    private void initDefaultTable(Map<String, Table> tableMap) {
-        tableDefinition = TableDefinition.id("test_"+duration.toString()); // TODO: 5/29/17 Change to aggr name
+    private void initDefaultTable(Map<String, Table> tableMap, String aggregatorName) {
+        tableDefinition = TableDefinition.id(aggregatorName+"_"+duration.toString());
         tableDefinition.attribute("symbol", Attribute.Type.STRING).
                 attribute("sumprice1", Attribute.Type.FLOAT).
-                attribute("countprice1", Attribute.Type.FLOAT);
-//                attribute("timestamp", Attribute.Type.LONG);
+                attribute("countprice1", Attribute.Type.FLOAT).
+                attribute("timestamp", Attribute.Type.LONG);
         MetaStreamEvent tableMetaStreamEvent = new MetaStreamEvent();
         tableMetaStreamEvent.addInputDefinition(tableDefinition);
         for (Attribute attribute : tableDefinition.getAttributeList()) {
@@ -613,5 +543,113 @@ public class IncrementalExecutor implements Executor{
         inMemoryTable.init(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
                 executionPlanContext);
         tableMap.putIfAbsent(tableDefinition.getId(), inMemoryTable);
+    }
+
+    private void createStreamEventCloner(MetaStreamEvent metaStreamEvent) {
+        streamEventCloner = new StreamEventCloner(metaStreamEvent, new StreamEventPool(metaStreamEvent, 5));
+    }
+
+    private void setEventPopulator(MetaComplexEvent metaComplexEvent) {
+        this.eventPopulator = StateEventPopulatorFactory.constructEventPopulator(metaComplexEvent);
+    }
+
+    private void processGroupBy(ComplexEventChunk complexEventChunk) {
+
+        synchronized (this) {
+            while (complexEventChunk.hasNext()) {
+                ComplexEvent event = complexEventChunk.next(); //Type of event coming here is always CURRENT.
+                String groupedByKey = groupByKeyGenerator.constructEventKey(event); // TODO: 5/30/17 original GroupByKeyGenerator was not used since constructEventKey is protected
+                keyThreadLocal.set(groupedByKey);
+
+                String groupByOutput = groupByExecutor.execute(event).toString();
+                ConcurrentHashMap<String, Object> baseValuesPerGroupBy = new ConcurrentHashMap<>();
+                for (ExpressionExecutorDetails basicExecutor:basicExecutorDetails) {
+                    // TODO: 5/31/17 wrong value for minute when count is executed
+                    baseValuesPerGroupBy.put(basicExecutor.getExecutorName(), basicExecutor.getExecutor().execute(event));
+                }
+                storeAggregatorFunctions.put(groupByOutput, baseValuesPerGroupBy);
+
+                if (this.duration== TimePeriod.Duration.SECONDS ){
+                    System.out.println(storeAggregatorFunctions);
+                }
+
+                keyThreadLocal.remove();
+            }
+        }
+    }
+
+    public static String getThreadLocalGroupByKey() {
+        return keyThreadLocal.get();
+    }
+
+    private void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    /*private void scheduleCronJob(String cronString, String elementId) {
+        try {
+            SchedulerFactory schedFact = new StdSchedulerFactory();
+            scheduler = schedFact.getScheduler();
+            jobName = "EventRemoverJob_" + elementId;
+            JobKey jobKey = new JobKey(jobName, jobGroup);
+
+            if (scheduler.checkExists(jobKey)) {
+                scheduler.deleteJob(jobKey);
+            }
+            scheduler.start();
+            JobDataMap dataMap = new JobDataMap();
+            dataMap.put("windowProcessor", this);
+
+            JobDetail job = org.quartz.JobBuilder.newJob(IncrementalExecutor.class)
+                    .withIdentity(jobName, jobGroup)
+                    .usingJobData(dataMap)
+                    .build();
+
+            Trigger trigger = org.quartz.TriggerBuilder.newTrigger()
+                    .withIdentity("EventRemoverTrigger_" + elementId, jobGroup)
+                    .withSchedule(CronScheduleBuilder.cronSchedule(cronString))
+                    .build();
+
+            scheduler.scheduleJob(job, trigger);
+
+        } catch (SchedulerException e) {
+            throw new ExecutionPlanValidationException("");
+        }
+    }*/
+
+    public void dispatchEvents(long timeStampOfBaseAggregate) {
+
+        //Send RESET event to groupByExecutor
+        for (ExpressionExecutorDetails basicExecutor:basicExecutorDetails) {
+            basicExecutor.getExecutor().execute(resetEvent);
+        }
+
+        ComplexEventChunk<StreamEvent> newComplexEventChunk = new ComplexEventChunk<>();
+        for (String groupByKey: storeAggregatorFunctions.keySet()) {
+            //Create new on after window data to send aggregates to next iterator
+            List<Object> newOnAfterWindowData = new ArrayList<>();
+            newOnAfterWindowData.add(groupByKey);
+            ConcurrentMap<String, Object> aggregatesPerGroupBy = storeAggregatorFunctions.remove(groupByKey);
+            for (String aggregateKey : aggregatesPerGroupBy.keySet()) {
+                // TODO: 5/27/17 this if else is a hack!!! change
+                if (aggregateKey.startsWith("sum")) {
+                    newOnAfterWindowData.add(((Double) aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
+                } else if (aggregateKey.startsWith("count")) {
+                    newOnAfterWindowData.add(((Long) aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
+                }
+            }
+            newOnAfterWindowData.add(timeStampOfBaseAggregate); // TODO: 6/1/17 this needs to change
+
+            StreamEvent newStream = new StreamEvent(0, onAfterWindowLength, 0);
+            newStream.setTimestamp(timeStampOfBaseAggregate); // TODO: 5/31/17 we need to set the timestamp
+            newStream.setOnAfterWindowData(newOnAfterWindowData.toArray());
+            newComplexEventChunk.add(newStream);
+
+            inMemoryTable.add(timeStampOfBaseAggregate, newOnAfterWindowData.toArray()); //write to table before sending to next executor
+//            System.out.println(inMemoryTable.getElementId()+"..."+inMemoryTable.currentState());
+        }
+        if (getNextExecutor()!=null){
+            getNextExecutor().execute(newComplexEventChunk);
+        }
     }
 }
