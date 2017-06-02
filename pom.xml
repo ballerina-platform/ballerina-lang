@@ -466,6 +466,11 @@
                 <version>${orbit.version.axiom}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-dom</artifactId>
+                <version>${orbit.version.axiom}</version>
+            </dependency>
+            <dependency>
                 <groupId>jaxen</groupId>
                 <artifactId>jaxen</artifactId>
                 <version>${jaxen.version}</version>
