@@ -168,9 +168,9 @@ public class BLangProgramRunner {
         controlStackNew.pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
+        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         // TODO invoke package <init> function
-        bLangVM.execFunction(mainPkgInfo, bContext, defaultWorkerInfo.
-                getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(bContext);
     }
 
     @Deprecated

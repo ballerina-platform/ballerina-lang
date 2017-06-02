@@ -20,6 +20,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.DefaultBalCallback;
+import org.ballerinalang.runtime.threadpool.ResponseWorkerThread;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -32,6 +34,11 @@ public class BalConnectorCallback extends DefaultBalCallback {
     private boolean responseArrived = false;
 
     private BValue valueRef;
+
+    private boolean nonBlockingExecution;
+
+    // Reference for post validation.
+    private AbstractNativeAction nativeAction;
 
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
@@ -46,6 +53,18 @@ public class BalConnectorCallback extends DefaultBalCallback {
         return valueRef;
     }
 
+    public void setNonBlockingExecution(boolean nonBlockingExecution) {
+        this.nonBlockingExecution = nonBlockingExecution;
+    }
+
+    public AbstractNativeAction getNativeAction() {
+        return nativeAction;
+    }
+
+    public void setNativeAction(AbstractNativeAction nativeAction) {
+        this.nativeAction = nativeAction;
+    }
+
     @Override
     public void done(CarbonMessage carbonMessage) {
         BMessage bMessage = new BMessage(carbonMessage);
@@ -58,8 +77,12 @@ public class BalConnectorCallback extends DefaultBalCallback {
         }
         responseArrived = true;
         // Release Thread.
-        synchronized (context) {
-            context.notifyAll();
+        if (nonBlockingExecution) {
+            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
+        } else {
+            synchronized (context) {
+                context.notifyAll();
+            }
         }
     }
 

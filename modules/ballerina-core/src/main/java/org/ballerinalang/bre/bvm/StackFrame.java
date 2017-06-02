@@ -90,7 +90,8 @@ public class StackFrame {
         this.retRegIndexes = retRegIndexes;
     }
 
-    public StackFrame(BValue[] argValues, BValue[] returnValues) {
+    public StackFrame(CallableUnitInfo callableUnitInfo, BValue[] argValues, BValue[] returnValues) {
+        this.callableUnitInfo = callableUnitInfo;
         this.argValues = argValues;
         this.returnValues = returnValues;
     }

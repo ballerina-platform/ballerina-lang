@@ -301,7 +301,8 @@ public class BLangFunctions {
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
-        bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
+        context.setStartIP(codeAttribInfo.getCodeAddrs());
+        bLangVM.run(context);
 
         if (context.getError() != null) {
             throw new BallerinaException(".*uncaught error: " +
@@ -353,7 +354,8 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.execFunction(packageInfo, context, defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(context);
     }
 
     public static void invokeFunction(ProgramFile programFile, PackageInfo packageInfo,
@@ -364,7 +366,8 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.execFunction(packageInfo, context, defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(context);
     }
 
     /**
