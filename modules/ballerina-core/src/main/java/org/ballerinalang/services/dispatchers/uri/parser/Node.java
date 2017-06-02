@@ -18,9 +18,12 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,9 +32,10 @@ import java.util.Map;
 public abstract class Node {
 
     protected String token;
-    protected ResourceInfo resource;
+    protected List<ResourceInfo> resource;
     protected boolean isFirstTraverse = true;
     protected List<Node> childNodesList = new LinkedList<>();
+    protected String[] httpMethods = {"GET", "PUT", "POST", "DELETE", "OPTIONS", "HEAD"};
 
     protected Node(String token) {
         this.token = token;
@@ -51,7 +55,8 @@ public abstract class Node {
         return node;
     }
 
-    public ResourceInfo matchAll(String uriFragment, Map<String, String> variables, int start) {
+    public ResourceInfo matchAll(String uriFragment, Map<String, String> requestDetails,
+            Map<String, String> variables, int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -66,21 +71,23 @@ public abstract class Node {
                     if (regex.equals("*")) {
                         regex = "." + regex;
                         if (subPath.matches(regex)) {
-                            resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                            resource = childNode.matchAll(subUriFragment, requestDetails,
+                                    variables, start + matchLength);
                             if (resource != null) {
                                 return resource;
                             }
                         }
                     } else {
                         if (subPath.contains(regex)) {
-                            resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                            resource = childNode.matchAll(subUriFragment, requestDetails,
+                                    variables, start + matchLength);
                             if (resource != null) {
                                 return resource;
                             }
                         }
                     }
                 } else {
-                    resource = childNode.matchAll(subUriFragment, variables, start + matchLength);
+                    resource = childNode.matchAll(subUriFragment, requestDetails, variables, start + matchLength);
                     if (resource !=  null) {
                         return resource;
                     }
@@ -90,22 +97,38 @@ public abstract class Node {
             return null;
         }
         else if (matchLength == uriFragment.length()) {
-            return getResource();
+            return getResource(requestDetails);
         } else {
             return null;
         }
     }
 
-    public ResourceInfo getResource() {
-        return this.resource;
+    public ResourceInfo getResource(Map<String, String> requestDetails) {
+        for (ResourceInfo resourceInfo : this.resource) {
+            if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                    requestDetails.get(Constants.HTTP_METHOD)) != null) {
+                return resourceInfo;
+            }
+        }
+        return null;
     }
 
-    public void setResource(ResourceInfo resource) {
+    public void setResource(ResourceInfo newResource) {
         if (isFirstTraverse) {
-            this.resource = resource;
+            this.resource = new ArrayList<>();
+            this.resource.add(newResource);
             isFirstTraverse = false;
         } else {
-            throw new BallerinaException("Seems two resources have the same addressable URI");
+            for (ResourceInfo previousResource: this.resource) {
+                for (String methods : this.httpMethods) {
+                    if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
+                        if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
+                            throw new BallerinaException("Seems two resources have the same addressable URI");
+                        }
+                    }
+                }
+            }
+            this.resource.add(newResource);
         }
     }
 

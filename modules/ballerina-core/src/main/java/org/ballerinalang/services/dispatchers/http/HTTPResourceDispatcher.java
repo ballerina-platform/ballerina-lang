@@ -51,11 +51,12 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         try {
             Map<String, String> resourceArgumentValues = new HashMap<>();
+            Map<String, String> requestDetails = new HashMap<>();
+            requestDetails.put(Constants.HTTP_METHOD, method);
 
-            ResourceInfo resource = service.getUriTemplate().matches(subPath, resourceArgumentValues);
-            if (resource != null
-                    && (resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null)) {
-
+            ResourceInfo resource = service.getUriTemplate().matches(subPath, requestDetails,
+                    resourceArgumentValues);
+            if (resource != null) {
                 if (cMsg.getProperty(Constants.QUERY_STR) != null) {
                     QueryParamProcessor.processQueryParams
                             ((String) cMsg.getProperty(Constants.QUERY_STR))

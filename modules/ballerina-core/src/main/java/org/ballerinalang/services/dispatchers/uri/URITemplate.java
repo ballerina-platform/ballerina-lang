@@ -41,8 +41,8 @@ public class URITemplate {
         return null;
     }
 
-    public ResourceInfo matches(String uri, Map<String, String> variables) {
-        return syntaxTree.matchAll(uri, variables, 0);
+    public ResourceInfo matches(String uri, Map<String, String> requestDetails, Map<String, String> variables) {
+        return syntaxTree.matchAll(uri, requestDetails, variables, 0);
     }
 
     public void parse(String uriTemplate, ResourceInfo resource) throws URITemplateException {
