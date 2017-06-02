@@ -102,7 +102,7 @@ class TagController extends React.Component {
         let componentData = this.props.componentData;
         if (this.props.isSelectBox) {
             return (<g key={componentData.title}>
-                <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y  }
+                <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y }
                       width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w}
                       height={25} className={this.props.groupClass}/>
