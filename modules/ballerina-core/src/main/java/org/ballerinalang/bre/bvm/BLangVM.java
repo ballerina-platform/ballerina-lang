@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -34,6 +35,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -62,6 +64,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -88,6 +91,7 @@ public class BLangVM {
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
+        this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
     // TODO Remove
@@ -105,11 +109,10 @@ public class BLangVM {
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
-        this.globalMemBlock = context.getGlobalMemoryBlock();
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
 
-     //   traceCode();
+//        traceCode();
         exec();
     }
 
@@ -593,7 +596,7 @@ public class BLangVM {
                     k = operands[2];
 
                     // TODO improve error handling in VM
-                   if (sf.longRegs[j] == 0) {
+                    if (sf.longRegs[j] == 0) {
                         throw new BallerinaException(" / by zero");
                     }
 
@@ -973,6 +976,19 @@ public class BLangVM {
                         throw new BallerinaException("incompatible types");
                     }
                     break;
+                case InstructionCodes.ANY2T:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() instanceof BStructType) {
+                        sf.refRegs[j] = bRefType;
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
                 case InstructionCodes.ANY2MAP:
                     i = operands[0];
                     j = operands[1];
@@ -991,10 +1007,32 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BJSON("null");
                     break;
-
+                case InstructionCodes.CHECKCAST:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    j = operands[2];
+                    TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    // TODO NULL Check  and Array casting
+                    if (checkCast(sf.refRegs[i].getType(), typeCPEntry.getType())) {
+                        sf.refRegs[j] = sf.refRegs[i];
+                    } else {
+                        throw new BallerinaException("Incompatible types");
+                        // TODO Handle cast errors
+                    }
+                    break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
+                    break;
+                case InstructionCodes.ARRAYLEN:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        //TODO improve error message to be more informative
+                        throw new BallerinaException("array is null.");
+                    }
+                    BNewArray array = (BNewArray) sf.refRegs[i];
+                    sf.longRegs[j] = array.size();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];
@@ -1351,6 +1389,41 @@ public class BLangVM {
                     structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
             }
         }
+    }
+
+    private boolean checkCast(BType sourceType, BType targetType) {
+        if (sourceType == targetType) {
+            return true;
+        }
+
+        if (sourceType.getTag() == TypeTags.STRUCT_TAG && targetType.getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) sourceType, (BStructType) targetType);
+
+        }
+
+        // Array casting
+
+        return false;
+    }
+
+    private boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
+        // Struct Type equivalency
+        BStructType.StructField[] sFields = sourceType.getStructFields();
+        BStructType.StructField[] tFields = targetType.getStructFields();
+
+        if (tFields.length > sFields.length) {
+            return false;
+        }
+
+        for (int i = 0; i < tFields.length; i++) {
+            if (tFields[i].getFieldType() == sFields[i].getFieldType() &&
+                    tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
+                continue;
+            }
+            return false;
+        }
+
+        return true;
     }
 
     // TODO Refactor these methods and move them to a proper util class

@@ -26,28 +26,18 @@ public class URIUtil {
 
     public static final String URI_PATH_DELIMITER = "/";
 
-    public static String getFirstPathSegment(String path) {
-        if (!path.startsWith(URI_PATH_DELIMITER)) {
-            path = URI_PATH_DELIMITER.concat(path);
+    public static String[] getPathSegments(String path) {
+        if (path.startsWith(URI_PATH_DELIMITER)) {
+            path = path.substring(1);
         }
-
-        String[] pathSegs = path.split(URI_PATH_DELIMITER);
-        if (pathSegs.length > 1) {
-            return pathSegs[1];
-        }
-        return URI_PATH_DELIMITER;
+        return path.split(URI_PATH_DELIMITER);
     }
 
-    public static   String getSubPath(String path) {
-        if (path.startsWith(URI_PATH_DELIMITER)) {
-            path = path.replaceFirst(URI_PATH_DELIMITER, "");
+    public static String getSubPath(String path, String basePath) {
+        if (path.length() == basePath.length()) {
+            return URI_PATH_DELIMITER;
         }
 
-        int index = path.indexOf(URI_PATH_DELIMITER);
-        if (index != -1) {
-            return path.substring(index, path.length());
-        }
-        return URI_PATH_DELIMITER;
-
+        return path.substring(basePath.length());
     }
 }

@@ -127,7 +127,7 @@ public class DivideExprTest {
             expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: invalid operation: " +
                     "incompatible types 'string' and 'float'")
     public void testAddIncompatibleTypes() {
-        BTestUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
+        BTestUtils.getProgramFile("lang/expressions/divide-incompatible-types.bal");
     }
     
     @Test(description = "Test dividing values of unsupported types (json)",
@@ -135,6 +135,6 @@ public class DivideExprTest {
             expectedExceptionsMessageRegExp = "divide-unsupported-types.bal:10: invalid operation: " +
                     "operator / not defined on 'json'")
     public void testAddUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/divide-unsupported-types.bal");
+        BTestUtils.getProgramFile("lang/expressions/divide-unsupported-types.bal");
     }
 }

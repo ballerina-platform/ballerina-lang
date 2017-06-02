@@ -239,7 +239,7 @@ public class HTTPServicesRegistry {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getServiceName();
         AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.BASE_PATH);
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_BASE_PATH);
 
         if (annotationInfo != null) {
             AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue

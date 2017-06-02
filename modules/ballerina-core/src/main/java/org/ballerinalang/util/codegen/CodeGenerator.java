@@ -55,6 +55,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -135,6 +136,7 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -311,9 +313,10 @@ public class CodeGenerator implements NodeVisitor {
                 varDef.setMemoryLocation(globalVarLocation);
             }
 
-            // TODO Create the init function info
-//            createFunctionInfoEntries(new Function[]{serviceInfo.getInitFunction()});
-
+            // Create the init function info
+            createFunctionInfoEntries(new Function[]{service.getInitFunction()});
+            serviceInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(service.getInitFunction().getName()));
+            
             // Create resource info entries for all resource
             createResourceInfoEntries(service.getResources(), serviceInfo);
         }
@@ -329,6 +332,7 @@ public class CodeGenerator implements NodeVisitor {
             ResourceInfo resourceInfo = new ResourceInfo(currentPkgPath, currentPkgCPIndex,
                     resource.getName(), resourceNameCPIndex);
             resourceInfo.setParamTypes(getParamTypes(resource.getParameterDefs()));
+            resourceInfo.setParamNames(getParameterNames(resource.getParameterDefs()));
             resourceInfo.setPackageInfo(currentPkgInfo);
             addWorkerInfoEntries(resourceInfo, resource.getWorkers());
 
@@ -520,8 +524,8 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(Service service) {
-//        BallerinaFunction initFunction = connectorDef.getInitFunction();
-//        visit(initFunction);
+        BallerinaFunction initFunction = service.getInitFunction();
+        visit(initFunction);
 
         currentServiceInfo = currentPkgInfo.getServiceInfo(service.getName());
         AnnotationAttachment[] annotationAttachments = service.getAnnotations();
@@ -655,8 +659,8 @@ public class CodeGenerator implements NodeVisitor {
         rExpr.accept(this);
 
         int[] rhsExprRegIndexes;
-        if (assignStmt.getRExpr() instanceof CallableUnitInvocationExpr) {
-            rhsExprRegIndexes = ((CallableUnitInvocationExpr) assignStmt.getRExpr()).getOffsets();
+        if (assignStmt.getRExpr() instanceof ExecutableMultiReturnExpr) {
+            rhsExprRegIndexes = ((ExecutableMultiReturnExpr) assignStmt.getRExpr()).getOffsets();
         } else {
             rhsExprRegIndexes = new int[]{assignStmt.getRExpr().getTempOffset()};
         }
@@ -667,6 +671,9 @@ public class CodeGenerator implements NodeVisitor {
             Expression lExpr = lhsExprs[i];
 
             if (lExpr instanceof VariableRefExpr) {
+                if (((VariableRefExpr) lExpr).getVarName().equals("_")) {
+                    continue;
+                }
                 varAssignment = true;
                 lExpr.accept(this);
                 varAssignment = false;
@@ -1108,23 +1115,40 @@ public class CodeGenerator implements NodeVisitor {
         Expression rExpr = typeCastExpr.getRExpr();
         rExpr.accept(this);
 
-        // TODO Handle multi-return support
-
+        // TODO Improve following logic
         int opCode = typeCastExpr.getOpcode();
-//        if (opCode < 0) {
-//            throw new IllegalStateException("Instruction not supported");
-//        }
 
-        // Ignore  NOP opcode
-        if (opCode != 0) {
+        // Ignore NOP opcode
+        if (opCode == InstructionCodes.CHECKCAST) {
+            TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(typeCastExpr.getType().getSig()));
+            int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
             int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
-            typeCastExpr.setTempOffset(targetRegIndex);
-            typeCastExpr.setOffsets(new int[]{targetRegIndex});
-            emit(opCode, rExpr.getTempOffset(), targetRegIndex, -1);
+
+            if (typeCastExpr.isMultiReturnExpr()) {
+                typeCastExpr.setOffsets(new int[]{targetRegIndex, ++regIndexes[REF_OFFSET]});
+            } else {
+                typeCastExpr.setOffsets(new int[]{targetRegIndex});
+            }
+            emit(opCode, rExpr.getTempOffset(), typeCPindex, targetRegIndex);
+
+        } else if (opCode != 0) {
+            int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
+
+            int errorRegIndex = -1;
+            if (typeCastExpr.isMultiReturnExpr()) {
+                errorRegIndex = ++regIndexes[REF_OFFSET];
+                typeCastExpr.setOffsets(new int[]{targetRegIndex, errorRegIndex});
+            } else {
+                typeCastExpr.setOffsets(new int[]{targetRegIndex});
+            }
+            emit(opCode, rExpr.getTempOffset(), targetRegIndex, errorRegIndex);
+
         } else {
-            // TODO improve
-            typeCastExpr.setTempOffset(rExpr.getTempOffset());
-            typeCastExpr.setOffsets(new int[]{rExpr.getTempOffset()});
+            if (typeCastExpr.isMultiReturnExpr()) {
+                typeCastExpr.setOffsets(new int[]{rExpr.getTempOffset(), -1});
+            } else {
+                typeCastExpr.setOffsets(new int[]{rExpr.getTempOffset()});
+            }
         }
     }
 
@@ -1423,6 +1447,14 @@ public class CodeGenerator implements NodeVisitor {
                 }
 
             } else {
+                //handle ArrayLengthExpression separately, once done break out of the loop
+                //if not handle other cases
+                if (childSFAccessExpr.getVarRef() instanceof ArrayLengthExpression) {
+                    childSFAccessExpr.getVarRef().accept(this);
+                    fieldAccessExpr.setTempOffset(childSFAccessExpr.getVarRef().getTempOffset());
+                    break;
+                }
+
                 ReferenceExpr referenceExpr = (ReferenceExpr) childSFAccessExpr.getVarRef();
                 if (referenceExpr instanceof VariableRefExpr) {
                     varAssignment = isAssignment;
@@ -1443,6 +1475,13 @@ public class CodeGenerator implements NodeVisitor {
             }
             childSFAccessExpr = childSFAccessExpr.getFieldExpr();
         }
+    }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+        int arrayLengthIndex = ++regIndexes[INT_OFFSET];
+        arrayLengthExpression.setOffset(arrayLengthIndex);
+        emit(InstructionCodes.ARRAYLEN, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
     }
 
     @Override
@@ -1753,6 +1792,34 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         return types;
+    }
+
+    private String[] getParameterNames(ParameterDef[] paramDefs) {
+        if (paramDefs.length == 0) {
+            return new String[0];
+        }
+
+        String[] names = new String[paramDefs.length];
+        AnnotationAttachment[] annotationAttachments;
+        for (int i = 0; i < paramDefs.length; i++) {
+            annotationAttachments = paramDefs[i].getAnnotations();
+            boolean isAnnotated = false;
+            // TODO: We need to support Matrix Param as well
+            for (AnnotationAttachment annotationAttachment : annotationAttachments) {
+                if ("PathParam".equalsIgnoreCase(annotationAttachment.getName())
+                    || "QueryParam".equalsIgnoreCase(annotationAttachment.getName())) {
+                    names[i] = annotationAttachment.getAttributeNameValuePairs()
+                            .get("value").getLiteralValue().stringValue();
+                    isAnnotated = true;
+                    break;
+                }
+            }
+            if (!isAnnotated) {
+                names[i] = paramDefs[i].getName();
+            }
+        }
+
+        return names;
     }
 
     private int nextIP() {
@@ -2076,11 +2143,13 @@ public class CodeGenerator implements NodeVisitor {
         boolean paramAnnotationFound = false;
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
                 parameterDefs.length);
+        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(parameterDefs.length);
         for (int i = 0; i < parameterDefs.length; i++) {
             ParameterDef parameterDef = parameterDefs[i];
             int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
             parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
             parameterDef.accept(this);
+            LocalVariableInfo localVariableDetails = getLocalVariableAttributeInfo(parameterDef);
 
             AnnotationAttachment[] paramAnnotationAttachments = parameterDef.getAnnotations();
             if (paramAnnotationAttachments.length == 0) {
@@ -2092,11 +2161,14 @@ public class CodeGenerator implements NodeVisitor {
             for (AnnotationAttachment annotationAttachment : paramAnnotationAttachments) {
                 AnnotationAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
                 paramAttachmentInfo.addAnnotationAttachmentInfo(attachmentInfo);
+                localVariableDetails.addAttachmentIndex(attachmentInfo.nameCPIndex);
             }
 
             paramAttributeInfo.addParamAnnotationAttachmentInfo(i, paramAttachmentInfo);
+            localVariableAttributeInfo.addLocaleVaraibleDetails(localVariableDetails);
         }
 
+        callableUnitInfo.addAttributeInfo(AttributeInfo.LOCALVARIABLES_ATTRIBUTE, localVariableAttributeInfo);
         if (paramAnnotationFound) {
             callableUnitInfo.addAttributeInfo(AttributeInfo.PARAMETER_ANNOTATIONS_ATTRIBUTE, paramAttributeInfo);
         }
@@ -2159,6 +2231,12 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
         }
+    }
+
+    private LocalVariableInfo getLocalVariableAttributeInfo(ParameterDef parameterDef) {
+        UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(parameterDef.getName());
+        int annotationNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
+        return new LocalVariableInfo(annotationNameCPIndex);
     }
 
     /**

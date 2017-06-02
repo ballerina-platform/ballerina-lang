@@ -159,8 +159,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2S] = "any2s";
         mnemonics[InstructionCodes.ANY2B] = "any2b";
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
+        mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
+        mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
@@ -168,6 +170,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
         mnemonics[InstructionCodes.JSONNEWARRAY] = "jsonnewarray";
+        mnemonics[InstructionCodes.ARRAYLEN] = "arraylength";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWCONNECTOR] = "newconnector";

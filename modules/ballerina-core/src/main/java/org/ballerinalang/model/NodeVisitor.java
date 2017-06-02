@@ -28,6 +28,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -208,6 +209,8 @@ public interface NodeVisitor {
     void visit(TypeConversionExpr typeConversionExpression);
 
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
+
+    void visit(ArrayLengthExpression arrayLengthExpression);
     
     void visit(FieldAccessExpr structAttributeAccessExpr);
     

@@ -68,7 +68,7 @@ public class SimpleStringExpression extends Expression {
         int length = uriFragment.length();
         for (int i = 0; i < length; i++) {
             char ch = uriFragment.charAt(i);
-            if (isReserved(ch) || (next != null && ch == next.getFirstCharacter())) {
+            if (isReserved(ch) || isEndCharacter(ch)) {
                 if (ch == getSeparator() && variableList.size() > 0) {
                     continue;
                 }
@@ -137,6 +137,15 @@ public class SimpleStringExpression extends Expression {
     protected boolean isReserved(char ch) {
         for (char reservedChar : reserved) {
             if (ch == reservedChar) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isEndCharacter(Character endCharacter) {
+        for (Node childNode : childNodesList) {
+            if (endCharacter == childNode.getFirstCharacter()) {
                 return true;
             }
         }
