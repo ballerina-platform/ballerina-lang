@@ -369,6 +369,10 @@ class TransformStatementDecorator extends React.Component {
 
             } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)){
                 let func = this.getFunctionDefinition(rightExpression);
+                if (_.isUndefined(func)) {
+                    alerts.error('Function definition for "' + rightExpression.getFunctionName() + '" cannot be found');
+                    return;
+                }
                 this.mapper.addFunction(func, statement, statement.getParent().removeChild.bind(statement.getParent()));
 
                 if (func.getParameters().length === rightExpression.getChildren().length){
@@ -396,7 +400,7 @@ class TransformStatementDecorator extends React.Component {
                         }
                     });
                 } else { 
-                    alerts.warn('Function inputs and mapping count does not match in ' + func.getName());
+                    alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
                 }
 
                 // draw function to target struct connection
@@ -422,7 +426,7 @@ class TransformStatementDecorator extends React.Component {
                         self.mapper.addConnection(conRight);
                     });
                 } else { 
-                     alerts.warn('Function outputs and mapping count does not match in ' + func.getName());
+                     alerts.warn('Function outputs and mapping count does not match in "' + func.getName() + '"');
                 }
             }
         } else {
@@ -722,7 +726,11 @@ class TransformStatementDecorator extends React.Component {
 
     setSource(currentSelection, predefinedStructs) {
         var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
-        if(!sourceSelection.added) {
+        if (_.isUndefined(sourceSelection)){
+            alerts.error('Mapping source "' + currentSelection + '" cannot be found');
+            return false;
+        }
+        if (!sourceSelection.added) {
             self.mapper.addSourceType(sourceSelection);
             sourceSelection.added = true;
             return true;
@@ -733,7 +741,11 @@ class TransformStatementDecorator extends React.Component {
 
     setTarget(currentSelection, predefinedStructs) {
         var targetSelection = _.find(predefinedStructs, { name: currentSelection});
-        if(!targetSelection.added) {
+        if (_.isUndefined(targetSelection)){
+            alerts.error('Mapping target "' + currentSelection + '" cannot be found');
+            return false;
+        }
+        if (!targetSelection.added) {
             self.mapper.addTargetType(targetSelection);
             targetSelection.added = true;
             return true;
