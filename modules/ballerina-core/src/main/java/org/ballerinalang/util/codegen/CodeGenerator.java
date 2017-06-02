@@ -1458,7 +1458,7 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ArrayLengthExpression arrayLengthExpression) {
         int arrayLengthIndex = ++regIndexes[INT_OFFSET];
         arrayLengthExpression.setOffset(arrayLengthIndex);
-        emit(InstructionCodes.ALENGTH, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
+        emit(InstructionCodes.ARRAYLEN, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
     }
 
     @Override

@@ -175,7 +175,7 @@ public interface InstructionCodes {
     int BNEWARRAY = 203;
     int RNEWARRAY = 204;
     int JSONNEWARRAY = 205;
-    int ALENGTH = 206;
+    int ARRAYLEN = 206;
 
     int NEWSTRUCT = 210;
     int NEWCONNECTOR = 211;

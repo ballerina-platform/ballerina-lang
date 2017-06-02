@@ -1003,7 +1003,7 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
                     break;
-                case InstructionCodes.ALENGTH:
+                case InstructionCodes.ARRAYLEN:
                     i = operands[0];
                     j = operands[1];
                     if (sf.refRegs[i] == null) {
