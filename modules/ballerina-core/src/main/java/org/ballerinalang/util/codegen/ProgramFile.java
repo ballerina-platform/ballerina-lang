@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.nio.file.Path;
@@ -47,6 +49,8 @@ public class ProgramFile {
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
     private Path programFilePath;
+
+    private StructureType globalMemoryBlock;
 
     public int getMagicValue() {
         return magicValue;
@@ -91,6 +95,12 @@ public class ProgramFile {
 
     public void setGlobalVarIndexes(int[] globalVarIndexes) {
         this.globalVarIndexes = globalVarIndexes;
+        this.globalMemoryBlock = new BStruct(null);
+        globalMemoryBlock.init(globalVarIndexes);
+    }
+
+    public StructureType getGlobalMemoryBlock() {
+        return globalMemoryBlock;
     }
 
     // Main package.
