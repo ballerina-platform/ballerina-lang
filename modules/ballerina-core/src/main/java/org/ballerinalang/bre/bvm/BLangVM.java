@@ -45,6 +45,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
@@ -122,16 +123,20 @@ public class BLangVM {
         packageInfo.getLineNumberInfoList().forEach(line -> printStream.println(line.toString()));
     }
 
-    public void execFunction(PackageInfo packageInfo, Context context, int ip) {
-        this.constPool = packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = packageInfo.getInstructionList().toArray(new Instruction[0]);
+    public void run(Context context) {
+        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
+        this.constPool = currentFrame.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+        this.code = currentFrame.packageInfo.getInstructionList().toArray(new Instruction[0]);
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
         this.context.setVMBasedExecutor(true);
-        this.ip = ip;
+        this.ip = context.getStartIP();
 
         //traceCode(packageInfo);
+        if (context.getError() != null) {
+            handleError();
+        }
         exec();
     }
 
@@ -595,7 +600,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
                                 new BString(" / by zero")));
                         handleError();
                         break;
@@ -609,7 +614,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
                                 new BString(" / by zero")));
                         handleError();
                         break;
@@ -623,7 +628,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
                                 new BString(" / by zero")));
                         handleError();
                         break;
@@ -637,7 +642,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, programFile, ip, null,
+                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
                                 new BString(" / by zero")));
                         handleError();
                         break;
@@ -823,7 +828,7 @@ public class BLangVM {
                     i = operands[0];
                     if (i >= 0) {
                         BStruct error = (BStruct) sf.refRegs[i];
-                        BLangVMErrorHandlerUtil.setStackTrace(context, programFile, ip, error);
+                        BLangVMErrorHandlerUtil.setStackTrace(context, ip, error);
                         context.setError(error);
                     }
                     handleError();
@@ -1399,13 +1404,20 @@ public class BLangVM {
 
         BType[] retTypes = functionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
+        StackFrame caleeSF = new StackFrame(functionInfo, nativeArgValues, returnValues);
         controlStack.pushFrame(caleeSF);
 
         // Invoke Native function;
         AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
-        nativeFunction.executeNative(context);
-
+        try {
+            nativeFunction.executeNative(context);
+        } catch (Throwable e) {
+            BStruct err = BLangVMErrorHandlerUtil.generateError(this.context, ip, null, new BString(e.getMessage()));
+            context.setError(err);
+            controlStack.popFrame();
+            handleError();
+            return;
+        }
         // Copy return values to the callers stack
         controlStack.popFrame();
         handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
@@ -1424,12 +1436,29 @@ public class BLangVM {
 
         BType[] retTypes = actionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
+        StackFrame caleeSF = new StackFrame(actionInfo, nativeArgValues, returnValues);
         controlStack.pushFrame(caleeSF);
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
-        nativeAction.execute(context);
-
+        try {
+            if (!context.isInTransaction() && nativeAction.isNonBlockingAction()) {
+                // Enable non-blocking.
+                context.setStartIP(ip);
+                BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
+                connectorCallback.setNativeAction(nativeAction);
+                nativeAction.execute(context, connectorCallback);
+                ip = -1;
+                // release thread.
+            } else {
+                nativeAction.execute(context);
+            }
+        } catch (Throwable e) {
+            BStruct err = BLangVMErrorHandlerUtil.generateError(this.context, ip, null, new BString(e.getMessage()));
+            context.setError(err);
+            controlStack.popFrame();
+            handleError();
+            return;
+        }
         // Copy return values to the callers stack
         controlStack.popFrame();
         handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);

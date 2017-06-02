@@ -45,6 +45,8 @@ public class Context {
 
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
+    private int startIP;
+    private ProgramFile programFile;
 
     private BStruct errorThrown;
 
@@ -60,6 +62,7 @@ public class Context {
     }
 
     public Context(ProgramFile programFile) {
+        this.programFile = programFile;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
@@ -138,5 +141,17 @@ public class Context {
 
     public void setError(BStruct error) {
         this.errorThrown = error;
+    }
+
+    public int getStartIP() {
+        return startIP;
+    }
+
+    public void setStartIP(int startIP) {
+        this.startIP = startIP;
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
     }
 }

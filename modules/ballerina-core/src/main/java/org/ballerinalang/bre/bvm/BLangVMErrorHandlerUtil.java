@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -32,7 +33,6 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
@@ -55,23 +55,22 @@ public class BLangVMErrorHandlerUtil {
      * Generate Error from current error.
      *
      * @param context     current Context
-     * @param programFile {@link ProgramFile} instance that is executing
      * @param ip          current instruction pointer
      * @param structInfo  {@link StructInfo} of the error that need to be generated
      * @param values      field values of the error Struct.
      * @return generated error {@link BStruct}
      */
-    public static BStruct generateError(Context context, ProgramFile programFile, int ip, StructInfo structInfo,
-                                 BValue... values) {
-        // TODO : Validate for Type Equivalence for error.
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(ERROR_PCK);
-        if (structInfo == null) {
-            structInfo = errorPackageInfo.getStructInfo(STRUCT_ERROR);
+    public static BStruct generateError(Context context, int ip, StructInfo structInfo, BValue... values) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PCK);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ERROR);
+        if (structInfo == null || BLangVM.checkStructEquivalency((BStructType) structInfo.getType(),
+                (BStructType) errorStructInfo.getType())) {
+            structInfo = errorStructInfo;
         }
         BStruct error = createBStruct(structInfo, values);
         // Set StackTrace.
         StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, programFile, ip - 1));
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
         error.setStackTrace(bStackTrace);
         return error;
     }
@@ -81,12 +80,11 @@ public class BLangVMErrorHandlerUtil {
      * Set StackTrace for given Error Struct.
      *
      * @param context     current Context
-     * @param programFile {@link ProgramFile} instance that is executing
      * @param ip          current instruction pointer
      * @param error       error Struct to be set the stackTrace.
      */
-    public static void setStackTrace(Context context, ProgramFile programFile, int ip, BStruct error) {
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(ERROR_PCK);
+    public static void setStackTrace(Context context, int ip, BStruct error) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PCK);
         if (error == null) {
             // This shouldn't execute.
             logger.warn("Error struct is null. Default Error is created.");
@@ -94,7 +92,7 @@ public class BLangVMErrorHandlerUtil {
             error = createBStruct(structInfo);
         }
         StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, programFile, ip - 1));
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
         error.setStackTrace(bStackTrace);
     }
 
@@ -102,13 +100,12 @@ public class BLangVMErrorHandlerUtil {
      * Generate StackTraceItem array.
      *
      * @param context     current Context
-     * @param programFile {@link ProgramFile} instance that is executing
      * @param ip          current instruction pointer
      * @return generated StackTraceItem struct array
      */
-    public static BRefValueArray generateStackTraceItems(Context context, ProgramFile programFile, int ip) {
+    public static BRefValueArray generateStackTraceItems(Context context, int ip) {
         BRefValueArray stackTraceItems = new BRefValueArray();
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(ERROR_PCK);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PCK);
         StructInfo stackTraceItem = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE_ITEM);
         ControlStackNew controlStack = context.getControlStackNew();
         int currentIP = ip;
@@ -127,8 +124,13 @@ public class BLangVMErrorHandlerUtil {
             values[0] = new BString(parentScope + callableUnitInfo.getName());
             values[1] = new BString(callableUnitInfo.getPkgPath());
             LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(currentIP);
-            values[2] = new BString(lineNumberInfo.getFileName());
-            values[3] = new BInteger(lineNumberInfo.getLineNumber());
+            if (lineNumberInfo != null) {
+                values[2] = new BString(lineNumberInfo.getFileName());
+                values[3] = new BInteger(lineNumberInfo.getLineNumber());
+            } else {
+                values[2] = new BString("<native>");
+                values[3] = new BInteger(0);
+            }
             stackTraceItems.add(i - 1, createBStruct(stackTraceItem, values));
             // Always get the previous instruction pointer.
             currentIP = stackFrame.retAddrs - 1;
