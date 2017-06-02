@@ -169,6 +169,10 @@ public interface InstructionCodes {
     int ANY2MAP = 161;
     int NULL2JSON = 162;
     int CHECKCAST = 163;
+    int ANY2MSG = 164;
+
+    int WRKINVOKE = 190;
+    int WRKREPLY = 191;
 
     int INEWARRAY = 200;
     int FNEWARRAY = 201;

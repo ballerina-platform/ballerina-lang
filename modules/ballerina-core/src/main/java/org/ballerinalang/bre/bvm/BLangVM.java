@@ -45,6 +45,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -65,6 +66,9 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -123,8 +127,8 @@ public class BLangVM {
         int i;
         int j;
         int k;
-        int lvIndex;
-        int cpIndex;
+        int lvIndex; // Index of the local variable
+        int cpIndex; // Index of the constant pool
         int fieldIndex;
 
         int[] fieldCount;
@@ -146,6 +150,10 @@ public class BLangVM {
         ActionInfo actionInfo;
         StructureTypeInfo structureTypeInfo;
         StringCPEntry stringCPEntry;
+        WorkerDataChannelRefCPEntry workerRefCPEntry;
+        WorkerInvokeCPEntry workerInvokeCPEntry;
+        WorkerReplyCPEntry workerReplyCPEntry;
+        WorkerDataChannel workerDataChannel;
 
         // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
@@ -728,6 +736,24 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
+                case InstructionCodes.WRKINVOKE:
+                    cpIndex = operands[0];
+                    workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+
+                    cpIndex = operands[1];
+                    workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
+                    invokeWorker(workerDataChannel, workerInvokeCPEntry);
+                    break;
+                case InstructionCodes.WRKREPLY:
+                    cpIndex = operands[0];
+                    workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+
+                    cpIndex = operands[1];
+                    workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
+                    replyWorker(workerDataChannel, workerReplyCPEntry);
+                    break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
@@ -1126,6 +1152,118 @@ public class BLangVM {
         BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
 
     }
+
+    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
+        StackFrame currentFrame = controlStack.getCurrentFrame();
+
+        // Extract the outgoing expressions
+        BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
+        copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
+                workerInvokeCPEntry.getbTypes(), arguments);
+
+        //populateArgumentValuesForWorker(expressions, arguments);
+        if (workerDataChannel != null) {
+            workerDataChannel.putData(arguments);
+        }
+
+//        else {
+//            BArray<BValue> bArray = new BArray<>(BValue.class);
+//            for (int j = 0; j < arguments.length; j++) {
+//                BValue returnVal = arguments[j];
+//                bArray.add(j, returnVal);
+//            }
+//            controlStack.setReturnValue(0, bArray);
+//        }
+    }
+
+    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
+
+        BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
+        StackFrame currentFrame = controlStack.getCurrentFrame();
+        //currentFrame.returnValues = passedInValues;
+        copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
+                workerReplyCPEntry.getTypes(), passedInValues);
+//        for (int i = 0; i < localVars.length; i++) {
+//            Expression lExpr = localVars[i];
+//            BValue rValue = passedInValues[i];
+//            if (lExpr instanceof VariableRefExpr) {
+//                assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
+//            } else if (lExpr instanceof ArrayMapAccessExpr) {
+//                assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
+//            } else if (lExpr instanceof FieldAccessExpr) {
+//                assignValueToFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
+//            }
+//        }
+//        int[] argRegs = funcCallCPEntry.getArgRegs();
+//        BType[] paramTypes = callableUnitInfo.getParamTypes();
+//        StackFrame callerSF = controlStack.getCurrentFrame();
+//
+//        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+//        controlStack.pushFrame(calleeSF);
+//
+//        // Copy arg values from the current StackFrame to the new StackFrame
+//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+//
+//        // TODO Improve following two lines
+//        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+//        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+//        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+    }
+
+    public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
+                                                    BValue[] arguments) {
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            int argReg = argRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    arguments[i] = new BInteger(callerSF.longRegs[argReg]);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    arguments[i] = new BFloat(callerSF.doubleRegs[argReg]);
+                    break;
+                case TypeTags.STRING_TAG:
+                    arguments[i] = new BString(callerSF.stringRegs[argReg]);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
+                    arguments[i] = new BBoolean(temp);
+                    break;
+                default:
+                    arguments[i] = callerSF.refRegs[argReg];
+            }
+        }
+    }
+
+    public static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
+                                                   BValue[] passedInValues) {
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
+
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    currentSF.getLongRegs()[++longRegIndex] = ((BInteger) passedInValues[i]).intValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    currentSF.getDoubleRegs()[++doubleRegIndex] = ((BFloat) passedInValues[i]).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    currentSF.getStringRegs()[++stringRegIndex] = ((BString) passedInValues[i]).stringValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                default:
+                    currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
+            }
+        }
+    }
+
 
     public static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
