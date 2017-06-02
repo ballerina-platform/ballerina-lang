@@ -25,6 +25,7 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,5 +64,12 @@ public class BallerinaElementFactory {
     public static PsiElement createIdentifier(@NotNull Project project, @NotNull String text) {
         BallerinaFile file = createFileFromText(project, "package " + text + ";");
         return PsiTreeUtil.findChildOfType(file, IdentifierPSINode.class);
+    }
+
+    @NotNull
+    public static PackageDeclarationNode createPackageDeclaration(@NotNull Project project,
+                                                                  @NotNull String packageString) {
+        BallerinaFile file = createFileFromText(project, "package " + packageString + ";");
+        return PsiTreeUtil.findChildOfType(file, PackageDeclarationNode.class);
     }
 }
