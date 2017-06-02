@@ -31,7 +31,20 @@ class FunctionInvocationExpression extends Expression {
         this._functionName = _.get(args, 'functionName', 'callFunction');
         this._params = _.get(args, 'params', '');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
-
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: '',
+            2: '',
+            3: ''
+        }
+        this.whiteSpace.defaultDescriptor.children =  {
+            nameRef: {
+                0: '',
+                1: '',
+                2: '',
+                3: ''
+            }
+        }
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
     }
@@ -94,11 +107,12 @@ class FunctionInvocationExpression extends Expression {
     }
 
     getFunctionalExpression() {
-        var text = "";
+        var text = '';
         if (!_.isNil(this._packageName) && !_.isEmpty(this._packageName) && !_.isEqual(this._packageName, 'Current Package')) {
-            text += this._packageName + ":";
+            text += this._packageName + this.getChildWSRegion('nameRef', 1) + ':';
         }
-        text += this._functionName + '('+ (this._params? this._params:'') +')';
+        text += this.getChildWSRegion('nameRef', 2) + this._functionName + this.getWSRegion(1);
+        text += '('+ this.getWSRegion(2) + (this._params? this._params:'') +')' + this.getWSRegion(3);
         return text;
     }
 

@@ -26,6 +26,21 @@ import Statement from './statement';
 class FunctionInvocationStatement extends Statement {
     constructor(args) {
         super('FunctionInvocationStatement');
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: '',
+            2: '',
+            3: ' ',
+            4: '\n'
+        }
+        this.whiteSpace.defaultDescriptor.children =  {
+            nameRef: {
+                0: '',
+                1: '',
+                2: '',
+                3: ''
+            }
+        }
     }
 
     /**
@@ -43,4 +58,3 @@ class FunctionInvocationStatement extends Statement {
 }
 
 export default FunctionInvocationStatement;
-

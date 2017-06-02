@@ -46,7 +46,7 @@ class FunctionInvocationExpressionVisitor extends AbstractStatementSourceGenVisi
     }
 
     endVisitFuncInvocationExpression(functionInvocation) {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Function Invocation expression');
     }
 }
