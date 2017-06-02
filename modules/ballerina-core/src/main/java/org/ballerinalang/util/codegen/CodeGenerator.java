@@ -189,6 +189,7 @@ public class CodeGenerator implements NodeVisitor {
     private boolean structAssignment;
 
     private Stack<List<Instruction>> breakInstructions = new Stack<>();
+    private Stack<List<Instruction>> abortInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -863,12 +864,40 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TransactionStmt transactionStmt) {
-
+        Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
+        int iAbortedBlockIP = -1;
+        abortInstructions.push(new ArrayList<>());
+        emit(new Instruction(InstructionCodes.TRBGN));
+        transactionStmt.getTransactionBlock().accept(this);
+        emit(new Instruction(InstructionCodes.TREND));
+        if (transactionStmt.getCommittedBlock() != null) {
+            transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
+            emit(gotoEndOfTryCatchBlock);
+        }
+        if (transactionStmt.getAbortedBlock() != null) {
+            iAbortedBlockIP = nextIP();
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+        }
+        emit(gotoEndOfTryCatchBlock);
+        int endofTransIP = nextIP();
+        gotoEndOfTryCatchBlock.setOperand(0, endofTransIP);
+        if (iAbortedBlockIP == -1) {
+            iAbortedBlockIP = endofTransIP;
+        }
+        List<Instruction> abrtInstructions = abortInstructions.pop();
+        for (Instruction instruction : abrtInstructions) {
+            instruction.setOperand(0, iAbortedBlockIP);
+        }
     }
 
     @Override
     public void visit(AbortStmt abortStmt) {
-
+        Instruction abortInstruction = new Instruction(InstructionCodes.ABORT);
+        emit(abortInstruction);
+        emit(new Instruction(InstructionCodes.TREND));
+        Instruction gotoAbortedInstruction = new Instruction(InstructionCodes.GOTO, 0);
+        emit(gotoAbortedInstruction);
+        abortInstructions.peek().add(gotoAbortedInstruction);
     }
 
 

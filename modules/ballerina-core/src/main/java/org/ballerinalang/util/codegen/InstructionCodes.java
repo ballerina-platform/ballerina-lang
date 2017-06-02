@@ -133,6 +133,10 @@ public interface InstructionCodes {
     int RET = 124;
     int REP = 125;
 
+    int ABORT = 126;
+    int TRBGN = 127;
+    int TREND = 128;
+
     // Type Cast/Conversion related instructions
     int I2F = 130;
     int I2S = 131;

@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -768,6 +769,32 @@ public class BLangVM {
                     }
                     context.getBalCallback().done(message != null ? message.value() : null);
                     ip = -1;
+                    break;
+                case InstructionCodes.ABORT: {
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager != null) {
+                        ballerinaTransactionManager.setTransactionError(true);
+                    }
+                }
+                break;
+                case InstructionCodes.TRBGN: {
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager == null) {
+                        ballerinaTransactionManager = new BallerinaTransactionManager();
+                        context.setBallerinaTransactionManager(ballerinaTransactionManager);
+                    }
+                    ballerinaTransactionManager.beginTransactionBlock();
+                }
+                break;
+                case InstructionCodes.TREND:
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager != null) {
+                        if (ballerinaTransactionManager.isTransactionError()) {
+                            ballerinaTransactionManager.rollbackTransactionBlock();
+                        } else {
+                            ballerinaTransactionManager.commitTransactionBlock();
+                        }
+                    }
                     break;
                 case InstructionCodes.I2F:
                     i = operands[0];
