@@ -34,6 +34,7 @@ public class BreakStmt extends AbstractStatement {
 
     private BreakStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor, BlockStmt[] statements) {
         super(nodeLocations);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.blockStmts = statements;
     }
 

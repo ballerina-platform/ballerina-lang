@@ -98,6 +98,10 @@ public class IfElseStmt extends AbstractStatement {
             return whiteSpaceDescriptor;
         }
 
+        public NodeLocation getNodeLocation() {
+            return location;
+        }
+
         public Expression getElseIfCondition() {
             return elseIfCondition;
         }
