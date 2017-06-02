@@ -6,6 +6,12 @@
             stroke-width: 2px;
         }
 
+        & > .annotation-icon-wrapper {
+            fill:#f4f4f4;
+            shape-rendering: crispEdges;
+            stroke:#f4f4f4;
+        }
+
         & > text {
             fill: $panel-header-color;
         }
@@ -269,4 +275,9 @@
     fill: #8ebadd;
     shape-rendering: crispEdges;
 }
+
+.annotation-icon{
+    opacity: 0.5;
+}
+
 
