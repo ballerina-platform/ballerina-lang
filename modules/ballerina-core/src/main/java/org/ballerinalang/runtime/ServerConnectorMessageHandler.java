@@ -55,14 +55,16 @@ public class ServerConnectorMessageHandler {
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
-                balContext.setStatusCode(500);
+                balContext.getCarbonMessage()
+                        .setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
                 throw new BallerinaException("protocol not defined in the incoming request", balContext);
             }
 
             // Find the Service Dispatcher
             ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
             if (dispatcher == null) {
-                balContext.setStatusCode(500);
+                balContext.getCarbonMessage()
+                        .setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
                 throw new BallerinaException("no service dispatcher available to handle protocol: " + protocol,
                         balContext);
             }
@@ -70,7 +72,8 @@ public class ServerConnectorMessageHandler {
             // Find the Service
             Service service = dispatcher.findService(cMsg, callback, balContext);
             if (service == null) {
-                balContext.setStatusCode(404);
+                balContext.getCarbonMessage()
+                        .setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaException("no Service found to handle the service request", balContext);
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
@@ -78,7 +81,8 @@ public class ServerConnectorMessageHandler {
             // Find the Resource Dispatcher
             ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
             if (resourceDispatcher == null) {
-                balContext.setStatusCode(500);
+                balContext.getCarbonMessage()
+                        .setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
                 throw new BallerinaException("no resource dispatcher available to handle protocol: " + protocol,
                         balContext);
             }
@@ -89,16 +93,21 @@ public class ServerConnectorMessageHandler {
                 resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             } catch (BallerinaException ex) {
 
-                if (balContext.getStatusCode() == 405) {
+                if (balContext.getCarbonMessage().getProperty
+                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE) != null
+                        && (int) balContext.getCarbonMessage().getProperty
+                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE) == 405) {
                     throw new BallerinaException(ex.getMessage(), balContext);
                 } else {
-                    balContext.setStatusCode(404);
+                    balContext.getCarbonMessage()
+                            .setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
                     throw new BallerinaException(ex.getMessage() + " Service: " +
                             service.getSymbolName().getName(), balContext);
                 }
             }
             if (resource == null) {
-                balContext.setStatusCode(404);
+                balContext.getCarbonMessage()
+                        .setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaException("no resource found to handle the request to Service: " +
                         service.getSymbolName().getName(), balContext);
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.

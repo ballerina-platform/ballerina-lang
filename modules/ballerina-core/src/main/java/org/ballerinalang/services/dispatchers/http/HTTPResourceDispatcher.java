@@ -85,7 +85,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 if ((resource.getAnnotation(Constants.PROTOCOL_HTTP, method) == null) &&
                         (matches(subPathAnnotationVal, (subPath + rawQueryStr), resourceArgumentValues) ||
                         Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))) {
-                    balContext.setStatusCode(405);
+                    balContext.getCarbonMessage().setProperty
+                            (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 405);
                     throw new BallerinaException(null, balContext);
                 }
             }

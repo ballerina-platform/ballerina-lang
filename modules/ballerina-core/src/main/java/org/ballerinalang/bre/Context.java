@@ -40,7 +40,6 @@ public class Context {
     private BLangAbstractExecutionVisitor executor;
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
-    private int statusCode = 500;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -113,13 +112,5 @@ public class Context {
 
     public boolean isInTransaction() {
         return this.ballerinaTransactionManager != null;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
     }
 }
