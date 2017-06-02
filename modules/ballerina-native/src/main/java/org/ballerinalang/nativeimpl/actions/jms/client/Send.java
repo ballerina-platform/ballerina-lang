@@ -42,8 +42,8 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -89,12 +89,16 @@ public class Send extends AbstractJMSAction {
         validateParams(bConnector);
 
         //Getting the map of properties.
-        BMap<BString, BString> properties = (BMap<BString, BString>) bConnector.getValue(0);
+        BMap<String, BString> properties = (BMap<String, BString>) bConnector.getValue(0);
 
         //Create property map to send to transport.
-        Map<String, String> propertyMap = properties.keySet()
-                .stream()
-                .collect(Collectors.toMap(BString::stringValue, k -> properties.get(k).stringValue()));
+//        Map<String, String> propertyMap = properties.keySet()
+//                .stream()
+//                .collect(Collectors.toMap(BString::stringValue, k -> properties.get(k).stringValue()));
+        Map<String, String> propertyMap = new HashMap<>();
+        for (String key:properties.keySet()) {
+            propertyMap.put(key, properties.get(key).stringValue());
+        }
 
         //Creating message content according to the message type.
         String messageType = getArgument(context, 2).stringValue();

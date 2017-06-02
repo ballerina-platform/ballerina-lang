@@ -173,22 +173,20 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
         }
 
         if (jmsSource != null) {
+            Map<String, String> annotationKeyValuePairs = connectionProperties.stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getAnnotationAttributeValue
+                                    (Constants.CONNECTION_PROPERTY_KEY).getStringValue(),
+                            entry -> entry.getAnnotationAttributeValue
+                                    (Constants.CONNECTION_PROPERTY_VALUE).getStringValue()
+                    ));
 
-            Map<String, String> annotationKeyValuePairs = null; // TODO : Fix this.
-//                    jmsSource.getAttributeNameValuePairs().entrySet().stream()
-//                    .collect(Collectors.toMap(
-//                            entry -> entry.getKey(),
-//                            entry -> entry.getValue().getLiteralValue().stringValue()
-//                    ));
-
-//            connectionProperties.stream().map(property -> property.getAttributeNameValuePairs()).forEach(
-//                    keyValuePair -> {
-//                        annotationKeyValuePairs.put(
-//                                keyValuePair.get(Constants.CONNECTION_PROPERTY_KEY).getLiteralValue().stringValue(),
-//                                keyValuePair.get(Constants.CONNECTION_PROPERTY_VALUE).getLiteralValue().stringValue
-// ());
-//                    }
-//            );
+            annotationKeyValuePairs.put(Constants.CONNECTION_PROPERTY_FACTORY_INITIAL,
+                    jmsSource.getAnnotationAttributeValue
+                            (Constants.CONNECTION_PROPERTY_FACTORY_INITIAL).getStringValue());
+            annotationKeyValuePairs.put(Constants.CONNECTION_PROPERTY_PROVIDE_URL,
+                    jmsSource.getAnnotationAttributeValue
+                            (Constants.CONNECTION_PROPERTY_PROVIDE_URL).getStringValue());
 
             String serviceId = service.getName();
             serviceInfoMap.put(serviceId, service);
