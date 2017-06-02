@@ -47,7 +47,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
-        subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
+        subPath = sanitizeSubPath(subPath);
 
         try {
             Map<String, String> resourceArgumentValues = new HashMap<>();
@@ -81,5 +81,15 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_HTTP;
+    }
+
+    private String sanitizeSubPath (String subPath) {
+        if (!"/".equals(subPath)) {
+            if (!subPath.startsWith("/")) {
+                subPath = Constants.DEFAULT_BASE_PATH + subPath;
+            }
+            subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
+        }
+        return subPath;
     }
 }

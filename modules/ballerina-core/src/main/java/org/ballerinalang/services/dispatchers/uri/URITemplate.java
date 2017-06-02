@@ -54,12 +54,15 @@ public class URITemplate {
 
     public String removeTheFirstAndLastBackSlash(String template) {
         String uri = template;
-        if (!"/".equals(uri) && uri.endsWith("/")) {
-            uri = uri.substring(0, uri.length() - 1);
-        }
+        if (!uri.equals("/")) {
+            if (!"/".equals(uri) && uri.endsWith("/")) {
+                uri = uri.substring(0, uri.length() - 1);
+            }
 
-        if (uri.startsWith("/")) {
-            uri = uri.substring(1);
+            if (uri.startsWith("/")) {
+                uri = uri.substring(1);
+            }
+            return uri;
         }
         return uri;
     }

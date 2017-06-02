@@ -18,7 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -110,7 +109,7 @@ public abstract class Node {
                 return resourceInfo;
             }
         }
-        return null;
+        return tryMatchingToDefaultVerb(requestDetails);
     }
 
     public void setResource(ResourceInfo newResource) {
@@ -188,5 +187,23 @@ public abstract class Node {
             subPath = uriFragment;
         }
         return subPath;
+    }
+
+    private ResourceInfo tryMatchingToDefaultVerb(Map<String, String> requestDetails) {
+        if ("GET".equalsIgnoreCase(requestDetails.get(Constants.HTTP_METHOD))) {
+            for (ResourceInfo resourceInfo : this.resource) {
+                boolean isMethodAnnotationFound = false;
+                for (String httpMethod : this.httpMethods) {
+                    if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
+                        isMethodAnnotationFound = true;
+                        break;
+                    }
+                }
+                if (!isMethodAnnotationFound) {
+                    return resourceInfo;
+                }
+            }
+        }
+        return null;
     }
 }
