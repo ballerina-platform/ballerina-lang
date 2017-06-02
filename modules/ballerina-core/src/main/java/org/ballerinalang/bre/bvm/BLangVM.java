@@ -600,8 +600,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
-                                new BString(" / by zero")));
+                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -614,8 +613,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
-                                new BString(" / by zero")));
+                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -628,8 +626,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
-                                new BString(" / by zero")));
+                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -642,8 +639,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.generateError(context, ip, null,
-                                new BString(" / by zero")));
+                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -1412,8 +1408,7 @@ public class BLangVM {
         try {
             nativeFunction.executeNative(context);
         } catch (Throwable e) {
-            BStruct err = BLangVMErrorHandlerUtil.generateError(this.context, ip, null, new BString(e.getMessage()));
-            context.setError(err);
+            context.setError(BLangVMErrorHandlerUtil.createError(this.context, ip, e.getMessage()));
             controlStack.popFrame();
             handleError();
             return;
@@ -1453,8 +1448,7 @@ public class BLangVM {
                 nativeAction.execute(context);
             }
         } catch (Throwable e) {
-            BStruct err = BLangVMErrorHandlerUtil.generateError(this.context, ip, null, new BString(e.getMessage()));
-            context.setError(err);
+            context.setError(BLangVMErrorHandlerUtil.createError(this.context, ip, e.getMessage()));
             controlStack.popFrame();
             handleError();
             return;
