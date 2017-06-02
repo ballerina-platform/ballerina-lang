@@ -219,7 +219,11 @@ public class BLangVMErrorHandlerUtil {
     }
 
     public static String getErrorMsg(BStruct error) {
-        return makeFirstLetterLowerCase(error.getStringField(0));
+        String errorType = error.getType().getSig().getName();
+        if (error.getType().getSig().getPkgPath() == null || error.getType().getSig().getPkgPath() != ".") {
+            errorType = error.getType().getSig().getPkgPath() + ":" + errorType;
+        }
+        return makeFirstLetterLowerCase(errorType + " { msg : \"" + error.getStringField(0) + "\" }");
     }
 
     private static String makeFirstLetterLowerCase(String s) {

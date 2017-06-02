@@ -189,6 +189,7 @@ public class CodeGenerator implements NodeVisitor {
     private boolean structAssignment;
 
     private Stack<List<Instruction>> breakInstructions = new Stack<>();
+    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -774,6 +775,9 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ReturnStmt returnStmt) {
         int[] regIndexes;
+//        for (int i = finallyBlocks.size() - 1; i >= 0; i--) {
+//            finallyBlocks.get(i).getFinallyBlockStmt().accept(this);
+//        }
         if (returnStmt.getExprs().length == 1 &&
                 returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr) {
             ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) returnStmt.getExprs()[0];
@@ -826,6 +830,9 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            finallyBlocks.push(tryCatchStmt.getFinallyBlock());
+        }
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         // Handle try block.
         int fromIP = nextIP();
@@ -877,6 +884,7 @@ public class CodeGenerator implements NodeVisitor {
                 errorTableEntry.setPackageInfo(currentPkgInfo);
             }
             // Append finally block instruction.
+            finallyBlocks.pop();
             tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
             emit(new Instruction(InstructionCodes.THROW, -1));
         }

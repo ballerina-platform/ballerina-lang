@@ -788,6 +788,7 @@ public class BLangVM {
                     if (i >= 0) {
                         message = (BMessage) sf.refRegs[i];
                     }
+                    context.setError(null);
                     context.getBalCallback().done(message != null ? message.value() : null);
                     ip = -1;
                     break;
@@ -1185,6 +1186,7 @@ public class BLangVM {
 
     private void handleReturn(int[] regIndexes) {
         StackFrame currentSF = controlStack.popFrame();
+        context.setError(null);
         if (controlStack.fp >= 0) {
 
             StackFrame callersSF = controlStack.currentFrame;
@@ -1433,7 +1435,7 @@ public class BLangVM {
         return false;
     }
 
-    private boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
+    public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
         // Struct Type equivalency
         BStructType.StructField[] sFields = sourceType.getStructFields();
         BStructType.StructField[] tFields = targetType.getStructFields();
@@ -1593,8 +1595,8 @@ public class BLangVM {
             if (controlStack.getCurrentFrame() == null) {
                 break;
             }
-            currentFrame = controlStack.getCurrentFrame();
             currentIP = currentFrame.retAddrs - 1;
+            currentFrame = controlStack.getCurrentFrame();
         }
         if (controlStack.getCurrentFrame() == null) {
             // root level error handling.
@@ -1620,6 +1622,9 @@ public class BLangVM {
         }
         // match should be not null at this point.
         if (match != null) {
+            PackageInfo packageInfo = currentFrame.packageInfo;
+            this.constPool = packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+            this.code = packageInfo.getInstructionList().toArray(new Instruction[0]);
             ip = match.getIpTarget();
             return;
         }

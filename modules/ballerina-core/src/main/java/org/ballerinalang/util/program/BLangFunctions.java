@@ -304,7 +304,8 @@ public class BLangFunctions {
         bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
 
         if (context.getError() != null) {
-            throw new BallerinaException(BLangVMErrorHandlerUtil.getErrorMsg(context.getError()));
+            throw new BallerinaException(".*uncaught error: " +
+                    BLangVMErrorHandlerUtil.getErrorMsg(context.getError()));
         }
 
         longRegCount = 0;
