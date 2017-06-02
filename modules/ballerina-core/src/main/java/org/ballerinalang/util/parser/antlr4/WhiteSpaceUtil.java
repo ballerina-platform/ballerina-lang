@@ -790,6 +790,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_IDENTIFIER_TO_EXP_LIST_WRAPPER,
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_EXP_LIST_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
