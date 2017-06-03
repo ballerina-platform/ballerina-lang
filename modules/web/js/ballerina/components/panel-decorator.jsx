@@ -28,7 +28,8 @@ import './panel-decorator.css';
 import {panel} from '../configs/designer-defaults.js';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import {getComponentForNodeArray} from './utils';
-import {util} from '../visitors/sizing-utils'
+import {util} from '../visitors/sizing-utils';
+import SimpleBBox from '../ast/simple-bounding-box';
 
 class PanelDecorator extends React.Component {
 
@@ -109,6 +110,18 @@ class PanelDecorator extends React.Component {
 
         const titleWidth = util.getTextWidth(this.state.editingTitle);
 
+        //calculate the panel bBox;
+        let panelBBox = new SimpleBBox();
+        panelBBox.x = bBox.x;
+        panelBBox.y = bBox.y + titleHeight + annotationBodyHeight;
+        panelBBox.w = bBox.w;
+        panelBBox.h = bBox.h - titleHeight - annotationBodyHeight;
+
+        // following config is to style the panel rect, we use it to hide the top stroke line of the panel.
+        let panelRectStyles = {
+            'stroke-dasharray' : `0, ${panelBBox.w}, ${panelBBox.h} , 0 , ${panelBBox.w} , 0 , ${panelBBox.h}`
+        };
+
         return (<g className="panel">
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
@@ -149,12 +162,15 @@ class PanelDecorator extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}>
                     {!collapsed &&
-                    <rect x={bBox.x} y={bBox.y + titleHeight + annotationBodyHeight} width={bBox.w}
-                          height={bBox.h - titleHeight - annotationBodyHeight}
+                    <rect x={panelBBox.x} 
+                          y={panelBBox.y} 
+                          width={panelBBox.w}
+                          height={panelBBox.h}
                           rx="0" ry="0" fill="#fff"
                           className={dropZoneClassName}
                           onMouseOver={(e) => this.onDropZoneActivate(e)}
-                          onMouseOut={(e) => this.onDropZoneDeactivate(e)}/>
+                          onMouseOut={(e) => this.onDropZoneDeactivate(e)}
+                          style={panelRectStyles} />
                     }
                     {!collapsed && this.props.children}
                 </CSSTransitionGroup>
