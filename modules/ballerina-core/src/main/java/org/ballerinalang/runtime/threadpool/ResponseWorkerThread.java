@@ -20,7 +20,7 @@ package org.ballerinalang.runtime.threadpool;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMErrorHandlerUtil;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class ResponseWorkerThread extends WorkerThread {
             connectorCallback.getNativeAction().validate(connectorCallback);
         } catch (Exception e) {
             logger.error("non-blocking action invocation validation failed. ", e);
-            BStruct err = BLangVMErrorHandlerUtil.createError(context, context.getStartIP() - 1, e.getMessage());
+            BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1, e.getMessage());
             context.setError(err);
         }
         // TODO : Fix error handling

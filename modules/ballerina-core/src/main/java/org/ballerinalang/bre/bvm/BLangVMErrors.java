@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Util Class for handling Error in Ballerina VM.
  */
-public class BLangVMErrorHandlerUtil {
+public class BLangVMErrors {
 
-    private static final Logger logger = LoggerFactory.getLogger(BLangVMErrorHandlerUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(BLangVMErrors.class);
 
     public static final String ERROR_PCK = "ballerina.lang.errors";
     public static final String STRUCT_ERROR = "Error";

@@ -116,11 +116,11 @@ public class BLangVM {
                     getOperandsLine(code[i].getOperands()));
         }
 
-        printStream.println("ErrorTable\n\t\tfrom\tto\ttarget\terror");
-        packageInfo.getErrorTableEntriesList().forEach(error -> printStream.println(error.toString()));
-
-        printStream.println("LineNumberTable\n\tline\t\tip");
-        packageInfo.getLineNumberInfoList().forEach(line -> printStream.println(line.toString()));
+//        printStream.println("ErrorTable\n\t\tfrom\tto\ttarget\terror");
+//        packageInfo.getErrorTableEntriesList().forEach(error -> printStream.println(error.toString()));
+//
+//        printStream.println("LineNumberTable\n\tline\t\tip");
+//        packageInfo.getLineNumberInfoList().forEach(line -> printStream.println(line.toString()));
     }
 
     public void run(Context context) {
@@ -133,7 +133,8 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = context.getStartIP();
 
-//        traceCode(packageInfo);
+//        traceCode(null);
+            
         if (context.getError() != null) {
             handleError();
         } else if (context.actionInfo != null) {
@@ -614,7 +615,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -627,7 +628,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -640,7 +641,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.longRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -653,7 +654,7 @@ public class BLangVM {
                     k = operands[2];
 
                     if (sf.doubleRegs[j] == 0) {
-                        context.setError(BLangVMErrorHandlerUtil.createError(context, ip, " / by zero"));
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
                         handleError();
                         break;
                     }
@@ -670,111 +671,156 @@ public class BLangVM {
                     j = operands[1];
                     sf.doubleRegs[j] = -sf.doubleRegs[i];
                     break;
-                case InstructionCodes.NOT:
+                case InstructionCodes.BNOT:
                     i = operands[0];
                     j = operands[1];
                     sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
                     break;
-                case InstructionCodes.ICMP:
+
+                case InstructionCodes.IEQ:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    if (sf.longRegs[i] == sf.longRegs[j]) {
-                        sf.intRegs[k] = 0;
-                    } else if (sf.longRegs[i] > sf.longRegs[j]) {
-                        sf.intRegs[k] = 1;
-                    } else {
-                        sf.intRegs[k] = -1;
-                    }
+                    sf.intRegs[k] = sf.longRegs[i] == sf.longRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.FCMP:
+                case InstructionCodes.FEQ:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    if (sf.doubleRegs[i] == sf.doubleRegs[j]) {
-                        sf.intRegs[k] = 0;
-                    } else if (sf.doubleRegs[i] > sf.doubleRegs[j]) {
-                        sf.intRegs[k] = 1;
-                    } else {
-                        sf.intRegs[k] = -1;
-                    }
+                    sf.intRegs[k] = sf.doubleRegs[i] == sf.doubleRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.SCMP:
+                case InstructionCodes.SEQ:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    if (sf.stringRegs[i] == sf.stringRegs[j]) {
-                        sf.intRegs[k] = 0;
-                    } else {
-                        sf.intRegs[k] = -1;
-                    }
+                    sf.intRegs[k] = sf.stringRegs[i].equals(sf.stringRegs[j]) ? 1 : 0;
                     break;
-                case InstructionCodes.BCMP:
+                case InstructionCodes.BEQ:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    if (sf.intRegs[i] == sf.intRegs[j]) {
-                        sf.intRegs[k] = 0;
-                    } else {
-                        sf.intRegs[k] = -1;
-                    }
+                    sf.intRegs[k] = sf.intRegs[i] == sf.intRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.IFEQ:
+                case InstructionCodes.REQ:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.intRegs[i] == 0) {
-                        ip = j;
-                    }
+                    k = operands[2];
+                    sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.IFNE:
+
+                case InstructionCodes.INE:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.intRegs[i] != 0) {
-                        ip = j;
-                    }
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] != sf.longRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.IFLT:
+                case InstructionCodes.FNE:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.intRegs[i] < 0) {
-                        ip = j;
-                    }
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] != sf.doubleRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.IFGE:
+                case InstructionCodes.SNE:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.intRegs[i] >= 0) {
-                        ip = j;
-                    }
+                    k = operands[2];
+                    sf.intRegs[k] = !(sf.stringRegs[i].equals(sf.stringRegs[j])) ? 1 : 0;
                     break;
-                case InstructionCodes.IFGT:
+                case InstructionCodes.BNE:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.intRegs[i] > 0) {
-                        ip = j;
-                    }
+                    k = operands[2];
+                    sf.intRegs[k] = sf.intRegs[i] != sf.intRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.IFLE:
+                case InstructionCodes.RNE:
                     i = operands[0];
                     j = operands[1];
-                    if (sf.intRegs[i] <= 0) {
-                        ip = j;
-                    }
+                    k = operands[2];
+                    sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
                     break;
-                case InstructionCodes.IFNULL:
+
+                case InstructionCodes.IGT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] > sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FGT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] > sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.IGE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] >= sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FGE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] >= sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.ILT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] < sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FLT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] < sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.ILE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] <= sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FLE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] <= sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.REQ_NULL:
                     i = operands[0];
                     j = operands[1];
                     if (sf.refRegs[i] == null) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.IFNOTNULL:
+                case InstructionCodes.RNE_NULL:
                     i = operands[0];
                     j = operands[1];
                     if (sf.refRegs[i] != null) {
                         ip = j;
                     }
                     break;
+
+                case InstructionCodes.BR_TRUE:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.intRegs[i] == 1) {
+                        ip = j;
+                    }
+                    break;
+                case InstructionCodes.BR_FALSE:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.intRegs[i] == 0) {
+                        ip = j;
+                    }
+                    break;
+
                 case InstructionCodes.GOTO:
                     i = operands[0];
                     ip = i;
@@ -852,7 +898,7 @@ public class BLangVM {
                     i = operands[0];
                     if (i >= 0) {
                         BStruct error = (BStruct) sf.refRegs[i];
-                        BLangVMErrorHandlerUtil.setStackTrace(context, ip, error);
+                        BLangVMErrors.setStackTrace(context, ip, error);
                         context.setError(error);
                     }
                     handleError();
@@ -1436,7 +1482,7 @@ public class BLangVM {
         try {
             nativeFunction.executeNative(context);
         } catch (Throwable e) {
-            context.setError(BLangVMErrorHandlerUtil.createError(this.context, ip, e.getMessage()));
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
             controlStack.popFrame();
             handleError();
             return;
@@ -1491,7 +1537,7 @@ public class BLangVM {
                 prepareStructureTypeFromNativeAction(nativeArgValues);
             }
         } catch (Throwable e) {
-            context.setError(BLangVMErrorHandlerUtil.createError(this.context, ip, e.getMessage()));
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
             controlStack.popFrame();
             handleError();
             return;
@@ -1811,7 +1857,7 @@ public class BLangVM {
             // root level error handling.
             ip = -1;
             PrintStream err = System.err;
-            err.println(BLangVMErrorHandlerUtil.getPrintableStackTrace(context.getError()));
+            err.println(BLangVMErrors.getPrintableStackTrace(context.getError()));
             if (context.getCarbonMessage() != null) {
                 // Invoke ServiceConnector error handler.
                 Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
@@ -1820,7 +1866,7 @@ public class BLangVM {
                 try {
                     optionalErrorHandler
                             .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                            .handleError(new BallerinaException(BLangVMErrorHandlerUtil.getErrorMsg(context.getError
+                            .handleError(new BallerinaException(BLangVMErrors.getErrorMsg(context.getError
                                             ())),
                                     context.getCarbonMessage(), context.getBalCallback());
                 } catch (Exception e) {

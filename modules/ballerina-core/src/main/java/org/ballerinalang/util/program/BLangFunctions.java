@@ -24,7 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMErrorHandlerUtil;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
@@ -306,7 +306,7 @@ public class BLangFunctions {
 
         if (context.getError() != null) {
             throw new BallerinaException(".*uncaught error: " +
-                    BLangVMErrorHandlerUtil.getErrorMsg(context.getError()));
+                    BLangVMErrors.getErrorMsg(context.getError()));
         }
 
         longRegCount = 0;
