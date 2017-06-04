@@ -1240,8 +1240,8 @@ public class BallerinaPsiImplUtil {
         return definitionDimension;
     }
 
-    public static boolean isArrayDefinition(@NotNull VariableDefinitionNode definition) {
-        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definition, TypeNameNode.class);
+    public static boolean isArrayDefinition(@NotNull PsiElement definitionNode) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return false;
         }

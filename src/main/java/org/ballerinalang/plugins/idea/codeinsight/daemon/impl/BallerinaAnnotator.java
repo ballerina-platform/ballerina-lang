@@ -37,6 +37,7 @@ import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -197,11 +198,10 @@ public class BallerinaAnnotator implements Annotator {
             return;
         }
         PsiElement parent = resolvedElement.getParent();
-        if (!(parent instanceof VariableDefinitionNode)) {
+        if (!(parent instanceof VariableDefinitionNode || parent instanceof ParameterNode)) {
             return;
         }
-        VariableDefinitionNode definitionNode = (VariableDefinitionNode) parent;
-        boolean isArrayDefinition = BallerinaPsiImplUtil.isArrayDefinition(definitionNode);
+        boolean isArrayDefinition = BallerinaPsiImplUtil.isArrayDefinition(parent);
         if (isArrayDefinition) {
             Annotation annotation = holder.createInfoAnnotation(lastChild, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STATIC_FIELD);
