@@ -832,6 +832,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) { }
 	/**
 	 * {@inheritDoc}

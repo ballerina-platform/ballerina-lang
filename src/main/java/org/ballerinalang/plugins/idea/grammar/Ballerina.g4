@@ -316,12 +316,12 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   expressionList '->' Identifier? ';'
+    :   variableReference (',' variableReference)* '->' Identifier? ';'
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   expressionList '<-' Identifier? ';'
+    :   variableReference (',' variableReference)* '<-' Identifier? ';'
     ;
 
 commentStatement
@@ -330,8 +330,12 @@ commentStatement
 
 variableReference
     :   nameReference                               # simpleVariableIdentifier// simple identifier
-    |   nameReference ('['expression']')+           # mapArrayVariableIdentifier// arrays and map reference
+    |   mapArrayVariableReference                   # mapArrayVariableIdentifier// arrays and map reference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
+    ;
+
+mapArrayVariableReference
+    :   nameReference ('['expression']')+
     ;
 
 expressionList

@@ -21,6 +21,7 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -37,7 +38,9 @@ import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -151,8 +154,10 @@ public class BallerinaAnnotator implements Annotator {
                                                 @NotNull AnnotationHolder holder) {
         PsiElement nameIdentifier = element.getNameIdentifier();
         if (nameIdentifier == null) {
+            annotateArrayLengthField(element, holder);
             return;
         }
+
         PsiReference[] references = nameIdentifier.getReferences();
         for (PsiReference reference : references) {
             PsiElement resolvedElement = reference.resolve();
@@ -163,6 +168,43 @@ public class BallerinaAnnotator implements Annotator {
                 Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
             }
+        }
+    }
+
+    private void annotateArrayLengthField(@NotNull VariableReferenceNode element, @NotNull AnnotationHolder holder) {
+        PsiElement lastChild = element.getLastChild();
+        if (lastChild == null) {
+            return;
+        }
+        String text = lastChild.getText();
+        if (!"length".equals(text)) {
+            return;
+        }
+        PsiElement firstChild = element.getFirstChild();
+        if (firstChild == null) {
+            return;
+        }
+        PsiFile containingFile = element.getContainingFile();
+        if (containingFile == null) {
+            return;
+        }
+        PsiReference reference = containingFile.findReferenceAt(firstChild.getTextOffset());
+        if (reference == null) {
+            return;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return;
+        }
+        PsiElement parent = resolvedElement.getParent();
+        if (!(parent instanceof VariableDefinitionNode)) {
+            return;
+        }
+        VariableDefinitionNode definitionNode = (VariableDefinitionNode) parent;
+        boolean isArrayDefinition = BallerinaPsiImplUtil.isArrayDefinition(definitionNode);
+        if (isArrayDefinition) {
+            Annotation annotation = holder.createInfoAnnotation(lastChild, null);
+            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STATIC_FIELD);
         }
     }
 

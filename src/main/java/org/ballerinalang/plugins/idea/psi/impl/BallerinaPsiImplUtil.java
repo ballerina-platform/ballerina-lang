@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -73,6 +74,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BallerinaPsiImplUtil {
 
@@ -1204,5 +1207,47 @@ public class BallerinaPsiImplUtil {
         }
 
         return false;
+    }
+
+    public static boolean canSuggestArrayLength(@NotNull PsiElement definition,
+                                                @NotNull PsiElement reference) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definition, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return false;
+        }
+
+        String definitionText = typeNameNode.getText();
+        String definitionRegex = "\\[\\s*]";
+        int definitionDimension = getArrayDimension(definitionText, definitionRegex);
+        if (definitionDimension == 0) {
+            return false;
+        }
+
+        String referenceText = reference.getText();
+        String referenceRegex = "\\[\\s*\\d+\\s*]";
+        int referenceDimension = getArrayDimension(referenceText, referenceRegex);
+
+        return definitionDimension >= referenceDimension;
+    }
+
+    private static int getArrayDimension(String definitionText, String definitionRegex) {
+        final Pattern definitionPattern = Pattern.compile(definitionRegex);
+        final Matcher definitionMatcher = definitionPattern.matcher(definitionText);
+        int definitionDimension = 0;
+        while (definitionMatcher.find()) {
+            definitionDimension++;
+        }
+        return definitionDimension;
+    }
+
+    public static boolean isArrayDefinition(@NotNull VariableDefinitionNode definition) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definition, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return false;
+        }
+        String definitionText = typeNameNode.getText();
+        String definitionRegex = "\\[\\s*]";
+        int definitionDimension = getArrayDimension(definitionText, definitionRegex);
+        return definitionDimension != 0;
     }
 }

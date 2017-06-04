@@ -424,6 +424,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#mapArrayVariableReference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#expressionList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
