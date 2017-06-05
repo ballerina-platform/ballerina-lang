@@ -185,6 +185,95 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
+    public void testBestSpecificURITemplateWithPOST() {
+        String path = "/hello/echo2/shafreen+anfar/bar";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("echo8").asText(), "echo8"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello/echo2/shafreen+anfar/bar")
+    public void testParamDefaultValues() {
+        String path = "/hello/echo3/shafreen+anfar?foo=bar";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("first").asText(), "shafreen"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("second").asText(), "anfar"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("third").asText(), "bar"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("echo9").asText(), "echo9"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello")
+    public void testRootPathDefaultValues() {
+        String path = "/hello?foo=zzz";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("third").asText(), "zzz"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("echo10").asText(), "echo10"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello")
+    public void testDefaultPathDefaultValues() {
+        String path = "/hello/echo11?foo=zzz";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("third").asText(), "zzz"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("echo11").asText(), "echo11"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello")
+    public void testServiceRoot() {
+        String path = "/echo1?foo=zzz";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("third").asText(), "zzz"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("echo33").asText(), "echo1"
+                , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);

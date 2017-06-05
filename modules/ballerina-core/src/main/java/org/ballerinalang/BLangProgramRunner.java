@@ -99,6 +99,7 @@ public class BLangProgramRunner {
 
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
+        bContext.initFunction = true;
 
         int serviceCount = 0;
         for (String packageName : servicePackageNameList) {
@@ -137,6 +138,7 @@ public class BLangProgramRunner {
 
     public void runMain(ProgramFile programFile, String[] args) {
         Context bContext = new Context(programFile);
+        bContext.initFunction = true;
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         String mainPkgName = programFile.getMainPackageName();
 
@@ -168,9 +170,9 @@ public class BLangProgramRunner {
         controlStackNew.pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
+        bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         // TODO invoke package <init> function
-        bLangVM.execFunction(mainPkgInfo, bContext, defaultWorkerInfo.
-                getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(bContext);
     }
 
     @Deprecated
