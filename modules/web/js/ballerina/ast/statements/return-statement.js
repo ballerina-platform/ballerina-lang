@@ -29,6 +29,12 @@ class ReturnStatement extends Statement {
         super();
         this._expression = _.get(args, 'expression', '');
         this.type = "ReturnStatement";
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '',
+            3: '\n'
+        };
     }
 
     setExpression(expression, options) {
@@ -46,7 +52,7 @@ class ReturnStatement extends Statement {
     }
 
     getReturnExpression() {
-        return "return " + this.getExpression();
+        return 'return' + this.getWSRegion(1) + this.getExpression();
     }
 
     getExpression() {
@@ -68,7 +74,7 @@ class ReturnStatement extends Statement {
             expression += child.getExpression();
 
             if (itr !== jsonNode.children.length - 1) {
-                expression += ", ";
+                expression += ",";
             }
         }
         this.setExpression(expression, {doSilently: true});
