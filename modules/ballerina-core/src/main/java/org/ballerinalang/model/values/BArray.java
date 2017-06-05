@@ -172,9 +172,10 @@ public final class BArray<V extends BValue> implements BRefType {
         }
 
         if (bucketIndex >= arrayBucket.length) {
+            int newLength = arrayBucket.length + (DEFAULT_ARRAY_BUCKET_SIZE > (bucketIndex - arrayBucket.length) ?
+                    DEFAULT_ARRAY_BUCKET_SIZE : (bucketIndex - arrayBucket.length)) + 1;
             // We have to create new arrayBucket
-            arrayBucket = Arrays.copyOf(arrayBucket, arrayBucket.length + DEFAULT_ARRAY_BUCKET_SIZE);
-
+            arrayBucket = Arrays.copyOf(arrayBucket, newLength);
         }
 
         if (bucketIndex > lastBucketIndex) {
