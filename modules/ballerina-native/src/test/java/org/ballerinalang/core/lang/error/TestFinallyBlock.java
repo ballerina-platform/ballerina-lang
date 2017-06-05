@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.core.lang.error;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -72,13 +71,11 @@ public class TestFinallyBlock {
 
     @Test(description = "check finally while returning for reference type.")
     public void testReturnReferenceTypeWithFinallyBlock() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/errors/test_finally.bal");
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "test4", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test4", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getValue(0).stringValue(), "try innerFinally outerFinally");
-//        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally outerFinally");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally outerFinally");
     }
 
     @Test(description = "check while condition in a finally block")

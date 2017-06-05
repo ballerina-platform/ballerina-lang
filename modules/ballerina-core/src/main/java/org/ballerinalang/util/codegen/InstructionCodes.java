@@ -153,6 +153,7 @@ public interface InstructionCodes {
     int REP = 125;
     int THROW = 126;
     int ERRSTORE = 127;
+    int RETVAL = 128;
 
     // Type Cast/Conversion related instructions
     int I2F = 130;
