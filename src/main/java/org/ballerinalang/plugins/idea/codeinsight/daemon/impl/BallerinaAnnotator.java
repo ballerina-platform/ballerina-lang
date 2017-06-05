@@ -31,6 +31,7 @@ import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingCol
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -198,7 +199,8 @@ public class BallerinaAnnotator implements Annotator {
             return;
         }
         PsiElement parent = resolvedElement.getParent();
-        if (!(parent instanceof VariableDefinitionNode || parent instanceof ParameterNode)) {
+        if (!(parent instanceof VariableDefinitionNode || parent instanceof ParameterNode
+                || parent instanceof GlobalVariableDefinitionNode)) {
             return;
         }
         boolean isArrayDefinition = BallerinaPsiImplUtil.isArrayDefinition(parent);

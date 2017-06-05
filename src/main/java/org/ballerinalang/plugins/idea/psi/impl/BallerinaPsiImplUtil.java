@@ -1227,7 +1227,7 @@ public class BallerinaPsiImplUtil {
         String referenceRegex = "\\[\\s*\\d+\\s*]";
         int referenceDimension = getArrayDimension(referenceText, referenceRegex);
 
-        return definitionDimension >= referenceDimension;
+        return definitionDimension - 1 >= referenceDimension;
     }
 
     private static int getArrayDimension(String definitionText, String definitionRegex) {

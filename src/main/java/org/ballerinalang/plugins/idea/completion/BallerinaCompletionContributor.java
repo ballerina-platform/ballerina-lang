@@ -502,8 +502,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true, true, false);
                         }
                     } else if (elementType == BallerinaTypes.DOT) {
-
-                        PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
+                        PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile,
+                                prevElement.getTextOffset());
                         if (previousNonEmptyElement instanceof LeafPsiElement &&
                                 ((LeafPsiElement) previousNonEmptyElement).getElementType() == BallerinaTypes.RBRACK) {
                             if (resolveElementAndSuggestArrayLength(parameters, resultSet, previousNonEmptyElement)) {
@@ -1007,7 +1007,14 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 suggestElementsFromAPackage(parameters, resultSet, packageNode, true, true,
                         true, true);
             } else if (elementType == BallerinaTypes.DOT) {
-                PsiElement element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
+                PsiElement element = getPreviousNonEmptyElement(originalFile, token.getTextOffset());
+                if (element instanceof LeafPsiElement &&
+                        ((LeafPsiElement) element).getElementType() == BallerinaTypes.RBRACK) {
+                    if (resolveElementAndSuggestArrayLength(parameters, resultSet, element)) {
+                        return;
+                    }
+                    return;
+                }
                 if (!(element instanceof IdentifierPSINode)) {
                     element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset() - 1);
                 }
@@ -1076,7 +1083,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             element = getPreviousNonEmptyElement(originalFile, prevElement.getTextOffset());
             if (element instanceof LeafPsiElement &&
                     ((LeafPsiElement) element).getElementType() == BallerinaTypes.RBRACK) {
-
                 if (resolveElementAndSuggestArrayLength(parameters, resultSet, element)) {
                     return;
                 }
@@ -1115,20 +1121,25 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private boolean resolveElementAndSuggestArrayLength(@NotNull CompletionParameters parameters,
                                                         @NotNull CompletionResultSet resultSet,
                                                         @NotNull PsiElement element) {
+
         PsiFile originalFile = parameters.getOriginalFile();
-
+        // This is used to get the dimension of the reference. Eg: args.<caret>
         PsiElement parent = element.getParent();
-
+        // We need to get the array reference which we are at. For this, we go back checking each element for a
+        // reference.
         PsiElement temp = element;
         PsiReference reference = originalFile.findReferenceAt(temp.getTextOffset());
         while (reference == null && temp.getTextOffset() > 0) {
             temp = getPreviousNonEmptyElement(originalFile, temp.getTextOffset());
             if (temp instanceof LeafPsiElement) {
                 IElementType elementType = ((LeafPsiElement) temp).getElementType();
+                // If semicolon or left brace is found, that means we did not find any reference and we are now at
+                // the previous statement. So we break from the loop.
                 if (elementType == BallerinaTypes.SEMI || element == BallerinaTypes.LBRACE) {
                     break;
                 }
             }
+            // Get the reference at the current element location.
             reference = originalFile.findReferenceAt(temp.getTextOffset());
         }
         if (reference == null) {
@@ -1138,10 +1149,19 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         if (resolvedElement == null) {
             return true;
         }
-
-        PsiElement definitionNode = resolvedElement.getParent();
-        if (definitionNode instanceof VariableDefinitionNode) {
-            suggestArrayLength(resultSet, (VariableDefinitionNode) definitionNode, parent);
+        // Resolved element can be either a VariableDefinitionNode or a ParameterNode or a GlobalVariableDefinitionNode.
+        // This happens if the reference is StatementReference.
+        // If the reference is a NameReference, resolved element will be an identifier node. So the definition node
+        // is the parent node.
+        if (resolvedElement instanceof VariableDefinitionNode || resolvedElement instanceof ParameterNode
+                || resolvedElement instanceof GlobalVariableDefinitionNode) {
+            suggestArrayLength(resultSet, resolvedElement, parent);
+        } else {
+            PsiElement parentNode = resolvedElement.getParent();
+            if (parentNode instanceof VariableDefinitionNode || parentNode instanceof ParameterNode
+                    || parentNode instanceof GlobalVariableDefinitionNode) {
+                suggestArrayLength(resultSet, parentNode, parent);
+            }
         }
         return false;
     }
@@ -1188,8 +1208,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiElement structDefinitionNode = BallerinaPsiImplUtil.resolveStruct(resolvedVariableDefElement);
         if (structDefinitionNode == null) {
             if (prevElement != null && resolvedVariableDefElement instanceof VariableDefinitionNode
-                    || resolvedVariableDefElement instanceof ParameterNode) {
-                suggestArrayLength(resultSet, resolvedVariableDefElement, prevElement);
+                    || resolvedVariableDefElement instanceof ParameterNode
+                    || resolvedVariableDefElement instanceof GlobalVariableDefinitionNode) {
+                if (prevElement != null) {
+                    suggestArrayLength(resultSet, resolvedVariableDefElement, prevElement);
+                }
             }
             return;
         }
@@ -1210,9 +1233,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     }
 
     private void suggestArrayLength(@NotNull CompletionResultSet resultSet,
-                                    @NotNull PsiElement resolvedVariableDefElement,
+                                    @NotNull PsiElement definitionNode,
                                     @NotNull PsiElement prevElement) {
-        boolean canSuggestArrayLength = BallerinaPsiImplUtil.canSuggestArrayLength(resolvedVariableDefElement,
+        boolean canSuggestArrayLength = BallerinaPsiImplUtil.canSuggestArrayLength(definitionNode,
                 prevElement);
         if (canSuggestArrayLength) {
             addArrayLengthAsLookup(resultSet);
