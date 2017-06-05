@@ -141,13 +141,16 @@ class AnnotationAttributeDecorator extends React.Component {
 
     render() {
         let bBox = this.props.bBox;
+        let viewState = this.props.model.getViewState();
         let editableBox_x = bBox.x + DesignerDefaults.panel.body.padding.left;
         let editableBox_y = bBox.y + DesignerDefaults.annotationAttributeDefinition.text.padding.top
             + DesignerDefaults.panel.heading.height
-            + DesignerDefaults.panel.body.padding.top;
+            + DesignerDefaults.panel.body.padding.top
+            + viewState.components.annotation.h;
         let editBoxRect_x = bBox.x + DesignerDefaults.panel.body.padding.left;
         let editBoxRect_y = bBox.y + DesignerDefaults.panel.heading.height
-            + DesignerDefaults.panel.body.padding.top;
+            + DesignerDefaults.panel.body.padding.top
+            + viewState.components.annotation.h;
         return (
             <g className="attribute-content-operations-wrapper">
                 <g onClick={() => this.onClickVariableTextBox()}>
