@@ -545,6 +545,43 @@ class TransformRender
         $('#' + this.placeHolderName).find('.' + subPlaceHolder).append(newStruct);
     }
 
+
+
+addVariable(variable, type, reference) {
+    this.references.push({name: variable.id, refObj: reference});
+    var newStruct = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
+    var structIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
+    var id = struct.id + this.idNameSeperator + name + this.nameTypeSeperator + type;
+    var   property = $('<div>').attr('id', id).addClass('variable-content');
+    var propertyName = $('<span>').addClass('property-name').text(variable.name);
+    var seperator = $('<span>').addClass('property-name').text(':');
+    var propertyType = $('<span>').addClass('property-type').text(variable.type);
+    property.append(structIcon);
+    property.append(propertyName);
+    property.append(seperator);
+    property.append(propertyType);
+    newStruct.append(property);
+    var subPlaceHolder;
+
+
+    newStruct.css({
+        'top': 0,
+        'left': 0
+    });
+
+    if(type == 'source' ) {
+        subPlaceHolder = 'leftType';
+        $('#' + this.placeHolderName).find('.leftType').append(newStruct);
+        this.addSource(property, this, true);
+    } else {
+        subPlaceHolder = 'rightType';
+        $('#' + this.placeHolderName).find('.rightType').append(newStruct);
+        this.addTarget(property, this);
+    }
+    this.reposition(this);
+}
+
+
 /**
  * Add a function in the mapper UI
  * @param {object} function definition with parameters to be mapped
@@ -874,8 +911,8 @@ class TransformRender
  */
     reposition(self) {
         var funcs = $('.middle-content  > .func');
-        var sourceStructs = $('.leftType > .struct');
-        var targetStructs = $('.rightType > .struct');
+        var sourceStructs = $('.leftType > .struct, .leftType > .variable');
+        var targetStructs = $('.rightType > .struct, .rightType > .variable');
         var xFunctionPointer = ($(".middle-content").width()-300)/2;
         var yFunctionPointer = 120;
         var xSourcePointer = 0;
