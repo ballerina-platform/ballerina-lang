@@ -164,7 +164,7 @@ public class StructAccessWithIndexTest {
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-struct-access-with-index.bal:4: undefined symbol 'dpt1'")
     public void testUndeclaredStructAccess() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-struct-access-with-index.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-struct-access-with-index.bal");
     }
     
     @Test(description = "Test accessing an undeclared field of a struct",
@@ -172,7 +172,7 @@ public class StructAccessWithIndexTest {
             expectedExceptionsMessageRegExp = "undeclared-attribute-access-as-index.bal:5: unknown field 'id' in" +
                 " struct 'Department'")
     public void testUndeclaredFieldAccess() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-attribute-access-as-index.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-attribute-access-as-index.bal");
     }
     
     @Test(description = "Test accesing a struct with a dynamic index",
@@ -180,7 +180,7 @@ public class StructAccessWithIndexTest {
             expectedExceptionsMessageRegExp = "struct-access-with-dynamic-index.bal:15: only static keys are " +
             "supported for accessing struct fields")
     public void testExpressionAsStructIndex() {
-        BTestUtils.parseBalFile("lang/structs/struct-access-with-dynamic-index.bal");
+        BTestUtils.getProgramFile("lang/structs/struct-access-with-dynamic-index.bal");
     }
     
 }

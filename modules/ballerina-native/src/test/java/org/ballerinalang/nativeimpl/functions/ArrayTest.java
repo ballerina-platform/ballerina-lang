@@ -252,7 +252,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testFloatArrayCopyOfRangeNegative() {
         final double v1 = 10d;
         final double v2 = 11.1d;
@@ -266,7 +266,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testFloatArrayCopyOfRangNegativeMinusArgs() {
         final double v1 = 10d;
         final double v2 = 11.1d;
@@ -300,7 +300,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testIntArrayCopyOfRangeNegative() {
         final int v1 = 10;
         final int v2 = 11;
@@ -313,7 +313,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testIntArrayCopyOfRangNegativeMinusArgs() {
         final int v1 = 10;
         final int v2 = 11;
@@ -347,7 +347,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testStringArrayCopyOfRangeNegative() {
         final String v1 = "a";
         final String v2 = "b";
@@ -360,7 +360,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testStringArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "a";
         final String v2 = "b";
@@ -394,7 +394,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testXMLArrayCopyOfRangeNegative() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
@@ -407,7 +407,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testXMLArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
@@ -441,7 +441,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testJSONArrayCopyOfRangeNegative() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
@@ -454,7 +454,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testJSONArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
@@ -486,7 +486,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testMessageArrayCopyOfRangNegative() {
         final CarbonMessage v1 = new DefaultCarbonMessage();
         final CarbonMessage v2 = new DefaultCarbonMessage();
@@ -499,7 +499,7 @@ public class ArrayTest {
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
     public void testMessageArrayCopyOfRangNegativeMinusArgs() {
         final CarbonMessage v1 = new DefaultCarbonMessage();
         final CarbonMessage v2 = new DefaultCarbonMessage();
