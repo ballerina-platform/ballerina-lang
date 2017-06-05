@@ -1004,10 +1004,13 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     String jsonStr = sf.stringRegs[i];
-
+                    char start = jsonStr.charAt(0);
+                    char end = jsonStr.charAt(jsonStr.length() - 1);
+                    
                     // If this is a string-representation of complex JSON object, generate a BJSON out of it.
-                    if (jsonStr.matches("\\{.*\\}|\\[.*\\]")) {
+                    if ((start == '{' &&  end == '}') || (start == '[' &&  end == ']')) {
                         sf.refRegs[j] = new BJSON(jsonStr);
+                        break;
                     }
 
                     // Else, generate a BJSON with a quoted string.
