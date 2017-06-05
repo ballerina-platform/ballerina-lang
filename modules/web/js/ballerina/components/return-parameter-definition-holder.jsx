@@ -41,31 +41,27 @@ class ReturnParameterDefinitionHolder extends React.Component {
         let model = this.props.model;
         let splitedExpression = input.split(" ");
 
-        if (!this.checkWhetherIdentifierAlreadyExist(splitedExpression[1])) {
-            let parameterDef = model.getFactory().createParameterDefinition();
-            let bType = splitedExpression[0];
-            if (this.validateType(bType)) {
-                parameterDef.setTypeName(bType);
-            } else {
-                let errorString = "Incorrect Variable Type: " + bType;
-                Alerts.error(errorString);
-                return false;
-            }
-
-            if (splitedExpression[1]) {
-                parameterDef.setName(splitedExpression[1]);
-            } else {
-                let errorString = "Invalid Variable Name.";
-                Alerts.error(errorString);
-                return false;
-            }
-            this.props.model.addChild(parameterDef);
-            return true;
+        let parameterDef = model.getFactory().createParameterDefinition();
+        let bType = splitedExpression[0];
+        if (this.validateType(bType)) {
+            parameterDef.setTypeName(bType);
         } else {
-            let errorString = "Variable Already exists: " + splitedExpression[1];
+            let errorString = "Incorrect Variable Type: " + bType;
             Alerts.error(errorString);
             return false;
         }
+
+        if (!_.isNil(splitedExpression[1])) {
+            parameterDef.setName(splitedExpression[1]);
+            if (this.checkWhetherIdentifierAlreadyExist(splitedExpression[1])) {
+                let errorString = "Variable Already exists: " + splitedExpression[1];
+                Alerts.error(errorString);
+                return false;
+            }
+        }
+
+        this.props.model.addChild(parameterDef);
+        return true;
     }
 
     /**
@@ -103,15 +99,26 @@ class ReturnParameterDefinitionHolder extends React.Component {
     /**
      * Validate type.
      * */
-    validateType(bType) {
+    validateType(typeString) {
         let isValid = false;
         let typeList = this.getTypeDropdownValues();
-        let filteredTypeList = _.filter(typeList, function (type) {
-            return type.id === bType;
-        });
-        if (filteredTypeList.length > 0) {
+        let type;
+        const structs = this.context.renderingContext.getPackagedScopedEnvironment()._currentPackage._structDefinitions;
+        let types = _.map(typeList, 'id');
+
+        if (typeString.substring(typeString.length-2) === '[]') {
+            type = typeString.substring(0, typeString.length-2);
+        } else if (typeString.split(':').length === 2) {
+            // TODO: Here we assume that the type is a struct referred from another package
+            return true;
+        } else {
+            type = typeString;
+        }
+
+        if (_.includes(types.concat(_.map(structs, '_structName')), type.trim())) {
             isValid = true;
         }
+
         return isValid;
     }
 
