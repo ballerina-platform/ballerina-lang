@@ -27,6 +27,9 @@ import Statement from './statement';
 class TimeoutStatement extends Statement {
     constructor(args) {
         super('TimeoutStatement');
+        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'message[]', name: 'm'});
+        this._timeoutParameter = _.get(args, 'timeoutParameter', parameterDefinition);
+        this._expression = _.get(args, 'expression', '60');
     }
 
     getWorkerDeclarations() {
@@ -43,8 +46,42 @@ class TimeoutStatement extends Statement {
         }]);
     }
 
+    getParameterAsString() {
+        return this.getParameter().getParameterDefinitionAsString();
+    }
+
+    setExpression(expression, options) {
+        if (!_.isNil(expression)) {
+            this.setAttribute('_expression', expression, options);
+        }
+    }
+
+    getExpression() {
+        return this._expression;
+    }
+
+    setParameter(type, options) {
+        if (!_.isNil(type)) {
+            this.setAttribute('_timeoutParameter', type, options);
+        }
+    }
+
+    getParameter() {
+        return this._timeoutParameter;
+    }
+
     initFromJson(jsonNode) {
         let self = this;
+        const expressionChildNode = jsonNode['expression'];
+        const expressionChild = self.getFactory().createFromJson(expressionChildNode);
+        expressionChild.initFromJson(expressionChildNode);
+        self.setExpression(expressionChild.getExpression());
+
+        const paramJsonNode = jsonNode['timeout_parameter'];
+        const paramChild = self.getFactory().createFromJson(paramJsonNode);
+        paramChild.initFromJson(paramJsonNode);
+        self.setParameter(paramChild);
+
         _.each(jsonNode.children, function (childNode) {
             let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
