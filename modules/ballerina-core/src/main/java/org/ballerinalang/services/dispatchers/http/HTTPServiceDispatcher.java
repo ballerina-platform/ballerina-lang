@@ -84,6 +84,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             String basePath = findTheMostSpecificBasePath(requestUri.getPath(), servicesOnInterface);
             ServiceInfo service = servicesOnInterface.get(basePath);
             if (service == null) {
+                cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaException("no service found to handle incoming request received to : " + uriStr);
             }
 

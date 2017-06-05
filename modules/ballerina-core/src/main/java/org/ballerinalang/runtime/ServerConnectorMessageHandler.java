@@ -62,12 +62,14 @@ public class ServerConnectorMessageHandler {
 
         String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol == null) {
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
             throw new BallerinaException("protocol not defined in the incoming request");
         }
 
         // Find the Service Dispatcher
         ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
         if (dispatcher == null) {
+            cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
             throw new BallerinaException("no service dispatcher available to handle protocol: " + protocol);
         }
 
@@ -75,6 +77,7 @@ public class ServerConnectorMessageHandler {
             // Find the Service
             ServiceInfo service = dispatcher.findService(cMsg, callback);
             if (service == null) {
+                cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaException("no Service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
@@ -82,6 +85,7 @@ public class ServerConnectorMessageHandler {
             // Find the Resource Dispatcher
             ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
             if (resourceDispatcher == null) {
+                cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
                 throw new BallerinaException("no resource dispatcher available to handle protocol: " + protocol);
             }
 
@@ -90,10 +94,19 @@ public class ServerConnectorMessageHandler {
             try {
                 resource = resourceDispatcher.findResource(service, cMsg, callback);
             } catch (BallerinaException ex) {
-                throw new BallerinaException("no resource found to handle the request to Service: " +
-                        service.getName() + " : " + ex.getMessage());
+                if (cMsg.getProperty
+                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE) != null
+                        && (int) cMsg.getProperty
+                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE) == 405) {
+                    throw new BallerinaException("");
+                } else {
+                    cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
+                    throw new BallerinaException("no resource found to handle the request to Service: " +
+                            service.getName() + " : " + ex.getMessage());
+                }
             }
             if (resource == null) {
+                cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaException("no resource found to handle the request to Service: " +
                         service.getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.

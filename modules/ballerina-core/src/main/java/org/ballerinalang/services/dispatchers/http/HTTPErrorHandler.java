@@ -42,7 +42,11 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
     @Override
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback callback) {
-        callback.done(createErrorMessage(e.getMessage(), 500));
+        callback.done(createErrorMessage
+                (e.getMessage(), (carbonMessage.getProperty
+                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE) == null) ? 500 :
+                        (int) carbonMessage.getProperty
+                                (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE)));
     }
 
     @Override
