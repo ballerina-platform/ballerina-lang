@@ -35,7 +35,7 @@ class CatchStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('End Visit CatchStatementDimensionCalculatorVisitor');
-        util.populateCompoundStatementChild(node, node.getParameter());
+        util.populateCompoundStatementChild(node, node.getParameterDefString());
     }
 }
 

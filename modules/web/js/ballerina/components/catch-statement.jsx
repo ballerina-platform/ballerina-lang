@@ -28,8 +28,8 @@ class CatchStatement extends React.Component {
             propertyType: 'text',
             key: 'Catch parameter',
             model: props.model,
-            getterMethod: props.model.getParameter,
-            setterMethod: props.model.setParameter
+            getterMethod: props.model.getParameterDefString,
+            setterMethod: props.model.setParameterDefString
         };
     }
 
