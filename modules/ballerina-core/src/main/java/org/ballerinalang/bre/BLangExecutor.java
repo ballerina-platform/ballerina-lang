@@ -70,7 +70,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -625,7 +625,7 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
         BallerinaTransactionManager ballerinaTransactionManager = bContext.getBallerinaTransactionManager();
         if (ballerinaTransactionManager == null) {
             ballerinaTransactionManager = new BallerinaTransactionManager();
@@ -635,7 +635,7 @@ public class BLangExecutor implements NodeExecutor {
         //execute transaction block
         ballerinaTransactionManager.beginTransactionBlock();
         try {
-            transactionRollbackStmt.getTransactionBlock().execute(this);
+            transactionStmt.getTransactionBlock().execute(this);
             if (isErrorThrown) {
                 ballerinaTransactionManager.setTransactionError(true);
             }
@@ -656,7 +656,15 @@ public class BLangExecutor implements NodeExecutor {
             if (ballerinaTransactionManager.isTransactionError()) {
                 ballerinaTransactionManager.rollbackTransactionBlock();
                 inRollbackBlock = true;
-                transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
+                TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
+                if (abortedBlock != null) {
+                    abortedBlock.getAbortedBlockStmt().execute(this);
+                }
+            } else {
+                TransactionStmt.CommittedBlock committedBlock = transactionStmt.getCommittedBlock();
+                if (committedBlock != null) {
+                    committedBlock.getCommittedBlockStmt().execute(this);
+                }
             }
         } catch (Exception e) {
             throw new BallerinaException(e);
