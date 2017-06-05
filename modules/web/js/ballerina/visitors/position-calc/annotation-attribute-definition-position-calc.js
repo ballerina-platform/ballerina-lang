@@ -38,14 +38,15 @@ class AnnotationAttributePositionCalcVisitor {
         let attributes = _.filter(parent.getChildren(), function (child) {
             return ASTFactory.isAnnotationAttributeDefinition(child);
         });
-        
+
         let currentAttributeIndex = _.findIndex(attributes, node);
         if (currentAttributeIndex === 0) {
             x = parentBBox.x + DesignerDefaults.panel.body.padding.left;
             y = parentBBox.y + DesignerDefaults.panel.heading.height
                 + DesignerDefaults.panel.body.padding.top
                 + DesignerDefaults.annotationAttributeDefinition.body.height
-                + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
+                + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom
+                + parentViewState.components.annotation.h;
         } else if (currentAttributeIndex > 0) {
             let previousAttributeBBox = attributes[currentAttributeIndex - 1].getViewState().bBox;
             x = parentBBox.x + DesignerDefaults.panel.body.padding.left;
