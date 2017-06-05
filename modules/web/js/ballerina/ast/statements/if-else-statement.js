@@ -80,6 +80,11 @@ class IfElseStatement extends Statement {
      * @param args
      */
     createElseIfStatement(args) {
+        let condition = this.getFactory().createBasicLiteralExpression({
+            basicLiteralType: 'boolean',
+            basicLiteralValue: true
+        })
+        _.set(args, 'condition', condition);
         var newElseIfStatement = new ElseIfStatement(args);
         this._elseIfStatements.push(newElseIfStatement);
         this.addChild(newElseIfStatement);
