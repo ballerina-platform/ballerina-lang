@@ -126,7 +126,7 @@ class PanelDecorator extends React.Component {
             <g className="panel-header">
                 <rect x={bBox.x} y={bBox.y + annotationBodyHeight} width={bBox.w} height={titleHeight} rx="0" ry="0"
                       className="headingRect" data-original-title="" title=""></rect>
-                <rect x={bBox.x} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
+                <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
                 <EditableText
                     x={bBox.x + titleHeight + iconSize + 15} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                     width={titleWidth.w}
@@ -138,18 +138,21 @@ class PanelDecorator extends React.Component {
                     onKeyDown={e => {this.onTitleKeyDown(e)}}>
                     {this.state.editingTitle}
                 </EditableText>
-                <image x={bBox.x + 5} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}
+                <image x={bBox.x + 8} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                        xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
-                <image x={bBox.x + iconSize + 15} y={bBox.y + 5 + annotationBodyHeight} width={iconSize} height={iconSize}
-                    xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}/>
+                <rect x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight}
+                      className="annotation-icon-wrapper"/>
+                <image x={bBox.x + iconSize + 24} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
+                        xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
+                       className="annotation-icon"/>
                 {titleComponents}
                 <g className="panel-header-controls">
                     <rect x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={55} height={titleHeight}
                           className="panel-header-controls-wrapper"/>
-                    <image x={bBox.x + bBox.w - 44.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize}
+                    <image x={bBox.x + bBox.w - 44} y={bBox.y + 6 + annotationBodyHeight} width={iconSize}
                            height={iconSize} className="control"
                            xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
-                    <image x={bBox.x + bBox.w - 19.5} y={bBox.y + 5.5 + annotationBodyHeight} width={iconSize}
+                    <image x={bBox.x + bBox.w - 22} y={bBox.y + 6 + annotationBodyHeight} width={iconSize}
                            height={iconSize} className="control"
                            xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')}
                            onClick={() => this.onCollapseClick()}/>
