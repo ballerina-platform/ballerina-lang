@@ -134,7 +134,7 @@ public class BLangFileRestService {
 
 
     @POST
-    @Path("/model/parse/fragment")
+    @Path("/model/parse-fragment")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBallerinaJsonDataModelGivenFragment(BLangSourceFragment sourceFragment) throws IOException {
@@ -143,7 +143,7 @@ public class BLangFileRestService {
     }
 
     @OPTIONS
-    @Path("/model/parse/fragment")
+    @Path("/model/parse-fragment")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response optionsParseFragment() {
