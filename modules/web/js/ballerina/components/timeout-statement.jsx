@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
-import CompoundStatementDecorator from "./compound-statement-decorator";
-import PropTypes from "prop-types";
-import {getComponentForNodeArray} from "./utils";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
+import CompoundStatementDecorator from './compound-statement-decorator';
+import PropTypes from 'prop-types';
+import {getComponentForNodeArray} from './utils';
 
 class TimeoutStatement extends React.Component {
 
@@ -28,8 +28,19 @@ class TimeoutStatement extends React.Component {
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
+        let lifeLineY1;
+        let lifeLineY2;
+        if (model.children.length > 0) {
+            const firstChild = model.children[0].viewState;
+            lifeLineY1 = firstChild.bBox.y + firstChild.components['drop-zone'].h;
+            const lastChild = model.children[model.children.length - 1].viewState;
+            lifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
+        }
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Timeout'}>
+                {model.children.length > 0 &&
+                <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
+                      className="join-lifeline"/> }
                 {children}
             </BlockStatementDecorator>
         </CompoundStatementDecorator>);

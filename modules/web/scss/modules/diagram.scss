@@ -131,7 +131,6 @@
     background: #f4f4f4;
     overflow: auto;
     padding: 7px;
-    z-index: 1;
     overflow: visible;
 }
 
@@ -270,3 +269,7 @@
     shape-rendering: crispEdges;
 }
 
+.join-lifeline {
+    stroke: black;
+    stroke-width: 1;
+}

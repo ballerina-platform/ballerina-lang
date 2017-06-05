@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import ParameterDefinition from '../parameter-definition'
 
 /**
  * Class for Join clause in ballerina.
@@ -28,9 +27,9 @@ import ParameterDefinition from '../parameter-definition'
 class JoinStatement extends Statement {
     constructor(args) {
         super('JoinStatement');
-        this._joinType = _.get(args, "joinType", "all");
+        this._joinType = _.get(args, 'joinType', 'all');
         const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'message[]', name: 'm'});
-        this._joinParameter = _.get(args, "joinParam", parameterDefinition);
+        this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
     }
 
     getWorkerDeclarations() {
@@ -65,6 +64,22 @@ class JoinStatement extends Statement {
 
     getParameter() {
         return this._joinParameter;
+    }
+
+    getParameterAsString() {
+        return this.getParameter().getParameterDefinitionAsString();
+    }
+
+    setParameterAsString(str) {
+        const myRegexp = /^\s*([^\s\[\]]+\s*\[\s*]\s*)([^\s\[\]]+)\s*$/g;
+        const match = myRegexp.exec(str);
+        if (match) {
+            const factory = this.getFactory();
+            const typeName = match[1];
+            const name = match[2];
+            const parameterDefinition = factory.createParameterDefinition({typeName, name});
+            this.setParameter(parameterDefinition);
+        }
     }
 
     initFromJson(jsonNode) {

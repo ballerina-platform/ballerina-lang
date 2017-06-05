@@ -176,7 +176,7 @@ let config = {
                         body_div:'panel-collapse collapse',
                         canvas: 'panel-body collapse in',
                         design_view_drop: 'design-view-hover',
-                        canvas_container: 'canvas-container grid-background',
+                        canvas_container: 'canvas-container',
                         canvas_top_controls_container: 'canvas-top-controls-container',
                         canvas_top_control_package_define: 'package-definition-wrapper',
                         canvas_top_control_packages_import: 'package-imports-wrapper',
