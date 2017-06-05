@@ -204,7 +204,7 @@ class BlockStatementDecorator extends React.Component {
             <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
                 {this.props.children}
             </StatementContainer>
-            {this.props.undeletable &&
+            {this.props.undeletable ||
             <ActionBox
                 bBox={ actionBoxBbox }
                 show={ this.state.active }
