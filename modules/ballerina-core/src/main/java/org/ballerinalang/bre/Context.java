@@ -26,6 +26,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
