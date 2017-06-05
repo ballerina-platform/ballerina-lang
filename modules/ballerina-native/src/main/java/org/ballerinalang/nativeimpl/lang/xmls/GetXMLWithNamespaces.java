@@ -49,7 +49,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "getXml",
+        functionName = "getXmlWithNamespace",
         args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "namespaces", type = TypeEnum.MAP)},

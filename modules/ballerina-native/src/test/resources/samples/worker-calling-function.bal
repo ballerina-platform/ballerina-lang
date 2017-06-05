@@ -3,6 +3,12 @@ import ballerina.lang.messages;
 
 const int index = 12;
 
+function testWorkerInVM()(message) {
+    message q;
+    q = testWorker();
+    return q;
+}
+
 function testWorker()(message) {
   message result;
   message msg = {};
@@ -17,9 +23,9 @@ function testWorker()(message) {
   message result;
   message m;
   m <- default;
-  system:println("constant value is " + index);
   result = changeMessage(m);
   result -> default;
+  return;
 }
 
 }

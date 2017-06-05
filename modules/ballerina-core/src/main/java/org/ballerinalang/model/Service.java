@@ -21,6 +21,9 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.services.dispatchers.uri.URITemplate;
+import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.services.dispatchers.uri.parser.Literal;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,6 +56,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
     private AnnotationAttachment[] annotations;
     private Resource[] resources;
+    private URITemplate uriTemplate;
     private VariableDefStmt[] variableDefStmts;
 
     private BallerinaFunction initFunction;
@@ -201,6 +205,13 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     @Override
     public Map<SymbolName, BLangSymbol> getSymbolMap() {
         return Collections.unmodifiableMap(this.symbolMap);
+    }
+
+    public URITemplate getUriTemplate() throws URITemplateException {
+        if (uriTemplate == null) {
+            uriTemplate = new URITemplate(new Literal("/"));
+        }
+        return uriTemplate;
     }
 
     /**

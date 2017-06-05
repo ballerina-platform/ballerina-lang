@@ -18,12 +18,12 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
@@ -34,7 +34,7 @@ import java.util.concurrent.Callable;
  *
  * @since 0.8.0
  */
-public class WorkerRunner implements Callable<BMessage> {
+public class WorkerRunner implements Callable<BValue[]> {
 
     private static final Logger log = LoggerFactory.getLogger(WorkerRunner.class);
     private static PrintStream outStream = System.err;
@@ -51,17 +51,32 @@ public class WorkerRunner implements Callable<BMessage> {
 
 
     @Override
-    public BMessage call() throws BallerinaException {
+    public BValue[] call() throws BallerinaException {
         try {
             worker.getCallableUnitBody().execute(executor);
-            return (BMessage) bContext.getControlStack().getCurrentFrame().returnValues[0];
+            BValue[] results;
+            if (bContext.getControlStack().getCurrentFrame().returnValues[0] instanceof BArray) {
+                BArray resultArray = (BArray) (bContext.getControlStack().
+                        getCurrentFrame().returnValues[0]);
+                results = new BValue[resultArray.size()];
+                for (int i = 0; i < results.length; i++) {
+                    results[i] = resultArray.get(i);
+                }
+                return results;
+            } else {
+                return bContext.getControlStack().getCurrentFrame().returnValues;
+            }
         } catch (RuntimeException throwable) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
             String stacktrace = ErrorHandlerUtils.getServiceStackTrace(bContext, throwable);
             String errorWithTrace = "exception in worker" + worker.getName() + " : " + errorMsg + "\n" + stacktrace;
             log.error(errorWithTrace);
             outStream.println(errorWithTrace);
-            return new BMessage(new DefaultCarbonMessage());
+            return new BValue[0];
         }
+    }
+
+    public Worker getWorker() {
+        return worker;
     }
 }

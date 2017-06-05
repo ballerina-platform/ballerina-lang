@@ -42,7 +42,7 @@ import java.util.List;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "remove",
+        functionName = "removeWithNamespace",
         args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "namespaces", type = TypeEnum.MAP)},

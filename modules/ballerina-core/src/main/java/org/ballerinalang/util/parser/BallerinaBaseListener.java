@@ -856,13 +856,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) { }
+	@Override public void enterInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) { }
+	@Override public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.services.dispatchers.uri.URITemplate;
+import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.services.dispatchers.uri.parser.Literal;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,10 +39,7 @@ public class ServiceInfo extends StructureTypeInfo {
     private int intiFuncCPIndex;
 
     private FunctionInfo initFuncInfo;
-
-    // Cache values.
-    private String serviceName;
-    private PackageInfo packageInfo;
+    private URITemplate uriTemplate;
 
     public ServiceInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
         super(pkgPathCPIndex, connectorNameCPIndex);
@@ -64,6 +65,14 @@ public class ServiceInfo extends StructureTypeInfo {
         attributeInfoMap.put(attributeName, attributeInfo);
     }
 
+    public FunctionInfo getInitFunctionInfo() {
+        return initFuncInfo;
+    }
+
+    public void setInitFunctionInfo(FunctionInfo initFuncInfo) {
+        this.initFuncInfo = initFuncInfo;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(pkgPathCPIndex, nameCPIndex);
@@ -74,22 +83,6 @@ public class ServiceInfo extends StructureTypeInfo {
         return obj instanceof ServiceInfo
                 && pkgPathCPIndex == (((ServiceInfo) obj).pkgPathCPIndex)
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public PackageInfo getPackageInfo() {
-        return packageInfo;
-    }
-
-    protected void setPackageInfo(PackageInfo packageInfo) {
-        this.packageInfo = packageInfo;
     }
 
     public AnnotationAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
@@ -104,6 +97,13 @@ public class ServiceInfo extends StructureTypeInfo {
             }
         }
         return null;
+    }
+
+    public URITemplate getUriTemplate() throws URITemplateException {
+        if (uriTemplate == null) {
+            uriTemplate = new URITemplate(new Literal("/"));
+        }
+        return uriTemplate;
     }
 
 }

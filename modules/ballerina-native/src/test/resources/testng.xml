@@ -55,6 +55,8 @@ under the License.
         <classes>
             <!-- TODO : Add other testcases. -->
             <class name="org.ballerinalang.service.ServiceTest"/>
+            <class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>
+            <class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>
         </classes>
     </test>
 

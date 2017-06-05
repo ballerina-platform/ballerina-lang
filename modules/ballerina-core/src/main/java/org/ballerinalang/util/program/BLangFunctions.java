@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
@@ -199,7 +200,7 @@ public class BLangFunctions {
         }
 
         ControlStackNew controlStackNew = context.getControlStackNew();
-        invokePackageInitFunction(bLangProgram, packageInfo, context);
+        invokeFunction(bLangProgram, packageInfo, packageInfo.getInitFunctionInfo(), context);
 
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
         // registers to hold function arguments as well as return values from the callee.
@@ -300,7 +301,13 @@ public class BLangFunctions {
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
-        bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
+        context.setStartIP(codeAttribInfo.getCodeAddrs());
+        bLangVM.run(context);
+
+        if (context.getError() != null) {
+            throw new BallerinaException(".*uncaught error: " +
+                    BLangVMErrors.getErrorMsg(context.getError()));
+        }
 
         longRegCount = 0;
         doubleRegCount = 0;
@@ -312,7 +319,7 @@ public class BLangFunctions {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
-                    returnValues[i] = new BInteger(callerSF.getLongRegs()[retRegs[i]]);
+                    returnValues[i] = new BInteger(callerSF.getLongRegs()[longRegCount++]);
                     break;
                 case TypeTags.FLOAT_TAG:
                     returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);
@@ -347,7 +354,20 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.execFunction(packageInfo, context, defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(context);
+    }
+
+    public static void invokeFunction(ProgramFile programFile, PackageInfo packageInfo,
+                                                 FunctionInfo initFuncInfo, Context context) {
+        WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
+        org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(initFuncInfo,
+                defaultWorker, -1, new int[0]);
+        context.getControlStackNew().pushFrame(stackFrame);
+
+        BLangVM bLangVM = new BLangVM(programFile);
+        context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(context);
     }
 
     /**
