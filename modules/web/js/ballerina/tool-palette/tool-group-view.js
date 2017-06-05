@@ -71,6 +71,9 @@ var toolGroupView = Backbone.View.extend({
             groupTilesIcon.click(function(){
                 $(this).parents('.tool-group').find('.tool-group-body')
                         .attr("class", "tool-group-body tool-group-body-tiles");
+                $('body')
+                    .removeClass('tool-palette-view-grid tool-palette-view-list')
+                    .addClass('tool-palette-view-tiles');
                 return false;
             });
 
@@ -80,6 +83,9 @@ var toolGroupView = Backbone.View.extend({
             groupGridIcon.click(function(){
                 $(this).parents('.tool-group').find('.tool-group-body')
                         .attr("class", "tool-group-body tool-group-body-grid");
+                $('body')
+                    .removeClass('tool-palette-view-tiles tool-palette-view-list')
+                    .addClass('tool-palette-view-grid');
                 return false;
             });
 
@@ -89,6 +95,9 @@ var toolGroupView = Backbone.View.extend({
             groupListIcon.click(function(){
                 $(this).parents('.tool-group').find('.tool-group-body')
                         .attr("class", "tool-group-body tool-group-body-list");
+                $('body')
+                    .removeClass('tool-palette-view-grid tool-palette-view-tiles')
+                    .addClass('tool-palette-view-list');
                 return false;
             });
         }
