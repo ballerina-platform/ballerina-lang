@@ -16,10 +16,44 @@ let config = {
             headingTop: "top-heading",
             btnWrap1: "btn-wrap"
         },
-        samples: ["resources/samples/echoService.bal", "resources/samples/helloWorld.bal",
-            "resources/samples/passthroughService.bal", "resources/samples/routingServices.bal",
-            "resources/samples/ATMLocatorService.bal", "resources/samples/ecommerceService.bal",
-            "resources/samples/contentBasedRoutingService.bal", "resources/samples/SimpleWorker.bal"]
+        samples: [
+            { 
+                name: 'Echo Service', isFile: true, path: '/samples/echoService/echoService.bal', 
+                image: 'preview_echoService'
+            },
+            { 
+                name: 'Hello World', isFile: true, path: '/samples/helloWorld/helloWorld.bal', 
+                image: 'preview_helloWorld'
+            },
+            { 
+                name: 'Passthrough Service', isFile: false, folder: '/samples/passthroughService/passthroughservice/', 
+                path: '/samples/passthroughService/passthroughservice/samples/nyseStockQuoteService.bal', 
+                image: 'preview_passthroughService'
+            }, 
+            { 
+                name: 'Service Chaining', isFile: false, folder: '/samples/serviceChaining/servicechaining/', 
+                path: '/samples/serviceChaining/servicechaining/samples/ATMLocatorService.bal',
+                image: 'preview_serviceChaining' 
+            },
+            { 
+                name: 'JMS', isFile: false, folder: '/samples/jms/', path: '/samples/jms/jmsReceiver.bal', 
+                image: 'preview_jms'
+            }, 
+            { 
+                name: 'Restful Service', isFile: false, folder: '/samples/restfulService/restfulService/', 
+                path: '/samples/restfulService/restfulService/samples/productsService.bal', 
+                image: 'preview_restfulService' 
+            },
+            { 
+                name: 'Routing Services', isFile: false, folder: '/samples/routingServices/', 
+                path: '/samples/routingServices/samples/contentBasedRoutingService.bal', 
+                image: 'preview_routingServices' 
+            },
+            { 
+                name: 'Websocket', isFile: false, folder: '/samples/websocket/', 
+                path: '/samples/websocket/echoServer/server/websocketEchoServer.bal', 
+                image: 'preview_websocket'
+            }]
     },
     // you can overide service urls by uncommenting the following.
     // if the following are not set they will be taken automatically from the composer file server.
@@ -42,7 +76,8 @@ let config = {
         launcher: {
             endpoint: "ws://localhost:8290/launch"
         }
-    },*/
+    },
+    balHome: '',*/
     alerts: {
         container: "#alerts-container",
         cssClass: {

@@ -114,6 +114,7 @@ class WorkspaceManager {
             let opts = _.get(this.app.config, 'welcome');
             _.set(opts, 'application', this.app);
             _.set(opts, 'tab', tab);
+            _.set(opts, 'balHome', _.get(this.app.config, 'balHome'));
             this.welcomePage = new WelcomePage(opts);
             this.welcomePage.render();
         } else {
@@ -128,6 +129,7 @@ class WorkspaceManager {
                 let opts = _.get(this.app.config, 'welcome');
                 _.set(opts, 'application', this.app);
                 _.set(opts, 'tab', tab);
+                _.set(opts, 'balHome', _.get(this.app.config, 'balHome'));
                 this.welcomePage = new WelcomePage(opts);
                 this.welcomePage.render();
             }
@@ -158,6 +160,7 @@ class WorkspaceManager {
             var opts = _.get(this.app.config, 'welcome');
             _.set(opts, 'application', this.app);
             _.set(opts, 'tab', tab);
+            _.set(opts, 'balHome', _.get(this.app.config, 'balHome'));
             workspaceManager.welcomePage = new WelcomePage(opts);
             workspaceManager.welcomePage.render();
         } else {
