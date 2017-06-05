@@ -215,7 +215,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
 
     if (node.getArguments) {
         viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth
+            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width
             + DesignerDefaults.panelHeading.iconSize.padding;
         viewState.components.openingParameter.y = viewState.bBox.y
@@ -242,7 +242,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
         // Setting positions of function parameters.
         // Positioning the opening bracket component of the parameters.
         viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth
+            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width
             + DesignerDefaults.panelHeading.iconSize.padding;
         viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;

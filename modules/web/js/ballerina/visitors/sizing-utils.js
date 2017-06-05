@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import { statement } from './../configs/designer-defaults';
-import { blockStatement } from './../configs/designer-defaults';
+import {statement} from './../configs/designer-defaults';
+import {blockStatement} from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
@@ -153,7 +153,8 @@ class SizingUtil {
         let components = {};
 
         const textWidth = util.getTextWidth(name);
-        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right;
+        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
+            + DesignerDefaults.panelHeading.iconSize.width;
         viewState.trimmedTitle = textWidth.text;
 
         components['heading'] = new SimpleBBox();
@@ -266,7 +267,8 @@ class SizingUtil {
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
         const textWidth = this.getTextWidth(name);
-        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right;
+        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
+            + DesignerDefaults.panelHeading.iconSize.width;
         viewState.trimmedTitle = textWidth.text;
 
         const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);
@@ -583,7 +585,7 @@ class SizingUtil {
             ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
             ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
             ASTFactory.isStructDefinition(node)) {
-            for(let annotation of node.getChildrenOfType(ASTFactory.isAnnotation)) {
+            for (let annotation of node.getChildrenOfType(ASTFactory.isAnnotation)) {
                 height += this.getAnnotationHeight(annotation);
             }
         } else if (!_.isUndefined(node) && ASTFactory.isAnnotation(node)) {
