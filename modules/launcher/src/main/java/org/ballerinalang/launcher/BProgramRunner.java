@@ -71,4 +71,8 @@ class BProgramRunner {
         }
 
     }
+
+    public static void setProgramDirPath(Path programDirPath) {
+        BProgramRunner.programDirPath = programDirPath;
+    }
 }
