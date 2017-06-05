@@ -17,6 +17,7 @@
  */
 import log from 'log';
 import {util} from './../sizing-utils';
+import {blockStatement} from '../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 
 class JoinStatementDimensionCalculatorVisitor {
@@ -40,7 +41,12 @@ class JoinStatementDimensionCalculatorVisitor {
         const viewState = node.getViewState();
         const components = viewState.components;
         const paramW = util.getTextWidth(node.getParameterAsString(), 3);
-        components['param'] = new SimpleBBox(0, 0, paramW, 0);
+        components['param'] = new SimpleBBox(0, 0, paramW.w, 0);
+        const joinTypeW = util.getTextWidth(node.getJoinType(), 3);
+        const widthOfText = paramW.w + joinTypeW.w + blockStatement.heading.width
+            + blockStatement.heading.paramSeparatorOffsetX + blockStatement.heading.paramSeparatorOffsetX
+            + blockStatement.heading.paramEndOffsetX;
+        viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
     }
 }
 

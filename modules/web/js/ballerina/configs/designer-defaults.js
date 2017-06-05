@@ -128,7 +128,8 @@ export const blockStatement = {
         width: 50,
         height: statement.height,
         paramPaddingX: 5,
-        paramSeparatorOffsetX: 10
+        paramSeparatorOffsetX: 10,
+        paramEndOffsetX: 6
     },
     body: {
         padding: {
