@@ -26,7 +26,7 @@ import D3Utils from 'd3utils';
 var toolView = Backbone.View.extend({
 
     toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
-            "data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <i class=\"<%=cssClass%>\"></i> " +
+            "data-placement=\"bottom\" data-container=\"body\" data-template=\"<div class='tooltip tool-palette' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner'></div></div>\" data-toggle=\"tooltip\" title='<%=title%>'> <i class=\"<%=cssClass%>\"></i> " +
             "<span class=\"tool-title-wrap\" ><p class=\"tool-title\"><%=name%></p></span></div>"),
     toolTemplateVertical: _.template("<div id=\"<%=id%>-tool\" class=\"tool-block tool-container-vertical " +
             "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
