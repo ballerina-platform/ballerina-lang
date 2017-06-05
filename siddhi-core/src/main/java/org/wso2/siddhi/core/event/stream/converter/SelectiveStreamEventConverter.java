@@ -48,7 +48,7 @@ public class SelectiveStreamEventConverter implements StreamEventConverter, Seri
                     if (fromPosition != -1) { // TODO: 5/23/17 ok to change this?
                         borrowedEvent.setOnAfterWindowData(data[fromPosition], position[1]);
                     } else {
-                        borrowedEvent.setOnAfterWindowData(1, position[1]);
+                        borrowedEvent.setOnAfterWindowData(1f, position[1]);
                     }
                     break;
                 case 2:

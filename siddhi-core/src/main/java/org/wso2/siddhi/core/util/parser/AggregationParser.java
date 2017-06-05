@@ -158,15 +158,10 @@ public class AggregationParser {
                                                                                         // already there. Is it ok?
             }
 
-            //Stream definition associated with new meta must reflect name changes (e.g. price1 to sumprice1)
-            /*for (Attribute originalAttribute:currentAttributes) {
-                if (newMetaAttributes)
-            }*/
-
             metaStreamEvent.addInputDefinition(streamDefinition);
 
             // TODO: 5/23/17 populate here?
-            StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent, 0, attributeList);
+//            StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent, 0, attributeList);
             /*******************************************/
 
             IncrementalExecutor child = build(newFunctionsAttributes,
@@ -196,8 +191,6 @@ public class AggregationParser {
             throw ex; // TODO: 5/12/17 should we log?
         }
 
-        // MetaStreamEvent m= new MetaStreamEvent();
-        // new ComEve
         return aggregationRuntime;
     }
 

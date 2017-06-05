@@ -78,7 +78,7 @@ public class IncrementalExecutor implements Executor, Job {
                                 GroupByKeyGeneratorForIncremental groupByKeyGenerator,
                                 Variable timeStampVariable) {
         this.duration = duration;
-        this.child = child;
+        this.child = child; // TODO: 6/2/17 do all this at parser and parse it here
         this.compositeAggregators = createIncrementalAggregators(functionAttributes);
         this.basicExecutorDetails = basicFunctionExecutors(metaEvent, currentState, tableMap, executorList,
                 executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName);
@@ -274,7 +274,7 @@ public class IncrementalExecutor implements Executor, Job {
                 long externalTimeStamp = (long) externalTimeStampExecutor.execute(event);
                 if (nextEmitTime == -1) {
                     nextEmitTime = getNextEmitTime(externalTimeStamp);
-//                scheduler.notifyAt(nextEmitTime);
+//                scheduler.notifyAt(nextEmitTime); // TODO: 6/2/17 have scheduler at receiver
                 }
                 if (externalTimeStamp > nextEmitTime) {
                     long timeStampOfBaseAggregate = getStartTime(nextEmitTime);
@@ -443,14 +443,7 @@ public class IncrementalExecutor implements Executor, Job {
 
         public BaseExpressionDetails(Expression baseExpression, String attribute) {
             this.baseExpression = baseExpression;
-            //If we haven't already prefixed with base name, it's concatenated now (Since price1 is no longer in meta)
-            //This could occur in avg since the attribute is sent as price1.
-            if (attribute.startsWith(((AttributeFunction) baseExpression).getName())) {
-                this.attribute = attribute;
-            }
-            else {
-                this.attribute = (((AttributeFunction) baseExpression).getName()).concat(attribute);
-            }
+            this.attribute = ((Variable) ((AttributeFunction)baseExpression).getParameters()[0]).getAttributeName();
         }
 
         public Expression getBaseExpression() {
@@ -569,7 +562,7 @@ public class IncrementalExecutor implements Executor, Job {
                 }
                 storeAggregatorFunctions.put(groupByOutput, baseValuesPerGroupBy);
 
-                if (this.duration== TimePeriod.Duration.SECONDS ){
+                if (this.duration== TimePeriod.Duration.MINUTES ){
                     System.out.println(storeAggregatorFunctions);
                 }
 
@@ -620,6 +613,8 @@ public class IncrementalExecutor implements Executor, Job {
     public void dispatchEvents(long timeStampOfBaseAggregate) {
 
         //Send RESET event to groupByExecutor
+        // todo call reset method
+
         for (ExpressionExecutorDetails basicExecutor:basicExecutorDetails) {
             basicExecutor.getExecutor().execute(resetEvent);
         }
@@ -634,8 +629,8 @@ public class IncrementalExecutor implements Executor, Job {
                 // TODO: 5/27/17 this if else is a hack!!! change
                 if (aggregateKey.startsWith("sum")) {
                     newOnAfterWindowData.add(((Double) aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
-                } else if (aggregateKey.startsWith("count")) {
-                    newOnAfterWindowData.add(((Long) aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
+                } else if (aggregateKey.startsWith("count")) { //Count is also summed. Therefore Double
+                    newOnAfterWindowData.add(((Double) aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
                 }
             }
             newOnAfterWindowData.add(timeStampOfBaseAggregate); // TODO: 6/1/17 this needs to change

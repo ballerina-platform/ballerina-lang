@@ -55,7 +55,7 @@ public class AggregatorEventConverterFactory {
     private static List<StreamEventConverter.ConversionMapping> getConversionElements(
             MetaStreamEvent metaStreamEvent, MetaStreamEvent originalMetaStreamEvent, int size) {
 
-        AbstractDefinition inputDefinition = metaStreamEvent.getInputDefinitions().get(0);
+//        AbstractDefinition inputDefinition = metaStreamEvent.getInputDefinitions().get(0);
         AbstractDefinition originalInputDefinition = originalMetaStreamEvent.getLastInputDefinition();
         List<StreamEventConverter.ConversionMapping> conversionMappings = new ArrayList<StreamEventConverter.ConversionMapping>(size);
 
@@ -76,6 +76,7 @@ public class AggregatorEventConverterFactory {
                     } else if (!originalInputDefinition.getAttributeList().contains(attribute)) {
                         if (attribute.getName().startsWith("sum")) {
                             Attribute tempAttribute =
+                                    // TODO: 6/2/17 have a pattern to get base name
                                     new Attribute(attribute.getName().replaceFirst("sum",""), attribute.getType());
                             if (!originalInputDefinition.getAttributeList().contains(tempAttribute)) {
                                 i++;
@@ -95,7 +96,7 @@ public class AggregatorEventConverterFactory {
                                     new Attribute(attribute.getName().replaceFirst("count",""), attribute.getType());
                             if (!originalInputDefinition.getAttributeList().contains(tempAttribute)) {
                                 i++;
-                            } else {
+                            } else {// TODO: 6/2/17 get this from composite
                                 int fromPosition = -1; //If from position is -1 in convertData method of SelectiveStreamEventConverter, set value to 1
                                 StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
                                 conversionMapping.setFromPosition(fromPosition);
