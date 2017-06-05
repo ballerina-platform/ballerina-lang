@@ -151,7 +151,17 @@ class AnnotationContainer extends React.Component {
             attachmentType = 'service';
         } else if (ASTFactory.isResourceDefinition(this.props.model.parentNode)) {
             attachmentType = 'resource';
-        }
+        } else if (ASTFactory.isFunctionDefinition(this.props.model.parentNode)) {
+            attachmentType = 'function';
+        } else if (ASTFactory.isConnectorDefinition(this.props.model.parentNode)) {
+            attachmentType = 'connector';
+        } else if (ASTFactory.isConnectorAction(this.props.model.parentNode)) {
+            attachmentType = 'action';
+        } else if (ASTFactory.isAnnotationDefinition(this.props.model.parentNode)) {
+            attachmentType = 'annotation';
+        } else if (ASTFactory.isStructDefinition(this.props.model.parentNode)) {
+            attachmentType = 'struct';
+        } 
         // TODO : Add the rest of the attatchment points.
 
         for (let packageDefintion of BallerinaEnvironment.getPackages()) {

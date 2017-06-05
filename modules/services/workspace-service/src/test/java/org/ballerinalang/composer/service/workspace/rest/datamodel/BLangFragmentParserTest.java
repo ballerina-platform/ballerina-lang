@@ -91,8 +91,8 @@ public class BLangFragmentParserTest {
             fragment.setExpectedNodeType(BLangFragmentParserConstants.EXPRESSION);
 
             String result = BLangFragmentParser.parseFragment(fragment);
-            Assert.assertEquals(result, expectedJson.trim(), "Expected json not found while parsing expression fragment " +
-                    caseName);
+            Assert.assertEquals(result, expectedJson.trim(),
+                    "Expected json not found while parsing expression fragment " + caseName);
 
         });
     }
@@ -109,8 +109,8 @@ public class BLangFragmentParserTest {
             fragment.setExpectedNodeType(BLangFragmentParserConstants.STATEMENT);
 
             String result = BLangFragmentParser.parseFragment(fragment);
-            Assert.assertEquals(result, expectedJson.trim(), "Expected json not found while parsing statement fragment " +
-                    caseName);
+            Assert.assertEquals(result, expectedJson.trim(),
+                    "Expected json not found while parsing statement fragment " + caseName);
 
         });
     }

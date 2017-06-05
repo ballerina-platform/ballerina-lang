@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 public class BLangFragmentParser {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangFragmentParser.class);
+
     public static final String SYNTAX_ERRORS = "syntax_errors";
     public static final String TEMP_UNTITLED = "temp/untitled";
     public static final String ERROR = "error";
@@ -110,7 +111,6 @@ public class BLangFragmentParser {
         BallerinaFile bFile = bLangModelBuilder.build();
 
         JsonObject jsonModelRoot = new JsonObject();
-
         JsonArray errors = new JsonArray();
         for (SyntaxError error : errorStrategy.getErrorTokens()) {
             // reduce number of lines in wrapper function from row count

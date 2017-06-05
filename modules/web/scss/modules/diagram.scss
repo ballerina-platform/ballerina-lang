@@ -6,6 +6,12 @@
             stroke-width: 2px;
         }
 
+        & > .annotation-icon-wrapper {
+            fill:#f4f4f4;
+            shape-rendering: crispEdges;
+            stroke:#f4f4f4;
+        }
+
         & > text {
             fill: $panel-header-color;
         }
@@ -131,7 +137,6 @@
     background: #f4f4f4;
     overflow: auto;
     padding: 7px;
-    z-index: 1;
     overflow: visible;
 }
 
@@ -233,20 +238,21 @@
 }
 
 .parameter-delete-icon-wrapper {
-    fill: $argument-parameter-group-wrapper-bgcolor;
+    fill: #8ebadd;
     shape-rendering: crispEdges;
     padding: 13px;
-    opacity: 0.3;
 }
 
 .parameter-delete-icon-wrapper:hover {
     opacity: 1;
+    fill:#dcdcdc;
 }
 
 .argument-parameter-group,
 .annotation-attachment-group,
 .return-parameter-group{
-    fill: $argument-parameter-group-wrapper-bgcolor;
+    fill: #dcdcdc;
+    height: 30px;
 }
 
 .parameter-bracket-text,
@@ -262,12 +268,18 @@
 }
 
 .parameter-space {
-    fill: #9a9a9a;
 }
 
 .parameter-wrapper {
-    fill: $argument-parameter-group-wrapper-bgcolor;
+    fill: #8ebadd;
     shape-rendering: crispEdges;
-    height: 25px;
 }
 
+.annotation-icon{
+    opacity: 0.5;
+}
+
+.join-lifeline {
+    stroke: black;
+    stroke-width: 1;
+}

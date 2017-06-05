@@ -38,8 +38,8 @@ class AnnotationRenderingVisitor {
     beginVisit(node) {
         if (ASTFactory.isServiceDefinition(node) || ASTFactory.isResourceDefinition(node) ||
             ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
-            ASTFactory.isConnectorAction(node || ASTFactory.isAnnotationDefinition(node) ||
-                ASTFactory.isStructDefinition(node))) {
+            ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
+                ASTFactory.isStructDefinition(node)) {
 
             let annotations = node.filterChildren(function (child) {
                 return ASTFactory.isAnnotation(child);

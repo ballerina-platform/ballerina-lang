@@ -99,10 +99,14 @@ class TransformRender
 
             document.addEventListener('click', (eClick) => {
                 if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != 'path')
-            {
+                {
                     $('#' + self.contextMenu).hide();
                 }
             }, false);
+
+            $( ".leftType, .middle-content, .rightType" ).scroll(function() {
+                $('#' + self.contextMenu).hide();
+            });
 
             $('#typeMapperConRemove').click(() => {
                 self.disconnect(connection);
@@ -548,6 +552,7 @@ class TransformRender
  * @param {function} onFunctionRemove call back function for function remove
  */
     addFunction(func, reference, onFunctionRemove) {
+        func.meta.packageName  = func.meta.packageName.replace(" ","");
         funcName = _.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + ' : ' + func.meta.functionName;
         var funcText = func.meta.functionName;
     //Allow multiple functions to drag and drop without conflicting
@@ -579,7 +584,7 @@ class TransformRender
                 'left': 0
             });
 
-            $('#' + this.placeHolderName).append(newFunc);
+            $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
 
         //Remove button functionality
             $('#' + id + '-button').on('click', () => {
@@ -868,24 +873,22 @@ class TransformRender
  * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
  */
     reposition(self) {
-        var funcs = $('#' + self.placeHolderName + '> .func');
+        var funcs = $('.middle-content  > .func');
         var sourceStructs = $('.leftType > .struct');
         var targetStructs = $('.rightType > .struct');
-        var xFunctionPointer = 700;
-        var yFunctionPointer = 180;
+        var xFunctionPointer = ($(".middle-content").width()-300)/2;
+        var yFunctionPointer = 120;
         var xSourcePointer = 0;
         var ySourcePointer = 50;
         var xTargetPointer = 0;
         var yTargetPointer = 50;
-        var bottomGap = 0;
         var functionGap = 30;
         var svgLines = $('#' + self.placeHolderName + '> svg');
-        var transformHeight = 0;
 
         //Traverse through all the connection svg lines
         _.forEach(svgLines, svgLine => {
             //Get bottom and right values relative to the type mapper parent div
-            var arrowBotton = svgLine.children[2].getBoundingClientRect().bottom;
+            var arrowBotton = svgLine.children[2].getBoundingClientRect().bottom - $('.middle-content').position().top;
             var right = svgLine.getBoundingClientRect().right;
 
             //Calculate the yFunctionPointer value  based on the bottom value of the direct connections
@@ -918,13 +921,6 @@ class TransformRender
             yTargetPointer +=  $('#'+ structType.id).height() + functionGap;
 
         });
-
-        var maxY = Math.max(yFunctionPointer, ySourcePointer, yTargetPointer);
-        if (transformHeight < maxY +  bottomGap) {
-            transformHeight = maxY +  bottomGap;
-        }
-
-        $('.leftType, .rightType').height(transformHeight);
         self.jsPlumbInstance.repaintEverything();
     }
 
