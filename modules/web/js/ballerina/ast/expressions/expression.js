@@ -15,24 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import ASTNode from '../node';
 
 class Expression extends ASTNode {
     constructor(args) {
         super('Expression');
-        this._expression = _.get(args, 'expression');
-        this.type = "Expression";
     }
 
-    setExpression(expression, options) {
-        if(!_.isUndefined(expression)){
-            this.setAttribute('_expression', expression, options);
-        }
+    /**
+    * get the string from expression editor
+    * call fragment parser and get parse tree of the node
+    * validate and create children from scratch
+    **/
+    setExpression(expression, callback) {
+        throw 'This method should be implemented by sub class';
     }
 
+    /**
+    * Traverse the children and generate a string to show up in expression editor
+    **/
     getExpression() {
-        return this._expression;
+        throw 'This method should be implemented by sub class';
     }
 }
 
