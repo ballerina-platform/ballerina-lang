@@ -32,7 +32,7 @@ class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
     beginVisitIfStatement(ifStatement) {
         this.node = ifStatement;
         this.appendSource('if' + ifStatement.getWSRegion(1) + '(' + ifStatement.getWSRegion(2));
-        this.appendSource((!_.isNil(ifStatement.getCondition())) ? ifStatement.getCondition().generateExpression() : '');
+        this.appendSource((!_.isNil(ifStatement.getCondition())) ? ifStatement.getCondition().getExpression() : '');
         this.appendSource(')' + ifStatement.getWSRegion(3) + '{' + ifStatement.getWSRegion(4));
         this.appendSource((ifStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();

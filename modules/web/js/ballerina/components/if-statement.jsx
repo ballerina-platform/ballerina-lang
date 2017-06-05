@@ -30,7 +30,7 @@ class IfStatement extends React.Component {
             propertyType: 'text',
             key: 'If condition',
             model: props.model.getCondition(),
-            getterMethod: props.model.getCondition().generateExpression,
+            getterMethod: props.model.getCondition().getExpression,
             setterMethod: props.model.getCondition().setExpression
         };
 
