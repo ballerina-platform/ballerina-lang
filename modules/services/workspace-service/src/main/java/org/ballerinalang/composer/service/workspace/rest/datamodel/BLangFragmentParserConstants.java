@@ -26,7 +26,7 @@ public class BLangFragmentParserConstants {
     public static final String EXPRESSION = "expression";
 
     // wrapper templates
-    protected static final String FUNCTION_BODY_STMT_WRAPPER = "function testFunction(){\n$FRAGMENT;\n}";
+    protected static final String FUNCTION_BODY_STMT_WRAPPER = "function testFunction(){\n$FRAGMENT\n}";
     protected static final String VAR_DEF_STMT_EXPR_WRAPPER = "function testFunction(){any val =\n$FRAGMENT;\n}";
     protected static final String FRAGMENT_PLACE_HOLDER = "$FRAGMENT";
 }
