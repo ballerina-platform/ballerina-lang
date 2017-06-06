@@ -631,8 +631,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject paramObj = new JsonObject();
         paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.PARAMETER_DEFINITION);
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName());
-        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().getSymbolName()
-                .getName());
+
+        String parameterName = ((parameterDef.getTypeName().getPackageName() != null) ?
+                (parameterDef.getTypeName().getPackageName() + ":") : "") + parameterDef.getTypeName().getSymbolName()
+                .getName();
+
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterName);
         this.addPosition(paramObj, parameterDef.getNodeLocation());
         this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
@@ -926,6 +930,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             catchBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.CATCH_BLOCK);
 
             this.addPosition(catchBlockObj, catchBlocks[0].getCatchBlockStmt().getNodeLocation());
+
+            tempJsonArrayRef.push(new JsonArray());
+            catchBlocks[0].getParameterDef().accept(this);
+            catchBlockObj.add(BLangJSONModelConstants.PARAMETER_DEFINITION, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+
             tempJsonArrayRef.push(new JsonArray());
             catchBlocks[0].getCatchBlockStmt().accept(this);
             catchBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
