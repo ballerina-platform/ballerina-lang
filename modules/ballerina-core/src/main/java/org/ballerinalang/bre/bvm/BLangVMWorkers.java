@@ -19,12 +19,16 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -59,7 +63,7 @@ public class BLangVMWorkers {
 
     }
 
-    static class WorkerExecutor implements Runnable {
+    static class WorkerExecutor implements Callable<BValue[]> {
 
 //        private static final Logger log = LoggerFactory.getLogger(org.ballerinalang.bre.WorkerExecutor.class);
 //        private static PrintStream outStream = System.err;
@@ -78,10 +82,17 @@ public class BLangVMWorkers {
         }
 
         @Override
-        public void run() {
+        public BValue[] call() throws BallerinaException {
             try {
+                System.out.println("Starting worker" + workerInfo.getWorkerName());
                 bLangVM.execFunction(callableUnitInfo.getPackageInfo(), bContext,
                         workerInfo.getCodeAttributeInfo().getCodeAddrs());
+                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
+                if (results != null) {
+                    return results;
+                } else {
+                    return new BValue[0];
+                }
 //                worker.getCallableUnitBody().execute(executor);
             } catch (RuntimeException throwable) {
 //                String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
@@ -91,6 +102,7 @@ public class BLangVMWorkers {
 //                log.error(errorWithTrace);
 //                outStream.println(errorWithTrace);
             }
+            return new BValue[0];
         }
     }
 }

@@ -130,6 +130,7 @@ import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
@@ -185,6 +186,7 @@ public class CodeGenerator implements NodeVisitor {
     private PackageInfo currentPkgInfo;
 
     private ServiceInfo currentServiceInfo;
+    private WorkerInfo currentWorkerInfo;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -881,16 +883,23 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
         int pkgCPIndex = addPackageCPEntry(workerInvocationStmt.getPackagePath());
-        String workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
-                workerInvocationStmt.getWorkerDataChannel().getChannelName();
+        WorkerDataChannel workerDataChannel = workerInvocationStmt.getWorkerDataChannel();
+        String workerInvocationName;
+        if (workerDataChannel != null) {
+            workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
+                    workerDataChannel.getChannelName();
+            currentWorkerInfo.setWorkerDataChannelForForkJoin(workerDataChannel);
+        } else {
+            workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
+                    "default -> fork";
+        }
         UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(workerInvocationName);
         int workerInvocationNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
-
-        WorkerDataChannel workerDataChannel = workerInvocationStmt.getWorkerDataChannel();
-
         WorkerDataChannelRefCPEntry workerInvocationRefCPEntry =
                 new WorkerDataChannelRefCPEntry(pkgCPIndex, workerInvocationNameCPIndex);
-        workerInvocationRefCPEntry.setWorkerDataChannel(workerDataChannel);
+        if (workerDataChannel != null) {
+            workerInvocationRefCPEntry.setWorkerDataChannel(workerDataChannel);
+        }
         int workerInvocationRefCPIndex = currentPkgInfo.addCPEntry(workerInvocationRefCPEntry);
         int workerInvocationIndex = getWorkerInvocationCPIndex(workerInvocationStmt);
         emit(InstructionCodes.WRKINVOKE, workerInvocationRefCPIndex, workerInvocationIndex);
@@ -954,6 +963,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        getForkJoinCPIndex(forkJoinStmt);
 
     }
 
@@ -2188,6 +2198,61 @@ public class CodeGenerator implements NodeVisitor {
         FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
         return currentPkgInfo.addCPEntry(funcCallCPEntry);
     }
+
+    private void getForkJoinCPIndex(ForkJoinStmt forkJoinStmt) {
+        Expression argExpr = forkJoinStmt.getTimeout().getTimeoutExpression();
+        int[] argRegs;
+        if (argExpr != null) {
+            argRegs = new int[1];
+            argExpr.accept(this);
+            argRegs[0] = argExpr.getTempOffset();
+        } else {
+            argRegs = new int[0];
+        }
+
+        int[] retRegs = new int[0];
+        ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(argRegs, retRegs, forkJoinStmt);
+        if (argExpr != null) {
+            forkJoinCPEntry.setTimeoutAvailable(true);
+        }
+        for (Worker worker : forkJoinStmt.getWorkers()) {
+            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.getName());
+            int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+            WorkerInfo workerInfo = new WorkerInfo(worker.getName(), workerNameCPIndex);
+            forkJoinCPEntry.addWorkerInfo(worker.getName(), workerInfo);
+        }
+        int forkJoinIndex = currentPkgInfo.addCPEntry(forkJoinCPEntry);
+        emit(InstructionCodes.FORKJOIN, forkJoinIndex);
+        // visit the workers within fork-join block
+        // Now visit each Worker
+        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
+        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
+        int[] lvIndexesCopy = lvIndexes.clone();
+
+        for (Worker worker : forkJoinStmt.getWorkers()) {
+            WorkerInfo workerInfo = forkJoinCPEntry.getWorkerInfo(worker.getName());
+            workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
+            workerInfo.getCodeAttributeInfo().setCodeAddrs(nextIP());
+            currentWorkerInfo = workerInfo;
+            lvIndexes = lvIndexesCopy.clone();
+            worker.getCallableUnitBody().accept(this);
+            endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
+        }
+
+        
+        // Generate code for Join block
+        ForkJoinStmt.Join join = forkJoinStmt.getJoin();
+        if (join.getJoinBlock() != null) {
+            join.getJoinBlock().accept(this);
+        }
+
+        // Generate code for timeout block
+        ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
+        if (timeout.getTimeoutBlock() != null) {
+            timeout.getTimeoutBlock().accept(this);
+        }
+    }
+
 
     private int getConnectorRefCPIndex(BallerinaConnectorDef connectorDef) {
         UTF8CPEntry connectorNameCPEntry = new UTF8CPEntry(connectorDef.getName());

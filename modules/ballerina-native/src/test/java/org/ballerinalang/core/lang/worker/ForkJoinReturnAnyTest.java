@@ -22,23 +22,35 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class ForkJoinReturnAnyTest {
-    private BLangProgram bLangProgram;
+    //private BLangProgram bLangProgram;
+    private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/fork-join-return-any.bal");
+        //bLangProgram = BTestUtils.parseBalFile("samples/fork-join-return-any.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-return-any.bal");
     }
 
 
+//    @Test(description = "Test Fork Join With workers returning any type")
+//    public void testForkJoinReturnAnyType() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinReturnAnyType");
+//        Assert.assertEquals(returns.length, 2);
+//        Assert.assertTrue(returns[0] instanceof BInteger);
+//        Assert.assertTrue(returns[1] instanceof BString);
+//        //Assert.assertEquals(((BMap) returns[0]).size(), 4);
+//    }
+
     @Test(description = "Test Fork Join With workers returning any type")
     public void testForkJoinReturnAnyType() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinReturnAnyType");
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinReturnAnyType");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BString);

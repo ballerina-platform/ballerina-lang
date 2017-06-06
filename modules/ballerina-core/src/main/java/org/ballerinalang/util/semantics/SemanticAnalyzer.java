@@ -463,7 +463,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (statement instanceof WorkerInvocationStmt) {
                     targetWorkerName = ((WorkerInvocationStmt) statement).getName();
                     if (targetWorkerName == "fork" && isForkJoinStmt) {
-                        // This is a special worker invocation statement which returns data to the join block
                         break;
                     }
                     if (callableUnit instanceof Worker) {
@@ -597,6 +596,25 @@ public class SemanticAnalyzer implements NodeVisitor {
                 System.arraycopy(workers, i + 1, tempWorkers, 0, workers.length - (i + 1));
                 i++;
             } while (i < workers.length - 1);
+        }
+    }
+
+    private void resolveForkJoin(ForkJoinStmt forkJoinStmt) {
+        Worker[] workers = forkJoinStmt.getWorkers();
+        if (workers != null && workers.length > 0) {
+            for (Worker worker : workers) {
+                for (Statement statement : worker.getWorkerInteractionStatements()) {
+                    if (statement instanceof WorkerInvocationStmt) {
+                        String targetWorkerName = ((WorkerInvocationStmt) statement).getName();
+                        if (targetWorkerName.equalsIgnoreCase("fork")) {
+                            String sourceWorkerName = worker.getName();
+                            WorkerDataChannel workerDataChannel = new WorkerDataChannel
+                                    (sourceWorkerName, targetWorkerName);
+                            ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -1532,6 +1550,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         resolveWorkerInteractions(forkJoinStmt);
+        resolveForkJoin(forkJoinStmt);
         closeScope();
 
         forkJoinStmt.setAlwaysReturns(stmtReturns);

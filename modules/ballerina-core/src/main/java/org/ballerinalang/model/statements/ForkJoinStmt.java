@@ -34,6 +34,7 @@ import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,11 +58,21 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
     private int tempStackFrameSize;
+    private WorkerDataChannel workerDataChannel;
 
     private ForkJoinStmt(NodeLocation nodeLocation, SymbolScope enclosingScope) {
         super(nodeLocation);
         this.enclosingScope = enclosingScope;
         symbolMap = new HashMap<>();
+    }
+
+
+    public WorkerDataChannel getWorkerDataChannel() {
+        return workerDataChannel;
+    }
+
+    public void setWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+        this.workerDataChannel = workerDataChannel;
     }
 
     /**

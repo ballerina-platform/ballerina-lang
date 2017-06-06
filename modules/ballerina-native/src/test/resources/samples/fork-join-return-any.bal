@@ -1,17 +1,23 @@
 import ballerina.lang.system;
 
 function testForkJoinReturnAnyType()(int, string) {
+    return testForkJoinReturnAnyTypeVM();
+}
+
+function testForkJoinReturnAnyTypeVM()(int, string) {
     int p;
     string q;
     string r;
     float t;
     fork {
     worker W1 {
+    system:println("Worker W1 started");
     int x = 23;
     string a = "aaaaa";
     x, a -> fork;
     }
     worker W2 {
+    system:println("Worker W2 started");
     string s = "test";
     float u = 10.23;
     s, u -> fork;

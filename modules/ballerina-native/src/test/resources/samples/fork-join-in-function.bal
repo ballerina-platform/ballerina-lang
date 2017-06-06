@@ -2,6 +2,10 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 
 function testForkJoinAll(message m)(message[]) {
+    return testForkJoinAllVM(m);
+  }
+
+function testForkJoinAllVM(message m)(message[]) {
 
         message[] results = [null, null];
         json error;

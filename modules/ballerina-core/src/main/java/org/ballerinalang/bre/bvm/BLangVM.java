@@ -19,11 +19,15 @@ package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.model.Worker;
+import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BConnector;
@@ -45,6 +49,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -59,6 +65,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
@@ -76,7 +83,15 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @since 0.87
@@ -86,6 +101,8 @@ public class BLangVM {
     private ControlStackNew controlStack;
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
+    private boolean isForkJoinTimedOut;
+    private CallableUnitInfo currentCallableUnitInfo;
 
     // Instruction pointer;
     private int ip = 0;
@@ -115,6 +132,7 @@ public class BLangVM {
         this.controlStack = context.getControlStackNew();
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
+        System.out.println("Values " + ip + this.controlStack.getCurrentFrame().toString());
 
 //        traceCode();
         exec();
@@ -154,6 +172,7 @@ public class BLangVM {
         WorkerInvokeCPEntry workerInvokeCPEntry;
         WorkerReplyCPEntry workerReplyCPEntry;
         WorkerDataChannel workerDataChannel;
+        ForkJoinCPEntry forkJoinCPEntry;
 
         // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
@@ -163,6 +182,7 @@ public class BLangVM {
             int[] operands = instruction.getOperands();
             ip++;
             StackFrame sf = controlStack.getCurrentFrame();
+            //System.out.println("Executing opcode " + opcode);
 
             switch (opcode) {
                 case InstructionCodes.ICONST:
@@ -754,6 +774,11 @@ public class BLangVM {
                     workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
                     replyWorker(workerDataChannel, workerReplyCPEntry);
                     break;
+                case InstructionCodes.FORKJOIN:
+                    cpIndex = operands[0];
+                    forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
+                    invokeForkJoin(forkJoinCPEntry);
+                    break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
@@ -1132,6 +1157,7 @@ public class BLangVM {
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+        currentCallableUnitInfo = callableUnitInfo;
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
@@ -1164,16 +1190,174 @@ public class BLangVM {
         //populateArgumentValuesForWorker(expressions, arguments);
         if (workerDataChannel != null) {
             workerDataChannel.putData(arguments);
+        } else {
+            BArray<BValue> bArray = new BArray<>(BValue.class);
+            for (int j = 0; j < arguments.length; j++) {
+                BValue returnVal = arguments[j];
+                bArray.add(j, returnVal);
+            }
+            controlStack.getCurrentFrame().returnValues[0] = bArray;
+        }
+    }
+
+    public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
+        ForkJoinStmt forkJoinStmt = forkJoinCPEntry.getForkJoinStmt();
+        List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
+        List<BValue[]> resultMsgs = new ArrayList<>();
+        long timeout = 60; // Default timeout value is 60 seconds
+        if (forkJoinCPEntry.isTimeoutAvailable()) {
+            timeout = controlStack.getCurrentFrame().getLongRegs()[0];
+        }
+        System.out.println("Join timeout value is " + timeout);
+
+        Worker[] workers = forkJoinStmt.getWorkers();
+        Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
+        for (Worker worker : workers) {
+            Context workerContext = new Context();
+            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+            workerContext.setBalCallback(workerCallback);
+
+            ControlStackNew controlStack = workerContext.getControlStackNew();
+            StackFrame calleeSF = new StackFrame(currentCallableUnitInfo,
+                    forkJoinCPEntry.getWorkerInfo(worker.getName()), -1, new int[1]);
+            controlStack.pushFrame(calleeSF);
+
+
+            // Copy arg values from the current StackFrame to the new StackFrame
+            // TODO fix this. Move the copyArgValues method to another util function
+            //BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+
+            BLangVM bLangVM = new BLangVM(programFile);
+            //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+            BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
+                    currentCallableUnitInfo, workerContext, forkJoinCPEntry.getWorkerInfo(worker.getName()));
+            workerRunnerList.add(workerRunner);
+            triggeredWorkers.put(worker.getName(), workerRunner);
         }
 
-//        else {
-//            BArray<BValue> bArray = new BArray<>(BValue.class);
-//            for (int j = 0; j < arguments.length; j++) {
-//                BValue returnVal = arguments[j];
-//                bArray.add(j, returnVal);
-//            }
-//            controlStack.setReturnValue(0, bArray);
+        if (forkJoinStmt.getJoin().getJoinType().equalsIgnoreCase("any")) {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for any of all the workers
+                BValue[] res = invokeAnyWorker(workerRunnerList, timeout);
+                resultMsgs.add(res);
+            } else {
+                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                BValue[] res = invokeAnyWorker(workerRunnersSpecified, timeout);
+                resultMsgs.add(res);
+            }
+        } else {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for all of all the workers
+                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
+            } else {
+                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout));
+            }
+        }
+
+        if (isForkJoinTimedOut) {
+            // Execute the timeout block
+
+            int offsetTimeout = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
+                    getStackFrameOffset();
+            BArray<BArray> bbArray = new BArray<>(BArray.class);
+
+            for (int i = 0; i < resultMsgs.size(); i++) {
+                BValue[] value = resultMsgs.get(i);
+                BArray<BValue> bArray = new BArray<>(BValue.class);
+                for (int j = 0; j < value.length; j++) {
+                    BValue returnVal = value[j];
+                    bArray.add(j, returnVal);
+                }
+                bbArray.add(i, bArray);
+            }
+            //controlStack.setValue(offsetTimeout, bbArray);
+            //forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
+            isForkJoinTimedOut = false;
+
+        } else {
+            // Assign values to join block message arrays
+            int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
+                    getStackFrameOffset();
+            BArray<BArray> bbArray = new BArray<>(BArray.class);
+
+            for (int i = 0; i < resultMsgs.size(); i++) {
+                BValue[] value = resultMsgs.get(i);
+                BArray<BValue> bArray = new BArray<>(BValue.class);
+                for (int j = 0; j < value.length; j++) {
+                    BValue returnVal = value[j];
+                    bArray.add(j, returnVal);
+                }
+                bbArray.add(i, bArray);
+            }
+            //controlStack.setValue(offsetJoin, bbArray);
+            //forkJoinStmt.getJoin().getJoinBlock().execute(this);
+        }
+
+//        for (WorkerInfo workerInfo : forkJoinCPEntry.getWorkerInfoMap().values()) {
+//            Context workerContext = new Context();
+//            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+//            workerContext.setBalCallback(workerCallback);
+//
+//            ControlStackNew controlStack = workerContext.getControlStackNew();
+//            StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
+//            controlStack.pushFrame(calleeSF);
+//
+//            // Copy arg values from the current StackFrame to the new StackFrame
+//            // TODO fix this. Move the copyArgValues method to another util function
+//            BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+//
+//            BLangVM bLangVM = new BLangVM(programFile);
+//            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+//            BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM, callableUnitInfo, workerContext, workerInfo);
+//            executor.submit(workerRunner);
 //        }
+    }
+
+    private BValue[] invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
+        ExecutorService anyExecutor = Executors.newWorkStealingPool();
+        BValue[] result;
+        try {
+            result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        } catch (TimeoutException e) {
+            isForkJoinTimedOut = true;
+            return null;
+        }
+        return result;
+    }
+
+    private List<BValue[]> invokeAllWorkers(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
+        ExecutorService allExecutor = Executors.newWorkStealingPool();
+        List<BValue[]> result = new ArrayList<>();
+        try {
+            allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
+                try {
+                    return bMessageFuture.get();
+                } catch (CancellationException e) {
+                    // This means task has been timedout and cancelled by system.
+                    isForkJoinTimedOut = true;
+                    return null;
+                } catch (Exception e) {
+                    return null;
+                }
+
+            }).forEach((BValue[] b) -> {
+                result.add(b);
+            });
+        } catch (InterruptedException e) {
+            return result;
+        }
+        return result;
     }
 
     public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
