@@ -123,6 +123,8 @@ public class TypeLattice {
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex messageV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MESSAGE_TNAME)));
+        
 
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(floatV, false);
@@ -132,6 +134,7 @@ public class TypeLattice {
         explicitCastLattice.addVertex(jsonV, false);
         explicitCastLattice.addVertex(anyV, false);
         explicitCastLattice.addVertex(connectorV, false);
+        explicitCastLattice.addVertex(messageV, false);
 
         explicitCastLattice.addEdge(intV, intV, NativeConversionMapper.INT_TO_INT_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -210,6 +213,9 @@ public class TypeLattice {
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(jsonV, anyV, NativeCastMapper.JSON_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
+        explicitCastLattice.addEdge(anyV, messageV, NativeCastMapper.ANY_TO_MESSAGE_FUNC,
+                SAFE, InstructionCodes.ANY2MSG);
+
         explicitCastLattice.addEdge(jsonV, stringV, NativeConversionMapper.JSON_TO_STRING_FUNC,
                 UNSAFE, InstructionCodes.JSON2S);
         explicitCastLattice.addEdge(jsonV, intV, NativeConversionMapper.JSON_TO_INT_FUNC,
@@ -219,12 +225,14 @@ public class TypeLattice {
         explicitCastLattice.addEdge(jsonV, booleanV, NativeConversionMapper.JSON_TO_BOOLEAN_FUNC,
                 UNSAFE, InstructionCodes.JSON2B);
 
-        explicitCastLattice.addEdge(xmlV, xmlV, NativeCastMapper.XML_TO_XML_FUNC);
+        explicitCastLattice.addEdge(xmlV, xmlV, NativeCastMapper.XML_TO_XML_FUNC,
+                SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(xmlV, anyV, NativeCastMapper.XML_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(xmlV, stringV, NativeConversionMapper.XML_TO_STRING_FUNC);
 
-        explicitCastLattice.addEdge(mapV, mapV, NativeCastMapper.MAP_TO_MAP_FUNC);
+        explicitCastLattice.addEdge(mapV, mapV, NativeCastMapper.MAP_TO_MAP_FUNC,
+                SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(mapV, anyV, NativeCastMapper.MAP_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
         // explicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
@@ -467,8 +475,8 @@ public class TypeLattice {
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
 
         explicitCastLattice.addVertex(structV, false);
-        explicitCastLattice.addEdge(anyV, structV, NativeCastMapper.ANY_TO_STRUCT_FUNC);
-        explicitCastLattice.addEdge(structV, anyV, NativeCastMapper.STRUCT_TO_ANY_FUNC);
+        explicitCastLattice.addEdge(anyV, structV, NativeCastMapper.ANY_TO_STRUCT_FUNC, UNSAFE, InstructionCodes.ANY2T);
+        explicitCastLattice.addEdge(structV, anyV, NativeCastMapper.STRUCT_TO_ANY_FUNC, SAFE, InstructionCodes.NOP);
 
         // For all the structs in all the packages imported, check for possibility of casting.
         // Add an edge to the lattice, if casting is possible.
@@ -483,11 +491,13 @@ public class TypeLattice {
                     TypeVertex otherStructV = new TypeVertex(symbol);
 
                     if (isAssignCompatible(structDef, (StructDef) symbol)) {
-                        explicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_SAFE_FUNC);
+                        explicitCastLattice.addEdge(otherStructV, structV, NativeCastMapper.STRUCT_TO_STRUCT_SAFE_FUNC,
+                                SAFE, InstructionCodes.NOP);
                     }
 
                     if (isAssignCompatible((StructDef) symbol, structDef)) {
-                        explicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_SAFE_FUNC);
+                        explicitCastLattice.addEdge(structV, otherStructV, NativeCastMapper.STRUCT_TO_STRUCT_SAFE_FUNC,
+                                SAFE, InstructionCodes.NOP);
                     }
                 }
             }

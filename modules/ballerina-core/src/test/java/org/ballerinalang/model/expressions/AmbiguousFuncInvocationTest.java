@@ -35,18 +35,9 @@ public class AmbiguousFuncInvocationTest {
 
     }
 
-    @Test(description = "Test invoking ambiguous function",
-          expectedExceptions = {SemanticException.class },
-          expectedExceptionsMessageRegExp = "ambiguous-func-invocation.bal:3: function reference 'ambiguousFunc' " +
-                                            "is ambiguous, functions 'ambiguousFunc\\((float|string)\\)' and " +
-                                            "'ambiguousFunc\\((float|string)\\)' matches")
-    public void testAmbiguousFuncInvocation() {
-        BTestUtils.getProgramFile("lang/expressions/ambiguous-func-invocation.bal");
-    }
-
     @Test(description = "Test invoking function without any match",
           expectedExceptions = {SemanticException.class },
-          expectedExceptionsMessageRegExp = "no-matching-func.bal:3: undefined function 'ambiguousFunc'")
+          expectedExceptionsMessageRegExp = "no-matching-func.bal:3: undefined function 'ambiguousFuncTest'")
     public void testNoMatchingFunc() {
         BTestUtils.getProgramFile("lang/expressions/no-matching-func.bal");
     }

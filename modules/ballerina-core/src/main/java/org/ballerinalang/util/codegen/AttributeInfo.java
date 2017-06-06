@@ -29,4 +29,5 @@ public interface AttributeInfo {
     String CODE_ATTRIBUTE = "CodeAttribute";
     String ANNOTATIONS_ATTRIBUTE = "AnnotationsAttribute";
     String PARAMETER_ANNOTATIONS_ATTRIBUTE = "ParameterAnnotationsAttribute";
+    String LOCALVARIABLES_ATTRIBUTE = "LocalVariableAttribute";
 }

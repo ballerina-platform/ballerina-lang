@@ -19,9 +19,11 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
+import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -46,8 +48,15 @@ public class Context {
 
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
+    private int startIP;
+    private BStruct errorThrown;
 
-    private StructureType globalMemoryBlock;
+    // TODO : Temporary solution to make non-blocking working.
+    public boolean initFunction = false;
+    public BValue[] nativeArgValues;
+    public ProgramFile programFile;
+    public FunctionCallCPEntry funcCallCPEntry;
+    public ActionInfo actionInfo;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -61,10 +70,9 @@ public class Context {
     }
 
     public Context(ProgramFile programFile) {
+        this.programFile = programFile;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
-        this.globalMemoryBlock = new BStruct(null);
-        globalMemoryBlock.init(programFile.getGlobalVarIndexes());
     }
 
     public ControlStack getControlStack() {
@@ -135,7 +143,23 @@ public class Context {
         this.vmBasedExecutor = vmBasedExecutor;
     }
 
-    public StructureType getGlobalMemoryBlock() {
-        return globalMemoryBlock;
+    public BStruct getError() {
+        return errorThrown;
+    }
+
+    public void setError(BStruct error) {
+        this.errorThrown = error;
+    }
+
+    public int getStartIP() {
+        return startIP;
+    }
+
+    public void setStartIP(int startIP) {
+        this.startIP = startIP;
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
     }
 }

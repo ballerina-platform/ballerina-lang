@@ -46,7 +46,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "getString",
+        functionName = "getStringWithNamespace",
         args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "namespaces", type = TypeEnum.MAP)},

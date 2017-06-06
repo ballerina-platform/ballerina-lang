@@ -37,6 +37,10 @@ public class ThreadPoolFactory {
     // Issue#1929
     private ExecutorService executorService =  Executors.newFixedThreadPool(500, new BLangThreadFactory("BLangWorker"));
 
+    //TODO: Make the number of threads configurable
+    private ExecutorService workerExecutor = Executors.newFixedThreadPool(100,
+            new BLangThreadFactory(new ThreadGroup("worker"), "worker-thread-pool"));
+
     private ThreadPoolFactory(){};
 
     public static ThreadPoolFactory getInstance() {
@@ -45,6 +49,10 @@ public class ThreadPoolFactory {
 
     public ExecutorService getExecutor() {
         return executorService;
+    }
+
+    public ExecutorService getWorkerExecutor() {
+        return workerExecutor;
     }
 
 }

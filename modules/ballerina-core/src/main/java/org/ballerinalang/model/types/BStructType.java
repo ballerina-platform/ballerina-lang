@@ -75,8 +75,8 @@ public class BStructType extends BType {
      * @since 0.88
      */
     public static class StructField {
-        private BType fieldType;
-        private String fieldName;
+        public BType fieldType;
+        public String fieldName;
 
         public StructField(BType fieldType, String fieldName) {
             this.fieldType = fieldType;

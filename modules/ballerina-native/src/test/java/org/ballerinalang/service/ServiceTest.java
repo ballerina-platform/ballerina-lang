@@ -39,12 +39,10 @@ import java.nio.ByteBuffer;
  */
 public class ServiceTest {
 
-//    BLangProgram bLangProgram;
     ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-//        bLangProgram = EnvironmentInitializer.setup("lang/service/echoService.bal");
         programFile = EnvironmentInitializer.setupProgramFile("lang/service/echoService.bal");
     }
 
@@ -57,8 +55,7 @@ public class ServiceTest {
     }
 
     @Test(description = "Test for protocol availability check", expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* protocol not defined .*")
-            expectedExceptionsMessageRegExp = ".*Cannot handle error using the error handler for.*")
+            expectedExceptionsMessageRegExp = ".*protocol not defined.*")
     public void testProtocolAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         cMsg.removeProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
@@ -67,8 +64,7 @@ public class ServiceTest {
 
     @Test(description = "Test for service dispatcher availability check",
             expectedExceptions = {BallerinaException.class},
-//            expectedExceptionsMessageRegExp = ".* no service dispatcher available .*")
-            expectedExceptionsMessageRegExp = ".*Cannot handle error using the error handler for.*")
+            expectedExceptionsMessageRegExp = ".*no service dispatcher available .*")
     public void testServiceDispatcherAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, "FOO");   // setting incorrect protocol
@@ -80,7 +76,7 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         CarbonMessage invoke = Services.invoke(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                "error in ballerina program: no service found to handle incoming request recieved to : /foo/message");
+                "no service found to handle incoming request received to : /foo/message");
     }
 
     @Test(description = "Test for resource dispatcher availability check")
@@ -90,7 +86,7 @@ public class ServiceTest {
         try {
             CarbonMessage invoke = Services.invoke(cMsg);
             Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                    "error in ballerina program: no resource dispatcher available to handle protocol: http");
+                    "no resource dispatcher available to handle protocol: http");
 
         } finally {
             DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher()); // Add back
@@ -102,7 +98,7 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         CarbonMessage invoke = Services.invoke(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                "error in ballerina program: no resource found to handle the request to Service: echo : no matching " +
+                "no resource found to handle the request to Service: echo : no matching " +
                         "resource found for Path : /bar , Method : GET");
 
     }

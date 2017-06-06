@@ -18,6 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 
 /**
  * @since 0.87
@@ -34,6 +35,9 @@ public class StructureTypeInfo {
     protected BType[] fieldTypes;
 
     protected BType structureType;
+    // Cache Values.
+    private String name;
+    private PackageInfo packageInfo;
 
     public StructureTypeInfo(int pkgPathCPIndex, int nameCPIndex) {
         this.pkgPathCPIndex = pkgPathCPIndex;
@@ -62,5 +66,19 @@ public class StructureTypeInfo {
 
     public void setType(BType type) {
         this.structureType = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
+    }
+
+    protected void setPackageInfo(PackageInfo packageInfo) {
+        this.packageInfo = packageInfo;
+        // Update Cache values.
+        name = ((UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex)).getValue();
     }
 }
