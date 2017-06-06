@@ -248,6 +248,18 @@
     fill:#dcdcdc;
 }
 
+.struct-delete-icon-wrapper {
+    fill: #f3f3f3;
+    shape-rendering: crispEdges;
+    padding: 13px;
+}
+
+.struct-delete-icon-wrapper:hover {
+    opacity: 1;
+    fill:#dcdcdc;
+}
+
+
 .argument-parameter-group,
 .annotation-attachment-group,
 .return-parameter-group{
