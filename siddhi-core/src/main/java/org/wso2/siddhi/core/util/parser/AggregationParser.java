@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -8,12 +26,16 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.populater.StreamEventPopulaterFactory;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AvgIncrementalAttributeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CompositeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.GroupByKeyGeneratorForIncremental;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.SumIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.table.Table;
@@ -73,36 +95,12 @@ public class AggregationParser {
         }
 
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
-        Element nameElement = null;
         LatencyTracker latencyTracker = null;
         LockWrapper lockWrapper = null;
-        AggregationRuntime aggregationRuntime = null;
+        AggregationRuntime aggregationRuntime;
         try {
-            nameElement = AnnotationHelper.getAnnotationElement("info", "name", definition.getAnnotations()); // TODO:
-                                                                                                              // 5/9/17
-                                                                                                              // this
-                                                                                                              // gives
-                                                                                                              // null
-            String aggregatorName = null; // TODO: 5/9/17 queryName or aggregatorName? Should Aggregator be accessible
-                                          // like this?
-            if (nameElement != null) {
-                aggregatorName = nameElement.getValue();
-            } else {
-                aggregatorName = "aggregator_" + UUID.randomUUID().toString(); // TODO: 5/9/17 "query_" or "aggregator_"
-            }
 
-            if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
-                if (nameElement != null) {
-                    String metricName = executionPlanContext.getSiddhiContext().getStatisticsConfiguration()
-                            .getMatricPrefix() + SiddhiConstants.METRIC_DELIMITER
-                            + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS + SiddhiConstants.METRIC_DELIMITER
-                            + executionPlanContext.getName() + SiddhiConstants.METRIC_DELIMITER
-                            + SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER
-                            + SiddhiConstants.METRIC_INFIX_QUERIES + SiddhiConstants.METRIC_DELIMITER + aggregatorName;
-                    latencyTracker = executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getFactory()
-                            .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
-                }
-            }
+            String aggregatorName = definition.getId();
 
             InputStream inputStream = definition.getInputStream();
             StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, executionPlanContext,
@@ -121,8 +119,8 @@ public class AggregationParser {
             }
 
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
-            Variable groupByVar = getGroupByAttribute(definition.getSelector());
-            Variable externalTimeStampVar = definition.getAggregateAttribute();
+            Variable groupByVariable = getGroupByAttribute(definition.getSelector());
+            Variable timeStampVariable = definition.getAggregateAttribute();
 
             // New stream definition created to match new meta
             StreamDefinition streamDefinition = new StreamDefinition();
@@ -138,7 +136,7 @@ public class AggregationParser {
                     .getAttributeList();
             // Make list of new attributes
             List<Attribute> newMetaAttributes = createMetaAttributes(functionsAttributes, currentAttributes,
-                    groupByVar, newFunctionsAttributes, definition.getAggregateAttribute());
+                    groupByVariable, newFunctionsAttributes, definition.getAggregateAttribute());
 
             /*** Following is related to new MetaStreamEvent creation ***/
 
@@ -164,13 +162,31 @@ public class AggregationParser {
 //            StreamEventPopulaterFactory.constructEventPopulator(metaStreamEvent, 0, attributeList);
             /*******************************************/
 
-            IncrementalExecutor child = build(newFunctionsAttributes,
-                    incrementalDurations.get(incrementalDurations.size() - 1), null, metaStreamEvent, 0, tableMap,
-                    executors, executionPlanContext, true, 0, aggregatorName, groupByVar, externalTimeStampVar);
+            List<CompositeAggregator> compositeAggregators = createIncrementalAggregators(newFunctionsAttributes);
+            /*List<ExpressionExecutorDetails> basicExecutorDetails = basicFunctionExecutors(compositeAggregators, metaStreamEvent, 0, tableMap, executors,
+                    executionPlanContext, true, 0, aggregatorName);*/
+            ExpressionExecutor groupByExecutor = generateGroupByExecutor(groupByVariable, metaStreamEvent, 0, tableMap,
+                    executors, executionPlanContext, 0, aggregatorName);
+            ExpressionExecutor externalTimeStampExecutor = null;
+            if (timeStampVariable!=null){
+                externalTimeStampExecutor = generateTimeStampExecutor(timeStampVariable, metaStreamEvent, 0, tableMap,
+                        executors, executionPlanContext, 0, aggregatorName);
+            }
+            List<Variable> groupByList = new ArrayList<>();
+            groupByList.add(groupByVariable); // TODO: 5/30/17 we must later get a list from parser itself
+            GroupByKeyGeneratorForIncremental groupByKeyGenerator =
+                    new GroupByKeyGeneratorForIncremental(groupByList, metaStreamEvent, tableMap,
+                            executors, executionPlanContext, aggregatorName);
+
+
+            IncrementalExecutor child = build(incrementalDurations.get(incrementalDurations.size() - 1), null, metaStreamEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator, executors);
             IncrementalExecutor root;
             for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
-                root = build(newFunctionsAttributes, incrementalDurations.get(i), child, metaStreamEvent, 0, tableMap,
-                        executors, executionPlanContext, true, 0, aggregatorName, groupByVar, externalTimeStampVar);
+                root = build(incrementalDurations.get(i), child, metaStreamEvent, tableMap,
+                        executionPlanContext, aggregatorName, compositeAggregators, groupByExecutor,
+                        externalTimeStampExecutor, groupByKeyGenerator, executors);
                 child = root;
             }
 
@@ -194,37 +210,46 @@ public class AggregationParser {
         return aggregationRuntime;
     }
 
-    private static IncrementalExecutor build(List<AttributeFunction> functionsAttributes, TimePeriod.Duration duration,
-            IncrementalExecutor child, MetaComplexEvent metaEvent, int currentState, Map<String, Table> tableMap,
-            List<VariableExpressionExecutor> executorList, ExecutionPlanContext executionPlanContext, boolean groupBy,
-            int defaultStreamEventIndex, String aggregatorName, Variable groupByVariable, Variable timeStampVariable) {
+    private static IncrementalExecutor build(TimePeriod.Duration duration,
+            IncrementalExecutor child, MetaComplexEvent metaEvent, Map<String, Table> tableMap,
+            ExecutionPlanContext executionPlanContext, String aggregatorName, List<CompositeAggregator>compositeAggregators,
+            ExpressionExecutor groupByExecutor, ExpressionExecutor externalTimeStampExecutor,
+            GroupByKeyGeneratorForIncremental groupByKeyGenerator, List<VariableExpressionExecutor> executors) {
 
-        List<Variable> groupByList = new ArrayList<>();
-        groupByList.add(groupByVariable); // TODO: 5/30/17 we must later get a list from parser itself
-        GroupByKeyGeneratorForIncremental groupByKeyGenerator = new GroupByKeyGeneratorForIncremental(groupByList, metaEvent, tableMap, executorList, executionPlanContext, aggregatorName);
+        //Each IncrementalExecutor needs its own basicExecutorDetails (since the aggregate must be independently
+        // manipulated based on duration). Hence create basicExecutorDetails here.
+        List<ExpressionExecutorDetails> basicExecutorDetails = basicFunctionExecutors(compositeAggregators, metaEvent, 0, tableMap, executors,
+                executionPlanContext, true, 0, aggregatorName);
 
         switch (duration) {
         case SECONDS:
-            return IncrementalExecutor.second(functionsAttributes, child, metaEvent, currentState, tableMap,
-                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
+            return new IncrementalExecutor(TimePeriod.Duration.SECONDS, child, metaEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators, basicExecutorDetails,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator);
         case MINUTES:
-            return IncrementalExecutor.minute(functionsAttributes, child, metaEvent, currentState, tableMap,
-                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
+            return new IncrementalExecutor(TimePeriod.Duration.MINUTES, child, metaEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators, basicExecutorDetails,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator);
         case HOURS:
-            return IncrementalExecutor.hour(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
+            return new IncrementalExecutor(TimePeriod.Duration.HOURS, child, metaEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators, basicExecutorDetails,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator);
         case DAYS:
-            return IncrementalExecutor.day(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
+            return new IncrementalExecutor(TimePeriod.Duration.DAYS, child, metaEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators, basicExecutorDetails,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator);
         case WEEKS:
-            return IncrementalExecutor.week(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
+            return new IncrementalExecutor(TimePeriod.Duration.WEEKS, child, metaEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators, basicExecutorDetails,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator);
         case MONTHS:
-            return IncrementalExecutor.month(functionsAttributes, child, metaEvent, currentState, tableMap,
-                    executorList, executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
+            return new IncrementalExecutor(TimePeriod.Duration.MONTHS, child, metaEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators, basicExecutorDetails,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator);
         case YEARS:
-            return IncrementalExecutor.year(functionsAttributes, child, metaEvent, currentState, tableMap, executorList,
-                    executionPlanContext, groupBy, defaultStreamEventIndex, aggregatorName, groupByVariable, groupByKeyGenerator, timeStampVariable);
+            return new IncrementalExecutor(TimePeriod.Duration.YEARS, child, metaEvent, tableMap,
+                    executionPlanContext, aggregatorName, compositeAggregators, basicExecutorDetails,
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator);
         default:
             throw new EnumConstantNotPresentException(TimePeriod.Duration.class,
                     "Aggregation is not defined for time period " + duration);
@@ -396,5 +421,171 @@ public class AggregationParser {
         }
 
         return newMetaAttributes;
+    }
+
+    private static List<CompositeAggregator> createIncrementalAggregators(List<AttributeFunction> functionAttributes) {
+        List<CompositeAggregator> compositeAggregators = new ArrayList<>();
+        for (AttributeFunction function : functionAttributes) {
+            if (function.getName().equals("avg")) {
+                AvgIncrementalAttributeAggregator average = new AvgIncrementalAttributeAggregator(function);
+                compositeAggregators.add(average);
+            }else if (function.getName().equals("sum")) {
+                SumIncrementalAttributeAggregator sum = new SumIncrementalAttributeAggregator(function);
+                compositeAggregators.add(sum);
+            } else {
+                // TODO: 3/10/17 add other Exceptions
+            }
+        }
+        return compositeAggregators;
+    }
+
+    /***
+     *
+     * @param metaEvent
+     * @param currentState
+     * @param tableMap
+     * @param executorList
+     * @param executionPlanContext
+     * @param groupBy
+     * @param defaultStreamEventIndex
+     * @param aggregatorName
+     * @return
+     */
+    private static List<AggregationParser.ExpressionExecutorDetails> basicFunctionExecutors(List<CompositeAggregator> compositeAggregators, MetaComplexEvent metaEvent,
+                                                                                      int currentState, Map<String, Table> tableMap,
+                                                                                      List<VariableExpressionExecutor> executorList,
+                                                                                      ExecutionPlanContext executionPlanContext, boolean groupBy,
+                                                                                      int defaultStreamEventIndex, String aggregatorName) {
+        Set<AggregationParser.BaseExpressionDetails> baseAggregators = new HashSet<>();
+        for(CompositeAggregator compositeAggregator : compositeAggregators){
+            Expression[] bases = compositeAggregator.getBaseAggregators();
+            for(Expression expression : bases){
+                AggregationParser.BaseExpressionDetails baseExpressionDetails = new BaseExpressionDetails(expression, compositeAggregator.getAttributeName());
+                baseAggregators.add(baseExpressionDetails);
+            }
+        }
+
+        List<AggregationParser.ExpressionExecutorDetails> baseFunctionExecutors = new ArrayList<>();
+        for (AggregationParser.BaseExpressionDetails baseAggregator : baseAggregators) {
+
+            ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(baseAggregator.getBaseExpression(), metaEvent,
+                    currentState, tableMap, executorList, executionPlanContext, groupBy,
+                    defaultStreamEventIndex, aggregatorName);
+//            String executorUniqueKey = ((AttributeFunction) baseAggregator.getBaseExpression()).getName() + baseAggregator.getAttribute();
+            AggregationParser.ExpressionExecutorDetails executorDetails = new ExpressionExecutorDetails(expressionExecutor, baseAggregator.getAttribute()); // TODO: 5/25/17 we don't have to concat name again
+            baseFunctionExecutors.add(executorDetails);
+        }
+        return baseFunctionExecutors;
+    }
+
+    private static class BaseExpressionDetails {
+        private Expression baseExpression;
+        private String attribute; // baseExpression will be evaluated against this attribute
+
+        public BaseExpressionDetails(Expression baseExpression, String attribute) {
+            this.baseExpression = baseExpression;
+            this.attribute = ((Variable) ((AttributeFunction)baseExpression).getParameters()[0]).getAttributeName();
+        }
+
+        public Expression getBaseExpression() {
+            return this.baseExpression;
+        }
+
+        public String getAttribute() {
+            return this.attribute;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 0;
+            if(this.baseExpression != null){
+                hash += this.baseExpression.hashCode();
+            }
+            if(this.attribute != null){
+                hash += this.attribute.hashCode();
+            }
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            BaseExpressionDetails that = (BaseExpressionDetails) o;
+            if (this.baseExpression.equals(that.baseExpression) && this.attribute.equals(that.attribute)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public static class ExpressionExecutorDetails {
+        private ExpressionExecutor executor;
+        private String executorName;
+
+        public ExpressionExecutorDetails(ExpressionExecutor executor, String executorName) {
+            this.executor = executor;
+            this.executorName = executorName;
+        }
+
+        public ExpressionExecutor getExecutor() {
+            return this.executor;
+        }
+
+        public String getExecutorName() {
+            return this.executorName;
+        }
+    }
+
+    /**
+     * @param groupByClause
+     * @param metaEvent
+     * @param currentState
+     * @param tableMap
+     * @param executorList
+     * @param executionPlanContext
+     * @param defaultStreamEventIndex
+     * @param queryName
+     * @return
+     */
+    private static ExpressionExecutor generateGroupByExecutor(Variable groupByClause, MetaComplexEvent metaEvent,
+                                                       int currentState, Map<String, Table> tableMap,
+                                                       List<VariableExpressionExecutor> executorList,
+                                                       ExecutionPlanContext executionPlanContext,
+                                                       int defaultStreamEventIndex, String queryName) {
+
+        ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(groupByClause, metaEvent,
+                currentState, tableMap, executorList, executionPlanContext, true,
+                defaultStreamEventIndex, queryName);
+        return variableExpressionExecutor;
+    }
+
+    /**
+     *
+     * @param timeStampVariable
+     * @param metaEvent
+     * @param currentState
+     * @param tableMap
+     * @param executorList
+     * @param executionPlanContext
+     * @param defaultStreamEventIndex
+     * @param queryName
+     * @return
+     */
+    private static ExpressionExecutor generateTimeStampExecutor(Variable timeStampVariable, MetaComplexEvent metaEvent,
+                                                         int currentState, Map<String, Table> tableMap,
+                                                         List<VariableExpressionExecutor> executorList,
+                                                         ExecutionPlanContext executionPlanContext,
+                                                         int defaultStreamEventIndex, String queryName) {
+        ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(timeStampVariable, metaEvent,
+                currentState, tableMap, executorList, executionPlanContext, true,
+                defaultStreamEventIndex, queryName);
+        return variableExpressionExecutor;
     }
 }

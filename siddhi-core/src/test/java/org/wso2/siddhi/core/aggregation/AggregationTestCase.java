@@ -182,7 +182,9 @@ public class AggregationTestCase {
 
     @Test
     public void test1() {
-        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
+        StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").
+                attribute("symbol", Attribute.Type.STRING).attribute("price", Attribute.Type.FLOAT).
+                attribute("volume", Attribute.Type.INT).attribute("timestamp", Attribute.Type.LONG);
         Map<String, AbstractDefinition> streamDefinitionMap = new HashMap<String, AbstractDefinition>();
         streamDefinitionMap.put("cseEventStream", streamDefinition);
 
