@@ -15,6 +15,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Construct for UnaryExpression
@@ -33,30 +34,42 @@ class UnaryExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      * */
     initFromJson(jsonNode) {
-        this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
+        if(!_.isEmpty(jsonNode.children)) {
+            jsonNode.children.forEach((childNode) => {
+                var child = this.getFactory().createFromJson(childNode);
+                child.initFromJson(childNode);
+                this.addChild(child);
+            });
+        }
     }
 
     /**
-     * Generates the binary expression as a string.
-     * @param {Object} jsonNode - A node explaining the structure of binary expression.
-     * @return {String} - Arguments as a string
-     * @private
-     * */
-    generateExpressionString(jsonNode) {
-        var self = this;
-        var expString = "";
-        expString += this.getOperator();
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
-            var childJsonNode = jsonNode.children[itr];
-            var child = self.getFactory().createFromJson(childJsonNode);
-            child.initFromJson(childJsonNode);
-            expString += child.getExpression();
+     * Set the expression from the expression string
+     * @param {string} expressionString
+     * @override
+     */
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                   || !_.has(parsedJson, 'syntax_errors'))) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
         }
-        return expString;
     }
 
-    generateExpression() {
-        return this._expression;
+    getExpressionString() {
+        let expString = this.getOperator();
+        expString += (!_.isEmpty(this.children)) ? this.children[0].getExpressionString() : '';
+        return expString;
     }
 
     /**
