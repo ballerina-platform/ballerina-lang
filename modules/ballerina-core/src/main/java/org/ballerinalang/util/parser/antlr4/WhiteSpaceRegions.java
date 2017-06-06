@@ -323,13 +323,15 @@ public class WhiteSpaceRegions {
 
     // white space regions in a typecast expr
     public static final int TYPE_CAST_EXP_PRECEDING_WHITESPACE = 0;
-    public static final int TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP = 1;
-    public static final int TYPE_CAST_EXP_FOLLOWING_WHITESPACE = 2;
+    public static final int TYPE_CAST_EXP_TYPE_CAST_START_TO_TYPE_NAME = 1;
+    public static final int TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP = 2;
+    public static final int TYPE_CAST_EXP_FOLLOWING_WHITESPACE = 3;
     
     // white space regions in a type-conversion expr
     public static final int TYPE_CONVERSION_EXP_PRECEDING_WHITESPACE = 0;
-    public static final int TYPE_CONVERSION_EXP_TYPE_CAST_END_TO_EXP = 1;
-    public static final int TYPE_CONVERSION_EXP_FOLLOWING_WHITESPACE = 2;
+    public static final int TYPE_CONVERSION_EXP_TYPE_CAST_START_TO_TYPE_NAME = 1;
+    public static final int TYPE_CONVERSION_EXP_TYPE_CAST_END_TO_EXP = 2;
+    public static final int TYPE_CONVERSION_EXP_FOLLOWING_WHITESPACE = 3;
 
     // white space regions in a unary expr
     public static final int UNARY_EXP_PRECEDING_WHITESPACE = 0;

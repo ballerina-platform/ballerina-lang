@@ -933,6 +933,8 @@ public class WhiteSpaceUtil {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_TYPE_CAST_START_TO_TYPE_NAME,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP,
                 getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_FOLLOWING_WHITESPACE,
@@ -945,6 +947,8 @@ public class WhiteSpaceUtil {
     WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
     ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_PRECEDING_WHITESPACE,
         getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_TYPE_CAST_START_TO_TYPE_NAME,
+        getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
     ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_TYPE_CAST_END_TO_EXP,
         getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
     ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_FOLLOWING_WHITESPACE,
