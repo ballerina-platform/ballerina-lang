@@ -49,6 +49,12 @@ class ParameterDefinition extends VariableDefinition {
 
     getParameterDefinitionAsString() {
         let argAsString = "";
+        //add annotations
+        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                argAsString += ' ' + annotationNode.toString();
+            }
+        });
         argAsString += this.getTypeName();
         argAsString += !_.isNil(this.getName()) ? " " + this.getName() : "";
         return argAsString;
@@ -67,6 +73,7 @@ class ParameterDefinition extends VariableDefinition {
             let annotationJson = jsonNode.children[0];
             let child = this.getFactory().createFromJson(annotationJson);
             this.addChild(child);
+            child.initFromJson(annotationJson);
         }
     }
 }
