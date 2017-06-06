@@ -140,7 +140,7 @@ class PanelDecorator extends React.Component {
                 </EditableText>
                 <image x={bBox.x + 8} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                        xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
-                <rect x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight}
+                <rect x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight - 3}
                       className="annotation-icon-wrapper"/>
                 <image x={bBox.x + iconSize + 24} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                         xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
