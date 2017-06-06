@@ -29,12 +29,21 @@ class RightOperandExpression extends Statement {
         this._right_operand_expression_string = undefined;
     }
 
+    // TODO : Remove
     generateExpression() {
         var expression = '';
         _.forEach(this.getChildren(), child => {
             expression += child.generateExpression();
         });
         this._right_operand_expression_string = expression;
+        return expression;
+    }
+
+    getExpressionString() {
+        var expression = '';
+        _.forEach(this.getChildren(), child => {
+            expression += child.getExpressionString();
+        });
         return expression;
     }
 
@@ -73,7 +82,6 @@ class RightOperandExpression extends Statement {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
-            self.setRightOperandExpressionString(child.generateExpression(), {doSilently: true});
         });
     }
 }

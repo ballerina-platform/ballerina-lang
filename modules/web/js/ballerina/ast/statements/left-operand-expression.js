@@ -69,6 +69,7 @@ class LeftOperandExpression extends Statement {
         this.setAttribute('_operand_type', operandType.trim(), options);
     }
 
+    // TODO: Remove
     generateExpression() {
         var exps = [];
         _.forEach(this.getChildren(), child => {
@@ -81,6 +82,16 @@ class LeftOperandExpression extends Statement {
             expression = this._left_operand_expression_string;
         }
         this._left_operand_expression_string = expression;
+        return expression;
+    }
+
+    getExpressionString() {
+        var exps = [];
+        _.forEach(this.getChildren(), child => {
+            exps.push(child.getExpressionString());
+        });
+        let expression = _.join(exps, ',');
+
         return expression;
     }
 
@@ -99,13 +110,12 @@ class LeftOperandExpression extends Statement {
                 var child = self.getFactory().createFromJson(childJsonNode);
                 self.addChild(child);
                 child.initFromJson(childJsonNode);
-                expression += child.getExpression();
+                expression += child.getExpressionString();
             }
             if (itr !== jsonNode.children.length - 1) {
                 expression += " , ";
             }
         }
-        this.setLeftOperandExpressionString(expression, {doSilently: true});
     }
 }
 
