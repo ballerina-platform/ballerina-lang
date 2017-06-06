@@ -47,7 +47,8 @@ import javax.websocket.Session;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Removes connection group.")})
+                     attributes = { @Attribute(name = "value",
+                                               value = "Close all the connections in connection group.")})
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group")})
 public class CloseConnectionGroup extends AbstractNativeFunction {

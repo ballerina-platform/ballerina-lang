@@ -19,8 +19,13 @@
 package org.ballerinalang.nativeimpl.net.ws;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -32,6 +37,13 @@ import javax.websocket.Session;
 /**
  * Close the current connection inside the resource.
  */
+@BallerinaFunction(
+        packageName = "ballerina.net.ws",
+        functionName = "closeConnection",
+        isPublic = true
+)
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = { @Attribute(name = "value", value = "This close the current connection") })
 public class CloseConnection extends AbstractNativeFunction {
 
     @Override
