@@ -80,16 +80,6 @@ class VariableReferenceExpression extends Expression {
         this.setPackageName(jsonNode.package_name, {doSilently: true});
     }
 
-    generateExpression() {
-        var varDef = this.findChild(this.getFactory().isVariableDefinition);
-        if (!_.isNil(varDef)) {
-            return (!_.isNil(varDef.getPkgName()) ?
-                varDef.getPkgName() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
-        } else {
-            return !_.isNil(this.getPackageName()) ? (this.getPackageName() + ':' + this.getVariableName()) : this.getVariableName();
-        }
-    }
-
     /**
      * Set the expression from the expression string
      * @param {string} expressionString
