@@ -134,6 +134,57 @@
                     <!--</execution>-->
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build.helper.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>parse-version</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>parse-version</goal>
+                        </goals>
+                        <configuration>
+                            <propertyPrefix>parsedVersion</propertyPrefix>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>${replacer.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>replace-versions</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals> 
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>${basedir}/package.json</include>
+                        <include>${basedir}/index.html</include>
+                    </includes>
+                    <replacements>
+                        <replacement>
+                            <token>"version": "(.*?)",</token>
+                            <value>"version": "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}",</value>
+                        </replacement> 
+                        <replacement>
+                            <token>Ballerina Composer v(.*?)( \|)</token>
+                            <value>Ballerina Composer v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion} |</value>
+                        </replacement> 
+                        <replacement>
+                            <token>id="aboutModalLabel">v(.*?)&lt;</token>
+                            <value>id="aboutModalLabel">v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}&lt;</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -163,5 +214,7 @@
         <maven.test.skip>false</maven.test.skip>
         <npm.executable>npm</npm.executable>
         <npm.build.command>build</npm.build.command>
+        <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
+        <replacer.plugin.version>1.5.3</replacer.plugin.version>
     </properties>
 </project>
