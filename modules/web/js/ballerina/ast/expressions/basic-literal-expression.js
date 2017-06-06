@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for BasicLiteralExpression
@@ -37,6 +38,25 @@ class BasicLiteralExpression extends Expression {
     initFromJson(jsonNode) {
         this._basicLiteralType = jsonNode.basic_literal_type;
         this._basicLiteralValue = jsonNode.basic_literal_value;
+    }
+
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                    || !_.has(parsedJson, 'syntax_errors'))
+                    && _.isEqual(parsedJson.type, 'basic_literal_expression')) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
+        }
     }
 
     getExpressionString() {
