@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ConditionalStatement from './conditional-statement';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Class for if conditions in ballerina. Extended from Conditional-Statement
@@ -55,6 +56,17 @@ class IfStatement extends ConditionalStatement {
     setCondition(condition, options) {
         if(!_.isNil(condition)){
             this.setAttribute('_condition', condition, options);
+        }
+    }
+
+    setConditionFromString(conditionString) {
+        if(!_.isNil(conditionString)){
+            let fragment = FragmentUtils.createExpressionFragment(conditionString);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            let condition = this.getFactory().createFromJson(parsedJson);
+            condition.initFromJson(parsedJson);
+            this.setCondition(condition);
+            condition.setParent(this);
         }
     }
 

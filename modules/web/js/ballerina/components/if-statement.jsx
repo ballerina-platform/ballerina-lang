@@ -31,7 +31,7 @@ class IfStatement extends React.Component {
             key: 'If condition',
             model: props.model.getCondition(),
             getterMethod: props.model.getCondition().getExpression,
-            setterMethod: props.model.getCondition().setExpression
+            setterMethod: props.model.setConditionFromString
         };
 
         this.onAddElseClick = this.onAddElseClick.bind(this);
