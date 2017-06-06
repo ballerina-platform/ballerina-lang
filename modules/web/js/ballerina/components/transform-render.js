@@ -552,7 +552,7 @@ class TransformRender
  * @param {function} onFunctionRemove call back function for function remove
  */
     addFunction(func, reference, onFunctionRemove) {
-        func.meta.packageName  = func.meta.packageName.replace(" ","");
+        func.meta.packageName  = func.meta.packageName.replace(' ','');
         funcName = _.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + ' : ' + func.meta.functionName;
         var funcText = func.meta.functionName;
     //Allow multiple functions to drag and drop without conflicting
