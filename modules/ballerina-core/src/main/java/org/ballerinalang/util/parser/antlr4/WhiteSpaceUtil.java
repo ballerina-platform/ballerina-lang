@@ -1021,7 +1021,7 @@ public class WhiteSpaceUtil {
         } else if (ctx instanceof BallerinaParser.BinaryPowExpressionContext) {
             expressionContexts = ((BallerinaParser.BinaryPowExpressionContext) ctx).expression();
         }
-        if (expressionContexts != null && expressionContexts.size() > index + 1) {
+        if (expressionContexts != null && expressionContexts.size() >= index + 1) {
             subExpr = expressionContexts.get(index);
         }
         return subExpr;
