@@ -53,7 +53,11 @@ public class RemoveStoredConnection extends AbstractNativeFunction {
         }
 
         String connectionName = getArgument(context, 0).stringValue();
-        WebSocketConnectionManager.getInstance().removeConnectionFromStore(connectionName);
+        boolean connectionRemoved = WebSocketConnectionManager.getInstance().removeConnectionFromStore(connectionName);
+        if (!connectionRemoved) {
+            throw new BallerinaException("Connection name: " + connectionName +
+                                                 " not exists. Cannot remove connection from store.");
+        }
         return VOID_RETURN;
     }
 }

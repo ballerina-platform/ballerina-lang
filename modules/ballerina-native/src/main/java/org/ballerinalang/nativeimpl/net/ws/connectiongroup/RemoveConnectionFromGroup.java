@@ -59,7 +59,13 @@ public class RemoveConnectionFromGroup extends AbstractNativeFunction {
         CarbonMessage carbonMessage = context.getCarbonMessage();
         String connectionGroupName = getArgument(context, 0).stringValue();
         Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-        WebSocketConnectionManager.getInstance().removeConnectionFromGroup(connectionGroupName, session);
+        boolean connectionRemoved = WebSocketConnectionManager.getInstance().
+                removeConnectionFromGroup(connectionGroupName, session);
+        if (!connectionRemoved) {
+            throw new BallerinaException("Connection group name " + connectionGroupName
+                                                 + " not exists. Cannot remove the connection.");
+        }
+
         return VOID_RETURN;
 
     }

@@ -53,7 +53,12 @@ public class RemoveConnectionGroup extends AbstractNativeFunction {
         }
 
         String connectionGroupName = getArgument(context, 0).stringValue();
-        WebSocketConnectionManager.getInstance().removeConnectionGroup(connectionGroupName);
+        boolean connectionGroupRemoved = WebSocketConnectionManager.getInstance().
+                removeConnectionGroup(connectionGroupName);
+        if (!connectionGroupRemoved) {
+            throw new BallerinaException("Connection group name " + connectionGroupName +
+                                                 " not exists. Cannot remove the connection group.");
+        }
         return VOID_RETURN;
     }
 }
