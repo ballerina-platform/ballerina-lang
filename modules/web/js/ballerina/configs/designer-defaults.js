@@ -16,6 +16,7 @@
  * under the License.
  */
 
+
 export const panel = {
     wrapper: {
         gutter: {
@@ -30,7 +31,12 @@ export const panel = {
             bottom: 0,
             left: 0
         },
-        height: 25
+        height: 30,
+        title: {
+            margin: {
+                right: 15
+            }
+        }
     },
     body: {
         padding: {
@@ -121,8 +127,8 @@ export const blockStatement = {
     heading: {
         width: 50,
         height: statement.height,
-        paramOffsetX: 30,
-        paramSeparatorOffsetX: 23
+        paramPaddingX: 5,
+        paramSeparatorOffsetX: 10
     },
     body: {
         padding: {

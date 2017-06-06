@@ -1,3 +1,0 @@
-function testCreateNullTypeVar() {
-    null x;
-}

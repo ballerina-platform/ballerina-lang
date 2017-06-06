@@ -53,8 +53,15 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             return child.getViewState().bBox.h;
         });
 
-        let bodyH = (childWithMaxHeight ? childWithMaxHeight.getViewState().bBox.h : 0 )
-            + DesignerDefaults.statement.gutter.v * 2;
+        let bodyH = (childWithMaxHeight ? childWithMaxHeight.getViewState().bBox.h : 0 ) +
+            DesignerDefaults.statement.gutter.v * 2;
+
+        let bodyInnerH = (childWithMaxHeight ? childWithMaxHeight.getViewState().components.statementContainer.h : 0 );
+
+        _.forEach(workers, function (child) {
+            child.viewState.bBox.h = bodyInnerH;
+            child.viewState.components.statementContainer.h = bodyInnerH;
+        });
 
         _.forEach(workers, function (child) {
             bodyW += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;

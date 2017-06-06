@@ -48,7 +48,7 @@ public class ModelPackage   {
   private List<Struct> structs = new ArrayList<Struct>();
 
   @JsonProperty("annotations")
-  private List<Annotation> annotations = new ArrayList<Annotation>();
+  private List<AnnotationDef> annotations = new ArrayList<AnnotationDef>();
 
   public ModelPackage name(String name) {
     this.name = name;
@@ -137,12 +137,12 @@ public class ModelPackage   {
     return this;
   }
 
-  public ModelPackage annotations(List<Annotation> annotations) {
+  public ModelPackage annotations(List<AnnotationDef> annotations) {
     this.annotations = annotations;
     return this;
   }
 
-  public ModelPackage addAnnotationsItem(Annotation annotationItem) {
+  public ModelPackage addAnnotationsItem(AnnotationDef annotationItem) {
     this.annotations.add(annotationItem);
     return this;
   }
@@ -170,16 +170,16 @@ public class ModelPackage   {
   }
 
   @ApiModelProperty(value = "List of **public** annotations avaialble in the package")
-  public List<Annotation> getAnnotations() {
+  public List<AnnotationDef> getAnnotations() {
     return annotations;
   }
 
-  public void setAnnotations(List<Annotation> annotations) {
+  public void setAnnotations(List<AnnotationDef> annotations) {
     this.annotations = annotations;
   }
 
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -219,7 +219,7 @@ public class ModelPackage   {
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

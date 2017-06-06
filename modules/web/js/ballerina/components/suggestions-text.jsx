@@ -159,6 +159,7 @@ class SuggestionsText extends React.Component {
                 renderSuggestionsContainer={this.renderSuggestionsContainer}
                 inputProps={inputProps}
                 ref={this.storeInputReference}
+                shouldRenderSuggestions={() => true}
             />, this.context.overlay
         );
     }

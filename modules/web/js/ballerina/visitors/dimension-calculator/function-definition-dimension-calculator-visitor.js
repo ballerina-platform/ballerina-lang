@@ -35,7 +35,7 @@ class FunctionDefinitionDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.info('end visit FunctionDefinitionDimensionCalc');
-        util.populatePanelDecoratorBBox(node);
+        util.populatePanelDecoratorBBox(node, node.getFunctionName());
     }
 }
 

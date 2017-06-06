@@ -132,6 +132,26 @@ public class BLangFileRestService {
                 .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
     }
 
+
+    @POST
+    @Path("/model/parse-fragment")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBallerinaJsonDataModelGivenFragment(BLangSourceFragment sourceFragment) throws IOException {
+        String response = BLangFragmentParser.parseFragment(sourceFragment);
+        return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
+    }
+
+    @OPTIONS
+    @Path("/model/parse-fragment")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response optionsParseFragment() {
+        return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
+                "true").header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
+    }
+
     /**
      * Parses an input stream into a json model. During this parsing we are compiling the code as well.
      *
@@ -191,7 +211,16 @@ public class BLangFileRestService {
                 // find program directory
                 java.nio.file.Path parentDir = filePath.getParent();
                 for (int i = 0; i < directoryCount; ++i) {
-                    parentDir = parentDir.getParent();
+                    if (parentDir != null) {
+                        parentDir = parentDir.getParent();
+                    } else {
+                        return;
+                    }
+                }
+
+                // we shouldn't proceed if the parent directory is null
+                if (parentDir == null) {
+                    return;
                 }
 
                 // get packages in program directory

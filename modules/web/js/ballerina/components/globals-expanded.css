@@ -4,6 +4,7 @@
 
 .global-definitions-topbar-label {
     fill: #666;
+    cursor: default;
 }
 
 .add-global-button {

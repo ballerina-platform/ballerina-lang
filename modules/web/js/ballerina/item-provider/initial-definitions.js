@@ -254,8 +254,8 @@ var createThrowStatementTool = {
 var createAbortStatementTool = {
     id: "Abort",
     name: "Abort",
-    iconSrc: require("./../../../images/tool-icons/throw.svg"),
-    cssClass: "icon fw fw-throw",
+    iconSrc: require("./../../../images/tool-icons/abort.svg"),
+    cssClass: "icon fw fw-abort",
     title: "Abort",
     nodeFactoryMethod: DefaultBallerinaASTFactory.createAbortStatement
 };
@@ -263,8 +263,8 @@ var createAbortStatementTool = {
 var createTransactionAbortedStatementTool = {
     id: "Transaction",
     name: "Transaction",
-    iconSrc: require("./../../../images/tool-icons/try-catch.svg"),
-    cssClass: "icon fw fw-try-catch",
+    iconSrc: require("./../../../images/tool-icons/transaction.svg"),
+    cssClass: "icon fw fw-transaction",
     title: "Transaction",
     nodeFactoryMethod: DefaultBallerinaASTFactory.createTransactionAbortedStatement
 };

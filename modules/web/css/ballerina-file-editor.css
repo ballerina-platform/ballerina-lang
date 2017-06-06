@@ -18,7 +18,6 @@
 }
 
 .canvas-container {
-    padding-bottom: 120px;
     float: left;
     height: auto;
     min-height: 1000px;
@@ -875,8 +874,8 @@ input#package-name-input {
     padding-left: 5px;
 }
 
-.annotation-container table{
-
+.annotation-container table {
+    display: inline
 }
 
 .annotation-container table td:last-child {
@@ -895,6 +894,7 @@ input#package-name-input {
 .annotation-table td{
     height: 20px;
     line-height: 25px;
+    vertical-align: top;
 }
 
 .annotation-close {
@@ -916,6 +916,33 @@ input#package-name-input {
     /*background-color: #dddddd;*/
 /*}*/
 
+.annotation-attribute-add {
+    display: inline-block;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: #b9b9b9;
+    cursor: pointer;
+    font-size: 10px;
+    height: 15px;
+}
+
+.annotation-attribute-add :hover{
+    color: black;
+}
+
+.annotation-attribute-remove {
+    display: inline-block;
+    padding-left: 5px;
+    color: #b9b9b9;
+    cursor: pointer;
+    font-size: 10px;
+    height: 15px;
+}
+
+.annotation-attribute-remove:hover {
+    color: black;
+}
+
 .annotation-remove{
     display: inline-block;
     padding-left: 5px;
@@ -927,4 +954,111 @@ input#package-name-input {
 
 .annotation-remove :hover{
     color: black;
+}
+
+.annotation-add-at-sign {
+    float: left;
+    padding-top: 0px;
+    background-color: #FFF;
+    padding-bottom: 2px;
+    padding-left: 3px;
+}
+
+.annotation-add-wrapper .react-autosuggest__input {
+    padding: 1px 10px;
+    border: 0px solid #aaa;
+    min-width: 200px;
+}
+
+.annotation-add-wrapper .react-autosuggest__container {
+    float: left;
+    position: relative;
+}
+
+.annotation-add-wrapper .react-autosuggest__suggestions-container {
+    min-width: 200px;
+    z-index: 10000;
+    overflow: visible;
+    position: absolute;
+    background: #E2E2E5;
+}
+
+.annotation-add-wrapper .annotation-package-name {
+    background-color: #FFF;
+    padding: 1px 3px 1px 3px;
+    float: left;
+}
+.annotation-key .react-autosuggest__container {
+    position: relative;
+    display: inline;
+}
+
+.annotation-key .react-autosuggest__suggestions-container {
+    z-index: 10000;
+    overflow: visible;
+    position: absolute;
+    background: #E2E2E5;
+    left: 0px;
+}
+
+.annotation-key .react-autosuggest__suggestion {
+    min-width: 200px;
+}
+
+.annotation-key .react-autosuggest__input {
+    padding: 1px 10px;
+    border: 0px solid #aaa;
+    background: #f4f4f4;
+}
+
+.annotation-attribute-key {
+    white-space: nowrap;
+}
+
+.annotation-attribute-key .react-autosuggest__input {
+    padding: 0px 0px;
+    border: 0px solid #aaa;
+    width: 150px;
+    background: #f4f4f4;
+}
+
+.annotation-attribute-key .react-autosuggest__container {
+    position: relative;
+    display: inline;
+}
+
+.annotation-attribute-key .react-autosuggest__suggestions-container {
+    z-index: 10000;
+    overflow: visible;
+    position: absolute;
+    background: #E2E2E5;
+    left: 0px;
+}
+
+.annotation-attribute-key .react-autosuggest__suggestion {
+    min-width: 200px;
+}
+
+.annotation-attribute-value input {
+    padding: 0px 10px;
+    border: 0px;
+    background: #f4f4f4;
+    margin-left: 5px;
+}
+
+.annotation-array-entry-remove {
+    float: left;
+    padding-left: 5px;
+    color: #b9b9b9;
+    cursor: pointer;
+    font-size: 10px;
+    height: 15px;
+}
+
+.annotation-array-entry-remove :hover{
+    color: black;
+}
+
+.annotation-array-entry {
+    float: left;
 }

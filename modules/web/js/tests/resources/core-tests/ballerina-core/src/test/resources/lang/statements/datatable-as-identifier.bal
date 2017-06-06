@@ -1,3 +1,0 @@
-function datatableTest() {
-    datatable datatable = {};
-}

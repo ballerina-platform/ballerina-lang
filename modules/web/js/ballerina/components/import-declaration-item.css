@@ -11,3 +11,7 @@
     fill: rgb(100, 100, 100);
     cursor: pointer;
 }
+
+.import-definition-text {
+    cursor: default;
+}

@@ -27,7 +27,7 @@ function requireAll(requireContext) {
     let components = {};
     requireContext.keys().map((item, index) => {
         var module = requireContext(item);
-        if(module.default){
+        if (module.default) {
             components[module.default.name] = module.default;
         }
     });
@@ -47,16 +47,16 @@ class ConnectorDeclaration extends React.Component {
             model: props.model,
             getterMethod: props.model.getConnectorExpression,
             setterMethod: props.model.setConnectorExpression,
-        };        
+        };
     }
 
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
         let connectorBBox = {};
         let model = this.props.model;
-        const connectorName = model.getConnectorVariable();
-        var children = getComponentForNodeArray(this.props.model.getChildren());
-        connectorBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width)/2;
+        const connectorName = model.getViewState().variableTextTrimmed;
+        let children = getComponentForNodeArray(this.props.model.getChildren());
+        connectorBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
         connectorBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         connectorBBox.w = DesignerDefaults.lifeLine.width;
         connectorBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
@@ -69,7 +69,7 @@ class ConnectorDeclaration extends React.Component {
         return (<g>
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model}/>
                 <LifeLine title={connectorName} bBox={connectorBBox} editorOptions={this.editorOptions}
-                          onDelete={this.onDelete.bind(this)} classes={classes} />
+                          onDelete={this.onDelete.bind(this)} classes={classes}/>
                 {children}
             </g>
         );

@@ -41,7 +41,6 @@ class AnnotationEntryArray extends ASTNode {
         stringVal += ']';
         return stringVal;
     }
-
     /**
      * Setting parameters from json
      * @param {Object} jsonNode to initialize from

@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?3607b8a70ef5cdf4ce0e16344b02488c");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?d22cd40885c9beb67a8faac39ed73096");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?3607b8a70ef5cdf4ce0e16344b02488c") format("woff2"),
-		url("../fonts/font-wso2.woff?3607b8a70ef5cdf4ce0e16344b02488c") format("woff"),
-		url("../fonts/font-wso2.ttf?3607b8a70ef5cdf4ce0e16344b02488c") format("truetype"),
-		url("../fonts/font-wso2.svg?3607b8a70ef5cdf4ce0e16344b02488c#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?d22cd40885c9beb67a8faac39ed73096") format("woff2"),
+		url("../fonts/font-wso2.woff?d22cd40885c9beb67a8faac39ed73096") format("woff"),
+		url("../fonts/font-wso2.ttf?d22cd40885c9beb67a8faac39ed73096") format("truetype"),
+		url("../fonts/font-wso2.svg?d22cd40885c9beb67a8faac39ed73096#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -288,6 +288,10 @@
  * font icons
  * ======================================================================== */
 
+.fw-abort:before {
+    content:"\e72a";
+}
+
 .fw-action-invoke:before {
     content:"\e6fe";
 }
@@ -350,6 +354,14 @@
 
 .fw-assign:before {
     content:"\e6ff";
+}
+
+.fw-ballerina-service:before {
+    content:"\e729";
+}
+
+.fw-ballerina:before {
+    content:"\e728";
 }
 
 .fw-bar-chart:before {
@@ -1008,6 +1020,10 @@
     content:"\e659";
 }
 
+.fw-pending:before {
+    content:"\e727";
+}
+
 .fw-php:before {
     content:"\e6c9";
 }
@@ -1172,6 +1188,10 @@
     content:"\e670";
 }
 
+.fw-shortcut:before {
+    content:"\e725";
+}
+
 .fw-sign-in:before {
     content:"\e671";
 }
@@ -1280,6 +1300,10 @@
     content:"\e67c";
 }
 
+.fw-theme:before {
+    content:"\e726";
+}
+
 .fw-throttling-policy:before {
     content:"\e67f";
 }
@@ -1290,6 +1314,10 @@
 
 .fw-tiles:before {
     content:"\e681";
+}
+
+.fw-transaction:before {
+    content:"\e72b";
 }
 
 .fw-try-catch:before {

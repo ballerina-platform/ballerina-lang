@@ -23,6 +23,7 @@ import PropTypes from 'prop-types';
 import Alerts from 'alerts';
 import './annotation-definition.css';
 import EditableText from './editable-text';
+import {util} from './../visitors/sizing-utils';
 
 class AnnotationAttributeDefinition extends React.Component {
     constructor(props) {
@@ -165,7 +166,7 @@ class AnnotationAttributeDefinition extends React.Component {
                                   height={this.bBox.h}
                                   labelClass={"annotation-attribute-wrapper-text"}
                                   inputClass={"annotation-attribute-input-text-box"}
-                                  displayText={this.props.model.getAttributeStatementString()}
+                                  displayText={util.getTextWidth(this.props.model.getAttributeStatementString()).text}
                                   onKeyDown={e => {
                                       this.onKeyDown(e);
                                   }}

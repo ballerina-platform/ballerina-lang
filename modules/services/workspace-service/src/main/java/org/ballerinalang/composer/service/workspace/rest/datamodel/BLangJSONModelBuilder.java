@@ -58,6 +58,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -400,6 +401,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             function.getCallableUnitBody().accept(this);
         }
         jsonFunc.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        jsonFunc.addProperty(BLangJSONModelConstants.IS_NATIVE, function.isNative());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonFunc);
     }
@@ -1056,7 +1058,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
         JsonObject forkJoinStmtObj = new JsonObject();
-        forkJoinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.FORK_JOIN_STATEMENT);
+        forkJoinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.FORK_JOIN_STATEMENT);
         this.addPosition(forkJoinStmtObj, forkJoinStmt.getNodeLocation());
         this.addWhitespaceDescriptor(forkJoinStmtObj, forkJoinStmt.getWhiteSpaceDescriptor());
         JsonArray children = new JsonArray();
@@ -1651,6 +1654,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
+    }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+
     }
 
     @Override

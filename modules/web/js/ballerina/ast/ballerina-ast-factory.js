@@ -304,6 +304,22 @@ BallerinaASTFactory.createIfElseStatement = function (args) {
 };
 
 /**
+ * creates Else Statement
+ * @param args
+ */
+BallerinaASTFactory.createElseStatement = function (args) {
+    return new elseStatement(args);
+};
+
+/**
+ * creates Else-If Statement
+ * @param args
+ */
+BallerinaASTFactory.createElseIfStatement = function (args) {
+    return new elseIfStatement(args);
+};
+
+/**
  * creates TryCatchStatement
  * @param args
  */

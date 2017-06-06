@@ -1,3 +1,15 @@
+body {
+    & .tooltip.tool-palette {
+        display: none !important;
+    }
+
+    &.tool-palette-view-tiles {
+        & .tooltip.tool-palette {
+            display: inherit !important;
+        }
+    }
+}
+
 .tool-palette-container {
     background: $tool-palette-container-bgcolor;
 
@@ -18,7 +30,6 @@
             width: 39px;
             height: 39px;
             margin: 3px;
-            float: left;
             cursor: pointer;
             border: 1px solid $tool-group-header-bgcolor;
             padding: 3px;
@@ -90,6 +101,12 @@
                 }
                 & .tool-title {
                     display: none;
+                }
+
+                &:hover {
+                    & .tool-container-vertical-title {
+                        color: $brand-primary;
+                    }
                 }
             }
         }

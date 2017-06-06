@@ -17,9 +17,7 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSymbolTableGenVisitor from './abstract-symbol-table-gen-visitor';
-import Connector from './../../env/connector';
 import BallerinaEnvFactory from './../../env/ballerina-env-factory';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
@@ -76,8 +74,8 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         var args = [];
         _.forEach(functionDefinition.getArguments(), function (argument) {
             args.push({
-                name: argument.getType(),
-                type: argument.getType()
+                name: argument.getName(),
+                type: argument.getTypeName()
             });
         });
         functionDef.setParameters(args);
@@ -87,8 +85,8 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         _.forEach(functionDefinition.getReturnTypes(), function (returnType) {
             // Return type contains an Argument child.
             returnTypes.push({
-                name: returnType.getType(),
-                type: returnType.getType()
+                name: returnType.getName(),
+                type: returnType.getTypeName()
             });
         });
         functionDef.setReturnParams(returnTypes);

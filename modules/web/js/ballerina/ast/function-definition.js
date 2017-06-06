@@ -37,6 +37,7 @@ class FunctionDefinition extends CallableDefinition {
         this._functionName = _.get(args, 'functionName');
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
+        this._isNative = _.get(args, 'isNative', false);
     }
 
     setFunctionName(name, options) {
@@ -322,6 +323,14 @@ class FunctionDefinition extends CallableDefinition {
             || this.getFactory().isStatement(node);
     }
 
+    isNative(isNative) {
+        if(_.isNil(isNative)) {
+            return this._isNative;
+        } else {
+            this._isNative = isNative;
+        }
+    }
+
     /**
      * initialize FunctionDefinition from json object
      * @param {Object} jsonNode to initialize from
@@ -333,6 +342,7 @@ class FunctionDefinition extends CallableDefinition {
         this.setFunctionName(jsonNode.function_name, {doSilently: true});
         this.setIsPublic(jsonNode.is_public_function, {doSilently: true});
         this._annotations = jsonNode.annotations;
+        this.isNative(jsonNode.is_native);
 
         let self = this;
 
@@ -340,7 +350,7 @@ class FunctionDefinition extends CallableDefinition {
             let child = undefined;
             let childNodeTemp = undefined;
             //TODO : generalize this logic
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -401,9 +411,9 @@ class FunctionDefinition extends CallableDefinition {
      * @return {boolean} - true if main method, else false.
      */
     isMainFunction() {
-        return _.isEqual(this.getFunctionName(), "main")
+        return _.isEqual(this.getFunctionName(), 'main')
             && _.isEqual(_.size(this.getArguments()), 1)
-            && _.isEqual(this.getArguments()[0].getType().trim(), "string[]");
+            && _.isEqual(this.getArguments()[0].getType().trim(), 'string[]');
     }
 }
 

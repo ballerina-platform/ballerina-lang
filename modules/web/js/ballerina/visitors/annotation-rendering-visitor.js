@@ -21,7 +21,7 @@ import SimpleBBox from './../ast/simple-bounding-box';
 
 class AnnotationRenderingVisitor {
 
-    constructor(){
+    constructor() {
         this.annotations = [];
         this.hiddenService = false;
     }
@@ -36,35 +36,39 @@ class AnnotationRenderingVisitor {
     }
 
     beginVisit(node) {
-        if(node.constructor.name == 'ServiceDefinition' ||
-            node.constructor.name == 'ResourceDefinition'){
+        if (ASTFactory.isServiceDefinition(node) || ASTFactory.isResourceDefinition(node) ||
+            ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
+            ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
+                ASTFactory.isStructDefinition(node)) {
+
             let annotations = node.filterChildren(function (child) {
                 return ASTFactory.isAnnotation(child);
             });
-            if(annotations.length > 0 && !this.hiddenService){
+
+            if (node.viewState.showAnnotationContainer && !node.getParent().getViewState().collapsed) {
                 let bBox = Object.assign({}, node.viewState.bBox);
                 bBox.h = node.viewState.components.annotation.h;
                 this.annotations.push(
-                    new AnnotationContainer( bBox , annotations )
+                    new AnnotationContainer(bBox, annotations, node)
                 );
             }
         }
         // hide annotations of resources if service is hidded
-        if(node.constructor.name == 'ServiceDefinition'){
+        if (ASTFactory.isServiceDefinition(node) || ASTFactory.isConnectorDefinition(node)) {
             this.hiddenService = node.viewState.collapsed;
         }
         return undefined;
     }
 
     endVisit(node) {
-        if(node.constructor.name == 'ServiceDefinition'){
+        if (ASTFactory.isServiceDefinition(node) || ASTFactory.isConnectorDefinition(node)) {
             this.hiddenService = false;
-        }        
+        }
         return undefined;
     }
 
-    getAnnotations(){
-        return (this.annotations.length > 0 )?this.annotations:false;
+    getAnnotations() {
+        return (this.annotations.length > 0) ? this.annotations : false;
     }
 }
 

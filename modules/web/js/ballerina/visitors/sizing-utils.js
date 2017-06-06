@@ -26,12 +26,12 @@ import _ from 'lodash';
 
 class SizingUtil {
     constructor() {
-        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('style', 'border: 1px solid black');
         svg.setAttribute('width', '600');
         svg.setAttribute('height', '250');
-        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-        this.textElement = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+        svg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        this.textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         svg.appendChild(this.textElement);
         document.body.appendChild(svg);
     }
@@ -133,7 +133,7 @@ class SizingUtil {
 
         // for compound statement like if , while we need to render condition expression
         // we will calculate the width of the expression and adjest the block statement
-        if (expression != undefined) {
+        if (expression !== undefined) {
             // see how much space we have to draw the condition
             let available = statementContainerWidth - blockStatement.heading.width - 10;
             components['expression'] = this.getTextWidth(expression, 0, available);
@@ -153,23 +153,23 @@ class SizingUtil {
         let components = {};
 
         const textWidth = util.getTextWidth(name);
-        viewState.titleWidth = textWidth.w;
+        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
+            + DesignerDefaults.panelHeading.iconSize.width;
         viewState.trimmedTitle = textWidth.text;
 
         components['heading'] = new SimpleBBox();
         components['heading'].h = DesignerDefaults.panel.heading.height;
 
-        /**
-         * calculate the height of annotation view
-         */
-        let annotationHeight = this.getAnnotationHeight(node);
-
         components['annotation'] = new SimpleBBox();
 
-        if (node.viewState.annotationViewCollapsed) {
+        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
+            node.viewState.showAnnotationContainer = true;
+        }
+
+        if (!node.viewState.showAnnotationContainer) {
             components['annotation'].h = 0;
         } else {
-            components['annotation'].h = annotationHeight;
+            components['annotation'].h = this.getAnnotationHeight(node, 40);
         }
 
         components['statementContainer'] = new SimpleBBox();
@@ -267,7 +267,8 @@ class SizingUtil {
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
 
         const textWidth = this.getTextWidth(name);
-        viewState.titleWidth = textWidth.w;
+        viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
+            + DesignerDefaults.panelHeading.iconSize.width;
         viewState.trimmedTitle = textWidth.text;
 
         const variableDefinitionsHeight = this.getConnectorLevelVariablesHeight(node);
@@ -333,12 +334,6 @@ class SizingUtil {
             bodyHeight = DesignerDefaults.innerPanel.body.height;
         }
 
-
-        /**
-         * calculate the height of annotation view
-         */
-        let annotationHeight = this.getAnnotationHeight(node);
-
         components['heading'] = new SimpleBBox();
         components['body'] = new SimpleBBox();
         components['annotation'] = new SimpleBBox();
@@ -349,11 +344,17 @@ class SizingUtil {
         } else {
             components['body'].h = bodyHeight;
         }
-        if (node.viewState.annotationViewCollapsed) {
+
+        if (_.isUndefined(node.viewState.showAnnotationContainer)) {
+            node.viewState.showAnnotationContainer = true;
+        }
+
+        if (!node.viewState.showAnnotationContainer) {
             components['annotation'].h = 0;
         } else {
-            components['annotation'].h = annotationHeight;
+            components['annotation'].h = this.getAnnotationHeight(node, 40);
         }
+
         components['variablesPane'].h = variableDefinitionsHeight;
 
         components['body'].w = bodyWidth;
@@ -567,26 +568,56 @@ class SizingUtil {
         }
     }
 
-    getAnnotationHeight(node) {
-        let height = 0;
-        let annotations = node.filterChildren((child) => {
-            return ASTFactory.isAnnotation(child);
-        });
-
-        _.forEach(annotations, (annotation) => {
-            if (annotation.children.length == 0) {
-                height = height + 20;
-            } else {
-                height = height + ( annotation.children.length * 20 );
+    /**
+     * Calculates the height of the annotations of a given node.
+     *
+     * @param {ASTNode} node The node with annotations.
+     * @param {number} [defaultHeight=0] The height value to start from.
+     * @param {number} [annotationLineHeight=20] The default height of an annotation or annotation entry when contained
+     * to a single line.
+     * @returns The total height needed for the annotations.
+     *
+     * @memberof SizingUtil
+     */
+    getAnnotationHeight(node, defaultHeight = 0, annotationLineHeight = 20) {
+        let height = defaultHeight;
+        if (ASTFactory.isServiceDefinition(node) || ASTFactory.isResourceDefinition(node) ||
+            ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
+            ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
+            ASTFactory.isStructDefinition(node)) {
+            for (let annotation of node.getChildrenOfType(ASTFactory.isAnnotation)) {
+                height += this.getAnnotationHeight(annotation);
             }
-        });
-
-        //add padding
-        if (annotations.length > 0) {
-            height = height + 7 * 2;
+        } else if (!_.isUndefined(node) && ASTFactory.isAnnotation(node)) {
+            // Considering the start line of the annotation.
+            height += annotationLineHeight;
+            if (node.getChildren().length > 0) {
+                // Considering the closing bracket line.
+                height += annotationLineHeight;
+                for (let child of node.getChildren()) {
+                    height += this.getAnnotationHeight(child);
+                }
+            }
+        } else if (!_.isUndefined(node) && ASTFactory.isAnnotationEntry(node)) {
+            // If the annotation entry a simple native type value
+            if (_.isString(node.getRightValue())) {
+                height += annotationLineHeight;
+            } else if (ASTFactory.isAnnotation(node.getRightValue())) {
+                // If the annotation entry value an annotation
+                height += this.getAnnotationHeight(node.getRightValue());
+            } else if (ASTFactory.isAnnotationEntryArray(node.getRightValue())) {
+                // If the annotation entry value an array
+                height += annotationLineHeight;
+                // Update height for the start and end of the square brackets.
+                if (node.getRightValue().getChildren().length > 0) {
+                    height += annotationLineHeight;
+                }
+                // Calculating the height for the array children.
+                for (let arrayChild of node.getRightValue().getChildren()) {
+                    height += this.getAnnotationHeight(arrayChild);
+                }
+            }
         }
-        // add a gap for add new annotation.
-        //height = height + 25;
 
         return height;
     }
@@ -603,7 +634,7 @@ class SizingUtil {
         });
 
         if (!_.isEmpty(variables)) {
-            height = height + ( variables.length * 30 );
+            height = height + (variables.length * 30);
         }
 
         return height;

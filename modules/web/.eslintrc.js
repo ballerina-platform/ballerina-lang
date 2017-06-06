@@ -9,6 +9,7 @@ module.exports = {
     "env": {
         "browser": true,
         "commonjs": true,
+        "es6": true
     },
     "extends": "eslint:recommended",
     "rules": {
@@ -24,6 +25,7 @@ module.exports = {
             "error",
             4
         ],
+        "react/jsx-uses-vars": 1,
         "quotes": [
             "error",
             "single"
@@ -36,5 +38,8 @@ module.exports = {
             "error",
             "always"
         ]
-    }
+    },
+    "plugins": [
+        "react"
+    ]
 };

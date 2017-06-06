@@ -6,6 +6,7 @@
 .react-autosuggest__suggestions-container {
     background-color: #fff;
     overflow-x: hidden;
+    z-index: 5;
 }
 
 .react-autosuggest__suggestions-list {

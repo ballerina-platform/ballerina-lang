@@ -15,22 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
 import {getComponentForNodeArray} from './utils';
+import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import './if-statement.css';
 
 class IfStatement extends React.Component {
 
     constructor(props) {
         super(props);
-		this.editorOptions = {
+        this.editorOptions = {
             propertyType: 'text',
             key: 'If condition',
             model: props.model,
             getterMethod: props.model.getCondition,
             setterMethod: props.model.setCondition
-        };        
+        };
+
+        this.onAddElseClick = this.onAddElseClick.bind(this);
+    }
+
+    onAddElseClick() {
+        const parent = this.props.model.parent;
+        if(parent.getElseStatement()) {
+            const newElseIfStatement = BallerinaASTFactory.createElseIfStatement();
+            const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
+            this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
+        } else {
+            const newElseStatement = BallerinaASTFactory.createElseStatement();
+            this.props.model.parent.addElseStatement(newElseStatement);
+        }
     }
 
     render() {
@@ -38,10 +54,20 @@ class IfStatement extends React.Component {
             bBox = model.viewState.bBox,
             expression = model.viewState.components['expression'];
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"If"} expression={expression} 
-                    editorOptions={this.editorOptions}>
-            {children}
-        </BlockStatementDecorator>);
+
+        const addElseBtn = (
+            <g onClick={this.onAddElseClick}>
+                <rect x={bBox.x+bBox.w-20} y={bBox.y+bBox.h-20} width={20} height={20} className='add-else-button'/>
+                <text x={bBox.x+bBox.w-15} y={bBox.y+bBox.h-10} width={20} height={20} className='add-else-button-label'>+</text>
+            </g>
+        );
+
+        return (
+            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'If'} expression={expression}
+                    editorOptions={this.editorOptions} model={model.parent} utilities={addElseBtn}>
+                {children}
+            </BlockStatementDecorator>
+        );
     }
 }
 

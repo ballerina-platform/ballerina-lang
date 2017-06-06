@@ -56,7 +56,7 @@ class SwaggerParser {
         if (!_.isUndefined(this._swaggerJson.basePath)) {
             let basePathAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'BasePath');
             let basePathAnnotation = this._createSimpleAnnotation({
-                annotation: { packageName: 'http', identifier: 'BasePath', supported: true },
+                annotation: { fullPackageName: 'ballerina.net.http', packageName: 'http', identifier: 'BasePath', supported: true },
                 swaggerJsonNode: this._swaggerJson.basePath,
             });
             serviceDefinition.addChild(basePathAnnotation, basePathAnnotationIndex, true);
@@ -66,7 +66,7 @@ class SwaggerParser {
         if (!_.isUndefined(this._swaggerJson.consumes)) {
             let consumesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Consumes');
             let consumesAnnotation = this._createSimpleAnnotation({
-                annotation: { packageName: 'swagger', identifier: 'Consumes', supported: true },
+                annotation: { fullPackageName: 'ballerina.net.http.swagger', packageName: 'swagger', identifier: 'Consumes', supported: true },
                 swaggerJsonNode: this._swaggerJson.consumes,
             });
             serviceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
@@ -76,7 +76,7 @@ class SwaggerParser {
         if (!_.isUndefined(this._swaggerJson.produces)) {
             let producesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Produces');
             let producesAnnotation = this._createSimpleAnnotation({
-                annotation: { packageName: 'swagger', identifier: 'Produces', supported: true },
+                annotation: { fullPackageName: 'ballerina.net.http.swagger', identifier: 'Produces', supported: true },
                 swaggerJsonNode: this._swaggerJson.produces,
             });
             serviceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
@@ -129,6 +129,7 @@ class SwaggerParser {
      */
     _createServiceInfoAnnotation(serviceDefinition) {
         let serviceInfoAnnotation = BallerinaASTFactory.createAnnotation({
+            fullPackageName: 'ballerina.net.http.swagger', 
             packageName: 'swagger',
             identifier: 'ServiceInfo'
         });
@@ -202,7 +203,11 @@ class SwaggerParser {
      * @private
      */
     _createSwaggerAnnotation(serviceDefinition) {
-        let swaggerAnnotation = BallerinaASTFactory.createAnnotation({ packageName: 'swagger', identifier: 'Swagger' });
+        let swaggerAnnotation = BallerinaASTFactory.createAnnotation({ 
+            fullPackageName: 'ballerina.net.http.swagger', 
+            packageName: 'swagger', 
+            identifier: 'Swagger' 
+        });
         swaggerAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
             leftValue: 'version',
             rightValue: JSON.stringify(this._swaggerJson.swagger)
@@ -219,6 +224,7 @@ class SwaggerParser {
      */
     _createServiceConfigAnnotation(serviceDefinition) {
         let serviceConfigAnnotation = BallerinaASTFactory.createAnnotation({
+            fullPackageName: 'ballerina.net.http.swagger', 
             packageName: 'swagger',
             identifier: 'ServiceConfig'
         });
@@ -296,6 +302,7 @@ class SwaggerParser {
      */
     _createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
         let resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotation({
+            fullPackageName: 'ballerina.net.http.swagger', 
             packageName: 'swagger',
             identifier: 'ResourceConfig'
         });
@@ -356,6 +363,7 @@ class SwaggerParser {
     _createParametersAnnotation(resourceDefinition, httpMethodJsonObject) {
         if (!_.isUndefined(httpMethodJsonObject.parameters)) {
             let parametersAnnotation = BallerinaASTFactory.createAnnotation({
+                fullPackageName: 'ballerina.net.http.swagger', 
                 packageName: 'swagger',
                 identifier: 'ParametersInfo'
             });

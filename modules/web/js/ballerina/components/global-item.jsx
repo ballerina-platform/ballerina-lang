@@ -61,7 +61,7 @@ export default class GlobalDefinitionItem extends React.Component {
         return (
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
                 <rect x={ x } y={ y } height={h} width={w} className='background' />
-                <text x={ x + leftPadding } y={ y + h/2 } rx="0" ry="0">
+                <text x={ x + leftPadding } y={ y + h/2 } rx="0" ry="0" className="global-definition-text">
                     {this.props.getValue(this.props.globalDec)}
                 </text>
                 <rect x={ x } y={ y } height={h} width={w} className="global-definition-decorator" />

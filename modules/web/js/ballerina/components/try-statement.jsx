@@ -30,7 +30,7 @@ class TryStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Try"}>
+        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Try"} model={model.parent}>
             {children}
         </BlockStatementDecorator>);
     }
