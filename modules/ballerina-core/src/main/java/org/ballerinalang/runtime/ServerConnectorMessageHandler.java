@@ -129,6 +129,7 @@ public class ServerConnectorMessageHandler {
         controlStackNew.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
+        context.setStartIP(codeAttribInfo.getCodeAddrs());
 
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
@@ -175,7 +176,7 @@ public class ServerConnectorMessageHandler {
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
-        bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
+        bLangVM.run(context);
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {

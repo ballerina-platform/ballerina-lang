@@ -91,11 +91,6 @@ public class Post extends AbstractHTTPAction {
         try {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
-//        } catch (ClientConnectorException | RuntimeException e) {
-//            String msg = "Failed to invoke 'post' action in " + Constants.CONNECTOR_NAME
-//                    + ". " + e.getMessage();
-//            context.getExecutor().createBErrorFromException(e, msg);
-//            context.getExecutor().handleBException();
         } catch (Throwable t) {
             // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'post' action in " + Constants.CONNECTOR_NAME

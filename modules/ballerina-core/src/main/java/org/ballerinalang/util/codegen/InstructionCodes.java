@@ -120,18 +120,37 @@ public interface InstructionCodes {
     int FMOD = 86;
     int INEG = 87;
     int FNEG = 88;
-    int NOT = 89;
+    int BNOT = 89;
 
-    int ICMP = 100;
-    int FCMP = 101;
-    int SCMP = 102;
-    int BCMP = 103;
-    int IFEQ = 110;
-    int IFNE = 111;
-    int IFLT = 112;
-    int IFGE = 113;
-    int IFGT = 114;
-    int IFLE = 115;
+    int IEQ = 90;
+    int FEQ = 91;
+    int SEQ = 92;
+    int BEQ = 93;
+    int REQ = 94;
+
+    int INE = 95;
+    int FNE = 96;
+    int SNE = 97;
+    int BNE = 98;
+    int RNE = 99;
+
+    int IGT = 100;
+    int FGT = 101;
+
+    int IGE = 102;
+    int FGE = 103;
+
+    int ILT = 104;
+    int FLT = 105;
+
+    int ILE = 106;
+    int FLE = 107;
+
+    int REQ_NULL = 108;
+    int RNE_NULL = 109;
+
+    int BR_TRUE = 110;
+    int BR_FALSE = 111;
 
     int GOTO = 119;
     int CALL = 120;

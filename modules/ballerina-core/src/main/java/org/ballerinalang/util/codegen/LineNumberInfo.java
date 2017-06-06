@@ -61,7 +61,7 @@ public class LineNumberInfo {
 
     public String getFileName() {
         if (fileName == null) {
-            fileName = ((UTF8CPEntry) packageInfo.getConstPool().get(fileIndex)).getValue();
+            fileName = ((UTF8CPEntry) packageInfo.getConstPool()[fileIndex]).getValue();
         }
         return fileName;
     }
