@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for VariableReferenceExpression
@@ -27,7 +28,6 @@ class VariableReferenceExpression extends Expression {
     constructor(args) {
         super('VariableReferenceExpression');
         this.setVariableName(_.get(args, 'variableName'));
-        this.setExpression(this.generateExpression(), {doSilently: true});
         this._packageName = _.get(args, 'packageName');
     }
 
@@ -78,7 +78,6 @@ class VariableReferenceExpression extends Expression {
         });
         this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
         this.setPackageName(jsonNode.package_name, {doSilently: true});
-        this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
     generateExpression() {
@@ -89,6 +88,32 @@ class VariableReferenceExpression extends Expression {
         } else {
             return !_.isNil(this.getPackageName()) ? (this.getPackageName() + ':' + this.getVariableName()) : this.getVariableName();
         }
+    }
+
+    /**
+     * Set the expression from the expression string
+     * @param {string} expressionString
+     * @override
+     */
+    setExpressionFromString(expressionString) {
+        if (!_.isNil(expressionString)) {
+            const fragment = FragmentUtils.createExpressionFragment(expressionString);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            if (_.isNil(parsedJson.type) || parsedJson.type !== 'assignment_statement') {
+                log.warn('Invalid node type returned. Expected Variable Reference Expression and found ' +
+                    parsedJson.type);
+            }
+            this.initFromJson(parsedJson);
+        }
+    }
+
+    /**
+     * Get the expression string
+     * @returns {string} expression string
+     * @override
+     */
+    getExpressionString() {
+        return (!_.isNil(this.getPackageName()) ? (this.getPackageName() + ":") : "") + this.getVariableName();
     }
 }
 

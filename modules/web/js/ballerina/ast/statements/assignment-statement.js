@@ -17,6 +17,8 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import FragmentUtils from '../../utils/fragment-utils';
+import log from 'log';
 
 /**
  * Class to represent an Assignment statement.
@@ -25,9 +27,7 @@ import Statement from './statement';
 class AssignmentStatement extends Statement {
     constructor(args) {
         super('AssignmentStatement');
-        this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
-        this._statementString = _.get(args, 'statementString', '');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
@@ -42,14 +42,11 @@ class AssignmentStatement extends Statement {
      */
     initFromJson(jsonNode) {
         var self = this;
-
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-
-        this.generateStatementString();
     }
 
     /**
@@ -65,12 +62,13 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
-                ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + "=" +
-            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
-                ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
+        return (!_.isNil(this.getChildren()[0].getExpressionString())
+                ? this.getChildren()[0].getExpressionString() : "leftExpression") + "=" +
+            (!_.isNil(this.getChildren()[1].getExpressionString())
+                ? this.getChildren()[1].getExpressionString() : "rightExpression");
     }
 
+    // TODO: Remove
     generateStatementString(){
         const statementString =  this.getChildren()[0].generateExpression() + ' = ' + this.getChildren()[1].generateExpression();
         return statementString;
@@ -86,6 +84,21 @@ class AssignmentStatement extends Statement {
         var rightOperand = statementString.substring(equalIndex + 1);
         this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand, options);
         this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand, options);
+    }
+
+    /**
+     * Set the statement from the statement string
+     * @param {string} statementString
+     */
+    setStatementFromString(statementString) {
+        if (!_.isNil(statementString)) {
+            let fragment = FragmentUtils.createStatementFragment(statementString + ';');
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if (_.isNil(parsedJson.type) || parsedJson.type !== 'assignment_statement') {
+                log.warn('Invalid node type returned. Expected Assignment Statement and found ' + parsedJson.type);
+            }
+            this.initFromJson(parsedJson);
+        }
     }
 
     /**
