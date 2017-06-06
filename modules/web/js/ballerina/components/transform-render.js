@@ -545,6 +545,43 @@ class TransformRender
         $('#' + this.placeHolderName).find('.' + subPlaceHolder).append(newStruct);
     }
 
+
+
+addVariable(variable, type, reference) {
+    this.references.push({name: variable.id, refObj: reference});
+    var newVar = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
+    var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
+    var id = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+    var   property = $('<a>').attr('id', id).addClass('variable-content');
+    var propertyName = $('<span>').addClass('property-name').text(variable.name);
+    var seperator = $('<span>').addClass('property-name').text(':');
+    var propertyType = $('<span>').addClass('property-type').text(variable.type);
+    newVar.append(varIcon);
+    property.append(propertyName);
+    property.append(seperator);
+    property.append(propertyType);
+    newVar.append(property);
+    var subPlaceHolder;
+
+
+    newVar.css({
+        'top': 0,
+        'left': 0
+    });
+
+    if(type == 'source' ) {
+        subPlaceHolder = 'leftType';
+        $('#' + this.placeHolderName).find('.leftType').append(newVar);
+        this.addSource(property, this, true);
+    } else {
+        subPlaceHolder = 'rightType';
+        $('#' + this.placeHolderName).find('.rightType').append(newVar);
+        this.addTarget(property, this);
+    }
+    this.reposition(this);
+}
+
+
 /**
  * Add a function in the mapper UI
  * @param {object} function definition with parameters to be mapped
@@ -709,7 +746,8 @@ class TransformRender
             anchor: ['Continuous', {faces: ['left']}],
             beforeDrop: function (params) {
             //Checks property types are equal
-                var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
+                var isValidTypes = self.getPropertyType(params.sourceId).toLowerCase()
+                                        == self.getPropertyType(params.targetId).toLowerCase();
                 var connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
@@ -874,8 +912,8 @@ class TransformRender
  */
     reposition(self) {
         var funcs = $('.middle-content  > .func');
-        var sourceStructs = $('.leftType > .struct');
-        var targetStructs = $('.rightType > .struct');
+        var sourceStructs = $('.leftType > .struct, .leftType > .variable');
+        var targetStructs = $('.rightType > .struct, .rightType > .variable');
         var xFunctionPointer = ($(".middle-content").width()-300)/2;
         var yFunctionPointer = 120;
         var xSourcePointer = 0;
