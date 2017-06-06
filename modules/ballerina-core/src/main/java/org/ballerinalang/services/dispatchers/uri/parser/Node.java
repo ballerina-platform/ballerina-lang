@@ -103,13 +103,18 @@ public abstract class Node {
     }
 
     public ResourceInfo getResource(Map<String, String> requestDetails) {
-        for (ResourceInfo resourceInfo : this.resource) {
-            if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                    requestDetails.get(Constants.HTTP_METHOD)) != null) {
-                return resourceInfo;
+        try {
+            for (ResourceInfo resourceInfo : this.resource) {
+                if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                        requestDetails.get(Constants.HTTP_METHOD)) != null) {
+                    return resourceInfo;
+                }
             }
+            return tryMatchingToDefaultVerb(requestDetails);
+        } catch(Throwable e) {
+            requestDetails.put(Constants.HTTP_STATUS_CODE,"404");
+            throw  new BallerinaException("Method :"+requestDetails.get(Constants.HTTP_METHOD));
         }
-        return tryMatchingToDefaultVerb(requestDetails);
     }
 
     public void setResource(ResourceInfo newResource) {

@@ -48,10 +48,10 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
+        Map<String, String> resourceArgumentValues = new HashMap<>();
+        Map<String, String> requestDetails = new HashMap<>();
 
         try {
-            Map<String, String> resourceArgumentValues = new HashMap<>();
-            Map<String, String> requestDetails = new HashMap<>();
             requestDetails.put(Constants.HTTP_METHOD, method);
 
             ResourceInfo resource = service.getUriTemplate().matches(subPath, requestDetails,
@@ -64,17 +64,20 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
-            } else if (requestDetails.get(Constants.HTTP_STATUS_CODE) != null &&
-                    requestDetails.get(Constants.HTTP_STATUS_CODE).equals("405")) {
-                cMsg.setProperty
-                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 405);
+            } else if (setStatusCode(cMsg, requestDetails, "405")) {
+                // Set Method Not Allowed for incorrect methods
+                throw new BallerinaException("");
+            } else {
+                // Throw when resource is null
+                cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
+                throw new BallerinaException("for Path : " + subPath + " , Method : " + method);
             }
         } catch (Throwable e) {
+            setStatusCode(cMsg, requestDetails, "404");
             throw new BallerinaException(e.getMessage());
         }
-
         // Throw an exception if the resource is not found.
-        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
+        //throw new BallerinaException("for Path : " + subPath + " , Method : " + method);
     }
 
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
@@ -95,5 +98,16 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
         }
         return subPath;
+    }
+
+    // Set status code using requestDetails map
+    public Boolean setStatusCode(CarbonMessage cMsg, Map<String, String> requestDetails, String statusCode) {
+        if (requestDetails.get(Constants.HTTP_STATUS_CODE) != null &&
+                requestDetails.get(Constants.HTTP_STATUS_CODE).equals(statusCode)) {
+            cMsg.setProperty
+                    (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+            return true;
+        }
+        return false;
     }
 }

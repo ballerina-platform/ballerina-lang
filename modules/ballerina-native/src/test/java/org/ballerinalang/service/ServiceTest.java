@@ -98,8 +98,9 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         CarbonMessage invoke = Services.invoke(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                "no resource found to handle the request to Service: echo : no matching " +
-                        "resource found for Path : /bar , Method : GET");
+                "no resource found to handle the request to Service: echo : " +
+                        "for Path : /bar , Method : GET");
+
 
     }
 
