@@ -70,6 +70,7 @@ class VariableReferenceExpression extends Expression {
      * @param {string} [jsonNode.variable_reference_name, jsonNode.package_name] - Variable name of the VariableReferenceExpression
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);

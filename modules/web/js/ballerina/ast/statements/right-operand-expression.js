@@ -77,6 +77,7 @@ class RightOperandExpression extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);

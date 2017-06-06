@@ -41,6 +41,7 @@ class AssignmentStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
@@ -97,7 +98,6 @@ class AssignmentStatement extends Statement {
             if (_.isNil(parsedJson.type) || parsedJson.type !== 'assignment_statement') {
                 log.warn('Invalid node type returned. Expected Assignment Statement and found ' + parsedJson.type);
             }
-            this.getChildren().length = 0;
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
