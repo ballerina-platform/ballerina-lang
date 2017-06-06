@@ -47,6 +47,10 @@ class WhileStatement extends ConditionalStatement {
         this._statements = _.get(args, "statements", []);
     }
 
+    getConditionString() {
+        return this.getCondition().getExpression();
+    }
+
     setConditionFromString(conditionString) {
         if(!_.isNil(conditionString) || !_.isEmpty(conditionString)){
             let fragment = FragmentUtils.createExpressionFragment(conditionString);

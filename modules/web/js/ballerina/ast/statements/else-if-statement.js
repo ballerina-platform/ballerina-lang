@@ -59,6 +59,10 @@ class ElseIfStatement extends ConditionalStatement {
         }
     }
 
+    getConditionString() {
+        return this.getCondition().getExpression();
+    }
+
     getCondition() {
         return this._condition;
     }

@@ -59,6 +59,10 @@ class IfStatement extends ConditionalStatement {
         }
     }
 
+    getConditionString() {
+        return this.getCondition().getExpression();
+    }
+
     setConditionFromString(conditionString) {
         if(!_.isNil(conditionString)){
             let fragment = FragmentUtils.createExpressionFragment(conditionString);

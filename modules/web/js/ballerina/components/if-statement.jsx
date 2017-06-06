@@ -29,8 +29,8 @@ class IfStatement extends React.Component {
         this.editorOptions = {
             propertyType: 'text',
             key: 'If condition',
-            model: props.model.getCondition(),
-            getterMethod: props.model.getCondition().getExpression,
+            model: props.model,
+            getterMethod: props.model.getConditionString,
             setterMethod: props.model.setConditionFromString
         };
 
