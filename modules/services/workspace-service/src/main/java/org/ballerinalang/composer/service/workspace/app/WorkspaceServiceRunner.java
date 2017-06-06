@@ -68,7 +68,7 @@ public class WorkspaceServiceRunner {
         if (balHome == null) {
             // this condition will never reach if the app is started with 'composer' script.
             logger.error(Constants.COMPOSER_HOME_NOT_FOUND_ERROR_MESSAGE);
-            //return;
+            return;
         }
 
         ComposerCommand composer = new ComposerCommand();

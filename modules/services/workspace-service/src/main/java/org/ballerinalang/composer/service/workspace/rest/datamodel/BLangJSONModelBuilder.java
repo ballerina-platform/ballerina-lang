@@ -1455,7 +1455,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(typeCastEprObj, typeCastExpression.getWhiteSpaceDescriptor());
         typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .TYPE_CAST_EXPRESSION);
-        typeCastEprObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTypeName().toString());
+        typeCastEprObj.add(BLangJSONModelConstants.TARGET_TYPE,
+                simpleTypeNameToJson(typeCastExpression.getTypeName()));
 
         tempJsonArrayRef.push(new JsonArray());
         typeCastExpression.getRExpr().accept(this);
@@ -1471,8 +1472,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(typeConversionExprObj, typeConversionExpr.getWhiteSpaceDescriptor());
         typeConversionExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .TYPE_CONVERSION_EXPRESSION);
-        typeConversionExprObj.addProperty(BLangJSONModelConstants.TARGET_TYPE,
-                typeConversionExpr.getTypeName().toString());
+        typeConversionExprObj.add(BLangJSONModelConstants.TARGET_TYPE,
+                simpleTypeNameToJson(typeConversionExpr.getTypeName()));
 
         tempJsonArrayRef.push(new JsonArray());
         typeConversionExpr.getRExpr().accept(this);
