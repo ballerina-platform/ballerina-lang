@@ -1228,8 +1228,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
                 return;
             }
-            if (!(resolvedVariableDefElement instanceof VariableDefinitionNode
-                    || resolvedVariableDefElement instanceof ParameterNode)) {
+            if (resolvedVariableDefElement instanceof IdentifierPSINode) {
                 resolvedVariableDefElement = resolvedVariableDefElement.getParent();
             }
         }

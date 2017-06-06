@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
-import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -55,6 +54,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -1225,6 +1225,13 @@ public class BallerinaPsiImplUtil {
         PsiElement[] children = expressionNode.getChildren();
         if (children.length > 0) {
             if (children[0] instanceof VariableReferenceNode) {
+                IdentifierPSINode identifierNode = PsiTreeUtil.findChildOfType(children[0],
+                        IdentifierPSINode.class);
+                // If the element is equal to the  child in 0th index, we don't consider it as a struct field since
+                // it is the struct variable reference name.
+                if (element.equals(identifierNode)) {
+                    return false;
+                }
                 PsiElement[] superChildren = children[0].getChildren();
                 if (superChildren.length == 3) {
                     return ".".equals(superChildren[1].getText());
@@ -1232,6 +1239,44 @@ public class BallerinaPsiImplUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Gets annotation definition node from annotation attachment node.
+     *
+     * @param node {@link AnnotationAttachmentNode} node
+     * @return corresponding {@link AnnotationDefinitionNode} node, {@code null} if the annotation attachment cannot
+     * be resolved
+     */
+    @Nullable
+    public static AnnotationDefinitionNode getAnnotationDefinitionNode(@NotNull AnnotationAttachmentNode node) {
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(node, NameReferenceNode.class);
+        if (nameReferenceNode == null) {
+            return null;
+        }
+        PsiElement identifier = nameReferenceNode.getNameIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        PsiReference reference = identifier.getReference();
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        if (resolvedElement.getParent() instanceof AnnotationDefinitionNode) {
+            return ((AnnotationDefinitionNode) resolvedElement.getParent());
+        }
+        return null;
+    }
+
+    @NotNull
+    public static List<FieldDefinitionNode> getAnnotationFields(@NotNull AnnotationDefinitionNode node) {
+        List<FieldDefinitionNode> results = new LinkedList<>();
+        results.addAll(PsiTreeUtil.findChildrenOfType(node, FieldDefinitionNode.class));
+        return results;
     }
 
     public static boolean canSuggestArrayLength(@NotNull PsiElement definition,
@@ -1274,44 +1319,5 @@ public class BallerinaPsiImplUtil {
         String definitionRegex = "\\[\\s*]";
         int definitionDimension = getArrayDimension(definitionText, definitionRegex);
         return definitionDimension != 0;
-    }
-
-
-    /**
-     * Gets annotation definition node from annotation attachment node.
-     *
-     * @param node {@link AnnotationAttachmentNode} node
-     * @return corresponding {@link AnnotationDefinitionNode} node, {@code null} if the annotation attachment cannot
-     * be resolved
-     */
-    @Nullable
-    public static AnnotationDefinitionNode getAnnotationDefinitionNode(@NotNull AnnotationAttachmentNode node) {
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(node, NameReferenceNode.class);
-        if (nameReferenceNode == null) {
-            return null;
-        }
-        PsiElement identifier = nameReferenceNode.getNameIdentifier();
-        if (identifier == null) {
-            return null;
-        }
-        PsiReference reference = identifier.getReference();
-        if (reference == null) {
-            return null;
-        }
-        PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement == null) {
-            return null;
-        }
-        if (resolvedElement.getParent() instanceof AnnotationDefinitionNode) {
-            return ((AnnotationDefinitionNode) resolvedElement.getParent());
-        }
-        return null;
-    }
-
-    @NotNull
-    public static List<FieldDefinitionNode> getAnnotationFields(@NotNull AnnotationDefinitionNode node) {
-        List<FieldDefinitionNode> results = new LinkedList<>();
-        results.addAll(PsiTreeUtil.findChildrenOfType(node, FieldDefinitionNode.class));
-        return results;
     }
 }
