@@ -27,14 +27,14 @@ class Expression extends ASTNode {
     * call fragment parser and get parse tree of the node
     * validate and create children from scratch
     **/
-    setExpression(expression, callback) {
+    setExpressionFromString(expression, callback) {
         throw 'This method should be implemented by sub class';
     }
 
     /**
     * Traverse the children and generate a string to show up in expression editor
     **/
-    getExpression() {
+    getExpressionString() {
         throw 'This method should be implemented by sub class';
     }
 }

@@ -39,7 +39,7 @@ class WhileStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit WhileStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
-        let expression = node.getCondition().getExpression();
+        let expression = node.getConditionString();
         let bBox = viewState.bBox;
         let components = {};
         let statementContainerWidth = 0;

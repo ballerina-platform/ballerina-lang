@@ -39,7 +39,7 @@ class BasicLiteralExpression extends Expression {
         this._basicLiteralValue = jsonNode.basic_literal_value;
     }
 
-    getExpression() {
+    getExpressionString() {
         if (this._basicLiteralType === 'string') {
             // Adding double quotes if it is a string.
             return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"';

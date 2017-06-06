@@ -48,7 +48,7 @@ class WhileStatement extends ConditionalStatement {
     }
 
     getConditionString() {
-        return this.getCondition().getExpression();
+        return this.getCondition().getExpressionString();
     }
 
     setConditionFromString(conditionString) {
