@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ConditionalStatement from './conditional-statement';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Class for while statement in ballerina.
@@ -30,9 +31,31 @@ import ConditionalStatement from './conditional-statement';
 class WhileStatement extends ConditionalStatement {
     constructor(args) {
         super();
-        this._condition = _.get(args, "condition", "true");
+        this.type = 'WhileStatement';
+        if (!_.isNil(_.get(args, "condition"))) {
+            this.setCondition(_.get(args, "condition"));
+        }
+        else {
+            // create default condition
+            this.setCondition(this.getFactory().createBasicLiteralExpression(
+                {
+                    basicLiteralType: 'boolean',
+                    basicLiteralValue: true
+                }
+            ))
+        }
         this._statements = _.get(args, "statements", []);
-        this.type = "WhileStatement";
+    }
+
+    setConditionFromString(conditionString) {
+        if(!_.isNil(conditionString) || !_.isEmpty(conditionString)){
+            let fragment = FragmentUtils.createExpressionFragment(conditionString);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            let condition = this.getFactory().createFromJson(parsedJson);
+            condition.initFromJson(parsedJson);
+            this.setCondition(condition);
+            condition.setParent(this);
+        }
     }
 
     setCondition(condition, options) {
@@ -51,28 +74,27 @@ class WhileStatement extends ConditionalStatement {
      */
     initFromJson(jsonNode) {
         var self = this;
+        if (!_.isNil(jsonNode.condition)) {
+            let condition = self.getFactory().createFromJson(jsonNode.condition);
+            condition.initFromJson(jsonNode.condition);
+            self.setCondition(condition, {doSilently: true});
+            condition.setParent(this);
+        }
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            if (self.getFactory().isExpression(child)) {
-                child.initFromJson(childNode);
-                self.setCondition(child.getExpression(), {doSilently: true});
+            var child = undefined;
+            var childNodeTemp = undefined;
+            //TODO : generalize this logic
+            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                child = self.getFactory().createConnectorDeclaration();
+                childNodeTemp = childNode;
             } else {
-                var child = undefined;
-                var childNodeTemp = undefined;
-                //TODO : generalize this logic
-                if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
-                    child = self.getFactory().createConnectorDeclaration();
-                    childNodeTemp = childNode;
-                } else {
-                    child = self.getFactory().createFromJson(childNode);
-                    childNodeTemp = childNode;
-                }
-                self.addChild(child);
-                child.initFromJson(childNodeTemp);
+                child = self.getFactory().createFromJson(childNode);
+                childNodeTemp = childNode;
             }
+            self.addChild(child);
+            child.initFromJson(childNodeTemp);
         });
     }
 }
 
 export default WhileStatement;
-

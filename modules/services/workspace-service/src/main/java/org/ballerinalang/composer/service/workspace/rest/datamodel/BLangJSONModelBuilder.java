@@ -795,6 +795,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(whileStmtObj, whileStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         whileStmt.getCondition().accept(this);
+        whileStmtObj.add(BLangJSONModelConstants.CONDITION, tempJsonArrayRef.peek().get(0));
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
         if (whileStmt.getBody() != null) {
             whileStmt.getBody().accept(this);
         }

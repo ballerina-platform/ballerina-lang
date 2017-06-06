@@ -39,7 +39,7 @@ class WhileStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit WhileStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
-        let expression = node.getCondition();
+        let expression = node.getCondition().getExpression();
         let bBox = viewState.bBox;
         let components = {};
         let statementContainerWidth = 0;
@@ -77,9 +77,9 @@ class WhileStatementDimensionCalculatorVisitor {
         // we will calculate the width of the expression and adjest the block statement
         if(expression != undefined){
             // see how much space we have to draw the condition
-            let available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;            
+            let available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
             components['expression'] = util.getTextWidth(expression,0,available);
-        }        
+        }
 
         viewState.components = components;
     }
