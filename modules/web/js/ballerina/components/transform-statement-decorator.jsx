@@ -186,6 +186,7 @@ class TransformStatementDecorator extends React.Component {
         _.forEach(this.props.model.parent.getVariableDefinitionStatements(), variableDefStmt => {
             var currentIndex = this.props.model.parent.getIndexOfChild(variableDefStmt);
             var structInfo = variableDefStmt.getLeftExpression().split(' ');
+            var isStruct = false;
                //Checks struct defined before the transform statement
             if(currentIndex < transformIndex) {
                 _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
@@ -193,15 +194,27 @@ class TransformStatementDecorator extends React.Component {
                         var struct = self.createType(structInfo[1], predefinedStruct);
                         self.loadSchemaToComboBox(sourceId, struct.name);
                         self.loadSchemaToComboBox(targetId, struct.name);
+                        isStruct = true;;
                     }
                 });
+
+                if(!isStruct) {
+                    var variableType = {};
+                    variableType.id = variableDefStmt.id;
+                    var varInfo = variableDefStmt.getLeftExpression().split(' ');
+                    variableType.name  = varInfo[1];
+                    variableType.type = varInfo[0];
+                    self.predefinedStructs.push(variableType);
+                    self.loadSchemaToComboBox(sourceId, variableType.name);
+                    self.loadSchemaToComboBox(targetId, variableType.name);
+                }
             }
         });
         $('.type-mapper-combo').select2();
 
         $('#btn-add-source').click(function (e) {
             var currentSelection = $('#' + sourceId).val();
-            if ( self.setSource(currentSelection, self.predefinedStructs)) {
+            if (self.setSource(currentSelection, self.predefinedStructs)) {
                 var inputDef = BallerinaASTFactory
                                         .createVariableReferenceExpression({variableName: currentSelection});
                 var inputs = self.props.model.getInput();
@@ -259,16 +272,30 @@ class TransformStatementDecorator extends React.Component {
         var onConnectionCallback = function(connection) {
             let sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
             let targetStruct = _.find(self.predefinedStructs, { name:connection.targetStruct});
-            let sourceExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
-            let targetExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
+            var sourceExpression;
+            var targetExpression;
+
+            if (sourceStruct.type == "struct") {
+                sourceExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
+            } else {
+                sourceExpression = BallerinaASTFactory
+                                             .createVariableReferenceExpression({variableName: sourceStruct.name});
+            }
+
+            if (targetStruct.type == "struct") {
+                targetExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
+            } else {
+                targetExpression = BallerinaASTFactory
+                                            .createVariableReferenceExpression({variableName: targetStruct.name});
+            }
 
             if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                     //Connection is from source struct to target struct.
                 let assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
                 let leftOperand = BallerinaASTFactory.createLeftOperandExpression();
-                leftOperand.addChild(sourceExpression);
+                leftOperand.addChild(targetExpression);
                 let rightOperand = BallerinaASTFactory.createRightOperandExpression();
-                rightOperand.addChild(targetExpression);
+                rightOperand.addChild(sourceExpression);
                 assignmentStmt.addChild(leftOperand);
                 assignmentStmt.addChild(rightOperand);
                 self.props.model.addChild(assignmentStmt);
@@ -482,6 +509,7 @@ class TransformStatementDecorator extends React.Component {
         var struct = {};
         struct.name = name;
         struct.properties = [];
+        struct.type = "struct";
 
         _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
             var property = {};
@@ -742,7 +770,11 @@ class TransformStatementDecorator extends React.Component {
             return false;
         }
         if (!sourceSelection.added) {
-            self.mapper.addSourceType(sourceSelection);
+            if (sourceSelection.type == "struct") {
+                self.mapper.addSourceType(sourceSelection);
+            } else {
+                self.mapper.addVariable(sourceSelection, "source");
+            }
             sourceSelection.added = true;
             return true;
         } else {
@@ -757,7 +789,11 @@ class TransformStatementDecorator extends React.Component {
             return false;
         }
         if (!targetSelection.added) {
-            self.mapper.addTargetType(targetSelection);
+            if (targetSelection.type == "struct") {
+                self.mapper.addTargetType(targetSelection);
+            } else {
+                self.mapper.addVariable(targetSelection, "target");
+            }
             targetSelection.added = true;
             return true;
         } else {

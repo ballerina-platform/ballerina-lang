@@ -549,33 +549,33 @@ class TransformRender
 
 addVariable(variable, type, reference) {
     this.references.push({name: variable.id, refObj: reference});
-    var newStruct = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
-    var structIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
-    var id = struct.id + this.idNameSeperator + name + this.nameTypeSeperator + type;
-    var   property = $('<div>').attr('id', id).addClass('variable-content');
+    var newVar = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
+    var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
+    var id = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+    var   property = $('<a>').attr('id', id).addClass('variable-content');
     var propertyName = $('<span>').addClass('property-name').text(variable.name);
     var seperator = $('<span>').addClass('property-name').text(':');
     var propertyType = $('<span>').addClass('property-type').text(variable.type);
-    property.append(structIcon);
+    newVar.append(varIcon);
     property.append(propertyName);
     property.append(seperator);
     property.append(propertyType);
-    newStruct.append(property);
+    newVar.append(property);
     var subPlaceHolder;
 
 
-    newStruct.css({
+    newVar.css({
         'top': 0,
         'left': 0
     });
 
     if(type == 'source' ) {
         subPlaceHolder = 'leftType';
-        $('#' + this.placeHolderName).find('.leftType').append(newStruct);
+        $('#' + this.placeHolderName).find('.leftType').append(newVar);
         this.addSource(property, this, true);
     } else {
         subPlaceHolder = 'rightType';
-        $('#' + this.placeHolderName).find('.rightType').append(newStruct);
+        $('#' + this.placeHolderName).find('.rightType').append(newVar);
         this.addTarget(property, this);
     }
     this.reposition(this);
@@ -746,7 +746,8 @@ addVariable(variable, type, reference) {
             anchor: ['Continuous', {faces: ['left']}],
             beforeDrop: function (params) {
             //Checks property types are equal
-                var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
+                var isValidTypes = self.getPropertyType(params.sourceId).toLowerCase()
+                                        == self.getPropertyType(params.targetId).toLowerCase();
                 var connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
