@@ -63,8 +63,6 @@ class ASTVisitor extends EventChannel {
             return this.canVisitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.canVisitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.canVisitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.canVisitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -122,8 +120,6 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.beginVisitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.beginVisitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.beginVisitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -181,8 +177,6 @@ class ASTVisitor extends EventChannel {
             return this.visitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.visitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.visitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.visitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -241,8 +235,6 @@ class ASTVisitor extends EventChannel {
             return this.endVisitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.endVisitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.endVisitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.endVisitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -363,19 +355,6 @@ class ASTVisitor extends EventChannel {
     }
 
     endVisitStructDefinition(structDefinition) {
-    }
-
-    canVisitTypeMapperDefinition(typeMapperDefinition) {
-        return false;
-    }
-
-    beginVisitTypeMapperDefinition(typeMapperDefinition) {
-    }
-
-    visitTypeMapperDefinition(typeMapperDefinition) {
-    }
-
-    endVisitTypeMapperDefinition(typeMapperDefinition) {
     }
 
     canVisitResourceParameter(resourceParameter) {

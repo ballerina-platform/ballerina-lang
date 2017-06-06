@@ -40,7 +40,6 @@ import catchStatement from './statements/catch-statement';
 import replyStatement from './statements/reply-statement';
 import whileStatement from './statements/while-statement';
 import returnStatement from './statements/return-statement';
-import typeMapperDefinition from './type-mapper-definition';
 import typeDefinition from './type-definition';
 import typeElement from './type-element';
 import variableDeclaration from './variable-declaration';
@@ -232,15 +231,6 @@ BallerinaASTFactory.createReferenceTypeInitExpression = function (args) {
  */
 BallerinaASTFactory.createArrayInitExpression = function (args) {
     return new arrayInitExpression(args);
-};
-
-/**
- * creates typeMapperDefinition
- * @param {Object} args - object for typeMapperDefinition creation
- * @returns {TypeMapperDefinition}
- */
-BallerinaASTFactory.createTypeMapperDefinition = function (args) {
-    return new typeMapperDefinition(args);
 };
 
 /**
@@ -968,15 +958,6 @@ BallerinaASTFactory.isTypeElement = function (child) {
  */
 BallerinaASTFactory.isStructDefinition = function (child) {
     return child instanceof structDefinition;
-};
-
-/**
- * instanceof check for TypeMapperDefinition
- * @param {ASTNode} child - Object for instanceof check
- * @returns {boolean} - true if same type, else false
- */
-BallerinaASTFactory.isTypeMapperDefinition = function (child) {
-    return child instanceof typeMapperDefinition;
 };
 
 /**
@@ -1720,9 +1701,6 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'type_conversion_expression':
         node = BallerinaASTFactory.createTypeConversionExpression();
-        break;
-    case 'type_mapper_definition':
-        node = BallerinaASTFactory.createTypeMapperDefinition();
         break;
     case 'field_access_expression':
         node = BallerinaASTFactory.createFieldAccessExpression();

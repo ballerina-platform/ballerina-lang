@@ -380,22 +380,6 @@ class BallerinaASTRoot extends ASTNode {
 
     //// End of struct definitions functions
 
-    //// Start of type mapper definitions functions
-
-    getTypeMapperDefinitions() {
-        var typeMapperDefinition = [];
-        var self = this;
-
-        _.forEach(this.getChildren(), function (child) {
-            if (self.getFactory().isTypeMapperDefinition(child)) {
-                typeMapperDefinition.push(child);
-            }
-        });
-        return typeMapperDefinition;
-    }
-
-    //// End of type mapper definitions functions
-
     /**
      * Validates possible immediate child types.
      * @override
@@ -419,7 +403,6 @@ class BallerinaASTRoot extends ASTNode {
             || BallerinaASTFactory.isTypeDefinition(node)
             || BallerinaASTFactory.isConnectorDefinition(node)
             || BallerinaASTFactory.isStructDefinition(node)
-            || BallerinaASTFactory.isTypeMapperDefinition(node)
             || BallerinaASTFactory.isAnnotationDefinition(node);
     }
 

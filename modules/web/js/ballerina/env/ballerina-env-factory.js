@@ -25,7 +25,6 @@ import ConnectorAction from './connector-action';
 import Function from './function';
 import AnnotationDefinition from './annotation-definition';
 import AnnotationAttributeDefinition from './annotation-attribute-definition';
-import TypeMapper from './type-mapper';
 
 /**
  * @class BallerinaEnvFactory
@@ -86,15 +85,6 @@ BallerinaEnvFactory.createAnnotationAttributeDefinition = function (args) {
     return annotationAttributeDefinition;
 };
 
-/**
- * creates TypeMapper
- * @param jsonNode
- */
-BallerinaEnvFactory.createTypeMapper = function (args) {
-    var typeMapperDef = new TypeMapper(args);
-    return typeMapperDef;
-};
-
 BallerinaEnvFactory.isConnector = function (connector) {
     return (connector instanceof Connector);
 };
@@ -123,15 +113,6 @@ BallerinaEnvFactory.isAnnotationDefinition = function (annotationDef) {
  */
 BallerinaEnvFactory.isAnnotationAttributeDefinition = function (annotationAttributeDefinition) {
     return (annotationAttributeDefinition instanceof AnnotationAttributeDefinition);
-};
-
-/**
- * instanceof check for TypeMapper
- * @param {function object} typeMapperDef - Object for instanceof check
- * @returns {boolean} - true if same type, else false
- */
-BallerinaEnvFactory.isTypeMapper = function (typeMapperDef) {
-    return (typeMapperDef instanceof TypeMapper);
 };
 
 export default BallerinaEnvFactory;

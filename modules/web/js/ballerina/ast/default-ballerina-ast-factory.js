@@ -120,33 +120,6 @@ DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
 };
 
 /**
- * creates typeMapperDefinition with default statement
- * @param {Object} args - object for typeMapperDefinition creation
- * @returns {TypeMapperDefinition}
- */
-DefaultBallerinaASTFactory.createTypeMapperDefinition = function (args) {
-    var typeMapperDefinition = BallerinaASTFactory.createTypeMapperDefinition(args);
-    var blockStatement = BallerinaASTFactory.createBlockStatement(args);
-    var returnStatement = BallerinaASTFactory.createReturnStatement(args);
-    var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
-    var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression(args);
-    var referenceTypeInitiExpression = BallerinaASTFactory.createReferenceTypeInitExpression(args);
-
-    rightOperandExpression.addChild(referenceTypeInitiExpression);
-
-    var returnStatementVariableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
-    returnStatement.addChild(returnStatementVariableReferenceExpression);
-
-    variableDefinitionStatement.addChild(rightOperandExpression);
-
-    blockStatement.addChild(variableDefinitionStatement);
-    blockStatement.addChild(returnStatement);
-    typeMapperDefinition.addChild(blockStatement);
-    return typeMapperDefinition;
-};
-
-
-/**
  * Create the action invocation statement for action invocation
  * @param args
  * @returns {ActionInvocationStatement}
