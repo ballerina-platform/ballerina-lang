@@ -118,7 +118,7 @@ public class ConfigServiceImpl {
         parser.addProperty("endpoint", apiPath + "/ballerina/model/content");
 
         JsonObject fragmentParser = new JsonObject();
-        parser.addProperty("endpoint", apiPath + "/ballerina/model/parse-fragment");
+        fragmentParser.addProperty("endpoint", apiPath + "/ballerina/model/parse-fragment");
 
         JsonObject validator = new JsonObject();
         validator.addProperty("endpoint", apiPath + "/ballerina/validate");
