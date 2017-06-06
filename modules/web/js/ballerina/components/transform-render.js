@@ -20,7 +20,6 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
-import alerts from 'alerts';
 import './transform-statement.css';
 /**
  * Renderer constructor for TypeMapper
@@ -444,11 +443,11 @@ class TransformRender
             self.existingJsTrees.push(structId);
             self.reposition(self);
             _.forEach(self.connectionPool, conPoolObj => {
-                if (!conPoolObj.connected && structId ==
-        conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
+                if (!conPoolObj.connected && structId === 
+                        conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
-                } else if (!conPoolObj.connected && structId ==
-    conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId) {
+                } else if (!conPoolObj.connected && structId ===
+                        conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isTargetExists = true;
                 }
                 if (!conPoolObj.connected && conPoolObj.isSourceExists && conPoolObj.isTargetExists) {
@@ -474,7 +473,7 @@ class TransformRender
 
     repaintAll(jsTreeId) {
         var children = $('#' + jsTreeId).jstree().get_node('#').children_d;
-        _forEach(children, child => {
+        _.forEach(children, child => {
             self.jsPlumbInstance.repaint(child.id + '_anchor');
         });
     }

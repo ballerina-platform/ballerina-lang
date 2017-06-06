@@ -103,9 +103,9 @@ class TransformStatementDecorator extends React.Component {
         const { model } = this.props;
         const { isBreakpoint = false } = model;
         if (model.isBreakpoint) {
-                model.removeBreakpoint();
+            model.removeBreakpoint();
         } else {
-                model.addBreakpoint();
+            model.addBreakpoint();
         }
     }
 
@@ -194,7 +194,7 @@ class TransformStatementDecorator extends React.Component {
                         var struct = self.createType(structInfo[1], predefinedStruct);
                         self.loadSchemaToComboBox(sourceId, struct.name);
                         self.loadSchemaToComboBox(targetId, struct.name);
-                        isStruct = true;;
+                        isStruct = true;
                     }
                 });
 
@@ -226,10 +226,10 @@ class TransformStatementDecorator extends React.Component {
         $('#btn-remove-source').click(function (e) {
              var currentSelection = $('#' + sourceId).val();
              if (currentSelection != -1) {
-                self.mapper.removeType(currentSelection);
-                self.props.model.setInput([]);
-                var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
-                currentSelectionObj.added = false;
+                 self.mapper.removeType(currentSelection);
+                 self.props.model.setInput([]);
+                 var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
+                 currentSelectionObj.added = false;
                  self.props.model.children = [];
              }
         });
@@ -381,60 +381,55 @@ class TransformStatementDecorator extends React.Component {
     }
 
     createConnection(statement) {
-        let connections = [];
         if (BallerinaASTFactory.isAssignmentStatement(statement)) {
             // There can be multiple left expressions.
             // E.g. : e.name, e.username = p.first_name;
             let leftExpressions = statement.getChildren()[0];
             let rightExpression = statement.getChildren()[1].getChildren()[0];
 
-            this.createConnectionByExpressions(statement, leftExpressions,rightExpression);
+            if (BallerinaASTFactory.isFieldAccessExpression(rightExpression) ||
+                  BallerinaASTFactory.isVariableReferenceExpression(rightExpression)) {
+                _.forEach(leftExpressions.getChildren(), expression => {
+                    let target = this.getConnectionProperties('target', expression);
+                    let source = this.getConnectionProperties('source', rightExpression);
+                    this.drawConnection(statement.getID(), source, target);
+                });
+            } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
+                let func = this.getFunctionDefinition(rightExpression);
+                if (_.isUndefined(func)) {
+                    alerts.error('Function definition for "' + rightExpression.getFunctionName() + '" cannot be found');
+                    return;
+                }
+                this.mapper.addFunction(func, statement, statement.getParent().removeChild.bind(statement.getParent()));
 
+                if (func.getParameters().length !== rightExpression.getChildren().length) {
+                    alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+                } else {
+                    let funcTarget = this.getConnectionProperties('target', rightExpression);
+                    _.forEach(rightExpression.getChildren(), (expression, i) => {
+                        let target = this.getConnectionProperties('target', func.getParameters()[i]);
+                        _.merge(target, funcTarget); //merge parameter props with function props
+                        let source = this.getConnectionProperties('source', expression);
+                        this.drawConnection(rightExpression.getID(), source, target);
+                    });
+                }
+
+                if (func.getReturnParams().length !== leftExpressions.getChildren().length) {
+                    alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+                } else {
+                    let funcSource = this.getConnectionProperties('source', rightExpression);
+                    _.forEach(leftExpressions.getChildren(), (expression, i) => {
+                        let source = this.getConnectionProperties('source', func.getReturnParams()[i]);
+                        _.merge(source, funcSource); //merge parameter props with function props
+                        let target = this.getConnectionProperties('target', expression);
+                        this.drawConnection(rightExpression.getID(), source, target);
+                    });
+                }
+            } else {
+                log.error('Invalid expression type in transform statement body');
+            }
         } else {
             log.error('Invalid statement type in transform statement');
-        }
-    }
-
-    createConnectionByExpressions(statement, leftExpressions, rightExpression){
-        if (BallerinaASTFactory.isFieldAccessExpression(rightExpression)) {
-            _.forEach(leftExpressions.getChildren(), expression => {
-                let target = this.getConnectionProperties('target', expression);
-                let source = this.getConnectionProperties('source', rightExpression);
-                this.drawConnection(statement.getID(), source, target);
-            });
-        } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
-            let func = this.getFunctionDefinition(rightExpression);
-            if (_.isUndefined(func)) {
-                alerts.error('Function definition for "' + rightExpression.getFunctionName() + '" cannot be found');
-                return;
-            }
-            this.mapper.addFunction(func, statement, statement.getParent().removeChild.bind(statement.getParent()));
-
-            if (func.getParameters().length !== rightExpression.getChildren().length) {
-                alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-            } else {
-                let funcTarget = this.getConnectionProperties('target', rightExpression);
-                _.forEach(rightExpression.getChildren(), (expression, i) => {
-                    let target = this.getConnectionProperties('target', func.getParameters()[i]);
-                    _.merge(target, funcTarget); //merge parameter props with function props
-                    let source = this.getConnectionProperties('source', expression);
-                    this.drawConnection(rightExpression.getID(), source, target);
-                });
-            }
-
-            if (func.getReturnParams().length !== leftExpressions.getChildren().length) {
-                alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-            } else {
-                let funcSource = this.getConnectionProperties('source', rightExpression);
-                _.forEach(leftExpressions.getChildren(), (expression, i) => {
-                    let source = this.getConnectionProperties('source', func.getReturnParams()[i]);
-                    _.merge(source, funcSource); //merge parameter props with function props
-                    let target = this.getConnectionProperties('target', expression);
-                    this.drawConnection(rightExpression.getID(), source, target);
-                });
-            }
-        } else {
-            log.error('Invalid expression type in transform statement body');
         }
     }
 
@@ -450,6 +445,13 @@ class TransformStatementDecorator extends React.Component {
             con[type + 'Function'] = true;
             con[type + 'Struct'] = expression.getPackageName() + '-' + expression.getFunctionName();
             con[type + 'Id'] = expression.getID();
+        } else if (BallerinaASTFactory.isVariableReferenceExpression(expression)) {
+            con[type + 'Struct'] = expression.getVariableName();
+            let varRef = _.find(self.predefinedStructs, { name:expression.getVariableName()});
+            if (!_.isUndefined(varRef)) {
+                con[type + 'Type'] = [varRef.type];
+            }
+            con[type + 'Property'] = [expression.getVariableName()];
         } else if (['name','type'].every(prop => prop in expression)) {
             con[type + 'Property'] = [expression.name];
             con[type + 'Type'] = [expression.type];
