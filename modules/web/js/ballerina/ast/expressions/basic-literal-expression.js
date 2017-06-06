@@ -29,6 +29,10 @@ class BasicLiteralExpression extends Expression {
         super('BasicLiteralExpression');
         this._basicLiteralType = _.get(args, 'basicLiteralType', '');
         this._basicLiteralValue = _.get(args, 'basicLiteralValue', '');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' '
+        };
     }
 
     /**
@@ -62,9 +66,9 @@ class BasicLiteralExpression extends Expression {
     getExpressionString() {
         if (this._basicLiteralType === 'string') {
             // Adding double quotes if it is a string.
-            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"';
+            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"' + this.getWSRegion(1);
         } else {
-            return this._basicLiteralValue;
+            return this._basicLiteralValue + this.getWSRegion(1);
         }
     }
 

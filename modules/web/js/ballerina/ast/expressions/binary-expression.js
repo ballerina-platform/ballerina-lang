@@ -31,6 +31,12 @@ class BinaryExpression extends Expression {
         this._operator = _.get(args, 'operator');
         this._leftExpression = _.get(args, 'leftExpression');
         this._rightExpression = _.get(args, 'rightExpression');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: ' '
+        };
     }
 
     /**
@@ -72,7 +78,7 @@ class BinaryExpression extends Expression {
         let expressionString = '';
         expressionString += (!_.isNil(this.getLeftExpression()))
                 ? this.getLeftExpression().getExpressionString() : '';
-        expressionString +=  ' ' + this._operator + ' ';
+        expressionString += this._operator + this.getWSRegion(2);
         expressionString += (!_.isNil(this.getRightExpression()))
                 ? this.getRightExpression().getExpressionString() : '';
         return expressionString;

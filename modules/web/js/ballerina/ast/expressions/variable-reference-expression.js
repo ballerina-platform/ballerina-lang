@@ -27,6 +27,13 @@ import FragmentUtils from '../../utils/fragment-utils';
 class VariableReferenceExpression extends Expression {
     constructor(args) {
         super('VariableReferenceExpression');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '',
+            2: '',
+            3: ' '
+
+        };
         this.setVariableName(_.get(args, 'variableName'));
         this._packageName = _.get(args, 'packageName');
     }
@@ -86,15 +93,22 @@ class VariableReferenceExpression extends Expression {
      * @param {string} expressionString
      * @override
      */
-    setExpressionFromString(expressionString) {
-        if (!_.isNil(expressionString)) {
-            const fragment = FragmentUtils.createExpressionFragment(expressionString);
-            const parsedJson = FragmentUtils.parseFragment(fragment);
-            if (_.isNil(parsedJson.type) || parsedJson.type !== 'assignment_statement') {
-                log.warn('Invalid node type returned. Expected Variable Reference Expression and found ' +
-                    parsedJson.type);
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                   || !_.has(parsedJson, 'syntax_errors'))
+                   && _.isEqual(parsedJson.type, 'variable_reference_expression')) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
             }
-            this.initFromJson(parsedJson);
         }
     }
 
@@ -104,7 +118,9 @@ class VariableReferenceExpression extends Expression {
      * @override
      */
     getExpressionString() {
-        return (!_.isNil(this.getPackageName()) ? (this.getPackageName() + ":") : "") + this.getVariableName();
+        return (!_.isNil(this.getPackageName()) ? (this.getPackageName()
+                + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
+                + this.getVariableName() + this.getWSRegion(3);
     }
 }
 

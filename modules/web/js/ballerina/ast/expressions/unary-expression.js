@@ -26,6 +26,11 @@ import FragmentUtils from '../../utils/fragment-utils';
 class UnaryExpression extends Expression {
     constructor(args) {
         super('UnaryExpression');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '',
+            2: ' '
+        };
         this._operator = _.get(args, 'operator');
     }
 
@@ -67,7 +72,7 @@ class UnaryExpression extends Expression {
     }
 
     getExpressionString() {
-        let expString = this.getOperator();
+        let expString = this.getOperator() + this.getWSRegion(1);
         expString += (!_.isEmpty(this.children)) ? this.children[0].getExpressionString() : '';
         return expString;
     }
