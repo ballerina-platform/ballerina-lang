@@ -100,6 +100,7 @@ class LeftOperandExpression extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
         var expression = "";
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
@@ -108,7 +109,7 @@ class LeftOperandExpression extends Statement {
                 expression += childJsonNode.variable_name;
             } else {
                 var child = self.getFactory().createFromJson(childJsonNode);
-                self.addChild(child);
+                self.addChild(child, undefined, true, true);
                 child.initFromJson(childJsonNode);
                 expression += child.getExpressionString();
             }
