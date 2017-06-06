@@ -26,14 +26,15 @@ class TypeCastExpression extends Expression {
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
-            2: ' '
+            2: ' ',
+            3: ' '
         };
         this._targetType = _.get(args, 'targetType');
     }
 
     setTargetType(targetType, options) {
         if (!_.isNil(targetType)) {
-            this.setAttribute('_targetType', name, options);
+            this.setAttribute('_targetType', targetType, options);
         }
     }
 
@@ -44,7 +45,7 @@ class TypeCastExpression extends Expression {
     initFromJson(jsonNode) {
         this.children = [];
         let targetType = this.getFactory().createFromJson(jsonNode.target_type);
-        targetType.initFromJson(targetType);
+        targetType.initFromJson(jsonNode.target_type);
         this.setTargetType(targetType, {doSilently: true});
         _.each(jsonNode.children, (childNode) => {
             var child = this.getFactory().createFromJson(childNode);
@@ -79,7 +80,7 @@ class TypeCastExpression extends Expression {
 
     getExpressionString() {
         var expString = '';
-        expString += '<' + this.getWSRegion(1) + this.getTargetType().toString() + '>'
+        expString += '(' + this.getWSRegion(1) + this.getTargetType().toString() + ')'
                 + this.getWSRegion(2) + this.children[0].getExpressionString();
         return expString;
     }

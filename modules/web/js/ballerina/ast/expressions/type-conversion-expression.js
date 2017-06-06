@@ -34,7 +34,7 @@ class TypeConversionExpression extends Expression {
 
     setTargetType(targetType, options) {
         if (!_.isNil(targetType)) {
-            this.setAttribute('_targetType', name, options);
+            this.setAttribute('_targetType', targetType, options);
         }
     }
 
@@ -45,7 +45,7 @@ class TypeConversionExpression extends Expression {
     initFromJson(jsonNode) {
         this.children = [];
         let targetType = this.getFactory().createFromJson(jsonNode.target_type);
-        targetType.initFromJson(targetType);
+        targetType.initFromJson(jsonNode.target_type);
         this.setTargetType(targetType, {doSilently: true});
         _.each(jsonNode.children, (childNode) => {
             var child = this.getFactory().createFromJson(childNode);
@@ -77,7 +77,7 @@ class TypeConversionExpression extends Expression {
             }
         }
     }
-    
+
     getExpressionString() {
         var expString = '';
         expString += '<' + this.getWSRegion(1) + this.getTargetType().toString() + '>'
