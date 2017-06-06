@@ -108,7 +108,7 @@ class LeftOperandExpression extends Statement {
                 expression += childJsonNode.variable_name;
             } else {
                 var child = self.getFactory().createFromJson(childJsonNode);
-                self.addChild(child);
+                self.addChild(child, undefined, true, true);
                 child.initFromJson(childJsonNode);
                 expression += child.getExpressionString();
             }

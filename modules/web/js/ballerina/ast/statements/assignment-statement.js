@@ -44,7 +44,7 @@ class AssignmentStatement extends Statement {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }
@@ -97,7 +97,17 @@ class AssignmentStatement extends Statement {
             if (_.isNil(parsedJson.type) || parsedJson.type !== 'assignment_statement') {
                 log.warn('Invalid node type returned. Expected Assignment Statement and found ' + parsedJson.type);
             }
+            this.getChildren().length = 0;
             this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Assignment Statement Custom Tree modified',
+                context: this,
+            });
         }
     }
 
