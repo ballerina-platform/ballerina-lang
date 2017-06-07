@@ -73,7 +73,7 @@ class LeftOperandExpression extends Statement {
     generateExpression() {
         var exps = [];
         _.forEach(this.getChildren(), child => {
-            exps.push(child.generateExpression());
+            exps.push(child.getExpressionString());
         });
         let expression = _.join(exps, ',');
 

@@ -101,20 +101,32 @@ class FunctionInvocationExpression extends Expression {
         return text;
     }
 
-    setExpressionFromString(expressionString) {
+    setExpressionFromString(expressionString, callback) {
         const fragment = FragmentUtils.createExpressionFragment(expressionString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
-        this.initFromJson(parsedJson);
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'function_invocation_expression')) {
 
-        // Manually firing the tree-modified event here.
-        // TODO: need a proper fix to avoid breaking the undo-redo
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'custom',
-            title: 'Function Invocation Expression Custom Tree modified',
-            context: this,
-        });
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Function Invocation Expression Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 
     /**

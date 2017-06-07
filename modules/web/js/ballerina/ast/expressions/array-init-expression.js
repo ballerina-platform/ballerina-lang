@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Constructor for ArrayInitExpression
@@ -34,23 +35,60 @@ class ArrayInitExpression extends Expression {
      */
     initFromJson(jsonNode) {
         var self = this;
-        var generatedExpression = '[';
+        this.getChildren().length = 0;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
-            generatedExpression += child.getExpression() + ",";
         });
-        this.setExpression(generatedExpression.replace(/,\s*$/, "") + ']', {doSilently: true});
     }
 
-    generateExpression() {
+    /**
+     * Get the Expression String
+     * @returns {string} expression string
+     * @override
+     */
+    getExpressionString() {
         var generatedExpression = '[';
         _.each(this.getChildren(), function (child) {
-            generatedExpression += child.getExpression() + ",";
+            generatedExpression += child.getExpressionString() + ",";
         });
-        this.setExpression(generatedExpression.replace(/,\s*$/, "") + ']', {doSilently: true});
-        return this._expression;
+        generatedExpression = generatedExpression.replace(/,\s*$/, "") + ']';
+        return generatedExpression;
+    }
+
+    /**
+     * Set the expression from the string
+     * @param {string} expressionString
+     * @param {function} callback
+     * @override
+     */
+    setExpressionFromString(expressionString, callback) {
+        const fragment = FragmentUtils.createExpressionFragment(expressionString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'array_init_expression')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Array Init Expression Custom Tree modified',
+                context: this,
+            });
+            
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 }
 

@@ -105,7 +105,7 @@ class ConnectorDeclaration extends ASTNode {
     }
 
     getStringFromArgs(args) {
-        return _.join(args.map((arg) => { return arg.generateExpression(); }), ', ');
+        return _.join(args.map((arg) => { return arg.getExpressionString(); }), ', ');
     }
 
     getArgsFromString(argList) {
