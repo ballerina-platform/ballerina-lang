@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,18 +58,12 @@ public class Copy extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
 
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
         BStruct source = (BStruct) getArgument(context, 0);
         BStruct destination = (BStruct) getArgument(context, 1);
 
-        try {
-
-            String path = source.getValue(0).stringValue();
-            File file = new File(path);
-            inputStream = new BufferedInputStream(new FileInputStream(file));
-
+            File file = new File(source.getValue(0).stringValue());
             File destinationFile = new File(destination.getValue(0).stringValue());
+
             File parent = destinationFile.getParentFile();
             if (parent != null) {
                 if (!parent.exists()) {
@@ -79,20 +72,65 @@ public class Copy extends AbstractNativeFunction {
                     }
                 }
             }
-            outputStream = new FileOutputStream(destinationFile, false);
-            byte[] buffer = new byte[1024];
-
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, length);
+            if (!copy(file, destinationFile)) {
+                throw new BallerinaException("Error while copying file");
             }
+
+        return VOID_RETURN;
+    }
+
+    private boolean copy(File src, File dest) {
+
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+
+            if (src.isDirectory()) {
+
+                if (!dest.exists()) {
+                    if (!dest.mkdir()) {
+                        return false;
+                    }
+                }
+
+                String files[] = src.list();
+                if (files == null) {
+                    return false;
+                }
+                for (String file : files) {
+                    File srcFile = new File(src, file);
+                    File destFile = new File(dest, file);
+                    //recursive copy
+                    if (!copy(srcFile, destFile)) {
+                        return false;
+                    }
+                }
+
+            } else {
+
+                in = new FileInputStream(src);
+                out = new FileOutputStream(dest);
+
+                byte[] buffer = new byte[1024];
+
+                int length;
+
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+
+            }
+            return true;
         } catch (IOException e) {
             throw new BallerinaException("Error while copying file");
         } finally {
-            closeQuietly(inputStream);
-            closeQuietly(outputStream);
+            if (in != null) {
+                closeQuietly(in);
+            }
+            if (out != null) {
+                closeQuietly(out);
+            }
         }
-        return VOID_RETURN;
     }
 
     private void closeQuietly(Closeable resource) {
