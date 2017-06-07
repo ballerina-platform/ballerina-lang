@@ -54,6 +54,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -75,6 +76,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BallerinaPsiImplUtil {
 
@@ -1222,6 +1225,13 @@ public class BallerinaPsiImplUtil {
         PsiElement[] children = expressionNode.getChildren();
         if (children.length > 0) {
             if (children[0] instanceof VariableReferenceNode) {
+                IdentifierPSINode identifierNode = PsiTreeUtil.findChildOfType(children[0],
+                        IdentifierPSINode.class);
+                // If the element is equal to the  child in 0th index, we don't consider it as a struct field since
+                // it is the struct variable reference name.
+                if (element.equals(identifierNode)) {
+                    return false;
+                }
                 PsiElement[] superChildren = children[0].getChildren();
                 if (superChildren.length == 3) {
                     return ".".equals(superChildren[1].getText());
@@ -1267,5 +1277,47 @@ public class BallerinaPsiImplUtil {
         List<FieldDefinitionNode> results = new LinkedList<>();
         results.addAll(PsiTreeUtil.findChildrenOfType(node, FieldDefinitionNode.class));
         return results;
+    }
+
+    public static boolean canSuggestArrayLength(@NotNull PsiElement definition,
+                                                @NotNull PsiElement reference) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definition, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return false;
+        }
+
+        String definitionText = typeNameNode.getText();
+        String definitionRegex = "\\[\\s*]";
+        int definitionDimension = getArrayDimension(definitionText, definitionRegex);
+        if (definitionDimension == 0) {
+            return false;
+        }
+
+        String referenceText = reference.getText();
+        String referenceRegex = "\\[\\s*\\d+\\s*]";
+        int referenceDimension = getArrayDimension(referenceText, referenceRegex);
+
+        return definitionDimension - 1 >= referenceDimension;
+    }
+
+    private static int getArrayDimension(String definitionText, String definitionRegex) {
+        final Pattern definitionPattern = Pattern.compile(definitionRegex);
+        final Matcher definitionMatcher = definitionPattern.matcher(definitionText);
+        int definitionDimension = 0;
+        while (definitionMatcher.find()) {
+            definitionDimension++;
+        }
+        return definitionDimension;
+    }
+
+    public static boolean isArrayDefinition(@NotNull PsiElement definitionNode) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definitionNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return false;
+        }
+        String definitionText = typeNameNode.getText();
+        String definitionRegex = "\\[\\s*]";
+        int definitionDimension = getArrayDimension(definitionText, definitionRegex);
+        return definitionDimension != 0;
     }
 }

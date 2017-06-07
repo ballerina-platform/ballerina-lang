@@ -16,18 +16,14 @@
 
 package completion;
 
-import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     private static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("package", "import", "const", "service",
             "function", "connector", "struct", "typemapper", "annotation");
@@ -1834,28 +1830,4 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
 
     // todo -  test resource level specific keywords
 
-    private void doTest(String fileContent, String... expectedLookups) {
-        if (fileContent != null) {
-            myFixture.configureByText("test.bal", fileContent);
-        }
-        myFixture.complete(CompletionType.BASIC, 1);
-        List<String> lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, expectedLookups);
-    }
-
-    private void doCheckResult(@NotNull String relativePath, @NotNull String before, String after,
-                               @Nullable Character c, String... expectedLookups) {
-        PsiFile testFile = myFixture.addFileToProject(relativePath, before);
-        myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
-        myFixture.completeBasic();
-        if (c != null) {
-            myFixture.type(c);
-        }
-        if (after != null) {
-            myFixture.checkResult(after);
-        } else {
-            doTest(null, expectedLookups);
-        }
-    }
 }

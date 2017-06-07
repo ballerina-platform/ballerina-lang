@@ -878,6 +878,11 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
     }
 
+    static void addArrayLengthAsLookup(@NotNull CompletionResultSet resultSet) {
+        LookupElementBuilder builder = LookupElementBuilder.create("length");
+        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+    }
+
     /**
      * Identify the annotation attachment type of the given definition node.
      *

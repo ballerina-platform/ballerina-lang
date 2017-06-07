@@ -12,10 +12,12 @@
     <change-notes><![CDATA[
       <ul>
         <li>Merge two run configurations into a single configuration.</li>
-        <li>Update worker grammar.</li>
-        <li>Improve code completion.</li>
-        <li>Update live templates.</li>
+        <li>Add exit points highlighting support.</li>
+        <li>Add array.length support.</li>
         <li>Add new hidden templates.</li>
+        <li>Improve code completion.</li>
+        <li>Update worker grammar.</li>
+        <li>Update live templates.</li>
       </ul>
       <a href="https://github.com/ballerinalang/plugin-intellij/milestone/7?closed=1">View all changes and bug fixes.</a>
     ]]>
