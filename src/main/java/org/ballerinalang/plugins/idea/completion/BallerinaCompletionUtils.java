@@ -60,18 +60,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BallerinaCompletionUtils {
 
     private static final int VARIABLE_PRIORITY = 20;
+    private static final int FUNCTION_PRIORITY = VARIABLE_PRIORITY - 1;
     private static final int VALUE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
     private static final int REFERENCE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
-    private static final int FUNCTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int PACKAGE_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int UNIMPORTED_PACKAGE_PRIORITY = PACKAGE_PRIORITY - 1;
     private static final int STRUCT_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int CONNECTOR_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int ACTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
@@ -633,7 +632,7 @@ public class BallerinaCompletionUtils {
                     .withTailText("(" + suggestedImportPath + ")", true)
                     .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
                     .withInsertHandler(insertHandler);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, UNIMPORTED_PACKAGE_PRIORITY));
         }
     }
 
