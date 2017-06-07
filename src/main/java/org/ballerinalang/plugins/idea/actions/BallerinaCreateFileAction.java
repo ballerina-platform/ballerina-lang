@@ -36,21 +36,23 @@ import java.util.Map;
 
 public class BallerinaCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
 
-    public static final String FILE_TEMPLATE = "Ballerina File";
-    public static final String APPLICATION_TEMPLATE = "Ballerina Application";
+    private static final String FILE_TEMPLATE_NAME = "Ballerina File";
+    private static final String MAIN_TEMPLATE_NAME = "Ballerina Main";
+    private static final String SERVICE_TEMPLATE_NAME = "Ballerina Service";
 
     private static final String NEW_BALLERINA_FILE = "New Ballerina File";
-    private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = FILE_TEMPLATE;
+    private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
 
     public BallerinaCreateFileAction() {
         super(NEW_BALLERINA_FILE, "", BallerinaIcons.ICON);
     }
 
     @Override
-    protected void buildDialog(Project project, PsiDirectory directory, @NotNull CreateFileFromTemplateDialog.Builder
-            builder) {
-        builder.setTitle(NEW_BALLERINA_FILE).addKind("Simple Application", BallerinaIcons.ICON, APPLICATION_TEMPLATE)
-                .addKind("Empty file", BallerinaIcons.ICON, FILE_TEMPLATE);
+    protected void buildDialog(Project project, PsiDirectory directory,
+                               @NotNull CreateFileFromTemplateDialog.Builder builder) {
+        builder.setTitle(NEW_BALLERINA_FILE).addKind("Ballerina Main", BallerinaIcons.ICON, MAIN_TEMPLATE_NAME)
+                .addKind("Ballerina Service", BallerinaIcons.ICON, SERVICE_TEMPLATE_NAME)
+                .addKind("Empty File", BallerinaIcons.ICON, FILE_TEMPLATE_NAME);
     }
 
     @Nullable
