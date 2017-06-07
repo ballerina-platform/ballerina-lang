@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -190,7 +191,7 @@ public class FileTest {
 
     }
 
-    @Test
+    @Test(expectedExceptions = IOException.class)
     public void testClose() throws IOException {
 
         String sourcePath = "temp/original.txt";
@@ -199,16 +200,17 @@ public class FileTest {
             BValue[] source = { new BString(sourcePath) };
             BStruct sourceStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
             BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(sourceFile));
-            sourceStruct.addNativeData("stream", inputStream);
+            sourceStruct.addNativeData("inStream", inputStream);
+            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(sourceFile));
+            sourceStruct.addNativeData("outStream", outputStream);
             BValue[] args = {sourceStruct};
 
             BLangFunctions.invoke(bLangProgram, "testClose", args);
-            inputStream = (BufferedInputStream) sourceStruct.getNativeData("stream");
-            try {
-                inputStream.read();
-            } catch (IOException e) {
-                Assert.assertEquals(e.getMessage(), "Stream closed");
-            }
+            inputStream = (BufferedInputStream) sourceStruct.getNativeData("inStream");
+            outputStream = (BufferedOutputStream) sourceStruct.getNativeData("outStream");
+            inputStream.read();
+            outputStream.write(1);
+
         } else {
             Assert.fail("Error in file creation.");
         }
@@ -244,7 +246,7 @@ public class FileTest {
         BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
 
         BufferedInputStream is = new BufferedInputStream(new FileInputStream(targetFile));
-        targetStruct.addNativeData("stream", is);
+        targetStruct.addNativeData("inStream", is);
         BValue[] args = { targetStruct, new BInteger(11) };
 
         BValue[] results = BLangFunctions.invoke(bLangProgram, "testRead", args);
@@ -254,7 +256,7 @@ public class FileTest {
     private void deleteDir(File dir) {
 
         String[] entries = dir.list();
-        if (entries.length != 0) {
+        if (entries != null && entries.length != 0) {
             for (String s : entries) {
                 File currentFile = new File(dir.getPath(), s);
                 if (currentFile.isDirectory()) {
