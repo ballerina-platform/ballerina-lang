@@ -265,3 +265,9 @@ export const panelHeading = {
         padding: 3
     }
 };
+
+export const timeout = {
+    title: {
+        w: 75
+    }
+};

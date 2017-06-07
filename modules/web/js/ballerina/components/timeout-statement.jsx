@@ -18,6 +18,7 @@
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
+import {timeout} from './../configs/designer-defaults';
 import PropTypes from 'prop-types';
 import {getComponentForNodeArray} from './utils';
 
@@ -37,7 +38,7 @@ class TimeoutStatement extends React.Component {
             lifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
         }
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Timeout'}>
+            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Timeout'} titleWidth={timeout.title.w}>
                 {model.children.length > 0 &&
                 <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
                       className="join-lifeline"/> }
