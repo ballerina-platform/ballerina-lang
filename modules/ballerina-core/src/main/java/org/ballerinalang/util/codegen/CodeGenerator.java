@@ -819,10 +819,23 @@ public class CodeGenerator implements NodeVisitor {
             regIndexes = multiReturnExpr.getOffsets();
             BType[] retTypes = multiReturnExpr.getTypes();
             for (int i = 0; i < regIndexes.length; i++) {
-                // 1:return Type; 2: return value position; 3:callee's value index;
-                Instruction returnValue = new Instruction(InstructionCodes.RETVAL, retTypes[i].getTag(), i,
-                        regIndexes[i]);
-                emit(returnValue);
+                // 1: return value position; 2:callee's value index;
+                switch (retTypes[i].getTag()) {
+                    case TypeTags.INT_TAG:
+                        emit(new Instruction(InstructionCodes.IRET, i, regIndexes[i]));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        emit(new Instruction(InstructionCodes.FRET, i, regIndexes[i]));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        emit(new Instruction(InstructionCodes.SRET, i, regIndexes[i]));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        emit(new Instruction(InstructionCodes.BRET, i, regIndexes[i]));
+                        break;
+                    default:
+                        emit(new Instruction(InstructionCodes.RRET, i, regIndexes[i]));
+                }
             }
         } else {
             regIndexes = new int[returnStmt.getExprs().length];
@@ -830,9 +843,22 @@ public class CodeGenerator implements NodeVisitor {
                 Expression expr = returnStmt.getExprs()[i];
                 expr.accept(this);
                 regIndexes[i] = expr.getTempOffset();
-                Instruction returnValue = new Instruction(InstructionCodes.RETVAL, expr.getType().getTag(), i,
-                        regIndexes[i]);
-                emit(returnValue);
+                switch (expr.getType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        emit(new Instruction(InstructionCodes.IRET, i, regIndexes[i]));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        emit(new Instruction(InstructionCodes.FRET, i, regIndexes[i]));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        emit(new Instruction(InstructionCodes.SRET, i, regIndexes[i]));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        emit(new Instruction(InstructionCodes.BRET, i, regIndexes[i]));
+                        break;
+                    default:
+                        emit(new Instruction(InstructionCodes.RRET, i, regIndexes[i]));
+                }
             }
         }
         if (finallyBlocks.size() > 0) {

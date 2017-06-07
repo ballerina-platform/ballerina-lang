@@ -189,6 +189,9 @@ public class BLangVM {
         WorkerReplyCPEntry workerReplyCPEntry;
         WorkerDataChannel workerDataChannel;
 
+        StackFrame currentSF, callersSF;
+        int callersRetRegIndex;
+
         // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 
@@ -878,19 +881,6 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeNativeAction(actionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.RET:
-                    handleReturn();
-                    break;
-                case InstructionCodes.REP:
-                    i = operands[0];
-                    BMessage message = null;
-                    if (i >= 0) {
-                        message = (BMessage) sf.refRegs[i];
-                    }
-                    context.setError(null);
-                    context.getBalCallback().done(message != null ? message.value() : null);
-                    ip = -1;
-                    break;
                 case InstructionCodes.THROW:
                     i = operands[0];
                     if (i >= 0) {
@@ -905,12 +895,6 @@ public class BLangVM {
                     sf.refLocalVars[i] = context.getError();
                     // clear error.
                     context.setError(null);
-                    break;
-                case InstructionCodes.RETVAL:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    copyReturnValue(i, j, k);
                     break;
                 case InstructionCodes.I2F:
                     i = operands[0];
@@ -1241,7 +1225,59 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
                     break;
-
+                case InstructionCodes.REP:
+                    i = operands[0];
+                    BMessage message = null;
+                    if (i >= 0) {
+                        message = (BMessage) sf.refRegs[i];
+                    }
+                    context.setError(null);
+                    context.getBalCallback().done(message != null ? message.value() : null);
+                    ip = -1;
+                    break;
+                case InstructionCodes.RET:
+                    handleReturn();
+                    break;
+                case InstructionCodes.IRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
+                    break;
+                case InstructionCodes.FRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[j];
+                    break;
+                case InstructionCodes.SRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[j];
+                    break;
+                case InstructionCodes.BRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
+                    break;
+                case InstructionCodes.RRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
+                    break;
                 default:
                     throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
             }
@@ -1408,34 +1444,6 @@ public class BLangVM {
                 default:
                     calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
             }
-        }
-    }
-
-    private void copyReturnValue(int type, int position, int regIndex) {
-        StackFrame currentSF = controlStack.getCurrentFrame();
-        if (controlStack.fp < 1) {
-            // This shouldn't be executed. Validation has been done at Semantic phase.
-            BLangVMErrors.createError(context, ip, "internal error, invalid return location.");
-            handleError();
-            return;
-        }
-        StackFrame callersSF = controlStack.getStack()[controlStack.fp - 1];
-        int callersRetRegIndex = currentSF.retRegIndexes[position];
-        switch (type) {
-            case TypeTags.INT_TAG:
-                callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[regIndex];
-                break;
-            case TypeTags.FLOAT_TAG:
-                callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[regIndex];
-                break;
-            case TypeTags.STRING_TAG:
-                callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[regIndex];
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[regIndex];
-                break;
-            default:
-                callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[regIndex];
         }
     }
 

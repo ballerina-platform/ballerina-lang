@@ -139,11 +139,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.NACALL] = "nacall";
-        mnemonics[InstructionCodes.RET] = "ret";
-        mnemonics[InstructionCodes.REP] = "rep";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
-        mnemonics[InstructionCodes.RETVAL] = "retval";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
@@ -198,6 +195,15 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWMESSAGE] = "newmessage";
         mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
+
+
+        mnemonics[InstructionCodes.REP] = "rep";
+        mnemonics[InstructionCodes.RET] = "ret";
+        mnemonics[InstructionCodes.IRET] = "iret";
+        mnemonics[InstructionCodes.FRET] = "fret";
+        mnemonics[InstructionCodes.SRET] = "sret";
+        mnemonics[InstructionCodes.BRET] = "bret";
+        mnemonics[InstructionCodes.RRET] = "rret";
     }
 
     public static String getMnem(int opcode) {
