@@ -192,7 +192,7 @@ public interface InstructionCodes {
     int CHECKCAST = 163;
     int ANY2MSG = 164;
 
-    int ABORT = 165;
+    // Transactions
     int TRBGN = 166;
     int TREND = 167;
 

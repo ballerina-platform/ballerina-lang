@@ -835,13 +835,6 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.ABORT: {
-                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
-                    if (ballerinaTransactionManager != null) {
-                        ballerinaTransactionManager.setTransactionError(true);
-                    }
-                }
-                break;
                 case InstructionCodes.TRBGN: {
                     BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
                     if (ballerinaTransactionManager == null) {
@@ -850,16 +843,19 @@ public class BLangVM {
                     }
                     ballerinaTransactionManager.beginTransactionBlock();
                 }
-                break;
-                case InstructionCodes.TREND:
+                    break;
+                case InstructionCodes.TREND: {
+                    i = operands[0];
                     BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
                     if (ballerinaTransactionManager != null) {
-                        if (ballerinaTransactionManager.isTransactionError()) {
-                            ballerinaTransactionManager.rollbackTransactionBlock();
-                        } else {
+                        if (i == 0) {
                             ballerinaTransactionManager.commitTransactionBlock();
+                        } else {
+                            ballerinaTransactionManager.setTransactionError(true);
+                            ballerinaTransactionManager.rollbackTransactionBlock();
                         }
                     }
+                }
                     break;
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];

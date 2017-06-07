@@ -1031,20 +1031,27 @@ public class CodeGenerator implements NodeVisitor {
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
         int iAbortedBlockIP = -1;
         abortInstructions.push(new ArrayList<>());
+        //start transaction
         emit(new Instruction(InstructionCodes.TRBGN));
+        //process transaction statements
         transactionStmt.getTransactionBlock().accept(this);
-        emit(new Instruction(InstructionCodes.TREND));
+        //end the transaction
+        emit(new Instruction(InstructionCodes.TREND, 0));
+        //process committed block
         if (transactionStmt.getCommittedBlock() != null) {
             transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
             emit(gotoEndOfTryCatchBlock);
         }
+        //process aborted block
         if (transactionStmt.getAbortedBlock() != null) {
             iAbortedBlockIP = nextIP();
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
         }
+        //set end of transaction
         emit(gotoEndOfTryCatchBlock);
         int endofTransIP = nextIP();
         gotoEndOfTryCatchBlock.setOperand(0, endofTransIP);
+        //set location of aborted block
         if (iAbortedBlockIP == -1) {
             iAbortedBlockIP = endofTransIP;
         }
@@ -1056,9 +1063,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AbortStmt abortStmt) {
-        Instruction abortInstruction = new Instruction(InstructionCodes.ABORT);
-        emit(abortInstruction);
-        emit(new Instruction(InstructionCodes.TREND));
+        emit(new Instruction(InstructionCodes.TREND, -1));
         Instruction gotoAbortedInstruction = new Instruction(InstructionCodes.GOTO, 0);
         emit(gotoAbortedInstruction);
         abortInstructions.peek().add(gotoAbortedInstruction);
