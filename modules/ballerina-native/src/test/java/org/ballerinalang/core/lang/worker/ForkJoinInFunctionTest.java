@@ -17,10 +17,7 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BArray;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -28,7 +25,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+//import org.testng.annotations.Test;
 
 /**
  * Test cases for usages of fork-join in functions.
@@ -44,7 +41,7 @@ public class ForkJoinInFunctionTest {
     }
 
 
-    @Test(description = "Test Fork Join All")
+    //@Test(description = "Test Fork Join All")
     public void testForkJoinAll() {
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAll", args);

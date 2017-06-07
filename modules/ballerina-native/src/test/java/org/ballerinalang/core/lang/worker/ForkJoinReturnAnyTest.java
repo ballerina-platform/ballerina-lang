@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;

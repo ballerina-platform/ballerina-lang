@@ -884,19 +884,27 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
         int pkgCPIndex = addPackageCPEntry(workerInvocationStmt.getPackagePath());
         WorkerDataChannel workerDataChannel = workerInvocationStmt.getWorkerDataChannel();
+        BType[] types = workerInvocationStmt.getTypes();
+        StringBuilder sb = new StringBuilder();
+        for (BType type : types) {
+            sb.append(type.getSig().getName());
+        }
         String workerInvocationName;
         if (workerDataChannel != null) {
             workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
-                    workerDataChannel.getChannelName();
-            currentWorkerInfo.setWorkerDataChannelForForkJoin(workerDataChannel);
+                    workerDataChannel.getChannelName() + "." + sb.toString();
+            if (currentWorkerInfo != null) {
+                currentWorkerInfo.setWorkerDataChannelForForkJoin(workerDataChannel);
+            }
         } else {
             workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
-                    "default -> fork";
+                    "default -> fork" + "." + sb.toString();
         }
         UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(workerInvocationName);
         int workerInvocationNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
         WorkerDataChannelRefCPEntry workerInvocationRefCPEntry =
                 new WorkerDataChannelRefCPEntry(pkgCPIndex, workerInvocationNameCPIndex);
+        workerInvocationRefCPEntry.setTypes(types);
         if (workerDataChannel != null) {
             workerInvocationRefCPEntry.setWorkerDataChannel(workerDataChannel);
         }
@@ -908,8 +916,13 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
         int pkgCPIndex = addPackageCPEntry(workerReplyStmt.getPackagePath());
+        BType[] types = workerReplyStmt.getTypes();
+        StringBuilder sb = new StringBuilder();
+        for (BType type : types) {
+            sb.append(type.getSig().getName());
+        }
         String workerReplyName = workerReplyStmt.getEnclosingCallableUnitName() + "." +
-                workerReplyStmt.getWorkerDataChannel().getChannelName();
+                workerReplyStmt.getWorkerDataChannel().getChannelName() + "." + sb.toString();
         UTF8CPEntry workerReplyNameCPEntry = new UTF8CPEntry(workerReplyName);
         int workerReplyNameCPIndex = currentPkgInfo.addCPEntry(workerReplyNameCPEntry);
 
@@ -917,6 +930,7 @@ public class CodeGenerator implements NodeVisitor {
 
         WorkerDataChannelRefCPEntry workerReplyRefCPEntry =
                 new WorkerDataChannelRefCPEntry(pkgCPIndex, workerReplyNameCPIndex);
+        workerReplyRefCPEntry.setTypes(types);
         workerReplyRefCPEntry.setWorkerDataChannel(workerDataChannel);
         int workerReplyRefCPIndex = currentPkgInfo.addCPEntry(workerReplyRefCPEntry);
         int workerReplyIndex = getWorkerReplyCPIndex(workerReplyStmt);
@@ -2228,7 +2242,7 @@ public class CodeGenerator implements NodeVisitor {
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
         int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
         int[] lvIndexesCopy = lvIndexes.clone();
-
+        int[] regIndexesCopy = regIndexes.clone();
         for (Worker worker : forkJoinStmt.getWorkers()) {
             WorkerInfo workerInfo = forkJoinCPEntry.getWorkerInfo(worker.getName());
             workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
@@ -2236,18 +2250,29 @@ public class CodeGenerator implements NodeVisitor {
             currentWorkerInfo = workerInfo;
             lvIndexes = lvIndexesCopy.clone();
             worker.getCallableUnitBody().accept(this);
+            workerInfo.setWorkerEndIP(nextIP());
             endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
         }
 
+        lvIndexes = lvIndexesCopy;
+        regIndexes = regIndexesCopy;
         
         // Generate code for Join block
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
+        join.setIp(nextIP());
+        if (join.getJoinResult() != null) {
+            visitForkJoinParameterDefs(join.getJoinResult());
+        }
         if (join.getJoinBlock() != null) {
             join.getJoinBlock().accept(this);
         }
 
         // Generate code for timeout block
         ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
+        timeout.setIp(nextIP());
+        if (timeout.getTimeoutResult() != null) {
+            visitForkJoinParameterDefs(timeout.getTimeoutResult());
+        }
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }
@@ -2338,6 +2363,17 @@ public class CodeGenerator implements NodeVisitor {
         return annotationAttribValue;
     }
 
+    private void visitForkJoinParameterDefs(ParameterDef parameterDef) {
+        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
+        int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
+        parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+        parameterDef.accept(this);
+        LocalVariableInfo localVariableDetails = getLocalVariableAttributeInfo(parameterDef);
+        localVariableAttributeInfo.addLocaleVaraibleDetails(localVariableDetails);
+        //callableUnitInfo.addAttributeInfo(AttributeInfo.LOCALVARIABLES_ATTRIBUTE, localVariableAttributeInfo);
+
+    }
+
     private void visitCallableUnitParameterDefs(ParameterDef[] parameterDefs, CallableUnitInfo callableUnitInfo) {
         boolean paramAnnotationFound = false;
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
@@ -2419,9 +2455,9 @@ public class CodeGenerator implements NodeVisitor {
                 WorkerInfo workerInfo = callableUnitInfo.getWorkerInfo(worker.getName());
                 workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
                 workerInfo.getCodeAttributeInfo().setCodeAddrs(nextIP());
-
                 lvIndexes = lvIndexesCopy.clone();
                 worker.getCallableUnitBody().accept(this);
+                workerInfo.setWorkerEndIP(nextIP());
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
             }
 

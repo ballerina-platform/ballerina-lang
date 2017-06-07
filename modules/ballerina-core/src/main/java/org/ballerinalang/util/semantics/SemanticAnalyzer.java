@@ -593,9 +593,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             do {
                 buildWorkerInteractions(callableUnit, tempWorkers, isWorkerInWorker, isForkJoinStmt);
                 callableUnit = workers[i];
-                System.arraycopy(workers, i + 1, tempWorkers, 0, workers.length - (i + 1));
                 i++;
-            } while (i < workers.length - 1);
+                System.arraycopy(workers, i, tempWorkers, 0, workers.length - i);
+            } while (i < workers.length);
         }
     }
 
@@ -851,7 +851,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         blockStmt.accept(this);
         isWithinWorker = false;
 
-        resolveWorkerInteractions(worker);
+        //resolveWorkerInteractions(worker);
+
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --

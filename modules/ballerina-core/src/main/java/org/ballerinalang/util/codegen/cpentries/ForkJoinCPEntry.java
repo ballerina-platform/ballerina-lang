@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen.cpentries;
 
 import org.ballerinalang.model.statements.ForkJoinStmt;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.Arrays;

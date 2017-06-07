@@ -19,14 +19,16 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -65,7 +67,7 @@ public class BLangVMWorkers {
 
     static class WorkerExecutor implements Callable<BValue[]> {
 
-//        private static final Logger log = LoggerFactory.getLogger(org.ballerinalang.bre.WorkerExecutor.class);
+        private static final Logger log = LoggerFactory.getLogger(org.ballerinalang.bre.WorkerExecutor.class);
 //        private static PrintStream outStream = System.err;
 
         private BLangVM bLangVM;
@@ -84,23 +86,21 @@ public class BLangVMWorkers {
         @Override
         public BValue[] call() throws BallerinaException {
             try {
-                System.out.println("Starting worker" + workerInfo.getWorkerName());
-                bLangVM.execFunction(callableUnitInfo.getPackageInfo(), bContext,
-                        workerInfo.getCodeAttributeInfo().getCodeAddrs());
-                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
-                if (results != null) {
-                    return results;
-                } else {
-                    return new BValue[0];
+                bLangVM.execWorker(callableUnitInfo.getPackageInfo(), bContext,
+                        workerInfo.getCodeAttributeInfo().getCodeAddrs(), workerInfo.getWorkerEndIP());
+                BValue[] results = new BValue[0];
+                if (workerInfo.getWorkerDataChannelForForkJoin() != null) {
+                    results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
                 }
+                return results;
 //                worker.getCallableUnitBody().execute(executor);
             } catch (RuntimeException throwable) {
-//                String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-//                String stacktrace = ErrorHandlerUtils.getServiceStackTrace(bContext, throwable);
-//                String errorWithTrace = "exception in worker" + worker.getName() + " : " + errorMsg +
-// "\n" + stacktrace;
-//                log.error(errorWithTrace);
-//                outStream.println(errorWithTrace);
+                String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+                String stacktrace = ErrorHandlerUtils.getServiceStackTrace(bContext, throwable);
+                String errorWithTrace = "exception in worker" + workerInfo.getWorkerName() + " : " + errorMsg +
+                                            "\n" + stacktrace;
+                log.error(errorWithTrace);
+                //outStream.println(errorWithTrace);
             }
             return new BValue[0];
         }

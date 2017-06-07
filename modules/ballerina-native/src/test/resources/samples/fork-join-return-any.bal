@@ -23,16 +23,23 @@ function testForkJoinReturnAnyTypeVM()(int, string) {
     s, u -> fork;
     }
     } join (all) (any[][] results) {
-        p = (int) results[0][0];
-        q = (string) results[1][0];
-        r = (string) results[0][1];
-        t = (float) results[1][1];
-        system:println(p);
-        system:println(r);
-        system:println(q);
-        system:println(t);
+        system:println("Within join block");
+        any[] t1;
+        t1 = results[0];
+        system:println("After any array cast");
+        //p = (int) t1[0];
+        //system:println("After int cast");
+        //q = (string) results[1][0];
+        //r = (string) results[0][1];
+        //t = (float) results[1][1];
+        //system:println(p);
+        //system:println(r);
+        //system:println(q);
+        //system:println(t);
     }
 
 system:println("After the fork-join statement");
+p = 111;
+q = "eeee";
 return p, q;
 }

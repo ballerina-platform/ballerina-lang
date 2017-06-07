@@ -30,6 +30,7 @@ public class WorkerInfo {
 
     private String workerName;
     private int workerNameCPIndex;
+    private int workerEndIP;
 
     private CallableUnitInfo callableUnitInfo;
 
@@ -71,5 +72,13 @@ public class WorkerInfo {
 
     public void setWorkerDataChannelForForkJoin(WorkerDataChannel workerDataChannelForForkJoin) {
         this.workerDataChannelForForkJoin = workerDataChannelForForkJoin;
+    }
+
+    public int getWorkerEndIP() {
+        return workerEndIP;
+    }
+
+    public void setWorkerEndIP(int workerEndIP) {
+        this.workerEndIP = workerEndIP;
     }
 }

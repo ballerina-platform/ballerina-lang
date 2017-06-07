@@ -49,7 +49,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -107,6 +106,7 @@ public class BLangVM {
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
+    private int workerEndIP = -1;
 
     private StructureType globalMemBlock;
 
@@ -132,7 +132,20 @@ public class BLangVM {
         this.controlStack = context.getControlStackNew();
         this.context.setVMBasedExecutor(true);
         this.ip = ip;
-        System.out.println("Values " + ip + this.controlStack.getCurrentFrame().toString());
+
+//        traceCode();
+        exec();
+    }
+
+    public void execWorker(PackageInfo packageInfo, Context context, int startIP, int endIP) {
+        this.constPool = packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+        this.code = packageInfo.getInstructionList().toArray(new Instruction[0]);
+
+        this.context = context;
+        this.controlStack = context.getControlStackNew();
+        this.context.setVMBasedExecutor(true);
+        this.ip = startIP;
+        this.workerEndIP = endIP;
 
 //        traceCode();
         exec();
@@ -175,14 +188,13 @@ public class BLangVM {
         ForkJoinCPEntry forkJoinCPEntry;
 
         // TODO use HALT Instruction in the while condition
-        while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
+        while (ip >= 0 && ip < code.length && controlStack.fp >= 0 && (ip != workerEndIP)) {
 
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
             ip++;
             StackFrame sf = controlStack.getCurrentFrame();
-            //System.out.println("Executing opcode " + opcode);
 
             switch (opcode) {
                 case InstructionCodes.ICONST:
@@ -760,19 +772,21 @@ public class BLangVM {
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
                     workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+                    BType[] types = workerRefCPEntry.getTypes();
 
                     cpIndex = operands[1];
                     workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
-                    invokeWorker(workerDataChannel, workerInvokeCPEntry);
+                    invokeWorker(workerDataChannel, workerInvokeCPEntry, types);
                     break;
                 case InstructionCodes.WRKREPLY:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
                     workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+                    types = workerRefCPEntry.getTypes();
 
                     cpIndex = operands[1];
                     workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
-                    replyWorker(workerDataChannel, workerReplyCPEntry);
+                    replyWorker(workerDataChannel, workerReplyCPEntry, types);
                     break;
                 case InstructionCodes.FORKJOIN:
                     cpIndex = operands[0];
@@ -1179,13 +1193,14 @@ public class BLangVM {
 
     }
 
-    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
+    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry,
+                             BType[] types) {
         StackFrame currentFrame = controlStack.getCurrentFrame();
 
         // Extract the outgoing expressions
         BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
         copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
-                workerInvokeCPEntry.getbTypes(), arguments);
+                types, arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
         if (workerDataChannel != null) {
@@ -1208,7 +1223,6 @@ public class BLangVM {
         if (forkJoinCPEntry.isTimeoutAvailable()) {
             timeout = controlStack.getCurrentFrame().getLongRegs()[0];
         }
-        System.out.println("Join timeout value is " + timeout);
 
         Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
@@ -1264,12 +1278,14 @@ public class BLangVM {
         }
 
         if (isForkJoinTimedOut) {
+            ip = forkJoinStmt.getTimeout().getIp();
             // Execute the timeout block
 
             int offsetTimeout = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
                     getStackFrameOffset();
-            BArray<BArray> bbArray = new BArray<>(BArray.class);
-
+            //BArray<BArray> bbArray = new BArray<>(BArray.class);
+            BRefValueArray bbArray = new BRefValueArray();
+//            BAnyArray bbArray = new BAnyArray();
             for (int i = 0; i < resultMsgs.size(); i++) {
                 BValue[] value = resultMsgs.get(i);
                 BArray<BValue> bArray = new BArray<>(BValue.class);
@@ -1279,16 +1295,19 @@ public class BLangVM {
                 }
                 bbArray.add(i, bArray);
             }
+            controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = bbArray;
             //controlStack.setValue(offsetTimeout, bbArray);
             //forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
             isForkJoinTimedOut = false;
 
         } else {
+            ip = forkJoinStmt.getJoin().getIp();
             // Assign values to join block message arrays
             int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
                     getStackFrameOffset();
-            BArray<BArray> bbArray = new BArray<>(BArray.class);
-
+            //BArray<BArray> bbArray = new BArray<>(BArray.class);
+            BRefValueArray bbArray = new BRefValueArray();
+//            BAnyArray bbArray = new BAnyArray();
             for (int i = 0; i < resultMsgs.size(); i++) {
                 BValue[] value = resultMsgs.get(i);
                 BArray<BValue> bArray = new BArray<>(BValue.class);
@@ -1298,6 +1317,7 @@ public class BLangVM {
                 }
                 bbArray.add(i, bArray);
             }
+            controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = bbArray;
             //controlStack.setValue(offsetJoin, bbArray);
             //forkJoinStmt.getJoin().getJoinBlock().execute(this);
         }
@@ -1317,7 +1337,8 @@ public class BLangVM {
 //
 //            BLangVM bLangVM = new BLangVM(programFile);
 //            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-//            BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM, callableUnitInfo, workerContext, workerInfo);
+//            BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM, callableUnitInfo,
+//            workerContext, workerInfo);
 //            executor.submit(workerRunner);
 //        }
     }
@@ -1360,13 +1381,13 @@ public class BLangVM {
         return result;
     }
 
-    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
+    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry, BType[] types) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
         //currentFrame.returnValues = passedInValues;
         copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
-                workerReplyCPEntry.getTypes(), passedInValues);
+                types, passedInValues);
 //        for (int i = 0; i < localVars.length; i++) {
 //            Expression lExpr = localVars[i];
 //            BValue rValue = passedInValues[i];
