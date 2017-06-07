@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
@@ -27,6 +28,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * A {@code Resource} is a single request handler within a {@code Service}.
@@ -62,6 +64,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private BType[] parameterTypes;
     private Worker[] workers;
     private BlockStmt resourceBody;
+    private Queue<Statement> workerInteractionStatements;
 
 
     // Scope related variables
@@ -105,8 +108,14 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return list of Workers
      */
+    @Override
     public Worker[] getWorkers() {
         return workers;
+    }
+
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return workerInteractionStatements;
     }
 
     /**
@@ -320,6 +329,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
                 worker.setParameterDefs(resource.getParameterDefs());
             }
             resource.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            resource.workerInteractionStatements = this.workerInteractionStatements;
             resource.resourceBody = this.body;
             return resource;
         }

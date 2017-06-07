@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * {@code ForkJoinStmt} represents a fork/join statement.
@@ -404,6 +405,16 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     @Override
     public void setParameterTypes(BType[] parameterTypes) {
 
+    }
+
+    /**
+     * Get worker interaction statements related to a callable unit
+     *
+     * @return Queue of worker interactions
+     */
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return null;
     }
 
     // Methods in the SymbolScope interface

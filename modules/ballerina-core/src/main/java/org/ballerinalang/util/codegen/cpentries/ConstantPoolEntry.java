@@ -40,7 +40,10 @@ public interface ConstantPoolEntry {
         CP_ENTRY_ACTION_REF((byte) 12),
         CP_ENTRY_FUNCTION_CALL_ARGS((byte) 13),
         CP_ENTRY_FUNCTION_RET((byte) 14),
-        CP_ENTRY_STRUCT((byte) 15);
+        CP_ENTRY_STRUCT((byte) 15),
+        CP_ENTRY_TYPE((byte) 16),
+        CP_ENTRY_WORKER_INVOKE((byte) 17),
+        CP_ENTRY_WORKER_REPLY((byte) 18);
 
         byte value;
 

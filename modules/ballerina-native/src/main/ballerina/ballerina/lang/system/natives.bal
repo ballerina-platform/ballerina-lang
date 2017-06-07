@@ -2,16 +2,6 @@ package ballerina.lang.system;
 
 import ballerina.doc;
 
-@doc:Description { value:"Logs an integer value"}
-@doc:Param { value:"logLevel: Log level: 1 - Trace, 2 - Debug, 3 - Info, 4 - Warn, 5 - Error" }
-@doc:Param { value:"i: Integer value to be logged" }
-native function log (int logLevel, int i);
-
-@doc:Description { value:"Logs a string value"}
-@doc:Param { value:"logLevel: Log level: 1 - Trace, 2 - Debug, 3 - Info, 4 - Warn, 5 - Error" }
-@doc:Param { value:"s: String value to be logged" }
-native function log (int logLevel, string s);
-
 @doc:Description { value:"Prints a 'any' value to the STDOUT"}
 @doc:Param { value:"a: any value to be printed" }
 native function print (any a);
@@ -22,18 +12,13 @@ native function epochTime () (int);
 
 @doc:Description { value:"Logs a float value"}
 @doc:Param { value:"logLevel: Log level: 1 - Trace, 2 - Debug, 3 - Info, 4 - Warn, 5 - Error" }
-@doc:Param { value:"f: Float value to be logged" }
-native function log (int logLevel, float f);
+@doc:Param { value:"value: any value to be logged" }
+native function log (int logLevel, any value);
 
 @doc:Description { value:"Gets the value of the specified environment variable."}
 @doc:Param { value:"key: The environment variable" }
 @doc:Return { value:"string): The value of the specified environment variable" }
 native function getEnv (string key) (string);
-
-@doc:Description { value:"Logs a Boolean value"}
-@doc:Param { value:"logLevel: Log level: 1 - Trace, 2 - Debug, 3 - Info, 4 - Warn, 5 - Error" }
-@doc:Param { value:"b: Boolean value to be logged" }
-native function log (int logLevel, boolean b);
 
 @doc:Description { value:"Gets the current system time in milliseconds"}
 @doc:Return { value:"int: System time in milliseconds" }

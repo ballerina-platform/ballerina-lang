@@ -18,7 +18,6 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -37,12 +36,10 @@ import org.testng.annotations.Test;
  */
 public class MapInitializerExprTest {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
     @BeforeTest
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/map-initializer-expr.bal");
         programFile = BTestUtils.getProgramFile("lang/expressions/map-initializer-expr.bal");
     }
 
@@ -84,13 +81,13 @@ public class MapInitializerExprTest {
     
     @Test
     public void testMapInitWithJson() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testMapInitWithJson", new BValue[] {});
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testMapInitWithJson", new BValue[] {});
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap<BString, BValue> outerMap = (BMap<BString, BValue>) returns[0];
-        Assert.assertEquals(outerMap.get(new BString("name")), new BString("Supun"));
+        BMap<String, BValue> outerMap = (BMap<String, BValue>) returns[0];
+        Assert.assertEquals(outerMap.get("name"), new BString("Supun"));
 
-        BValue info = outerMap.get(new BString("info"));
+        BValue info = outerMap.get("info");
         Assert.assertTrue(info instanceof BJSON);
         BJSON infoJson = (BJSON) info;
         Assert.assertEquals(infoJson.stringValue(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");

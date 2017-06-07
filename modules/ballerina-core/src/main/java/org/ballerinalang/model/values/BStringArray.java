@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 import java.util.Arrays;
 
 /**
@@ -38,6 +41,11 @@ public class BStringArray extends BNewArray {
     public String get(long index) {
         rangeCheckForGet(index, size);
         return values[(int) index];
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeString;
     }
 
     @Override

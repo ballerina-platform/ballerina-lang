@@ -136,6 +136,7 @@ public class TypeCastExpression extends AbstractExpression implements Executable
 
     public void setOffsets(int[] offsets) {
         this.offsets = offsets;
+        setTempOffset(offsets[0]);
     }
 
     /**

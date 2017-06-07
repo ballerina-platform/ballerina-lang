@@ -18,7 +18,6 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -37,13 +36,11 @@ import org.testng.annotations.Test;
  */
 public class UnaryExprTest {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/unary-expr.bal");
         programFile = BTestUtils.getProgramFile("lang/expressions/unary-expr.bal");
     }
 
@@ -109,7 +106,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary boolean not expression")
     public void booleanUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "booleanNotTest");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "booleanNotTest");
 
         Assert.assertEquals(returns.length, 3);
 
@@ -183,7 +180,7 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-positive.bal:5: invalid operation: " +
                     "operator \\+ not defined on 'json'")
     public void testUnaryPositiveForUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-positive.bal");
+        BTestUtils.getProgramFile("lang/expressions/unsupported-types-unary-positive.bal");
     }
 
     @Test(description = "Test unary negative for unsupported types (json)",
@@ -191,7 +188,7 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-negative.bal:5: invalid operation: " +
                     "operator - not defined on 'json'")
     public void testUnaryNegativeForUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-negative.bal");
+        BTestUtils.getProgramFile("lang/expressions/unsupported-types-unary-negative.bal");
     }
 
     @Test(description = "Test unary not for unsupported types (json)",
@@ -199,6 +196,6 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-not.bal:5: invalid operation: " +
                     "operator ! not defined on 'json'")
     public void testUnaryNotForUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-not.bal");
+        BTestUtils.getProgramFile("lang/expressions/unsupported-types-unary-not.bal");
     }
 }

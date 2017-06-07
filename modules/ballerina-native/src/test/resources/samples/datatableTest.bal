@@ -115,11 +115,11 @@ function getByName()(string, string, int, int, int) {
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
                 from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
-        blob = datatables:getString(df, "blob_type", "blob");
-        clob = datatables:getString(df, "clob_type", "clob");
-        time = datatables:getInt(df, "time_type", "time");
-        date = datatables:getInt(df, "date_type", "date");
-        timestamp = datatables:getInt(df, "timestamp_type", "timestamp");
+        blob = datatables:getStringWithType(df, "blob_type", "blob");
+        clob = datatables:getStringWithType(df, "clob_type", "clob");
+        time = datatables:getIntWithType(df, "time_type", "time");
+        date = datatables:getIntWithType(df, "date_type", "date");
+        timestamp = datatables:getIntWithType(df, "timestamp_type", "timestamp");
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
@@ -144,12 +144,12 @@ function getByIndex()(string, string, int, int, int, string) {
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
             binary_type from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
-        blob = datatables:getString(df, 1, "blob");
-        clob = datatables:getString(df, 2, "clob");
-        time = datatables:getInt(df, 3, "time");
-        date = datatables:getInt(df, 4, "date");
-        timestamp = datatables:getInt(df, 5, "timestamp");
-        binary = datatables:getString(df, 6, "binary");
+        blob = datatables:getStringWithType(df, 1, "blob");
+        clob = datatables:getStringWithType(df, 2, "clob");
+        time = datatables:getIntWithType(df, 3, "time");
+        date = datatables:getIntWithType(df, 4, "date");
+        timestamp = datatables:getIntWithType(df, 5, "timestamp");
+        binary = datatables:getStringWithType(df, 6, "binary");
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
@@ -271,9 +271,9 @@ function testDateTime(string time, string date, string timestamp) (int time1, in
     datatable dt = sql:ClientConnector.select(testDB, "SELECT time_type, date_type, timestamp_type
                 from DateTimeTypes LIMIT 1", emptyParam);
     while (datatables:next(dt)) {
-        time1 = datatables:getInt(dt, "time_type", "time");
-        date1 = datatables:getInt(dt, "date_type", "date");
-        timestamp1 = datatables:getInt(dt, "timestamp_type", "timestamp");
+        time1 = datatables:getIntWithType(dt, "time_type", "time");
+        date1 = datatables:getIntWithType(dt, "date_type", "date");
+        timestamp1 = datatables:getIntWithType(dt, "timestamp_type", "timestamp");
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);

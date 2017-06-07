@@ -190,7 +190,7 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 //                    }
 //            );
 
-            String serviceId = service.getServiceName();
+            String serviceId = service.getName();
             serviceInfoMap.put(serviceId, service);
             annotationKeyValuePairs.putIfAbsent(Constants.JMS_DESTINATION, serviceId);
             ServerConnector serverConnector = BallerinaConnectorManager.getInstance()
@@ -206,7 +206,7 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceUnregistered(ServiceInfo service) {
-        String serviceId = service.getServiceName();
+        String serviceId = service.getName();
         try {
             if (serviceInfoMap.get(serviceId) != null) {
                 ServerConnector serverConnector = BallerinaConnectorManager.getInstance().getServerConnector(serviceId);

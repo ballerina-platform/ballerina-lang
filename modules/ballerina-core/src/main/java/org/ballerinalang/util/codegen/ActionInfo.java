@@ -29,6 +29,7 @@ import java.util.Objects;
 public class ActionInfo extends CallableUnitInfo {
 
     private AbstractNativeAction nativeAction;
+    private ConnectorInfo connectorInfo;
 
     public ActionInfo(String pkgPath, int pkgCPIndex, String actionName, int actionNameCPIndex) {
         this.pkgPath = pkgPath;
@@ -46,6 +47,14 @@ public class ActionInfo extends CallableUnitInfo {
 
     public void setNativeAction(AbstractNativeAction nativeAction) {
         this.nativeAction = nativeAction;
+    }
+
+    public ConnectorInfo getConnectorInfo() {
+        return connectorInfo;
+    }
+
+    public void setConnectorInfo(ConnectorInfo connectorInfo) {
+        this.connectorInfo = connectorInfo;
     }
 
     @Override

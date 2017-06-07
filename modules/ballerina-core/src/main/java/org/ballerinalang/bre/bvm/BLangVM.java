@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -34,6 +35,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -43,8 +45,13 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.connectors.BalConnectorCallback;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
+import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -62,19 +69,29 @@ import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
  * @since 0.87
  */
 public class BLangVM {
+
+    private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
     private Context context;
     private ControlStackNew controlStack;
     private ProgramFile programFile;
@@ -88,28 +105,53 @@ public class BLangVM {
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
+        this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
     // TODO Remove
-    private void traceCode() {
+    private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
             printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
                     getOperandsLine(code[i].getOperands()));
         }
+
+//        printStream.println("ErrorTable\n\t\tfrom\tto\ttarget\terror");
+//        packageInfo.getErrorTableEntriesList().forEach(error -> printStream.println(error.toString()));
+//
+//        printStream.println("LineNumberTable\n\tline\t\tip");
+//        packageInfo.getLineNumberInfoList().forEach(line -> printStream.println(line.toString()));
     }
 
-    public void execFunction(PackageInfo packageInfo, Context context, int ip) {
-        this.constPool = packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = packageInfo.getInstructionList().toArray(new Instruction[0]);
+    public void run(Context context) {
+        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
+        this.constPool = currentFrame.packageInfo.getConstPool();
+        this.code = currentFrame.packageInfo.getInstructions();
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
-        this.globalMemBlock = context.getGlobalMemoryBlock();
         this.context.setVMBasedExecutor(true);
-        this.ip = ip;
+        this.ip = context.getStartIP();
 
-//        traceCode();
+//        traceCode(null);
+            
+        if (context.getError() != null) {
+            handleError();
+        } else if (context.actionInfo != null) {
+            // // TODO : Temporary to solution make non-blocking working.
+            BType[] retTypes = context.actionInfo.getRetParamTypes();
+            StackFrame calleeSF = controlStack.popFrame();
+            this.constPool = controlStack.currentFrame.packageInfo.getConstPool();
+            this.code = controlStack.currentFrame.packageInfo.getInstructions();
+            handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
+                    calleeSF.returnValues, retTypes);
+
+            // TODO Remove
+            prepareStructureTypeFromNativeAction(context.nativeArgValues);
+            context.nativeArgValues = null;
+            context.funcCallCPEntry = null;
+            context.actionInfo = null;
+        }
         exec();
     }
 
@@ -120,8 +162,8 @@ public class BLangVM {
         int i;
         int j;
         int k;
-        int lvIndex;
-        int cpIndex;
+        int lvIndex; // Index of the local variable
+        int cpIndex; // Index of the constant pool
         int fieldIndex;
 
         int[] fieldCount;
@@ -143,6 +185,10 @@ public class BLangVM {
         ActionInfo actionInfo;
         StructureTypeInfo structureTypeInfo;
         StringCPEntry stringCPEntry;
+        WorkerDataChannelRefCPEntry workerRefCPEntry;
+        WorkerInvokeCPEntry workerInvokeCPEntry;
+        WorkerReplyCPEntry workerReplyCPEntry;
+        WorkerDataChannel workerDataChannel;
 
         // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
@@ -568,9 +614,10 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
                     if (sf.longRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                        handleError();
+                        break;
                     }
 
                     sf.longRegs[k] = sf.longRegs[i] / sf.longRegs[j];
@@ -580,9 +627,10 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
                     if (sf.doubleRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                        handleError();
+                        break;
                     }
 
                     sf.doubleRegs[k] = sf.doubleRegs[i] / sf.doubleRegs[j];
@@ -592,9 +640,10 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
                     if (sf.longRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                        handleError();
+                        break;
                     }
 
                     sf.longRegs[k] = sf.longRegs[i] % sf.longRegs[j];
@@ -604,9 +653,10 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
 
-                    // TODO improve error handling in VM
                     if (sf.doubleRegs[j] == 0) {
-                        throw new BallerinaException(" / by zero");
+                        context.setError(BLangVMErrors.createError(context, ip, " / by zero"));
+                        handleError();
+                        break;
                     }
 
                     sf.doubleRegs[k] = sf.doubleRegs[i] % sf.doubleRegs[j];
@@ -621,61 +671,156 @@ public class BLangVM {
                     j = operands[1];
                     sf.doubleRegs[j] = -sf.doubleRegs[i];
                     break;
+                case InstructionCodes.BNOT:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
+                    break;
 
-                case InstructionCodes.ICMP:
+                case InstructionCodes.IEQ:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    if (sf.longRegs[i] == sf.longRegs[j]) {
-                        sf.intRegs[k] = 0;
-                    } else if (sf.longRegs[i] > sf.longRegs[j]) {
-                        sf.intRegs[k] = 1;
-                    } else {
-                        sf.intRegs[k] = -1;
+                    sf.intRegs[k] = sf.longRegs[i] == sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FEQ:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] == sf.doubleRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.SEQ:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.stringRegs[i].equals(sf.stringRegs[j]) ? 1 : 0;
+                    break;
+                case InstructionCodes.BEQ:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.intRegs[i] == sf.intRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.REQ:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.refRegs[i] == sf.refRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.INE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] != sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FNE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] != sf.doubleRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.SNE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = !(sf.stringRegs[i].equals(sf.stringRegs[j])) ? 1 : 0;
+                    break;
+                case InstructionCodes.BNE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.intRegs[i] != sf.intRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.RNE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.refRegs[i] != sf.refRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.IGT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] > sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FGT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] > sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.IGE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] >= sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FGE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] >= sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.ILT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] < sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FLT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] < sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.ILE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.longRegs[i] <= sf.longRegs[j] ? 1 : 0;
+                    break;
+                case InstructionCodes.FLE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    sf.intRegs[k] = sf.doubleRegs[i] <= sf.doubleRegs[j] ? 1 : 0;
+                    break;
+
+                case InstructionCodes.REQ_NULL:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        ip = j;
                     }
                     break;
-                case InstructionCodes.IFEQ:
+                case InstructionCodes.RNE_NULL:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] != null) {
+                        ip = j;
+                    }
+                    break;
+
+                case InstructionCodes.BR_TRUE:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.intRegs[i] == 1) {
+                        ip = j;
+                    }
+                    break;
+                case InstructionCodes.BR_FALSE:
                     i = operands[0];
                     j = operands[1];
                     if (sf.intRegs[i] == 0) {
                         ip = j;
                     }
                     break;
-                case InstructionCodes.IFNE:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.intRegs[i] != 0) {
-                        ip = j;
-                    }
-                    break;
-                case InstructionCodes.IFLT:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.intRegs[i] < 0) {
-                        ip = j;
-                    }
-                    break;
-                case InstructionCodes.IFGE:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.intRegs[i] >= 0) {
-                        ip = j;
-                    }
-                    break;
-                case InstructionCodes.IFGT:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.intRegs[i] > 0) {
-                        ip = j;
-                    }
-                    break;
-                case InstructionCodes.IFLE:
-                    i = operands[0];
-                    j = operands[1];
-                    if (sf.intRegs[i] <= 0) {
-                        ip = j;
-                    }
-                    break;
+
                 case InstructionCodes.GOTO:
                     i = operands[0];
                     ip = i;
@@ -688,6 +833,24 @@ public class BLangVM {
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    break;
+                case InstructionCodes.WRKINVOKE:
+                    cpIndex = operands[0];
+                    workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+
+                    cpIndex = operands[1];
+                    workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
+                    invokeWorker(workerDataChannel, workerInvokeCPEntry);
+                    break;
+                case InstructionCodes.WRKREPLY:
+                    cpIndex = operands[0];
+                    workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+
+                    cpIndex = operands[1];
+                    workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
+                    replyWorker(workerDataChannel, workerReplyCPEntry);
                     break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
@@ -727,8 +890,24 @@ public class BLangVM {
                     if (i >= 0) {
                         message = (BMessage) sf.refRegs[i];
                     }
+                    context.setError(null);
                     context.getBalCallback().done(message != null ? message.value() : null);
                     ip = -1;
+                    break;
+                case InstructionCodes.THROW:
+                    i = operands[0];
+                    if (i >= 0) {
+                        BStruct error = (BStruct) sf.refRegs[i];
+                        BLangVMErrors.setStackTrace(context, ip, error);
+                        context.setError(error);
+                    }
+                    handleError();
+                    break;
+                case InstructionCodes.ERRSTORE:
+                    i = operands[0];
+                    sf.refLocalVars[i] = context.getError();
+                    // clear error.
+                    context.setError(null);
                     break;
                 case InstructionCodes.I2F:
                     i = operands[0];
@@ -937,6 +1116,19 @@ public class BLangVM {
                         throw new BallerinaException("incompatible types");
                     }
                     break;
+                case InstructionCodes.ANY2T:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() instanceof BStructType) {
+                        sf.refRegs[j] = bRefType;
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
                 case InstructionCodes.ANY2MAP:
                     i = operands[0];
                     j = operands[1];
@@ -955,10 +1147,32 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BJSON("null");
                     break;
-
+                case InstructionCodes.CHECKCAST:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    j = operands[2];
+                    TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    // TODO NULL Check  and Array casting
+                    if (checkCast(sf.refRegs[i].getType(), typeCPEntry.getType())) {
+                        sf.refRegs[j] = sf.refRegs[i];
+                    } else {
+                        throw new BallerinaException("Incompatible types");
+                        // TODO Handle cast errors
+                    }
+                    break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
+                    break;
+                case InstructionCodes.ARRAYLEN:
+                    i = operands[0];
+                    j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        //TODO improve error message to be more informative
+                        throw new BallerinaException("array is null.");
+                    }
+                    BNewArray array = (BNewArray) sf.refRegs[i];
+                    sf.longRegs[j] = array.size();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];
@@ -1044,14 +1258,126 @@ public class BLangVM {
         copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
         // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+        this.constPool = calleeSF.packageInfo.getConstPool();
+        this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
         // Invoke other workers
         BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
 
     }
+
+    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
+        StackFrame currentFrame = controlStack.getCurrentFrame();
+
+        // Extract the outgoing expressions
+        BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
+        copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
+                workerInvokeCPEntry.getbTypes(), arguments);
+
+        //populateArgumentValuesForWorker(expressions, arguments);
+        if (workerDataChannel != null) {
+            workerDataChannel.putData(arguments);
+        }
+
+//        else {
+//            BArray<BValue> bArray = new BArray<>(BValue.class);
+//            for (int j = 0; j < arguments.length; j++) {
+//                BValue returnVal = arguments[j];
+//                bArray.add(j, returnVal);
+//            }
+//            controlStack.setReturnValue(0, bArray);
+//        }
+    }
+
+    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
+
+        BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
+        StackFrame currentFrame = controlStack.getCurrentFrame();
+        //currentFrame.returnValues = passedInValues;
+        copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
+                workerReplyCPEntry.getTypes(), passedInValues);
+//        for (int i = 0; i < localVars.length; i++) {
+//            Expression lExpr = localVars[i];
+//            BValue rValue = passedInValues[i];
+//            if (lExpr instanceof VariableRefExpr) {
+//                assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
+//            } else if (lExpr instanceof ArrayMapAccessExpr) {
+//                assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
+//            } else if (lExpr instanceof FieldAccessExpr) {
+//                assignValueToFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
+//            }
+//        }
+//        int[] argRegs = funcCallCPEntry.getArgRegs();
+//        BType[] paramTypes = callableUnitInfo.getParamTypes();
+//        StackFrame callerSF = controlStack.getCurrentFrame();
+//
+//        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
+//        controlStack.pushFrame(calleeSF);
+//
+//        // Copy arg values from the current StackFrame to the new StackFrame
+//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+//
+//        // TODO Improve following two lines
+//        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
+//        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+//        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
+    }
+
+    public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
+                                                    BValue[] arguments) {
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            int argReg = argRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    arguments[i] = new BInteger(callerSF.longRegs[argReg]);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    arguments[i] = new BFloat(callerSF.doubleRegs[argReg]);
+                    break;
+                case TypeTags.STRING_TAG:
+                    arguments[i] = new BString(callerSF.stringRegs[argReg]);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
+                    arguments[i] = new BBoolean(temp);
+                    break;
+                default:
+                    arguments[i] = callerSF.refRegs[argReg];
+            }
+        }
+    }
+
+    public static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
+                                                   BValue[] passedInValues) {
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
+
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    currentSF.getLongRegs()[++longRegIndex] = ((BInteger) passedInValues[i]).intValue();
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    currentSF.getDoubleRegs()[++doubleRegIndex] = ((BFloat) passedInValues[i]).floatValue();
+                    break;
+                case TypeTags.STRING_TAG:
+                    currentSF.getStringRegs()[++stringRegIndex] = ((BString) passedInValues[i]).stringValue();
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
+                    break;
+                default:
+                    currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
+            }
+        }
+    }
+
 
     public static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -1084,6 +1410,7 @@ public class BLangVM {
 
     private void handleReturn(int[] regIndexes) {
         StackFrame currentSF = controlStack.popFrame();
+        context.setError(null);
         if (controlStack.fp >= 0) {
 
             StackFrame callersSF = controlStack.currentFrame;
@@ -1112,8 +1439,8 @@ public class BLangVM {
             }
 
             // TODO Improve
-            this.constPool = callersSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-            this.code = callersSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
+            this.constPool = callersSF.packageInfo.getConstPool();
+            this.code = callersSF.packageInfo.getInstructions();
         }
 
         ip = currentSF.retAddrs;
@@ -1147,13 +1474,19 @@ public class BLangVM {
 
         BType[] retTypes = functionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
+        StackFrame caleeSF = new StackFrame(functionInfo, nativeArgValues, returnValues);
         controlStack.pushFrame(caleeSF);
 
         // Invoke Native function;
         AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
-        nativeFunction.executeNative(context);
-
+        try {
+            nativeFunction.executeNative(context);
+        } catch (Throwable e) {
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+            controlStack.popFrame();
+            handleError();
+            return;
+        }
         // Copy return values to the callers stack
         controlStack.popFrame();
         handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
@@ -1172,21 +1505,46 @@ public class BLangVM {
 
         BType[] retTypes = actionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
+        StackFrame caleeSF = new StackFrame(actionInfo, nativeArgValues, returnValues);
         controlStack.pushFrame(caleeSF);
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
-        nativeAction.execute(context);
+        try {
+            if (!context.initFunction && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
+                // Enable non-blocking.
+                context.setStartIP(ip);
+                // TODO : Temporary solution to make non-blocking working.
+                if (caleeSF.packageInfo == null) {
+                    caleeSF.packageInfo = actionInfo.getPackageInfo();
+                }
+                context.programFile = programFile;
+                context.nativeArgValues = nativeArgValues;
+                context.funcCallCPEntry = funcCallCPEntry;
+                context.actionInfo = actionInfo;
+                BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
+                connectorCallback.setNativeAction(nativeAction);
+                nativeAction.execute(context, connectorCallback);
+                ip = -1;
+                return;
+                // release thread.
+            } else {
+                nativeAction.execute(context);
+                // Copy return values to the callers stack
+                controlStack.popFrame();
+                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
 
-        // Copy return values to the callers stack
-        controlStack.popFrame();
-        handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
-
-        // TODO Remove 
-        prepareStructureTypeFromNativeAction(nativeArgValues);
+                // TODO Remove
+                prepareStructureTypeFromNativeAction(nativeArgValues);
+            }
+        } catch (Throwable e) {
+            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
+            controlStack.popFrame();
+            handleError();
+            return;
+        }
     }
 
-    private BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
+    public static BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
         BValue[] nativeArgValues = new BValue[paramTypes.length];
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
@@ -1211,8 +1569,8 @@ public class BLangVM {
         return nativeArgValues;
     }
 
-    private void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
-                                                    BValue[] returnValues, BType[] retTypes) {
+    public static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
+                                                          BValue[] returnValues, BType[] retTypes) {
         for (int i = 0; i < returnValues.length; i++) {
             int callersRetRegIndex = returnRegIndexes[i];
             BType retType = retTypes[i];
@@ -1278,7 +1636,7 @@ public class BLangVM {
     }
 
     // TODO Remove this once all the native actions are refactored
-    private void prepareStructureTypeFromNativeAction(BValue[] bValues) {
+    public static void prepareStructureTypeFromNativeAction(BValue[] bValues) {
         for (BValue bValue : bValues) {
             if (bValue instanceof StructureType) {
                 prepareStructureTypeFromNativeAction((StructureType) bValue);
@@ -1286,7 +1644,7 @@ public class BLangVM {
         }
     }
 
-    private void prepareStructureTypeFromNativeAction(StructureType structureType) {
+    public static void prepareStructureTypeFromNativeAction(StructureType structureType) {
         BType[] fieldTypes = structureType.getFieldTypes();
         BValue[] memoryBlock = structureType.getMemoryBlock();
         int longRegIndex = -1;
@@ -1315,6 +1673,41 @@ public class BLangVM {
                     structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
             }
         }
+    }
+
+    private boolean checkCast(BType sourceType, BType targetType) {
+        if (sourceType == targetType) {
+            return true;
+        }
+
+        if (sourceType.getTag() == TypeTags.STRUCT_TAG && targetType.getTag() == TypeTags.STRUCT_TAG) {
+            return checkStructEquivalency((BStructType) sourceType, (BStructType) targetType);
+
+        }
+
+        // Array casting
+
+        return false;
+    }
+
+    public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
+        // Struct Type equivalency
+        BStructType.StructField[] sFields = sourceType.getStructFields();
+        BStructType.StructField[] tFields = targetType.getStructFields();
+
+        if (tFields.length > sFields.length) {
+            return false;
+        }
+
+        for (int i = 0; i < tFields.length; i++) {
+            if (tFields[i].getFieldType() == sFields[i].getFieldType() &&
+                    tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
+                continue;
+            }
+            return false;
+        }
+
+        return true;
     }
 
     // TODO Refactor these methods and move them to a proper util class
@@ -1442,5 +1835,55 @@ public class BLangVM {
 
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                 BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
+    }
+
+    private void handleError() {
+        int currentIP = ip - 1;
+        StackFrame currentFrame = controlStack.getCurrentFrame();
+        ErrorTableEntry match = null;
+        while (controlStack.fp >= 0) {
+            match = ErrorTableEntry.getMatch(currentFrame.packageInfo, currentIP, context.getError());
+            if (match != null) {
+                break;
+            }
+            controlStack.popFrame();
+            if (controlStack.getCurrentFrame() == null) {
+                break;
+            }
+            currentIP = currentFrame.retAddrs - 1;
+            currentFrame = controlStack.getCurrentFrame();
+        }
+        if (controlStack.getCurrentFrame() == null) {
+            // root level error handling.
+            ip = -1;
+            PrintStream err = System.err;
+            err.println(BLangVMErrors.getPrintableStackTrace(context.getError()));
+            if (context.getCarbonMessage() != null) {
+                // Invoke ServiceConnector error handler.
+                Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
+                Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                        BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
+                try {
+                    optionalErrorHandler
+                            .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                            .handleError(new BallerinaException(BLangVMErrors.getErrorMsg(context.getError
+                                            ())),
+                                    context.getCarbonMessage(), context.getBalCallback());
+                } catch (Exception e) {
+                    logger.error("cannot handle error using the error handler for: " + protocol, e);
+                }
+            }
+            return;
+        }
+        // match should be not null at this point.
+        if (match != null) {
+            PackageInfo packageInfo = currentFrame.packageInfo;
+            this.constPool = packageInfo.getConstPool();
+            this.code = packageInfo.getInstructions();
+            ip = match.getIpTarget();
+            return;
+        }
+        ip = -1;
+        logger.error("fatal error. incorrect error table entry.");
     }
 }

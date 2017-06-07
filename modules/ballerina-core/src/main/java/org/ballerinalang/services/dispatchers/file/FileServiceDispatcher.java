@@ -125,7 +125,7 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
         if (annotationInfo != null) {
             Map<String, String> elementsMap = null; // TODO : Fix Annotation attachment in code generation.
-            String serviceName = service.getServiceName();
+            String serviceName = service.getName();
             ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
                     Constants.PROTOCOL_FILE, serviceName, elementsMap);
             try {
@@ -140,7 +140,7 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceUnregistered(ServiceInfo service) {
-        String serviceName = service.getServiceName();
+        String serviceName = service.getName();
         if (servicesMap.get(serviceName) != null) {
             servicesMap.remove(serviceName);
             try {

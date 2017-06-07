@@ -26,6 +26,9 @@ import java.util.Objects;
  */
 public class ResourceInfo extends CallableUnitInfo {
 
+    protected String[] paramNames;
+    private ServiceInfo serviceInfo;
+
     public ResourceInfo(String pkgPath, int pkgCPIndex, String actionName, int resNameCPIndex) {
         this.pkgPath = pkgPath;
         this.pkgCPIndex = pkgCPIndex;
@@ -41,10 +44,26 @@ public class ResourceInfo extends CallableUnitInfo {
         return Objects.hash(pkgCPIndex, nameCPIndex);
     }
 
+    public ServiceInfo getServiceInfo() {
+        return serviceInfo;
+    }
+
+    public void setServiceInfo(ServiceInfo serviceInfo) {
+        this.serviceInfo = serviceInfo;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ResourceInfo
                 && pkgCPIndex == (((ResourceInfo) obj).pkgCPIndex)
                 && nameCPIndex == (((ResourceInfo) obj).nameCPIndex);
+    }
+
+    public String[] getParamNames() {
+        return paramNames;
+    }
+
+    public void setParamNames(String[] paramNames) {
+        this.paramNames = paramNames;
     }
 }
