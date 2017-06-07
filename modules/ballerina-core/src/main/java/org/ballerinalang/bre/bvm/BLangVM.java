@@ -1497,15 +1497,8 @@ public class BLangVM {
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
-        BValue[] nativeArgValues = null;
-        if (actionInfo.getNativeAction().getName().equals("init")) {
-            nativeArgValues = new BValue[1];
-            nativeArgValues[0] = controlStack.currentFrame.refRegs[0];
-
-        } else {
-            nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
-                    actionInfo.getParamTypes());
-        }
+        BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
+                actionInfo.getParamTypes());
 
         // TODO Remove
         prepareStructureTypeForNativeAction(nativeArgValues);
