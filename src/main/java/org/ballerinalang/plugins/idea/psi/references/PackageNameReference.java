@@ -27,6 +27,7 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +43,7 @@ public class PackageNameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof PsiDirectory || def instanceof AliasNode;
+        return def instanceof PsiDirectory || def instanceof PackageNameNode;
     }
 
     @NotNull
@@ -66,6 +67,11 @@ public class PackageNameReference extends BallerinaElementReference {
         PsiElement identifierElement = getElement();
         if (identifierElement == null) {
             return new ResolveResult[0];
+        }
+        AliasNode aliasNode = PsiTreeUtil.getParentOfType(identifierElement, AliasNode.class);
+        if (aliasNode != null) {
+            // Return the results.
+            return results.toArray(new ResolveResult[results.size()]);
         }
 
         // Check whether this is in a import statement.
@@ -100,7 +106,7 @@ public class PackageNameReference extends BallerinaElementReference {
 
         // Get all imported packages in the file.
         List<PsiElement> packages =
-                BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(identifierElement.getContainingFile());
+                BallerinaPsiImplUtil.getImportedPackagesInCurrentFile(identifierElement.getContainingFile());
         for (PsiElement pack : packages) {
             // For all packages, check whether the identifier is equal to the package name. If they are equal,
             // that means that the current element is what we are looking for.
@@ -119,42 +125,60 @@ public class PackageNameReference extends BallerinaElementReference {
                 }
             }
         }
+
+        packages = BallerinaPsiImplUtil.getPackagesImportedAsAliasInCurrentFile(identifierElement.getContainingFile());
+        for (PsiElement pack : packages) {
+            // For all packages, check whether the identifier is equal to the package name. If they are equal,
+            // that means that the current element is what we are looking for.
+            if (identifierElement.getText().equals(pack.getText())) {
+                results.add(new PsiElementResolveResult(pack));
+            }
+        }
         // Return the results.
         return results.toArray(new ResolveResult[results.size()]);
     }
 
     @Override
     public boolean isReferenceTo(PsiElement definitionElement) {
-
         if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
             definitionElement = definitionElement.getParent();
         }
         // Check whether the definition element is a definition node (PsiDirectory).
         if (isDefinitionNode(definitionElement)) {
-            PsiReference reference = myElement.getReference();
-            if (reference == null) {
-                return false;
-            }
-            PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
-                return false;
-            }
-
-            if (!resolvedElement.equals(definitionElement)) {
-                return false;
-            }
-
-            String defName;
-            // If the definitionElement is a instanceof PsiJavaDirectoryImpl, the directory name will be taken as
-            // defName. Otherwise the text of the node is taken as the defName.
-            if (definitionElement instanceof PsiJavaDirectoryImpl) {
-                defName = ((PsiJavaDirectoryImpl) definitionElement).getName();
+            AliasNode aliasNode = PsiTreeUtil.getParentOfType(definitionElement, AliasNode.class);
+            if (aliasNode != null) {
+                ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(myElement,
+                        ImportDeclarationNode.class);
+                if (importDeclarationNode != null) {
+                    return false;
+                }
+                String defName = definitionElement.getText();
+                String refName = myElement.getText();
+                return (defName != null) && refName.equals(defName);
             } else {
-                defName = definitionElement.getText();
+                PsiReference reference = myElement.getReference();
+                if (reference == null) {
+                    return false;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
+                    return false;
+                }
+                if (!resolvedElement.equals(definitionElement)) {
+                    return false;
+                }
+                String defName;
+                // If the definitionElement is a instanceof PsiJavaDirectoryImpl, the directory name will be taken as
+                // defName. Otherwise the text of the node is taken as the defName.
+                if (definitionElement instanceof PsiJavaDirectoryImpl) {
+                    defName = ((PsiJavaDirectoryImpl) definitionElement).getName();
+                } else {
+                    defName = definitionElement.getText();
+                }
+                // Check whether the refName and defName are equal to find a match.
+                String refName = myElement.getName();
+                return (refName != null) && (defName != null) && refName.equals(defName);
             }
-            // Check whether the refName and defName are equal to find a match.
-            String refName = myElement.getName();
-            return (refName != null) && (defName != null) && refName.equals(defName);
         }
         return false;
     }

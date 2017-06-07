@@ -16,4 +16,9 @@ function test () {
 
     throw exception;
 
+    map properties = {
+                         "a":"b",
+                         "c":"d"
+                     };
+
 }

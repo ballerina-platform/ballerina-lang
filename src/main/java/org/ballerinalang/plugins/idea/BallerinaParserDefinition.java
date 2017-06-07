@@ -67,7 +67,9 @@ import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.ReplyStatementNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
+import org.ballerinalang.plugins.idea.psi.ReturnStatementNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -78,6 +80,7 @@ import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
+import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
@@ -298,6 +301,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new WorkerInterationStatementNode(node);
             case BallerinaParser.RULE_functionInvocation:
                 return new FunctionInvocationNode(node);
+            case BallerinaParser.RULE_returnStatement:
+                return new ReturnStatementNode(node);
+            case BallerinaParser.RULE_throwStatement:
+                return new ThrowStatementNode(node);
+            case BallerinaParser.RULE_replyStatement:
+                return new ReplyStatementNode(node);
             case BallerinaParser.RULE_annotationAttribute:
                 return new AnnotationAttributeNode(node);
             case BallerinaParser.RULE_transformStatementBody:
