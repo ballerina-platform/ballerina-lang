@@ -46,9 +46,9 @@ import java.io.File;
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "This function moves a file from a given location to another") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "source",
-        value = "File/Directory that should be moved") })
+        value = "File that should be moved") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "destination",
-        value = "The location where the File/Directory should moved to") })
+        value = "The location where the File should moved to") })
 public class Move extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {

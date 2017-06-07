@@ -52,9 +52,9 @@ import java.io.OutputStream;
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "This function copies a file from a given location to another") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "source",
-        value = "File/Directory that should be copied") })
+        value = "File that should be copied") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "destination",
-        value = "The location where the File/Directory should be pasted") })
+        value = "The location where the File should be pasted") })
 public class Copy extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
@@ -79,15 +79,7 @@ public class Copy extends AbstractNativeFunction {
                     }
                 }
             }
-            if (destinationFile.exists()) {
-                if (!destinationFile.delete()) {
-                    throw new BallerinaException("File already Exists");
-                }
-            }
-            if (!destinationFile.createNewFile()) {
-                throw new BallerinaException("Error in writing file");
-            }
-            outputStream = new FileOutputStream(destinationFile);
+            outputStream = new FileOutputStream(destinationFile, false);
             byte[] buffer = new byte[1024];
 
             int length;

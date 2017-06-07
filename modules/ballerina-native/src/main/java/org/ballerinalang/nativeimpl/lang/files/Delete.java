@@ -43,7 +43,7 @@ import java.io.File;
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "This function deletes a file from a given location") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "target",
-        value = "File/Directory that should be copied") })
+        value = "File that should be deleted") })
 public class Delete extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
