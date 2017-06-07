@@ -41,7 +41,7 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     beginVisitActionInvocationExpression(actionInvocationExpr) {
-        this.appendSource(actionInvocationExpr.generateExpression());
+        this.appendSource(actionInvocationExpr.getExpressionString());
     }
 
     endVisitActionInvocationStatement(actionInvocationStatement) {
