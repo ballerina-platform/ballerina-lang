@@ -181,39 +181,16 @@ public class Utils {
      * 
      * @param balAction Ballerina action annotation
      * @param connectorName Name of the connector this action belongs to
-     * @param connectorPkg Package of the connector this action belongs to
-     * 
+     *
      * @return Qualified name of a ballerina native action
      */
-    public static String getActionQualifiedName(BallerinaAction balAction, String connectorName, String connectorPkg) {
+    public static String getActionQualifiedName(BallerinaAction balAction, String connectorName) {
         if (balAction.actionName().equals("init")) {
             StringBuilder actionNameBuilder =
                     new StringBuilder(Constants.NON_CALLABLE_NATIVE_ACTION_INIT.replace("$name", connectorName));
             return actionNameBuilder.toString();
         }
-        StringBuilder actionNameBuilder = new StringBuilder(Constants.NATIVE_ACTION_PREFIX + "."
-                + balAction.connectorName() + "." + balAction.actionName());
-        Argument[] args = balAction.args();
-        for (Argument arg : args) {
-            if (arg.type() == TypeEnum.CONNECTOR) {
-                actionNameBuilder.append("." + connectorPkg + ":" + connectorName);
-            } else if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
-                // if the argument is arrayType, then append the element type to the method signature
-                String arraySuffix = createArraySuffix(arg.arrayDimensions());
-                if (arg.elementType() == TypeEnum.STRUCT) {
-                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType() + arraySuffix);
-                } else {
-                    actionNameBuilder.append("." + arg.elementType().getName() + arraySuffix);
-                }
-            } else {
-                if (arg.type() == TypeEnum.STRUCT) {
-                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType());
-                } else {
-                    actionNameBuilder.append("." + arg.type().getName());
-                }
-            }
-        }
-        return actionNameBuilder.toString();
+        return Constants.NATIVE_ACTION_PREFIX + "." + balAction.connectorName() + "." + balAction.actionName();
     }
     
     /**
