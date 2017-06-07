@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 /**
  * {@code BBlob} represents a byte[].
  *
- * @since 0.9.0
+ * @since 0.88
  */
 public class BBlobType extends BType {
     protected BBlobType(SymbolScope symbolScope) {
