@@ -28,6 +28,23 @@ class TimeoutStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
+        const props = this.props;
+        const parameterBbox = this.props.model.viewState.components.param;
+
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'Join Condition',
+            model: props.model,
+            getterMethod: props.model.getExpression,
+            setterMethod: props.model.setExpression
+        };
+        const parameterEditorOptions = {
+            propertyType: 'text',
+            key: 'Join Condition',
+            model: props.model,
+            getterMethod: props.model.getParameterAsString,
+            setterMethod: props.model.setParameterAsString
+        };
 
         let lifeLineY1;
         let lifeLineY2;
@@ -38,7 +55,9 @@ class TimeoutStatement extends React.Component {
             lifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
         }
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Timeout'} titleWidth={timeout.title.w}>
+            <BlockStatementDecorator model={model} dropTarget={model} bBox={bBox} title={'Timeout'} titleWidth={timeout.title.w}
+                                     parameterBbox={parameterBbox} parameterEditorOptions={parameterEditorOptions}
+                                     expression={{text: model.getExpression()}} editorOptions={this.editorOptions}>
                 {model.children.length > 0 &&
                 <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
                       className="join-lifeline"/> }
