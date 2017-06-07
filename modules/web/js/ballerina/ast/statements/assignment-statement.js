@@ -41,21 +41,13 @@ class AssignmentStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.getChildren().length = 0;
+        this.children = [];
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
-    }
-
-    /**
-     * Override the removeChild function
-     * @param {ASTNode} child - child node
-     */
-    removeChild(child) {
-        this.getParent().removeChild(this);
     }
 
     /**
@@ -67,24 +59,6 @@ class AssignmentStatement extends Statement {
                 ? this.getChildren()[0].getExpressionString() : "leftExpression") + "=" +
             (!_.isNil(this.getChildren()[1].getExpressionString())
                 ? this.getChildren()[1].getExpressionString() : "rightExpression");
-    }
-
-    // TODO: Remove
-    generateStatementString(){
-        const statementString =  this.getChildren()[0].generateExpression() + ' = ' + this.getChildren()[1].generateExpression();
-        return statementString;
-    }
-
-    /**
-     * Set the assignment statement string
-     * @param {string} statementString
-     */
-    setStatementString(statementString, options) {
-        var equalIndex = _.indexOf(statementString, '=');
-        var leftOperand = statementString.substring(0, equalIndex);
-        var rightOperand = statementString.substring(equalIndex + 1);
-        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand, options);
-        this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand, options);
     }
 
     /**

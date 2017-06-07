@@ -17,6 +17,8 @@
  */
 
 import BallerinaASTFactory from './ballerina-ast-factory';
+import FragmentUtils from '../utils/fragment-utils';
+import _ from 'lodash';
 
 /**
  * @class DefaultBallerinaASTFactory
@@ -142,7 +144,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
     var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
     var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
     rightOp.addChild(actionInExp);
-    rightOp.setRightOperandExpressionString(actionInExp.getExpressionString());
+    rightOp.setExpressionFromString(actionInExp.getExpressionString());
     assignmentStmt.addChild(leftOp);
     assignmentStmt.addChild(rightOp);
     return assignmentStmt;
@@ -216,7 +218,7 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression = functi
     var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
     var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
     rightOp.addChild(functionInExp);
-    rightOp.setRightOperandExpressionString(functionInExp.getExpression());
+    rightOp.setExpressionFromString(functionInExp.getExpression());
     assignmentStmt.addChild(leftOp);
     assignmentStmt.addChild(rightOp);
     return assignmentStmt;
@@ -228,14 +230,17 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression = functi
  * @returns {AssignmentStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
-    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-    var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
-    leftOperand.setLeftOperandExpressionString('a');
-    var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
-    rightOperand.setRightOperandExpressionString('b');
-    assignmentStmt.addChild(leftOperand);
-    assignmentStmt.addChild(rightOperand);
-    return assignmentStmt;
+    let fragment = FragmentUtils.createStatementFragment('a = b;');
+    let parsedJson = FragmentUtils.parseFragment(fragment);
+    if ((!_.has(parsedJson, 'error')
+           || !_.has(parsedJson, 'syntax_errors'))
+           && _.isEqual(parsedJson.type, 'assignment_statement')) {
+        let node = BallerinaASTFactory.createFromJson(parsedJson);
+        node.initFromJson(parsedJson);
+        node.whiteSpace.useDefault = true;
+        return node;
+    }
+    return BallerinaASTFactory.createAssignmentStatement();
 };
 
 /**

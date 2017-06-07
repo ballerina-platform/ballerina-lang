@@ -17,9 +17,9 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
-class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+class RightOperandExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     constructor(parent) {
         super(parent);
     }

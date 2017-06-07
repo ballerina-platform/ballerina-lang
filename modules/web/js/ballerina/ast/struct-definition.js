@@ -29,6 +29,12 @@ class StructDefinition extends ASTNode {
     constructor(args) {
         super('StructDefinition');
         this._structName = _.get(args, 'structName');
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: '\n',
+            3: '\n'
+        }
     }
 
     /**
@@ -174,4 +180,3 @@ class StructDefinition extends ASTNode {
 }
 
 export default StructDefinition;
-    
