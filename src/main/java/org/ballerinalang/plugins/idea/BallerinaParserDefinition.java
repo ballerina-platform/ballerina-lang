@@ -110,6 +110,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
         ID = tokenIElementTypes.get(BallerinaLexer.Identifier);
     }
 
+    public static final TokenSet IDENTIFIER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
+            Identifier);
+
     public static final TokenSet COMMENTS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             LINE_COMMENT);
 
@@ -130,6 +133,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             SEMI, COMMA, SENDARROW, RECEIVEARROW, TILDE, COLON);
+
+    public static final TokenSet BAD_CHARACTER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
+            ERRCHAR);
 
     @NotNull
     @Override

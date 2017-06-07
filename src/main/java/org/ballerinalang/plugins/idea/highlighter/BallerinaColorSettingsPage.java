@@ -30,11 +30,14 @@ import javax.swing.Icon;
 import java.util.Map;
 
 public class BallerinaColorSettingsPage implements ColorSettingsPage {
+
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
             //todo: add more attributes
             new AttributesDescriptor("Keywords", BallerinaSyntaxHighlightingColors.KEYWORD),
             new AttributesDescriptor("Strings", BallerinaSyntaxHighlightingColors.STRING),
             new AttributesDescriptor("Numbers", BallerinaSyntaxHighlightingColors.NUMBER),
+            new AttributesDescriptor("Identifiers", BallerinaSyntaxHighlightingColors.IDENTIFIER),
+            new AttributesDescriptor("Comments", BallerinaSyntaxHighlightingColors.LINE_COMMENT),
     };
 
     @Nullable
@@ -56,7 +59,7 @@ public class BallerinaColorSettingsPage implements ColorSettingsPage {
                 "\n" +
                 "function main (string[] args) {\n" +
                 "    system:println(\"Hello, World!\");\n" +
-                "    int value = 10;\n"+
+                "    int value = 10;\n" +
                 "    system:println(value);\n" +
                 "}\n\n" +
                 "@BasePath (\"/hello\")\n" +
@@ -64,6 +67,7 @@ public class BallerinaColorSettingsPage implements ColorSettingsPage {
                 "\n" +
                 "    @GET\n" +
                 "    resource sayHello(message m) {\n" +
+                "        // response" +
                 "        message response = {};\n" +
                 "        message:setStringPayload(response, \"Hello, World!\");\n" +
                 "        reply response;\n" +
