@@ -69,6 +69,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
@@ -1463,7 +1464,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         if (superParent instanceof ResourceDefinitionNode || superParent instanceof ServiceBodyNode) {
             addKeywordAsLookup(resultSet, RESOURCE);
         }
-        if (superParent instanceof StatementNode) {
+        if (superParent instanceof StatementNode || superParent instanceof ForkJoinStatementNode
+                || superParent instanceof TransformStatementBodyNode) {
             handleStatementNode(parameters, resultSet);
         } else if (superParent instanceof CompilationUnitNode) {
             // This can be called depending on the caret location.
@@ -1497,8 +1499,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         } else if (superParent instanceof VariableReferenceNode) {
             // Eg: int a = 10; int b = a <caret>+ a;
             handleVariableReferenceNode(parameters, resultSet);
-        } else if (superParent instanceof ForkJoinStatementNode) {
-            handleStatementNode(parameters, resultSet);
         } else if (superParent instanceof ValueTypeNameNode) {
             addValueTypesAsLookups(resultSet);
         } else if (superParent instanceof AnnotationAttachmentNode) {
