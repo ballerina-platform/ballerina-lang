@@ -2748,9 +2748,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                                                                 pkgPath, paramTypes);
         BLangSymbol functionSymbol = currentScope.resolve(symbolName);
 
-        if (functionSymbol == null) {
-            functionSymbol = findBestMatchForFunctionSymbol(funcIExpr, symbolName);
-        }
+        functionSymbol = matchAndUpdateFunctionArguments(funcIExpr, symbolName, functionSymbol);
 
         if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
@@ -2793,80 +2791,53 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     /**
-     * Helper method to find the best function match when there is no direct match.
+     * Helper method to match the function with invocation (check whether parameters map, do cast if applicable).
      *
-     * @param symbolName
-     * @return bLangSymbol
+     * @param funcIExpr invocation expression
+     * @param symbolName function symbol name
+     * @param functionSymbol matching function
+     * @return functionSymbol matching function
      */
-    private BLangSymbol findBestMatchForFunctionSymbol(FunctionInvocationExpr funcIExpr,
-                                                       FunctionSymbolName symbolName) {
-        BLangSymbol functionSymbol = null;
-        BLangSymbol pkgSymbol = null;
-        if (symbolName.getPkgPath() == null) {
-            pkgSymbol = (BLangPackage) getCurrentPackageScope(currentScope);
-        } else {
-            SymbolName pkgSymbolName = new SymbolName(symbolName.getPkgPath());
-            pkgSymbol = currentScope.resolve(pkgSymbolName);
-        }
-        //pkgSymbol should be a instance of SymbolScope, hence doesn't do the check here
-        if (pkgSymbol == null) {
+    private BLangSymbol matchAndUpdateFunctionArguments(FunctionInvocationExpr funcIExpr,
+                                                       FunctionSymbolName symbolName, BLangSymbol functionSymbol) {
+        if (functionSymbol == null) {
             return null;
         }
+
         Expression[] argExprs = funcIExpr.getArgExprs();
         Expression[] updatedArgExprs = new Expression[argExprs.length];
-        for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
-            if (!(entry.getKey() instanceof FunctionSymbolName)) {
-                continue;
-            }
-            FunctionSymbolName funcSymName = (FunctionSymbolName) entry.getKey();
-            if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
-                continue;
-            }
 
-            boolean implicitCastPossible = true;
+        FunctionSymbolName funcSymName = (FunctionSymbolName) functionSymbol.getSymbolName();
+        if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
+            return null;
+        }
 
-            for (int i = 0; i < argExprs.length; i++) {
-                Expression argExpr = argExprs[i];
-                updatedArgExprs[i] = argExpr;
-                BType lhsType;
-                if (entry.getValue() instanceof NativeUnitProxy) {
-                    NativeUnit nativeUnit = ((NativeUnitProxy) entry.getValue()).load();
-                    SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
-                    lhsType = BTypes.resolveType(simpleTypeName, currentScope, funcIExpr.getNodeLocation());
-                } else {
-                    if (!(entry.getValue() instanceof Function)) {
-                        continue;
-                    }
-                    lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
-                }
+        boolean implicitCastPossible = true;
 
-                AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
-                if (result.implicitCastExpr != null) {
-                    updatedArgExprs[i] = result.implicitCastExpr;
-                } else if (!result.assignable) {
-                    // TODO do we need to throw an error here?
-                    implicitCastPossible = false;
-                    break;
-                }
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            updatedArgExprs[i] = argExpr;
+            BType lhsType;
+            if (functionSymbol instanceof NativeUnitProxy) {
+                NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
+                SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
+                lhsType = BTypes.resolveType(simpleTypeName, currentScope, funcIExpr.getNodeLocation());
+            } else {
+                lhsType = ((Function) functionSymbol).getParameterDefs()[i].getType();
             }
 
-            if (implicitCastPossible) {
-                if (functionSymbol == null) {
-                    functionSymbol = (BLangSymbol) entry.getValue();
-                } else {
-                    /**
-                     * This way second ambiguous function will cause this method to throw semantic error, so in a
-                     * scenario where there are more than two ambiguous functions, then this will show only the
-                     * first two.
-                     */
-                    String ambiguousFunc1 = generateErrorMessage(funcIExpr, functionSymbol, symbolName.getPkgPath());
-                    String ambiguousFunc2 = generateErrorMessage(funcIExpr, (BLangSymbol) entry.getValue(),
-                            symbolName.getPkgPath());
-                    BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
-                                                            funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
-                    break;
-                }
+            AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
+            if (result.implicitCastExpr != null) {
+                updatedArgExprs[i] = result.implicitCastExpr;
+            } else if (!result.assignable) {
+                // TODO do we need to throw an error here?
+                implicitCastPossible = false;
+                break;
             }
+        }
+
+        if (!implicitCastPossible) {
+            return null;
         }
 
         for (int i = 0; i < updatedArgExprs.length; i++) {
@@ -2960,7 +2931,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // When getting the action symbol name, Package name for the action is set to null, since the action is 
         // registered under connector, and connecter contains the package
         SymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
-                actionIExpr.getPackagePath(), actionIExpr.getConnectorName(), paramTypes);
+                actionIExpr.getPackagePath(), actionIExpr.getConnectorName());
 
         // Now check whether there is a matching action
         BLangSymbol actionSymbol = null;
@@ -3403,7 +3374,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         action.setParameterTypes(paramTypes);
         SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
-                connectorDef.getName(), paramTypes);
+                connectorDef.getName());
         action.setSymbolName(symbolName);
 
         BLangSymbol actionSymbol = currentScope.resolve(symbolName);
@@ -3414,7 +3385,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (action.isNative()) {
             SymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
-                    connectorDef.getName(), action.getPackagePath(), paramTypes);
+                    connectorDef.getName(), action.getPackagePath());
             BLangSymbol nativeAction = nativeScope.resolve(nativeActionSymName);
 
             if (nativeAction == null || !(nativeAction instanceof NativeUnitProxy)) {
@@ -3470,7 +3441,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         resource.setParameterTypes(paramTypes);
         SymbolName symbolName = LangModelUtils.getActionSymName(resource.getName(),
-                resource.getPackagePath(), service.getName(), paramTypes);
+                resource.getPackagePath(), service.getName());
         resource.setSymbolName(symbolName);
 
         if (currentScope.resolve(symbolName) != null) {
@@ -3861,7 +3832,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         int length = statements.length;
         Statement lastStatement = statements[length - 1];
         if (!(lastStatement instanceof ReturnStmt)) {
-            ReturnStmt returnStmt = new ReturnStmt(lastStatement.getNodeLocation(), null, new Expression[0]);
+            NodeLocation location = lastStatement.getNodeLocation();
+            ReturnStmt returnStmt = new ReturnStmt(
+                    new NodeLocation(location.getFileName(), location.getLineNumber() + 1), null, new Expression[0]);
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = returnStmt;
             blockStmt.setStatements(statements);
@@ -3873,7 +3846,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         int length = statements.length;
         Statement lastStatement = statements[length - 1];
         if (!(lastStatement instanceof ReplyStmt)) {
-            ReplyStmt replyStmt = new ReplyStmt(lastStatement.getNodeLocation(), null, null);
+            NodeLocation location = lastStatement.getNodeLocation();
+            ReplyStmt replyStmt = new ReplyStmt(
+                    new NodeLocation(location.getFileName(), location.getLineNumber() + 1), null, null);
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = replyStmt;
             blockStmt.setStatements(statements);

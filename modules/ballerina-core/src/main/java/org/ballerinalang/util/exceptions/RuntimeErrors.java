@@ -36,7 +36,8 @@ public enum RuntimeErrors {
     INCOMPATIBLE_FIELD_TYPE_FOR_CASTING("incompatible.field.type.for.casting", "RUNTIME_0011"),
     INCOMPATIBLE_TYPE_FOR_CASTING_JSON("incompatible.types.in.json", "RUNTIME_0012"),
     JSON_SET_ERROR("json.set.error", "RUNTIME_0013"),
-    JSON_GET_ERROR("json.get.error", "RUNTIME_0014");
+    JSON_GET_ERROR("json.get.error", "RUNTIME_0014"),
+    ARRAY_TYPE_MISMATCH("from.and.to.array.type.mismatch", "RUNTIME_0015");
     
     private String errorMsgKey;
     private String errorCode;

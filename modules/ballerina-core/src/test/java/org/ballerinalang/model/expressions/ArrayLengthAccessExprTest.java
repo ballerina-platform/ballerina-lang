@@ -120,6 +120,28 @@ public class ArrayLengthAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test array length access expression when present in multi Return statement.")
+    public void testArrayLengthAccessExprMultiReturnExpressionCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "arrayLengthAccessTestMultiReturnStatementCase", args);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actualFirst = (int) ((BInteger) returns[0]).intValue();
+        int actualSecond = (int) ((BInteger) returns[1]).intValue();
+        int actualThird = (int) ((BInteger) returns[2]).intValue();
+
+        int expectedFirst = 3;
+        int expectedSecond = 1;
+        int expectedThird = 2;
+
+        Assert.assertEquals(actualFirst, expectedFirst);
+        Assert.assertEquals(actualSecond, expectedSecond);
+        Assert.assertEquals(actualThird, expectedThird);
+    }
+
     @Test(description = "Test array length access expression when present in Type cast expression.")
     public void testArrayLengthAccessExprTypeCastExpressionCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};

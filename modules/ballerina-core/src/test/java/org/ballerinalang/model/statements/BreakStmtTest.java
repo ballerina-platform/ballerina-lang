@@ -18,7 +18,6 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -34,12 +33,10 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class BreakStmtTest {
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/break-stmt.bal");
         programFile = BTestUtils.getProgramFile("lang/statements/break-stmt.bal");
     }
 

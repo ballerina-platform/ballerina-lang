@@ -47,15 +47,16 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
-        subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
+        subPath = sanitizeSubPath(subPath);
 
         try {
             Map<String, String> resourceArgumentValues = new HashMap<>();
+            Map<String, String> requestDetails = new HashMap<>();
+            requestDetails.put(Constants.HTTP_METHOD, method);
 
-            ResourceInfo resource = service.getUriTemplate().matches(subPath, resourceArgumentValues);
-            if (resource != null
-                    && (resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null)) {
-
+            ResourceInfo resource = service.getUriTemplate().matches(subPath, requestDetails,
+                    resourceArgumentValues);
+            if (resource != null) {
                 if (cMsg.getProperty(Constants.QUERY_STR) != null) {
                     QueryParamProcessor.processQueryParams
                             ((String) cMsg.getProperty(Constants.QUERY_STR))
@@ -80,5 +81,15 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_HTTP;
+    }
+
+    private String sanitizeSubPath (String subPath) {
+        if (!"/".equals(subPath)) {
+            if (!subPath.startsWith("/")) {
+                subPath = Constants.DEFAULT_BASE_PATH + subPath;
+            }
+            subPath = subPath.endsWith("/") ? subPath.substring(0, subPath.length() - 1) : subPath;
+        }
+        return subPath;
     }
 }

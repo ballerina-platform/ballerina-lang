@@ -55,6 +55,10 @@ public class CallableUnitInfo {
         return name;
     }
 
+    public String getPkgPath() {
+        return pkgPath;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

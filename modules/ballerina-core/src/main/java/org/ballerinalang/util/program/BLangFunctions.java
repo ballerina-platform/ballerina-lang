@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
@@ -36,6 +37,7 @@ import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
@@ -213,6 +215,7 @@ public class BLangFunctions {
         int stringRegCount = 0;
         int intRegCount = 0;
         int refRegCount = 0;
+        int byteRegCount = 0;
 
         // Calculate registers to store return values
         BType[] retTypes = functionInfo.getRetParamTypes();
@@ -232,6 +235,9 @@ public class BLangFunctions {
                 case TypeTags.BOOLEAN_TAG:
                     retRegs[i] = intRegCount++;
                     break;
+                case TypeTags.BLOB_TAG:
+                    retRegs[i] = byteRegCount++;
+                    break;
                 default:
                     retRegs[i] = refRegCount++;
                     break;
@@ -243,6 +249,7 @@ public class BLangFunctions {
         callerSF.setStringRegs(new String[stringRegCount]);
         callerSF.setIntRegs(new int[intRegCount]);
         callerSF.setRefRegs(new BRefType[refRegCount]);
+        callerSF.setByteRegs(new byte[byteRegCount][]);
 
         // Now create callee's stackframe
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
@@ -255,6 +262,7 @@ public class BLangFunctions {
         int stringParamCount = 0;
         int intParamCount = 0;
         int refParamCount = 0;
+        int byteParamCount = 0;
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
@@ -265,6 +273,7 @@ public class BLangFunctions {
         Arrays.fill(stringLocalVars, "");
 
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        byte[][] byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         BRefType[] refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
@@ -286,6 +295,10 @@ public class BLangFunctions {
                     intLocalVars[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
                     intParamCount++;
                     break;
+                case TypeTags.BLOB_TAG:
+                    byteLocalVars[byteParamCount] = ((BBlob) args[i]).blobValue();
+                    byteParamCount++;
+                    break;
                 default:
                     refLocalVars[refParamCount] = (BRefType) args[i];
                     refParamCount++;
@@ -297,22 +310,30 @@ public class BLangFunctions {
         calleeSF.setDoubleLocalVars(doubleLocalVars);
         calleeSF.setStringLocalVars(stringLocalVars);
         calleeSF.setIntLocalVars(intLocalVars);
+        calleeSF.setByteLocalVars(byteLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
-        bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
+        context.setStartIP(codeAttribInfo.getCodeAddrs());
+        bLangVM.run(context);
+
+        if (context.getError() != null) {
+            throw new BallerinaException(".*uncaught error: " +
+                    BLangVMErrors.getErrorMsg(context.getError()));
+        }
 
         longRegCount = 0;
         doubleRegCount = 0;
         stringRegCount = 0;
         intRegCount = 0;
         refRegCount = 0;
+        byteRegCount = 0;
         BValue[] returnValues = new BValue[retTypes.length];
         for (int i = 0; i < returnValues.length; i++) {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
-                    returnValues[i] = new BInteger(callerSF.getLongRegs()[retRegs[i]]);
+                    returnValues[i] = new BInteger(callerSF.getLongRegs()[longRegCount++]);
                     break;
                 case TypeTags.FLOAT_TAG:
                     returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);
@@ -323,6 +344,9 @@ public class BLangFunctions {
                 case TypeTags.BOOLEAN_TAG:
                     boolean boolValue = callerSF.getIntRegs()[intRegCount++] == 1;
                     returnValues[i] = new BBoolean(boolValue);
+                    break;
+                case TypeTags.BLOB_TAG:
+                    returnValues[i] = new BBlob(callerSF.getByteRegs()[byteRegCount++]);
                     break;
                 default:
                     returnValues[i] = callerSF.getRefRegs()[refRegCount++];
@@ -347,7 +371,8 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.execFunction(packageInfo, context, defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(context);
     }
 
     public static void invokeFunction(ProgramFile programFile, PackageInfo packageInfo,
@@ -358,7 +383,8 @@ public class BLangFunctions {
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
-        bLangVM.execFunction(packageInfo, context, defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
+        bLangVM.run(context);
     }
 
     /**
@@ -431,14 +457,16 @@ public class BLangFunctions {
     private static BType resolveBType(BValue bValue) {
         BType bType = null;
 
-        if (bValue instanceof BString) {
-            bType = BTypes.typeString;
-        } else if (bValue instanceof BInteger) {
+        if (bValue instanceof BInteger) {
             bType = BTypes.typeInt;
         } else if (bValue instanceof BFloat) {
             bType = BTypes.typeFloat;
+        } else if (bValue instanceof BString) {
+            bType = BTypes.typeString;
         } else if (bValue instanceof BBoolean) {
             bType = BTypes.typeBoolean;
+        } else if (bValue instanceof BBlob) {
+            bType = BTypes.typeBlob;
         } else if (bValue instanceof BXML) {
             bType = BTypes.typeXML;
         } else if (bValue instanceof BJSON) {

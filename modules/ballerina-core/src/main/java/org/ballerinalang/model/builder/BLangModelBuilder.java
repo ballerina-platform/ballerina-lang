@@ -107,6 +107,7 @@ import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -765,6 +766,7 @@ public class BLangModelBuilder {
         cIExprBuilder.setPkgName(nameReference.pkgName);
         cIExprBuilder.setPkgPath(nameReference.pkgPath);
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        invocationExpr.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         exprStack.push(invocationExpr);
     }
 
@@ -1088,7 +1090,7 @@ public class BLangModelBuilder {
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
-
+        variableDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
             if (rhsExpr != null) {
                 if (rhsExpr instanceof ActionInvocationExpr) {
@@ -1344,12 +1346,7 @@ public class BLangModelBuilder {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         if (whiteSpaceDescriptor != null) {
-            WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
-            if (ws == null) {
-                ws = new WhiteSpaceDescriptor();
-                tryCatchStmtBuilder.setWhiteSpaceDescriptor(ws);
-            }
-            tryCatchStmtBuilder.getLastCatchBlock().setWhiteSpaceDescriptor(ws);
+            tryCatchStmtBuilder.getLastCatchBlock().setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         }
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
@@ -1531,6 +1528,7 @@ public class BLangModelBuilder {
 
 
         FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
+        functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
@@ -1556,12 +1554,11 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
     }
 
-    public void createActionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                           NameReference nameReference, String actionName, boolean argsAvailable) {
-        addActionInvocationExpr(location, whiteSpaceDescriptor, nameReference, actionName, argsAvailable);
+    public void createActionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ActionInvocationExpr invocationExpr = (ActionInvocationExpr) exprStack.pop();
 
         ActionInvocationStmt actionInvocationStmt = new ActionInvocationStmt(location, invocationExpr);
+        actionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
@@ -1836,28 +1833,30 @@ public class BLangModelBuilder {
 
     /**
      * Validates the statements in the transform statement body as explained below :
-     *  - Left expression of Assignment Statement becomes output of transform statement
-     *  - Right expressions of Assignment Statement becomes input of transform statement
-     *  - Variables in each of left and right expressions of all statements are extracted as input and output
-     *  - A variable that is used as an input cannot be used as an output in another statement
-     *  - If inputs and outputs are used interchangeably, a semantic error is thrown
+     * - Left expression of Assignment Statement becomes output of transform statement
+     * - Right expressions of Assignment Statement becomes input of transform statement
+     * - Variables in each of left and right expressions of all statements are extracted as input and output
+     * - A variable that is used as an input cannot be used as an output in another statement
+     * - If inputs and outputs are used interchangeably, a semantic error is thrown
+     *
      * @param blockStmt transform statement block statement
-     * @param inputs input variable reference expressions map
-     * @param outputs output variable reference expressions map
+     * @param inputs    input variable reference expressions map
+     * @param outputs   output variable reference expressions map
      */
     private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof AssignStmt) {
                 for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
-                    if (lExpr instanceof FieldAccessExpr) {
-                        String varName = ((FieldAccessExpr) lExpr).getVarName();
+                    Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
+                    for (Expression exp : varRefExpressions) {
+                        String varName = ((VariableRefExpr) exp).getVarName();
                         if (inputs.get(varName) == null) {
                             //if variable has not been used as an input before
                             if (outputs.get(varName) == null) {
                                 List<Statement> stmtList = new ArrayList<>();
                                 stmtList.add(statement);
-                                outputs.put(varName, ((FieldAccessExpr) lExpr).getVarRef());
+                                outputs.put(varName, exp);
                             }
                         } else {
                             String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
@@ -1866,24 +1865,42 @@ public class BLangModelBuilder {
                         }
                     }
                 }
-                Expression rExpr =  ((AssignStmt) statement).getRExpr();
-                if (rExpr instanceof FieldAccessExpr) {
-                    String varName = ((FieldAccessExpr) rExpr).getVarName();
+                Expression rExpr = ((AssignStmt) statement).getRExpr();
+                Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
+                for (Expression exp : varRefExpressions) {
+                    String varName = ((VariableRefExpr) exp).getVarName();
                     if (outputs.get(varName) == null) {
                         //if variable has not been used as an output before
                         if (inputs.get(varName) == null) {
                             List<Statement> stmtList = new ArrayList<>();
                             stmtList.add(statement);
-                            inputs.put(varName, ((FieldAccessExpr) rExpr).getVarRef());
+                            inputs.put(varName, exp);
                         }
                     } else {
                         String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                               SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                                                SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                         errorMsgs.add(errMsg);
                     }
                 }
             }
         }
+    }
+
+    private Expression[] getVariableReferencesFromExpression(Expression expression) {
+        if (expression instanceof FieldAccessExpr) {
+            return new Expression[] { ((FieldAccessExpr) expression).getVarRef() };
+        } else if (expression instanceof FunctionInvocationExpr) {
+            Expression[] argExprs = ((FunctionInvocationExpr) expression).getArgExprs();
+            List<Expression> expList = new ArrayList<>();
+            for (Expression arg : argExprs) {
+                Expression[] varRefExps = getVariableReferencesFromExpression(arg);
+                expList.addAll(Arrays.asList(varRefExps));
+            }
+            return expList.toArray(new Expression[expList.size()]);
+        } else if (expression instanceof VariableRefExpr) {
+            return new Expression[] { expression };
+        }
+        return new Expression[] {};
     }
 
     /**

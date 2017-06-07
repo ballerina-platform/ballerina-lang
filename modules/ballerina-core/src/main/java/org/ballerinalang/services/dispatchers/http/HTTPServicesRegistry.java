@@ -237,7 +237,7 @@ public class HTTPServicesRegistry {
      */
     public void registerService(ServiceInfo service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getServiceName();
+        String basePath = service.getName();
         AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_BASE_PATH);
 
@@ -274,7 +274,7 @@ public class HTTPServicesRegistry {
 
         servicesOnInterface.put(basePath, service);
 
-        logger.info("Service deployed : " + service.getServiceName() + " with context " + basePath);
+        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
     /**
@@ -283,7 +283,7 @@ public class HTTPServicesRegistry {
      */
     public void unregisterService(ServiceInfo service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getServiceName();
+        String basePath = service.getName();
         AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.BASE_PATH);
 

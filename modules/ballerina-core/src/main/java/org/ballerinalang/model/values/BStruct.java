@@ -36,6 +36,7 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
     private double[] doubleFields;
     private String[] stringFields;
     private int[] intFields;
+    private byte[][] byteFields;
     private BRefType[] refFields;
 
     private BType structType;
@@ -139,7 +140,8 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
         stringFields = new String[fieldIndexes[2]];
         Arrays.fill(stringFields, "");
         intFields = new int[fieldIndexes[3]];
-        refFields = new BRefType[fieldIndexes[4]];
+        byteFields = new byte[fieldIndexes[4]][];
+        refFields = new BRefType[fieldIndexes[5]];
     }
 
     @Override
@@ -175,6 +177,16 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
     @Override
     public int getBooleanField(int index) {
         return intFields[index];
+    }
+
+    @Override
+    public byte[] getBlobField(int index) {
+        return byteFields[index];
+    }
+
+    @Override
+    public void setBlobField(int index, byte[] value) {
+        byteFields[index] = value;
     }
 
     @Override

@@ -117,7 +117,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 if (log.isDebugEnabled()) {
                     log.debug("Path not specified in the Resource, using default sub path");
                 }
-                subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
+                subPathAnnotationVal = resource.getName();
             }
             try {
                 service.getUriTemplate().parse(subPathAnnotationVal, resource);

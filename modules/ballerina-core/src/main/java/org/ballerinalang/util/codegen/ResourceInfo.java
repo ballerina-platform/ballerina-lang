@@ -27,6 +27,7 @@ import java.util.Objects;
 public class ResourceInfo extends CallableUnitInfo {
 
     protected String[] paramNames;
+    private ServiceInfo serviceInfo;
 
     public ResourceInfo(String pkgPath, int pkgCPIndex, String actionName, int resNameCPIndex) {
         this.pkgPath = pkgPath;
@@ -41,6 +42,14 @@ public class ResourceInfo extends CallableUnitInfo {
     @Override
     public int hashCode() {
         return Objects.hash(pkgCPIndex, nameCPIndex);
+    }
+
+    public ServiceInfo getServiceInfo() {
+        return serviceInfo;
+    }
+
+    public void setServiceInfo(ServiceInfo serviceInfo) {
+        this.serviceInfo = serviceInfo;
     }
 
     @Override

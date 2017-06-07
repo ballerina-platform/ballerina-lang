@@ -60,15 +60,15 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
             BallerinaException {
         if (log.isDebugEnabled()) {
-            log.debug("Starting to find resource in the jms service " + service.getServiceName() + " to "
+            log.debug("Starting to find resource in the jms service " + service.getName() + " to "
                     + "deliver the message");
         }
         ResourceInfo[] resources = service.getResourceInfoList();
         if (resources.length == 0) {
-            throw new BallerinaException("No resources found to handle the JMS message in " + service.getServiceName());
+            throw new BallerinaException("No resources found to handle the JMS message in " + service.getName());
         }
         if (resources.length > 1) {
-            throw new BallerinaException("More than one resources found in JMS service " + service.getServiceName() +
+            throw new BallerinaException("More than one resources found in JMS service " + service.getName() +
                     ".JMS Service should only have one resource");
         }
         return resources[0];

@@ -48,6 +48,7 @@ public class BLangVMWorkers {
             Context workerContext = new Context();
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
+            workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
             StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);

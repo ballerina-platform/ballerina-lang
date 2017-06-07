@@ -99,10 +99,6 @@ function testFunctionCallWithNull() (any) {
     return foo(null);
 }
 
-function foo(string s) (string) {
-    return s;
-}
-
 function foo(xml x) (xml) {
     return x;
 }
