@@ -248,6 +248,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_IDENTIFIER_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_BODY_START_TO_FIRST_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.structBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.structBody().stop.getTokenIndex()));
         return ws;
