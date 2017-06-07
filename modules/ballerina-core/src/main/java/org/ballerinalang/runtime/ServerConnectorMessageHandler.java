@@ -34,6 +34,7 @@ import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -118,8 +119,9 @@ public class ServerConnectorMessageHandler {
     public static void invokeResource(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
+        ProgramFile programFile = packageInfo.getProgramFile();
 
-        Context context = new Context(packageInfo.getProgramFile());
+        Context context = new Context(programFile);
         context.setServiceInfo(serviceInfo);
         context.setCarbonMessage(carbonMessage);
         ControlStackNew controlStackNew = context.getControlStackNew();

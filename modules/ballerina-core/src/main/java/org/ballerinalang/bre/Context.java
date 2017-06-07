@@ -61,13 +61,8 @@ public class Context {
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
 
+    @Deprecated
     public Context() {
-        this.controlStack = new ControlStack();
-        this.controlStackNew = new ControlStackNew();
-    }
-
-    public Context(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
