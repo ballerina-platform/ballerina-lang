@@ -820,22 +820,7 @@ public class CodeGenerator implements NodeVisitor {
             BType[] retTypes = multiReturnExpr.getTypes();
             for (int i = 0; i < regIndexes.length; i++) {
                 // 1: return value position; 2:callee's value index;
-                switch (retTypes[i].getTag()) {
-                    case TypeTags.INT_TAG:
-                        emit(new Instruction(InstructionCodes.IRET, i, regIndexes[i]));
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        emit(new Instruction(InstructionCodes.FRET, i, regIndexes[i]));
-                        break;
-                    case TypeTags.STRING_TAG:
-                        emit(new Instruction(InstructionCodes.SRET, i, regIndexes[i]));
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        emit(new Instruction(InstructionCodes.BRET, i, regIndexes[i]));
-                        break;
-                    default:
-                        emit(new Instruction(InstructionCodes.RRET, i, regIndexes[i]));
-                }
+                emit(new Instruction(getOpcode(retTypes[i].getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         } else {
             regIndexes = new int[returnStmt.getExprs().length];
@@ -843,22 +828,7 @@ public class CodeGenerator implements NodeVisitor {
                 Expression expr = returnStmt.getExprs()[i];
                 expr.accept(this);
                 regIndexes[i] = expr.getTempOffset();
-                switch (expr.getType().getTag()) {
-                    case TypeTags.INT_TAG:
-                        emit(new Instruction(InstructionCodes.IRET, i, regIndexes[i]));
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        emit(new Instruction(InstructionCodes.FRET, i, regIndexes[i]));
-                        break;
-                    case TypeTags.STRING_TAG:
-                        emit(new Instruction(InstructionCodes.SRET, i, regIndexes[i]));
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        emit(new Instruction(InstructionCodes.BRET, i, regIndexes[i]));
-                        break;
-                    default:
-                        emit(new Instruction(InstructionCodes.RRET, i, regIndexes[i]));
-                }
+                emit(new Instruction(getOpcode(expr.getType().getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         }
         if (finallyBlocks.size() > 0) {
