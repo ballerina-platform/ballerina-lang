@@ -80,7 +80,7 @@ function testSelectData() (string) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
@@ -101,7 +101,7 @@ function testSelectIntFloatData() (int, int, float, float) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  int_type, long_type, float_type, double_type from DataTypeTable where row_id = 1",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         int_type = datatables:getInt(dt, 1);
         long_type = datatables:getInt(dt, 2);
         float_type = datatables:getFloat(dt, 3);
@@ -122,7 +122,7 @@ function testCallProcedure() (string) {
     sql:ClientConnector.call(testDB, "{call InsertPersonData(100,'James')}", parameters);
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
@@ -138,7 +138,7 @@ function testCallProcedureWithResultSet() (string) {
     sql:Parameter[] parameters = [];
     string firstName;
     datatable dt = sql:ClientConnector.call(testDB, "{call SelectPersonData()}", parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
@@ -156,7 +156,7 @@ function testConnectorWithDataSource() (string) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
@@ -180,7 +180,7 @@ function testConnectionPoolProperties() (string) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
@@ -198,7 +198,7 @@ function testQueryParameters() (string) {
     sql:Parameter[] parameters = [para1];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = ?",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
@@ -428,7 +428,7 @@ function testCloseConnectionPool () (int) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS",
                                               parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);
@@ -457,7 +457,7 @@ function testArrayInParameters() (int insertCount, map int_arr, map long_arr, ma
     sql:Parameter[] params = [];
     datatable df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array,
         string_array, float_array from ArrayTypes where row_id = 2", params);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         int_arr = datatables:getArray(df, "int_array");
         long_arr = datatables:getArray(df, "long_array");
         double_arr = datatables:getArray(df, "double_array");
@@ -557,7 +557,7 @@ function testLocalTransacton () (int, int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 200",
     parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);
@@ -589,7 +589,7 @@ function testTransactonRollback () (int, int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 210",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);
@@ -622,7 +622,7 @@ function testTransactonAbort () (int, int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 220",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);
@@ -657,7 +657,7 @@ function testTransactonErrorThrow () (int, int, int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 260",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);
@@ -692,7 +692,7 @@ function testTransactionErrorThrowAndCatch () (int, int, int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 250",
         parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);

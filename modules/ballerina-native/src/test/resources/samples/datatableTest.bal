@@ -45,7 +45,7 @@ function getXXXByIndex()(int, int, float, float, boolean, string) {
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable WHERE row_id = 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         i = datatables:getInt(df, 1);
         l = datatables:getInt(df, 2);
         f = datatables:getFloat(df, 3);
@@ -73,7 +73,7 @@ function getXXXByName()(int, int, float, float, boolean, string) {
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable WHERE row_id = 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         i = datatables:getInt(df, "int_type");
         l = datatables:getInt(df, "long_type");
         f = datatables:getFloat(df, "float_type");
@@ -143,7 +143,7 @@ function getByName()(string, string, int, int, int) {
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
                 from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         blob = datatables:getStringWithType(df, "blob_type", "blob");
         clob = datatables:getStringWithType(df, "clob_type", "clob");
         time = datatables:getIntWithType(df, "time_type", "time");
@@ -172,7 +172,7 @@ function getByIndex()(string, string, int, int, int, string) {
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
             binary_type from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         blob = datatables:getStringWithType(df, 1, "blob");
         clob = datatables:getStringWithType(df, 2, "clob");
         time = datatables:getIntWithType(df, 3, "time");
@@ -200,7 +200,7 @@ function getObjectAsStringByIndex()(string, string, string, string, string, stri
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
                 datetime_type from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         blob = datatables:getValueAsString(df, 1);
         clob = datatables:getValueAsString(df, 2);
         time = datatables:getValueAsString(df, 3);
@@ -228,7 +228,7 @@ function getObjectAsStringByName()(string, string, string, string, string, strin
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
                 datetime_type from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         blob = datatables:getValueAsString(df, "blob_type");
         clob = datatables:getValueAsString(df, "clob_type");
         time = datatables:getValueAsString(df, "time_type");
@@ -251,7 +251,7 @@ function getArrayByName()(map int_arr, map long_arr, map float_arr, map string_a
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
                 from ArrayTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         int_arr = datatables:getArray(df, "int_array");
         long_arr = datatables:getArray(df, "long_array");
         float_arr = datatables:getArray(df, "float_array");
@@ -272,7 +272,7 @@ function getArrayByIndex()(map int_arr, map long_arr, map float_arr, map string_
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
                 from ArrayTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
+    while (datatables:hasNext(df)) {
         int_arr = datatables:getArray(df, 1);
         long_arr = datatables:getArray(df, 2);
         float_arr = datatables:getArray(df, 3);
@@ -299,7 +299,7 @@ function testDateTime(string time, string date, string timestamp) (int time1, in
     sql:Parameter[] emptyParam = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT time_type, date_type, timestamp_type
                 from DateTimeTypes LIMIT 1", emptyParam);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         time1 = datatables:getIntWithType(dt, "time_type", "time");
         date1 = datatables:getIntWithType(dt, "date_type", "date");
         timestamp1 = datatables:getIntWithType(dt, "timestamp_type", "timestamp");
@@ -353,8 +353,8 @@ function getXXXByIndexWithStruct()(int, int, float, float, boolean, string) {
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable WHERE row_id = 1",parameters);
-    while (datatables:next(df)) {
-        any para = datatables:getNext(df);
+    while (datatables:hasNext(df)) {
+        any para = datatables:next(df);
         ResultPrimitive rs;
         rs, err = (ResultPrimitive) para;
 
@@ -387,8 +387,8 @@ function getObjectAsStringByNameWithStruct()(string, string, string, string, str
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
                 datetime_type, binary_type from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        any para = datatables:getNext(df);
+    while (datatables:hasNext(df)) {
+        any para = datatables:next(df);
         ResultObject rs;
         rs, err = (ResultObject) para;
 
@@ -420,8 +420,8 @@ function testGetArrayByNameWithStruct()(map, map, map, map, map) {
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
                 from ArrayTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        any para = datatables:getNext(df);
+    while (datatables:hasNext(df)) {
+        any para = datatables:next(df);
         ResultMap rs;
         rs, err = (ResultMap) para;
 

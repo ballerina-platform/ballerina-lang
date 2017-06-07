@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.lang.datatables;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -29,28 +30,28 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to get the current row of a datatable as a struct
- * ballerina.model.datatables:getNext(datatable)
+ * Native function to check record availability in datatable.
+ * ballerina.model.datatables:hasNext(datatable)
  *
- * @since 0.88
+ * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
-        functionName = "getNext",
+        functionName = "hasNext",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE)},
-        returnType = {@ReturnType(type = TypeEnum.ANY)},
+        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-               value = "Returns the current row of the datatable as a struct.") })
+        value = "Checks for a new row in the given datatable. If a new row is found, moves the cursor to it.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
-               value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct",
-               value = "The struct created with the data of the current row") })
-public class GetNext extends AbstractNativeFunction {
+        value = "The datatable object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "boolean",
+        value = "True if there is a new row; false otherwise") })
+public class HasNext extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        return getBValues(dataTable.getNext());
+        return getBValues(new BBoolean(dataTable.next()));
     }
 }
