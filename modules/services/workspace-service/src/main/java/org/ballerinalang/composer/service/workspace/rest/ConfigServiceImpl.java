@@ -18,6 +18,7 @@ package org.ballerinalang.composer.service.workspace.rest;
 
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.composer.service.workspace.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.Request;
@@ -130,7 +131,7 @@ public class ConfigServiceImpl {
 
         JsonObject programNativeTypes = new JsonObject();
         programNativeTypes.addProperty("endpoint", apiPath + "/service/program/native/types");
-
+        
         JsonObject services = new JsonObject();
         services.add("workspace", workspace);
         services.add("packages", packages);
@@ -144,7 +145,16 @@ public class ConfigServiceImpl {
 
         JsonObject config = new JsonObject();
         config.add("services", services);
-
+    
+        String balHome = System.getProperty(Constants.SYS_BAL_COMPOSER_HOME);
+        if (balHome == null) {
+            balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
+        }
+        
+        if (null != balHome) {
+            config.addProperty("balHome", balHome);
+        }
+                
         return config;
     }
 

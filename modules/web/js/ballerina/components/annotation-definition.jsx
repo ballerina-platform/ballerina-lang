@@ -73,7 +73,7 @@ class AnnotationDefinition extends React.Component {
                                             validateInput={this.validateInput} modelComponents={attachments}
                                             componentData={componentData} isSelectBox={true}
                                             suggestions={this.getAnnotationAttachmentPointsForSuggestions()}
-                                            groupClass="annotation-attachment-group"/>);
+                                            groupClass="annotation-attachment-group" label={"attach"}/>);
         let titleComponentData = [{
             isNode: false,
             model: tagController

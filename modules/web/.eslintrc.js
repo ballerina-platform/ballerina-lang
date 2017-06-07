@@ -25,6 +25,7 @@ module.exports = {
             "error",
             4
         ],
+        "react/jsx-uses-vars": 1,
         "quotes": [
             "error",
             "single"
@@ -37,5 +38,8 @@ module.exports = {
             "error",
             "always"
         ]
-    }
+    },
+    "plugins": [
+        "react"
+    ]
 };

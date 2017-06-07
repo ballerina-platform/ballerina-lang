@@ -49,6 +49,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -676,7 +677,12 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         //TODO
     }
-    
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+
+    }
+
     @Override
     public void visit(KeyValueExpr keyValueExpr) {
         //TODO

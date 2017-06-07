@@ -238,6 +238,7 @@ div[class*="col-sm-"] {
 #service-tabs-wrapper > .row > #tabs-container > #tab-content-wrapper > .tab-content.tab-content-default,
 #service-tabs-wrapper > .row > #tabs-container > #tab-content-wrapper > .tab-content.tab-content-default > .tab-pane {
     height: 100%;
+    overflow: auto;
 }
 
 .tab-pane  {

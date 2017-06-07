@@ -215,7 +215,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
 
     if (node.getArguments) {
         viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth
+            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width
             + DesignerDefaults.panelHeading.iconSize.padding;
         viewState.components.openingParameter.y = viewState.bBox.y
@@ -242,10 +242,10 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
         // Setting positions of function parameters.
         // Positioning the opening bracket component of the parameters.
         viewState.components.openingParameter.x = viewState.bBox.x
-            + viewState.titleWidth
+            + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding;
-        viewState.components.openingParameter.y = viewState.bBox.y;
+            + DesignerDefaults.panelHeading.iconSize.padding + util.getTextWidth("attach", 80, 80).w;
+        viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
         viewState.attachments = {};
         // Positioning the resource parameters
@@ -258,13 +258,13 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
                     model: node
                 };
                 nextXPositionOfParameter = createPositionForTitleNode(attachment, nextXPositionOfParameter,
-                    viewState.bBox.y);
+                    (viewState.bBox.y + viewState.components.annotation.h));
             }
         }
 
         // Positioning the closing bracket component of the parameters.
         viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
-        viewState.components.closingParameter.y = viewState.bBox.y;
+        viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 
     if (node.getReturnTypes) {

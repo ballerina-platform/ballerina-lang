@@ -74,7 +74,7 @@ class BlockStatementDecorator extends React.Component {
 
     isInStatementWithinMe(elmToCheck) {
         const thisNode = ReactDOM.findDOMNode(this);
-        const regex = new RegExp('(^|\\s)(compound-)?statement(\\s|$)');
+        const regex = new RegExp('(^|\\s)((compound-)?statement|life-line-group)(\\s|$)');
         let isInStatement = false;
         let elm = elmToCheck;
         while (elm && elm !== thisNode && elm.getAttribute) {
@@ -125,7 +125,7 @@ class BlockStatementDecorator extends React.Component {
     }
 
     render() {
-        const {bBox, title, dropTarget, expression, parameter } = this.props;
+        const {bBox, title, dropTarget, expression} = this.props;
         const model = this.props.model || dropTarget;
 
         let title_h = blockStatement.heading.height;
@@ -155,7 +155,12 @@ class BlockStatementDecorator extends React.Component {
         if (expression) {
             expression_x = p3_x + statement.padding.left;
         }
-        const paramSeparator_x = blockStatement.heading.paramSeparatorOffsetX + expression_x;
+        let paramSeparator_x = 0;
+        let parameterText = null;
+        if (this.props.parameterBbox && this.props.parameterEditorOptions) {
+            paramSeparator_x = this.props.parameterBbox.x;
+            parameterText = this.props.parameterEditorOptions.getterMethod.call(this.props.parameterEditorOptions.model);
+        }
 
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, title_h);
 
@@ -169,30 +174,29 @@ class BlockStatementDecorator extends React.Component {
         const utilClassName = this.state.active=== 'hidden' ? 'hide-action' :
             ( this.state.active=== 'visible' ? 'show-action' : 'delayed-hide-action');
 
+        const expressionEditor = this.openExpressionEditor.bind(this, this.props.expression, this.props.editorOptions);
+        const paramEditor = this.openExpressionEditor.bind(this, parameterText, this.props.parameterEditorOptions);
         return (<g onMouseOut={ this.setActionVisibility.bind(this, false) }
                    onMouseOver={ this.setActionVisibility.bind(this, true) }>
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
-            {this.props.hideLifeLine &&
-            <line x1={bBox.getCenterX()} y1={bBox.y} x2={bBox.getCenterX()} y2={bBox.getBottom()}
-                  className="life-line-hider"/>}
             <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"
-                  onClick={(e) => this.openExpressionEditor(e)}/>
+                  onClick={!parameterText && expressionEditor}/>
             <text x={title_x} y={title_y} className="statement-text">{title}</text>
 
             {(expression) &&
             <text x={expression_x} y={title_y} className="condition-text"
-                  onClick={(e) => this.openExpressionEditor(e)}>
+                  onClick={expressionEditor}>
                 {expression.text}
             </text>}
 
-            {(parameter) &&
+            {parameterText &&
             <g>
                 <line x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
                       x2={paramSeparator_x}
                       className="parameter-separator"/>
-                <text x={expression_x + blockStatement.heading.paramOffsetX} y={title_y} className="condition-text"
-                      onClick={(e) => this.openParameterEditor(e)}>
-                    ( {parameter.getParameterDefinitionAsString()} )
+                <text x={paramSeparator_x + blockStatement.heading.paramPaddingX} y={title_y} className="condition-text"
+                      onClick={paramEditor}>
+                    ( {parameterText} )
                 </text>
             </g>}
 
@@ -200,6 +204,7 @@ class BlockStatementDecorator extends React.Component {
             <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
                 {this.props.children}
             </StatementContainer>
+            {this.props.undeletable &&
             <ActionBox
                 bBox={ actionBoxBbox }
                 show={ this.state.active }
@@ -207,7 +212,7 @@ class BlockStatementDecorator extends React.Component {
                 onDelete={ this.onDelete }
                 onJumptoCodeLine={ this.onJumptoCodeLine }
                 onBreakpointClick={ this.onBreakpointClick }
-            />
+            />}
             {
                 <g className={utilClassName}>
                     {this.props.utilities || null}
@@ -218,15 +223,11 @@ class BlockStatementDecorator extends React.Component {
 
     }
 
-    openExpressionEditor(e) {
-        let options = this.props.editorOptions;
+    openExpressionEditor(value, options, e) {
         let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
-        if (this.props.expression && options) {
+        if (value && options) {
             new ExpressionEditor(this.conditionBox, this.context.container, (text) => this.onUpdate(text), options, packageScope);
         }
-    }
-
-    openParameterEditor(e) {
     }
 
     onUpdate(text) {
