@@ -37,7 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * {@code UpdateWithGeneratedKeyColumns} is the updateWithGeneratedKeys action implementation of the SQL Connector.
+ * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
  *
  * @since 0.8.0
  */
@@ -70,10 +70,10 @@ import org.osgi.service.component.annotations.Component;
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "generatedKeys",
         value = "Generated keys array") })
 @Component(
-        name = "action.data.sql.UpdateWithGeneratedKeyColumns",
+        name = "action.data.sql.UpdateWithGeneratedKeys",
         immediate = true,
         service = AbstractNativeAction.class)
-public class UpdateWithGeneratedKeyColumns extends AbstractSQLAction {
+public class UpdateWithGeneratedKeys extends AbstractSQLAction {
 
     @Override
     public BValue execute(Context context) {
