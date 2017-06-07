@@ -53,9 +53,27 @@ public class Delete extends AbstractNativeFunction {
         if (!targetFile.exists()) {
             throw new BallerinaException("File intended to delete does not exist");
         }
-        if (!targetFile.delete()) {
+        if (!delete(targetFile)) {
             throw new BallerinaException("Error while deleting file");
         }
         return VOID_RETURN;
     }
+
+    private boolean delete(File targetFile) {
+
+        String[] entries = targetFile.list();
+        if (entries != null && entries.length != 0) {
+            for (String s : entries) {
+                File currentFile = new File(targetFile.getPath(), s);
+                if (currentFile.isDirectory()) {
+                    delete(currentFile);
+                }
+                if (!currentFile.delete()) {
+                    return false;
+                }
+            }
+        }
+        return targetFile.delete();
+    }
+
 }
