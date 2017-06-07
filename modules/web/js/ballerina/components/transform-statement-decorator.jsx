@@ -165,19 +165,19 @@ class TransformStatementDecorator extends React.Component {
         transformOverlayContent.append(targetContent);
         transformOverlay.append(transformOverlayContent);
         transformOverlayContent.append(transformMenuDiv);
-        transformOverlayContent.append(transformFooter)
+        transformOverlayContent.append(transformFooter);
         $('#tab-content-wrapper').append(transformOverlay);
 
         this.transformOverlayDiv = document.getElementById('transformOverlay');
-		this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
 
-		this.transformOverlayContentDiv.addEventListener('mouseover', e => {
-			this.onTransformDropZoneActivate(e);
-		});
+        this.transformOverlayContentDiv.addEventListener('mouseover', e => {
+            this.onTransformDropZoneActivate(e);
+        });
 
-		this.transformOverlayContentDiv.addEventListener('mouseout', e => {
+        this.transformOverlayContentDiv.addEventListener('mouseout', e => {
 	        this.onTransformDropZoneDeactivate(e);
-		});
+        });
 
         var span = document.getElementsByClassName('close-transform')[0];
 
@@ -224,14 +224,14 @@ class TransformStatementDecorator extends React.Component {
         });
 
         $('#btn-remove-source').click(function (e) {
-             var currentSelection = $('#' + sourceId).val();
-             if (currentSelection != -1) {
-                 self.mapper.removeType(currentSelection);
-                 self.props.model.setInput([]);
-                 var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
-                 currentSelectionObj.added = false;
-                 self.props.model.children = [];
-             }
+            var currentSelection = $('#' + sourceId).val();
+            if (currentSelection != -1) {
+                self.mapper.removeType(currentSelection);
+                self.props.model.setInput([]);
+                var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
+                currentSelectionObj.added = false;
+                self.props.model.children = [];
+            }
         });
 
         $('#btn-add-target').click(function (e) {
@@ -240,27 +240,27 @@ class TransformStatementDecorator extends React.Component {
                 var outDef = BallerinaASTFactory
                                         .createVariableReferenceExpression({variableName: currentSelection});
                 var outputs = self.props.model.getOutput();
-                outputs.push(outDef)
+                outputs.push(outDef);
                 self.props.model.setOutput(outputs);
             }
         });
 
         $('#btn-remove-target').click(function (e) {
-             var currentSelection = $('#' + targetId).val();
-             if (currentSelection != -1) {
-                 self.mapper.removeType(currentSelection);
-                 self.props.model.setOutput([]);
-                 var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
-                 currentSelectionObj.added = false;
-                 self.props.model.children = [];
-             }
+            var currentSelection = $('#' + targetId).val();
+            if (currentSelection != -1) {
+                self.mapper.removeType(currentSelection);
+                self.props.model.setOutput([]);
+                var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
+                currentSelectionObj.added = false;
+                self.props.model.children = [];
+            }
         });
 
         $(window).on('resize', function(){
             self.mapper.reposition(self.mapper);
         });
 
-        $(".leftType, .rightType, .middle-content").on('scroll', function(){
+        $('.leftType, .rightType, .middle-content').on('scroll', function(){
             self.mapper.reposition(self.mapper);
         });
 
@@ -276,7 +276,7 @@ class TransformStatementDecorator extends React.Component {
             var targetExpression;
 
             if(sourceStruct != null){
-                if (sourceStruct.type == "struct") {
+                if (sourceStruct.type == 'struct') {
                     sourceExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
                 } else {
                     sourceExpression = BallerinaASTFactory
@@ -284,7 +284,7 @@ class TransformStatementDecorator extends React.Component {
                 }
             }
             if(targetStruct != null){
-                if (targetStruct.type == "struct") {
+                if (targetStruct.type == 'struct') {
                     targetExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
                 } else {
                     targetExpression = BallerinaASTFactory
@@ -355,13 +355,13 @@ class TransformStatementDecorator extends React.Component {
         this.mapper = new TransformRender(onConnectionCallback, onDisconnectionCallback);
         this.transformOverlayDiv.style.display = 'block';
 
-         _.forEach(self.props.model.getInput(), input => {
+        _.forEach(self.props.model.getInput(), input => {
             self.setSource(input.getExpression(), self.predefinedStructs);
-         });
+        });
 
-         _.forEach(self.props.model.getOutput(), output => {
+        _.forEach(self.props.model.getOutput(), output => {
             self.setTarget(output.getExpression(), self.predefinedStructs);
-         });
+        });
 
         _.forEach(this.props.model.getChildren(), statement => {
             this.createConnection(statement);
@@ -510,7 +510,7 @@ class TransformStatementDecorator extends React.Component {
         var struct = {};
         struct.name = name;
         struct.properties = [];
-        struct.type = "struct";
+        struct.type = 'struct';
 
         _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
             var property = {};
@@ -560,7 +560,7 @@ class TransformStatementDecorator extends React.Component {
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
         let statementRectClass = 'transform-statement-rect';
         if (model.isDebugHit) {
-                statementRectClass = `${statementRectClass} debug-hit`;
+            statementRectClass = `${statementRectClass} debug-hit`;
         }
 
         return (
@@ -615,11 +615,11 @@ class TransformStatementDecorator extends React.Component {
                     // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
                     // is an Assignment Statement, that implies there is a return parameter . If there is no
                     // return parameter, then it is a Function Invocation Statement, which is validated with below check.
-                    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
-                },
+    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
+},
 				() => {
-                    return dropTarget.getChildren().length;
-                }
+    return dropTarget.getChildren().length;
+}
             );
         }
         e.stopPropagation();
@@ -650,11 +650,11 @@ class TransformStatementDecorator extends React.Component {
                     // IMPORTANT: override node's default validation logic
                     // This drop zone is for statements only.
                     // Statements should only be allowed here.
-                    return model.getFactory().isStatement(nodeBeingDragged);
-                },
+    return model.getFactory().isStatement(nodeBeingDragged);
+},
 				() => {
-                    return dropTarget.getIndexOfChild(model);
-                }
+    return dropTarget.getIndexOfChild(model);
+}
 			);
             this.setState({innerDropZoneActivated: true,
                 innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()
@@ -771,10 +771,10 @@ class TransformStatementDecorator extends React.Component {
             return false;
         }
         if (!sourceSelection.added) {
-            if (sourceSelection.type == "struct") {
+            if (sourceSelection.type == 'struct') {
                 self.mapper.addSourceType(sourceSelection);
             } else {
-                self.mapper.addVariable(sourceSelection, "source");
+                self.mapper.addVariable(sourceSelection, 'source');
             }
             sourceSelection.added = true;
             return true;
@@ -790,10 +790,10 @@ class TransformStatementDecorator extends React.Component {
             return false;
         }
         if (!targetSelection.added) {
-            if (targetSelection.type == "struct") {
+            if (targetSelection.type == 'struct') {
                 self.mapper.addTargetType(targetSelection);
             } else {
-                self.mapper.addVariable(targetSelection, "target");
+                self.mapper.addVariable(targetSelection, 'target');
             }
             targetSelection.added = true;
             return true;

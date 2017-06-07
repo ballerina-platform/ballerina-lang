@@ -103,7 +103,7 @@ class TransformRender
                 }
             }, false);
 
-            $( ".leftType, .middle-content, .rightType" ).scroll(function() {
+            $( '.leftType, .middle-content, .rightType' ).scroll(function() {
                 $('#' + self.contextMenu).hide();
             });
 
@@ -554,39 +554,39 @@ class TransformRender
 
 
 
-addVariable(variable, type, reference) {
-    this.references.push({name: variable.id, refObj: reference});
-    var newVar = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
-    var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
-    var id = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
-    var   property = $('<a>').attr('id', id).addClass('variable-content');
-    var propertyName = $('<span>').addClass('property-name').text(variable.name);
-    var seperator = $('<span>').addClass('property-name').text(':');
-    var propertyType = $('<span>').addClass('property-type').text(variable.type);
-    newVar.append(varIcon);
-    property.append(propertyName);
-    property.append(seperator);
-    property.append(propertyType);
-    newVar.append(property);
-    var subPlaceHolder;
+    addVariable(variable, type, reference) {
+        this.references.push({name: variable.id, refObj: reference});
+        var newVar = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
+        var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
+        var id = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+        var   property = $('<a>').attr('id', id).addClass('variable-content');
+        var propertyName = $('<span>').addClass('property-name').text(variable.name);
+        var seperator = $('<span>').addClass('property-name').text(':');
+        var propertyType = $('<span>').addClass('property-type').text(variable.type);
+        newVar.append(varIcon);
+        property.append(propertyName);
+        property.append(seperator);
+        property.append(propertyType);
+        newVar.append(property);
+        var subPlaceHolder;
 
 
-    newVar.css({
-        'top': 0,
-        'left': 0
-    });
+        newVar.css({
+            'top': 0,
+            'left': 0
+        });
 
-    if(type == 'source' ) {
-        subPlaceHolder = 'leftType';
-        $('#' + this.placeHolderName).find('.leftType').append(newVar);
-        this.addSource(property, this, true);
-    } else {
-        subPlaceHolder = 'rightType';
-        $('#' + this.placeHolderName).find('.rightType').append(newVar);
-        this.addTarget(property, this);
+        if(type == 'source' ) {
+            subPlaceHolder = 'leftType';
+            $('#' + this.placeHolderName).find('.leftType').append(newVar);
+            this.addSource(property, this, true);
+        } else {
+            subPlaceHolder = 'rightType';
+            $('#' + this.placeHolderName).find('.rightType').append(newVar);
+            this.addTarget(property, this);
+        }
+        this.reposition(this);
     }
-    this.reposition(this);
-}
 
 
 /**
@@ -921,7 +921,7 @@ addVariable(variable, type, reference) {
         var funcs = $('.middle-content  > .func');
         var sourceStructs = $('.leftType > .struct, .leftType > .variable');
         var targetStructs = $('.rightType > .struct, .rightType > .variable');
-        var xFunctionPointer = ($(".middle-content").width()-300)/2;
+        var xFunctionPointer = ($('.middle-content').width()-300)/2;
         var yFunctionPointer = 120;
         var xSourcePointer = 0;
         var ySourcePointer = 50;
