@@ -29,9 +29,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
             "function", "connector", "struct", "typemapper", "annotation");
     private static final List<String> ANY_TYPE = Collections.singletonList("any");
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
-    private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "xml", "json", "map", "datatable");
+    private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "xmlDocument", "json",
+            "datatable");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally");
+            "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally", "iterate", "while",
+            "continue", "break", "throw");
+    private static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
     private static final String UTILS_PACKAGE_NAME = "org/test/utils.bal";
@@ -350,6 +353,41 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     /**
+     * Test annotation field lookups.
+     */
+    public void testAnnotationFields() {
+        doCheckResult("test.bal", "annotation TEST attach function { string key; string value;} " +
+                "@TEST{<caret>} function A(){}", null, null, "key", "value");
+    }
+
+    public void testAnnotationFieldsAutoCompletion() {
+        doCheckResult("test.bal", "annotation TEST attach function { string key; string value;} " +
+                "@TEST{k<caret>} function A(){}", "annotation TEST attach function { string key; string value;} " +
+                "@TEST{key:} function A(){}", null);
+    }
+
+    public void testAnnotationFieldValues() {
+        doCheckResult("test.bal", "annotation TEST attach function { string key; string value;} " +
+                "@TEST{key:<caret>} function A(){}", null, null, "true", "false", "null");
+    }
+
+    public void testAnnotationFieldsFromDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach function { string key; string value;}");
+        doTest("import org.test; @test:TEST{<caret>} function A(){}", "key", "value");
+    }
+
+    public void testAnnotationFieldsAutoCompletionFromDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach function { string key; string value;}");
+        doCheckResult("main.bal", "import org.test; @test:TEST{k<caret>} function A(){}",
+                "import org.test; @test:TEST{key:<caret>} function A(){}", null);
+    }
+
+    public void testAnnotationFieldValuesFromDifferentPackage() {
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach function { string key; string value;}");
+        doTest("import org.test; @test:TEST{key:<caret>} function A(){}", "true", "false", "null");
+    }
+
+    /**
      * Test global variables.
      */
     public void testGlobalVariableIdentifier() {
@@ -397,6 +435,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("any");
         expectedLookups.add("S");
@@ -410,6 +449,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("any");
         expectedLookups.add("S");
@@ -495,6 +535,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
         expectedLookups.add("any");
@@ -507,6 +548,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
         expectedLookups.add("any");
@@ -519,6 +561,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
         doTest("const string GREETING = \"Hello\"; function test (int arg) { <caret> }",
@@ -530,6 +573,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("pack");
         expectedLookups.add("test");
@@ -547,12 +591,15 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("timeout");
         expectedLookups.add("transaction");
         expectedLookups.add("finally");
+        expectedLookups.add("continue");
+        expectedLookups.add("iterate");
+        expectedLookups.add("while");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithFunctionLevelKeywords() {
         doTest("function test () { r<caret> }", "return", "string", "fork", "worker", "transform", "transaction",
-                "abort", "aborted", "try");
+                "abort", "aborted", "try", "true", "break", "iterate", "throw");
     }
 
     public void testInvokingFunctionInDifferentFile1() {
@@ -571,7 +618,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testVariable2() {
-        doTest("function main(string[] args){ int a = <caret> }", "args", "main", "create");
+        doTest("function main(string[] args){ int a = <caret> }", "args", "main", "create", "false", "null", "true");
     }
 
     public void testCreateKeywordAutoCompletion() {
@@ -584,6 +631,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("args");
         expectedLookups.add("test");
@@ -773,7 +821,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testFunctionFromPackageInvocation23() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
-                "args", "main", "test");
+                "args", "main", "test", "false", "null", "true");
     }
 
     public void testFunctionFromPackageInvocation24() {
@@ -795,19 +843,19 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVarDefinition() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> }",
-                "args", "main", "test", "create");
+                "args", "main", "test", "create", "false", "null", "true");
     }
 
     public void testVarDefinitionWithTraileringCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = \"TEST\" + <caret> }",
-                "args", "main", "test");
+                "args", "main", "test", "false", "null", "true");
     }
 
     public void testVarDefinitionWithLeadingCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
-                "args", "main", "test", "create");
+                "args", "main", "test", "create", "false", "null", "true");
     }
 
     public void testConnectorInit() {
@@ -823,7 +871,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorInitCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        doTest("import org.test; function A(){ test:TestConnector c = <caret> }", "create", "test", "A");
+        doTest("import org.test; function A(){ test:TestConnector c = <caret> }", "create", "test", "A", "false",
+                "null", "true");
     }
 
     public void testConnectorInitCreateKeywordAutoCompletion() {
@@ -834,20 +883,21 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorCreation() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "A", "test");
+        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "A", "test", "false",
+                "null", "true");
     }
 
     public void testConnectorCreationPackageAutoCompletion() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
         doCheckResult("test.bal", "import org.test; function A(){ test:TestConnector con = create " +
-                "te<caret> }", "import org.test; function A(){ test:TestConnector con = create test: }", null);
+                "tes<caret> }", "import org.test; function A(){ test:TestConnector con = create test: }", null);
     }
 
     public void testConnectorCreationCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
         // todo - remove c
         doTest("import org.test; function A(){ test:TestConnector c = <caret> test:TestConnector() }",
-                "create", "A", "c", "test");
+                "create", "A", "c", "test", "false", "null", "true");
     }
 
     public void testVariablesInitializationAfterDeclaration() {
@@ -855,6 +905,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("s");
         expectedLookups.add("A");
@@ -867,6 +918,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("s");
         expectedLookups.add("s1");
@@ -877,31 +929,32 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testVariablesNoVarsAvailable() {
-        doTest("function A(){ string s1 = <caret> }", "A", "create");
+        doTest("function A(){ string s1 = <caret> }", "A", "create", "false", "null", "true");
     }
 
     public void testVariablesWhenSingleVariableAvailable() {
-        doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }", "s1", "A", "create");
+        doTest("function A(){ string s1 = \"Test\"; string s2 = <caret> }", "s1", "A", "create", "false", "null",
+                "true");
     }
 
     public void testVariablesWhenSingleVariableAvailableWithPartialIdentifier() {
-        doCheckResult("test.bal", "function A(){ string s1 = \"Test\"; string s2 = s<caret> }",
-                "function A(){ string s1 = \"Test\"; string s2 = s1 }", null);
+        doCheckResult("test.bal", "function A(){ string abc = \"Test\"; string def = ab<caret> }",
+                "function A(){ string abc = \"Test\"; string def = abc }", null);
     }
 
     public void testVariablesWhenMultipleVariablesAvailable() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> }",
-                "s1", "s2", "A", "create");
+                "s1", "s2", "A", "create", "false", "null", "true");
     }
 
     public void testVariablesWhenMultipleVariablesAvailableAfterLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = s1 + <caret> }",
-                "s1", "s2", "A");
+                "s1", "s2", "A", "false", "null", "true");
     }
 
     public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
-                "s1", "s2", "A", "create");
+                "s1", "s2", "A", "create", "false", "null", "true");
     }
 
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
@@ -909,6 +962,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("s1");
         expectedLookups.add("s2");
@@ -923,6 +977,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("s1");
         expectedLookups.add("s2");
@@ -951,8 +1006,16 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("test");
         expectedLookups.add("transaction");
         expectedLookups.add("transform");
+        expectedLookups.add("false");
         doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    /**
+     * Test statement level lookups
+     */
+    public void testStrings() {
+        doTest("function test() { int a; system:println(\"<caret>\") }");
     }
 
     /**
@@ -1336,6 +1399,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.add("C");
         expectedLookups.add("any");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -1343,7 +1407,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorBodyVariableDeclarationPackage() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doTest("import org.test; connector C(){ te<caret> }", "test", "aborted");
+        doTest("import org.test; connector C(){ te<caret> }", "test", "aborted", "iterate");
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {
@@ -1535,7 +1599,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testSingleLevelStructInSameFileValue() {
         doTest("struct Name { string firstName; } function test(){ string name=\"\"; Name name = { " +
-                "firstName:<caret> }; }", "name", "test");
+                "firstName:<caret> }; }", "name", "test", "false", "null", "true");
     }
 
     public void testMultiLevelStructInSameFile() {
@@ -1686,7 +1750,84 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         doCheckResult("test.bal", "function test(){ finally<caret> }", "function test(){ finally {\n    \n} }", null);
     }
 
-    // todo -  test common keywords
+    public void testIterateKeyword() {
+        doCheckResult("test.bal", "function test(){ iterate<caret> }", "function test(){ iterate ( : ) {\n    \n} }",
+                null);
+    }
+
+    public void testWhileKeyword() {
+        doCheckResult("test.bal", "function test(){ while<caret> }", "function test(){ while () {\n    \n} }",
+                null);
+    }
+
+    public void testContinueKeyword() {
+        doCheckResult("test.bal", "function test(){ continue<caret> }", "function test(){ continue; }", null);
+    }
+
+    public void testBreakKeyword() {
+        doCheckResult("test.bal", "function test(){ break<caret> }", "function test(){ break; }", null);
+    }
+
+    public void testThrowKeyword() {
+        doCheckResult("test.bal", "function test(){ throw<caret> }", "function test(){ throw ; }", null);
+    }
+
+    /**
+     * Keywords in statements.
+     */
+    public void testKeywordAfterStatement() {
+        doCheckResult("test.bal", "function test(){ int a; if<caret> }", "function test(){ int a; if () {\n    " +
+                "\n} }", null);
+    }
+
+    public void testKeywordBeforeStatement() {
+        doCheckResult("test.bal", "function test(){ if<caret> int a; }", "function test(){ if () {\n    \n} int a; }",
+                null);
+    }
+
+    public void testKeywordBetweenStatements() {
+        doCheckResult("test.bal", "function test(){ int a; if<caret> int b; }", "function test(){ int a; if () {\n" +
+                "    \n} int b; }", null);
+    }
+
+    public void testCommonKeywordsAfterStatement() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("a");
+        expectedLookups.add("any");
+        expectedLookups.add("test");
+        doTest("function test(){ int a; <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testCommonKeywordsBeforeStatement() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("any");
+        expectedLookups.add("test");
+        doTest("function test(){ <caret> int a; }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testCommonKeywordsBetweenStatements() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("a");
+        expectedLookups.add("any");
+        expectedLookups.add("test");
+        doTest("function test(){ int a; <caret> int b; }", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
     // todo -  test resource level specific keywords
 
 }

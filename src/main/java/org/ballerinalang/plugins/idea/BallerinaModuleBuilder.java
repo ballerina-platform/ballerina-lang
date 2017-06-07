@@ -26,22 +26,27 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.projectRoots.SdkTypeId;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.Pair;
-import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourcePathsBuilder, ModuleBuilderListener {
+
     @Override
     public void setupRootModel(ModifiableRootModel modifiableRootModel) throws ConfigurationException {
         addListener(this);
         super.setupRootModel(modifiableRootModel);
     }
 
-    @Override
     public List<Pair<String, String>> getSourcePaths() {
-        return ContainerUtil.emptyList();
+        final List<Pair<String, String>> paths = new ArrayList<>();
+        @NonNls final String path = getContentEntryPath();
+        paths.add(Pair.create(path, ""));
+        setSourcePaths(paths);
+        return paths;
     }
 
     @NotNull

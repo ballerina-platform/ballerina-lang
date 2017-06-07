@@ -206,6 +206,12 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
+            if (element instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) element).getElementType();
+                if (elementType == BallerinaTypes.QUOTED_STRING) {
+                    return false;
+                }
+            }
             ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     ActionDefinitionNode.class);
             CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
@@ -225,6 +231,12 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
+            if (element instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) element).getElementType();
+                if (elementType == BallerinaTypes.QUOTED_STRING) {
+                    return false;
+                }
+            }
             FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     FunctionDefinitionNode.class);
             CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,

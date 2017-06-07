@@ -68,15 +68,15 @@ import java.util.stream.Collectors;
 public class BallerinaCompletionUtils {
 
     private static final int VARIABLE_PRIORITY = 20;
-    private static final int FUNCTION_PRIORITY = VARIABLE_PRIORITY - 1;
-    private static final int PACKAGE_PRIORITY = FUNCTION_PRIORITY - 1;
-    private static final int STRUCT_PRIORITY = PACKAGE_PRIORITY - 1;
-    private static final int CONNECTOR_PRIORITY = STRUCT_PRIORITY - 1;
-    private static final int ACTION_PRIORITY = CONNECTOR_PRIORITY - 1;
-    private static final int ANNOTATION_PRIORITY = ACTION_PRIORITY - 1;
-    private static final int VALUE_TYPES_PRIORITY = ANNOTATION_PRIORITY - 1;
-    private static final int REFERENCE_TYPES_PRIORITY = VALUE_TYPES_PRIORITY - 1;
-    static final int KEYWORDS_PRIORITY = REFERENCE_TYPES_PRIORITY - 1;
+    private static final int VALUE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
+    private static final int REFERENCE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
+    private static final int FUNCTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int PACKAGE_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int STRUCT_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int CONNECTOR_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int ACTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int ANNOTATION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int KEYWORDS_PRIORITY = VALUE_TYPES_PRIORITY - 2;
 
     // File level keywords
     private static final LookupElementBuilder PACKAGE;
@@ -86,7 +86,7 @@ public class BallerinaCompletionUtils {
     static final LookupElementBuilder RESOURCE;
     private static final LookupElementBuilder FUNCTION;
     private static final LookupElementBuilder CONNECTOR;
-    static final LookupElementBuilder ACTION;
+    private static final LookupElementBuilder ACTION;
     private static final LookupElementBuilder STRUCT;
     private static final LookupElementBuilder TYPEMAPPER;
     private static final LookupElementBuilder ANNOTATION;
@@ -104,9 +104,10 @@ public class BallerinaCompletionUtils {
 
     // Reference types
     private static final LookupElementBuilder MESSAGE;
-    private static final LookupElementBuilder XML;
-    private static final LookupElementBuilder JSON;
     private static final LookupElementBuilder MAP;
+    private static final LookupElementBuilder XML;
+    private static final LookupElementBuilder XML_DOCUMENT;
+    private static final LookupElementBuilder JSON;
     private static final LookupElementBuilder DATATABLE;
 
     // Other keywords
@@ -128,6 +129,15 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
+    private static final LookupElementBuilder ITERATE;
+    private static final LookupElementBuilder WHILE;
+    private static final LookupElementBuilder CONTINUE;
+    private static final LookupElementBuilder BREAK;
+    private static final LookupElementBuilder THROW;
+
+    private static final LookupElementBuilder TRUE;
+    private static final LookupElementBuilder FALSE;
+    private static final LookupElementBuilder NULL;
 
 
     static {
@@ -153,9 +163,10 @@ public class BallerinaCompletionUtils {
         STRING = createTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
 
         MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
-        XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
-        JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
+        XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
+        XML_DOCUMENT = createTypeLookupElement("xmlDocument", AddSpaceInsertHandler.INSTANCE);
+        JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
         DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
 
         REPLY = createKeywordLookupElement("reply");
@@ -176,6 +187,15 @@ public class BallerinaCompletionUtils {
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
+        ITERATE = createKeywordLookupElement("iterate");
+        WHILE = createKeywordLookupElement("while");
+        CONTINUE = createKeywordLookupElement("continue");
+        BREAK = createKeywordLookupElement("break");
+        THROW = createKeywordLookupElement("throw");
+
+        TRUE = createKeywordLookupElement("true");
+        FALSE = createKeywordLookupElement("false");
+        NULL = createKeywordLookupElement("null");
     }
 
     private BallerinaCompletionUtils() {
@@ -279,9 +299,10 @@ public class BallerinaCompletionUtils {
      */
     private static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XML_DOCUMENT, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_PRIORITY));
     }
 
@@ -315,16 +336,16 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addAttachmentPointsAsLookups(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, SERVICE, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, RESOURCE, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, CONNECTOR, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, ACTION, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, FUNCTION, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, TYPEMAPPER, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, STRUCT, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, CONST, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, PARAMETER, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, ANNOTATION, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, SERVICE);
+        addKeywordAsLookup(resultSet, RESOURCE);
+        addKeywordAsLookup(resultSet, CONNECTOR);
+        addKeywordAsLookup(resultSet, ACTION);
+        addKeywordAsLookup(resultSet, FUNCTION);
+        addKeywordAsLookup(resultSet, TYPEMAPPER);
+        addKeywordAsLookup(resultSet, STRUCT);
+        addKeywordAsLookup(resultSet, CONST);
+        addKeywordAsLookup(resultSet, PARAMETER);
+        addKeywordAsLookup(resultSet, ANNOTATION);
     }
 
     /**
@@ -332,11 +353,9 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet     result list which is used to add lookups
      * @param lookupElement lookup element which needs to be added to the result list
-     * @param group         group of the lookup
      */
-    static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement,
-                                   int group) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, group));
+    static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY));
     }
 
     /**
@@ -345,19 +364,30 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addCommonKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, IF, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, ELSE, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, FORK, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, JOIN, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, TIMEOUT, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, WORKER, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, TRANSFORM, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, TRANSACTION, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, ABORT, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, ABORTED, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, TRY, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, CATCH, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, FINALLY, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, IF);
+        addKeywordAsLookup(resultSet, ELSE);
+        addKeywordAsLookup(resultSet, FORK);
+        addKeywordAsLookup(resultSet, JOIN);
+        addKeywordAsLookup(resultSet, TIMEOUT);
+        addKeywordAsLookup(resultSet, WORKER);
+        addKeywordAsLookup(resultSet, TRANSFORM);
+        addKeywordAsLookup(resultSet, TRANSACTION);
+        addKeywordAsLookup(resultSet, ABORT);
+        addKeywordAsLookup(resultSet, ABORTED);
+        addKeywordAsLookup(resultSet, TRY);
+        addKeywordAsLookup(resultSet, CATCH);
+        addKeywordAsLookup(resultSet, FINALLY);
+        addKeywordAsLookup(resultSet, ITERATE);
+        addKeywordAsLookup(resultSet, WHILE);
+        addKeywordAsLookup(resultSet, CONTINUE);
+        addKeywordAsLookup(resultSet, BREAK);
+        addKeywordAsLookup(resultSet, THROW);
+    }
+
+    static void addValueKeywords(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, TRUE);
+        addKeywordAsLookup(resultSet, FALSE);
+        addKeywordAsLookup(resultSet, NULL);
     }
 
     /**
@@ -366,12 +396,12 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addJoinConditionKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, ALL, KEYWORDS_PRIORITY);
-        addKeywordAsLookup(resultSet, SOME, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, ALL);
+        addKeywordAsLookup(resultSet, SOME);
     }
 
     static void addCreateKeyword(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, CREATE, KEYWORDS_PRIORITY);
+        addKeywordAsLookup(resultSet, CREATE);
     }
 
     /**
@@ -386,7 +416,7 @@ public class BallerinaCompletionUtils {
         PsiElement element = file.findElementAt(parameters.getOffset());
         FunctionDefinitionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
         if (functionNode != null) {
-            addKeywordAsLookup(resultSet, RETURN, KEYWORDS_PRIORITY);
+            addKeywordAsLookup(resultSet, RETURN);
         }
     }
 
@@ -402,7 +432,7 @@ public class BallerinaCompletionUtils {
         PsiElement element = file.findElementAt(parameters.getOffset());
         ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element, ActionDefinitionNode.class);
         if (actionDefinitionNode != null) {
-            addKeywordAsLookup(resultSet, RETURN, KEYWORDS_PRIORITY);
+            addKeywordAsLookup(resultSet, RETURN);
         }
     }
 
@@ -419,7 +449,7 @@ public class BallerinaCompletionUtils {
         ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(element,
                 ResourceDefinitionNode.class);
         if (resourceDefinitionNode != null) {
-            addKeywordAsLookup(resultSet, REPLY, KEYWORDS_PRIORITY);
+            addKeywordAsLookup(resultSet, REPLY);
         }
     }
 
@@ -802,6 +832,7 @@ public class BallerinaCompletionUtils {
         addParametersAsLookups(resultSet, element);
         addConstantsAsLookups(resultSet, file);
         addGlobalVariablesAsLookups(resultSet, file);
+        addValueKeywords(resultSet);
     }
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
@@ -822,21 +853,21 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Adds a struct field as a lookup.
+     * Adds a field as a lookup. Field can be either a struct field or annotation field.
      *
-     * @param resultSet            result list which is used to add lookups
-     * @param fieldNameIdentifier  element which can be used to resolve and get the struct variable definition
-     * @param structDefinitionNode struct definition node if available
-     * @param typeName             type of the struct
-     * @param withInsertHandler    whether to add an insert handler
-     * @param withAutoCompletion   whether to invoke auto complete popup
+     * @param resultSet           result list which is used to add lookups
+     * @param fieldNameIdentifier element which can be used to get the field text
+     * @param definitionNode      struct/annotation definition node to get the tail text
+     * @param typeName            type of the field
+     * @param withInsertHandler   whether to add an insert handler
+     * @param withAutoCompletion  whether to invoke auto complete popup
      */
     static void addFieldAsLookup(@NotNull CompletionResultSet resultSet, PsiElement fieldNameIdentifier,
-                                 PsiElement structDefinitionNode, TypeNameNode typeName, boolean withInsertHandler,
+                                 PsiElement definitionNode, TypeNameNode typeName, boolean withInsertHandler,
                                  boolean withAutoCompletion) {
         LookupElementBuilder builder = LookupElementBuilder.create(fieldNameIdentifier.getText())
                 .withTypeText(typeName.getText()).withIcon(BallerinaIcons.FIELD)
-                .withTailText(" -> " + structDefinitionNode.getText(), true);
+                .withTailText(" -> " + definitionNode.getText(), true);
         if (withInsertHandler) {
             if (withAutoCompletion) {
                 builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);

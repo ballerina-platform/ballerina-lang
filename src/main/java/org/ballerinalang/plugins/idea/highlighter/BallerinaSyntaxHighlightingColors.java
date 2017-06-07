@@ -51,6 +51,8 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.FUNCTION_DECLARATION);
     public static final TextAttributesKey STATIC_FIELD = createTextAttributesKey("BALLERINA_STATIC_FIELD",
             DefaultLanguageHighlighterColors.STATIC_FIELD);
+    public static final TextAttributesKey TEMPLATE_LANGUAGE_COLOR = createTextAttributesKey
+            ("BALLERINA_TEMPLATE_LANGUAGE_COLOR", DefaultLanguageHighlighterColors.STATIC_METHOD);
 
     private BallerinaSyntaxHighlightingColors() {
     }
