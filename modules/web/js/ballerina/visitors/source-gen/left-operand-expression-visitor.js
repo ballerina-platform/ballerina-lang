@@ -18,10 +18,10 @@
 import _ from 'lodash';
 import log from 'log';
 import EventChannel from 'event_channel';
-import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 import ExpressionVisitorFactory from './expression-visitor-factory';
 
-class LeftOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+class LeftOperandExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     constructor(parent) {
         super(parent);
     }
@@ -31,8 +31,8 @@ class LeftOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitLeftOperandExpression(leftOperandExpression) {
-        if (!_.isUndefined(leftOperandExpression.getLeftOperandExpressionString())) {
-            this.appendSource(leftOperandExpression.getLeftOperandExpressionString());
+        if (!_.isUndefined(leftOperandExpression.getExpressionString())) {
+            this.appendSource(leftOperandExpression.getExpressionString());
         }
     }
 

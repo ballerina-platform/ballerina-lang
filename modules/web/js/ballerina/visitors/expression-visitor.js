@@ -23,17 +23,30 @@ class ExpressionVisitor extends ASTVisitor {
         super(args);
     }
 
-    canVisitStructFieldAccessExpression(expression) {
+    canVisitLeftOperandExpression(expression) {
         return false;
     }
 
-    beginVisitStructFieldAccessExpression(expression) {
+    beginVisitLeftOperandExpression(expression) {
     }
 
-    visitStructFieldAccessExpression(expression) {
+    visitLeftOperandExpression(expression) {
     }
 
-    endVisitStructFieldAccessExpression(expression) {
+    endVisitLeftOperandExpression(expression) {
+    }
+
+    canVisitRightOperandExpression(expression) {
+        return false;
+    }
+
+    beginVisitRightOperandExpression(expression) {
+    }
+
+    visitRightOperandExpression(expression) {
+    }
+
+    endVisitRightOperandExpression(expression) {
     }
 
     canVisitVariableReferenceExpression(expression) {
@@ -48,20 +61,7 @@ class ExpressionVisitor extends ASTVisitor {
 
     endVisitVariableReferenceExpression(expression) {
     }
-
-    canVisitReferenceTypeInitExpression(expression) {
-        return false;
-    }
-
-    beginVisitReferenceTypeInitExpression(expression) {
-    }
-
-    visitReferenceTypeInitExpression(expression) {
-    }
-
-    endVisitReferenceTypeInitExpression(expression) {
-    }
-
+    
     canVisitTypeCastExpression(expression) {
         return false;
     }
@@ -92,16 +92,16 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     visitExpression(node) {
-        if (ASTFactory.isStructFieldAccessExpression(node)) {
-            return this.visitStructFieldAccessExpression(node);
-        } else if (ASTFactory.isVariableReferenceExpression(node)) {
+        if (ASTFactory.isVariableReferenceExpression(node)) {
             return this.visitVariableReferenceExpression(node);
-        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
-            return this.visitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.visitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {
             return this.visitTypeConversionExpression(node);
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
+            return this.visitLeftOperandExpression(node);
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
+            return this.visitRightOperandExpression(node);
         }
     }
 
@@ -109,16 +109,16 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     canVisitExpression(node) {
-        if (ASTFactory.isStructFieldAccessExpression(node)) {
-            return this.canVisitStructFieldAccessExpression(node);
-        } else if (ASTFactory.isVariableReferenceExpression(node)) {
+        if (ASTFactory.isVariableReferenceExpression(node)) {
             return this.canVisitVariableReferenceExpression(node);
-        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
-            return this.canVisitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.canVisitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {
             return this.canVisitTypeConversionExpression(node);
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
+            return this.canVisitLeftOperandExpression(node);
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
+            return this.canVisitRightOperandExpression(node);
         }
     }
 
@@ -126,16 +126,16 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     beginVisitExpression(node) {
-        if (ASTFactory.isStructFieldAccessExpression(node)) {
-            this.beginVisitStructFieldAccessExpression(node);
-        } else if (ASTFactory.isVariableReferenceExpression(node)) {
+        if (ASTFactory.isVariableReferenceExpression(node)) {
             this.beginVisitVariableReferenceExpression(node);
-        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
-            this.beginVisitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             this.beginVisitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {
             this.beginVisitTypeConversionExpression(node);
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
+            return this.beginVisitLeftOperandExpression(node);
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
+            return this.beginVisitRightOperandExpression(node);
         }
     }
 
@@ -143,16 +143,16 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     endVisitExpression(node) {
-        if (ASTFactory.isStructFieldAccessExpression(node)) {
-            return this.endVisitStructFieldAccessExpression(node);
-        } else if (ASTFactory.isVariableReferenceExpression(node)) {
+        if (ASTFactory.isVariableReferenceExpression(node)) {
             return this.endVisitVariableReferenceExpression(node);
-        } else if (ASTFactory.isReferenceTypeInitExpression(node)) {
-            return this.endVisitReferenceTypeInitExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.endVisitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {
             return this.endVisitTypeConversionExpression(node);
+        } else if (ASTFactory.isLeftOperandExpression(node)) {
+            return this.endVisitLeftOperandExpression(node);
+        }  else if (ASTFactory.isRightOperandExpression(node)) {
+            return this.endVisitRightOperandExpression(node);
         }
     }
 }

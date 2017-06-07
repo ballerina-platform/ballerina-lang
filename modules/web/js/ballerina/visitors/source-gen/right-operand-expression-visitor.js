@@ -17,9 +17,9 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
-class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+class RightOperandExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     constructor(parent) {
         super(parent);
     }
@@ -29,8 +29,8 @@ class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitRightOperandExpression(rightOperandExpression) {
-        if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString())) {
-            this.appendSource(rightOperandExpression.getRightOperandExpressionString());
+        if (!_.isUndefined(rightOperandExpression.getExpressionString())) {
+            this.appendSource(rightOperandExpression.getExpressionString());
         }
     }
 

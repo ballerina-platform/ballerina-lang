@@ -16,10 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import StatementVisitor from '../statement-visitor';
-import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
  * Constructor for the Abstract Source Generation Visitor for the statements
