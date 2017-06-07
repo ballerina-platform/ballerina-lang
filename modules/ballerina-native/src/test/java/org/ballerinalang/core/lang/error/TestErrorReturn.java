@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.core.lang.error;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -74,9 +73,9 @@ public class TestErrorReturn {
 
     @Test(description = "validate ignored error struct type.")
     public void testValidateErrorReturn() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/errors/error_return.bal");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/errors/error_return.bal");
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnError", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnError", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "FOO:10.5");
@@ -90,9 +89,9 @@ public class TestErrorReturn {
 
     @Test(description = "test throwing a returned error type..")
     public void testValidateErrorReturnAndThrow() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/errors/error_return.bal");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/errors/error_return.bal");
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnAndThrowError", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnAndThrowError", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "invalid name");

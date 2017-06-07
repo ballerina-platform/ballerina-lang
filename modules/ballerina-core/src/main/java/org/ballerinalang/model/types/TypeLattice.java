@@ -123,6 +123,8 @@ public class TypeLattice {
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex messageV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MESSAGE_TNAME)));
+        
 
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(floatV, false);
@@ -132,6 +134,7 @@ public class TypeLattice {
         explicitCastLattice.addVertex(jsonV, false);
         explicitCastLattice.addVertex(anyV, false);
         explicitCastLattice.addVertex(connectorV, false);
+        explicitCastLattice.addVertex(messageV, false);
 
         explicitCastLattice.addEdge(intV, intV, NativeConversionMapper.INT_TO_INT_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -210,6 +213,9 @@ public class TypeLattice {
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(jsonV, anyV, NativeCastMapper.JSON_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
+        explicitCastLattice.addEdge(anyV, messageV, NativeCastMapper.ANY_TO_MESSAGE_FUNC,
+                SAFE, InstructionCodes.ANY2MSG);
+
         explicitCastLattice.addEdge(jsonV, stringV, NativeConversionMapper.JSON_TO_STRING_FUNC,
                 UNSAFE, InstructionCodes.JSON2S);
         explicitCastLattice.addEdge(jsonV, intV, NativeConversionMapper.JSON_TO_INT_FUNC,

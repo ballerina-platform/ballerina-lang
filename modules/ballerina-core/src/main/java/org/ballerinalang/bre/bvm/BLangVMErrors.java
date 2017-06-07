@@ -18,21 +18,16 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
@@ -41,9 +36,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Util Class for handling Error in Ballerina VM.
  */
-public class BLangVMErrorHandlerUtil {
+public class BLangVMErrors {
 
-    private static final Logger logger = LoggerFactory.getLogger(BLangVMErrorHandlerUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(BLangVMErrors.class);
 
     public static final String ERROR_PCK = "ballerina.lang.errors";
     public static final String STRUCT_ERROR = "Error";
@@ -52,26 +47,90 @@ public class BLangVMErrorHandlerUtil {
 
 
     /**
+     * Create ballerina.lang.errors:Error Struct from given error message.
+     *
+     * @param context current Context
+     * @param ip      current instruction pointer
+     * @param message error message
+     * @return generated ballerina.lang.errors:Error struct
+     */
+    public static BStruct createError(Context context, int ip, String message) {
+        return generateError(context, ip, null, message);
+    }
+
+    /**
+     * Create ballerina.lang.errors:Error Struct from given error message.
+     *
+     * @param context current Context
+     * @param ip      current instruction pointer
+     * @param message error message
+     * @param cause   caused error struct
+     * @return generated ballerina.lang.errors:Error struct
+     */
+    public static BStruct createError(Context context, int ip, String message, BStruct cause) {
+        return generateError(context, ip, null, message, cause);
+    }
+
+    /**
+     * Create Error Struct from given struct type and message..
+     *
+     * @param context   current Context
+     * @param ip        current instruction pointer
+     * @param errorType error struct type
+     * @param message   error message
+     * @return generated error struct
+     */
+    public static BStruct createError(Context context, int ip, StructInfo errorType, String message) {
+        return generateError(context, ip, errorType, message);
+    }
+
+
+    /**
+     * Create Error struct from given Struct type.
+     *
+     * @param context current Context
+     * @param ip      current instruction pointer
+     * @param error   struct to be converted to error
+     * @return generated error struct, if type incompatible generated ballerina.lang.errors:Error struct with type
+     * miss matched error.
+     */
+    public static BStruct createError(Context context, int ip, BStruct error) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PCK);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ERROR);
+        if (!BLangVM.checkStructEquivalency((BStructType) error.getType(),
+                (BStructType) errorStructInfo.getType())) {
+            logger.error("bvm internal error! incompatible error strut type " + error.getType().getSig().getPkgPath()
+                    + ":" + error.getType().getSig().getName());
+            error = createError(context, ip,
+                    "bvm internal error! incompatible error strut type " + error.getType().getSig().getPkgPath() + ":" +
+                            error.getType().getSig().getName());
+        }
+        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
+        error.setStackTrace(bStackTrace);
+        return error;
+    }
+
+    /**
      * Generate Error from current error.
      *
      * @param context     current Context
-     * @param programFile {@link ProgramFile} instance that is executing
      * @param ip          current instruction pointer
      * @param structInfo  {@link StructInfo} of the error that need to be generated
      * @param values      field values of the error Struct.
      * @return generated error {@link BStruct}
      */
-    public static BStruct generateError(Context context, ProgramFile programFile, int ip, StructInfo structInfo,
-                                 BValue... values) {
-        // TODO : Validate for Type Equivalence for error.
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(ERROR_PCK);
-        if (structInfo == null) {
-            structInfo = errorPackageInfo.getStructInfo(STRUCT_ERROR);
+    private static BStruct generateError(Context context, int ip, StructInfo structInfo, Object... values) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PCK);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ERROR);
+        if (structInfo == null || BLangVM.checkStructEquivalency((BStructType) structInfo.getType(),
+                (BStructType) errorStructInfo.getType())) {
+            structInfo = errorStructInfo;
         }
         BStruct error = createBStruct(structInfo, values);
         // Set StackTrace.
         StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, programFile, ip - 1));
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
         error.setStackTrace(bStackTrace);
         return error;
     }
@@ -81,12 +140,11 @@ public class BLangVMErrorHandlerUtil {
      * Set StackTrace for given Error Struct.
      *
      * @param context     current Context
-     * @param programFile {@link ProgramFile} instance that is executing
      * @param ip          current instruction pointer
      * @param error       error Struct to be set the stackTrace.
      */
-    public static void setStackTrace(Context context, ProgramFile programFile, int ip, BStruct error) {
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(ERROR_PCK);
+    public static void setStackTrace(Context context, int ip, BStruct error) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PCK);
         if (error == null) {
             // This shouldn't execute.
             logger.warn("Error struct is null. Default Error is created.");
@@ -94,7 +152,7 @@ public class BLangVMErrorHandlerUtil {
             error = createBStruct(structInfo);
         }
         StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
-        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, programFile, ip - 1));
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
         error.setStackTrace(bStackTrace);
     }
 
@@ -102,20 +160,19 @@ public class BLangVMErrorHandlerUtil {
      * Generate StackTraceItem array.
      *
      * @param context     current Context
-     * @param programFile {@link ProgramFile} instance that is executing
      * @param ip          current instruction pointer
      * @return generated StackTraceItem struct array
      */
-    public static BRefValueArray generateStackTraceItems(Context context, ProgramFile programFile, int ip) {
+    public static BRefValueArray generateStackTraceItems(Context context, int ip) {
         BRefValueArray stackTraceItems = new BRefValueArray();
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(ERROR_PCK);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PCK);
         StructInfo stackTraceItem = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE_ITEM);
         ControlStackNew controlStack = context.getControlStackNew();
         int currentIP = ip;
-        BValue[] values;
+        Object[] values;
         // Ignore caller stack frame.
         for (int i = controlStack.fp; i >= 1; i--) {
-            values = new BValue[4];
+            values = new Object[4];
             StackFrame stackFrame = controlStack.getStack()[i];
             CallableUnitInfo callableUnitInfo = stackFrame.callableUnitInfo;
             String parentScope = "";
@@ -124,11 +181,16 @@ public class BLangVMErrorHandlerUtil {
             } else if (callableUnitInfo instanceof ActionInfo) {
                 parentScope = ((ActionInfo) callableUnitInfo).getConnectorInfo().getName() + ".";
             }
-            values[0] = new BString(parentScope + callableUnitInfo.getName());
-            values[1] = new BString(callableUnitInfo.getPkgPath());
+            values[0] = parentScope + callableUnitInfo.getName();
+            values[1] = callableUnitInfo.getPkgPath();
             LineNumberInfo lineNumberInfo = callableUnitInfo.getPackageInfo().getLineNumberInfo(currentIP);
-            values[2] = new BString(lineNumberInfo.getFileName());
-            values[3] = new BInteger(lineNumberInfo.getLineNumber());
+            if (lineNumberInfo != null) {
+                values[2] = lineNumberInfo.getFileName();
+                values[3] = lineNumberInfo.getLineNumber();
+            } else {
+                values[2] = "<native>";
+                values[3] = 0;
+            }
             stackTraceItems.add(i - 1, createBStruct(stackTraceItem, values));
             // Always get the previous instruction pointer.
             currentIP = stackFrame.retAddrs - 1;
@@ -143,7 +205,7 @@ public class BLangVMErrorHandlerUtil {
      * @param values     field values of the BStruct.
      * @return BStruct instance.
      */
-    public static BStruct createBStruct(StructInfo structInfo, BValue... values) {
+    public static BStruct createBStruct(StructInfo structInfo, Object... values) {
         BStruct bStruct = new BStruct(structInfo.getType());
         bStruct.setFieldTypes(structInfo.getFieldTypes());
         bStruct.init(structInfo.getFieldCount());
@@ -162,30 +224,38 @@ public class BLangVMErrorHandlerUtil {
                 case TypeTags.INT_TAG:
                     ++longRegIndex;
                     if (values[i] != null) {
-                        bStruct.setIntField(longRegIndex, ((BInteger) values[i]).intValue());
+                        if (values[i] instanceof Integer) {
+                            bStruct.setIntField(longRegIndex, (Integer) values[i]);
+                        } else if (values[i] instanceof Long) {
+                            bStruct.setIntField(longRegIndex, (Long) values[i]);
+                        }
                     }
                     break;
                 case TypeTags.FLOAT_TAG:
                     ++doubleRegIndex;
                     if (values[i] != null) {
-                        bStruct.setFloatField(doubleRegIndex, ((BFloat) values[i]).floatValue());
+                        if (values[i] instanceof Float) {
+                            bStruct.setFloatField(doubleRegIndex, (Float) values[i]);
+                        } else if (values[i] instanceof Double) {
+                            bStruct.setFloatField(doubleRegIndex, (Double) values[i]);
+                        }
                     }
                     break;
                 case TypeTags.STRING_TAG:
                     ++stringRegIndex;
-                    if (values[i] != null) {
-                        bStruct.setStringField(stringRegIndex, values[i].stringValue());
+                    if (values[i] != null && values[i] instanceof String) {
+                        bStruct.setStringField(stringRegIndex, (String) values[i]);
                     }
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     ++booleanRegIndex;
-                    if (values[i] != null) {
-                        bStruct.setBooleanField(booleanRegIndex, ((BBoolean) values[i]).booleanValue() ? 1 : 0);
+                    if (values[i] != null && values[i] instanceof Boolean) {
+                        bStruct.setBooleanField(booleanRegIndex, (Boolean) values[i] ? 1 : 0);
                     }
                     break;
                 default:
                     ++refRegIndex;
-                    if (values[i] != null) {
+                    if (values[i] != null && (values[i] instanceof BRefType)) {
                         bStruct.setRefField(refRegIndex, (BRefType) values[i]);
                     }
             }

@@ -168,6 +168,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
             throws ClientConnectorException {
+        balConnectorCallback.setNonBlockingExecution(true);
         org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                 getClientConnector(Constants.PROTOCOL_HTTP);
 

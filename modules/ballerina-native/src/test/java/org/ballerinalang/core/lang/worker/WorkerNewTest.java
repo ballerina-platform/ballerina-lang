@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -26,34 +26,33 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-/**
- * Test cases for calling worker in functions.
- */
-public class WorkerCallingFunction {
+public class WorkerNewTest {
+
     //private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/worker-calling-function.bal");
-        bProgramFile = BTestUtils.getProgramFile("samples/worker-calling-function.bal");
+        //bLangProgram = BTestUtils.parseBalFile("samples/worker-multi-interaction.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-multi-interaction.bal");
     }
 
-//    @Test(description = "Test worker calling function")
-//    public void testWorkerCallingFunction() {
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWorker");
+
+//    @Test(description = "Test worker interaction 3 workers")
+//    public void testWorkerScenario1() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWorkerScenario1");
 //        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BMessage);
-//        final String expected = "{\"name\":\"chanaka\"}";
+//        Assert.assertTrue(returns[0] instanceof BBoolean);
+//        final String expected = "true";
 //        Assert.assertEquals(returns[0].stringValue(), expected);
 //    }
 
-    @Test(description = "Test worker calling function")
-    public void testWorkerCallingFunction() {
+    @Test(description = "Test worker interaction 3 workers")
+    public void testWorkerScenario1() {
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testWorkerInVM");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMessage);
-        final String expected = "{\"name\":\"chanaka\"}";
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

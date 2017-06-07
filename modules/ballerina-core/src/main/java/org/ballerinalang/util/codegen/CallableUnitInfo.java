@@ -44,6 +44,8 @@ public class CallableUnitInfo {
 
     protected Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
 
+   // protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
+
     private PackageInfo packageInfo;
 
     protected WorkerInfo defaultWorkerInfo;
@@ -136,6 +138,14 @@ public class CallableUnitInfo {
     public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
         attributeInfoMap.put(attributeName, attributeInfo);
     }
+
+//    public WorkerInfo getWorkerInfo(String workerName) {
+//        return workerInfoMap.get(workerName);
+//    }
+//
+//    public void addWorkerInfo(String attributeName, WorkerInfo workerInfo) {
+//        workerInfoMap.put(attributeName, workerInfo);
+//    }
 
     public AnnotationAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(

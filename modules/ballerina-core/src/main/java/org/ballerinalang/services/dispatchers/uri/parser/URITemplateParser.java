@@ -39,66 +39,68 @@ public class URITemplateParser {
             template = template.substring(0, template.length() - 1);
         }
 
-        for (String segment : template.split("/")) {
+        if (!"/".equals(template)) {
+            for (String segment : template.split("/")) {
 
-            boolean expression = false;
-            int startIndex = 0;
-            int maxIndex = segment.length() - 1;
+                boolean expression = false;
+                int startIndex = 0;
+                int maxIndex = segment.length() - 1;
 
-            for (int pointerIndex = 0; pointerIndex < segment.length(); pointerIndex++) {
-                char ch = segment.charAt(pointerIndex);
+                for (int pointerIndex = 0; pointerIndex < segment.length(); pointerIndex++) {
+                    char ch = segment.charAt(pointerIndex);
 
-                switch (ch) {
-                case '{':
-                    if (!expression) {
-                        if (pointerIndex + 1 >= maxIndex) {
-                            throw new URITemplateException("Illegal open brace character");
-                        }
+                    switch (ch) {
+                    case '{':
+                        if (!expression) {
+                            if (pointerIndex + 1 >= maxIndex) {
+                                throw new URITemplateException("Illegal open brace character");
+                            }
 
-                        expression = true;
-                        if (pointerIndex > startIndex) {
-                            addNode(new Literal(segment.substring(startIndex, pointerIndex)));
-                            startIndex = pointerIndex + 1;
-                            // TODO: Check whether we really need this.
+                            expression = true;
+                            if (pointerIndex > startIndex) {
+                                addNode(new Literal(segment.substring(startIndex, pointerIndex)));
+                                startIndex = pointerIndex + 1;
+                                // TODO: Check whether we really need this.
                         /*} else if (segment.charAt(pointerIndex - 1) != '}') {
                             throw new URITemplateException("Illegal empty literal");*/
+                            } else {
+                                startIndex++;
+                            }
                         } else {
-                            startIndex++;
+                            throw new URITemplateException("Already in expression");
                         }
-                    } else {
-                        throw new URITemplateException("Already in expression");
-                    }
-                    break;
+                        break;
 
-                case '}':
-                    if (expression) {
-                        expression = false;
-                        if (pointerIndex > startIndex) {
-                            createExpressionNode(segment.substring(startIndex, pointerIndex));
-                            startIndex = pointerIndex + 1;
-                        } else {
-                            throw new URITemplateException("Illegal empty expression");
-                        }
-                    } else {
-                        throw new URITemplateException("Illegal closing brace detected");
-                    }
-                    break;
-
-                default:
-                    if (pointerIndex == maxIndex) {
-                        String token = segment.substring(startIndex);
+                    case '}':
                         if (expression) {
-                            createExpressionNode(token);
+                            expression = false;
+                            if (pointerIndex > startIndex) {
+                                createExpressionNode(segment.substring(startIndex, pointerIndex));
+                                startIndex = pointerIndex + 1;
+                            } else {
+                                throw new URITemplateException("Illegal empty expression");
+                            }
                         } else {
-                            addNode(new Literal(token));
+                            throw new URITemplateException("Illegal closing brace detected");
+                        }
+                        break;
+
+                    default:
+                        if (pointerIndex == maxIndex) {
+                            String token = segment.substring(startIndex);
+                            if (expression) {
+                                createExpressionNode(token);
+                            } else {
+                                addNode(new Literal(token));
+                            }
                         }
                     }
                 }
             }
+            this.currentNode.setResource(resource);
+        } else {
+            this.syntaxTree.setResource(resource);
         }
-
-        this.currentNode.setResource(resource);
-
         return syntaxTree;
     }
 
