@@ -87,8 +87,8 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"int_type\":1,\"long_type\":9223372036854774807,\"float_type\":123.34,"
-                        + "\"double_type\":2.139095039E9,\"boolean_type\":true,\"string_type\":\"Hello\"}]");
+                "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,"
+                        + "\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]");
     }
 
     @Test(description = "Check toXml methods with wrapper element.")
@@ -98,9 +98,9 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<types><type><int_type>1</int_type><long_type>9223372036854774807</long_type>"
-                        + "<float_type>123.34</float_type><double_type>2.139095039E9</double_type>"
-                        + "<boolean_type>true</boolean_type><string_type>Hello</string_type></type></types>");
+                "<types><type><INT_TYPE>1</INT_TYPE><LONG_TYPE>9223372036854774807</LONG_TYPE>"
+                        + "<FLOAT_TYPE>123.34</FLOAT_TYPE><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
+                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></type></types>");
     }
 
     @Test(description = "Check toXml methods with complex element.")
@@ -110,17 +110,17 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<types><type><int_type>1</int_type><int_array><element>1</element><element>2</element>"
-                        + "<element>3</element></int_array><long_type>9223372036854774807</long_type>"
-                        + "<long_array><element>100000000</element><element>200000000</element>"
-                        + "<element>300000000</element></long_array><float_type>123.34</float_type>"
-                        + "<float_array><element>245.23</element><element>5559.49</element>"
-                        + "<element>8796.123</element></float_array><double_type>2.139095039E9</double_type>"
-                        + "<boolean_type>true</boolean_type><string_type>Hello</string_type><double_array>"
+                "<types><type><INT_TYPE>1</INT_TYPE><INT_ARRAY><element>1</element><element>2</element>"
+                        + "<element>3</element></INT_ARRAY><LONG_TYPE>9223372036854774807</LONG_TYPE>"
+                        + "<LONG_ARRAY><element>100000000</element><element>200000000</element>"
+                        + "<element>300000000</element></LONG_ARRAY><FLOAT_TYPE>123.34</FLOAT_TYPE>"
+                        + "<FLOAT_ARRAY><element>245.23</element><element>5559.49</element>"
+                        + "<element>8796.123</element></FLOAT_ARRAY><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
+                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE><DOUBLE_ARRAY>"
                         + "<element>245.23</element><element>5559.49</element><element>8796.123</element>"
-                        + "</double_array><boolean_array><element>true</element><element>false</element>"
-                        + "<element>true</element></boolean_array><string_array><element>Hello</element>"
-                        + "<element>Ballerina</element></string_array></type></types>");
+                        + "</DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element><element>false</element>"
+                        + "<element>true</element></BOOLEAN_ARRAY><STRING_ARRAY><element>Hello</element>"
+                        + "<element>Ballerina</element></STRING_ARRAY></type></types>");
     }
 
     @Test(description = "Check getByName methods for complex types.")
@@ -299,8 +299,8 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"int_type\":0,\"long_type\":0,\"float_type\":0.0,\"double_type\":0.0,\"boolean_type\":false,"
-                        + "\"string_type\":null}]");
+                "[{\"INT_TYPE\":0,\"LONG_TYPE\":0,\"FLOAT_TYPE\":0.0,\"DOUBLE_TYPE\":0.0,\"BOOLEAN_TYPE\":false,"
+                        + "\"STRING_TYPE\":null}]");
     }
 
     @Test(description = "Check toXml method with null values.")
@@ -310,9 +310,9 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<types><type><int_type>0</int_type><long_type>0</long_type><float_type>0.0</float_type>"
-                        + "<double_type>0.0</double_type><boolean_type>false</boolean_type>"
-                        + "<string_type xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                "<types><type><INT_TYPE>0</INT_TYPE><LONG_TYPE>0</LONG_TYPE><FLOAT_TYPE>0.0</FLOAT_TYPE>"
+                        + "<DOUBLE_TYPE>0.0</DOUBLE_TYPE><BOOLEAN_TYPE>false</BOOLEAN_TYPE>"
+                        + "<STRING_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
                         + "</type></types>");
     }
 
@@ -390,8 +390,8 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"int_type\":1,\"long_type\":9223372036854774807,\"float_type\":123.34,"
-                        + "\"double_type\":2.139095039E9,\"boolean_type\":true,\"string_type\":\"Hello\"}]");
+                "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,"
+                        + "\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]");
     }
 
     @Test(description = "Check toXml methods with wrapper element.")
@@ -401,9 +401,9 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<results><result><int_type>1</int_type><long_type>9223372036854774807</long_type>"
-                        + "<float_type>123.34</float_type><double_type>2.139095039E9</double_type>"
-                        + "<boolean_type>true</boolean_type><string_type>Hello</string_type></result></results>");
+                "<results><result><INT_TYPE>1</INT_TYPE><LONG_TYPE>9223372036854774807</LONG_TYPE>"
+                        + "<FLOAT_TYPE>123.34</FLOAT_TYPE><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
+                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></result></results>");
     }
 
     @AfterSuite

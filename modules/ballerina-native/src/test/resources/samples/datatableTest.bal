@@ -3,30 +3,30 @@ import ballerina.data.sql;
 import ballerina.lang.errors;
 
 struct ResultPrimitive {
-    int int_type;
-    int long_type;
-    float float_type;
-    float double_type;
-    boolean  boolean_type;
-    string  string_type;
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    boolean  BOOLEAN_TYPE;
+    string  STRING_TYPE;
 }
 
 struct ResultObject {
-    string blob_type;
-    string clob_type;
-    string time_type;
-    string date_type;
-    string timestamp_type;
-    string datetime_type;
-    string binary_type;
+    string BLOB_TYPE;
+    string CLOB_TYPE;
+    string TIME_TYPE;
+    string DATE_TYPE;
+    string TIMESTAMP_TYPE;
+    string DATETIME_TYPE;
+    string BINARY_TYPE;
 }
 
 struct ResultMap {
-    map int_array;
-    map long_array;
-    map float_array;
-    map boolean_array;
-    map string_array;
+    map INT_ARRAY;
+    map LONG_ARRAY;
+    map FLOAT_ARRAY;
+    map BOOLEAN_ARRAY;
+    map STRING_ARRAY;
 }
 
 
@@ -358,12 +358,12 @@ function getXXXByIndexWithStruct()(int, int, float, float, boolean, string) {
         ResultPrimitive rs;
         rs, err = (ResultPrimitive) para;
 
-        i = rs.int_type;
-        l = rs.long_type;
-        f = rs.float_type;
-        d = rs.double_type;
-        b = rs.boolean_type;
-        s = rs.string_type;
+        i = rs.INT_TYPE;
+        l = rs.LONG_TYPE;
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        b = rs.BOOLEAN_TYPE;
+        s = rs.STRING_TYPE;
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
@@ -392,13 +392,13 @@ function getObjectAsStringByNameWithStruct()(string, string, string, string, str
         ResultObject rs;
         rs, err = (ResultObject) para;
 
-        blob = rs.blob_type;
-        clob = rs.clob_type;
-        time = rs.time_type;
-        date = rs.date_type;
-        timestamp = rs.timestamp_type;
-        datetime = rs.datetime_type;
-        binary = rs.binary_type;
+        blob = rs.BLOB_TYPE;
+        clob = rs.CLOB_TYPE;
+        time = rs.TIME_TYPE;
+        date = rs.DATE_TYPE;
+        timestamp = rs.TIMESTAMP_TYPE;
+        datetime = rs.DATETIME_TYPE;
+        binary = rs.BINARY_TYPE;
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
@@ -425,11 +425,11 @@ function testGetArrayByNameWithStruct()(map, map, map, map, map) {
         ResultMap rs;
         rs, err = (ResultMap) para;
 
-        int_arr = rs.int_array;
-        long_arr = rs.long_array;
-        float_arr = rs.float_array;
-        boolean_arr = rs.boolean_array;
-        string_arr = rs.string_array;
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);

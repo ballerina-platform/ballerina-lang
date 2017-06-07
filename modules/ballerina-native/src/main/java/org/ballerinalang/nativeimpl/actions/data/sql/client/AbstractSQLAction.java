@@ -256,7 +256,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             String colName = rsMetaData.getColumnName(i);
             int colType = rsMetaData.getColumnType(i);
             TypeEnum mappedType = SQLDatasourceUtils.getColumnType(colType);
-            columnDefs.add(new BDataTable.ColumnDefinition(colName.toLowerCase(Locale.ENGLISH), mappedType, colType));
+            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType, colType));
         }
         return columnDefs;
     }
