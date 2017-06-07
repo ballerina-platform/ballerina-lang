@@ -21,6 +21,7 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -33,13 +34,16 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
- * Test cases for ballerina.model.arrays.
+ * Test cases for ballerina.model.file.
  */
 public class FileTest {
 
@@ -187,6 +191,31 @@ public class FileTest {
     }
 
     @Test
+    public void testClose() throws IOException {
+
+        String sourcePath = "temp/original.txt";
+        File sourceFile = new File(sourcePath);
+        if (sourceFile.createNewFile()) {
+            BValue[] source = { new BString(sourcePath) };
+            BStruct sourceStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(sourceFile));
+            sourceStruct.addNativeData("stream", inputStream);
+            BValue[] args = {sourceStruct};
+
+            BLangFunctions.invoke(bLangProgram, "testClose", args);
+            inputStream = (BufferedInputStream) sourceStruct.getNativeData("stream");
+            try {
+                inputStream.read();
+            } catch (IOException e) {
+                Assert.assertEquals(e.getMessage(), "Stream closed");
+            }
+        } else {
+            Assert.fail("Error in file creation.");
+        }
+
+    }
+
+    @Test
     public void testWrite() throws IOException {
 
         String targetPath = "temp/text.txt";
@@ -200,6 +229,26 @@ public class FileTest {
         BLangFunctions.invoke(bLangProgram, "testWrite", args);
         Assert.assertTrue(targetFile.exists(), "File not created");
         Assert.assertEquals(byteContent.blobValue(), getBytesFromFile(targetFile), "Written wrong content");
+    }
+
+    @Test
+    public void testRead() throws IOException {
+
+        String targetPath = "temp/text.txt";
+        File targetFile = new File(targetPath);
+        OutputStream outputStream = new FileOutputStream(targetFile);
+        byte[] content = "Sample Text".getBytes();
+        outputStream.write(content);
+
+        BValue[] source = { new BString(targetPath) };
+        BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+
+        BufferedInputStream is = new BufferedInputStream(new FileInputStream(targetFile));
+        targetStruct.addNativeData("stream", is);
+        BValue[] args = { targetStruct, new BInteger(11) };
+
+        BValue[] results = BLangFunctions.invoke(bLangProgram, "testRead", args);
+        Assert.assertEquals(content, ((BBlob) results[0]).blobValue(), "Not read properly");
     }
 
     private void deleteDir(File dir) {
