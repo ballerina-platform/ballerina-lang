@@ -244,7 +244,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
         viewState.components.openingParameter.x = viewState.bBox.x
             + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding;
+            + DesignerDefaults.panelHeading.iconSize.padding + util.getTextWidth("attach", 80, 80).w;
         viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
         viewState.attachments = {};

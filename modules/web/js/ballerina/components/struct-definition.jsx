@@ -162,18 +162,18 @@ class StructDefinition extends React.Component {
               <rect x={x} y={y} width={w}  height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
               <g onClick={ (e)=> this.handleTypeClick(this.state.newType, typeCellbox) } >
                      <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
-                      <text x={typeCellbox.x + placeHolderPadding}  y={y + DesignerDefaults.contentOperations.height/2}
+                      <text x={typeCellbox.x + placeHolderPadding}  y={y + DesignerDefaults.contentOperations.height/2 + 2}
                           className="struct-input-text" > {this.state.newType || "Select Type"} </text>
                   </g>
                   <g onClick={(e)=> this.handleIdentifierClick(this.state.newIdentifier, identifierCellBox) } >
                       <rect {...identifierCellBox} className="struct-input-value-wrapper" />
-                       <text x={identifierCellBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2}
+                       <text x={identifierCellBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2 + 2}
                            className="struct-input-text" > {this.state.newIdentifier || " + Add Identifier"}
                        </text>
                    </g>
                    <g onClick={(e)=> this.handleValueClick(this.state.newValue, defaultValueBox) } >
                        <rect {...defaultValueBox} className="struct-input-value-wrapper" />
-                        <text x={defaultValueBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2}
+                        <text x={defaultValueBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2 + 2}
                             className="struct-input-text" > {this.state.newValue || "+ Add Default Value"} </text>
                     </g>
                     <rect x={x + DesignerDefaults.structDefinitionStatement.width - 30} y={y + 10} width={25} height={25}
@@ -288,7 +288,7 @@ class StructDefinition extends React.Component {
                           </g>
                             <rect x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
                                        y={y} onClick={ ()=> this.deleteStatement(child) }
-                                       width="30" height="30" className="parameter-delete-icon-wrapper"/>
+                                       width="30" height="30" className="struct-delete-icon-wrapper"/>
                              <image x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset + 9}
                                     y={y + 9 } onClick={ ()=> this.deleteStatement(child) }
                                     width="12" height="12" className="parameter-delete-icon" xlinkHref={ImageUtil.getSVGIconString('cancel')}>

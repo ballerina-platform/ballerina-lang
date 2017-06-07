@@ -29,7 +29,7 @@ class AbortStatement extends Statement {
      * @return {boolean} true|false.
      * */
     canBeAChildOf(node) {
-        return this.getFactory().isStatement(node);
+        return this.getFactory().isTransactionStatement(node);
     }
 
     /**

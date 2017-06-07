@@ -39,7 +39,7 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
          */
         this.appendSource('catch' + catchStatement.getWSRegion(1) + '('
                             + catchStatement.getWSRegion(2)
-                            + catchStatement.getParameter() // FIXME fix the model to support different catches
+                            + catchStatement.getParameterDefString() // FIXME fix the model to support different catches
                             + catchStatement.getWSRegion(4) + ')'
                             + catchStatement.getWSRegion(5) + '{'
                             + catchStatement.getWSRegion(6));
