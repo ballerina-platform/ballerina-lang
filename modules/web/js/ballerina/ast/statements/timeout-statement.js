@@ -56,6 +56,18 @@ class TimeoutStatement extends Statement {
         }
     }
 
+    setParameterAsString(str) {
+        const myRegexp = /^\s*([^\s\[\]]+\s*\[\s*]\s*)([^\s\[\]]+)\s*$/g;
+        const match = myRegexp.exec(str);
+        if (match) {
+            const factory = this.getFactory();
+            const typeName = match[1];
+            const name = match[2];
+            const parameterDefinition = factory.createParameterDefinition({typeName, name});
+            this.setParameter(parameterDefinition);
+        }
+    }
+
     getExpression() {
         return this._expression;
     }
