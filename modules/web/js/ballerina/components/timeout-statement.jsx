@@ -33,14 +33,15 @@ class TimeoutStatement extends React.Component {
 
         this.editorOptions = {
             propertyType: 'text',
-            key: 'Join Condition',
+            key: 'Timeout interval',
             model: props.model,
             getterMethod: props.model.getExpression,
             setterMethod: props.model.setExpression
         };
         const parameterEditorOptions = {
             propertyType: 'text',
-            key: 'Join Condition',
+            key: 'Timeout Parameter',
+            value: parameterBbox.text,
             model: props.model,
             getterMethod: props.model.getParameterAsString,
             setterMethod: props.model.setParameterAsString

@@ -41,7 +41,8 @@ class JoinStatement extends React.Component {
         };
         const parameterEditorOptions = {
             propertyType: 'text',
-            key: 'Join Condition',
+            key: 'Join Parameter',
+            value: parameterBbox.text,
             model: props.model,
             getterMethod: props.model.getParameterAsString,
             setterMethod: props.model.setParameterAsString
