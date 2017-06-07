@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 
 /**
@@ -49,13 +50,18 @@ public class Close extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+
         BStruct struct = (BStruct) getArgument(context, 0);
-        BufferedInputStream is = (BufferedInputStream) struct.getNativeData("stream");
-        if (is == null) {
-            throw new BallerinaException("The file is not opened yet");
-        }
+        BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
+        BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
         try {
-            is.close();
+            if (is != null) {
+                is.close();
+            }
+            if (os != null) {
+                os.close();
+            }
+
         } catch (IOException e) {
             throw new BallerinaException("Exception occurred when closing inputstream");
         }

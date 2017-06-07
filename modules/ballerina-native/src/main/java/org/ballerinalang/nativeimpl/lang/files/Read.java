@@ -63,9 +63,9 @@ public class Read extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct struct = (BStruct) getArgument(context, 0);
         BInteger integer = (BInteger) getArgument(context, 1);
-        BufferedInputStream is = (BufferedInputStream) struct.getNativeData("stream");
+        BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
         if (is == null) {
-            throw new BallerinaException("The file is not opened yet");
+            throw new BallerinaException("The file isn't opened in read mode");
         }
 
         byte[] data = new byte[((int) integer.intValue())];

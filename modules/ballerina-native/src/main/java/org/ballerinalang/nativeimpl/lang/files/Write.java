@@ -29,9 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -56,43 +54,19 @@ public class Write extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
 
-        OutputStream outputStream = null;
         BBlob content = (BBlob) getArgument(context, 0);
         BStruct destination = (BStruct) getArgument(context, 1);
         try {
-            File destinationFile = new File(destination.getValue(0).stringValue());
-            File parent = destinationFile.getParentFile();
-            if (parent != null) {
-                if (!parent.exists()) {
-                    if (!parent.mkdirs()) {
-                        throw new BallerinaException("Error in writing file");
-                    }
-                }
+            OutputStream outputStream = (BufferedOutputStream) destination.getNativeData("outStream");
+            if (outputStream == null) {
+                throw new BallerinaException("The file isn't opened in write or append mode");
             }
-            if (!destinationFile.exists()) {
-                if (!destinationFile.createNewFile()) {
-                    throw new BallerinaException("Error in writing file");
-                }
-            }
-            outputStream = new FileOutputStream(destinationFile, true);
             outputStream.write(content.blobValue());
             outputStream.flush();
 
         } catch (IOException e) {
             throw new BallerinaException("Error while writing file", e);
-        } finally {
-            closeQuietly(outputStream);
         }
         return VOID_RETURN;
-    }
-
-    private void closeQuietly(Closeable resource) {
-        try {
-            if (resource != null) {
-                resource.close();
-            }
-        } catch (Exception e) {
-            throw new BallerinaException("Exception during Resource.close()", e);
-        }
     }
 }

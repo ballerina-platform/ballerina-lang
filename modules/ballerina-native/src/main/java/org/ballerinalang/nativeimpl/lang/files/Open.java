@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.lang.files;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -30,37 +31,65 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Locale;
 
 /**
- * Gets the stream from a local file.
+ * Gets the streams from a local file.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
         functionName = "open",
         args = {@Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
-                structPackage = "ballerina.lang.files")},
+                structPackage = "ballerina.lang.files"), @Argument(name = "accessMode", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Gets the stream from a local file") })
+        value = "Gets streams from a local file") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "file",
-        value = "The File struct") })
+        value = "The File that should be opened") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "accessMode",
+        value = "The mode the file should be opened in") })
 public class Open extends AbstractNativeFunction {
 
-    @Override
-    public BValue[] execute(Context context) {
+    @Override public BValue[] execute(Context context) {
         BStruct struct = (BStruct) getArgument(context, 0);
+        BString accessMode = (BString) getArgument(context, 1);
         try {
             String path = struct.getValue(0).stringValue();
             File file = new File(path);
-            BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
-            struct.addNativeData("stream", is);
-        }  catch (FileNotFoundException e) {
+            String accessLC = accessMode.stringValue().toLowerCase(Locale.getDefault());
+            if (accessLC.contains("r")) {
+                BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+                struct.addNativeData("inStream", is);
+            }
+            if (accessLC.contains("w")) {
+                createDirs(file);
+                BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file));
+                struct.addNativeData("outStream", os);
+            } else if (accessLC.contains("a")) {
+                createDirs(file);
+                BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file, true));
+                struct.addNativeData("outStream", os);
+            }
+        } catch (FileNotFoundException e) {
             throw new BallerinaException("Exception occurred since file does not exist", e);
         }
         return VOID_RETURN;
+    }
+
+    private void createDirs(File destinationFile) {
+        File parent = destinationFile.getParentFile();
+        if (parent != null) {
+            if (!parent.exists()) {
+                if (!parent.mkdirs()) {
+                    throw new BallerinaException("Error in writing file");
+                }
+            }
+        }
     }
 }

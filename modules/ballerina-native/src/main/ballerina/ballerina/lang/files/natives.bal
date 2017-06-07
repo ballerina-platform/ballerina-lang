@@ -8,7 +8,7 @@ native function close (File file);
 
 @doc:Description { value:"Gets the stream from a local file"}
 @doc:Param { value:"file: The file struct" }
-native function open (File file);
+native function open (File file, string accessMode);
 
 @doc:Description { value:"Get blob value of a file"}
 @doc:Param { value:"file: The File struct" }
@@ -34,7 +34,7 @@ native function delete (File target);
 @doc:Description { value:"This function writes a file using the given blob"}
 @doc:Param { value:"blob: Content" }
 @doc:Param { value:"file: Path of the file" }
-native function write (blob inputStream, File file);
+native function write (blob content, File file);
 
 struct File {
     string path;
