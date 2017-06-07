@@ -139,8 +139,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
             if (rs.next()) {
-                BArray<BString> generatedKeys = getGeneratedKeys(rs);
-                context.getControlStack().setReturnValue(1, generatedKeys);
+                BStringArray generatedKeys = getGeneratedKeys(rs);
+                context.getControlStackNew().getCurrentFrame().returnValues[1] = generatedKeys;
             }
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
@@ -268,8 +268,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return columnDefs;
     }
 
-    private BArray<BString> getGeneratedKeys(ResultSet rs) throws SQLException {
-        BArray<BString> generatedKeys = new BArray<>(BString.class);
+    private BStringArray getGeneratedKeys(ResultSet rs) throws SQLException {
+        BStringArray generatedKeys = new BStringArray();
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;
@@ -309,7 +309,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 value = rs.getString(i);
                 break;
             }
-            generatedKeys.add(i - 1, new BString(value));
+            generatedKeys.add(i - 1, value);
         }
         return generatedKeys;
     }
