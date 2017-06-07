@@ -20,6 +20,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.containers.Constants;
 import org.ballerinalang.containers.docker.BallerinaDockerClient;
 import org.ballerinalang.containers.docker.cmd.validator.DockerHostValidator;
@@ -49,6 +50,8 @@ public class DockerCmd implements BLauncherCmd {
     private static final String BALLERINA_MAIN_PACKAGE_EXTENSION = "bmz";
     private static final String BALLERINA_SERVICE_PACKAGE_EXTENSION = "bsz";
     private static final String DEFAULT_DOCKER_HOST = "localhost";
+    private static final String OS_NAME = "os.name";
+    private static final String OS_NAME_WINDOWS = "Windows";
 
     private static PrintStream outStream = System.err;
     private JCommander parentCmdParser = null;
@@ -107,6 +110,13 @@ public class DockerCmd implements BLauncherCmd {
         String packageCompletePath = packagePathNames.get(0);
         if (!Files.exists(Paths.get(packageCompletePath))) {
             throw LauncherUtils.createUsageException("cannot find ballerina package: " + packageCompletePath);
+        }
+
+        if (StringUtils.isEmpty(dockerHost)) {
+            String osName = System.getProperty(OS_NAME);
+            if (osName != null && osName.contains(OS_NAME_WINDOWS)) {
+                throw LauncherUtils.createUsageException("docker host parameter is required");
+            }
         }
 
         String packageName = FilenameUtils.getBaseName(packageCompletePath);

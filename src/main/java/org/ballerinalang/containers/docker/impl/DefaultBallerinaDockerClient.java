@@ -52,12 +52,13 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Default implementation of the {@link BallerinaDockerClient}.
  */
-public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
+public final class DefaultBallerinaDockerClient implements BallerinaDockerClient {
 
     private static final String BALLERINA_VERSION_SYSTEM_PROP = "ballerina.version";
     private static final String TMPDIR_SYSTEM_PROP = "java.io.tmpdir";
+    private static final String DOCKER_CLIENT_TMPDIR_SYSTEM_PROP = "tmp.dir";
     private static final String PATH_FILES = "files";
-    private static final String PATH_DOCKER_IMAGE_ROOT = "/docker/image";
+    private static final String PATH_DOCKER_IMAGE_ROOT = "/docker/image/";
     private static final String PATH_DOCKERFILE_NAME = "Dockerfile";
     private static final String PATH_TEMP_DOCKERFILE_CONTEXT_PREFIX = "ballerina-docker-";
     private static final String PATH_BAL_FILE_EXT = ".bal";
@@ -317,6 +318,8 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
             if (!tmpDirFile.exists() && !tmpDirFile.mkdirs()) {
                 throw new BallerinaDockerClientException("Couldn't create temporary directory: " + tmpDirLocation);
             }
+            // Set Fabric8 docker-client temp directory since the default "/tmp" does not work on Windows
+            System.setProperty(DOCKER_CLIENT_TMPDIR_SYSTEM_PROP, tmpDirLocation);
         }
         
         if (ballerinaVersion == null) {
@@ -327,8 +330,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         String tempDirName = PATH_TEMP_DOCKERFILE_CONTEXT_PREFIX + String.valueOf(Instant.now().getEpochSecond());
         Path tmpDir = Files.createTempDirectory(tempDirName);
         Files.createDirectory(Paths.get(tmpDir.toString() + File.separator + PATH_FILES));
-        InputStream in = getClass().getResourceAsStream(PATH_DOCKER_IMAGE_ROOT + File.separator +
-                PATH_DOCKERFILE_NAME);
+        InputStream in = getClass().getResourceAsStream(PATH_DOCKER_IMAGE_ROOT + PATH_DOCKERFILE_NAME);
 
         Files.copy(in,
                 Paths.get(tmpDir.toString() + File.separator + PATH_DOCKERFILE_NAME),

@@ -80,11 +80,11 @@ Docker image myhelloworld:0.1 successfully built.
 Use the following command to execute the archive in a container.
         docker run --name annual_avenue -it myhelloworld:0.1
 ```
-If a remote Docker daemon is available to be used, it can also be specified so the Docker image is created at the remote end.
+If the operating system is Windows or Docker daemon is not available on localhost, specify the Docker host as follows:
 
 ```
-$ ./ballerina docker helloWorld.bmz -H http://127.0.0.1:2375
-Build docker image [helloworld:latest] in docker host [http://127.0.0.1:2375]? (y/n): y
+$ ./ballerina docker helloWorld.bmz -H https://<docker-host>:<docker-port>
+Build docker image [helloworld:latest] in docker host [https://<docker-host>:<docker-port>]? (y/n): y
 
 Docker image helloworld:latest successfully built.
 
