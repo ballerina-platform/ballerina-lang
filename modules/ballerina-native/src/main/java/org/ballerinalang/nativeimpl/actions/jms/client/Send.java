@@ -18,11 +18,7 @@ package org.ballerinalang.nativeimpl.actions.jms.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.*;
 import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
 import org.ballerinalang.nativeimpl.actions.jms.utils.JMSMessageUtils;
 import org.ballerinalang.natives.annotations.Argument;
@@ -87,6 +83,14 @@ public class Send extends AbstractJMSAction {
         CarbonMessage message = bMessage.value();
 
         validateParams(bConnector);
+
+        BValue valueRef = new BBoolean(true);
+
+        if (context.isVMBasedExecutor()) {
+            context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
+        } else {
+            context.getControlStack().setReturnValue(0, valueRef);
+        }
 
         //Getting the map of properties.
         BMap<String, BString> properties = (BMap<String, BString>) bConnector.getValue(0);

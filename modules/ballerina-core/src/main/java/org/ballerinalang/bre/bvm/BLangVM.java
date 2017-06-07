@@ -49,6 +49,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -942,7 +943,10 @@ public class BLangVM {
                         message = (BMessage) sf.refRegs[i];
                     }
                     context.setError(null);
-                    context.getBalCallback().done(message != null ? message.value() : null);
+                    // this should be fixed once JMS transactions are available as it requires callback
+                    if (((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
+                        context.getBalCallback().done(message != null ? message.value() : null);
+                    }
                     ip = -1;
                     break;
                 case InstructionCodes.THROW:
