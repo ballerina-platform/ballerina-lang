@@ -87,3 +87,7 @@ function unescape(string j) (string) {
 function split(string j, string k) (string[]) {
     return strings:split(j, k);
 }
+
+function toBlob(string l, string m) (blob) {
+    return strings:toBlob(l, m);
+}

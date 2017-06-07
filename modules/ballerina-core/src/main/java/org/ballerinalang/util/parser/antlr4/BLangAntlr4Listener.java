@@ -78,6 +78,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected static final String B_KEYWORD_NATIVE = "native";
     protected static final String ATTACHMENT_POINTS = "attachmentPoints";
     protected static final String B_KEYWORD_ACTION = "action";
+    public static final String NAME_REF = "nameRef";
+    public static final String TYPE_NAME = "typeName";
 
     protected String fileName;
     protected String packageDirPath;
@@ -96,7 +98,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     // to create parameter when there is a named parameter
     protected boolean isWorkerStarted = false;
     protected boolean isTypeMapperStarted = false;
-    protected boolean processingActionInvocationStmt = false;
 
     // token stream is required for listener to access hidden whiteSpace
     // such as whitespace/newlines while building model for composer use
@@ -970,6 +971,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
         SimpleTypeName connectorTypeName = new SimpleTypeName(nameReference.getName(),
                 nameReference.getPackageName(), null);
+        connectorTypeName.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
@@ -1511,6 +1513,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationStmtWS(tokenStream, ctx);
+            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
         }
         modelBuilder.createFunctionInvocationStmt(getCurrentLocation(ctx), whiteSpaceDescriptor,
                 nameReferenceStack.pop(), argsAvailable);
@@ -1518,12 +1521,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
-        processingActionInvocationStmt = true;
     }
 
     @Override
     public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
-        processingActionInvocationStmt = false;
+        NodeLocation nodeLocation = getCurrentLocation(ctx);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createActionInvocationStmt(nodeLocation, whiteSpaceDescriptor);
     }
 
     @Override
@@ -1584,16 +1591,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationStmtWS(tokenStream, ctx);
+            whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationExprWS(tokenStream, ctx);
+            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReference.getWhiteSpaceDescriptor());
         }
-
-        if (processingActionInvocationStmt) {
-            modelBuilder.createActionInvocationStmt(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
+        modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
                     argsAvailable);
-        } else {
-            modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
-                    argsAvailable);
-        }
     }
 
     @Override
@@ -1677,6 +1679,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
+            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
         }
         modelBuilder.addFunctionInvocationExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
                 nameReferenceStack.pop(), argsAvailable);
@@ -1742,6 +1745,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getTypeCastingExpWS(tokenStream, ctx);
+            whiteSpaceDescriptor.addChildDescriptor(TYPE_NAME, typeNameStack.peek().getWhiteSpaceDescriptor());
         }
         modelBuilder.createTypeCastExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop());
     }

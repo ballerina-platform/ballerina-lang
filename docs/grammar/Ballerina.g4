@@ -147,6 +147,7 @@ valueTypeName
     |   'int'
     |   'float'
     |   'string'
+    |   'blob'
     ;
 
 builtInReferenceTypeName
@@ -221,6 +222,7 @@ transformStatementBody
     :   expressionAssignmentStatement
     |   expressionVariableDefinitionStatement
     |   transformStatement
+    |   commentStatement
     ;
 
 expressionAssignmentStatement
