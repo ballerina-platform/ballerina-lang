@@ -38,7 +38,7 @@ class ActionInvocationStatement extends React.Component {
             key: 'ActionInvocation',
             model: props.model,
             getterMethod: props.model.getStatementString,
-            setterMethod: props.model.setStatementString
+            setterMethod: props.model.setStatementFromString
         };
     }
 

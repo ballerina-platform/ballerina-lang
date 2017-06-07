@@ -29,8 +29,8 @@ class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitRightOperandExpression(rightOperandExpression) {
-        if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString())) {
-            this.appendSource(rightOperandExpression.getRightOperandExpressionString());
+        if (!_.isUndefined(rightOperandExpression.getExpressionString())) {
+            this.appendSource(rightOperandExpression.getExpressionString());
         }
     }
 
