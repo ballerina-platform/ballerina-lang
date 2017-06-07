@@ -1832,6 +1832,20 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("function test(){ int a; <caret> int b; }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testSuggestionsInTransformStatement() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("a");
+        expectedLookups.add("any");
+        expectedLookups.add("test");
+        doTest("function test(){ int a = 10; transform { <caret> } }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
     // todo -  test resource level specific keywords
 
     private void doTest(String fileContent, String... expectedLookups) {
