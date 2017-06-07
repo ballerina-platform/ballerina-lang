@@ -275,18 +275,21 @@ class TransformStatementDecorator extends React.Component {
             var sourceExpression;
             var targetExpression;
 
-            if (sourceStruct.type == "struct") {
-                sourceExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
-            } else {
-                sourceExpression = BallerinaASTFactory
-                                             .createVariableReferenceExpression({variableName: sourceStruct.name});
+            if(sourceStruct != null){
+                if (sourceStruct.type == "struct") {
+                    sourceExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
+                } else {
+                    sourceExpression = BallerinaASTFactory
+                                                 .createVariableReferenceExpression({variableName: sourceStruct.name});
+                }
             }
-
-            if (targetStruct.type == "struct") {
-                targetExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
-            } else {
-                targetExpression = BallerinaASTFactory
-                                            .createVariableReferenceExpression({variableName: targetStruct.name});
+            if(targetStruct != null){
+                if (targetStruct.type == "struct") {
+                    targetExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
+                } else {
+                    targetExpression = BallerinaASTFactory
+                                                .createVariableReferenceExpression({variableName: targetStruct.name});
+                }
             }
 
             if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
@@ -304,13 +307,13 @@ class TransformStatementDecorator extends React.Component {
                     // Connection source is not a struct and target is a struct.
                     // Source could be a function node.
                 let assignmentStmtSource = self.findExistingAssignmentStatement(connection.targetStruct);
-                assignmentStmtSource.getChildren()[1].getChildren()[0].addChild(targetExpression);
+                assignmentStmtSource.getChildren()[1].getChildren()[0].addChild(sourceExpression);
                 return assignmentStmtSource.id;
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                     // Connection target is not a struct and source is a struct.
                     // Target could be a function node.
                 let assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceStruct);
-                assignmentStmtTarget.getChildren()[0].addChild(sourceExpression);
+                assignmentStmtTarget.getChildren()[0].addChild(targetExpression);
                 return assignmentStmtTarget.id;
             } else {
                     // Connection source and target are not structs
