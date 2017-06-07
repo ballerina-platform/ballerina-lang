@@ -32,6 +32,7 @@ import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
+import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
@@ -116,6 +117,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                         return new PackageNameReference(this);
                     }
                     return new VariableReference(this);
+                case RULE_annotationAttribute:
+                    return new AnnotationAttributeReference(this);
                 default:
                     return null;
             }

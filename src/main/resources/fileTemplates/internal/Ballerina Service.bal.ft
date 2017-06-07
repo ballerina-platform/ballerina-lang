@@ -1,0 +1,17 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
+package ${PACKAGE_NAME};
+#end
+
+import ballerina.net.http;
+import ballerina.lang.messages;
+
+@http:BasePath {value:"/hello"}
+service HelloService {
+
+    @http:GET {}
+    resource sayHello (message m) {
+        message response = {};
+        messages:setStringPayload(response, "Hello World !!!");
+        reply response;
+    }
+}
