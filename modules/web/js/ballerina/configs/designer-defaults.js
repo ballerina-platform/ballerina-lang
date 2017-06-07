@@ -40,10 +40,10 @@ export const panel = {
     },
     body: {
         padding: {
-            top: 50,
-            right: 50,
-            bottom: 50,
-            left: 50
+            top: 40,
+            right: 40,
+            bottom: 40,
+            left: 40
         },
         height: 200
     },

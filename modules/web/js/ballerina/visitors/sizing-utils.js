@@ -239,10 +239,10 @@ class SizingUtil {
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
         components['annotation'].w = components['body'].w;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
+        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h ;
 
         components['parametersPrefixContainer'] = {};
-        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
+        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters:').w;
 
         viewState.components = components;
         this.populateHeadingWidth(node);

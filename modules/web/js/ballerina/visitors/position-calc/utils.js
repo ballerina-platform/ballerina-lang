@@ -138,7 +138,7 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
         DesignerDefaults.lifeLine.head.height;
 
     bBox.x = x;
-    bBox.y = y;
+    bBox.y = y - 15;
     headerBBox.x = headerX;
     headerBBox.y = headerY;
     bodyBBox.x = bodyX;

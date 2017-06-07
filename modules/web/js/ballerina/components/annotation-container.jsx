@@ -75,7 +75,7 @@ class AnnotationContainer extends React.Component {
         let bBox = this.props.model.bBox;
         let style = {
             position: 'absolute',
-            top: bBox.y,
+            top: bBox.y + 10,
             left: bBox.x - 1,
             width: bBox.w + 2,
             height: bBox.h
