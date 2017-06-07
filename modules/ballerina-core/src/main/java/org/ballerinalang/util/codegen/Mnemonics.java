@@ -213,7 +213,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FRET] = "fret";
         mnemonics[InstructionCodes.SRET] = "sret";
         mnemonics[InstructionCodes.BRET] = "bret";
-        mnemonics[InstructionCodes.BRET] = "lret";
+        mnemonics[InstructionCodes.LRET] = "lret";
         mnemonics[InstructionCodes.RRET] = "rret";
         mnemonics[InstructionCodes.RET] = "ret";
     }
