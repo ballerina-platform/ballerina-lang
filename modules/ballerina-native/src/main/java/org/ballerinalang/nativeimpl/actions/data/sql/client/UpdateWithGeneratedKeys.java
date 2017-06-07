@@ -42,7 +42,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "updateWithGeneratedKeys",
+        actionName = "updateWithGeneratedKeysToDelete",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "query", type = TypeEnum.STRING),

@@ -101,3 +101,9 @@ native function replace (string mainString, string replacePattern, string replac
 @doc:Param { value:"regex: The regex to split the string" }
 @doc:Return { value:"string[]: The split string array" }
 native function split (string mainString, string regex) (string[]);
+
+@doc:Description { value:"Converts string to a BLOB"}
+@doc:Param { value:"b: string value to be converted" }
+@doc:Param { value:"encoding: Encoding to used in the conversion" }
+@doc:Return { value:"string: BLOB representation of the given String" }
+native function toBlob (string s, string encoding) (blob);
