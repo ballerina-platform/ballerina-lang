@@ -48,7 +48,7 @@ import javax.websocket.Session;
 )
 @BallerinaAnnotation(annotationName = "Description",
                      attributes = { @Attribute(name = "value",
-                                               value = "Close all the connections in connection group.")})
+                                               value = "Close all the connections in connection group")})
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "connectionGroupName", value = "Name of the connection group")})
 public class CloseConnectionGroup extends AbstractNativeFunction {
@@ -62,17 +62,23 @@ public class CloseConnectionGroup extends AbstractNativeFunction {
         String connectionGroupName = getArgument(context, 0).stringValue();
         WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
         List<Session> sessions = connectionManager.getInstance().getConnectionGroup(connectionGroupName);
+        if (sessions == null) {
+            throw new BallerinaException("Connection group name " + connectionGroupName +
+                                                 " not exists. Cannot close the connection group");
+        }
         sessions.forEach(
                 session -> {
-                    try {
-                        session.close(new CloseReason(
-                                () -> 1000,
-                                "Normal closure"
-                        ));
-                        connectionManager.removeConnectionFromAll(session);
-                    } catch (IOException e) {
-                        throw new BallerinaException("Error occurred in closing connection group: "
-                                                             + connectionGroupName);
+                    if (session.isOpen()) {
+                        try {
+                            session.close(new CloseReason(
+                                    () -> 1000,
+                                    "Normal closure"
+                            ));
+                            connectionManager.removeConnectionFromAll(session);
+                        } catch (IOException e) {
+                            throw new BallerinaException("Error occurred in closing connection group: "
+                                                                 + connectionGroupName);
+                        }
                     }
                 }
         );
