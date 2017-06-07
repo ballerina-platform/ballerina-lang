@@ -358,12 +358,20 @@ class TransformRender
         if (connection.sourceFunction) {
             sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
             isSourceExists = true;
+        } else if (connection.sourceStruct == connection.sourceProperty[0]) {
+            //Construct Variable property id
+            sourceId = connection.sourceStruct;
+            isSourceExists = true;
         } else {
             isSourceExists = _.includes(this.existingJsTrees,
                 connection.sourceStruct + this.viewIdSeperator + this.viewId);
         }
         if (connection.targetFunction) {
             targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
+            isTargetExists = true;
+        } else if (connection.targetStruct == connection.targetProperty[0]) {
+            //Construct Variable property id
+            targetId = connection.targetStruct;
             isTargetExists = true;
         } else {
             isTargetExists = _.includes(this.existingJsTrees,
@@ -375,7 +383,7 @@ class TransformRender
                 sourceId += this.idNameSeperator
                 + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
             }
-            if (!connection.sourceFunction) {
+            if (!connection.sourceFunction && connection.sourceStruct != connection.sourceProperty[0]) {
                 sourceId += anchorEnd;
             }
 
@@ -384,7 +392,7 @@ class TransformRender
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
             }
 
-            if (!connection.targetFunction) {
+            if (!connection.targetFunction && connection.targetStruct != connection.targetProperty[0]) {
                 targetId += anchorEnd;
             }
 
