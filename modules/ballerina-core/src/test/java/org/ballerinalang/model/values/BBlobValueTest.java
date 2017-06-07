@@ -48,9 +48,35 @@ public class BBlobValueTest {
 
     @Test(description = "Test blob array")
     public void testBlobArray() {
+        byte[] bytes1 = "string1".getBytes();
+        byte[] bytes2 = "string2".getBytes();
+        BValue[] args = {new BBlob(bytes1), new BBlob(bytes2)};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobParameterArray", args);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBlob.class);
+        Assert.assertSame(returns[1].getClass(), BBlob.class);
+        BBlob blob1 = (BBlob) returns[0];
+        BBlob blob2 = (BBlob) returns[1];
+        Assert.assertEquals(blob1.blobValue(), bytes1, "Invalid byte value returned.");
+        Assert.assertEquals(blob2.blobValue(), bytes2, "Invalid byte value returned.");
+    }
+
+    @Test(description = "Test blob global variable")
+    public void testBlobGlobalVariable() {
         byte[] bytes = "string".getBytes();
         BValue[] args = {new BBlob(bytes)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobParameter", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testGlobalVariable", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBlob.class);
+        BBlob blob = (BBlob) returns[0];
+        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+    }
+
+    @Test(description = "Test blob global variable")
+    public void testBlobField() {
+        byte[] bytes = "string".getBytes();
+        BValue[] args = {new BBlob(bytes)};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobField", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBlob.class);
         BBlob blob = (BBlob) returns[0];
