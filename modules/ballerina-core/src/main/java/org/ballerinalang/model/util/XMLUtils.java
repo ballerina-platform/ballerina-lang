@@ -24,6 +24,9 @@ import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.json.JsonXMLOutputFactory;
 import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 
+import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
+import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -148,5 +151,17 @@ public class XMLUtils {
         byte[] xml = output.toByteArray();
         result = new BXML(new ByteArrayInputStream(xml));
         return result;
+    }
+
+    /**
+     * Converts a {@link BDataTable} to {@link BXML}.
+     *
+     * @param dataTable {@link BDataTable} to convert
+     * @return converted {@link BXML}
+     */
+    public static BXML datatableToXML(BDataTable dataTable) {
+        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null));
+        return new BXML(omSourcedElement);
     }
 }

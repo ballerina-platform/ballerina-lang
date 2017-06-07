@@ -18,15 +18,21 @@
 package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
+import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.Identifier;
+import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +44,15 @@ import java.util.Map;
 public class BDataTable implements BRefType<Object> {
 
     private DataIterator iterator;
-    private Map<String, Object> properties;
     private List<ColumnDefinition> columnDefs;
+    private StructDef resultStructDef;
+    private int columnCount;
 
-    public BDataTable(DataIterator dataIterator, Map<String, Object> properties, List<ColumnDefinition> columnDefs) {
+    public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
-        this.properties = properties;
         this.columnDefs = columnDefs;
+        this.resultStructDef = generateStructDef();
+        this.columnCount = columnDefs.size();
     }
 
     @Override
@@ -68,6 +76,140 @@ public class BDataTable implements BRefType<Object> {
 
     public void close() {
         iterator.close();
+    }
+
+    public BStruct getNext() {
+        BValue[] dataArray = new BValue[this.columnCount];
+        int index = 0;
+        for (ColumnDefinition columnDef : columnDefs) {
+            BValue value;
+            String columnName = columnDef.getName();
+            switch (columnDef.getSQLType()) {
+            case Types.ARRAY:
+                value = getDataArray(columnName);
+                break;
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.NCHAR:
+            case Types.NVARCHAR:
+            case Types.LONGNVARCHAR:
+                value = new BString(iterator.getString(columnName));
+                break;
+            case Types.CLOB:
+            case Types.BLOB:
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+            case Types.NCLOB:
+                value = new BString(iterator.getObjectAsString(columnName));
+                break;
+            case Types.BINARY:
+                value = iterator.get(columnName, "binary");
+                break;
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT:
+                value = new BInteger(iterator.getInt(columnName));
+                break;
+            case Types.REAL:
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                value = new BFloat(iterator.getFloat(columnName));
+                break;
+            case Types.BIT:
+            case Types.BOOLEAN:
+                value = new BBoolean(iterator.getBoolean(columnName));
+                break;
+            default:
+                value = null;
+            }
+            dataArray[index] = value;
+            ++index;
+        }
+        return new BStruct(this.resultStructDef, dataArray);
+    }
+
+    private BMap<BString, BValue> getDataArray(String columnName) {
+        Map<String, Object> arrayMap = iterator.getArray(columnName);
+        BMap<BString, BValue> returnMap = new BMap<>();
+        if (arrayMap != null && !arrayMap.isEmpty()) {
+            for (Map.Entry<String, Object> entry : arrayMap.entrySet()) {
+                BString key = new BString(entry.getKey());
+                Object obj = entry.getValue();
+                if (obj instanceof String) {
+                    returnMap.put(key, new BString(String.valueOf(obj)));
+                } else if (obj instanceof Boolean) {
+                    returnMap.put(key, new BBoolean(Boolean.valueOf(obj.toString())));
+                } else if (obj instanceof Integer) {
+                    returnMap.put(key, new BInteger(Integer.parseInt(obj.toString())));
+                } else if (obj instanceof Long) {
+                    returnMap.put(key, new BInteger(Long.parseLong(obj.toString())));
+                } else if (obj instanceof Float) {
+                    returnMap.put(key, new BFloat(Float.parseFloat(obj.toString())));
+                } else if (obj instanceof Double) {
+                    returnMap.put(key, new BFloat(Double.parseDouble(obj.toString())));
+                }
+            }
+        }
+        return returnMap;
+    }
+
+    private StructDef generateStructDef() {
+        StructDef.StructBuilder structBuilder = new StructDef.StructBuilder();
+        structBuilder.setIdentifier(new Identifier("RS"));
+        StructDef structDef = structBuilder.build();
+        int structMemAddrOffset = -1;
+        for (ColumnDefinition columnDef : columnDefs) {
+            BType type;
+            switch (columnDef.getSQLType()) {
+            case Types.ARRAY:
+                type = BTypes.typeMap;
+                break;
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.NCHAR:
+            case Types.NVARCHAR:
+            case Types.LONGNVARCHAR:
+            case Types.CLOB:
+            case Types.NCLOB:
+            case Types.BLOB:
+            case Types.BINARY:
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+                type = BTypes.typeString;
+                break;
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT:
+                type = BTypes.typeInt;
+                break;
+            case Types.REAL:
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                type = BTypes.typeFloat;
+                break;
+            case Types.BIT:
+            case Types.BOOLEAN:
+                type = BTypes.typeBoolean;
+                break;
+            default:
+                type = BTypes.typeNull;
+            }
+            SymbolName columnSymbolName = new SymbolName(columnDef.getName());
+            VariableDef variableDef = new VariableDef(null, null, type, columnSymbolName);
+            variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
+            structDef.define(columnSymbolName, variableDef);
+        }
+        return structDef;
     }
 
     public String getString(long index) {
@@ -172,13 +314,15 @@ public class BDataTable implements BRefType<Object> {
      * This represents a column definition for a column in a datatable.
      */
     public static class ColumnDefinition {
-        
-        private String name;
-        private TypeEnum type;
 
-        public ColumnDefinition(String name, TypeEnum type) {
+        private String name;
+        private TypeEnum mappedType;
+        private int sqlType;
+
+        public ColumnDefinition(String name, TypeEnum mappedType, int sqlType) {
             this.name = name;
-            this.type = type;
+            this.mappedType = mappedType;
+            this.sqlType = sqlType;
         }
 
         public String getName() {
@@ -186,8 +330,13 @@ public class BDataTable implements BRefType<Object> {
         }
 
         public TypeEnum getType() {
-            return type;
+            return mappedType;
         }
+
+        public int getSQLType() {
+            return sqlType;
+        }
+
     }
     
     @Override

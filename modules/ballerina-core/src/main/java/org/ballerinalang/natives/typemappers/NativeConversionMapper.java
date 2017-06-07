@@ -27,6 +27,7 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -102,7 +103,7 @@ public class NativeConversionMapper {
                 try {
                     return new BValue[] { new BFloat(rVal.floatValue()), null };
                 } catch (Exception e) {
-                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                         BTypes.typeString, BTypes.typeFloat, e.getMessage());
                     return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
                 }
@@ -113,7 +114,7 @@ public class NativeConversionMapper {
                 try {
                     return new BValue[] {new BBoolean(rVal.booleanValue()), null };
                 } catch (Exception e) {
-                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                         BTypes.typeString, BTypes.typeBoolean, e.getMessage());
                     return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
                 }
@@ -135,7 +136,7 @@ public class NativeConversionMapper {
                 try {
                     return new BValue[] { new BXML(rVal.stringValue()), null };
                 } catch (Exception e) {
-                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                         BTypes.typeString, BTypes.typeXML, e.getMessage());
                     return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
                 }
@@ -345,7 +346,7 @@ public class NativeConversionMapper {
             }
             return new BValue[] { new BStruct(structDef, structMemoryBlock), null };
         };
-    
+
     /**
      * Function to cast a given struct to a map.
      * All the fields in the struct will be stored in the map as is.
@@ -406,10 +407,42 @@ public class NativeConversionMapper {
                 return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
             }
         };
-            
+
+
+    /**
+     * Function to cast a given datatable to a JSON array.
+     */
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> DATATABLE_TO_JSON_FUNC =
+            (rVal, targetType, returnErrors) -> {
+                if (rVal == null) {
+                    return new BValue[] { null, null };
+                }
+                try {
+                    return new BValue[] { JSONUtils.toJSON((BDataTable) rVal), null };
+                } catch (BallerinaException e) {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                            rVal.getType(), BTypes.typeJSON, e.getMessage());
+                    return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
+                }
+            };
+
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> DATATABLE_TO_XML_FUNC =
+            (rVal, targetType, returnErrors) -> {
+                if (rVal == null) {
+                    return new BValue[] { null, null };
+                }
+                try {
+                    return new BValue[] { XMLUtils.datatableToXML((BDataTable) rVal), null };
+                } catch (BallerinaException e) {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                            BTypes.typeDatatable, BTypes.typeXML, e.getMessage());
+                    return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeDatatable, targetType);
+                }
+            };
+
     public static final TriFunction<BValue, BType, Boolean, BValue[]> XML_TO_STRING_FUNC =
             (rVal, targetType, returnErrors) -> new BValue[] { new BString(rVal.stringValue()) };
-    
+
     public static final TriFunction<BValue, BType, Boolean, BValue[]> XML_TO_JSON_FUNC =
         (rVal, targetType, returnErrors) -> {
             if (rVal == null) {

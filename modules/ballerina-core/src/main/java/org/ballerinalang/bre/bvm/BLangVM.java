@@ -82,7 +82,6 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -1236,7 +1235,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
+                    sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
                     break;
 
                 default:
