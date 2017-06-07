@@ -23,6 +23,10 @@ native function removeStoredConnection (string connectionName);
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToConnection (string connectionName, string text);
 
+@doc:Description { value:"Close stored connection."}
+@doc:Param { value:"connectionName: Name of the connection" }
+native function closeStoredConnection (string connectionName);
+
 @doc:Description { value:"This pushes text from server to all the connected clients of the service."}
 @doc:Param { value:"connectionGroupName: Name of the connection group" }
 native function addConnectionToGroup (string connectionGroupName);
