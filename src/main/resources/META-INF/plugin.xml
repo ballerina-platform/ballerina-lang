@@ -159,7 +159,10 @@
         <!--documentation-->
         <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
 
-   </extensions>
+        <!-- debugger -->
+        <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
+
+    </extensions>
 
     <actions>
         <!-- Add your actions here -->
