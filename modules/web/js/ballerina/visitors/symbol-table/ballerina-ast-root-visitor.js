@@ -84,10 +84,17 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         var returnTypes = [];
         _.forEach(functionDefinition.getReturnTypes(), function (returnType) {
             // Return type contains an Argument child.
-            returnTypes.push({
-                name: returnType.getName(),
-                type: returnType.getTypeName()
-            });
+            if(_.isNull(returnType.getName())) {
+                //some return types only have a type
+                returnTypes.push({
+                    type: returnType.getTypeName()
+                });
+            } else {
+                returnTypes.push({
+                    name: returnType.getName(),
+                    type: returnType.getTypeName()
+                });
+            }
         });
         functionDef.setReturnParams(returnTypes);
 
