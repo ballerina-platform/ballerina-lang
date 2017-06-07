@@ -13,7 +13,7 @@ function test () {
          a  [   1  ] = [    10  ,     54  ];
      a  [ 2    ] = [4, 6, 1];
 
-     int     i   =    a  [     0    ]   [  0     ]    ; // Vaue of i is 1
+     int     i   =    a  [     0    ]   [  0     ]    ; // Value of i is 1
      i =    a  [ 2    ]   [      1    ]    ;  // value of i is 6 now.
 
         message        VarName     =   {    }   ;

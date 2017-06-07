@@ -20,14 +20,14 @@ import psi.BallerinaResolveTestBase;
 
 import java.io.IOException;
 
-public class BallerinaResolveFieldTest extends BallerinaResolveTestBase {
+public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
 
     private String struct = "struct testStruct{\n    string /*def*/s;\n}";
     private String struct2 = "struct Name {\n    string firstName;\n}\nstruct Person {\n    Name /*def*/name;\n}";
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/field";
+        return "src/test/resources/testData/psi/resolve/field/struct";
     }
 
     public void testSingleLevelFieldAccessInConnector1() {

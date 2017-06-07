@@ -47,11 +47,13 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -802,6 +804,11 @@ public class BallerinaPsiImplUtil {
         if (resolved == null) {
             // Get the parent directory which is the package.
             PsiDirectory parentDirectory = element.getContainingFile().getParent();
+
+            // If this happens, that means the element does not have any parent directory. That means the
+            // VirtualFile only exist in memory. The reason can be calling parameters.getPosition() which will
+            // return the PsiElement from the file modified in the memory. So use parameters.getOriginalPosition()
+            // instead in the CompletionContributor if necessary.
             if (parentDirectory == null) {
                 for (String xpath : xpaths) {
                     List<PsiElement> matchingElements = getAllMatchingElementsFromFile(element.getContainingFile(),
@@ -1176,8 +1183,17 @@ public class BallerinaPsiImplUtil {
                 }
             }
         }
-        return BallerinaPsiImplUtil.resolveElement(scopeNode, element, "//variableDefinitionStatement/Identifier",
+        PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(scopeNode, element,
+                "//variableDefinitionStatement/Identifier",
                 "/parameter/Identifier");
+        if (resolvedElement == null) {
+            return null;
+        }
+        PsiElement commonContext = PsiTreeUtil.findCommonContext(element, resolvedElement);
+        if (!(commonContext instanceof BallerinaFile)) {
+            return resolvedElement;
+        }
+        return null;
     }
 
     public static boolean isStructField(PsiElement element) {
@@ -1202,7 +1218,54 @@ public class BallerinaPsiImplUtil {
                 return true;
             }
         }
-
+        //Eg: return person.name;
+        PsiElement[] children = expressionNode.getChildren();
+        if (children.length > 0) {
+            if (children[0] instanceof VariableReferenceNode) {
+                PsiElement[] superChildren = children[0].getChildren();
+                if (superChildren.length == 3) {
+                    return ".".equals(superChildren[1].getText());
+                }
+            }
+        }
         return false;
+    }
+
+    /**
+     * Gets annotation definition node from annotation attachment node.
+     *
+     * @param node {@link AnnotationAttachmentNode} node
+     * @return corresponding {@link AnnotationDefinitionNode} node, {@code null} if the annotation attachment cannot
+     * be resolved
+     */
+    @Nullable
+    public static AnnotationDefinitionNode getAnnotationDefinitionNode(@NotNull AnnotationAttachmentNode node) {
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(node, NameReferenceNode.class);
+        if (nameReferenceNode == null) {
+            return null;
+        }
+        PsiElement identifier = nameReferenceNode.getNameIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        PsiReference reference = identifier.getReference();
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return null;
+        }
+        if (resolvedElement.getParent() instanceof AnnotationDefinitionNode) {
+            return ((AnnotationDefinitionNode) resolvedElement.getParent());
+        }
+        return null;
+    }
+
+    @NotNull
+    public static List<FieldDefinitionNode> getAnnotationFields(@NotNull AnnotationDefinitionNode node) {
+        List<FieldDefinitionNode> results = new LinkedList<>();
+        results.addAll(PsiTreeUtil.findChildrenOfType(node, FieldDefinitionNode.class));
+        return results;
     }
 }
