@@ -144,7 +144,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
     var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
     var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
     rightOp.addChild(actionInExp);
-    rightOp.setExpressionFromString(actionInExp.getExpression());
+    rightOp.setExpressionFromString(actionInExp.getExpressionString());
     assignmentStmt.addChild(leftOp);
     assignmentStmt.addChild(rightOp);
     return assignmentStmt;

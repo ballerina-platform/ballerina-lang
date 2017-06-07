@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Class to represent a action invocation to ballerina.
@@ -38,6 +39,7 @@ class ActionInvocationStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
@@ -49,10 +51,11 @@ class ActionInvocationStatement extends Statement {
     /**
      * Get the statement string
      * @return {string} statement string
+     * @override
      */
     getStatementString() {
         if (this.getChildren().length > 0) {
-            return this.getChildren()[0].getExpression();
+            return this.getChildren()[0].getExpressionString();
         }
     }
 
@@ -60,10 +63,20 @@ class ActionInvocationStatement extends Statement {
      * Set the statement string
      * @param {string} statementString
      */
-    setStatementString(statementString, options) {
-        if (this.getChildren().length > 0) {
-            this.getChildren()[0].setExpression(statementString);
-        }
+    setStatementFromString(statementString) {
+        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        this.initFromJson(parsedJson);
+
+        // Manually firing the tree-modified event here.
+        // TODO: need a proper fix to avoid breaking the undo-redo
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'custom',
+            title: 'Assignment Statement Custom Tree modified',
+            context: this,
+        });
     }
 }
 
