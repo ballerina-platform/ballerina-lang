@@ -108,20 +108,20 @@ class TagController extends React.Component {
             // Get the width of the label text.
             let labelWidth = util.getTextWidth(this.props.label, 80, 80).w;
             return (<g key={componentData.title}>
-                <rect x={componentData.components.openingBracket.x - labelWidth}
-                      y={componentData.components.openingBracket.y}
+                <rect x={componentData.components.openingBracket.x - labelWidth - 3}
+                      y={componentData.components.openingBracket.y + 10}
                       width={labelWidth} height={25} className={this.props.groupClass}/>
                 <text x={componentData.components.openingBracket.x - (labelWidth - 20)}
-                      y={componentData.components.openingBracket.y + 20}>
+                      y={componentData.components.openingBracket.y + 30}>
                     attach
                 </text>
                 <rect x={componentData.components.openingBracket.x}
-                      y={componentData.components.openingBracket.y }
+                      y={componentData.components.openingBracket.y + 10 }
                       width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w}
                       height={25} className={this.props.groupClass}/>
                 <text x={componentData.components.openingBracket.x + 7}
-                      y={componentData.components.openingBracket.y + 5 }
+                      y={componentData.components.openingBracket.y + 15 }
                       className={componentData.openingBracketClassName}>(
                 </text>
                 {modelComponents}
@@ -130,15 +130,15 @@ class TagController extends React.Component {
                     this.onSelectClick()
                 }}>
                     <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y + 5 } width={90} height={20}
+                          y={componentData.components.closingBracket.y + 15 } width={90} height={20}
                           className="text-placeholder"/>
                     <text x={componentData.components.closingBracket.x - 94}
-                          y={componentData.components.closingBracket.y + 19}
+                          y={componentData.components.closingBracket.y + 29}
                           className="tag-component-attachment-text">
                         {DEFAULT_INPUT_VALUE}
                     </text>
                     <SuggestionsText x={componentData.components.closingBracket.x - 104}
-                                     y={componentData.components.closingBracket.y + 6}
+                                     y={componentData.components.closingBracket.y + 16}
                                      width={93}
                                      height={20}
                                      className="tag-component-editable-text-box"
@@ -153,18 +153,18 @@ class TagController extends React.Component {
                     </SuggestionsText>
                 </g>
                 <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5 }
+                      y={componentData.components.closingBracket.y + 15 }
                       className={componentData.closingBracketClassName}>)
                 </text>
             </g>);
         } else {
             return (<g key={componentData.title}>
-                <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y }
+                <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y + 10 }
                       width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w}
                       height={25} className={this.props.groupClass}/>
                 <text x={componentData.components.openingBracket.x + 7}
-                      y={componentData.components.openingBracket.y + 5 }
+                      y={componentData.components.openingBracket.y + 15 }
                       className={componentData.openingBracketClassName}>(
                 </text>
                 {modelComponents}
@@ -173,15 +173,15 @@ class TagController extends React.Component {
                     this.onSelectClick()
                 }}>
                     <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y + 5 } width={90} height={20}
+                          y={componentData.components.closingBracket.y + 15 } width={90} height={20}
                           className="text-placeholder"/>
                     <text x={componentData.components.closingBracket.x - 94}
-                          y={componentData.components.closingBracket.y + 19}
+                          y={componentData.components.closingBracket.y + 29}
                           className="tag-component-attachment-text">
                         {DEFAULT_INPUT_VALUE}
                     </text>
                     <SuggestionsText x={componentData.components.closingBracket.x - 104}
-                                     y={componentData.components.closingBracket.y + 6}
+                                     y={componentData.components.closingBracket.y + 16}
                                      width={93}
                                      height={20}
                                      className="tag-component-editable-text-box"
@@ -196,7 +196,7 @@ class TagController extends React.Component {
                     </SuggestionsText>
                 </g>
                 <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5 }
+                      y={componentData.components.closingBracket.y + 15 }
                       className={componentData.closingBracketClassName}>)
                 </text>
             </g>);
@@ -212,27 +212,27 @@ class TagController extends React.Component {
     getArgumentParameterController(componentData, modelComponents) {
         return (
             <g key={componentData.title}>
-                <rect x={componentData.components.typesIcon.x - 3} y={componentData.components.openingBracket.y}
+                <rect x={componentData.components.typesIcon.x - 3} y={componentData.components.openingBracket.y + 10}
                       width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w + componentData.components.typesIcon.w}
                       height={25} className={this.props.groupClass}/>
-                <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns
+                <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y + 10}>returns
                 </text>
                 <text x={componentData.components.openingBracket.x + 7 }
-                      y={componentData.components.openingBracket.y + 5 }
+                      y={componentData.components.openingBracket.y + 15 }
                       className={componentData.openingBracketClassName}>(
                 </text>
                 {modelComponents}
 
                 <g>
                     <rect x={componentData.components.closingBracket.x - 104}
-                          y={componentData.components.closingBracket.y + 4 } width={90} height={21}
+                          y={componentData.components.closingBracket.y + 14 } width={90} height={21}
                           className="text-placeholder"
                           onClick={() => {
                               this.onInputClick()
                           }}/>
                     <EditableText x={componentData.components.closingBracket.x - 105}
-                                  y={componentData.components.closingBracket.y + 28 / 2}
+                                  y={componentData.components.closingBracket.y + 28 / 2 +10}
                                   width={93}
                                   height={20}
                                   labelClass={"tag-component-label"}
@@ -256,7 +256,7 @@ class TagController extends React.Component {
                     </EditableText>
                 </g>
                 <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5}
+                      y={componentData.components.closingBracket.y + 15}
                       className={componentData.closingBracketClassName}>)
                 </text>
             </g>
@@ -273,25 +273,25 @@ class TagController extends React.Component {
         return (
             <g key={componentData.title}>
                 <rect x={componentData.components.openingBracket.x - 3}
-                      y={componentData.components.openingBracket.y}
+                      y={componentData.components.openingBracket.y + 10}
                       width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w}
                       height={25} className={this.props.groupClass}/>
                 <text x={componentData.components.openingBracket.x + 7}
-                      y={componentData.components.openingBracket.y + 5 }
+                      y={componentData.components.openingBracket.y + 15 }
                       className={componentData.openingBracketClassName}>(
                 </text>
                 {modelComponents}
 
                 <g>
                     <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y + 5 } width={90} height={21}
+                          y={componentData.components.closingBracket.y + 15 } width={90} height={21}
                           className="text-placeholder"
                           onClick={() => {
                               this.onInputClick()
                           }}/>
                     <EditableText x={componentData.components.closingBracket.x - 98}
-                                  y={componentData.components.closingBracket.y + 28 / 2 }
+                                  y={componentData.components.closingBracket.y + 28 / 2 + 10}
                                   width={93}
                                   height={20}
                                   labelClass={"tag-component-label"}
@@ -315,7 +315,7 @@ class TagController extends React.Component {
                     </EditableText>
                 </g>
                 <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5 }
+                      y={componentData.components.closingBracket.y + 15 }
                       className={componentData.closingBracketClassName}>)
                 </text>
             </g>
