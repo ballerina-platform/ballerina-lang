@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Statement from './statement';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class to represent worker reply statement in ballerina.
@@ -65,26 +66,56 @@ class WorkerReplyStatement extends Statement {
         return this._workerName;
     }
 
-    setReplyStatement(replyStatement) {
-        let tokens = (replyStatement.split('<-'));
-        if (tokens.length > 1) {
-            this._workerName = (tokens[1]).trim();
-        } else {
-            this._workerName = '';
-        }
-        this.setAttribute('_replyStatement', replyStatement);
-    }
-
-    getReplyStatement() {
-        return this._replyStatement;
-    }
-
     addToExpressionList(expression) {
         this._expressionList.push(expression);
     }
 
     getExpressionList() {
         return this._expressionList;
+    }
+
+    /**
+     * Get the statement String
+     * @returns {string} statement string
+     * @override
+     */
+    getStatementString() {
+        let statementStr = '';
+        for(var itr = 0; itr < this.getExpressionList().length; itr ++) {
+            if (BallerinaASTFactory.isExpression(this.getExpressionList()[itr])) {
+                statementStr += this.getExpressionList()[itr].getExpressionString();
+            } else if (BallerinaASTFactory.isStatement(this.getExpressionList()[itr])) {
+                statementStr += this.getExpressionList()[itr].getStatementString();
+            }
+
+            if (itr !== this.getExpressionList().length - 1) {
+                statementStr += ',';
+            }
+        }
+        statementStr += '<-' + this.getWorkerName();
+
+        return statementStr;
+    }
+
+    /**
+     * Set the statement from the string
+     * @param {string} statementString
+     * @override
+     */
+    setStatementFromString(statementString) {
+        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        this.initFromJson(parsedJson);
+
+        // Manually firing the tree-modified event here.
+        // TODO: need a proper fix to avoid breaking the undo-redo
+        this.trigger('tree-modified', {
+            origin: this,
+            type: 'custom',
+            title: 'Worker Reply Custom Tree modified',
+            context: this,
+        });
     }
 
     canBeAChildOf(node) {
@@ -103,20 +134,14 @@ class WorkerReplyStatement extends Statement {
         var workerName = jsonNode.worker_name;
         const self = this;
         const expressionList = jsonNode.expression_list;
-        let expressionString = '';
+        this.getExpressionList().length = 0;
 
         for (let itr = 0; itr < expressionList.length; itr ++) {
             const expressionNode = BallerinaASTFactory.createFromJson(expressionList[itr].expression[0]);
             expressionNode.initFromJson(expressionList[itr].expression[0]);
             self.addToExpressionList(expressionNode);
-            expressionString += expressionNode.getExpression();
-            if (itr !== expressionList.length - 1) {
-                expressionString += ',';
-            }
         }
 
-        var replyStatement = expressionString + ' <- ' + workerName;
-        this.setReplyStatement(replyStatement);
         var workerInstance = _.find(this.getParent().getChildren(), function (child) {
             return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
         });

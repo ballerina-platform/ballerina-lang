@@ -248,7 +248,7 @@ class ActionInvocationExpression extends Expression {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Assignment Statement Custom Tree modified',
+                title: 'Action Invocation Expression Custom Tree modified',
                 context: this,
             });
         }

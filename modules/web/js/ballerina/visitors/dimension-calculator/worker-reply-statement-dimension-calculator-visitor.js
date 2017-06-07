@@ -34,7 +34,7 @@ class WorkerReplyStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox(node.getReplyStatement(), node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
         let workerDeclaration = node.getDestination();
         if (!_.isUndefined(workerDeclaration)) {
             let heightFromTop = util.getStatementHeightBefore(node);

@@ -1015,7 +1015,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         workerInvokeStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.WORKER_INVOCATION_STATEMENT);
         // TODO: change this
-        String targetWorkerName = workerInvocationStmt.getWorkerDataChannel().getChannelName().split("->")[1];
+        String targetWorkerName = workerInvocationStmt.getName();
         workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, targetWorkerName);
         this.addWhitespaceDescriptor(workerInvokeStmtObj, workerInvocationStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
