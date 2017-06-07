@@ -27,8 +27,8 @@ class FunctionInvocationStatement extends React.Component {
             propertyType: 'text',
             key: 'Function',
             model: props.model.children[0],
-            getterMethod: props.model.children[0].getFunctionalExpression,
-            setterMethod: props.model.children[0].setFunctionalExpression
+            getterMethod: props.model.children[0].getExpressionString,
+            setterMethod: props.model.children[0].setExpressionFromString
         };
 	}
 
