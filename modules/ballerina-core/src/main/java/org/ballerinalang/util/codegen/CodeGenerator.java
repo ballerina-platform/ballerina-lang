@@ -160,8 +160,8 @@ public class CodeGenerator implements NodeVisitor {
     private static final int FLOAT_OFFSET = 1;
     private static final int STRING_OFFSET = 2;
     private static final int BOOL_OFFSET = 3;
-    private static final int REF_OFFSET = 4;
-    private static final int BLOB_OFFSET = 5;
+    private static final int BLOB_OFFSET = 4;
+    private static final int REF_OFFSET = 5;
 
     private int[] maxRegIndexes = {-1, -1, -1, -1, -1, -1};
 
@@ -1906,15 +1906,15 @@ public class CodeGenerator implements NodeVisitor {
         codeAttributeInfo.setMaxDoubleLocalVars(lvIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringLocalVars(lvIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntLocalVars(lvIndexes[BOOL_OFFSET] + 1);
-        codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
         codeAttributeInfo.setMaxByteLocalVars(lvIndexes[BLOB_OFFSET] + 1);
+        codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
 
         codeAttributeInfo.setMaxLongRegs(maxRegIndexes[INT_OFFSET] + 1);
         codeAttributeInfo.setMaxDoubleRegs(maxRegIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringRegs(maxRegIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntRegs(maxRegIndexes[BOOL_OFFSET] + 1);
-        codeAttributeInfo.setMaxBValueRegs(maxRegIndexes[REF_OFFSET] + 1);
         codeAttributeInfo.setMaxByteRegs(maxRegIndexes[BLOB_OFFSET] + 1);
+        codeAttributeInfo.setMaxBValueRegs(maxRegIndexes[REF_OFFSET] + 1);
 
         resetIndexes(lvIndexes);
         resetIndexes(regIndexes);

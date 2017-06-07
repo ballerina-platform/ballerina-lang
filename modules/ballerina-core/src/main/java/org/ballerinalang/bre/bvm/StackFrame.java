@@ -80,14 +80,15 @@ public class StackFrame {
         Arrays.fill(stringLocalVars, "");
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
+        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteLocalVars()][];
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;

@@ -26,7 +26,7 @@ public class BBlobArray extends BNewArray {
     private byte[][] values;
 
     public BBlobArray() {
-        values = (byte[][]) newArrayInstance(newArrayInstance(Byte.TYPE).getClass());
+        values = (byte[][]) newArrayInstance(byte[].class);
     }
 
     public void add(long index, byte[] value) {

@@ -18,6 +18,7 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -188,6 +189,13 @@ public class ValueTypeCastExprTest {
     }
 
     @Test
+    public void testBlobToAny() {
+        BValue[] args = {new BBlob("string".getBytes())};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "blobToAny", args);
+        Assert.assertTrue(returns[0] instanceof BBlob);
+    }
+
+    @Test
     public void testIntArrayToLongArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "intarrtofloatarr");
         Assert.assertTrue(returns[0] instanceof BFloatArray);
@@ -227,5 +235,14 @@ public class ValueTypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BBoolean);
         final boolean expected = false;
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+    }
+
+    @Test
+    public void testAnyToBlob() {
+        byte[] data = "string".getBytes();
+        BValue[] args = {new BBlob(data)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "anyToBlob", args);
+        Assert.assertTrue(returns[0] instanceof BBlob);
+        Assert.assertEquals(((BBlob) returns[0]).blobValue(), data);
     }
 }

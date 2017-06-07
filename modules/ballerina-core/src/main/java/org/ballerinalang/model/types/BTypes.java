@@ -37,8 +37,9 @@ import static org.ballerinalang.model.util.LangModelUtils.getNodeLocationStr;
 public class BTypes {
     public static BType typeInt;
     public static BType typeFloat;
-    public static BType typeBoolean;
     public static BType typeString;
+    public static BType typeBoolean;
+    public static BType typeBlob;
     public static BType typeXML;
     public static BType typeJSON;
     public static BType typeMessage;
@@ -47,7 +48,6 @@ public class BTypes {
     public static BType typeAny;
     public static BType typeConnector;
     public static BType typeNull;
-    public static BType typeBlob;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -62,8 +62,9 @@ public class BTypes {
 
         globalScope.define(typeInt.getSymbolName(), typeInt);
         globalScope.define(typeFloat.getSymbolName(), typeFloat);
-        globalScope.define(typeBoolean.getSymbolName(), typeBoolean);
         globalScope.define(typeString.getSymbolName(), typeString);
+        globalScope.define(typeBoolean.getSymbolName(), typeBoolean);
+        globalScope.define(typeBlob.getSymbolName(), typeBlob);
         globalScope.define(typeXML.getSymbolName(), typeXML);
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
@@ -72,12 +73,12 @@ public class BTypes {
         globalScope.define(typeAny.getSymbolName(), typeAny);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
         globalScope.define(typeNull.getSymbolName(), typeNull);
-        globalScope.define(typeBlob.getSymbolName(), typeBlob);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
-        builtInTypeNames.add(TypeConstants.STRING_TNAME);
         builtInTypeNames.add(TypeConstants.FLOAT_TNAME);
+        builtInTypeNames.add(TypeConstants.STRING_TNAME);
         builtInTypeNames.add(TypeConstants.BOOLEAN_TNAME);
+        builtInTypeNames.add(TypeConstants.BLOB_TNAME);
         builtInTypeNames.add(TypeConstants.MESSAGE_TNAME);
         builtInTypeNames.add(TypeConstants.XML_TNAME);
         builtInTypeNames.add(TypeConstants.JSON_TNAME);
@@ -87,7 +88,6 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
         builtInTypeNames.add(TypeConstants.ANY_TNAME);
         builtInTypeNames.add(TypeConstants.NULL_TNAME);
-        builtInTypeNames.add(TypeConstants.BLOB_TNAME);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -98,8 +98,9 @@ public class BTypes {
     private static void createBuiltInTypes(GlobalScope globalScope) {
         typeInt = new BIntegerType(TypeConstants.INT_TNAME, null, globalScope);
         typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null, globalScope);
-        typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null, globalScope);
         typeString = new BStringType(TypeConstants.STRING_TNAME, null, globalScope);
+        typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null, globalScope);
+        typeBlob = new BBlobType(TypeConstants.BLOB_TNAME, null, globalScope);
         typeXML = new BXMLType(TypeConstants.XML_TNAME, null, globalScope);
         typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
@@ -108,7 +109,6 @@ public class BTypes {
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
-        typeBlob = new BBlobType(TypeConstants.BLOB_TNAME, null, globalScope);
 
         initialized = true;
     }
@@ -170,8 +170,8 @@ public class BTypes {
 
     public static boolean isValueType(BType type) {
         if (type == BTypes.typeInt ||
-                type == BTypes.typeString ||
                 type == BTypes.typeFloat ||
+                type == BTypes.typeString ||
                 type == BTypes.typeBoolean ||
                 type == BTypes.typeBlob) {
             return true;

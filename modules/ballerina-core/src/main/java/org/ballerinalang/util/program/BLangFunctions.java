@@ -457,14 +457,16 @@ public class BLangFunctions {
     private static BType resolveBType(BValue bValue) {
         BType bType = null;
 
-        if (bValue instanceof BString) {
-            bType = BTypes.typeString;
-        } else if (bValue instanceof BInteger) {
+        if (bValue instanceof BInteger) {
             bType = BTypes.typeInt;
         } else if (bValue instanceof BFloat) {
             bType = BTypes.typeFloat;
+        } else if (bValue instanceof BString) {
+            bType = BTypes.typeString;
         } else if (bValue instanceof BBoolean) {
             bType = BTypes.typeBoolean;
+        } else if (bValue instanceof BBlob) {
+            bType = BTypes.typeBlob;
         } else if (bValue instanceof BXML) {
             bType = BTypes.typeXML;
         } else if (bValue instanceof BJSON) {
@@ -475,8 +477,6 @@ public class BLangFunctions {
             bType = BTypes.typeMap;
         } else if (bValue instanceof BDataTable) {
             bType = BTypes.typeDatatable;
-        } else if (bValue instanceof BBlob) {
-            bType = BTypes.typeBlob;
         }
 
         return bType;

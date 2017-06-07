@@ -25,6 +25,7 @@ public class TypeSignature {
     public static final String SIG_FLOAT = "F";
     public static final String SIG_STRING = "S";
     public static final String SIG_BOOLEAN = "B";
+    public static final String SIG_BLOB = "L";
     public static final String SIG_REFTYPE = "R";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
@@ -32,7 +33,6 @@ public class TypeSignature {
     public static final String SIG_ANY = "A";
     public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
-    public static final String SIG_BLOB = "L";
 
     private String sigChar;
     private TypeSignature elementTypeSig;

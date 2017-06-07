@@ -102,8 +102,8 @@ public final class BConnector implements BRefType<Connector>, StructureType {
         stringFields = new String[fieldIndexes[2]];
         Arrays.fill(stringFields, "");
         intFields = new int[fieldIndexes[3]];
-        refFields = new BRefType[fieldIndexes[4]];
-        byteFields = new byte[fieldIndexes[5]][];
+        byteFields = new byte[fieldIndexes[4]][];
+        refFields = new BRefType[fieldIndexes[5]];
     }
 
     @Override

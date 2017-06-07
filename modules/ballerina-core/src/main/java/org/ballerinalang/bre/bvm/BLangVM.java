@@ -299,15 +299,15 @@ public class BLangVM {
                     i = operands[1];
                     sf.intRegs[i] = sf.intLocalVars[lvIndex];
                     break;
-                case InstructionCodes.RLOAD:
-                    lvIndex = operands[0];
-                    i = operands[1];
-                    sf.refRegs[i] = sf.refLocalVars[lvIndex];
-                    break;
                 case InstructionCodes.LLOAD:
                     lvIndex = operands[0];
                     i = operands[1];
                     sf.byteRegs[i] = sf.byteLocalVars[lvIndex];
+                    break;
+                case InstructionCodes.RLOAD:
+                    lvIndex = operands[0];
+                    i = operands[1];
+                    sf.refRegs[i] = sf.refLocalVars[lvIndex];
                     break;
                 case InstructionCodes.IALOAD:
                     i = operands[0];
@@ -337,19 +337,19 @@ public class BLangVM {
                     bBooleanArray = (BBooleanArray) sf.refRegs[i];
                     sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
                     break;
-                case InstructionCodes.RALOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bArray = (BRefValueArray) sf.refRegs[i];
-                    sf.refRegs[k] = bArray.get(sf.longRegs[j]);
-                    break;
                 case InstructionCodes.LALOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bBlobArray = (BBlobArray) sf.refRegs[i];
                     sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
+                    break;
+                case InstructionCodes.RALOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bArray = (BRefValueArray) sf.refRegs[i];
+                    sf.refRegs[k] = bArray.get(sf.longRegs[j]);
                     break;
                 case InstructionCodes.JSONALOAD:
                     i = operands[0];
@@ -380,15 +380,15 @@ public class BLangVM {
                     j = operands[1];
                     sf.intRegs[j] = globalMemBlock.getBooleanField(i);
                     break;
-                case InstructionCodes.RGLOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = globalMemBlock.getRefField(i);
-                    break;
                 case InstructionCodes.LGLOAD:
                     i = operands[0];
                     j = operands[1];
                     sf.byteRegs[j] = globalMemBlock.getBlobField(i);
+                    break;
+                case InstructionCodes.RGLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = globalMemBlock.getRefField(i);
                     break;
 
                 case InstructionCodes.ISTORE:
@@ -411,15 +411,15 @@ public class BLangVM {
                     lvIndex = operands[1];
                     sf.intLocalVars[lvIndex] = sf.intRegs[i];
                     break;
-                case InstructionCodes.RSTORE:
-                    i = operands[0];
-                    lvIndex = operands[1];
-                    sf.refLocalVars[lvIndex] = sf.refRegs[i];
-                    break;
                 case InstructionCodes.LSTORE:
                     i = operands[0];
                     lvIndex = operands[1];
                     sf.byteLocalVars[lvIndex] = sf.byteRegs[i];
+                    break;
+                case InstructionCodes.RSTORE:
+                    i = operands[0];
+                    lvIndex = operands[1];
+                    sf.refLocalVars[lvIndex] = sf.refRegs[i];
                     break;
                 case InstructionCodes.IASTORE:
                     i = operands[0];
@@ -449,19 +449,19 @@ public class BLangVM {
                     bBooleanArray = (BBooleanArray) sf.refRegs[i];
                     bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
                     break;
-                case InstructionCodes.RASTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bArray = (BRefValueArray) sf.refRegs[i];
-                    bArray.add(sf.longRegs[j], sf.refRegs[k]);
-                    break;
                 case InstructionCodes.LASTORE:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
                     bBlobArray = (BBlobArray) sf.refRegs[i];
                     bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
+                    break;
+                case InstructionCodes.RASTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bArray = (BRefValueArray) sf.refRegs[i];
+                    bArray.add(sf.longRegs[j], sf.refRegs[k]);
                     break;
                 case InstructionCodes.JSONASTORE:
                     i = operands[0];
@@ -492,15 +492,15 @@ public class BLangVM {
                     j = operands[1];
                     globalMemBlock.setBooleanField(j, sf.intRegs[i]);
                     break;
-                case InstructionCodes.RGSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    globalMemBlock.setRefField(j, sf.refRegs[i]);
-                    break;
                 case InstructionCodes.LGSTORE:
                     i = operands[0];
                     j = operands[1];
                     globalMemBlock.setBlobField(j, sf.byteRegs[i]);
+                    break;
+                case InstructionCodes.RGSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    globalMemBlock.setRefField(j, sf.refRegs[i]);
                     break;
 
                 case InstructionCodes.IFIELDLOAD:
@@ -531,19 +531,19 @@ public class BLangVM {
                     structureType = (StructureType) sf.refRegs[i];
                     sf.intRegs[j] = structureType.getBooleanField(fieldIndex);
                     break;
-                case InstructionCodes.RFIELDLOAD:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    sf.refRegs[j] = structureType.getRefField(fieldIndex);
-                    break;
                 case InstructionCodes.LFIELDLOAD:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.refRegs[i];
                     sf.byteRegs[j] = structureType.getBlobField(fieldIndex);
+                    break;
+                case InstructionCodes.RFIELDLOAD:
+                    i = operands[0];
+                    fieldIndex = operands[1];
+                    j = operands[2];
+                    structureType = (StructureType) sf.refRegs[i];
+                    sf.refRegs[j] = structureType.getRefField(fieldIndex);
                     break;
                 case InstructionCodes.IFIELDSTORE:
                     i = operands[0];
@@ -573,19 +573,19 @@ public class BLangVM {
                     structureType = (StructureType) sf.refRegs[i];
                     structureType.setBooleanField(fieldIndex, sf.intRegs[j]);
                     break;
-                case InstructionCodes.RFIELDSTORE:
-                    i = operands[0];
-                    fieldIndex = operands[1];
-                    j = operands[2];
-                    structureType = (StructureType) sf.refRegs[i];
-                    structureType.setRefField(fieldIndex, sf.refRegs[j]);
-                    break;
                 case InstructionCodes.LFIELDSTORE:
                     i = operands[0];
                     fieldIndex = operands[1];
                     j = operands[2];
                     structureType = (StructureType) sf.refRegs[i];
                     structureType.setBlobField(fieldIndex, sf.byteRegs[j]);
+                    break;
+                case InstructionCodes.RFIELDSTORE:
+                    i = operands[0];
+                    fieldIndex = operands[1];
+                    j = operands[2];
+                    structureType = (StructureType) sf.refRegs[i];
+                    structureType.setRefField(fieldIndex, sf.refRegs[j]);
                     break;
 
                 case InstructionCodes.MAPLOAD:
@@ -1089,6 +1089,11 @@ public class BLangVM {
                     j = operands[1];
                     sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
                     break;
+                case InstructionCodes.L2ANY:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = new BBlob(sf.byteRegs[i]);
+                    break;
                 case InstructionCodes.JSON2I:
                     convertJSONToInt(operands, sf);
                     break;
@@ -1149,6 +1154,19 @@ public class BLangVM {
 
                     if (bRefType.getType() == BTypes.typeBoolean) {
                         sf.intRegs[j] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
+                case InstructionCodes.ANY2L:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeBlob) {
+                        sf.byteRegs[j] = ((BBlob) bRefType).blobValue();
                     } else {
                         // TODO
                         throw new BallerinaException("incompatible types");
