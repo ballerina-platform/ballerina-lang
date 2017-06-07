@@ -239,8 +239,8 @@ public class IncrementalExecutor implements Executor {
     private void initDefaultTable(Map<String, Table> tableMap, String aggregatorName) {
         tableDefinition = TableDefinition.id(aggregatorName+"_"+duration.toString());
         tableDefinition.attribute("symbol", Attribute.Type.STRING).
-                attribute("sumprice1", Attribute.Type.FLOAT).
-                attribute("countprice1", Attribute.Type.FLOAT).
+                attribute("sumprice1", Attribute.Type.DOUBLE).
+                attribute("countprice1", Attribute.Type.DOUBLE).
                 attribute("timestamp", Attribute.Type.LONG);
         MetaStreamEvent tableMetaStreamEvent = new MetaStreamEvent();
         tableMetaStreamEvent.addInputDefinition(tableDefinition);
@@ -282,7 +282,7 @@ public class IncrementalExecutor implements Executor {
                 }
                 storeAggregatorFunctions.put(groupByOutput, baseValuesPerGroupBy);
                 // TODO: 6/2/17 we should be able to get time as well. Hence, may have to change this representation
-                if (this.duration== TimePeriod.Duration.MINUTES ){
+                if (this.duration== TimePeriod.Duration.MINUTES){
                     System.out.println(storeAggregatorFunctions);
                 }
 
@@ -315,12 +315,7 @@ public class IncrementalExecutor implements Executor {
             newOnAfterWindowData.add(groupByKey);
             ConcurrentMap<String, Object> aggregatesPerGroupBy = storeAggregatorFunctions.remove(groupByKey);
             for (String aggregateKey : aggregatesPerGroupBy.keySet()) {
-                // TODO: 5/27/17 this if else is a hack!!! change
-                if (aggregateKey.startsWith("sum")) {
-                    newOnAfterWindowData.add(((Double) aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
-                } else if (aggregateKey.startsWith("count")) { //Count is also summed. Therefore Double
-                    newOnAfterWindowData.add(((Double) aggregatesPerGroupBy.remove(aggregateKey)).floatValue());
-                }
+                newOnAfterWindowData.add(aggregatesPerGroupBy.get(aggregateKey));
             }
             newOnAfterWindowData.add(timeStampOfBaseAggregate); // TODO: 6/1/17 this needs to change
 

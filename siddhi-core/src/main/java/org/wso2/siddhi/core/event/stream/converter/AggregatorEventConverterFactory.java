@@ -74,54 +74,19 @@ public class AggregatorEventConverterFactory {
                     if (attribute == null) {
                         i++;
                     } else if (!originalInputDefinition.getAttributeList().contains(attribute)) {
-                        if (attribute.getName().startsWith("sum")) {
-                            Attribute tempAttribute =
-                                    // TODO: 6/2/17 have a pattern to get base name
-                                    new Attribute(attribute.getName().replaceFirst("sum",""), attribute.getType());
-                            if (!originalInputDefinition.getAttributeList().contains(tempAttribute)) {
-                                i++;
-                            } else {
-                                int fromPosition = originalInputDefinition.getAttributePosition(tempAttribute.getName());
-                                StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                                conversionMapping.setFromPosition(fromPosition);
-                                int[] toPosition = new int[2];
-                                toPosition[0] = j;
-                                toPosition[1] = i;
-                                conversionMapping.setToPosition(toPosition);
-                                conversionMappings.add(conversionMapping);
-                                i++;
-                            }
-                        } else if (attribute.getName().startsWith("count")){
-                            Attribute tempAttribute =
-                                    new Attribute(attribute.getName().replaceFirst("count",""), attribute.getType());
-                            if (!originalInputDefinition.getAttributeList().contains(tempAttribute)) {
-                                i++;
-                            } else {// TODO: 6/2/17 get this from composite
-                                int fromPosition = -1; //If from position is -1 in convertData method of SelectiveStreamEventConverter, set value to 1
-                                StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                                conversionMapping.setFromPosition(fromPosition);
-                                int[] toPosition = new int[2];
-                                toPosition[0] = j;
-                                toPosition[1] = i;
-                                conversionMapping.setToPosition(toPosition);
-                                conversionMappings.add(conversionMapping);
-                                i++;
-                            }
-                        } else {
-                            i++; // TODO: 6/1/17 include other else conditions for min, max, etc
-                        }
+                        i++;
                     } else {
-                            int fromPosition = originalInputDefinition.getAttributePosition(attribute.getName());
-                            StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter.ConversionMapping();
-                            conversionMapping.setFromPosition(fromPosition);
-                            int[] toPosition = new int[2];
-                            toPosition[0] = j;
-                            toPosition[1] = i;
-                            conversionMapping.setToPosition(toPosition);
-                            conversionMappings.add(conversionMapping);
-                            i++;
-                        }
-
+                        int fromPosition = originalInputDefinition.getAttributePosition(attribute.getName());
+                        StreamEventConverter.ConversionMapping conversionMapping = new StreamEventConverter
+                                .ConversionMapping();
+                        conversionMapping.setFromPosition(fromPosition);
+                        int[] toPosition = new int[2];
+                        toPosition[0] = j;
+                        toPosition[1] = i;
+                        conversionMapping.setToPosition(toPosition);
+                        conversionMappings.add(conversionMapping);
+                        i++;
+                    }
                 }
             }
         }

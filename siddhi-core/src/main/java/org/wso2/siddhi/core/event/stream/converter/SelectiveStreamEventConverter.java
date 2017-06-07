@@ -45,11 +45,7 @@ public class SelectiveStreamEventConverter implements StreamEventConverter, Seri
                     borrowedEvent.setBeforeWindowData(data[fromPosition], position[1]);
                     break;
                 case 1:
-                    if (fromPosition != -1) { // TODO: 5/23/17 ok to change this?
-                        borrowedEvent.setOnAfterWindowData(data[fromPosition], position[1]);
-                    } else {
-                        borrowedEvent.setOnAfterWindowData(1f, position[1]);
-                    }
+                    borrowedEvent.setOnAfterWindowData(data[fromPosition], position[1]);
                     break;
                 case 2:
                     borrowedEvent.setOutputData(data[fromPosition], position[1]);
@@ -76,8 +72,8 @@ public class SelectiveStreamEventConverter implements StreamEventConverter, Seri
     }
 
     @Override
-    public void convertData(long timestamp, Object[] data, StreamEvent borrowedEvent) {
-        convertData(timestamp, data, StreamEvent.Type.CURRENT, borrowedEvent);
+    public void convertData(long timeStamp, Object[] data, StreamEvent borrowedEvent) {
+        convertData(timeStamp, data, StreamEvent.Type.CURRENT, borrowedEvent);
     }
 
 }

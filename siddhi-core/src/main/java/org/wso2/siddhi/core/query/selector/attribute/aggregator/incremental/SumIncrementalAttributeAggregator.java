@@ -47,4 +47,13 @@ public class SumIncrementalAttributeAggregator implements CompositeAggregator {
         Expression sum = Expression.function("sum", Expression.variable(attributeName));
         return new Expression[]{sum};
     }
+
+    /*public static Expression getInternalExpression(String baseCategory) {
+        switch (baseCategory) {
+            case "sum":
+                return Expression.variable(attributeName);
+            default:
+                throw new Error("Only sum base aggregate is defined for sum aggregator");
+        }
+    }*/
 }

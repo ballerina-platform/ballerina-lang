@@ -1,18 +1,35 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-public class AvgIncrementalAttributeAggregator implements CompositeAggregator {
+
+public class CountIncrementalAttributeAggregator implements CompositeAggregator {
 
     private String attributeName;
     private Attribute.Type type;
 
 
-    public AvgIncrementalAttributeAggregator(AttributeFunction attributeFunction) {
+    public CountIncrementalAttributeAggregator(AttributeFunction attributeFunction) {
         if (attributeFunction.getParameters() == null || attributeFunction.getParameters().length != 1) {
             // TODO: 3/3/17 exception
         }
@@ -37,29 +54,25 @@ public class AvgIncrementalAttributeAggregator implements CompositeAggregator {
     }
 
     public Object aggregate(Object... results) {
-        if (results == null || results.length != 2) {
+        if (results == null || results.length != 1) {
             // TODO: 3/3/17 exception
         }
-        Double sum = (Double) results[0];
-        Double count = (Double) results[1];
-        return sum / count;
+        Double count = (Double) results[0];
+        return count;
     }
 
     public Expression[] getBaseAggregators() {
-        Expression sum = Expression.function("sum", Expression.variable("__SUM__".concat(attributeName)));
-        Expression count = Expression.function("sum", Expression.value(1d)); // TODO: 6/2/17  change to get double
-        return new Expression[]{sum, count};
+        Expression count = Expression.function("sum", Expression.value(1d));
+        return new Expression[]{count};
     }
 
     /*public static Expression getInternalExpression(String baseCategory) {
         switch (baseCategory) {
-            case "sum":
-                return Expression.variable("__SUM".concat(attributeName));
             case "count":
                 return Expression.value(1d);
             default:
-                throw new Error("Only sum and count base aggregates are defined for average aggregator");
+                throw new Error("Only count base aggregate is defined for count aggregator");
         }
-
     }*/
 }
+

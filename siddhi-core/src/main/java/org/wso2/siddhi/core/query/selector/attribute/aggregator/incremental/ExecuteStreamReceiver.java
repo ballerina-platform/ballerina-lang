@@ -31,6 +31,12 @@ import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.query.api.expression.AttributeFunction;
+import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.condition.In;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +61,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     protected boolean batchProcessingAllowed;
     private SiddhiDebugger siddhiDebugger;
     private String aggregatorName;
+    private Map<Attribute, Integer> mappingPositions;
 
     public ExecuteStreamReceiver(String streamId, LatencyTracker latencyTracker, String queryName) {
         this.streamId = streamId;
@@ -170,20 +177,104 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timestamp, Object[] data) {
-
+        // TODO: 6/2/17 change mapping mechanism
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
         streamEventConverter.convertData(timestamp, data, borrowedEvent);
+        //Only the groupBy attribute values and timestamp (if available) are mapped with converter.
+        //The base aggregate values must be taken from compositeAggregator.
+
+        List<Attribute> onAfterWindowData = metaStreamEvent.getOnAfterWindowData(); //get index of new attribute (from the map we pass here)
+
+        for (Map.Entry<Attribute, Integer> mapping: mappingPositions.entrySet()) {
+            int toPosition = onAfterWindowData.indexOf(mapping.getKey());
+            int fromPosition = mapping.getValue();
+            Object dataValue = data[fromPosition];
+            switch (dataValue.getClass().getTypeName()) {
+                case "java.lang.Integer":
+                    switch (onAfterWindowData.get(toPosition).getType()) {
+                        case INT:
+                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
+                            break;
+                        case LONG:
+                            borrowedEvent.setOnAfterWindowData(((Integer)dataValue).longValue(), toPosition);
+                            break;
+                        case FLOAT:
+                            borrowedEvent.setOnAfterWindowData(((Integer)dataValue).floatValue(), toPosition);
+                            break;
+                        case DOUBLE:
+                            borrowedEvent.setOnAfterWindowData(((Integer)dataValue).doubleValue(), toPosition);
+                            break;
+                        default:
+                            // TODO: 6/7/17 exception
+                    }
+                    break;
+                case "java.lang.Long":
+                    switch (onAfterWindowData.get(toPosition).getType()) {
+                        case INT:
+                            borrowedEvent.setOnAfterWindowData(((Long)dataValue).intValue(), toPosition);
+                            break;
+                        case LONG:
+                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
+                            break;
+                        case FLOAT:
+                            borrowedEvent.setOnAfterWindowData(((Long)dataValue).floatValue(), toPosition);
+                            break;
+                        case DOUBLE:
+                            borrowedEvent.setOnAfterWindowData(((Long)dataValue).doubleValue(), toPosition);
+                            break;
+                        default:
+                            // TODO: 6/7/17 exception
+                    }
+                    break;
+                case "java.lang.Float":
+                    switch (onAfterWindowData.get(toPosition).getType()) {
+                        case INT:
+                            borrowedEvent.setOnAfterWindowData(((Float)dataValue).intValue(), toPosition);
+                            break;
+                        case LONG:
+                            borrowedEvent.setOnAfterWindowData(((Float)dataValue).longValue(), toPosition);
+                            break;
+                        case FLOAT:
+                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
+                            break;
+                        case DOUBLE:
+                            borrowedEvent.setOnAfterWindowData(((Float)dataValue).doubleValue(), toPosition);
+                            break;
+                        default:
+                            // TODO: 6/7/17 exception
+                    }
+                    break;
+                case "java.lang.Double":
+                    switch (onAfterWindowData.get(toPosition).getType()) {
+                        case INT:
+                            borrowedEvent.setOnAfterWindowData(((Double)dataValue).intValue(), toPosition);
+                            break;
+                        case LONG:
+                            borrowedEvent.setOnAfterWindowData(((Double)dataValue).longValue(), toPosition);
+                            break;
+                        case FLOAT:
+                            borrowedEvent.setOnAfterWindowData(((Double)dataValue).floatValue(), toPosition);
+                            break;
+                        case DOUBLE:
+                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
+                            break;
+                        default:
+                            // TODO: 6/7/17 exception
+                    }
+                    break;
+                default:
+                    // TODO: 6/7/17 exception
+
+            }
+
+        }
+
+        //then put value to borrowedEvent using the map
+
         // Send to debugger
         if (siddhiDebugger != null) {
             siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, borrowedEvent);
         }
-//        ComplexEventChunk complexEventChunk = new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed);
-
-        /*Map temp = new HashMap();
-        for (IncrementalExecutor.ExpressionExecutorDetails expressionExecutor : ((IncrementalExecutor)next).basicExecutorDetails) {
-            temp.put(expressionExecutor.getExecutorName(), expressionExecutor.getExecutor().execute(complexEventChunk.getFirst()));
-        }
-        borrowedEvent.getOnAfterWindowData();*/
         execute(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed));
     }
 
@@ -227,5 +318,13 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     public void addStatefulProcessor(PreStateProcessor stateProcessor) {
         stateProcessors.add(stateProcessor);
         stateProcessorsSize = stateProcessors.size();
+    }
+
+    /*public void setCompositeAggregator(List<CompositeAggregator> compositeAggregator) {
+        this.compositeAggregator = compositeAggregator;
+    }*/
+
+    public void setMappingPositions(Map<Attribute, Integer> mappingPositions) {
+        this.mappingPositions = mappingPositions;
     }
 }

@@ -32,6 +32,7 @@ import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AvgIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CompositeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CountIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.GroupByKeyGeneratorForIncremental;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
@@ -60,6 +61,7 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
+import org.wso2.siddhi.query.api.expression.constant.Constant;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.*;
@@ -94,7 +96,7 @@ public class AggregationParser {
                     + "Hence, can't create the execution plan");
         }
 
-        List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
+        List<VariableExpressionExecutor> executors = new ArrayList<>();
         LatencyTracker latencyTracker = null;
         LockWrapper lockWrapper = null;
         AggregationRuntime aggregationRuntime;
@@ -106,6 +108,7 @@ public class AggregationParser {
             StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, executionPlanContext,
                     streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap, executors,
                     latencyTracker, false, aggregatorName);
+
 
             List<OutputAttribute> outputAttributes = definition.getSelector().getSelectionList(); // TODO: 3/15/17 null
                                                                                                   // checking ...
@@ -134,9 +137,11 @@ public class AggregationParser {
             // List of original attributes
             List<Attribute> currentAttributes = streamDefinitionMap.get(((SingleInputStream) inputStream).getStreamId())
                     .getAttributeList();
+            // List to hold original attribute, new attribute and position/expression variable.
+            List<Object[]> baseMappingHolder = new ArrayList<>(); // TODO: 6/7/17 don't send to createMetaAttributes
             // Make list of new attributes
             List<Attribute> newMetaAttributes = createMetaAttributes(functionsAttributes, currentAttributes,
-                    groupByVariable, newFunctionsAttributes, definition.getAggregateAttribute());
+                    groupByVariable, newFunctionsAttributes, definition.getAggregateAttribute(), baseMappingHolder);
 
             /*** Following is related to new MetaStreamEvent creation ***/
 
@@ -163,8 +168,9 @@ public class AggregationParser {
             /*******************************************/
 
             List<CompositeAggregator> compositeAggregators = createIncrementalAggregators(newFunctionsAttributes);
-            /*List<ExpressionExecutorDetails> basicExecutorDetails = basicFunctionExecutors(compositeAggregators, metaStreamEvent, 0, tableMap, executors,
-                    executionPlanContext, true, 0, aggregatorName);*/
+            Set<BaseExpressionDetails> baseAggregators = getBaseAggregators(compositeAggregators);
+
+            Map<Attribute, Integer> mappingPositions = setMappingPositionsForBaseValues(metaStreamEvent, currentAttributes, baseAggregators);
             ExpressionExecutor groupByExecutor = generateGroupByExecutor(groupByVariable, metaStreamEvent, 0, tableMap,
                     executors, executionPlanContext, 0, aggregatorName);
             ExpressionExecutor externalTimeStampExecutor = null;
@@ -181,18 +187,19 @@ public class AggregationParser {
 
             IncrementalExecutor child = build(incrementalDurations.get(incrementalDurations.size() - 1), null, metaStreamEvent, tableMap,
                     executionPlanContext, aggregatorName, compositeAggregators,
-                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator, executors);
+                    groupByExecutor, externalTimeStampExecutor, groupByKeyGenerator, executors, baseAggregators);
             IncrementalExecutor root;
             for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
                 root = build(incrementalDurations.get(i), child, metaStreamEvent, tableMap,
                         executionPlanContext, aggregatorName, compositeAggregators, groupByExecutor,
-                        externalTimeStampExecutor, groupByKeyGenerator, executors);
+                        externalTimeStampExecutor, groupByKeyGenerator, executors, baseAggregators);
                 child = root;
             }
 
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
             ExecuteStreamReceiver executeStreamReceiver = new ExecuteStreamReceiver(singleInputStream.getStreamId(),
                     latencyTracker, aggregatorName);
+            executeStreamReceiver.setMappingPositions(mappingPositions);
 
             aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime,
                     metaStreamEvent, executeStreamReceiver);
@@ -214,11 +221,12 @@ public class AggregationParser {
             IncrementalExecutor child, MetaComplexEvent metaEvent, Map<String, Table> tableMap,
             ExecutionPlanContext executionPlanContext, String aggregatorName, List<CompositeAggregator>compositeAggregators,
             ExpressionExecutor groupByExecutor, ExpressionExecutor externalTimeStampExecutor,
-            GroupByKeyGeneratorForIncremental groupByKeyGenerator, List<VariableExpressionExecutor> executors) {
+            GroupByKeyGeneratorForIncremental groupByKeyGenerator, List<VariableExpressionExecutor> executors,
+            Set<BaseExpressionDetails> baseAggregators) {
 
         //Each IncrementalExecutor needs its own basicExecutorDetails (since the aggregate must be independently
         // manipulated based on duration). Hence create basicExecutorDetails here.
-        List<ExpressionExecutorDetails> basicExecutorDetails = basicFunctionExecutors(compositeAggregators, metaEvent, 0, tableMap, executors,
+        List<ExpressionExecutorDetails> basicExecutorDetails = basicFunctionExecutors(baseAggregators, metaEvent, 0, tableMap, executors,
                 executionPlanContext, true, 0, aggregatorName);
 
         switch (duration) {
@@ -335,7 +343,8 @@ public class AggregationParser {
 
     private static List<Attribute> createMetaAttributes(List<AttributeFunction> functionsAttributes,
             List<Attribute> currentAttributes, Variable groupByVariable,
-            List<AttributeFunction> newFunctionsAttributes, Variable externalTimestamp) {
+            List<AttributeFunction> newFunctionsAttributes, Variable externalTimestamp,
+            List<Object[]> baseMappingHolder) {
 
         List<Attribute> newMetaAttributes = new ArrayList<>();
         String attributeName;
@@ -366,43 +375,99 @@ public class AggregationParser {
             }
             attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
 
+            //In base mapper..
+            //1. Position 1 holds original attribute
+            //2. Position 2 holds new attribute
+            //3. Position 3 is reserved to hold
+            //      corresponding position from input stream if the value is a variable in composite aggregator, or
+            //      Expression value as specified in composite aggregator
+            Object[] baseMapper;
             Attribute newAttribute;
             switch (attributeFunction.getName()) {
             case "avg":
-                newAttribute = new Attribute("sum".concat(attributeName),
-                        (Attribute.Type) currentAttributeNameType.get(attributeName));
+                //Update sum information
+                newAttribute = new Attribute("__SUM__".concat(attributeName),
+                        Attribute.Type.DOUBLE);
                 if (!newMetaAttributes.contains(newAttribute)) {
                     newMetaAttributes.add(newAttribute);
                 }
-
-                newAttribute = new Attribute("count".concat(attributeName),
+                /*baseMapper = new Object[3];
+                baseMapper[0] = new Attribute(attributeName,
                         (Attribute.Type) currentAttributeNameType.get(attributeName));
+                baseMapper[1] = newAttribute;
+                if (AvgIncrementalAttributeAggregator.getInternalExpression("sum") instanceof Variable) {
+                    baseMapper[2] = currentAttributes.indexOf(baseMapper[0]);
+                } else { //instance is a constant. // TODO: 6/7/17 should be check with if condition?
+                    baseMapper[2] = AvgIncrementalAttributeAggregator.getInternalExpression("sum");
+                }
+                if (!baseMappingHolder.contains(baseMapper)) {
+                    baseMappingHolder.add(baseMapper);
+                }*/
+                //Update count information
+                newAttribute = new Attribute("__COUNT__".concat(attributeName),
+                        Attribute.Type.DOUBLE); //Count is also Double since internally we add up the count
                 if (!newMetaAttributes.contains(newAttribute)) {
                     newMetaAttributes.add(newAttribute);
                 }
+                /*baseMapper = new Object[3];
+                baseMapper[0] = new Attribute(attributeName,
+                        (Attribute.Type) currentAttributeNameType.get(attributeName));
+                baseMapper[1] = newAttribute;
+                if (AvgIncrementalAttributeAggregator.getInternalExpression("count") instanceof Variable) {
+                    baseMapper[2] = currentAttributes.indexOf(baseMapper[0]);
+                } else { //instance is a constant.
+                    baseMapper[2] = AvgIncrementalAttributeAggregator.getInternalExpression("count");
+                }
+                if (!baseMappingHolder.contains(baseMapper)) {
+                    baseMappingHolder.add(baseMapper);
+                }*/
 
                 newFunctionsAttributes.add(new AttributeFunction(attributeFunction.getNamespace(),
                         attributeFunction.getName(), new Variable(attributeName))); //Since meta doesnt have price1, we need to get sumprice1, countprice1
                 break;
             case "sum":
-                newAttribute = new Attribute("sum".concat(attributeName),
-                        (Attribute.Type) currentAttributeNameType.get(attributeName));
+                newAttribute = new Attribute("__SUM__".concat(attributeName),
+                        Attribute.Type.DOUBLE);
                 if (!newMetaAttributes.contains(newAttribute)) {
                     newMetaAttributes.add(newAttribute);
                 }
+                /*baseMapper = new Object[3];
+                baseMapper[0] = new Attribute(attributeName,
+                        (Attribute.Type) currentAttributeNameType.get(attributeName));
+                baseMapper[1] = newAttribute;
+                if (SumIncrementalAttributeAggregator.getInternalExpression("sum") instanceof Variable) {
+                    baseMapper[2] = currentAttributes.indexOf(baseMapper[0]);
+                } else { //instance is a constant.
+                    baseMapper[2] = SumIncrementalAttributeAggregator.getInternalExpression("sum");
+                }
+                if (!baseMappingHolder.contains(baseMapper)) {
+                    baseMappingHolder.add(baseMapper);
+                }*/
 
                 newFunctionsAttributes.add(new AttributeFunction(attributeFunction.getNamespace(),
-                        attributeFunction.getName(), new Variable("sum".concat(attributeName))));
+                        attributeFunction.getName(), new Variable("__SUM__".concat(attributeName))));
                 break;
             case "count":
-                newAttribute = new Attribute("count".concat(attributeName),
-                        (Attribute.Type) currentAttributeNameType.get(attributeName));
+                newAttribute = new Attribute("__COUNT__".concat(attributeName),
+                        Attribute.Type.DOUBLE);
                 if (!newMetaAttributes.contains(newAttribute)) {
                     newMetaAttributes.add(newAttribute);
                 }
+                /*baseMapper = new Object[3];
+                baseMapper[0] = new Attribute(attributeName,
+                        (Attribute.Type) currentAttributeNameType.get(attributeName));
+                baseMapper[1] = newAttribute;
+                if (CountIncrementalAttributeAggregator.getInternalExpression("count") instanceof Variable) {
+                    baseMapper[2] = currentAttributes.indexOf(baseMapper[0]);
+                } else { //instance is a constant.
+                    baseMapper[2] = CountIncrementalAttributeAggregator.getInternalExpression("count");
+                }
+                if (!baseMappingHolder.contains(baseMapper)) {
+                    baseMappingHolder.add(baseMapper);
+                }*/
 
                 newFunctionsAttributes.add(new AttributeFunction(attributeFunction.getNamespace(),
-                        attributeFunction.getName(), new Variable("count".concat(attributeName))));
+                        attributeFunction.getName(), new Variable("__COUNT__".concat(attributeName))));
                 break;
             // TODO: 5/24/17 add other aggregates
             default:
@@ -439,6 +504,23 @@ public class AggregationParser {
         return compositeAggregators;
     }
 
+    /**
+     *
+     * @param compositeAggregators
+     * @return
+     */
+    private static Set<BaseExpressionDetails> getBaseAggregators(List<CompositeAggregator> compositeAggregators) {
+        Set<BaseExpressionDetails> baseAggregators = new HashSet<>();// TODO: 6/2/17 will have to change logic due to composite change
+        for(CompositeAggregator compositeAggregator : compositeAggregators){
+            Expression[] bases = compositeAggregator.getBaseAggregators();
+            for(Expression expression : bases){
+                BaseExpressionDetails baseExpressionDetails = new BaseExpressionDetails(expression, compositeAggregator.getAttributeName());
+                baseAggregators.add(baseExpressionDetails);
+            }
+        }
+        return baseAggregators;
+    }
+
     /***
      *
      * @param metaEvent
@@ -451,28 +533,20 @@ public class AggregationParser {
      * @param aggregatorName
      * @return
      */
-    private static List<AggregationParser.ExpressionExecutorDetails> basicFunctionExecutors(List<CompositeAggregator> compositeAggregators, MetaComplexEvent metaEvent,
+    private static List<AggregationParser.ExpressionExecutorDetails> basicFunctionExecutors(Set<BaseExpressionDetails> baseAggregators, MetaComplexEvent metaEvent,
                                                                                       int currentState, Map<String, Table> tableMap,
                                                                                       List<VariableExpressionExecutor> executorList,
                                                                                       ExecutionPlanContext executionPlanContext, boolean groupBy,
                                                                                       int defaultStreamEventIndex, String aggregatorName) {
-        Set<AggregationParser.BaseExpressionDetails> baseAggregators = new HashSet<>();
-        for(CompositeAggregator compositeAggregator : compositeAggregators){
-            Expression[] bases = compositeAggregator.getBaseAggregators();
-            for(Expression expression : bases){
-                AggregationParser.BaseExpressionDetails baseExpressionDetails = new BaseExpressionDetails(expression, compositeAggregator.getAttributeName());
-                baseAggregators.add(baseExpressionDetails);
-            }
-        }
 
-        List<AggregationParser.ExpressionExecutorDetails> baseFunctionExecutors = new ArrayList<>();
-        for (AggregationParser.BaseExpressionDetails baseAggregator : baseAggregators) {
+
+        List<ExpressionExecutorDetails> baseFunctionExecutors = new ArrayList<>();
+        for (BaseExpressionDetails baseAggregator : baseAggregators) {
 
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(baseAggregator.getBaseExpression(), metaEvent,
                     currentState, tableMap, executorList, executionPlanContext, groupBy,
                     defaultStreamEventIndex, aggregatorName);
-//            String executorUniqueKey = ((AttributeFunction) baseAggregator.getBaseExpression()).getName() + baseAggregator.getAttribute();
-            AggregationParser.ExpressionExecutorDetails executorDetails = new ExpressionExecutorDetails(expressionExecutor, baseAggregator.getAttribute()); // TODO: 5/25/17 we don't have to concat name again
+            ExpressionExecutorDetails executorDetails = new ExpressionExecutorDetails(expressionExecutor, baseAggregator.getAttribute()); // TODO: 5/25/17 we don't have to concat name again
             baseFunctionExecutors.add(executorDetails);
         }
         return baseFunctionExecutors;
@@ -480,11 +554,17 @@ public class AggregationParser {
 
     private static class BaseExpressionDetails {
         private Expression baseExpression;
-        private String attribute; // baseExpression will be evaluated against this attribute
+        private String attribute;
 
         public BaseExpressionDetails(Expression baseExpression, String attribute) {
             this.baseExpression = baseExpression;
-            this.attribute = ((Variable) ((AttributeFunction)baseExpression).getParameters()[0]).getAttributeName();
+            Expression internalExpression = ((AttributeFunction) baseExpression).getParameters()[0];
+            if (internalExpression instanceof Variable) {
+                this.attribute = ((Variable) internalExpression).getAttributeName();
+            } else {
+                //A constant value has been specified as internal expression
+                this.attribute = attribute.concat((internalExpression).toString());
+            }
         }
 
         public Expression getBaseExpression() {
@@ -587,5 +667,40 @@ public class AggregationParser {
                 currentState, tableMap, executorList, executionPlanContext, true,
                 defaultStreamEventIndex, queryName);
         return variableExpressionExecutor;
+    }
+
+    private static Map<Attribute, Integer> setMappingPositionsForBaseValues(MetaStreamEvent metaStreamEvent, List<Attribute>currentAttributes, Set<BaseExpressionDetails>baseAggregators){
+        Map<Attribute, Integer> mappingPositionOfMeta = new HashMap<>();
+        String regex = "__(.*?)__";
+        List<Attribute> attributeList = metaStreamEvent.getOnAfterWindowData();
+        List<String> originalAttributeNames = new ArrayList<>();
+        List<String> baseNames = new ArrayList<>();
+
+        //Create list of current attributes names
+        for (Attribute originalAttribute: currentAttributes) {
+            originalAttributeNames.add(originalAttribute.getName());
+        }
+
+        //Store base aggregator names in a list
+        for (BaseExpressionDetails baseAggregator:baseAggregators) {
+            baseNames.add(baseAggregator.getAttribute());
+        }
+
+        for (Attribute attribute: attributeList) {
+            //In new meta event, check for attributes which are not there in original input stream
+            // (i.e. find attributes with name changes)
+            if (!currentAttributes.contains(attribute)) {
+                //Check whether a base aggregator with same name appears.
+                //If it does, that means the value for that meta attribute must be taken from input stream
+                //Otherwise, an Expression value is already defined for the base aggregation. Hence,
+                // no need to map from input data.
+                if (baseNames.contains(attribute.getName())) {
+                    //Specify from which position in input stream, we must map data to meta
+                    int position = originalAttributeNames.indexOf(attribute.getName().replaceFirst(regex, ""));
+                    mappingPositionOfMeta.put(attribute, position);
+                }
+            }
+        }
+        return mappingPositionOfMeta;
     }
 }
