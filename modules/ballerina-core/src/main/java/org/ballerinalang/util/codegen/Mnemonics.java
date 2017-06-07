@@ -47,45 +47,53 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FLOAD] = "fload";
         mnemonics[InstructionCodes.SLOAD] = "sload";
         mnemonics[InstructionCodes.BLOAD] = "bload";
+        mnemonics[InstructionCodes.LLOAD] = "lload";
         mnemonics[InstructionCodes.RLOAD] = "rload";
         mnemonics[InstructionCodes.IALOAD] = "iaload";
         mnemonics[InstructionCodes.FALOAD] = "faload";
         mnemonics[InstructionCodes.SALOAD] = "saload";
         mnemonics[InstructionCodes.BALOAD] = "baload";
+        mnemonics[InstructionCodes.LALOAD] = "laload";
         mnemonics[InstructionCodes.RALOAD] = "raload";
         mnemonics[InstructionCodes.JSONALOAD] = "jsonaload";
         mnemonics[InstructionCodes.IGLOAD] = "igload";
         mnemonics[InstructionCodes.FGLOAD] = "fgload";
         mnemonics[InstructionCodes.SGLOAD] = "sgload";
         mnemonics[InstructionCodes.BGLOAD] = "bgload";
+        mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
         mnemonics[InstructionCodes.ISTORE] = "istore";
         mnemonics[InstructionCodes.FSTORE] = "fstore";
         mnemonics[InstructionCodes.SSTORE] = "sstore";
         mnemonics[InstructionCodes.BSTORE] = "bstore";
+        mnemonics[InstructionCodes.LSTORE] = "lstore";
         mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
         mnemonics[InstructionCodes.SASTORE] = "sastore";
         mnemonics[InstructionCodes.BASTORE] = "bastore";
+        mnemonics[InstructionCodes.LASTORE] = "lastore";
         mnemonics[InstructionCodes.RASTORE] = "rastore";
         mnemonics[InstructionCodes.JSONASTORE] = "jsonastore";
         mnemonics[InstructionCodes.IGSTORE] = "igstore";
         mnemonics[InstructionCodes.FGSTORE] = "fgstore";
         mnemonics[InstructionCodes.SGSTORE] = "sgstore";
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
+        mnemonics[InstructionCodes.LGSTORE] = "lgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
         mnemonics[InstructionCodes.IFIELDLOAD] = "ifieldload";
         mnemonics[InstructionCodes.FFIELDLOAD] = "ffieldload";
         mnemonics[InstructionCodes.SFIELDLOAD] = "sfieldload";
         mnemonics[InstructionCodes.BFIELDLOAD] = "bfieldload";
+        mnemonics[InstructionCodes.LFIELDLOAD] = "lfieldload";
         mnemonics[InstructionCodes.RFIELDLOAD] = "rfieldload";
         mnemonics[InstructionCodes.IFIELDSTORE] = "ifieldstore";
         mnemonics[InstructionCodes.FFIELDSTORE] = "ffieldstore";
         mnemonics[InstructionCodes.SFIELDSTORE] = "sfieldstore";
         mnemonics[InstructionCodes.BFIELDSTORE] = "bfieldstore";
+        mnemonics[InstructionCodes.LFIELDSTORE] = "lfieldstore";
         mnemonics[InstructionCodes.RFIELDSTORE] = "rfieldstore";
 
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
@@ -164,6 +172,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.B2S] = "b2s";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
         mnemonics[InstructionCodes.B2JSON] = "b2json";
+        mnemonics[InstructionCodes.L2ANY] = "l2any";
         mnemonics[InstructionCodes.JSON2I] = "json2i";
         mnemonics[InstructionCodes.JSON2F] = "json2f";
         mnemonics[InstructionCodes.JSON2S] = "json2s";
@@ -174,6 +183,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2F] = "any2f";
         mnemonics[InstructionCodes.ANY2S] = "any2s";
         mnemonics[InstructionCodes.ANY2B] = "any2b";
+        mnemonics[InstructionCodes.ANY2L] = "any2l";
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
@@ -187,6 +197,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
+        mnemonics[InstructionCodes.LNEWARRAY] = "lnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
         mnemonics[InstructionCodes.JSONNEWARRAY] = "jsonnewarray";
         mnemonics[InstructionCodes.ARRAYLEN] = "arraylength";
