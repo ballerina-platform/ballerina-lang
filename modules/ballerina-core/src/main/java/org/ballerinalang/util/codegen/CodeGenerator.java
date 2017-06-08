@@ -133,7 +133,6 @@ import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
@@ -160,25 +159,26 @@ public class CodeGenerator implements NodeVisitor {
     private static final int FLOAT_OFFSET = 1;
     private static final int STRING_OFFSET = 2;
     private static final int BOOL_OFFSET = 3;
-    private static final int REF_OFFSET = 4;
+    private static final int BLOB_OFFSET = 4;
+    private static final int REF_OFFSET = 5;
 
-    private int[] maxRegIndexes = {-1, -1, -1, -1, -1};
+    private int[] maxRegIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current local variable index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] lvIndexes = {-1, -1, -1, -1, -1};
+    private int[] lvIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current register index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] regIndexes = {-1, -1, -1, -1, -1};
+    private int[] regIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current register index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] fieldIndexes = {-1, -1, -1, -1, -1};
+    private int[] fieldIndexes = {-1, -1, -1, -1, -1, -1};
 
     // Package level variable indexes. This includes package constants, package level variables and
     //  service level variables
-    private int[] gvIndexes = {-1, -1, -1, -1, -1};
+    private int[] gvIndexes = {-1, -1, -1, -1, -1, -1};
 
     private ProgramFile programFile = new ProgramFile();
     private String currentPkgPath;
@@ -817,23 +817,37 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ReturnStmt returnStmt) {
         int[] regIndexes;
         if (returnStmt.getExprs().length == 1 &&
-                returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr) {
+                returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr &&
+                !(returnStmt.getExprs()[0] instanceof TypeCastExpression
+                        || returnStmt.getExprs()[0] instanceof TypeConversionExpr)) {
             ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) returnStmt.getExprs()[0];
             returnStmt.getExprs()[0].accept(this);
             regIndexes = multiReturnExpr.getOffsets();
-
+            BType[] retTypes = multiReturnExpr.getTypes();
+            for (int i = 0; i < regIndexes.length; i++) {
+                // 1: return value position; 2:callee's value index;
+                emit(new Instruction(getOpcode(retTypes[i].getTag(), InstructionCodes.IRET), i, regIndexes[i]));
+            }
         } else {
             regIndexes = new int[returnStmt.getExprs().length];
             for (int i = 0; i < returnStmt.getExprs().length; i++) {
                 Expression expr = returnStmt.getExprs()[i];
                 expr.accept(this);
                 regIndexes[i] = expr.getTempOffset();
+                emit(new Instruction(getOpcode(expr.getType().getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         }
-
-        FunctionReturnCPEntry funcRetCPEntry = new FunctionReturnCPEntry(regIndexes);
-        int funcRetCPEntryIndex = currentPkgInfo.addCPEntry(funcRetCPEntry);
-        emit(InstructionCodes.RET, funcRetCPEntryIndex);
+        if (finallyBlocks.size() > 0) {
+            resetIndexes(this.regIndexes);
+            Stack<TryCatchStmt.FinallyBlock> original = (Stack<TryCatchStmt.FinallyBlock>) finallyBlocks.clone();
+            while (!finallyBlocks.empty()) {
+                TryCatchStmt.FinallyBlock finallyBlock = finallyBlocks.pop();
+                finallyBlock.getFinallyBlockStmt().accept(this);
+            }
+            // restore.
+            finallyBlocks = original;
+        }
+        emit(InstructionCodes.RET);
     }
 
     @Override
@@ -867,6 +881,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        resetIndexes(regIndexes);
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
         if (tryCatchStmt.getFinallyBlock() != null) {
             finallyBlocks.push(tryCatchStmt.getFinallyBlock());
@@ -1420,11 +1435,14 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ArrayInitExpr arrayInitExpr) {
         BType elementType = ((BArrayType) arrayInitExpr.getType()).getElementType();
 
+        TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(arrayInitExpr.getType().getSig()));
+        int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
+
         // Emit create array instruction
         int opcode = getOpcode(elementType.getTag(), InstructionCodes.INEWARRAY);
         int arrayVarRegIndex = ++regIndexes[REF_OFFSET];
         arrayInitExpr.setTempOffset(arrayVarRegIndex);
-        emit(opcode, arrayVarRegIndex);
+        emit(opcode, arrayVarRegIndex, typeCPindex);
 
         // Emit instructions populate initial array values;
         Expression[] argExprs = arrayInitExpr.getArgExprs();
@@ -1911,12 +1929,14 @@ public class CodeGenerator implements NodeVisitor {
         codeAttributeInfo.setMaxDoubleLocalVars(lvIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringLocalVars(lvIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntLocalVars(lvIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxByteLocalVars(lvIndexes[BLOB_OFFSET] + 1);
         codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
 
         codeAttributeInfo.setMaxLongRegs(maxRegIndexes[INT_OFFSET] + 1);
         codeAttributeInfo.setMaxDoubleRegs(maxRegIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringRegs(maxRegIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntRegs(maxRegIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxByteRegs(maxRegIndexes[BLOB_OFFSET] + 1);
         codeAttributeInfo.setMaxBValueRegs(maxRegIndexes[REF_OFFSET] + 1);
 
         resetIndexes(lvIndexes);
@@ -1956,6 +1976,10 @@ public class CodeGenerator implements NodeVisitor {
                 opcode = baseOpcode + BOOL_OFFSET;
                 index = ++indexes[BOOL_OFFSET];
                 break;
+            case TypeTags.BLOB_TAG:
+                opcode = baseOpcode + BLOB_OFFSET;
+                index = ++indexes[BLOB_OFFSET];
+                break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
                 index = ++indexes[REF_OFFSET];
@@ -1983,6 +2007,9 @@ public class CodeGenerator implements NodeVisitor {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 opcode = baseOpcode + BOOL_OFFSET;
+                break;
+            case TypeTags.BLOB_TAG:
+                opcode = baseOpcode + BLOB_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -2123,6 +2150,8 @@ public class CodeGenerator implements NodeVisitor {
                 return BTypes.typeString;
             case TypeSignature.SIG_BOOLEAN:
                 return BTypes.typeBoolean;
+            case TypeSignature.SIG_BLOB:
+                return BTypes.typeBlob;
             case TypeSignature.SIG_REFTYPE:
                 return BTypes.getTypeFromName(typeSig.getName());
             case TypeSignature.SIG_ANY:

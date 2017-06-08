@@ -237,12 +237,12 @@ function testJsonArrayToStruct() (Person) {
 }
 
 struct Info {
-    xml name;
+    message msg;
 }
 
-function testStructWithXmlToJson() (json) {
-    xml x= `<name>Supun</name>`;
-    Info info = {name: x};
+function testStructWithMessageToJson() (json) {
+    message m = {};
+    Info info = {msg: m};
     json j = <json> info;
     return j; 
 }

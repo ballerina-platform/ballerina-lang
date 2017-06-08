@@ -1836,6 +1836,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.typeString) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
+        }  else if (arithmeticExprType == BTypes.typeXML) {
+            addExpr.setEvalFunc(AddExpression.ADD_XML_FUNC);
+
         } else {
             throwInvalidBinaryOpError(addExpr);
         }
@@ -2326,7 +2329,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpr.setEvalFunc(newEdge.getTypeMapperFunction());
 
             if (!isMultiReturn) {
-                typeCastExpr.setTypes(new BType[] { targetType });
+                typeCastExpr.setTypes(new BType[]{targetType});
+                return;
+            }
+
+        } else if (sourceType == targetType) {
+            typeCastExpr.setOpcode(InstructionCodes.NOP);
+            // TODO Remove this once the interpreter is removed.
+            typeCastExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
+            if (!isMultiReturn) {
+                typeCastExpr.setTypes(new BType[]{targetType});
                 return;
             }
 
@@ -3755,18 +3767,39 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // 3) If both types are not array types, unsafe cast is not possible now.
-        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType targetArrayType = (BArrayType) targetType;
-            BArrayType sourceArrayType = (BArrayType) sourceType;
-
-            if (sourceArrayType.getDimensions() < targetArrayType.getDimensions()) {
-                return false;
-            }
-
-            return checkUnsafeCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
+        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            return isUnsafeArrayCastPossible(sourceType, targetType);
         }
 
         return false;
+    }
+
+    private boolean isUnsafeArrayCastPossible(BType sourceType, BType targetType) {
+        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType sourceArrayType = (BArrayType) sourceType;
+            BArrayType targetArrayType = (BArrayType) targetType;
+            return isUnsafeArrayCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
+
+        } else if (targetType.getTag() == TypeTags.ARRAY_TAG) {
+            // If only the target type is an array type, then the source type must be of type 'any'
+            return sourceType == BTypes.typeAny;
+
+        } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            // If only the source type is an array type, then the target type must be of type 'any'
+            return targetType == BTypes.typeAny;
+        }
+
+        // Now both types are not array types
+        if (sourceType == targetType) {
+            return true;
+        }
+
+        // In this case, target type should be of type 'any' and the source type cannot be a value type
+        if (targetType == BTypes.typeAny && !BTypes.isValueType(sourceType)) {
+            return true;
+        }
+
+        return !BTypes.isValueType(targetType) && sourceType == BTypes.typeAny;
     }
 
     private AssignabilityResult performAssignabilityCheck(BType lhsType, Expression rhsExpr) {
@@ -3815,18 +3848,37 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // 2) Check whether both types are array types
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType lhrArrayType = (BArrayType) lhsType;
-            BArrayType rhsArrayType = (BArrayType) rhsType;
-
-            if (rhsArrayType.getDimensions() < lhrArrayType.getDimensions()) {
-                return false;
-            }
-
-            return isImplicitiCastPossible(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            return isImplicitArrayCastPossible(lhsType, rhsType);
         }
 
         return false;
+    }
+
+    private boolean isImplicitArrayCastPossible(BType lhsType, BType rhsType) {
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) lhsType;
+            BArrayType rhsArrayType = (BArrayType) rhsType;
+            return isImplicitArrayCastPossible(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+
+        } else if (rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            // Only the right-hand side is an array type
+            // Then lhs type should 'any' type
+            return lhsType == BTypes.typeAny;
+
+        } else if (lhsType.getTag() == TypeTags.ARRAY_TAG) {
+            // Only the left-hand side is an array type
+            return false;
+        }
+
+        // Now both types are not array types
+        if (lhsType == rhsType) {
+            return true;
+        }
+
+        // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
+        return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {

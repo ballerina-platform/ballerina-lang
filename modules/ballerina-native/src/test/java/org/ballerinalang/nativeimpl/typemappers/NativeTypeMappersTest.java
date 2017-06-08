@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -41,7 +42,7 @@ public class NativeTypeMappersTest {
 
     @Test
     public void testXMLToJSON() {
-        BValue[] args = {new BXML("<name>chanaka</name>")};
+        BValue[] args = {new BXMLItem("<name>chanaka</name>")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "xmltojson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
@@ -71,15 +72,6 @@ public class NativeTypeMappersTest {
         BValue[] args = {new BString("<name>chanaka</name>")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringtoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<name>chanaka</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testXMLToString() {
-        BValue[] args = {new BXML("<name>chanaka</name>")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "xmltostring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }

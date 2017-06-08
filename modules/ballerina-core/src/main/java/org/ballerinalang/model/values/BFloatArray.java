@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
@@ -26,6 +27,8 @@ import java.util.Arrays;
  * @since 0.87
  */
 public class BFloatArray extends BNewArray {
+
+    private static BType arrayType = new BArrayType(BTypes.typeFloat);
 
     private double[] values;
 
@@ -45,7 +48,7 @@ public class BFloatArray extends BNewArray {
 
     @Override
     public BType getType() {
-        return BTypes.typeFloat;
+        return arrayType;
     }
 
     @Override

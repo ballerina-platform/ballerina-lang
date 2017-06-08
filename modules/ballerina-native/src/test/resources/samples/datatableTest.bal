@@ -106,7 +106,7 @@ function getByName()(string, string, int, int, int) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
-    string blob;
+    string blobValue;
     string clob;
     int time;
     int date;
@@ -115,7 +115,7 @@ function getByName()(string, string, int, int, int) {
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
                 from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
-        blob = datatables:getStringWithType(df, "blob_type", "blob");
+        blobValue = datatables:getStringWithType(df, "blob_type", "blob");
         clob = datatables:getStringWithType(df, "clob_type", "clob");
         time = datatables:getIntWithType(df, "time_type", "time");
         date = datatables:getIntWithType(df, "date_type", "date");
@@ -123,7 +123,7 @@ function getByName()(string, string, int, int, int) {
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp;
+    return blobValue, clob, time, date, timestamp;
 }
 
 function getByIndex()(string, string, int, int, int, string) {
@@ -132,7 +132,7 @@ function getByIndex()(string, string, int, int, int, string) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
-    string blob;
+    string blobValue;
     string clob;
     int time;
     int date;
@@ -144,7 +144,7 @@ function getByIndex()(string, string, int, int, int, string) {
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
             binary_type from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
-        blob = datatables:getStringWithType(df, 1, "blob");
+        blobValue = datatables:getStringWithType(df, 1, "blob");
         clob = datatables:getStringWithType(df, 2, "clob");
         time = datatables:getIntWithType(df, 3, "time");
         date = datatables:getIntWithType(df, 4, "date");
@@ -153,7 +153,7 @@ function getByIndex()(string, string, int, int, int, string) {
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp, binary;
+    return blobValue, clob, time, date, timestamp, binary;
 }
 
 function getObjectAsStringByIndex()(string, string, string, string, string, string ) {
@@ -162,7 +162,7 @@ function getObjectAsStringByIndex()(string, string, string, string, string, stri
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
-    string blob;
+    string blobValue;
     string clob;
     string time;
     string date;
@@ -172,7 +172,7 @@ function getObjectAsStringByIndex()(string, string, string, string, string, stri
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
                 datetime_type from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
-        blob = datatables:getValueAsString(df, 1);
+        blobValue = datatables:getValueAsString(df, 1);
         clob = datatables:getValueAsString(df, 2);
         time = datatables:getValueAsString(df, 3);
         date = datatables:getValueAsString(df, 4);
@@ -181,7 +181,7 @@ function getObjectAsStringByIndex()(string, string, string, string, string, stri
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp, datetime;
+    return blobValue, clob, time, date, timestamp, datetime;
 }
 
 function getObjectAsStringByName()(string, string, string, string, string, string) {
@@ -190,7 +190,7 @@ function getObjectAsStringByName()(string, string, string, string, string, strin
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
-    string blob;
+    string blobValue;
     string clob;
     string time;
     string date;
@@ -200,7 +200,7 @@ function getObjectAsStringByName()(string, string, string, string, string, strin
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
                 datetime_type from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
-        blob = datatables:getValueAsString(df, "blob_type");
+        blobValue = datatables:getValueAsString(df, "blob_type");
         clob = datatables:getValueAsString(df, "clob_type");
         time = datatables:getValueAsString(df, "time_type");
         date = datatables:getValueAsString(df, "date_type");
@@ -209,7 +209,7 @@ function getObjectAsStringByName()(string, string, string, string, string, strin
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp, datetime;
+    return blobValue, clob, time, date, timestamp, datetime;
 }
 
 

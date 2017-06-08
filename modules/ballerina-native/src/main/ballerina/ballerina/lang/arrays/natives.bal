@@ -8,7 +8,7 @@ import ballerina.doc;
 @doc:Param { value:"from: The initial index of the range" }
 @doc:Param { value:"to: The final index of the range" }
 @doc:Return { value:"int: Number of elements copied" }
-native function copyOfRange (any[] anyArrayFrom, any[] anyArrayTo, int from, int to) (int);
+native function copyOfRange (any anyArrayFrom, any anyArrayTo, int from, int to) (int);
 
 @doc:Description { value:"Sorts the specified string array "}
 @doc:Param { value:"arr: The string array to be sorted" }
@@ -19,4 +19,4 @@ native function sort (string[] arr) (string[]);
 @doc:Param { value:"anyArrayFrom: The from array to be copied" }
 @doc:Param { value:"anyArrayTo: The to array to which to copy to" }
 @doc:Return { value:"int: Number of elements copied" }
-native function copyOf (any[] anyArrayFrom, any[] anyArrayTo) (int);
+native function copyOf (any anyArrayFrom, any anyArrayTo) (int);
