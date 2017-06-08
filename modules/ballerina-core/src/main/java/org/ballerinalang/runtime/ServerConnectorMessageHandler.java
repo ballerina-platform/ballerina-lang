@@ -129,6 +129,7 @@ public class ServerConnectorMessageHandler {
         controlStackNew.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
+        context.setStartIP(codeAttribInfo.getCodeAddrs());
 
         String[] stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
         int[] intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
@@ -142,27 +143,29 @@ public class ServerConnectorMessageHandler {
         int longParamCount = 0;
         String[] paramNameArray = resourceInfo.getParamNames();
         BType[] bTypes = resourceInfo.getParamTypes();
-        Map<String, String> resourceArgumentValues =
-                (Map<String, String>) carbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
+        if (carbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS) != null) {
+            Map<String, String> resourceArgumentValues =
+                    (Map<String, String>) carbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
 
-        for (int i = 0; i < paramNameArray.length; i++) {
-            BType btype = bTypes[i];
-            String value = resourceArgumentValues.get(paramNameArray[i]);
+            for (int i = 0; i < paramNameArray.length; i++) {
+                BType btype = bTypes[i];
+                String value = resourceArgumentValues.get(paramNameArray[i]);
 
-            if (value == null) {
-                continue;
-            }
+                if (value == null) {
+                    continue;
+                }
 
-            if (btype == BTypes.typeString) {
-                stringLocalVars[stringParamCount++] = value;
-            } else if (btype == BTypes.typeInt) {
-                intLocalVars[intParamCount++] = Integer.getInteger(value);
-            } else if (btype == BTypes.typeFloat) {
-                doubleLocalVars[doubleParamCount++] = new Double(value);
-            } else if (btype == BTypes.typeInt) {
-                longLocalVars[longParamCount++] = Long.getLong(value);
-            } else {
-                throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                if (btype == BTypes.typeString) {
+                    stringLocalVars[stringParamCount++] = value;
+                } else if (btype == BTypes.typeInt) {
+                    intLocalVars[intParamCount++] = Integer.getInteger(value);
+                } else if (btype == BTypes.typeFloat) {
+                    doubleLocalVars[doubleParamCount++] = new Double(value);
+                } else if (btype == BTypes.typeInt) {
+                    longLocalVars[longParamCount++] = Long.getLong(value);
+                } else {
+                    throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                }
             }
         }
 
@@ -175,7 +178,7 @@ public class ServerConnectorMessageHandler {
         calleeSF.setRefLocalVars(refLocalVars);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
-        bLangVM.execFunction(packageInfo, context, codeAttribInfo.getCodeAddrs());
+        bLangVM.run(context);
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {

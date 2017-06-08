@@ -47,45 +47,53 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FLOAD] = "fload";
         mnemonics[InstructionCodes.SLOAD] = "sload";
         mnemonics[InstructionCodes.BLOAD] = "bload";
+        mnemonics[InstructionCodes.LLOAD] = "lload";
         mnemonics[InstructionCodes.RLOAD] = "rload";
         mnemonics[InstructionCodes.IALOAD] = "iaload";
         mnemonics[InstructionCodes.FALOAD] = "faload";
         mnemonics[InstructionCodes.SALOAD] = "saload";
         mnemonics[InstructionCodes.BALOAD] = "baload";
+        mnemonics[InstructionCodes.LALOAD] = "laload";
         mnemonics[InstructionCodes.RALOAD] = "raload";
         mnemonics[InstructionCodes.JSONALOAD] = "jsonaload";
         mnemonics[InstructionCodes.IGLOAD] = "igload";
         mnemonics[InstructionCodes.FGLOAD] = "fgload";
         mnemonics[InstructionCodes.SGLOAD] = "sgload";
         mnemonics[InstructionCodes.BGLOAD] = "bgload";
+        mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
         mnemonics[InstructionCodes.ISTORE] = "istore";
         mnemonics[InstructionCodes.FSTORE] = "fstore";
         mnemonics[InstructionCodes.SSTORE] = "sstore";
         mnemonics[InstructionCodes.BSTORE] = "bstore";
+        mnemonics[InstructionCodes.LSTORE] = "lstore";
         mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.FASTORE] = "fastore";
         mnemonics[InstructionCodes.SASTORE] = "sastore";
         mnemonics[InstructionCodes.BASTORE] = "bastore";
+        mnemonics[InstructionCodes.LASTORE] = "lastore";
         mnemonics[InstructionCodes.RASTORE] = "rastore";
         mnemonics[InstructionCodes.JSONASTORE] = "jsonastore";
         mnemonics[InstructionCodes.IGSTORE] = "igstore";
         mnemonics[InstructionCodes.FGSTORE] = "fgstore";
         mnemonics[InstructionCodes.SGSTORE] = "sgstore";
         mnemonics[InstructionCodes.BGSTORE] = "bgstore";
+        mnemonics[InstructionCodes.LGSTORE] = "lgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
         mnemonics[InstructionCodes.IFIELDLOAD] = "ifieldload";
         mnemonics[InstructionCodes.FFIELDLOAD] = "ffieldload";
         mnemonics[InstructionCodes.SFIELDLOAD] = "sfieldload";
         mnemonics[InstructionCodes.BFIELDLOAD] = "bfieldload";
+        mnemonics[InstructionCodes.LFIELDLOAD] = "lfieldload";
         mnemonics[InstructionCodes.RFIELDLOAD] = "rfieldload";
         mnemonics[InstructionCodes.IFIELDSTORE] = "ifieldstore";
         mnemonics[InstructionCodes.FFIELDSTORE] = "ffieldstore";
         mnemonics[InstructionCodes.SFIELDSTORE] = "sfieldstore";
         mnemonics[InstructionCodes.BFIELDSTORE] = "bfieldstore";
+        mnemonics[InstructionCodes.LFIELDSTORE] = "lfieldstore";
         mnemonics[InstructionCodes.RFIELDSTORE] = "rfieldstore";
 
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
@@ -96,6 +104,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
+        mnemonics[InstructionCodes.XMLADD] = "radd";
+        
         mnemonics[InstructionCodes.ISUB] = "isub";
         mnemonics[InstructionCodes.FSUB] = "fsub";
         mnemonics[InstructionCodes.SADD] = "sadd";
@@ -107,26 +117,38 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FMOD] = "fmod";
         mnemonics[InstructionCodes.INEG] = "ineg";
         mnemonics[InstructionCodes.FNEG] = "fneg";
-        mnemonics[InstructionCodes.NOT] = "not";
+        mnemonics[InstructionCodes.BNOT] = "bnot";
 
-        mnemonics[InstructionCodes.ICMP] = "icmp";
-        mnemonics[InstructionCodes.FCMP] = "fcmp";
-        mnemonics[InstructionCodes.SCMP] = "scmp";
-        mnemonics[InstructionCodes.BCMP] = "bcmp";
-        mnemonics[InstructionCodes.IFEQ] = "ifeq";
-        mnemonics[InstructionCodes.IFNE] = "ifne";
-        mnemonics[InstructionCodes.IFLT] = "iflt";
-        mnemonics[InstructionCodes.IFGE] = "ifge";
-        mnemonics[InstructionCodes.IFGT] = "ifgt";
-        mnemonics[InstructionCodes.IFLE] = "ifle";
+        mnemonics[InstructionCodes.IEQ] = "ieq";
+        mnemonics[InstructionCodes.FEQ] = "feq";
+        mnemonics[InstructionCodes.SEQ] = "seq";
+        mnemonics[InstructionCodes.BEQ] = "beq";
+        mnemonics[InstructionCodes.REQ] = "req";
+        mnemonics[InstructionCodes.INE] = "ine";
+        mnemonics[InstructionCodes.FNE] = "fne";
+        mnemonics[InstructionCodes.SNE] = "sne";
+        mnemonics[InstructionCodes.BNE] = "bne";
+        mnemonics[InstructionCodes.RNE] = "rne";
+
+        mnemonics[InstructionCodes.IGT] = "igt";
+        mnemonics[InstructionCodes.FGT] = "fgt";
+        mnemonics[InstructionCodes.IGE] = "ige";
+        mnemonics[InstructionCodes.FGE] = "fge";
+        mnemonics[InstructionCodes.ILT] = "ilt";
+        mnemonics[InstructionCodes.FLT] = "flt";
+        mnemonics[InstructionCodes.ILE] = "ile";
+        mnemonics[InstructionCodes.FLE] = "fle";
+        
+        mnemonics[InstructionCodes.REQ_NULL] = "reg_null";
+        mnemonics[InstructionCodes.RNE_NULL] = "rne_null";
+        mnemonics[InstructionCodes.BR_TRUE] = "br_true";
+        mnemonics[InstructionCodes.BR_FALSE] = "br_false";
 
         mnemonics[InstructionCodes.GOTO] = "goto";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
         mnemonics[InstructionCodes.NACALL] = "nacall";
-        mnemonics[InstructionCodes.RET] = "ret";
-        mnemonics[InstructionCodes.REP] = "rep";
         mnemonics[InstructionCodes.THROW] = "throw";
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
 
@@ -150,6 +172,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.B2S] = "b2s";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
         mnemonics[InstructionCodes.B2JSON] = "b2json";
+        mnemonics[InstructionCodes.L2ANY] = "l2any";
         mnemonics[InstructionCodes.JSON2I] = "json2i";
         mnemonics[InstructionCodes.JSON2F] = "json2f";
         mnemonics[InstructionCodes.JSON2S] = "json2s";
@@ -160,16 +183,21 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2F] = "any2f";
         mnemonics[InstructionCodes.ANY2S] = "any2s";
         mnemonics[InstructionCodes.ANY2B] = "any2b";
+        mnemonics[InstructionCodes.ANY2L] = "any2l";
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
 
+        mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
+        mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";
+
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
+        mnemonics[InstructionCodes.LNEWARRAY] = "lnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
         mnemonics[InstructionCodes.JSONNEWARRAY] = "jsonnewarray";
         mnemonics[InstructionCodes.ARRAYLEN] = "arraylength";
@@ -180,6 +208,16 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWMESSAGE] = "newmessage";
         mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
+
+
+        mnemonics[InstructionCodes.REP] = "rep";
+        mnemonics[InstructionCodes.IRET] = "iret";
+        mnemonics[InstructionCodes.FRET] = "fret";
+        mnemonics[InstructionCodes.SRET] = "sret";
+        mnemonics[InstructionCodes.BRET] = "bret";
+        mnemonics[InstructionCodes.LRET] = "lret";
+        mnemonics[InstructionCodes.RRET] = "rret";
+        mnemonics[InstructionCodes.RET] = "ret";
     }
 
     public static String getMnem(int opcode) {

@@ -38,7 +38,7 @@ public class BNullValueTest   {
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/values/null/null-value.bal");
-//        programFile = BTestUtils.getProgramFile("lang/values/null/null-value.bal");
+        programFile = BTestUtils.getProgramFile("lang/values/null/null-value.bal");
     }
 
     @Test(description = "Test null value of a xml")
@@ -61,6 +61,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a struct")
     public void testStructNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testStructNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testStructNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(7));
@@ -69,6 +70,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a connector")
     public void testConnectorNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testConnectorNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testConnectorNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(8));
@@ -77,6 +79,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a array")
     public void testArrayNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testArrayNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testArrayNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(9));
@@ -85,6 +88,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a map")
     public void testMapNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testMapNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testMapNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(10));
@@ -103,6 +107,7 @@ public class BNullValueTest   {
     @Test(description = "Test passing null to a function expects a reference type")
     public void testFunctionCallWithNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testFunctionCallWithNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testFunctionCallWithNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
     
@@ -148,10 +153,10 @@ public class BNullValueTest   {
     public void testMapOfNulls() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testMapOfNulls", new BValue[] {});
         BMap<BString, ?> nullMap = (BMap<BString, ?>) vals[0];
-        Assert.assertTrue(nullMap.get(new BString("x1")) instanceof BXML);
+        Assert.assertTrue(nullMap.get(new BString("x1")) instanceof BString);
         Assert.assertEquals(nullMap.get(new BString("x2")), null);
         Assert.assertEquals(nullMap.get(new BString("x3")), null);
-        Assert.assertTrue(nullMap.get(new BString("x4")) instanceof BXML);
+        Assert.assertTrue(nullMap.get(new BString("x4")) instanceof BString);
         Assert.assertEquals(nullMap.get(new BString("x5")), null);
     }
     

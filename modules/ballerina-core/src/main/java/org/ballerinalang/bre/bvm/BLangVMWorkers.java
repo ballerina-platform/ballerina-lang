@@ -42,6 +42,7 @@ public class BLangVMWorkers {
             Context workerContext = new Context();
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
+            workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
             StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
@@ -80,8 +81,7 @@ public class BLangVMWorkers {
         @Override
         public void run() {
             try {
-                bLangVM.execFunction(callableUnitInfo.getPackageInfo(), bContext,
-                        workerInfo.getCodeAttributeInfo().getCodeAddrs());
+                bLangVM.run(bContext);
 //                worker.getCallableUnitBody().execute(executor);
             } catch (RuntimeException throwable) {
 //                String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);

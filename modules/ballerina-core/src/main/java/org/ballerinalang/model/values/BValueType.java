@@ -43,4 +43,6 @@ public abstract class BValueType implements BValue {
     public abstract double floatValue();
 
     public abstract boolean booleanValue();
+
+    public abstract byte[] blobValue();
 }
