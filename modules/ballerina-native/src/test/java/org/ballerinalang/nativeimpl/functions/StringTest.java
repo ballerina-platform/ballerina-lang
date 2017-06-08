@@ -272,7 +272,7 @@ public class StringTest {
     @Test
     public void testXmlValueOf() {
         BValue[] args = {new BXMLItem("<test>name</test>")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "xmlValueOf", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "xmlValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -283,7 +283,7 @@ public class StringTest {
     @Test(expectedExceptions = {BallerinaException.class})
     public void testXmlValueOfNegative() {
         BValue[] args = {new BXMLItem("<test>name<test>")};
-        BLangFunctions.invoke(bLangProgram, "xmlValueOf", args);
+        BLangFunctions.invokeNew(programFile, "xmlValueOf", args);
     }
 
     @Test

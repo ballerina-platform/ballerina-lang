@@ -1595,7 +1595,7 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private void invokeConnectorInitAction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
-        Action action = connectorDef.getInitAction();
+        BallerinaAction action = connectorDef.getInitAction();
         if (action == null) {
             return;
         }
@@ -1610,7 +1610,7 @@ public class BLangExecutor implements NodeExecutor {
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
-        AbstractNativeAction nativeAction = (AbstractNativeAction) action;
+        AbstractNativeAction nativeAction = (AbstractNativeAction) action.getNativeAction().load();
         nativeAction.execute(bContext);
         controlStack.popFrame();
 

@@ -553,6 +553,10 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(BallerinaConnectorDef connectorDef) {
         BallerinaFunction initFunction = connectorDef.getInitFunction();
         visit(initFunction);
+        BallerinaAction initAction = connectorDef.getInitAction();
+        if (initAction != null) {
+            visit(initAction);
+        }
 
         ConnectorInfo connectorInfo = currentPkgInfo.getConnectorInfo(connectorDef.getName());
         AnnotationAttachment[] annotationAttachments = connectorDef.getAnnotations();
@@ -564,6 +568,7 @@ public class CodeGenerator implements NodeVisitor {
         for (BallerinaAction action : connectorDef.getActions()) {
             action.accept(this);
         }
+
     }
 
     @Override
@@ -1554,7 +1559,7 @@ public class CodeGenerator implements NodeVisitor {
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
 
         // Invoke Connector init native action if any
-        Action action = connectorDef.getInitAction();
+        BallerinaAction action = connectorDef.getInitAction();
         if (action == null) {
             return;
         }
@@ -1569,7 +1574,7 @@ public class CodeGenerator implements NodeVisitor {
         actionRefCPEntry.setActionInfo(actionInfo);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
 
-        actionInfo.setNativeAction((AbstractNativeAction) action);
+        actionInfo.setNativeAction((AbstractNativeAction) action.getNativeAction().load());
         actionInfo.setParamTypes(getParamTypes(connectorDef.getInitFunction().getParameterDefs()));
         emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
     }
