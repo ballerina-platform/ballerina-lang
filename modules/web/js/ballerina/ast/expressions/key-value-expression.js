@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Constructor for KeyValueExpression
@@ -26,33 +27,75 @@ import Expression from './expression';
 class KeyValueExpression extends Expression {
     constructor(args) {
         super('KeyValueExpression');
-        this._key = _.get(args, 'key', '');
-        this._expression = _.get(args, 'valueExpression', '');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: ''
+        };
     }
 
- /**
-  * setting parameters from json
-  * @param jsonNode
-  */
+    /**
+     * initialize KeyValueExpression from json object
+     * @param {Object} jsonNode to initialize from
+     */
     initFromJson(jsonNode) {
-        this.setExpression(this.generateKeyValueExpression(jsonNode), {doSilently: true});
+        this.children = [];
+        _.each(jsonNode.children, (childNode) => {
+            let child = this.getFactory().createFromJson(childNode);
+            this.addChild(child);
+            child.initFromJson(childNode);
+        });
     }
 
- /**
-  * function for generate string for key-value-expression
-  * @param sonNode
-  */
-    generateKeyValueExpression(jsonNode) {
-        var expString = "";
-        var self = this;
-        var keyExpressionNode = self.getFactory().createFromJson(jsonNode.children[1][0]);
-        var valueExpressionNode = self.getFactory().createFromJson(jsonNode.children[0]);
-        valueExpressionNode.initFromJson(jsonNode.children[0]);
-        keyExpressionNode.initFromJson(jsonNode.children[1][0]);
-        expString += keyExpressionNode.getExpression() + ":" + valueExpressionNode.getExpression();
+   /**
+    * function for generate string for key-value-expression
+    * @param sonNode
+    */
+    getExpressionString() {
+        var expString = '';
+        var keyExpressionNode = this.children[0];
+        var valueExpressionNode = this.children[1];
+        expString += keyExpressionNode.getExpressionString()
+                  + ':' + this.getWSRegion(2)
+                  + valueExpressionNode.getExpressionString();
         return expString;
+    }
+
+
+    /**
+     * Set the expression from the string
+     * @param {string} expressionString
+     * @param {function} callback
+     * @override
+     */
+    setExpressionFromString(expressionString, callback) {
+        const fragment = FragmentUtils.createExpressionFragment(expressionString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'key_value_expression')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Array Init Expression Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 }
 
 export default KeyValueExpression;
-

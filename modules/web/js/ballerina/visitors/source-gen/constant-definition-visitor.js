@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
@@ -38,6 +36,10 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConstantDefinition} constantDefinition - The constant definition to start visiting.
      */
     beginVisitConstantDefinition(constantDefinition) {
+        if (constantDefinition.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
         var constructedSourceSegment = constantDefinition.getConstantDefinitionAsString();
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit ConstantDefinition');
@@ -48,8 +50,10 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitConstantDefinition(constantDefinition) {
-        this.appendSource(";\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(';' + constantDefinition.getWSRegion(5));
+        this.appendSource((constantDefinition.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit ConstantDefinition');
     }
 }

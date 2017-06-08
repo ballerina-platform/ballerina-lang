@@ -34,7 +34,22 @@ class Statement extends ASTNode {
     getConnectorsInImmediateScope() {
         return this.getParent().getConnectorsInImmediateScope();
     }
+
+    /**
+    * get the string from expression editor
+    * call fragment parser and get parse tree of the node
+    * validate and create children from scratch
+    **/
+    setStatementFromString() {
+        throw 'This method should be implemented by sub class';
+    }
+
+    /**
+    * Traverse the children and generate a string to show up in expression editor
+    **/
+    getStatementString() {
+        throw 'This method should be implemented by sub class';
+    }
 }
 
 export default Statement;
-

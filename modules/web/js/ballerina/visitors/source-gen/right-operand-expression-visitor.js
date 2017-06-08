@@ -17,9 +17,9 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
-class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+class RightOperandExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     constructor(parent) {
         super(parent);
     }
@@ -29,17 +29,13 @@ class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitRightOperandExpression(rightOperandExpression) {
-        //FIXME: Need to refactor this if logic
-        this.appendSource(" = ");
-        if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString())) {
-            this.appendSource(rightOperandExpression.getRightOperandExpressionString());
+        if (!_.isUndefined(rightOperandExpression.getExpressionString())) {
+            this.appendSource(rightOperandExpression.getExpressionString());
         }
-        log.debug('Begin Visit Right Operand Expression');
     }
 
     endVisitRightOperandExpression(rightOperandExpression) {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-        log.debug('End Visit Right Operand Expression');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

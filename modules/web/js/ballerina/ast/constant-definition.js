@@ -33,6 +33,14 @@ class ConstantDefinition extends VariableDeclaration {
             identifier: _.get(args, "identifier")
         });
         this._value = _.get(args, "value");
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: ' ',
+            4: '',
+            5: '\n'
+        };
     }
 
     setValue(value, options) {
@@ -49,11 +57,15 @@ class ConstantDefinition extends VariableDeclaration {
     }
 
     getConstantDefinitionAsString() {
-        if (this._bType === "string") {
-            return "const " + this._bType + " " + this._identifier + " = \"" + this._value + "\"";
+        let sourceGen = 'const' + this.getWSRegion(0) + this._bType
+                        + this.getWSRegion(1) + this._identifier
+                        + this.getWSRegion(2) + '=' + this.getWSRegion(3);
+        if (this._bType === 'string') {
+            sourceGen += '"' + this._value + '"';
         } else {
-            return "const " + this._bType + " " + this._identifier + " = " + this._value;
+            sourceGen += this._value;
         }
+        return sourceGen;
     }
 
     /**
@@ -64,6 +76,10 @@ class ConstantDefinition extends VariableDeclaration {
      * @param {string} jsonNode.constant_definition_value - The value of the constant.
      */
     initFromJson(jsonNode) {
+        if (!_.isNil(jsonNode.whitespace_descriptor)) {
+            this.whiteSpace.currentDescriptor = jsonNode.whitespace_descriptor;
+            this.whiteSpace.useDefault = false;
+        }
         this.setBType(jsonNode.constant_definition_btype, {doSilently: true});
         this.setIdentifier(jsonNode.constant_definition_identifier, {doSilently: true});
         this.setValue(jsonNode.constant_definition_value, {doSilently: true});
@@ -71,4 +87,3 @@ class ConstantDefinition extends VariableDeclaration {
 }
 
 export default ConstantDefinition;
-

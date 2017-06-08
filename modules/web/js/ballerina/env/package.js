@@ -21,7 +21,6 @@ import EventChannel from 'event_channel';
 import ServiceDefinition from './../ast/service-definition';
 import FunctionDefinition from './../ast/function-definition';
 import TypeDefinition from './../ast/type-definition';
-import TypeMapperDefinition from './../ast/type-mapper-definition';
 import ConstantDefinition from './../ast/constant-definition';
 import StructDefinition from './../ast/struct-definition';
 import AnnotationDefinition from './../ast/annotation-definition';
@@ -42,7 +41,6 @@ class Package extends EventChannel {
         this.addStructDefinitions(_.get(args, 'structDefinitions', []));
         this._connectorDefinitions = _.get(args, 'connectors', []);
         this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
-        this.addTypeMapperDefinitions(_.get(args, 'typeMapperDefinitions', []));
         this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
         this.addAnnotationDefinitions(_.get(args, 'annotationDefinitions', []));
     }
@@ -108,58 +106,6 @@ class Package extends EventChannel {
      */
     getConstantDefinitions() {
         return this._constantDefinitions;
-    }
-
-    /**
-     * Add type mapper defs
-     * @param typeMapperDefinitions - can be an array of typeDefinitions or a single typeDefinition
-     * @fires Package#type--mapper-defs-added
-     */
-    addTypeMapperDefinitions(typeMapperDefinitions) {
-        var err;
-        var self = this;
-        if(!_.isArray(typeMapperDefinitions) && !(typeMapperDefinitions instanceof  TypeMapperDefinition)){
-            err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinitions;
-            log.error(err);
-            throw err;
-        }
-        if(_.isArray(typeMapperDefinitions)){
-            if(!_.isEmpty(typeMapperDefinitions)){
-                _.each(typeMapperDefinitions, function(typeMapperDefinition){
-                    if(!(typeMapperDefinition instanceof  TypeMapperDefinition)){
-                        err = "Adding type mapper def failed. Not an instance of TypeMapperDefinition" + typeMapperDefinition;
-                        log.error(err);
-                        throw err;
-                    }
-                });
-            }
-        }
-        this._typeMapperDefinitions = this._typeMapperDefinitions || [];
-        this._typeMapperDefinitions = _.concat(this._typeMapperDefinitions , typeMapperDefinitions);
-        /**
-         * fired when new type mapper defs are added to the package.
-         * @event Package#type-mapper-defs-added
-         * @type {[TypeMapperDefinition]}
-         */
-        this.trigger("type-mapper-defs-added", typeMapperDefinitions);
-    }
-
-    /**
-     * Set type mapper defs
-     *
-     * @param typeMapperDefs
-     */
-    setTypeMapperDefinitions(typeMapperDefs) {
-        this._typeMapperDefinitions = null;
-        this.addTypeMapperDefinitions(typeMapperDefs);
-    }
-
-    /**
-     *
-     * @returns {[TypeMapperDefinition]}
-     */
-    getTypeMapperDefinitions() {
-        return this._typeMapperDefinitions;
     }
 
     /**

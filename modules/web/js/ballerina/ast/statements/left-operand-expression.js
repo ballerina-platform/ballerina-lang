@@ -16,71 +16,50 @@
  * under the License.
  */
 import _ from 'lodash';
-import Statement from './statement';
+import Expression from './../expressions/expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for LeftOperandExpression
  * @param {Object} args - Arguments to create the LeftOperandExpression
  * @constructor
  */
-class LeftOperandExpression extends Statement {
+class LeftOperandExpression extends Expression {
     constructor(args) {
         super('LeftOperandExpression');
-        this._operand_type = _.get(args, "operandType", "");
-        this._left_operand_expression_string = _.get(args, "variableName", "var1");
     }
 
-    /**
-     * Get Variable Reference Name
-     * @returns {undefined|string}
-     */
-    getLeftOperandExpressionString() {
-        return this._left_operand_expression_string;
-    }
-
-    /**
-     * Set Variable Reference Name
-     * @param {string} leftOperandExpStr left operand expression string
-     * @param {Object} options
-     */
-    setLeftOperandExpressionString(leftOperandExpStr, options) {
-        this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
-    }
-
-    /**
-     * Get operand type
-     * @return {String} operand type
-     * */
-    getOperandType() {
-        return this._operand_type;
-    }
-
-    /**
-     * Set operandType
-     * @param {String} operandType
-     * @param {Object} options
-     * */
-    setOperandType(operandType, options) {
-        this.setAttribute('_operand_type', operandType, options);
-    }
-
-    setLeftOperandType(operandType, options) {
-        this.setAttribute('_operand_type', operandType.trim(), options);
-    }
-
-    generateExpression() {
+    getExpressionString() {
         var exps = [];
         _.forEach(this.getChildren(), child => {
-            exps.push(child.generateExpression());
+            exps.push(child.getExpressionString());
         });
         let expression = _.join(exps, ',');
-
-        // TODO: This is a temporary fix until the partial expression builder is completed
-        if (_.isEmpty(this.getChildren())) {
-            expression = this._left_operand_expression_string;
-        }
-        this._left_operand_expression_string = expression;
         return expression;
+    }
+
+    /**
+     * Set the expression from the expression string
+     * @param {string} expressionString
+     * @override
+     */
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                   || !_.has(parsedJson, 'syntax_errors'))
+                   && _.isEqual(parsedJson.type, 'left_operand_expression')) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
+        }
     }
 
     /**
@@ -88,25 +67,14 @@ class LeftOperandExpression extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        var self = this;
-        var expression = "";
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
-            var childJsonNode = jsonNode.children[itr];
-            if (childJsonNode.type === 'variable_name') {
-                expression += childJsonNode.variable_name;
-            } else {
-                var child = self.getFactory().createFromJson(childJsonNode);
-                self.addChild(child);
+        if (!_.isEmpty(jsonNode.children)) {
+            jsonNode.children.forEach((childJsonNode) => {
+                let child = this.getFactory().createFromJson(childJsonNode);
                 child.initFromJson(childJsonNode);
-                expression += child.getExpression();
-            }
-            if (itr !== jsonNode.children.length - 1) {
-                expression += " , ";
-            }
+                this.addChild(child, undefined, true, true);
+            });
         }
-        this.setLeftOperandExpressionString(expression, {doSilently: true});
     }
 }
 
 export default LeftOperandExpression;
-

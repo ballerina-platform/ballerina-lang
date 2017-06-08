@@ -53,8 +53,8 @@ class WhileStatement extends React.Component {
             propertyType: 'text',
             key: 'Condition',
             model: model,
-            getterMethod: model.getCondition,
-            setterMethod: model.setCondition
+            getterMethod: model.getConditionString,
+            setterMethod: model.setConditionFromString
         };
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
                     <BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"}

@@ -64,16 +64,7 @@ class BlockStatement extends ASTNode {
             child.initFromJson(childNode);
         });
     }
-
-    /**
-     * Override the super call to addChild
-     * @param {ASTNode} child
-     * @param {number} index
-     */
-    addChild(child, index) {
-        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child,index);
-    }
-
+    
     removeChild(child, ignoreModifiedTreeEvent, willVisit) {
         if (!_.isUndefined(willVisit) && willVisit != true) {
             var parentModelChildren = this.children;
@@ -90,4 +81,3 @@ class BlockStatement extends ASTNode {
 }
 
 export default BlockStatement;
-

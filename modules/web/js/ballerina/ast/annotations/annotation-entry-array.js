@@ -37,7 +37,7 @@ class AnnotationEntryArray extends ASTNode {
         _.forEach(this.getChildren(), function(annotationEntry){
             annotationEntries.push(annotationEntry.toString());
         });
-        stringVal += _.join(annotationEntries, ', ');
+        stringVal += _.join(annotationEntries, ',');
         stringVal += ']';
         return stringVal;
     }

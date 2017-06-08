@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class for try-catch statement in ballerina.
@@ -57,6 +58,34 @@ class TryCatchStatement extends Statement {
             self.addChild(child);
             child.initFromJson(childNode);
         });
+    }
+
+    setStatementFromString(statementString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(statementString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'try_catch_statement')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'TryCatch Statement Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 }
 

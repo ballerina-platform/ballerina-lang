@@ -35,7 +35,7 @@ class AbortStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         log.debug('end visit AbortStatementDimensionCalculatorVisitor');
-        util.populateSimpleStatementBBox(node.getStatement(), node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }
 

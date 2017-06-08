@@ -44,16 +44,23 @@ public class BLangFragmentParser {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangFragmentParser.class);
 
+    public static final String SYNTAX_ERRORS = "syntax_errors";
+    public static final String TEMP_UNTITLED = "temp/untitled";
+    public static final String ERROR = "error";
+
     public static String parseFragment(BLangSourceFragment sourceFragment) {
         try {
             String parsableString = getParsableString(sourceFragment);
             JsonObject jsonModel = getJsonModel(parsableString);
+            if (jsonModel.getAsJsonArray(SYNTAX_ERRORS).size() > 0) {
+                return jsonModel.toString();
+            }
             JsonObject jsonNodeForFragment = getJsonNodeForFragment(jsonModel, sourceFragment);
             return jsonNodeForFragment.toString();
         } catch (Exception e) {
             logger.error("Error while parsing BLang fragment.", e);
             JsonObject errObj = new JsonObject();
-            errObj.addProperty("error", e.getMessage());
+            errObj.addProperty(ERROR, e.getMessage());
             return errObj.toString();
         }
     }
@@ -76,7 +83,7 @@ public class BLangFragmentParser {
                 fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2).getAsJsonObject();
                 break;
             default: fragmentNode = new JsonObject();
-                     fragmentNode.addProperty("error", "cannot find node for given fragment");
+                     fragmentNode.addProperty(ERROR, "cannot find node for given fragment");
         }
         return fragmentNode;
     }
@@ -98,14 +105,24 @@ public class BLangFragmentParser {
         BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
                 StringUtils.EMPTY);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(true, ballerinaToken, bLangModelBuilder,
-                new File("temp/untitled").toPath());
+                new File(TEMP_UNTITLED).toPath());
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = bLangModelBuilder.build();
 
         JsonObject jsonModelRoot = new JsonObject();
-        BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(jsonModelRoot);
-        bFile.accept(jsonModelBuilder);
+        JsonArray errors = new JsonArray();
+        for (SyntaxError error : errorStrategy.getErrorTokens()) {
+            // reduce number of lines in wrapper function from row count
+            error.setRow(error.getRow() - 1);
+            errors.add(error.toJson());
+        }
+        jsonModelRoot.add(SYNTAX_ERRORS, errors);
+
+        if (errorStrategy.getErrorTokens().isEmpty()) {
+            BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(jsonModelRoot);
+            bFile.accept(jsonModelBuilder);
+        }
 
         return jsonModelRoot;
     }

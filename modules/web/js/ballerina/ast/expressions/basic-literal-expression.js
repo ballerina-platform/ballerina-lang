@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for BasicLiteralExpression
@@ -28,6 +29,10 @@ class BasicLiteralExpression extends Expression {
         super('BasicLiteralExpression');
         this._basicLiteralType = _.get(args, 'basicLiteralType', '');
         this._basicLiteralValue = _.get(args, 'basicLiteralValue', '');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' '
+        };
     }
 
     /**
@@ -37,15 +42,33 @@ class BasicLiteralExpression extends Expression {
     initFromJson(jsonNode) {
         this._basicLiteralType = jsonNode.basic_literal_type;
         this._basicLiteralValue = jsonNode.basic_literal_value;
-        this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
-    generateExpression() {
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                    || !_.has(parsedJson, 'syntax_errors'))
+                    && _.isEqual(parsedJson.type, 'basic_literal_expression')) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
+        }
+    }
+
+    getExpressionString() {
         if (this._basicLiteralType === 'string') {
             // Adding double quotes if it is a string.
-            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"';
+            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"' + this.getWSRegion(1);
         } else {
-            return this._basicLiteralValue;
+            return this._basicLiteralValue + this.getWSRegion(1);
         }
     }
 
@@ -66,4 +89,3 @@ class BasicLiteralExpression extends Expression {
 }
 
 export default BasicLiteralExpression;
-

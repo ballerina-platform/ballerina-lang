@@ -17,6 +17,8 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import FragmentUtils from '../../utils/fragment-utils';
+import log from 'log';
 
 /**
  * Class to represent an Assignment statement.
@@ -25,9 +27,13 @@ import Statement from './statement';
 class AssignmentStatement extends Statement {
     constructor(args) {
         super('AssignmentStatement');
-        this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
-        this._statementString = _.get(args, 'statementString', '');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: '\n'
+        };
     }
 
     /**
@@ -35,23 +41,13 @@ class AssignmentStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.children = [];
         var self = this;
-
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
-
-        this.generateStatementString();
-    }
-
-    /**
-     * Override the removeChild function
-     * @param {ASTNode} child - child node
-     */
-    removeChild(child) {
-        this.getParent().removeChild(this);
     }
 
     /**
@@ -59,27 +55,44 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
-                ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + "=" +
-            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
-                ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
-    }
-
-    generateStatementString(){
-        const statementString =  this.getChildren()[0].generateExpression() + ' = ' + this.getChildren()[1].generateExpression();
-        return statementString;
+        return (!_.isNil(this.getChildren()[0].getExpressionString())
+                ? this.getChildren()[0].getExpressionString() : "leftExpression") + "=" +
+            (!_.isNil(this.getChildren()[1].getExpressionString())
+                ? this.getChildren()[1].getExpressionString() : "rightExpression");
     }
 
     /**
-     * Set the assignment statement string
+     * Set the statement from the statement string
      * @param {string} statementString
      */
-    setStatementString(statementString, options) {
-        var equalIndex = _.indexOf(statementString, '=');
-        var leftOperand = statementString.substring(0, equalIndex);
-        var rightOperand = statementString.substring(equalIndex + 1);
-        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand, options);
-        this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand, options);
+    setStatementFromString(statementString, callback) {
+        if (!_.isNil(statementString)) {
+            let fragment = FragmentUtils.createStatementFragment(statementString + ';');
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+
+            if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+                && _.isEqual(parsedJson.type, 'assignment_statement')) {
+
+                this.initFromJson(parsedJson);
+
+                // Manually firing the tree-modified event here.
+                // TODO: need a proper fix to avoid breaking the undo-redo
+                this.trigger('tree-modified', {
+                    origin: this,
+                    type: 'custom',
+                    title: 'Assignment Statement Custom Tree modified',
+                    context: this,
+                });
+
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
+        }
     }
 
     /**

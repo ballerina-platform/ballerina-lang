@@ -24,7 +24,7 @@ class VariableDefinition extends ASTNode {
         super('VariableDefinition');
         this._name = _.get(args, 'name', 'newIdentifier');
         this._typeName = _.get(args, 'typeName', 'newTypeName');
-        this._pkgPath = _.get(args, 'pkgPath');
+        this._pkgName = _.get(args, 'pkgName');
         this._isPublic = _.get(args, 'isPublic', false);
     }
 
@@ -74,15 +74,12 @@ class VariableDefinition extends ASTNode {
 
     /**
      * set the pkg path of the variable def
-     * @param pkgPath
+     * @param pkgName
      * @param options
      */
-    setPkgPath(pkgPath, options) {
-        if (!_.isNil(pkgPath)) {
-            this.setAttribute('_pkgPath', pkgPath, options);
-        } else {
-            log.error('Invalid pkg path [' + pkgPath + '] Provided');
-            throw 'Invalid pkg path [' + pkgPath + '] Provided';
+    setPkgName(pkgName, options) {
+        if (!_.isNil(pkgName)) {
+            this.setAttribute('_pkgName', pkgName, options);
         }
     }
 
@@ -90,8 +87,8 @@ class VariableDefinition extends ASTNode {
      * returns the  Pkg path
      * @returns {string}
      */
-    getPkgPath() {
-        return this._pkgPath;
+    getPkgName() {
+        return this._pkgName;
     }
 
     /**
@@ -128,6 +125,7 @@ class VariableDefinition extends ASTNode {
         var self = this;
         this.setName(jsonNode.variable_name, {doSilently: true});
         this.setTypeName(jsonNode.variable_type, {doSilently: true});
+        this.setPkgName(jsonNode.package_name, {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);

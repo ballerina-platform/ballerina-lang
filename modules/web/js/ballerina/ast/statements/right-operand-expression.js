@@ -16,50 +16,49 @@
  * under the License.
  */
 import _ from 'lodash';
-import Statement from './statement';
+import Expression from './../expressions/expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for RightOperandExpression
  * @param {Object} args - Arguments to create the RightOperandExpression
  * @constructor
  */
-class RightOperandExpression extends Statement {
+class RightOperandExpression extends Expression {
     constructor(args) {
         super('RightOperandExpression');
-        this._right_operand_expression_string = undefined;
     }
 
-    generateExpression() {
+    /**
+     * Set the expression from the expression string
+     * @param {string} expressionString
+     * @override
+     */
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                   || !_.has(parsedJson, 'syntax_errors'))
+                   && _.isEqual(parsedJson.type, 'right_operand_expression')) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
+        }
+    }
+
+    getExpressionString() {
         var expression = '';
         _.forEach(this.getChildren(), child => {
-            expression += child.generateExpression();
+            expression += child.getExpressionString();
         });
-        this._right_operand_expression_string = expression;
         return expression;
-    }
-
-    /**
-     * Get Right Operand Expression String
-     * @returns {string} - The expression
-     */
-    getRightOperandExpressionString() {
-        return this._right_operand_expression_string;
-    }
-
-    /**
-     * Set Right Operand Expression String
-     * @param {string} rightOperandExpStr - The expression
-     */
-    setRightOperandExpressionString(rightOperandExpStr, options) {
-        this.setAttribute('_right_operand_expression_string', rightOperandExpStr, options);
-    }
-
-    /**
-     * Override the removeChild function
-     * @param {ASTNode} child - child node
-     */
-    removeChild(child) {
-        this.getParent().removeChild(this);
     }
 
     /**
@@ -67,15 +66,14 @@ class RightOperandExpression extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-            self.setRightOperandExpressionString(child.getExpression(), {doSilently: true});
-        });
+        if (!_.isEmpty(jsonNode.children)) {
+            jsonNode.children.forEach((childJsonNode) => {
+                let child = this.getFactory().createFromJson(childJsonNode);
+                this.addChild(child, undefined, true, true);
+                child.initFromJson(childJsonNode);
+            });
+        }
     }
 }
 
 export default RightOperandExpression;
-

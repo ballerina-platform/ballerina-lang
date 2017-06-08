@@ -31,7 +31,7 @@ class ThrowStatement extends React.Component {
             key: 'ThrowStatement',
             model: props.model,
             getterMethod: props.model.getStatementString,
-            setterMethod: props.model.setStatementString
+            setterMethod: props.model.setStatementFromString
         };
     }
 

@@ -25,7 +25,6 @@ import ImportDeclarationVisitor from './import-declaration-visitor';
 import ConnectorDefinitionVisitor from './connector-definition-visitor';
 import StructDefinitionVisitor from './struct-definition-visitor';
 import ConstantDefinitionVisitor from './constant-definition-visitor';
-import TypeMapperDefinitionVisitor from './type-mapper-definition-visitor';
 
 class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     constructor() {
@@ -37,7 +36,7 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitBallerinaASTRoot(astRoot) {
-        // FIXME this.appendSource(astRoot.whiteSpaceDescriptor.regions[0]);
+        this.appendSource(astRoot.getWSRegion(0));
     }
 
     visitServiceDefinition(serviceDefinition) {
@@ -63,11 +62,6 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     visitStructDefinition(structDefinition) {
         var structDefinitionVisitor = new StructDefinitionVisitor(this);
         structDefinition.accept(structDefinitionVisitor);
-    }
-
-    visitTypeMapperDefinition(typeMapperDefinition) {
-        var typeMapperDefinitionVisitor = new TypeMapperDefinitionVisitor(this);
-        typeMapperDefinition.accept(typeMapperDefinitionVisitor);
     }
 
     visitPackageDefinition(packageDefinition) {

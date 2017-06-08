@@ -230,7 +230,7 @@ var createWorkerInvocationStatementTool = {
     iconSrc: require("./../../../images/tool-icons/worker-invoke.svg"),
     cssClass: "icon fw fw-worker-invoke",
     title: "Worker Invocation",
-    nodeFactoryMethod: BallerinaASTFactory.createWorkerInvocationStatement
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createWorkerInvocationStatement
 };
 
 var createWorkerReplyStatementTool = {
@@ -239,7 +239,7 @@ var createWorkerReplyStatementTool = {
     iconSrc: require("./../../../images/tool-icons/worker-reply.svg"),
     cssClass: "icon fw fw-worker-reply",
     title: "Worker Receive",
-    nodeFactoryMethod: BallerinaASTFactory.createWorkerReplyStatement
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createWorkerReplyStatement
 };
 
 var createThrowStatementTool = {

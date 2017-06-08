@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Expression from './expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Class to represent a action invocation to ballerina.
@@ -34,8 +35,23 @@ class ActionInvocationExpression extends Expression {
         this._connector = _.get(args, 'connector');
         this._connectorExpr = _.get(args, 'connectorExpr');
         this._fullPackageName = _.get(args, 'fullPackageName', undefined);
-        //create the default expression for action invocation
-        this.setExpression(this.generateExpression());
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '',
+            2: '',
+            3: '',
+            4: '',
+            5: ''
+        };
+        this.whiteSpace.defaultDescriptor.children = {
+            nameRef: {
+                0: ' ',
+                1: '',
+                2: '',
+                3: ''
+            }
+        };
+
         this.type = "ActionInvocationExpression";
     }
 
@@ -109,10 +125,7 @@ class ActionInvocationExpression extends Expression {
     }
 
     setConnector(connector, options) {
-        if(!_.isNil(connector)){
-            this.setAttribute("_connector", connector, options);
-            this.setAttribute('_expression', this.generateExpression(), options);
-        }
+        this.setAttribute('_connector', connector, options);
     }
 
     /**
@@ -120,6 +133,7 @@ class ActionInvocationExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         this.setActionName(jsonNode.action_name, {doSilently: true});
         this.setActionPackageName(jsonNode.action_pkg_name, {doSilently: true});
         this.setActionConnectorName(jsonNode.action_connector_name, {doSilently: true});
@@ -127,7 +141,7 @@ class ActionInvocationExpression extends Expression {
         if (jsonNode.children.length > 0) {
             this._connectorExpr = this.getFactory().createFromJson(jsonNode.children[0]);
             this._connectorExpr.initFromJson(jsonNode.children[0]);
-            var connector = this.getInvocationConnector(this._connectorExpr.getExpression());
+            var connector = this.getInvocationConnector(this._connectorExpr.getExpressionString());
             this.setConnector(connector, {doSilently: true});
 
             var self = this;
@@ -139,7 +153,6 @@ class ActionInvocationExpression extends Expression {
                 self.addArgument(arg);
             });
         }
-        this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
     addArgument(argument) {
@@ -169,10 +182,11 @@ class ActionInvocationExpression extends Expression {
     }
 
     /**
-     * Get the action invocation statement
-     * @return {string} action invocation statement
+     * Get the expression string
+     * @returns {string} expression string
+     * @override
      */
-    generateExpression() {
+    getExpressionString() {
         var argsString = "";
         var args = this.getArguments();
 
@@ -180,7 +194,7 @@ class ActionInvocationExpression extends Expression {
 
             // TODO: we need to refactor this along with the action invocation argument types as well
             if (this.getFactory().isExpression(args[itr])) {
-                argsString += args[itr].getExpression();
+                argsString += args[itr].getExpressionString();
             } else if (this.getFactory().isResourceParameter(args[itr])) {
                 argsString += args[itr].getParameterAsString();
             }
@@ -196,7 +210,7 @@ class ActionInvocationExpression extends Expression {
         if (!_.isNil(this.getConnector())) {
             connectorRef = this.getConnector().getConnectorVariable();
         } else if (!_.isNil(this._connectorExpr)) {
-            connectorRef = this._connectorExpr.getExpression();
+            connectorRef = this._connectorExpr.getExpressionString();
         }
 
         // Append the connector reference expression name to the arguments string
@@ -206,22 +220,51 @@ class ActionInvocationExpression extends Expression {
             argsString = connectorRef;
         }
 
-        var expression = this.getActionConnectorName() + '.' + this.getActionName() + '(' + argsString +  ')';
+        var expression = this.getActionConnectorName() + this.getWSRegion(1)
+            + '.' + this.getWSRegion(2) + this.getActionName() + this.getWSRegion(3)
+            + '(' + this.getWSRegion(4) + argsString +  ')' + this.getWSRegion(5);
         if(!_.isUndefined(this.getActionPackageName()) && !_.isNil(this.getActionPackageName())
-                && !_.isEqual(this.getActionPackageName(), 'Current Package')){
-            expression = this.getActionPackageName() + ":" + expression;
+            && !_.isEqual(this.getActionPackageName(), 'Current Package')){
+            expression = this.getActionPackageName() + this.getChildWSRegion('nameRef', 1) + ':'
+                + this.getChildWSRegion('nameRef', 2) + expression;
         }
         return expression;
     }
 
-    setExpression(expression, options) {
-        if(!_.isUndefined(expression)){
-            this.setAttribute('_expression', expression, options);
-        }
-    }
+    /**
+     * Set the expression model from the given expression string
+     * @param {string} expression
+     * @param {function} callback
+     * @override
+     */
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)) {
+            const fragment = FragmentUtils.createExpressionFragment(expression);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
 
-    getExpression() {
-        return this._expression;
+            if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+                && _.isEqual(parsedJson.type, 'action_invocation_statement')) {
+
+                this.initFromJson(parsedJson);
+
+                // Manually firing the tree-modified event here.
+                // TODO: need a proper fix to avoid breaking the undo-redo
+                this.trigger('tree-modified', {
+                    origin: this,
+                    type: 'custom',
+                    title: 'Action Invocation Expression Custom Tree modified',
+                    context: this,
+                });
+
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
+        }
     }
 
     messageDrawTargetAllowed(target) {

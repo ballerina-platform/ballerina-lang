@@ -30,9 +30,6 @@ import ActionInvocationStatementVisitor from './action-invocation-statement-visi
 import ReplyStatementVisitor from './reply-statement-visitor';
 import ReturnStatementVisitor from './return-statement-visitor';
 import FunctionInvocationVisitor from './function-invocation-visitor';
-import AssignmentVisitor from './assignment-visitor';
-import LeftOperandExpressionVisitor from './left-operand-expression-visitor';
-import RightOperandExpressionVisitor from './right-operand-expression-visitor';
 import VariableDefinitionStatement from './variable-definition-statement-visitor';
 import WorkerInvocationStatementVisitor from './worker-invocation-statement-visitor';
 import WorkerReplyStatementVisitor from './worker-reply-statement-visitor';
@@ -75,12 +72,6 @@ class StatementVisitorFactor {
             return new ReturnStatementVisitor(parent);
         } else if (ASTFactory.isFunctionInvocationStatement(statement)) {
             return new FunctionInvocationVisitor(parent);
-        } else if (ASTFactory.isAssignment(statement)) {
-            return new AssignmentVisitor(parent);
-        } else if (ASTFactory.isLeftOperandExpression(statement)) {
-            return new LeftOperandExpressionVisitor(parent);
-        } else if (ASTFactory.isRightOperandExpression(statement)) {
-            return new RightOperandExpressionVisitor(parent);
         } else if (ASTFactory.isVariableDefinitionStatement(statement)) {
             return new VariableDefinitionStatement(parent);
         } else if (ASTFactory.isWorkerInvocationStatement(statement)) {

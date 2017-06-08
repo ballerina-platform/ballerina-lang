@@ -29,6 +29,12 @@ class StructDefinition extends ASTNode {
     constructor(args) {
         super('StructDefinition');
         this._structName = _.get(args, 'structName');
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: '\n',
+            3: '\n'
+        }
     }
 
     /**
@@ -89,8 +95,8 @@ class StructDefinition extends ASTNode {
         } else {
             // Creating new variable definition.
             var newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            newVariableDefinitionStatement.setLeftExpression(bType + ' ' + identifier);
-            newVariableDefinitionStatement.setRightExpression(defaultValue);
+            let stmtString = bType + ' ' + identifier + ' = ' + defaultValue;
+            newVariableDefinitionStatement.setStatementFromString(stmtString);
 
             // Get the index of the last definition.
             var index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
@@ -174,4 +180,3 @@ class StructDefinition extends ASTNode {
 }
 
 export default StructDefinition;
-    

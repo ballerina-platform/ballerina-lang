@@ -16,10 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ResourceDefinitionVisitor from './resource-definition-visitor';
-import VariableDeclarationVisitor from './variable-declaration-visitor';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -42,19 +40,30 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '\n';
+        let useDefaultWS = serviceDefinition.whiteSpace.useDefault;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
+        let constructedSourceSegment = '';
         _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
             annotationNode => {
-                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
+                constructedSourceSegment += annotationNode.toString()
+                      + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
             });
-        constructedSourceSegment += this.getIndentation() + 'service ' + serviceDefinition.getServiceName() + ' {\n';
+        constructedSourceSegment += 'service' + serviceDefinition.getWSRegion(0)
+              + serviceDefinition.getServiceName()
+              + serviceDefinition.getWSRegion(1) + '{'
+              + serviceDefinition.getWSRegion(2);
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
     endVisitServiceDefinition(serviceDefinition) {
         this.outdent();
-        this.appendSource(this.getIndentation() + '}\n');
+        this.appendSource('}' + serviceDefinition.getWSRegion(3));
+        this.appendSource((serviceDefinition.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 

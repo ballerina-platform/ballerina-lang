@@ -15,15 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import ASTFactory from '../../ast/ballerina-ast-factory';
-import TransformAssignmentStatementVisitor from './transform-assignment-statement-visitor';
+import _ from 'lodash';
 
-class TransformStatementVisitorFactory {
-    getStatementVisitor(statement, parent) {
-        if (ASTFactory.isAssignmentStatement(statement)) {
-            return new TransformAssignmentStatementVisitor(parent);
-        }
+class SourceGenUtil {
+
+    static getTailingIndentation(content) {
+        return _.last(_.split(content, '\n'));
+    }
+
+    static replaceTailingIndentation(content, newIndentation) {
+        let tokens = _.split(content, '\n');
+        tokens.pop();
+        tokens.push(newIndentation);
+        return _.join(tokens, '\n');
     }
 }
 
-export default TransformStatementVisitorFactory;
+export default SourceGenUtil;
