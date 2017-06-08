@@ -31,7 +31,6 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BXML;
@@ -165,18 +164,6 @@ public class XMLUtils {
         }
         
         return new BXMLSequence(concatSeq);
-    }
-        
-    /**
-     * Slice a XML sequence.
-     * 
-     * @param seq XML sequence
-     * @param startIndex Start index
-     * @param endIndex End index
-     * @return Sliced sequence
-     */
-    public static BXML<?> slice(BArray<BXML> seq, int startIndex, int endIndex) {
-        return null;
     }
     
     /**
