@@ -100,6 +100,34 @@ public class StackFrame {
         this.returnValues = returnValues;
     }
 
+    public StackFrame(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, int retAddrs, int[] retRegIndexes,
+                      BValue[] returnValues) {
+        this.callableUnitInfo = callableUnitInfo;
+        this.packageInfo = callableUnitInfo.getPackageInfo();
+        this.workerInfo = workerInfo;
+        CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
+
+        this.longLocalVars = new long[codeAttribInfo.getMaxLongLocalVars()];
+        this.doubleLocalVars = new double[codeAttribInfo.getMaxDoubleLocalVars()];
+
+        this.stringLocalVars = new String[codeAttribInfo.getMaxStringLocalVars()];
+        // Setting the zero values for strings
+        Arrays.fill(stringLocalVars, "");
+
+        this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+
+        this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
+        this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
+        this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
+        this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
+
+        this.retAddrs = retAddrs;
+        this.retRegIndexes = retRegIndexes;
+        this.returnValues = returnValues;
+    }
+
     public long[] getLongLocalVars() {
         return longLocalVars;
     }

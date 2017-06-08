@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -28,6 +27,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.nativeimpl.util.SQLDBUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -44,19 +44,19 @@ import java.util.Calendar;
  */
 public class DataTableTest {
 
-    BLangProgram bLangProgram;
+    private ProgramFile bLangProgram;
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/datatableTest.bal");
+        bLangProgram = BTestUtils.getProgramFile("samples/datatableTest.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/DataTableDataFile.sql");
     }
 
     @Test(description = "Check getByIndex methods for primitive types.")
     public void testGetXXXByIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getXXXByIndex");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getXXXByIndex");
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -69,7 +69,7 @@ public class DataTableTest {
 
     @Test(description = "Check getByName methods for primitive types.")
     public void testGetXXXByName() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getXXXByName");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getXXXByName");
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -82,7 +82,7 @@ public class DataTableTest {
 
     @Test(description = "Check toJson methods.")
     public void testToJson() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toJson");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "toJson");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -93,7 +93,7 @@ public class DataTableTest {
 
     @Test(description = "Check toXml methods with wrapper element.")
     public void testToXmlWithWrapper() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toXmlWithWrapper");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "toXmlWithWrapper");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -105,7 +105,7 @@ public class DataTableTest {
 
     @Test(description = "Check toXml methods with complex element.")
     public void testToXmlComplex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toXmlComplex");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "toXmlComplex");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -125,7 +125,7 @@ public class DataTableTest {
 
     @Test(description = "Check getByName methods for complex types.")
     public void testGetByName() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getByName");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getByName");
 
         Assert.assertEquals(returns.length, 5);
         // Create text file with some content. Generate Hex value of that. Insert to database.
@@ -139,7 +139,7 @@ public class DataTableTest {
 
     @Test(description = "Check getByName methods for complex types.")
     public void testGetByIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getByIndex");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getByIndex");
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
@@ -152,7 +152,7 @@ public class DataTableTest {
 
     @Test(description = "Check getObjectAsStringByName methods for complex types.")
     public void testGetObjectAsStringByName() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getObjectAsStringByName");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getObjectAsStringByName");
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
@@ -165,7 +165,7 @@ public class DataTableTest {
 
     @Test(description = "Check getObjectAsStringByIndex methods for complex types.")
     public void testGetObjectAsStringByIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getObjectAsStringByIndex");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getObjectAsStringByIndex");
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
@@ -179,7 +179,7 @@ public class DataTableTest {
     @SuppressWarnings("unchecked")
     @Test(description = "Check getXXXArray methods for complex types.")
     public void testGetArrayByName() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getArrayByName");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getArrayByName");
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<BString, BInteger> intArray = (BMap) returns[0];
@@ -219,7 +219,7 @@ public class DataTableTest {
     @SuppressWarnings("unchecked")
     @Test(description = "Check getXXXArray methods for complex types.")
     public void testGetArrayByIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getArrayByIndex");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getArrayByIndex");
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<BString, BInteger> intArray = (BMap) returns[0];
@@ -284,7 +284,7 @@ public class DataTableTest {
         long timestamp = cal.getTimeInMillis();
         args[2] = new BInteger(timestamp);
 
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDateTime", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTime", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), time);
@@ -294,7 +294,7 @@ public class DataTableTest {
 
     @Test(description = "Check toJson methods with null values.")
     public void testJsonWithNull() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonWithNull");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonWithNull");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -305,7 +305,7 @@ public class DataTableTest {
 
     @Test(description = "Check toXml method with null values.")
     public void testXmlWithNull() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testXmlWithNull");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testXmlWithNull");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
