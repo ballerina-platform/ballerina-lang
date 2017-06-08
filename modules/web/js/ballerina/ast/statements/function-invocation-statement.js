@@ -17,6 +17,8 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
+
 
 /**
  * Class to represent a function invocation statement in ballerina.
@@ -41,6 +43,51 @@ class FunctionInvocationStatement extends Statement {
                 3: ''
             }
         }
+    }
+
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'function_invocation_statement')) {
+                this.initFromJson(parsedJson);
+            } else if (_.isEqual(parsedJson.type, 'assignment_statement')
+                || _.isEqual(parsedJson.type, 'variable_definition_statement')) {
+                // somebody changed the type of statement to an assignment
+                // to capture retun value of function Invocation
+                let parent = this.getParent();
+                let index = parent.getIndexOfChild(this);
+                let newNode = this.getFactory().createFromJson(parsedJson);
+                parent.removeChild(this, true);
+                parent.addChild(newNode, index, true, true);
+                newNode.initFromJson(parsedJson);
+                nodeToFireEvent = newNode;
+            }
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+            nodeToFireEvent.whiteSpace.useDefault = true;
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Function Invocation Expression Custom Tree modified',
+                context: nodeToFireEvent,
+            });
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
+    }
+
+
+    getStatementString() {
+        return !_.isEmpty(this.children) ? this.children[0].getExpressionString() : '';
     }
 
     /**

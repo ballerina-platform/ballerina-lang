@@ -133,11 +133,13 @@ class ConnectorDefinition extends ASTNode {
      * @param child
      * @param index
      */
-    addChild(child, index) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId)  {
         if (this.getFactory().isConnectorDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+            Object.getPrototypeOf(this.constructor.prototype)
+              .addChild.call(this, child, 0, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+            Object.getPrototypeOf(this.constructor.prototype)
+            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) ;
         }
     }
 
@@ -295,7 +297,7 @@ class ConnectorDefinition extends ASTNode {
             } else {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
-            }    
+            }
             self.addChild(child);
             child.initFromJson(childNodeTemp);
         });

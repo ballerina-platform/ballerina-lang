@@ -30,7 +30,6 @@ class FunctionInvocationExpression extends Expression {
         super('FunctionInvocationExpression');
         this._packageName = _.get(args, 'packageName', '');
         this._functionName = _.get(args, 'functionName', 'callFunction');
-        this._params = _.get(args, 'params', '');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
         this.whiteSpace.defaultDescriptor.regions =  {
             0: '',
@@ -72,20 +71,6 @@ class FunctionInvocationExpression extends Expression {
         return this._packageName;
     }
 
-    setParams(params, options) {
-        this.setAttribute('_params', params, options);
-    }
-
-    getParams() {
-        var params;
-        if(!_.isUndefined(this._params)) {
-            params = this._params.split(',');
-            return params;
-        }
-        else params = "";
-        return params;
-    }
-
     /**
      * Get the expression string
      * @returns {string} expression string
@@ -97,7 +82,17 @@ class FunctionInvocationExpression extends Expression {
             text += this._packageName + this.getChildWSRegion('nameRef', 1) + ':';
         }
         text += this.getChildWSRegion('nameRef', 2) + this._functionName + this.getWSRegion(1);
-        text += '('+ this.getWSRegion(2) + (this._params? this._params:'') +')' + this.getWSRegion(3);
+        text += '('+ this.getWSRegion(2);
+
+        this.children.forEach((child, index) => {
+            if (index !== 0) {
+                text += ',';
+                text += child.getExpressionString({includePrecedingWS: true});
+            } else {
+                text += child.getExpressionString();
+            }
+        })
+        text += ')' + this.getWSRegion(3);
         return text;
     }
 
@@ -139,7 +134,7 @@ class FunctionInvocationExpression extends Expression {
      * @param {Object[]} jsonNode.children - The arguments of the function invocation.
      */
     initFromJson(jsonNode) {
-        this.getChildren().length = 0;
+        this.children = [];
         var self = this;
         this.setPackageName(jsonNode.package_name, {doSilently: true});
         if (_.isEqual(jsonNode.package_path, '.')){
@@ -153,50 +148,8 @@ class FunctionInvocationExpression extends Expression {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-
-        // TODO: Refactor this as well
-        this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
     }
 
-    /**
-     * Generates the arguments passed to a function as a string.
-     * @param {Object} jsonNode - A node explaining the structure function argument.
-     * @return {string} - Arguments as a string.
-     * @private
-     */
-    _generateArgsString(jsonNode) {
-        var self = this;
-        var argsString = "";
-
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
-            var childJsonNode = jsonNode.children[itr];
-            var child = self.getFactory().createFromJson(childJsonNode);
-            child.initFromJson(childJsonNode);
-            argsString += child.getExpressionString();
-
-            if (itr !== jsonNode.children.length - 1) {
-                argsString += ', ';
-            }
-        }
-        return argsString;
-    }
-
-    /**
-     * Get the action invocation statement
-     * @return {string} action invocation statement
-     */
-    generateExpression() {
-        let args = [];
-        _.forEach(this.getChildren(), child => {
-            args.push(child.generateExpression());
-        });
-        let argsString = _.join(args, ',');
-
-        var functionName = (_.isNil(this.getPackageName()) || _.isEqual(this.getPackageName(), 'Current Package') )
-            ? this.getFunctionName() : this.getPackageName() + ':' + this.getFunctionName();
-
-        return functionName + '(' + argsString +  ')';
-    }
 }
 
 export default FunctionInvocationExpression;

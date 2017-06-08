@@ -95,6 +95,9 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 
         var self = this;
         functionDefinition.on('tree-modified', function (modifiedData) {
+            if (_.isNil(modifiedData.data)) {
+                return;
+            }
             var attributeName = modifiedData.data.attributeName;
             var oldValue = modifiedData.data.oldValue;
             var newValue = modifiedData.data.newValue;
@@ -291,4 +294,3 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 }
 
 export default BallerinaASTRootVisitor;
-    

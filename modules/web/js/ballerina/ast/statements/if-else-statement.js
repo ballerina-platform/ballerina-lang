@@ -112,7 +112,7 @@ class IfElseStatement extends Statement {
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId)  {
         const lastElseIfIndex = _.findLastIndex(this.getChildren(), function (node) {
             return BallerinaASTFactory.isElseIfStatement(node);
         });
@@ -124,7 +124,8 @@ class IfElseStatement extends Statement {
         if (BallerinaASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
             index = elseStatementIndex;
         }
-        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        Object.getPrototypeOf(this.constructor.prototype)
+          .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) ;
     }
 
     /**
@@ -155,7 +156,7 @@ class IfElseStatement extends Statement {
         if (!_.isNil(jsonNode.else_if_statements) && _.isArray(jsonNode.else_if_statements)) {
             _.each(jsonNode.else_if_statements, (elseIfStmtNode) => {
                 if (!_.isNil(elseIfStmtNode)) {
-                    let elseIfStatement = this.getFactory().createFromJson(elseIfStmtNode);    
+                    let elseIfStatement = this.getFactory().createFromJson(elseIfStmtNode);
                     this.addChild(elseIfStatement);
                     elseIfStatement.initFromJson(elseIfStmtNode);
                     this._elseIfStatements.push(elseIfStatement);

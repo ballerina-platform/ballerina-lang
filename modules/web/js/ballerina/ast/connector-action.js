@@ -367,9 +367,10 @@ class ConnectorAction extends ASTNode {
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId)  {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child);
+            Object.getPrototypeOf(this.constructor.prototype)
+              .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
@@ -378,7 +379,8 @@ class ConnectorAction extends ASTNode {
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
             }
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+            Object.getPrototypeOf(this.constructor.prototype)
+            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         }
     }
 

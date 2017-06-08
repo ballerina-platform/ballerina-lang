@@ -267,9 +267,10 @@ class ResourceDefinition extends ASTNode {
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index, ignoreTreeModifiedEvent) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
+            Object.getPrototypeOf(this.constructor.prototype)
+            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) ;
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
@@ -278,7 +279,8 @@ class ResourceDefinition extends ASTNode {
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
             }
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
+            Object.getPrototypeOf(this.constructor.prototype)
+            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) ;
         }
     }
 

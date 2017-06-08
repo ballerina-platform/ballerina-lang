@@ -26,16 +26,16 @@ class FunctionInvocationStatement extends React.Component {
 		this.editorOptions = {
             propertyType: 'text',
             key: 'Function',
-            model: props.model.children[0],
-            getterMethod: props.model.children[0].getExpressionString,
-            setterMethod: props.model.children[0].setExpressionFromString
+            model: props.model,
+            getterMethod: props.model.getStatementString,
+            setterMethod: props.model.setStatementFromString
         };
 	}
 
 	render() {
 		let model = this.props.model,
 		    expression = model.viewState.expression;
-		return (<StatementDecorator viewState={model.viewState} expression={expression} 
+		return (<StatementDecorator viewState={model.viewState} expression={expression}
 					editorOptions={this.editorOptions} model={model} />);
     }
 }

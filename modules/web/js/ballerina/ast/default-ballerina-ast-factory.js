@@ -197,22 +197,6 @@ DefaultBallerinaASTFactory.createMainFunctionDefinition = function (args) {
     return functionDefinition;
 };
 
-/**Create the particular assignment statement for the function invocation
- * @param args
- * @returns {AssignmentStatement}
- */
-DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression = function (args) {
-    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-    var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-    var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-    var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
-    rightOp.addChild(functionInExp);
-    rightOp.setExpressionFromString(functionInExp.getExpression());
-    assignmentStmt.addChild(leftOp);
-    assignmentStmt.addChild(rightOp);
-    return assignmentStmt;
-};
-
 /**
  * creates Aggregated AssignmentStatement
  * @param {Object} args
@@ -238,8 +222,25 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
  * @returns {FunctionInvocationStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
-    var funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
-    var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+    let funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement();
+    let funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression();
+    if (!_.isNil(args)) {
+        let functionInvokeString = '';
+        if (!_.isNil(args.packageName)) {
+            functionInvokeString += args.packageName + ':';
+        }
+        functionInvokeString += args.functionDef.getName() + '(';
+        if (!_.isEmpty(args.functionDef.getParameters())) {
+            args.functionDef.getParameters().forEach((param, index) => {
+                if (index !== 0) {
+                    functionInvokeString += ', ';
+                }
+                functionInvokeString += param.name;
+            })
+        }
+        functionInvokeString += ')';
+        funcInvocationExpression.setExpressionFromString(functionInvokeString);
+    }
     funcInvocationStatement.addChild(funcInvocationExpression);
     return funcInvocationStatement;
 };

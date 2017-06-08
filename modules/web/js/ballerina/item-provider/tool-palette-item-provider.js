@@ -357,17 +357,10 @@ class ToolPaletteItemProvider extends EventChannel {
             }
 
             var packageName = _.last(_.split(pckg.getName(), '.'));
-            if (functionDef.getReturnParams().length > 0){
-                functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression;
-            } else {
-                functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
-            }
+            functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
             functionDef.meta = {
-                functionName: functionDef.getName(),
+                functionDef: functionDef,
                 packageName: packageName,
-                params: getArgumentString(functionDef.getParameters()),
-                returnParams: getReturnParamString(functionDef.getReturnParams()),
-                operandType: getReturnParamString(functionDef.getReturnParams()),
                 fullPackageName: pckg.getName()
             };
             functionDef.icon = self.icons.function;
@@ -475,14 +468,11 @@ class ToolPaletteItemProvider extends EventChannel {
             }
 
             var nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
-            if (functionDef.getReturnParams().length > 0){
-                nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression;
-            }
 
             // since functions are added to the current package, function name does not need
             // packageName:functionName format
             functionDef.meta = {
-                functionName: functionDef.getName()
+                functionDef: functionDef
             };
             var toolGroupID = pckg.getName() + "-tool-group";
             var icon = self.icons.function;
