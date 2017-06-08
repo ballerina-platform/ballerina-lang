@@ -137,6 +137,7 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.natives.typemappers.TypeMappingUtils;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
@@ -2181,6 +2182,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             valueExpr.accept(this);
 
+            if (structFieldType == BTypes.typeAny) {
+                AssignabilityResult result = performAssignabilityCheck(structFieldType, valueExpr);
+                if (result.implicitCastExpr != null) {
+                    valueExpr = result.implicitCastExpr;
+                    keyValueExpr.setValueExpr(valueExpr);
+                }
+            }
+
             if (!TypeMappingUtils.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
@@ -3334,9 +3343,26 @@ public class SemanticAnalyzer implements NodeVisitor {
             actionSymbol = nativeScope.resolve(name);
             if (actionSymbol != null) {
                 if (actionSymbol instanceof NativeUnitProxy) {
-                    NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
-                    Action action = (Action) nativeUnit;
-                    connectorDef.setInitAction(action);
+                    AbstractNativeAction nativeUnit = (AbstractNativeAction) ((NativeUnitProxy) actionSymbol).load();
+                    BallerinaAction.BallerinaActionBuilder ballerinaActionBuilder = new BallerinaAction
+                            .BallerinaActionBuilder(connectorDef);
+                    ballerinaActionBuilder.setIdentifier(nativeUnit.getIdentifier());
+                    ballerinaActionBuilder.setPkgPath(nativeUnit.getPackagePath());
+                    ballerinaActionBuilder.setNative(nativeUnit.isNative());
+                    ballerinaActionBuilder.setSymbolName(nativeUnit.getSymbolName());
+                    ParameterDef paramDef = new ParameterDef(connectorDef.getNodeLocation(), null,
+                            new Identifier(nativeUnit.getArgumentNames()[0]),
+                            nativeUnit.getArgumentTypeNames()[0],
+                            new SymbolName(nativeUnit.getArgumentNames()[0], connectorDef.getPackagePath()),
+                            ballerinaActionBuilder.getCurrentScope());
+                    paramDef.setType(connectorDef);
+                    ballerinaActionBuilder.addParameter(paramDef);
+                    BallerinaAction ballerinaAction = ballerinaActionBuilder.buildAction();
+                    ballerinaAction.setNativeAction((NativeUnitProxy) actionSymbol);
+                    ballerinaAction.setConnectorDef(connectorDef);
+                    BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+                    ballerinaAction.setParameterTypes(new BType[]{bType});
+                    connectorDef.setInitAction(ballerinaAction);
                 }
             }
         }
