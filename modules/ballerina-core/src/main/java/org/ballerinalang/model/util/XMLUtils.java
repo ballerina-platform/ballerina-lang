@@ -33,6 +33,7 @@ import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
@@ -117,7 +118,7 @@ public class XMLUtils {
      * @return  XML Sequence
      */
     public static BXML<?> parse(InputStream xmlStream) {
-        BArray<BXMLItem> elementsSeq = new BArray<>(BXMLItem.class);
+        BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
             doc = new StAXOMBuilder(xmlStream).getDocument();
@@ -140,12 +141,12 @@ public class XMLUtils {
      * @return Concatenated XML sequence
      */
     public static BXML<?> concatenate(BXML<?> firstSeq, BXML<?> secondSeq) {
-        BArray<BXMLItem> concatSeq = new BArray<>(BXMLItem.class);
+        BRefValueArray concatSeq = new BRefValueArray();
         int j = 0;
         
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BArray<BXMLItem> seq = ((BXMLSequence) firstSeq).value();
+            BRefValueArray seq = ((BXMLSequence) firstSeq).value();
             for (int i = 0; i < seq.size(); i++) {
                 concatSeq.add(j++, seq.get(i));
             }
@@ -155,7 +156,7 @@ public class XMLUtils {
         
         // Add all the items in the second sequence
         if (secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BArray<BXMLItem> seq = ((BXMLSequence) secondSeq).value();
+            BRefValueArray seq = ((BXMLSequence) secondSeq).value();
             for (int i = 0; i < seq.size(); i++) {
                 concatSeq.add(j++, seq.get(i));
             }
@@ -285,6 +286,6 @@ public class XMLUtils {
             throw new BallerinaException("cannot execute xpath on a xml sequence");
         }
         
-        return ((BXMLSequence) xml).value().get(0);
+        return (BXML) ((BXMLSequence) xml).value().get(0);
     }
 }

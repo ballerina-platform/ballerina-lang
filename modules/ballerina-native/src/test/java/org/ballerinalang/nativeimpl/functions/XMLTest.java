@@ -19,8 +19,8 @@ package org.ballerinalang.nativeimpl.functions;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -65,7 +65,7 @@ public class XMLTest {
     
     @Test
     public void testGetStringFromSeq() {
-        BArray<BXMLItem> seq = new BArray<>(BXMLItem.class);
+        BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person/name/text()") };
         BValue[] returns = BLangFunctions.invokeNew(programFile, "getString", args);
@@ -105,7 +105,7 @@ public class XMLTest {
 
     @Test
     public void testGetXMLFromSingletonSequence() {
-        BArray<BXMLItem> seq = new BArray<>(BXMLItem.class);
+        BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person") };
         BValue[] returns = BLangFunctions.invokeNew(programFile, "getXML", args);
@@ -121,7 +121,7 @@ public class XMLTest {
           expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
           "to get element from xml: cannot execute xpath on a xml sequence\" \\}")
     public void testGetXMLFromSequence() {
-        BArray<BXMLItem> seq = new BArray<>(BXMLItem.class);
+        BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         seq.add(1, new BXMLItem(s2));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person") };
@@ -196,7 +196,7 @@ public class XMLTest {
 
     @Test
     public void testSetStringToSingletonSequence() {
-        BArray<BXMLItem> seq = new BArray<>(BXMLItem.class);
+        BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person/name/text()"), new BString("Peter")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "setString", args);
@@ -209,7 +209,7 @@ public class XMLTest {
             expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
             "to set string in xml: cannot execute xpath on a xml sequence\" \\}")
     public void testSetStringToSequence() {
-        BArray<BXMLItem> seq = new BArray<>(BXMLItem.class);
+        BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
         seq.add(1, new BXMLItem(s2));
         BValue[] args = { new BXMLSequence(seq), new BString("/persons/person/name/text()"), new BString("Peter")};
@@ -588,7 +588,7 @@ public class XMLTest {
         
         // Check children
         Assert.assertTrue(returns[3] instanceof BXML);
-        BArray<BXMLItem> children = ((BXMLSequence) returns[3]).value();
+        BRefValueArray children = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(children.size(), 3);
         Assert.assertEquals(children.get(0).stringValue(), "<newFname>supun-new</newFname>");
         Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
@@ -606,7 +606,7 @@ public class XMLTest {
         
         // Check children of the copied xml
         Assert.assertTrue(returns[3] instanceof BXML);
-        BArray<BXMLItem> children = ((BXMLSequence) ((BXML) returns[0]).children()).value();
+        BRefValueArray children = ((BXMLSequence) ((BXML) returns[0]).children()).value();
         Assert.assertEquals(children.size(), 3);
         Assert.assertEquals(children.get(0).stringValue(), "<newFname>supun-new</newFname>");
         Assert.assertEquals(children.get(1).stringValue(), "<newMname>thilina-new</newMname>");
@@ -622,7 +622,7 @@ public class XMLTest {
         
         // Check children of the original xml
         Assert.assertTrue(returns[3] instanceof BXML);
-        BArray<BXMLItem> originalChildren = ((BXMLSequence) returns[3]).value();
+        BRefValueArray originalChildren = ((BXMLSequence) returns[3]).value();
         Assert.assertEquals(originalChildren.size(), 2);
         Assert.assertEquals(originalChildren.get(0).stringValue(), "<fname>supun</fname>");
         Assert.assertEquals(originalChildren.get(1).stringValue(), "<lname>setunga</lname>");

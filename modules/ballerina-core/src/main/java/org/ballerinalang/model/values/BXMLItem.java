@@ -238,7 +238,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> elements() {
-        BArray<BXMLItem> elementsSeq = new BArray<>(BXMLItem.class);
+        BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
                 elementsSeq.add(0, this);
@@ -254,7 +254,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> elements(BString qname) {
-        BArray<BXMLItem> elementsSeq = new BArray<>(BXMLItem.class);
+        BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
                 if (getElementName().equals(qname)) {
@@ -272,7 +272,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> children() {
-        BArray<BXMLItem> elementsSeq = new BArray<>(BXMLItem.class);
+        BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -293,7 +293,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> children(BString qname) {
-        BArray<BXMLItem> elementsSeq = new BArray<>(BXMLItem.class);
+        BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -329,9 +329,9 @@ public final class BXMLItem extends BXML<OMNode> {
         currentNode.removeChildren();
         
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BArray<BXMLItem> childSeq = ((BXMLSequence) seq).value();
+            BRefValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild(childSeq.get(i).value());
+                currentNode.addChild((OMNode) childSeq.get(i).value());
             }
         } else {
             currentNode.addChild((OMNode) seq.value());
