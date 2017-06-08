@@ -89,13 +89,9 @@ public class Send extends AbstractJMSAction {
 
         validateParams(bConnector);
 
+        // set return value to the current frame
         BValue valueRef = new BBoolean(true);
-
-        if (context.isVMBasedExecutor()) {
-            context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
-        } else {
-            context.getControlStack().setReturnValue(0, valueRef);
-        }
+        context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
 
         //Getting the map of properties.
         BMap<String, BString> properties = (BMap<String, BString>) bConnector.getValue(0);
