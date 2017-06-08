@@ -396,10 +396,34 @@ public class NameReference extends BallerinaElementReference {
                 // If the common context is file, that means the myElement is not in the scope where the
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
+
+                // If the definition node is in a ResourceDefinitionNode, common context should be
+                // CallableUnitBodyNode for the references to be on the same context.
+                ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(definitionElement,
+                        ResourceDefinitionNode.class);
+                if (resourceDefinitionNode != null && !(commonContext instanceof CallableUnitBodyNode)) {
+                    return false;
+                }
+
+                // If the definition node is in a ActionDefinitionNode, common context should be
+                // CallableUnitBodyNode for the references to be on the same context.
+                ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(definitionElement,
+                        ActionDefinitionNode.class);
+                if (actionDefinitionNode != null && !(commonContext instanceof CallableUnitBodyNode)) {
+                    return false;
+                }
+
+                // Otherwise, the common context can be
+                // 1) CallableUnitBodyNode - for functions
+                // 2) ConnectorBodyNode - for variables defined in connector body
+                // 3) ServiceBodyNode - for variables defined in service body
+                // 4) TypeMapperBodyNode - for variables defined in typemapper body
                 if (!(commonContext instanceof CallableUnitBodyNode || commonContext instanceof ConnectorBodyNode
                         || commonContext instanceof ServiceBodyNode || commonContext instanceof TypeMapperBodyNode)) {
                     return false;
                 }
+                // Variable definition node should not be listed as a usage. So we check the parent
+                // VariableDefinitionNode if one available.
                 VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(myElement,
                         VariableDefinitionNode.class);
                 if (variableDefinitionNode != null) {
@@ -412,7 +436,7 @@ public class NameReference extends BallerinaElementReference {
                 if (functionInvocationNode != null) {
                     return false;
                 }
-
+                // Don't check struct field references.
                 boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
                 if (!isStructField) {
                     return isValid((PsiNameIdentifierOwner) definitionElement, refName);
