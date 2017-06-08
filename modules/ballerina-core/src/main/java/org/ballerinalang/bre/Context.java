@@ -24,6 +24,7 @@ import org.ballerinalang.runtime.BalCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class Context {
     private CallableUnitInfo serviceInfo;
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
+    private DebugInfoHolder debugInfoHolder;
 
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
@@ -73,6 +75,14 @@ public class Context {
         this.programFile = programFile;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
+    }
+
+    public DebugInfoHolder getDebugInfoHolder() {
+        return debugInfoHolder;
+    }
+
+    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        this.debugInfoHolder = debugInfoHolder;
     }
 
     public ControlStack getControlStack() {

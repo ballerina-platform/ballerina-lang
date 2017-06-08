@@ -1,31 +1,13 @@
-/*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
 package org.ballerinalang.bre.bvm;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
+import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
@@ -46,29 +28,17 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.BalConnectorCallback;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
-import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.Mnemonics;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -80,61 +50,45 @@ import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
-import java.io.PrintStream;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Stack;
 import java.util.StringJoiner;
+import java.util.concurrent.Semaphore;
 
 /**
- * @since 0.87
+ * Created by rajith on 6/5/17.
  */
-public class BLangVM {
+public class BLangVMDebugger extends BLangVM implements Runnable {
+    private DebugSessionObserver debugSessionObserver;
+    private volatile Semaphore executionSem;
+    private boolean mainThread = false;
 
-    private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
-    protected Context context;
-    protected ControlStackNew controlStack;
-    private ProgramFile programFile;
-    protected ConstantPoolEntry[] constPool;
-
-    // Instruction pointer;
-    protected int ip = 0;
-    protected Instruction[] code;
-
-    protected StructureType globalMemBlock;
-
-    public BLangVM(ProgramFile programFile) {
-        this.programFile = programFile;
-        this.globalMemBlock = programFile.getGlobalMemoryBlock();
+    public BLangVMDebugger(ProgramFile programFile, Context bContext) {
+        super(programFile);
+        this.executionSem = new Semaphore(0);
+        this.context = bContext;
     }
 
-    // TODO Remove
-    protected void traceCode(PackageInfo packageInfo) {
-        PrintStream printStream = System.out;
-        for (int i = 0; i < code.length; i++) {
-            printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
-                    getOperandsLine(code[i].getOperands()));
+    public void setMainThread(boolean mainThread) {
+        this.mainThread = mainThread;
+    }
+
+    public void run() {
+        if (mainThread) {
+            try {
+                executionSem.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        if (debugSessionObserver != null) {
+            context.getDebugInfoHolder().setDebugSessionObserver(debugSessionObserver);
         }
 
-        printStream.println("ErrorTable\n\t\tfrom\tto\ttarget\terror");
-        packageInfo.getErrorTableEntriesList().forEach(error -> printStream.println(error.toString()));
-
-        printStream.println("LineNumberTable\n\tline\t\tip");
-        packageInfo.getLineNumberInfoList().forEach(line -> printStream.println(line.toString()));
-    }
-
-    public void run(Context context) {
         StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
         this.constPool = currentFrame.packageInfo.getConstPool();
         this.code = currentFrame.packageInfo.getInstructions();
@@ -144,8 +98,10 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = context.getStartIP();
 
+//        CallableUnitInfo callee = this.controlStack.getRootFrame().callableUnitInfo;
+
         traceCode(currentFrame.packageInfo);
-            
+
         if (context.getError() != null) {
             handleError();
         } else if (context.actionInfo != null) {
@@ -164,6 +120,8 @@ public class BLangVM {
             context.actionInfo = null;
         }
         exec();
+
+        VMDebugManager.getInstance().setDone(true);
     }
 
     /**
@@ -1315,10 +1273,7 @@ public class BLangVM {
                         message = (BMessage) sf.refRegs[i];
                     }
                     context.setError(null);
-                    if (context.getBalCallback() != null &&
-                            ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
-                        context.getBalCallback().done(message != null ? message.value() : null);
-                    }
+                    context.getBalCallback().done(message != null ? message.value() : null);
                     ip = -1;
                     break;
                 case InstructionCodes.IRET:
@@ -1375,663 +1330,188 @@ public class BLangVM {
                 default:
                     throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
             }
+            debugging(ip);
         }
     }
 
-    protected void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-        int[] argRegs = funcCallCPEntry.getArgRegs();
-        BType[] paramTypes = callableUnitInfo.getParamTypes();
-        StackFrame callerSF = controlStack.getCurrentFrame();
-
-        WorkerInfo defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
-        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
-        controlStack.pushFrame(calleeSF);
-
-        // Copy arg values from the current StackFrame to the new StackFrame
-        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-
-        // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool();
-        this.code = calleeSF.packageInfo.getInstructions();
-        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
-
-        // Invoke other workers
-        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
-
-    }
-
-    protected void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
-        StackFrame currentFrame = controlStack.getCurrentFrame();
-
-        // Extract the outgoing expressions
-        BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
-        copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
-                workerInvokeCPEntry.getbTypes(), arguments);
-
-        //populateArgumentValuesForWorker(expressions, arguments);
-        if (workerDataChannel != null) {
-            workerDataChannel.putData(arguments);
-        }
-
-//        else {
-//            BArray<BValue> bArray = new BArray<>(BValue.class);
-//            for (int j = 0; j < arguments.length; j++) {
-//                BValue returnVal = arguments[j];
-//                bArray.add(j, returnVal);
-//            }
-//            controlStack.setReturnValue(0, bArray);
-//        }
-    }
-
-    protected void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
-
-        BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
-        StackFrame currentFrame = controlStack.getCurrentFrame();
-        //currentFrame.returnValues = passedInValues;
-        copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
-                workerReplyCPEntry.getTypes(), passedInValues);
-//        for (int i = 0; i < localVars.length; i++) {
-//            Expression lExpr = localVars[i];
-//            BValue rValue = passedInValues[i];
-//            if (lExpr instanceof VariableRefExpr) {
-//                assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
-//            } else if (lExpr instanceof ArrayMapAccessExpr) {
-//                assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
-//            } else if (lExpr instanceof FieldAccessExpr) {
-//                assignValueToFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
-//            }
-//        }
-//        int[] argRegs = funcCallCPEntry.getArgRegs();
-//        BType[] paramTypes = callableUnitInfo.getParamTypes();
-//        StackFrame callerSF = controlStack.getCurrentFrame();
-//
-//        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
-//        controlStack.pushFrame(calleeSF);
-//
-//        // Copy arg values from the current StackFrame to the new StackFrame
-//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-//
-//        // TODO Improve following two lines
-//        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-//        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
-//        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
-    }
-
-    protected static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
-                                                    BValue[] arguments) {
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    arguments[i] = new BInteger(callerSF.longRegs[argReg]);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    arguments[i] = new BFloat(callerSF.doubleRegs[argReg]);
-                    break;
-                case TypeTags.STRING_TAG:
-                    arguments[i] = new BString(callerSF.stringRegs[argReg]);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    boolean temp = (callerSF.intRegs[argReg]) > 0 ? true : false;
-                    arguments[i] = new BBoolean(temp);
-                    break;
-                default:
-                    arguments[i] = callerSF.refRegs[argReg];
-            }
-        }
-    }
-
-    protected static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
-                                                   BValue[] passedInValues) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    currentSF.getLongRegs()[++longRegIndex] = ((BInteger) passedInValues[i]).intValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    currentSF.getDoubleRegs()[++doubleRegIndex] = ((BFloat) passedInValues[i]).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    currentSF.getStringRegs()[++stringRegIndex] = ((BString) passedInValues[i]).stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    currentSF.getIntRegs()[++booleanRegIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
-                    break;
-                default:
-                    currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
-            }
-        }
-    }
-
-
-    protected static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-        int blobRegIndex = -1;
-
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
-                    break;
-                case TypeTags.STRING_TAG:
-                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
-                    break;
-                default:
-                    calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
-            }
-        }
-    }
-
-    protected void handleReturn() {
-        StackFrame currentSF = controlStack.popFrame();
-        context.setError(null);
-        if (controlStack.fp >= 0) {
-            StackFrame callersSF = controlStack.currentFrame;
-            // TODO Improve
-            this.constPool = callersSF.packageInfo.getConstPool();
-            this.code = callersSF.packageInfo.getInstructions();
-        }
-        ip = currentSF.retAddrs;
-    }
-
-    protected String getOperandsLine(int[] operands) {
-        if (operands.length == 0) {
-            return "";
-        }
-
-        if (operands.length == 1) {
-            return "" + operands[0];
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(operands[0]);
-        for (int i = 1; i < operands.length; i++) {
-            sb.append(" ");
-            sb.append(operands[i]);
-        }
-        return sb.toString();
-    }
-
-    protected void invokeNativeFunction(FunctionInfo functionInfo, FunctionCallCPEntry funcCallCPEntry) {
-        StackFrame callerSF = controlStack.currentFrame;
-        BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
-                functionInfo.getParamTypes());
-
-        // TODO Remove
-        prepareStructureTypeForNativeAction(nativeArgValues);
-
-        BType[] retTypes = functionInfo.getRetParamTypes();
-        BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(functionInfo, nativeArgValues, returnValues);
-        controlStack.pushFrame(caleeSF);
-
-        // Invoke Native function;
-        AbstractNativeFunction nativeFunction = functionInfo.getNativeFunction();
-        try {
-            nativeFunction.executeNative(context);
-        } catch (Throwable e) {
-            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            controlStack.popFrame();
-            handleError();
+    public void debugging(int cp) {
+        if (cp < 0) {
             return;
         }
-        // Copy return values to the callers stack
-        controlStack.popFrame();
-        handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
+        String lineNum;
+        NodeLocation location;
+        LineNumberInfo currentExecLine = controlStack.currentFrame.packageInfo.getLineNumberInfo(cp);
 
-        // TODO Remove
-        prepareStructureTypeFromNativeAction(nativeArgValues);
-    }
+        DebugInfoHolder holder = context.getDebugInfoHolder();
+        if (code[cp].getOpcode() == InstructionCodes.CALL) {
+            holder.pushFunctionCallNextIp(cp + 1);
+        }
+        if (holder.getCurrentCommand() == null) {
+            lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber();
+            location = holder.getDebugPoint(lineNum);
+            if (location != null) {
+                holder.getCurrentLineStack().push(currentExecLine);
+                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
+                aquireLock();
+            }
+            return;
+        }
 
-    protected void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
-        StackFrame callerSF = controlStack.currentFrame;
-        BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
-                actionInfo.getParamTypes());
-
-        // TODO Remove
-        prepareStructureTypeForNativeAction(nativeArgValues);
-
-        BType[] retTypes = actionInfo.getRetParamTypes();
-        BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(actionInfo, nativeArgValues, returnValues);
-        controlStack.pushFrame(caleeSF);
-
-        AbstractNativeAction nativeAction = actionInfo.getNativeAction();
-        try {
-            if (!context.initFunction && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
-                // Enable non-blocking.
-                context.setStartIP(ip);
-                // TODO : Temporary solution to make non-blocking working.
-                if (caleeSF.packageInfo == null) {
-                    caleeSF.packageInfo = actionInfo.getPackageInfo();
+        switch (holder.getCurrentCommand()) {
+            case RESUME:
+                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
+                        .equals(holder.getCurrentLineStack().peek())) {
+                    return;
                 }
-                context.programFile = programFile;
-                context.nativeArgValues = nativeArgValues;
-                context.funcCallCPEntry = funcCallCPEntry;
-                context.actionInfo = actionInfo;
-                BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
-                connectorCallback.setNativeAction(nativeAction);
-                nativeAction.execute(context, connectorCallback);
-                ip = -1;
-                return;
-                // release thread.
-            } else {
-                nativeAction.execute(context);
-                // Copy return values to the callers stack
-                controlStack.popFrame();
-                handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
-
-                // TODO Remove
-                prepareStructureTypeFromNativeAction(nativeArgValues);
-            }
-        } catch (Throwable e) {
-            context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            controlStack.popFrame();
-            handleError();
-            return;
-        }
-    }
-
-    protected static BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
-        BValue[] nativeArgValues = new BValue[paramTypes.length];
-        for (int i = 0; i < argRegs.length; i++) {
-            BType paramType = paramTypes[i];
-            int argReg = argRegs[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    nativeArgValues[i] = new BInteger(callerSF.longRegs[argReg]);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    nativeArgValues[i] = new BFloat(callerSF.doubleRegs[argReg]);
-                    break;
-                case TypeTags.STRING_TAG:
-                    nativeArgValues[i] = new BString(callerSF.stringRegs[argReg]);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    nativeArgValues[i] = new BBoolean(callerSF.intRegs[argReg] == 1);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    nativeArgValues[i] = new BBlob(callerSF.byteRegs[argReg]);
-                    break;
-                default:
-                    nativeArgValues[i] = callerSF.refRegs[argReg];
-            }
-        }
-        return nativeArgValues;
-    }
-
-    protected static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
-                                                          BValue[] returnValues, BType[] retTypes) {
-        for (int i = 0; i < returnValues.length; i++) {
-            int callersRetRegIndex = returnRegIndexes[i];
-            BType retType = retTypes[i];
-            switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    callerSF.longRegs[callersRetRegIndex] = ((BInteger) returnValues[i]).intValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    callerSF.doubleRegs[callersRetRegIndex] = ((BFloat) returnValues[i]).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    callerSF.intRegs[callersRetRegIndex] = ((BBoolean) returnValues[i]).booleanValue() ? 1 : 0;
-                    break;
-                case TypeTags.BLOB_TAG:
-                    callerSF.byteRegs[callersRetRegIndex] = ((BBlob) returnValues[i]).blobValue();
-                    break;
-                default:
-                    callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
-            }
-        }
-    }
-
-    // TODO Remove this once all the native actions are refactored
-    private void prepareStructureTypeForNativeAction(BValue[] bValues) {
-        for (BValue bValue : bValues) {
-            if (bValue instanceof StructureType) {
-                prepareStructureTypeForNativeAction((StructureType) bValue);
-            }
-        }
-    }
-
-    private void prepareStructureTypeForNativeAction(StructureType structureType) {
-        BType[] fieldTypes = structureType.getFieldTypes();
-        BValue[] memoryBlock = new BValue[fieldTypes.length];
-
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
-
-        for (int i = 0; i < fieldTypes.length; i++) {
-            BType paramType = fieldTypes[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    memoryBlock[i] = new BInteger(structureType.getIntField(++longRegIndex));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    memoryBlock[i] = new BFloat(structureType.getFloatField(++doubleRegIndex));
-                    break;
-                case TypeTags.STRING_TAG:
-                    memoryBlock[i] = new BString(structureType.getStringField(++stringRegIndex));
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    memoryBlock[i] = new BBoolean(structureType.getBooleanField(++booleanRegIndex) == 1);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    memoryBlock[i] = new BBlob(structureType.getBlobField(++blobRegIndex));
-                    break;
-                default:
-                    memoryBlock[i] = structureType.getRefField(++refRegIndex);
-            }
-        }
-
-        structureType.setMemoryBlock(memoryBlock);
-    }
-
-    // TODO Remove this once all the native actions are refactored
-    public static void prepareStructureTypeFromNativeAction(BValue[] bValues) {
-        for (BValue bValue : bValues) {
-            if (bValue instanceof StructureType) {
-                prepareStructureTypeFromNativeAction((StructureType) bValue);
-            }
-        }
-    }
-
-    public static void prepareStructureTypeFromNativeAction(StructureType structureType) {
-        BType[] fieldTypes = structureType.getFieldTypes();
-        BValue[] memoryBlock = structureType.getMemoryBlock();
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
-
-        for (int i = 0; i < fieldTypes.length; i++) {
-            BType paramType = fieldTypes[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    structureType.setIntField(++longRegIndex, ((BInteger) memoryBlock[i]).intValue());
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    structureType.setFloatField(++doubleRegIndex, ((BFloat) memoryBlock[i]).floatValue());
-                    break;
-                case TypeTags.STRING_TAG:
-                    structureType.setStringField(++stringRegIndex, memoryBlock[i].stringValue());
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    structureType.setBooleanField(++booleanRegIndex,
-                            ((BBoolean) memoryBlock[i]).booleanValue() ? 1 : 0);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    structureType.setBlobField(++blobRegIndex, ((BBlob) memoryBlock[i]).blobValue());
-                    break;
-                default:
-                    structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
-            }
-        }
-    }
-
-    protected boolean checkCast(BType sourceType, BType targetType) {
-        if (sourceType.equals(targetType)) {
-            return true;
-        }
-
-        if (sourceType.getTag() == TypeTags.STRUCT_TAG && targetType.getTag() == TypeTags.STRUCT_TAG) {
-            return checkStructEquivalency((BStructType) sourceType, (BStructType) targetType);
-
-        }
-
-        if (targetType.getTag() == TypeTags.ANY_TAG) {
-            return true;
-        }
-
-        // Array casting
-        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            return checkArrayCast(sourceType, targetType);
-        }
-
-        return true;
-    }
-
-    private boolean checkArrayCast(BType sourceType, BType targetType) {
-        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType sourceArrayType = (BArrayType) sourceType;
-            BArrayType targetArrayType = (BArrayType) targetType;
-            if (targetArrayType.getDimensions() > sourceArrayType.getDimensions()) {
-                return false;
-            }
-
-            return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType());
-        } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            return targetType.getTag() == TypeTags.ANY_TAG;
-        }
-
-        return sourceType.equals(targetType);
-    }
-
-    public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
-        // Struct Type equivalency
-        BStructType.StructField[] sFields = sourceType.getStructFields();
-        BStructType.StructField[] tFields = targetType.getStructFields();
-
-        if (tFields.length > sFields.length) {
-            return false;
-        }
-
-        for (int i = 0; i < tFields.length; i++) {
-            if (tFields[i].getFieldType() == sFields[i].getFieldType() &&
-                    tFields[i].getFieldName().equals(sFields[i].getFieldName())) {
-                continue;
-            }
-            return false;
-        }
-
-        return true;
-    }
-
-    // TODO Refactor these methods and move them to a proper util class
-    protected static void convertJSONToInt(int[] operands, StackFrame sf) {
-        int i = operands[0];
-        int j = operands[1];
-        int k = operands[2];
-
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeInt);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
-
-        JsonNode jsonNode;
-        try {
-            jsonNode = jsonValue.value();
-        } catch (BallerinaException e) {
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeInt, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-        }
-
-        if (jsonNode.isInt() || jsonNode.isLong()) {
-            sf.longRegs[j] = jsonNode.longValue();
-            return;
-        }
-
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                BTypes.typeInt, JSONUtils.getTypeName(jsonNode));
-    }
-
-    protected static void convertJSONToFloat(int[] operands, StackFrame sf) {
-        int i = operands[0];
-        int j = operands[1];
-        int k = operands[2];
-
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
-// BTypes.typeFloat);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
-
-        JsonNode jsonNode;
-        try {
-            jsonNode = jsonValue.value();
-        } catch (BallerinaException e) {
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeFloat, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-        }
-
-        if (jsonNode.isFloat() || jsonNode.isDouble()) {
-            sf.doubleRegs[j] = jsonNode.doubleValue();
-            return;
-        }
-
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
-    }
-
-    protected static void convertJSONToString(int[] operands, StackFrame sf) {
-        int i = operands[0];
-        int j = operands[1];
-        int k = operands[2];
-
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
-// BTypes.typeString);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
-
-        try {
-            sf.stringRegs[j] = jsonValue.stringValue();
-        } catch (BallerinaException e) {
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeString, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-        }
-    }
-
-    protected static void convertJSONToBoolean(int[] operands, StackFrame sf) {
-        int i = operands[0];
-        int j = operands[1];
-        int k = operands[2];
-
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
-// BTypes.typeBoolean);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
-
-        JsonNode jsonNode;
-        try {
-            jsonNode = jsonValue.value();
-        } catch (BallerinaException e) {
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeBoolean, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-        }
-
-        if (jsonNode.isBoolean()) {
-            sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
-            return;
-        }
-
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
-    }
-
-    protected void handleError() {
-        int currentIP = ip - 1;
-        StackFrame currentFrame = controlStack.getCurrentFrame();
-        ErrorTableEntry match = null;
-        while (controlStack.fp >= 0) {
-            match = ErrorTableEntry.getMatch(currentFrame.packageInfo, currentIP, context.getError());
-            if (match != null) {
-                break;
-            }
-            controlStack.popFrame();
-            if (controlStack.getCurrentFrame() == null) {
-                break;
-            }
-            currentIP = currentFrame.retAddrs - 1;
-            currentFrame = controlStack.getCurrentFrame();
-        }
-        if (controlStack.getCurrentFrame() == null) {
-            // root level error handling.
-            ip = -1;
-            PrintStream err = System.err;
-            err.println(BLangVMErrors.getPrintableStackTrace(context.getError()));
-            if (context.getCarbonMessage() != null) {
-                // Invoke ServiceConnector error handler.
-                Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
-                Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                        BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-                try {
-                    optionalErrorHandler
-                            .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                            .handleError(new BallerinaException(BLangVMErrors.getErrorMsg(context.getError
-                                            ())),
-                                    context.getCarbonMessage(), context.getBalCallback());
-                } catch (Exception e) {
-                    logger.error("cannot handle error using the error handler for: " + protocol, e);
+                lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber();
+                location = holder.getDebugPoint(lineNum);
+                if (location == null) {
+                    return;
                 }
-            }
-            return;
+                if (!holder.getCurrentLineStack().isEmpty()) {
+                    holder.getCurrentLineStack().pop();
+                    if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
+                            .equals(holder.getCurrentLineStack().peek())) {
+                        return;
+                    }
+                }
+                holder.setPreviousIp(cp);
+                holder.getCurrentLineStack().push(currentExecLine);
+                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
+                aquireLock();
+                break;
+            case STEP_IN:
+                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
+                        .equals(holder.getCurrentLineStack().peek())) {
+                    return;
+                }
+
+                holder.setPreviousIp(cp);
+                holder.getCurrentLineStack().push(currentExecLine);
+                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
+                aquireLock();
+                break;
+            case STEP_OVER:
+                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
+                    holder.setNextIp(holder.getPreviousIp() + 1);
+                    if (cp == holder.getNextIp()) {
+                        holder.setNextIp(-1);
+                        holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                        return;
+                    }
+                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.NEXT_LINE);
+                } else {
+                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                }
+                break;
+            case STEP_OUT:
+                if (holder.peekFunctionCallNextIp() != cp) {
+                    return;
+                }
+                holder.popFunctionCallNextIp();
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                break;
+            case NEXT_LINE:
+                if (cp == holder.getNextIp()) {
+                    holder.setNextIp(-1);
+                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                    return;
+                }
+                break;
         }
-        // match should be not null at this point.
-        if (match != null) {
-            PackageInfo packageInfo = currentFrame.packageInfo;
-            this.constPool = packageInfo.getConstPool();
-            this.code = packageInfo.getInstructions();
-            ip = match.getIpTarget();
-            return;
+
+    }
+
+    private void aquireLock() {
+        try {
+            executionSem.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace(); //todo fixme
         }
-        ip = -1;
-        logger.error("fatal error. incorrect error table entry.");
+    }
+
+    public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
+
+        NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
+                current.getFileName(), current.getLineNumber());
+        BreakPointInfo breakPointInfo = new BreakPointInfo(location);
+        for (StackFrame stackFrame : context.getControlStackNew().getStack()) {
+//            String pck = (stackFrame.packageInfo.getPkgPath() == null ? "default" : stackFrame
+//                    .packageInfo.getPkgPath());
+//            String functionName = stackFrame.callableUnitInfo.getName();
+//            NodeLocation location = stackFrame.getNodeInfo().getNodeLocation();
+//            FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
+//            HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables = stackFrame.variables;
+//            if (null != variables) {
+//                for (SymbolName name : variables.keySet()) {
+//                    AbstractMap.SimpleEntry<Integer, String> offSet = variables.get(name);
+//                    BValue value = null;
+//                    switch (offSet.getValue()) {
+//                        case "Arg":
+//                        case "Local":
+//                            value = stackFrame.values[offSet.getKey()];
+//                            break;
+//                        case "Service":
+//                        case "Const":
+//                            value = runtimeEnvironment.getStaticMemory().getValue(offSet.getKey());
+//                            break;
+//                        case "Connector":
+//                            BConnector bConnector = (BConnector) stackFrame.values[0];
+//                            if (bConnector != null) {
+//                                bConnector.getValue(offSet.getKey());
+//                            }
+//                            break;
+//                        default:
+//                            value = null;
+//                    }
+//                    VariableInfo variableInfo = new VariableInfo(name.getName(), offSet.getValue());
+//                    variableInfo.setBValue(value);
+//                    frameInfo.addVariableInfo(variableInfo);
+//                }
+//            }
+//            breakPointInfo.addFrameInfo(frameInfo);
+        }
+        return breakPointInfo;
+    }
+
+    public void setDebugSessionObserver(DebugSessionObserver debugSessionObserver) {
+        this.debugSessionObserver = debugSessionObserver;
+        if (context != null) {
+            this.context.getDebugInfoHolder().setDebugSessionObserver(debugSessionObserver);
+        }
+    }
+
+    public void addDebugPoints(List<NodeLocation> breakPoints) {
+        if (context != null) {
+            this.context.getDebugInfoHolder().addDebugPoints(breakPoints);
+        }
+    }
+
+    public void resume() {
+        context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+        executionSem.release();
+    }
+
+    public void stepIn() {
+        context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+        executionSem.release();
+    }
+
+    public void stepOver() {
+        context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER);
+        executionSem.release();
+    }
+
+    public void stepOut() {
+        context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT);
+        executionSem.release();
+    }
+
+    public void clearDebugPoints() {
+        context.getDebugInfoHolder().clearDebugLocations();
+    }
+
+    public void addDebugPoint(NodeLocation nodeLocation) {
+        context.getDebugInfoHolder().addDebugPoint(nodeLocation);
     }
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMDebugger;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
@@ -46,7 +47,9 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.DebugManager;
+import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -172,7 +175,17 @@ public class BLangProgramRunner {
         BLangVM bLangVM = new BLangVM(programFile);
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         // TODO invoke package <init> function
-        bLangVM.run(bContext);
+        if (ModeResolver.getInstance().isDebugEnabled()) {
+            bContext.setDebugInfoHolder(new DebugInfoHolder());
+            BLangVMDebugger vmDebugger = new BLangVMDebugger(programFile, bContext);
+            VMDebugManager debugManager = VMDebugManager.getInstance();
+            // This will start the websocket server.
+            debugManager.init(vmDebugger);
+            debugManager.waitTillClientConnect();
+            debugManager.holdON();
+        } else {
+            bLangVM.run(bContext);
+        }
     }
 
     @Deprecated
