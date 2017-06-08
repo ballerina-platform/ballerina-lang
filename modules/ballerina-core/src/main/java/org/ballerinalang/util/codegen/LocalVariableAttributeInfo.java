@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.util.codegen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * {@code LocalVariableAttributeInfo} contains common metadata of parameters
  * of a Ballerina function/resource/action in the program file.
@@ -24,26 +27,29 @@ package org.ballerinalang.util.codegen;
  * @since 0.88
  */
 public class LocalVariableAttributeInfo implements AttributeInfo {
-    private LocalVariableInfo[] localVariables;
-    private int indexCounter = 0;
 
-    public LocalVariableAttributeInfo(int size) {
-        localVariables = new LocalVariableInfo[size];
+    // Index to a UTF8CPEntry
+    private int attributeNameIndex;
+
+    public LocalVariableAttributeInfo(int attributeNameIndex) {
+        this.attributeNameIndex = attributeNameIndex;
     }
 
-    public LocalVariableInfo[] getLocalVariables() {
+    protected List<LocalVariableInfo> localVariables = new ArrayList<>();
+
+    public List<LocalVariableInfo> getLocalVariables() {
         return localVariables;
     }
 
-    public void setLocalVariables(LocalVariableInfo[] localVariables) {
+    public void setLocalVariables(List<LocalVariableInfo> localVariables) {
         this.localVariables = localVariables;
     }
 
-    public void addLocaleVaraibleDetails(LocalVariableInfo localVariableDetails) {
-        this.localVariables[indexCounter++] = localVariableDetails;
+    public void addLocalVarInfo(LocalVariableInfo localVariableInfo) {
+        this.localVariables.add(localVariableInfo);
     }
 
     public LocalVariableInfo getLocalVariableDetails(int index) {
-        return this.localVariables[index];
+        return this.localVariables.get(index);
     }
 }
