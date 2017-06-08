@@ -157,6 +157,9 @@ public class NativeConversionMapper {
 
     public static final TriFunction<BValueType, BType, Boolean, BValue[]> BOOLEAN_TO_JSON_FUNC = 
             (rVal, targetType, returnErrors) -> new BValue[] { new BJSON(rVal.stringValue()), null };
+
+    public static final TriFunction<BValueType, BType, Boolean, BValue[]> NULL_TO_JSON_FUNC =
+            (rVal, targetType, returnErrors) -> new BValue[] { new BJSON("null"), null };
                     
     public static final TriFunction<BValue, BType, Boolean, BValue[]> JSON_TO_STRING_FUNC = 
         (rVal, targetType, returnErrors) -> {

@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.functions;
 import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -34,6 +35,8 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * Test Native functions in ballerina.model.string.
@@ -298,6 +301,17 @@ public class StringTest {
         Assert.assertEquals((((BArray) returns[0]).get(0)).stringValue(), "name1");
         Assert.assertEquals((((BArray) returns[0]).get(1)).stringValue(), "name2");
         Assert.assertEquals((((BArray) returns[0]).get(2)).stringValue(), "name3");
+    }
+
+    @Test
+    public void testToBlob() throws UnsupportedEncodingException {
+
+        String content = "Sample Content";
+        BValue[] args = { new BString(content), new BString("UTF-8") };
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toBlob", args);
+
+        Assert.assertEquals(((BBlob) returns[0]).blobValue(), content.getBytes("UTF-8"),
+                            "Produced Blob value is wrong");
     }
 
 }

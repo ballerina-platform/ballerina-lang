@@ -18,11 +18,11 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -36,16 +36,17 @@ import org.testng.annotations.Test;
  */
 public class UnaryExprTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
+
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/unary-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/unary-expr.bal");
     }
 
     @Test(description = "Test unary negative expression")
     public void integerUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeIntTest");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "negativeIntTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -60,7 +61,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test int positive unary expression")
     public void positiveIntegerUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveIntTest");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "positiveIntTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -75,7 +76,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeFloatTest");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "negativeFloatTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -90,7 +91,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test float positive unary expression")
     public void positiveFloatUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveFloatTest");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "positiveFloatTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -105,7 +106,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary boolean not expression")
     public void booleanUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "booleanNotTest");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "booleanNotTest");
 
         Assert.assertEquals(returns.length, 3);
 
@@ -124,7 +125,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary boolean not expression in if else")
     public void unaryExprInIfConditionTest() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "unaryExprInIfConditionTest");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "unaryExprInIfConditionTest");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -142,7 +143,7 @@ public class UnaryExprTest {
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "unaryNegationTest", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "unaryNegationTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
@@ -161,7 +162,7 @@ public class UnaryExprTest {
 
         BValue[] args = {new BInteger(a)};
 
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "unaryPositiveNegationTest", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "unaryPositiveNegationTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
@@ -179,7 +180,7 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-positive.bal:5: invalid operation: " +
                     "operator \\+ not defined on 'json'")
     public void testUnaryPositiveForUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-positive.bal");
+        BTestUtils.getProgramFile("lang/expressions/unsupported-types-unary-positive.bal");
     }
 
     @Test(description = "Test unary negative for unsupported types (json)",
@@ -187,7 +188,7 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-negative.bal:5: invalid operation: " +
                     "operator - not defined on 'json'")
     public void testUnaryNegativeForUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-negative.bal");
+        BTestUtils.getProgramFile("lang/expressions/unsupported-types-unary-negative.bal");
     }
 
     @Test(description = "Test unary not for unsupported types (json)",
@@ -195,6 +196,6 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-not.bal:5: invalid operation: " +
                     "operator ! not defined on 'json'")
     public void testUnaryNotForUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-not.bal");
+        BTestUtils.getProgramFile("lang/expressions/unsupported-types-unary-not.bal");
     }
 }

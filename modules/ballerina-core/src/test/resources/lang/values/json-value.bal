@@ -202,7 +202,7 @@ function testJsonExprAsIndex() (string) {
     string addressKey = "address";
     string cityKey = "city";
     
-    return (string)j.address[j.address.area];
+    return (string)j.address[(string)j.address.area];
 }
 
 function testSetArrayOutofBoundElement() (json) {
@@ -252,4 +252,19 @@ function testUpdateNestedElement() (json) {
     json j = {details: {fname:"Supun", lname:"Thilina"}};
     j.details.lname = "Setunga";
     return j;
+}
+
+function testEmptyStringToJson() (json) {
+    string s = "";
+    return <json> s;
+}
+
+function testJsonStringToJson() (json) {
+    string s = "{\"name\", \"supun\"}";
+    return <json> s;
+}
+
+function testStringWithEscapedCharsToJson() (json) {
+    string s = "{\\\"name\\\", \"supun\"}";
+    return <json> s;
 }

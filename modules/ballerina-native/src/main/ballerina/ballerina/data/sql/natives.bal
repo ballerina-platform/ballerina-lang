@@ -43,7 +43,7 @@ connector ClientConnector (map options) {
 	@doc:Param { value:"parameters: Parameter array" }
 	@doc:Return { value:"rowCount: Updated row count" }
 	@doc:Return { value:"generatedKeys: Generated keys array" }
-	native action updateWithGeneratedKeys (ClientConnector c, string query, Parameter[] parameters) (int, string[]);
+	native action updateWithGeneratedKeysToDelete (ClientConnector c, string query, Parameter[] parameters) (int, string[]);
 
 	@doc:Description { value:"The update with generated keys given columns action implementation for SQL connector."}
 	@doc:Param { value:"c: Connector" }

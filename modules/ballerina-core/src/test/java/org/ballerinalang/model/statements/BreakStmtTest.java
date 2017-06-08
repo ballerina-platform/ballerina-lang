@@ -18,9 +18,9 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -33,17 +33,17 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class BreakStmtTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/break-stmt.bal");
+        programFile = BTestUtils.getProgramFile("lang/statements/break-stmt.bal");
     }
 
     @Test(description = "Test break statement in a while loop.")
     public void testBreakStmtConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateExp1", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -56,7 +56,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a while loop, where break in a ")
     public void testBreakStmtConditionElseIf() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateExp1", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -69,7 +69,7 @@ public class BreakStmtTest {
     @Test(description = "Test break statement in a while loop, where break not hits")
     public void testBreakStmtConditionFalse() {
         BValue[] args = {new BInteger(8), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateExp1", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "calculateExp1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -79,16 +79,29 @@ public class BreakStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test break statement in a nested while loop.")
+    public void testBreakStmtInNestedWhile() {
+        BValue[] args = {new BInteger(12), new BInteger(8)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedBreakStmt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 140;
+        Assert.assertEquals(actual, expected);
+    }
+
     @Test(description = "Check invalid break statement location.", expectedExceptions = SemanticException.class,
     expectedExceptionsMessageRegExp = ".*break statement is not allowed here*")
     public void testNegative() {
-        BTestUtils.parseBalFile("lang/statements/break-stmt-negative.bal");
+        BTestUtils.getProgramFile("lang/statements/break-stmt-negative.bal");
     }
 
     @Test(description = "Check not reachable statements.", expectedExceptions = SemanticException.class,
             expectedExceptionsMessageRegExp = ".*break-stmt-unreachable.bal:11.*.*unreachable statement*")
     public void testNegativeUnreachable() {
-        BTestUtils.parseBalFile("lang/statements/break-stmt-unreachable.bal");
+        BTestUtils.getProgramFile("lang/statements/break-stmt-unreachable.bal");
     }
 
 }

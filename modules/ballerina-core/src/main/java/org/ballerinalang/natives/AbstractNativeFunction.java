@@ -30,7 +30,9 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
@@ -40,6 +42,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * {@code {@link AbstractNativeFunction}} represents a Abstract implementation of Native Ballerina Function.
@@ -89,7 +92,15 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            BValue result = context.getControlStack().getCurrentFrame().values[index];
+
+            // TODO This logic go away when we remove old blocking executor
+            BValue result;
+            if (context.isVMBasedExecutor()) {
+                result = context.getControlStackNew().getCurrentFrame().argValues[index];
+            } else {
+                result = context.getControlStack().getCurrentFrame().values[index];
+            }
+
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
@@ -114,7 +125,15 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public void executeNative(Context context) {
         try {
             BValue[] retVals = execute(context);
-            BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+
+            // TODO This logic go away when we remove old blocking executor
+            BValue[] returnRefs;
+            if (context.isVMBasedExecutor()) {
+                returnRefs = context.getControlStackNew().getCurrentFrame().returnValues;
+            } else {
+                returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+            }
+
             if (returnRefs.length != 0) {
                 for (int i = 0; i < returnRefs.length; i++) {
                     if (i < retVals.length) {
@@ -127,11 +146,11 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         } catch (RuntimeException e) {
 //            BException exception = new BException(e.getMessage());
             // TODO : Fix this once we remove Blocking executor
-            if (context.getExecutor() != null) {
-//                context.getExecutor().handleBException(exception);
-            } else {
+//            if (context.getExecutor() != null) {
+////                context.getExecutor().handleBException(exception);
+//            } else {
                 throw e;
-            }
+//            }
         }
     }
 
@@ -329,5 +348,25 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     @Override
     public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
         this.returnParamTypeNames = returnParamTypes;
+    }
+
+    /**
+     * Get worker interaction statements related to a callable unit
+     *
+     * @return Queue of worker interactions
+     */
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return null;
+    }
+
+    /**
+     * Get the workers defined within a callable unit
+     *
+     * @return Array of workers
+     */
+    @Override
+    public Worker[] getWorkers() {
+        return new Worker[0];
     }
 }

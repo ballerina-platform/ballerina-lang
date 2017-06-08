@@ -118,8 +118,9 @@ public class NativeCastMapper {
             try {
                 return new BValue[] { JSONUtils.toJSON((BArray) rVal), null };
             } catch (BallerinaException e) {
-                String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    rVal.getType(), BTypes.typeJSON, e.getMessage());
+                String errorMsg = BLangExceptionHelper
+                        .getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, rVal.getType(), BTypes.typeJSON,
+                                         e.getMessage());
                 return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
             }
         };
@@ -139,6 +140,9 @@ public class NativeCastMapper {
             (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
 
     public static final TriFunction<BValue, BType, Boolean, BValue[]> BOOLEAN_TO_ANY_FUNC =
+            (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
+
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> BLOB_TO_ANY_FUNC =
             (rVal, targetType, returnErrors) -> new BValue[] { rVal, null };
 
     public static final TriFunction<BValue, BType, Boolean, BValue[]> JSON_TO_ANY_FUNC =
@@ -240,6 +244,27 @@ public class NativeCastMapper {
         };
 
     /**
+     * Function to cast a given 'any' type value to a blob.
+     * This function will return the {@link BBlob} representation, if the value stored in variable
+     * is a blob. An error, otherwise.
+     */
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_BLOB_FUNC =
+            (rVal, targetType, returnErrors) -> {
+                if (rVal == null) {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
+                                                                           BTypes.typeBlob);
+                    return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeAny, targetType);
+                }
+                if (rVal.getType() == BTypes.typeBlob) {
+                    return new BValue[] { rVal, null };
+                }
+                String errorMsg = BLangExceptionHelper
+                        .getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE, rVal.getType(),
+                                         BTypes.typeBlob);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
+            };
+
+    /**
      * Function to cast a given 'any' type value to a JSON.
      * This function will return the {@link BJSON} representation, if the value stored in variable
      * is a JSON. An error, otherwise.
@@ -256,6 +281,25 @@ public class NativeCastMapper {
                 rVal.getType(), BTypes.typeJSON);
             return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
         };
+
+    /**
+     * Function to cast a given 'any' type value to a JSON.
+     * This function will return the {@link BJSON} representation, if the value stored in variable
+     * is a JSON. An error, otherwise.
+     */
+    public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_MESSAGE_FUNC =
+            (rVal, targetType, returnErrors) -> {
+                if (rVal == null) {
+                    return new BValue[] { null, null };
+                }
+                if (rVal.getType() == BTypes.typeMessage) {
+                    return new BValue[] { rVal, null };
+                }
+                String errorMsg = BLangExceptionHelper.getErrorMessage
+                        (RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                        rVal.getType(), BTypes.typeMessage);
+                return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
+            };
 
     /**
      * Function to cast a given 'any' type value to a XML.

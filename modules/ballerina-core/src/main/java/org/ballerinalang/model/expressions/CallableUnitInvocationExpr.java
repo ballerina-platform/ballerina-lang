@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
+import org.ballerinalang.model.types.BType;
 
 /**
  * {@code CallableUnitInvocationExpr} represents a function, action or a resource invocation expression.
@@ -57,6 +58,20 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
      * @param callableUnit type of the callable unit
      */
     void setCallableUnit(T callableUnit);
+
+    /**
+     * Returns an arrays of argument types of this callable unit invocation expression.
+     *
+     * @return an arrays of argument types
+     */
+    BType[] getTypes();
+
+    /**
+     * Sets an arrays of argument types.
+     *
+     * @param types arrays of argument types
+     */
+    void setTypes(BType[] types);
 
     int getGotoBranchID();
 

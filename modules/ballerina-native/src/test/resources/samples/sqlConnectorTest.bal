@@ -47,7 +47,7 @@ function testGeneratedKeyOnInsert() (string) {
     int insertCount;
     string[] generatedID;
     sql:Parameter[] parameters = [];
-    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
+    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeysToDelete(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
         values ('Mary', 'Williams', 3, 5000.75, 'USA')", parameters);
     sql:ClientConnector.close(testDB);
