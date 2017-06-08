@@ -101,9 +101,9 @@ public class Head extends AbstractHTTPAction {
 
     private CarbonMessage createCarbonMsg(Context context) {
         // Extract Argument values
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String path = getArgument(context, 1).stringValue();
-        BMessage bMessage = (BMessage) getArgument(context, 2);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String path = getStringArgument(context, 0);
+        BMessage bMessage = (BMessage) getRefArgument(context, 1);
 
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();
