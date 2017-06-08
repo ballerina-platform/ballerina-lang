@@ -134,9 +134,9 @@ public class NativeConversionMapper {
     public static final TriFunction<BValueType, BType, Boolean, BValue[]> STRING_TO_XML_FUNC =
             (rVal, targetType, returnErrors) -> {
                 try {
-                    return new BValue[] { new BXML(rVal.stringValue()), null };
+                    return new BValue[] { XMLUtils.parse(rVal.stringValue()), null };
                 } catch (Exception e) {
-                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE, 
                         BTypes.typeString, BTypes.typeXML, e.getMessage());
                     return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeString, targetType);
                 }
@@ -346,7 +346,7 @@ public class NativeConversionMapper {
             }
             return new BValue[] { new BStruct(structDef, structMemoryBlock), null };
         };
-
+    
     /**
      * Function to cast a given struct to a map.
      * All the fields in the struct will be stored in the map as is.
@@ -407,6 +407,7 @@ public class NativeConversionMapper {
                 return TypeMappingUtils.getError(returnErrors, errorMsg, rVal.getType(), targetType);
             }
         };
+
 
 
     /**

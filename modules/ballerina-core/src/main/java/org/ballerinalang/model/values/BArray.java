@@ -120,7 +120,12 @@ public final class BArray<V extends BValue> implements BRefType {
     
     public void setType(BType type) {
         this.type = type;
-        this.zeroValue = ((BArrayType) type).getElementType().getZeroValue();
+        
+        if (type instanceof BArrayType) {
+            this.zeroValue = ((BArrayType) type).getElementType().getZeroValue();
+        } else {
+            this.zeroValue = type.getZeroValue();
+        }
     }
 
     @Override

@@ -239,7 +239,6 @@ public class TypeLattice {
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(xmlV, anyV, NativeCastMapper.XML_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
-        explicitCastLattice.addEdge(xmlV, stringV, NativeConversionMapper.XML_TO_STRING_FUNC);
 
         explicitCastLattice.addEdge(mapV, mapV, NativeCastMapper.MAP_TO_MAP_FUNC,
                 SAFE, InstructionCodes.NOP);

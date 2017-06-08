@@ -1835,6 +1835,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.typeString) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
+        }  else if (arithmeticExprType == BTypes.typeXML) {
+            addExpr.setEvalFunc(AddExpression.ADD_XML_FUNC);
+
         } else {
             throwInvalidBinaryOpError(addExpr);
         }

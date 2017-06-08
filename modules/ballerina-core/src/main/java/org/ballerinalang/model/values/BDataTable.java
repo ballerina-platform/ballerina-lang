@@ -305,7 +305,7 @@ public class BDataTable implements BRefType<Object> {
     public BXML toXML(String rootWrapper, String rowWrapper) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
         omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper));
-        return new BXML(omSourcedElement);
+        return new BXMLItem(omSourcedElement);
     }
 
     public List<ColumnDefinition> getColumnDefs() {
