@@ -224,7 +224,7 @@ public class StructTest {
     @Test(description = "Test defining a struct constant",
             expectedExceptions = {ParserException.class},
             expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3:6: " +
-            "missing \\{'boolean', 'int', 'float', 'string'\\} before 'Person'")
+            "missing \\{'boolean', 'int', 'float', 'string', 'blob'\\} before 'Person'")
     public void testStructConstant() {
         BTestUtils.parseBalFile("lang/structs/constants");
     }

@@ -160,25 +160,26 @@ public class CodeGenerator implements NodeVisitor {
     private static final int FLOAT_OFFSET = 1;
     private static final int STRING_OFFSET = 2;
     private static final int BOOL_OFFSET = 3;
-    private static final int REF_OFFSET = 4;
+    private static final int BLOB_OFFSET = 4;
+    private static final int REF_OFFSET = 5;
 
-    private int[] maxRegIndexes = {-1, -1, -1, -1, -1};
+    private int[] maxRegIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current local variable index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] lvIndexes = {-1, -1, -1, -1, -1};
+    private int[] lvIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current register index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] regIndexes = {-1, -1, -1, -1, -1};
+    private int[] regIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current register index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] fieldIndexes = {-1, -1, -1, -1, -1};
+    private int[] fieldIndexes = {-1, -1, -1, -1, -1, -1};
 
     // Package level variable indexes. This includes package constants, package level variables and
     //  service level variables
-    private int[] gvIndexes = {-1, -1, -1, -1, -1};
+    private int[] gvIndexes = {-1, -1, -1, -1, -1, -1};
 
     private ProgramFile programFile = new ProgramFile();
     private String currentPkgPath;
@@ -1908,12 +1909,14 @@ public class CodeGenerator implements NodeVisitor {
         codeAttributeInfo.setMaxDoubleLocalVars(lvIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringLocalVars(lvIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntLocalVars(lvIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxByteLocalVars(lvIndexes[BLOB_OFFSET] + 1);
         codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
 
         codeAttributeInfo.setMaxLongRegs(maxRegIndexes[INT_OFFSET] + 1);
         codeAttributeInfo.setMaxDoubleRegs(maxRegIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringRegs(maxRegIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntRegs(maxRegIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxByteRegs(maxRegIndexes[BLOB_OFFSET] + 1);
         codeAttributeInfo.setMaxBValueRegs(maxRegIndexes[REF_OFFSET] + 1);
 
         resetIndexes(lvIndexes);
@@ -1953,6 +1956,10 @@ public class CodeGenerator implements NodeVisitor {
                 opcode = baseOpcode + BOOL_OFFSET;
                 index = ++indexes[BOOL_OFFSET];
                 break;
+            case TypeTags.BLOB_TAG:
+                opcode = baseOpcode + BLOB_OFFSET;
+                index = ++indexes[BLOB_OFFSET];
+                break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
                 index = ++indexes[REF_OFFSET];
@@ -1980,6 +1987,9 @@ public class CodeGenerator implements NodeVisitor {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 opcode = baseOpcode + BOOL_OFFSET;
+                break;
+            case TypeTags.BLOB_TAG:
+                opcode = baseOpcode + BLOB_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -2120,6 +2130,8 @@ public class CodeGenerator implements NodeVisitor {
                 return BTypes.typeString;
             case TypeSignature.SIG_BOOLEAN:
                 return BTypes.typeBoolean;
+            case TypeSignature.SIG_BLOB:
+                return BTypes.typeBlob;
             case TypeSignature.SIG_REFTYPE:
                 return BTypes.getTypeFromName(typeSig.getName());
             case TypeSignature.SIG_ANY:
