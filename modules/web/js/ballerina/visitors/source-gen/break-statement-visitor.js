@@ -34,7 +34,7 @@ class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(breakStatement.getStatement());
+        this.appendSource(breakStatement.getStatementString());
         log.debug('Begin Visit Break Statement Definition');
     }
 
