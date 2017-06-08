@@ -38,7 +38,7 @@ class VariableDefinitionStatement extends Statement {
             2: ' ',
             3: '',
             4: '\n'
-        }
+        };
     }
 
     /**
@@ -47,8 +47,13 @@ class VariableDefinitionStatement extends Statement {
      */
     getStatementString() {
         var variableDefinitionStatementString;
-        variableDefinitionStatementString = this.getBType()
-            + this.getWSRegion(0) + this.getIdentifier();
+        variableDefinitionStatementString = this.getBType();
+        if (((this.getChildren()[0]).getChildren()[0])._isArray) {
+            for (var itr = 0; itr < ((this.getChildren()[0]).getChildren()[0])._dimensions; itr ++) {
+                variableDefinitionStatementString += '[]';
+            }
+        }
+        variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
         if (!_.isNil(this.children[1])) {
             variableDefinitionStatementString +=
               this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.children[1].getExpressionString();

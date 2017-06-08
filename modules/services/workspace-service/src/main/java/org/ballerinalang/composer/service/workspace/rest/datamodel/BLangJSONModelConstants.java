@@ -330,6 +330,10 @@ public class BLangJSONModelConstants {
 
     public static final String IS_ARRAY_EXPRESSION = "is_array_expression";
 
+    public static final String IS_ARRAY_TYPE = "is_array_type";
+
+    public static final String DIMENSIONS = "dimensions";
+
     public static final String EXPRESSION_LIST = "expression_list";
 
     public static final String WORKER_REPLY_EXPRESSION = "worker_reply_expression";

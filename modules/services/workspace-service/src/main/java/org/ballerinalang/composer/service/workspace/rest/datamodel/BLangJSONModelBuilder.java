@@ -665,6 +665,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 variableDef.getIdentifier().isLiteral());
         variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().getName());
         variableDefObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, variableDef.getTypeName().getPackageName());
+        variableDefObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE, variableDef.getTypeName().isArrayType());
+        variableDefObj.addProperty(BLangJSONModelConstants.DIMENSIONS, variableDef.getTypeName().getDimensions());
         tempJsonArrayRef.peek().add(variableDefObj);
     }
 
