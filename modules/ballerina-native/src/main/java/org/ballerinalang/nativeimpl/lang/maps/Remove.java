@@ -51,7 +51,7 @@ public class Remove extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         BMap map = (BMap) getArgument(ctx, 0);
         BString key = (BString) getArgument(ctx, 1);
-        map.remove(key);
+        map.remove(key.stringValue());
         return VOID_RETURN;
     }
 }
