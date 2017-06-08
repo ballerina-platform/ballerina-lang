@@ -20,7 +20,6 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
-import alerts from 'alerts';
 import './transform-statement.css';
 /**
  * Renderer constructor for TypeMapper
@@ -104,7 +103,7 @@ class TransformRender
                 }
             }, false);
 
-            $( ".leftType, .middle-content, .rightType" ).scroll(function() {
+            $( '.leftType, .middle-content, .rightType' ).scroll(function() {
                 $('#' + self.contextMenu).hide();
             });
 
@@ -359,12 +358,20 @@ class TransformRender
         if (connection.sourceFunction) {
             sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
             isSourceExists = true;
+        } else if (connection.sourceStruct == connection.sourceProperty[0]) {
+            //Construct Variable property id
+            sourceId = connection.sourceStruct;
+            isSourceExists = true;
         } else {
             isSourceExists = _.includes(this.existingJsTrees,
                 connection.sourceStruct + this.viewIdSeperator + this.viewId);
         }
         if (connection.targetFunction) {
             targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
+            isTargetExists = true;
+        } else if (connection.targetStruct == connection.targetProperty[0]) {
+            //Construct Variable property id
+            targetId = connection.targetStruct;
             isTargetExists = true;
         } else {
             isTargetExists = _.includes(this.existingJsTrees,
@@ -376,7 +383,7 @@ class TransformRender
                 sourceId += this.idNameSeperator
                 + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
             }
-            if (!connection.sourceFunction) {
+            if (!connection.sourceFunction && connection.sourceStruct != connection.sourceProperty[0]) {
                 sourceId += anchorEnd;
             }
 
@@ -385,7 +392,7 @@ class TransformRender
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
             }
 
-            if (!connection.targetFunction) {
+            if (!connection.targetFunction && connection.targetStruct != connection.targetProperty[0]) {
                 targetId += anchorEnd;
             }
 
@@ -444,11 +451,11 @@ class TransformRender
             self.existingJsTrees.push(structId);
             self.reposition(self);
             _.forEach(self.connectionPool, conPoolObj => {
-                if (!conPoolObj.connected && structId ==
-        conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
+                if (!conPoolObj.connected && structId === 
+                        conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
-                } else if (!conPoolObj.connected && structId ==
-    conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId) {
+                } else if (!conPoolObj.connected && structId ===
+                        conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isTargetExists = true;
                 }
                 if (!conPoolObj.connected && conPoolObj.isSourceExists && conPoolObj.isTargetExists) {
@@ -474,7 +481,7 @@ class TransformRender
 
     repaintAll(jsTreeId) {
         var children = $('#' + jsTreeId).jstree().get_node('#').children_d;
-        _forEach(children, child => {
+        _.forEach(children, child => {
             self.jsPlumbInstance.repaint(child.id + '_anchor');
         });
     }
@@ -545,6 +552,43 @@ class TransformRender
         $('#' + this.placeHolderName).find('.' + subPlaceHolder).append(newStruct);
     }
 
+
+
+    addVariable(variable, type, reference) {
+        this.references.push({name: variable.id, refObj: reference});
+        var newVar = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
+        var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
+        var id = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+        var   property = $('<a>').attr('id', id).addClass('variable-content');
+        var propertyName = $('<span>').addClass('property-name').text(variable.name);
+        var seperator = $('<span>').addClass('property-name').text(':');
+        var propertyType = $('<span>').addClass('property-type').text(variable.type);
+        newVar.append(varIcon);
+        property.append(propertyName);
+        property.append(seperator);
+        property.append(propertyType);
+        newVar.append(property);
+        var subPlaceHolder;
+
+
+        newVar.css({
+            'top': 0,
+            'left': 0
+        });
+
+        if(type == 'source' ) {
+            subPlaceHolder = 'leftType';
+            $('#' + this.placeHolderName).find('.leftType').append(newVar);
+            this.addSource(property, this, true);
+        } else {
+            subPlaceHolder = 'rightType';
+            $('#' + this.placeHolderName).find('.rightType').append(newVar);
+            this.addTarget(property, this);
+        }
+        this.reposition(this);
+    }
+
+
 /**
  * Add a function in the mapper UI
  * @param {object} function definition with parameters to be mapped
@@ -552,7 +596,7 @@ class TransformRender
  * @param {function} onFunctionRemove call back function for function remove
  */
     addFunction(func, reference, onFunctionRemove) {
-        func.meta.packageName  = func.meta.packageName.replace(" ","");
+        func.meta.packageName  = func.meta.packageName.replace(' ','');
         funcName = _.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + ' : ' + func.meta.functionName;
         var funcText = func.meta.functionName;
     //Allow multiple functions to drag and drop without conflicting
@@ -709,7 +753,8 @@ class TransformRender
             anchor: ['Continuous', {faces: ['left']}],
             beforeDrop: function (params) {
             //Checks property types are equal
-                var isValidTypes = self.getPropertyType(params.sourceId) == self.getPropertyType(params.targetId);
+                var isValidTypes = self.getPropertyType(params.sourceId).toLowerCase()
+                                        == self.getPropertyType(params.targetId).toLowerCase();
                 var connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint = self.midpoint + self.midpointVariance;
@@ -874,9 +919,9 @@ class TransformRender
  */
     reposition(self) {
         var funcs = $('.middle-content  > .func');
-        var sourceStructs = $('.leftType > .struct');
-        var targetStructs = $('.rightType > .struct');
-        var xFunctionPointer = ($(".middle-content").width()-300)/2;
+        var sourceStructs = $('.leftType > .struct, .leftType > .variable');
+        var targetStructs = $('.rightType > .struct, .rightType > .variable');
+        var xFunctionPointer = ($('.middle-content').width()-300)/2;
         var yFunctionPointer = 120;
         var xSourcePointer = 0;
         var ySourcePointer = 50;

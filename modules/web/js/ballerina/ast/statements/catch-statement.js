@@ -27,9 +27,9 @@ import ConditionalStatement from './conditional-statement';
 class CatchStatement extends ConditionalStatement {
     constructor(args) {
         super();
-        this._parameter = _.get(args, "parameter", "exception e");
-
+        this._parameter = _.get(args, "parameter");
         this.type = "CatchStatement";
+        this._parameterDefString = _.get(args, 'parameterDefString', 'exception e');
     }
 
     setParameter(parameter, options) {
@@ -42,8 +42,22 @@ class CatchStatement extends ConditionalStatement {
         return this._parameter;
     }
 
+    getParameterDefString() {
+        return this._parameterDefString;
+    }
+
+    setParameterDefString(paramDef, options) {
+        this.setAttribute('_parameterDefString', paramDef, options);
+    }
+
     initFromJson(jsonNode) {
         let self = this;
+        const parameterDef = jsonNode.parameter_definition;
+        const paramDefNode = self.getFactory().createFromJson(parameterDef[0]);
+        paramDefNode.initFromJson(parameterDef[0]);
+        this.setParameter(paramDefNode, {doSilently: true});
+        this.setParameterDefString(paramDefNode.getParameterDefinitionAsString(), {doSilently: true});
+
         _.each(jsonNode.children, function (childNode) {
             let child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
