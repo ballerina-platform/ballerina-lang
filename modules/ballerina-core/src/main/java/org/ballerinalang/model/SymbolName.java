@@ -69,6 +69,10 @@ public class SymbolName {
             return false;
         }
 
+        if (!(obj.getClass().getSimpleName().equals(this.getClass().getSimpleName()))) {
+            return false;
+        }
+
         SymbolName other = (SymbolName) obj;
         return isNameAndPackagePathEqual(other);
     }

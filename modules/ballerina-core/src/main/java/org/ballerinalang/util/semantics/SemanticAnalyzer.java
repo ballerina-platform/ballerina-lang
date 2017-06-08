@@ -25,6 +25,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
+import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
@@ -2733,7 +2734,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // When getting the action symbol name, Package name for the action is set to null, since the action is 
         // registered under connector, and connecter contains the package
-        SymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
+        ActionSymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
                 actionIExpr.getPackagePath(), actionIExpr.getConnectorName(), paramTypes);
 
         // Now check whether there is a matching action
@@ -3154,7 +3155,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             connectorDef.setInitFunction(functionBuilder.buildFunction());
 
             BLangSymbol actionSymbol = null;
-            SymbolName name = new SymbolName("NativeAction." + connectorName
+            SymbolName name = new ActionSymbolName("NativeAction." + connectorName
                     + ".<init>", connectorDef.getPackagePath());
             actionSymbol = nativeScope.resolve(name);
             if (actionSymbol != null) {
@@ -3190,18 +3191,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         action.setParameterTypes(paramTypes);
-        SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
+        ActionSymbolName actionSymbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
                 connectorDef.getName(), paramTypes);
-        action.setSymbolName(symbolName);
+        action.setSymbolName(actionSymbolName);
 
-        BLangSymbol actionSymbol = currentScope.resolve(symbolName);
+        BLangSymbol actionSymbol = currentScope.resolve(actionSymbolName);
         if (actionSymbol != null) {
             BLangExceptionHelper.throwSemanticError(action, SemanticErrors.REDECLARED_SYMBOL, action.getName());
         }
-        currentScope.define(symbolName, action);
+        currentScope.define(actionSymbolName, action);
 
         if (action.isNative()) {
-            SymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
+            ActionSymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
                     connectorDef.getName(), action.getPackagePath(), paramTypes);
             BLangSymbol nativeAction = nativeScope.resolve(nativeActionSymName);
 

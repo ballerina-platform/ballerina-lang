@@ -18,30 +18,18 @@
 package org.ballerinalang.model;
 
 /**
- * {@code FunctionSymbolName} represents a package qualified name of a {@link Symbol} in Ballerina package.
+ * {@code TypeSymbolName} represents a package qualified name of a {@link Symbol} in Ballerina package.
  *
  * @since 0.8.3
  */
-public class FunctionSymbolName extends SymbolName {
-    private int noOfParameters;
-    private String funcName;
+public class TypeSymbolName extends SymbolName {
 
-    public FunctionSymbolName(String name, String funcName, String pkgPath, int noOfParameters) {
+    public TypeSymbolName(String name, String pkgPath) {
         super(name, pkgPath);
-        this.funcName = funcName;
-        this.noOfParameters = noOfParameters;
     }
 
-    public int getNoOfParameters() {
-        return noOfParameters;
+    public TypeSymbolName(String name) {
+        this(name, null);
     }
 
-    public String getFuncName() {
-        return funcName;
-    }
-
-    public boolean isNameAndParamCountMatch(FunctionSymbolName funcSymName) {
-        return this.funcName.equals(funcSymName.getFuncName())
-               && (this.getNoOfParameters() == funcSymName.getNoOfParameters());
-    }
 }

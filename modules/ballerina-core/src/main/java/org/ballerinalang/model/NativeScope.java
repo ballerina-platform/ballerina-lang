@@ -74,7 +74,7 @@ public class NativeScope implements SymbolScope {
             pkgSymbol = ((NativePackageProxy) pkgSymbol).load();
         }
 
-        return ((BLangPackage) pkgSymbol).resolveMembers(new SymbolName(name.getName()));
+        return ((BLangPackage) pkgSymbol).resolveMembers(name);
     }
 
     @Override
