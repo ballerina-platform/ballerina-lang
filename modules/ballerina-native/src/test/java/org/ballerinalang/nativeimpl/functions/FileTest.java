@@ -255,6 +255,19 @@ public class FileTest {
         Assert.assertEquals(content, ((BBlob) results[0]).blobValue(), "Not read properly");
     }
 
+    @Test(expectedExceptions = BallerinaException.class,
+            expectedExceptionsMessageRegExp = "The file isn't opened in read mode")
+    public void testReadWithoutOpeningFile() throws IOException {
+
+        String targetPath = "temp/text.txt";
+
+        BValue[] source = { new BString(targetPath) };
+        BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+
+        BValue[] args = { targetStruct, new BInteger(11) };
+        BLangFunctions.invoke(bLangProgram, "testRead", args);
+    }
+
     private void deleteDir(File dir) {
 
         String[] entries = dir.list();
