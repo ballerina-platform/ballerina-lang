@@ -21,7 +21,7 @@ import SuggestionsText from './../suggestions-text';
 import {util} from './../../visitors/sizing-utils';
 import './tag-component.css';
 
-let DEFAULT_INPUT_VALUE = "+ Add Value";
+let defaultInputValue = "+ Add Value";
 
 /**
  * Common Tag Controller to render tag input box.
@@ -60,7 +60,7 @@ class TagController extends React.Component {
      * */
     onInputBlur(e) {
         let setter = this.props.setter;
-        if (DEFAULT_INPUT_VALUE !== this.state.editValue && this.state.editValue !== "") {
+        if (defaultInputValue !== this.state.editValue && this.state.editValue !== "") {
             if (!setter(this.state.editValue)) {
                 e.preventDefault();
             }
@@ -135,7 +135,7 @@ class TagController extends React.Component {
                     <text x={componentData.components.closingBracket.x - 124}
                           y={componentData.components.closingBracket.y + 19}
                           className="tag-component-attachment-text">
-                        {DEFAULT_INPUT_VALUE}
+                        {defaultInputValue}
                     </text>
                     <SuggestionsText x={componentData.components.closingBracket.x - 124}
                                      y={componentData.components.closingBracket.y + 6}
@@ -178,7 +178,7 @@ class TagController extends React.Component {
                     <text x={componentData.components.closingBracket.x - 124}
                           y={componentData.components.closingBracket.y + 19}
                           className="tag-component-attachment-text">
-                        {DEFAULT_INPUT_VALUE}
+                        {defaultInputValue}
                     </text>
                     <SuggestionsText x={componentData.components.closingBracket.x - 124}
                                      y={componentData.components.closingBracket.y + 6}
@@ -237,8 +237,8 @@ class TagController extends React.Component {
                                   height={20}
                                   labelClass={"tag-component-label"}
                                   inputClass={"tag-component-input-text-box"}
-                                  displayText={DEFAULT_INPUT_VALUE}
-                                  placeholder={DEFAULT_INPUT_VALUE}
+                                  displayText={defaultInputValue}
+                                  placeholder={defaultInputValue}
                                   onKeyDown={e => {
                                       this.onKeyDown(e)
                                   }}
@@ -296,8 +296,8 @@ class TagController extends React.Component {
                                   height={20}
                                   labelClass={"tag-component-label"}
                                   inputClass={"tag-component-input-text-box"}
-                                  displayText={DEFAULT_INPUT_VALUE}
-                                  placeholder={DEFAULT_INPUT_VALUE}
+                                  displayText={defaultInputValue}
+                                  placeholder={defaultInputValue}
                                   onKeyDown={e => {
                                       this.onKeyDown(e);
                                   }}
@@ -325,7 +325,7 @@ class TagController extends React.Component {
     render() {
         let modelComponents = this.props.modelComponents;
         let componentData = this.props.componentData;
-        DEFAULT_INPUT_VALUE = componentData.defaultText;
+        defaultInputValue = componentData.defaultText;
         if (this.props.isSelectBox) {
             return this.getSelectBoxController(componentData, modelComponents);
         } else {
