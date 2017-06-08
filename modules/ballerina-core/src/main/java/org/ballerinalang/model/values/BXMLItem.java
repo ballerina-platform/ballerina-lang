@@ -32,7 +32,6 @@ import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
@@ -52,7 +51,6 @@ import javax.xml.namespace.QName;
 public final class BXMLItem extends BXML<OMNode> {
 
     private OMNode omNode;
-    private OutputStream outputStream;
     private XMLNodeType nodeType;
     
     /**
