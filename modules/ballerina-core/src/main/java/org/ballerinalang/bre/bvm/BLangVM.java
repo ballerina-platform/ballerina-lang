@@ -151,7 +151,7 @@ public class BLangVM {
         this.context.setVMBasedExecutor(true);
         this.ip = context.getStartIP();
 
-        traceCode(currentFrame.packageInfo);
+//        traceCode(currentFrame.packageInfo);
             
         if (context.getError() != null) {
             handleError();
@@ -1524,7 +1524,7 @@ public class BLangVM {
         return breakPointInfo;
     }
 
-    private void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+    public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
@@ -1546,7 +1546,7 @@ public class BLangVM {
 
     }
 
-    private void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
+    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
         StackFrame currentFrame = controlStack.getCurrentFrame();
 
         // Extract the outgoing expressions
@@ -1569,7 +1569,7 @@ public class BLangVM {
 //        }
     }
 
-    private void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
+    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
@@ -1603,7 +1603,7 @@ public class BLangVM {
 //        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
     }
 
-    private static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
+    public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
                                                     BValue[] arguments) {
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
@@ -1628,7 +1628,7 @@ public class BLangVM {
         }
     }
 
-    private static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
+    public static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
                                                    BValue[] passedInValues) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
@@ -1658,7 +1658,7 @@ public class BLangVM {
     }
 
 
-    protected static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
+    public static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
@@ -1803,7 +1803,7 @@ public class BLangVM {
         }
     }
 
-    private static BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
+    public static BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
         BValue[] nativeArgValues = new BValue[paramTypes.length];
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
@@ -1831,7 +1831,7 @@ public class BLangVM {
         return nativeArgValues;
     }
 
-    private static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
+    public static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
                                                           BValue[] returnValues, BType[] retTypes) {
         for (int i = 0; i < returnValues.length; i++) {
             int callersRetRegIndex = returnRegIndexes[i];
