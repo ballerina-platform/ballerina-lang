@@ -345,7 +345,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    //@Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest")
     public void testTransactonRollback() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonRollback");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
@@ -359,7 +359,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    //@Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest")
     public void testTransactonThrow() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactonErrorThrow");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
@@ -367,7 +367,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
     }
 
-    //@Test(groups = "ConnectorTest")
+    @Test(groups = "ConnectorTest")
     public void testTransactonThrowAndCatch() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testTransactionErrorThrowAndCatch");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);

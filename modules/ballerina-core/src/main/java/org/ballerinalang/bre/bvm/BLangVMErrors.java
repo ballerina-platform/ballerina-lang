@@ -171,10 +171,14 @@ public class BLangVMErrors {
         int currentIP = ip;
         Object[] values;
         // Ignore caller stack frame.
-        for (int i = controlStack.fp; i >= 1; i--) {
+        int stackTraceLocation = 0;
+        for (int i = 0; i <= controlStack.fp; i++) {
             values = new Object[4];
             StackFrame stackFrame = controlStack.getStack()[i];
             CallableUnitInfo callableUnitInfo = stackFrame.callableUnitInfo;
+            if (callableUnitInfo == null) {
+                continue;
+            }
             String parentScope = "";
             if (callableUnitInfo instanceof ResourceInfo) {
                 parentScope = ((ResourceInfo) callableUnitInfo).getServiceInfo().getName() + ".";
@@ -191,9 +195,10 @@ public class BLangVMErrors {
                 values[2] = "<native>";
                 values[3] = 0;
             }
-            stackTraceItems.add(i - 1, createBStruct(stackTraceItem, values));
+            stackTraceItems.add(stackTraceLocation, createBStruct(stackTraceItem, values));
             // Always get the previous instruction pointer.
             currentIP = stackFrame.retAddrs - 1;
+            stackTraceLocation++;
         }
         return stackTraceItems;
     }

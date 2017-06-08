@@ -1046,27 +1046,30 @@ public class CodeGenerator implements NodeVisitor {
         if (transactionStmt.getAbortedBlock() != null) {
             emit(gotoEndOfTransactionBlock);
         }
-        // if there is no abort block, this will become next instruction after transaction block.
-        gotoStartOfAbortedBlock.setOperand(0, nextIP());
         abortInstructions.pop();
+        gotoStartOfAbortedBlock.setOperand(0, nextIP());
+        emit(new Instruction(InstructionCodes.TREND, -1));
         //process aborted block
         if (transactionStmt.getAbortedBlock() != null) {
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
-            emit(gotoEndOfTransactionBlock);
-            // CodeGen for error handling.
-            int errorTargetIP = nextIP();
-            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
-            emit(new Instruction(InstructionCodes.THROW, -1));
-            gotoEndOfTransactionBlock.setOperand(0, nextIP());
-            ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
-            currentPkgInfo.addErrorTableEntry(errorTableEntry);
-            errorTableEntry.setPackageInfo(currentPkgInfo);
         }
+        emit(gotoEndOfTransactionBlock);
+        // CodeGen for error handling.
+        int errorTargetIP = nextIP();
+        emit(new Instruction(InstructionCodes.TREND, -1));
+        if (transactionStmt.getAbortedBlock() != null) {
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+        }
+        emit(new Instruction(InstructionCodes.THROW, -1));
+        gotoEndOfTransactionBlock.setOperand(0, nextIP());
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        currentPkgInfo.addErrorTableEntry(errorTableEntry);
+        errorTableEntry.setPackageInfo(currentPkgInfo);
+
     }
 
     @Override
     public void visit(AbortStmt abortStmt) {
-        emit(new Instruction(InstructionCodes.TREND, -1));
         emit(abortInstructions.peek());
     }
 
