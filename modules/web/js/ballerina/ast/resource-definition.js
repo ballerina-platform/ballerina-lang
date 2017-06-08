@@ -257,8 +257,8 @@ class ResourceDefinition extends ASTNode {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
-            child.initFromJson(childNodeTemp);
             self.addChild(child);
+            child.initFromJson(childNodeTemp);
         });
     }
 

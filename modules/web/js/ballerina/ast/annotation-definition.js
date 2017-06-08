@@ -200,8 +200,8 @@ class AnnotationDefinition extends ASTNode {
         }
         _.each(jsonNode.children, function (childNode) {
             let child = self.getFactory().createFromJson(childNode);
-            child.initFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
     }
 
