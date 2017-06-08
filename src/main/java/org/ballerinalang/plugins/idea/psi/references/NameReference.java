@@ -45,6 +45,7 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
@@ -396,7 +397,7 @@ public class NameReference extends BallerinaElementReference {
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
                 if (!(commonContext instanceof CallableUnitBodyNode || commonContext instanceof ConnectorBodyNode
-                        || commonContext instanceof TypeMapperBodyNode)) {
+                        || commonContext instanceof ServiceBodyNode || commonContext instanceof TypeMapperBodyNode)) {
                     return false;
                 }
                 VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(myElement,
