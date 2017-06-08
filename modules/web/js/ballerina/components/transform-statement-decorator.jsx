@@ -115,10 +115,10 @@ class TransformStatementDecorator extends React.Component {
         var sourceId = 'sourceStructs' + this.props.model.id;
         var targetId = 'targetStructs' + this.props.model.id;
 
-        var sourceContent = $('<div class="leftType">' +
+        var sourceContent = $(
                 '<div class="source-view">' +
                 '<select id="' + sourceId + '" class="type-mapper-combo">' +
-                '<option value="-1">--Select--</option>' +
+                '<option value="-1">-- Select source --</option>' +
                 '</select>'+
                 ' <span id="btn-add-source" class="btn-add-type fw-stack fw-lg btn btn-add">'+
                 '            <i class="fw fw-add fw-stack-1x"></i>'+
@@ -126,14 +126,14 @@ class TransformStatementDecorator extends React.Component {
                 '           <span id="btn-remove-source" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
                 '            <i class="fw fw-delete fw-stack-1x"></i>'+
                 '          </span>' +
-              '</div></div>');
+                '</div><div class="leftType"></div>');
 
         var middleContent =  $('<div class="middle-content"></div>');
 
-        var targetContent = $('<div class="rightType">' +
+        var targetContent = $(
                 '<div class="target-view">' +
                 '<select id="' + targetId + '" class="type-mapper-combo">' +
-                '<option value="-1">--Select--</option>' +
+                '<option value="-1">-- Select target --</option>' +
                 '</select>' +
                 ' <span id="btn-add-target" class="btn-add-type fw-stack fw-lg btn btn-add">'+
                 '            <i class="fw fw-add fw-stack-1x"></i>'+
@@ -141,7 +141,7 @@ class TransformStatementDecorator extends React.Component {
                 '           <span id="btn-remove-target" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
                 '            <i class="fw fw-delete fw-stack-1x"></i>'+
                 '          </span>' +
-              '</div></div>');
+                '</div><div class="rightType"></div>');
 
         var transformNameText = $('<p class="transform-header-text ">'
                                 +'<i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');

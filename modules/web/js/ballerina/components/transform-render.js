@@ -925,9 +925,9 @@ class TransformRender
         var xFunctionPointer = ($('.middle-content').width()-300)/2;
         var yFunctionPointer = 120;
         var xSourcePointer = 0;
-        var ySourcePointer = 50;
+        var ySourcePointer = 0;
         var xTargetPointer = 0;
-        var yTargetPointer = 50;
+        var yTargetPointer = 0;
         var functionGap = 30;
         var svgLines = $('#' + self.placeHolderName + '> svg');
 

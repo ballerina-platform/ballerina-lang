@@ -33,8 +33,8 @@
 .leftType {
     border: 1px solid gray;
     width: 300px;
-    height: calc(100% - 150px);
-    margin-top: 60px;
+    height: calc(100% - 200px);
+    margin-top: 105px;
     margin-left: 20px;
     background: #ffffff;
     color: #3d3d3d;
@@ -58,8 +58,8 @@
 .rightType {
     border: 1px solid gray;
     width: 300px;
-    height: calc(100% - 150px);
-    margin-top: 60px;
+    height: calc(100% - 203px);
+    margin-top: -2px;
     margin-right: 20px;
     background: #ffffff;
     color: #3d3d3d;
@@ -172,11 +172,53 @@ svg.plumbConnect path {
 
 }
 
+
+.source-view{
+    border: 1px solid gray;
+    width: 300px;
+    height: 50px;
+    margin-top: 60px;
+    margin-left: 20px;
+    background: #eeeeee;
+    color: #3d3d3d;
+    float: left;
+    position: absolute;
+    z-index: 30;
+}
+
+.target-view{
+    border: 1px solid gray;
+    width: 300px;
+    height: 50px;
+    margin-top: 60px;
+    margin-right: 20px;
+    background: #eeeeee;
+    color: #3d3d3d;
+    float: right;
+    position: relative;
+    z-index: 30;
+}
+
+/*.rightType {*/
+    /*border: 1px solid gray;*/
+    /*width: 300px;*/
+    /*height: calc(100% - 150px);*/
+    /*margin-top: 60px;*/
+    /*margin-right: 20px;*/
+    /*background: #ffffff;*/
+    /*color: #3d3d3d;*/
+    /*position: relative;*/
+    /*float: right;*/
+    /*overflow-y: scroll;*/
+    /*overflow-x:scroll;*/
+/*}*/
+
 .type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
     top:10px;
     left:10px;
     width:220px;
     position:absolute;
+    height : 30px
 }
 
 .transformOverlay {
@@ -244,7 +286,7 @@ svg.plumbConnect path {
     height: 100%;
     background-color:#ffffff;
     position: absolute;
-    top: calc(100% - 90px);
+    top: calc(100% - 95px);
     z-index: 7
 }
 
