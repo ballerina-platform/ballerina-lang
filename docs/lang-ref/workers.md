@@ -99,11 +99,11 @@ Hello from worker
 Hello from main
 ```
 
-Why two outputs from the same program? The reason for that is the workers start at the same time the main program starts. The underlying operating system decides on which thread to run first and which thread to run second. All the workers defined in a function/resource/action will start at the beginning of the enclosing component.
+There are two outputs from the same program because the workers start at the same time that the main program starts. The underlying operating system decides which thread to run first and which thread to run second. All the workers defined in a function/resource/action will start at the beginning of the enclosing component.
 
 One important thing to notice in the above program is that worker definition must always come at the bottom of the program. 
  
-With the above simple program running, let’s move on to a comparatively complex program that shares data across workers. One worker can share data to another worker through worker interaction statements. Every worker interaction consists of two statements that must reside in the corresponding two workers. Let’s consider a scenario where worker W1 is sending data of type message to worker W2.
+With the above simple program running, let’s move on to a comparatively complex program that shares data across workers. One worker can share data to another worker through worker interaction statements. Every worker interaction consists of two statements that must reside in the corresponding two workers. Let’s consider a scenario where worker W1 is sending a message to worker W2.
 
 ```
 worker W1 {
@@ -117,7 +117,7 @@ worker W2 {
 }
 ```
 
-In the above program, message m is sent to W2 and it will receive that message into variable n. When sending data across, 
+In the above program, message m is sent to W2 and it will receive that message in variable n. When sending data across: 
 
 - the primitve type variables like int, float, string and boolean will be passed as copies of the original data. 
 - the variables of type message will be passed as a clone of the original message.
@@ -158,11 +158,11 @@ function main (string[] args) {
 
 In this program, you can observe that there are four variables defined within the main function and two of them are used to share data with “sampleWorker” and the other two are for receiving data from the same.
 
-First we send the msg and x variables to sampleWorker and then we have a println statement. After that, there is a data receiving statement that will receive data of type message (result) and float (y) from the sampleWorker. Then we print the results we got from the sampleWorker.
+First, we send the msg and x variables to sampleWorker and then we have a println statement. After that, there is a data receiving statement that will receive data of type message (result) and float (y) from the sampleWorker. Then we print the results we receive from the sampleWorker.
 
-Within the sampleWorker, we can find three variables defined and, after that, the data receiving statement that exactly matches the data sending statement of default worker (main function). Following this, we have the println statement to print out the received integer value and then we set some data to the message and finally passing the float variable and the message to the default worker.
+Within the sampleWorker, we can find three variables defined and, after that, the data receiving statement that exactly matches the data sending statement of default worker (main function). Following this, we have the println statement to print out the received integer value and then we set some data to the message and finally pass the float variable and the message to the default worker.
 
-Once you execute the above program, you will get the following output (or similar) in your console.
+Once you execute the above program, you will receive the following output (or similar) in your console.
 
 ```
 Inside default worker after invoking the sampleWorker
