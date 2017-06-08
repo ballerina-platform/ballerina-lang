@@ -128,7 +128,8 @@ export const blockStatement = {
         width: 50,
         height: statement.height,
         paramPaddingX: 5,
-        paramSeparatorOffsetX: 10
+        paramSeparatorOffsetX: 20, //blockStatement.heading.width - 40
+        paramEndOffsetX: 6
     },
     body: {
         padding: {
@@ -262,5 +263,12 @@ export const panelHeading = {
         width: 14,
         heading: 14,
         padding: 3
+    }
+};
+
+export const timeout = {
+    title: {
+        w: 75,
+        paramSeparatorOffsetX: 35, //timeout.title.w - 40
     }
 };

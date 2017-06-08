@@ -159,7 +159,7 @@ class BlockStatementDecorator extends React.Component {
         let parameterText = null;
         if (this.props.parameterBbox && this.props.parameterEditorOptions) {
             paramSeparator_x = this.props.parameterBbox.x;
-            parameterText = this.props.parameterEditorOptions.getterMethod.call(this.props.parameterEditorOptions.model);
+            parameterText = this.props.parameterEditorOptions.value;
         }
 
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, title_h);
