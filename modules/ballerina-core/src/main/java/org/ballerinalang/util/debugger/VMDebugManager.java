@@ -90,15 +90,13 @@ public class VMDebugManager {
     /**
      * Initializes the debug manager single instance.
      */
-//    public void init(BLangVMDebugger mainThreadDebugger) {
-//        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-//        executor.submit(mainThreadDebugger);
-//        // start the debug server if it is not started yet.
-//        if (this.debugServer == null) {
-//            this.debugServer = new VMDebugServer();
-//            this.debugServer.startServer();
-//        }
-//    }
+    public void serviceInit() {
+        // start the debug server if it is not started yet.
+        if (this.debugServer == null) {
+            this.debugServer = new VMDebugServer();
+            this.debugServer.startServer();
+        }
+    }
 
     public void mainInit(DebuggerExecutor debuggerExecutor, Context mainThreadContext) {
         this.mainThreadContext = mainThreadContext;
