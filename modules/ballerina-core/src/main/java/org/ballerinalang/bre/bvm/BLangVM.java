@@ -1497,36 +1497,23 @@ public class BLangVM {
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
+        // TODO : Remove after non blocking action usage
         BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
                 actionInfo.getParamTypes());
 
-        // TODO Remove
-        prepareStructureTypeForNativeAction(nativeArgValues);
-
+        // TODO : Remove once we handle this properly for return values
         BType[] retTypes = actionInfo.getRetParamTypes();
         BValue[] returnValues = null;
-        if (actionInfo.getNativeAction().getName().equals("init")) {
+        if (retTypes.length == 0) {
             returnValues = new BValue[0];
         } else {
             returnValues = new BValue[retTypes.length];
         }
-        //StackFrame caleeSF = new StackFrame(nativeArgValues, returnValues);
-        int[] maxSize;
-        if (actionInfo.getNativeAction().getName().equals("init")) {
-            maxSize = new int[5];
-            maxSize[4] = 1;
-        } else {
-            maxSize = populateMaxSizes(actionInfo.getParamTypes());
-        }
 
-
-        StackFrame caleeSF = new StackFrame(maxSize, returnValues);
-        if (actionInfo.getNativeAction().getName().equals("init")) {
-            caleeSF.refLocalVars[0] = controlStack.currentFrame.refRegs[0];
-        } else {
-            copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+        StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), 0, null, returnValues);
+        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
                     actionInfo.getParamTypes());
-        }
+
 
         controlStack.pushFrame(caleeSF);
 
@@ -1555,8 +1542,6 @@ public class BLangVM {
                 controlStack.popFrame();
                 handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
 
-                // TODO Remove
-                prepareStructureTypeFromNativeAction(nativeArgValues);
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
@@ -1589,30 +1574,6 @@ public class BLangVM {
             }
         }
         return nativeArgValues;
-    }
-
-    private int[] populateMaxSizes(BType[] paramTypes) {
-        int[] maxSizes = new int[5];
-        for (int i = 0; i < paramTypes.length; i++) {
-            BType paramType = paramTypes[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    ++maxSizes[0];
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    ++maxSizes[1];
-                    break;
-                case TypeTags.STRING_TAG:
-                    ++maxSizes[2];
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    ++maxSizes[3];
-                    break;
-                default:
-                    ++maxSizes[4];
-            }
-        }
-        return maxSizes;
     }
 
     public static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
