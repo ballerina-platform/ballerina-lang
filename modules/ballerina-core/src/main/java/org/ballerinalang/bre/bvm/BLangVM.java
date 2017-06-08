@@ -18,6 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -1057,14 +1059,7 @@ public class BLangVM {
                 case InstructionCodes.S2JSON:
                     i = operands[0];
                     j = operands[1];
-                    String jsonStr = sf.stringRegs[i];
-
-                    // If this is a string-representation of complex JSON object, generate a BJSON out of it.
-                    if (jsonStr.matches("\\{.*\\}|\\[.*\\]")) {
-                        sf.refRegs[j] = new BJSON(jsonStr);
-                    }
-
-                    // Else, generate a BJSON with a quoted string.
+                    String jsonStr = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
                     sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
                     break;
                 case InstructionCodes.B2I:
