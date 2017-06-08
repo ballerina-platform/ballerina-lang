@@ -183,6 +183,8 @@ public class ServerConnectorMessageHandler {
         if (VMDebugManager.getInstance().isDebugEnagled()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
             context.setDebugInfoHolder(new DebugInfoHolder());
+            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+            context.setDebugEnabled(true);
             debugManager.setDebuggerContext("main", context); //todo fix
         }
         bLangVM.run(context);

@@ -137,7 +137,10 @@ public class VMDebugManager {
             // default block
             command.setCommand("invalid");
         }
-        DebugInfoHolder holder = debugSession.getContext("main").getDebugInfoHolder(); //todo fix
+        DebugInfoHolder holder = null;
+        if (debugSession.getContext("main") != null) {
+            holder = debugSession.getContext("main").getDebugInfoHolder(); //todo fix
+        }
         switch (command.getCommand()) {
             case DebugConstants.CMD_RESUME:
                 holder.resume();
