@@ -18,7 +18,6 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
 
@@ -27,7 +26,14 @@ import java.util.Arrays;
  */
 public class BRefValueArray extends BNewArray {
 
+    private BType arrayType;
+
     private BRefType[] values;
+
+    public BRefValueArray(BType type) {
+        this.arrayType = type;
+        values = (BRefType[]) newArrayInstance(BRefType.class);
+    }
 
     public BRefValueArray() {
         values = (BRefType[]) newArrayInstance(BRefType.class);
@@ -45,7 +51,7 @@ public class BRefValueArray extends BNewArray {
 
     @Override
     public BType getType() {
-        return BTypes.typeAny; //todo fix me
+        return arrayType;
     }
 
     @Override

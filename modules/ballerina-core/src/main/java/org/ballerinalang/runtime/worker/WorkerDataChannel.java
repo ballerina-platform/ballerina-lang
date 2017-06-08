@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.runtime.worker;
 
+import org.ballerinalang.model.types.BType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ public class WorkerDataChannel {
     private String source;
     private String target;
     private BlockingQueue<Object[]> channel;
+    private BType[] types;
     private static final Logger log = LoggerFactory.getLogger(WorkerDataChannel.class);
 
     public WorkerDataChannel(String source, String target) {
@@ -80,5 +82,13 @@ public class WorkerDataChannel {
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public BType[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(BType[] types) {
+        this.types = types;
     }
 }

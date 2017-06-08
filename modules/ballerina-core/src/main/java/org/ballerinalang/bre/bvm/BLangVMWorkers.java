@@ -19,6 +19,14 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
@@ -66,7 +74,7 @@ public class BLangVMWorkers {
 
     }
 
-    static class WorkerExecutor implements Callable<BValue[]> {
+    static class WorkerExecutor implements Callable<BRefValueArray> {
 
         private static final Logger log = LoggerFactory.getLogger(org.ballerinalang.bre.WorkerExecutor.class);
 //        private static PrintStream outStream = System.err;
@@ -82,15 +90,35 @@ public class BLangVMWorkers {
         }
 
         @Override
-        public BValue[] call() throws BallerinaException {
+        public BRefValueArray call() throws BallerinaException {
+            BRefValueArray bRefValueArray = new BRefValueArray(BTypes.typeAny);
             try {
                 bLangVM.execWorker(bContext,
                         workerInfo.getCodeAttributeInfo().getCodeAddrs(), workerInfo.getWorkerEndIP());
-                BValue[] results = new BValue[0];
                 if (workerInfo.getWorkerDataChannelForForkJoin() != null) {
-                    results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
+                    BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
+                    BType[] types = workerInfo.getWorkerDataChannelForForkJoin().getTypes();
+                    for (int i = 0; i < types.length; i++) {
+                        BType paramType = types[i];
+                        switch (paramType.getTag()) {
+                            case TypeTags.INT_TAG:
+                                bRefValueArray.add(i, ((BInteger) results[i]));
+                                break;
+                            case TypeTags.FLOAT_TAG:
+                                bRefValueArray.add(i, ((BFloat) results[i]));
+                                break;
+                            case TypeTags.STRING_TAG:
+                                bRefValueArray.add(i, ((BString) results[i]));
+                                break;
+                            case TypeTags.BOOLEAN_TAG:
+                                bRefValueArray.add(i, ((BBoolean) results[i]));
+                                break;
+                            default:
+                                bRefValueArray.add(i, ((BRefType) results[i]));
+                        }
+                    }
                 }
-                return results;
+                return bRefValueArray;
 //                worker.getCallableUnitBody().execute(executor);
             } catch (RuntimeException throwable) {
                 String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
@@ -100,7 +128,7 @@ public class BLangVMWorkers {
                 log.error(errorWithTrace);
                 //outStream.println(errorWithTrace);
             }
-            return new BValue[0];
+            return bRefValueArray;
         }
     }
 }
