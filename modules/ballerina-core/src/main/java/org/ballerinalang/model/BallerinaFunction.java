@@ -20,14 +20,17 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -60,10 +63,13 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
+    private Queue<Statement> workerInteractionStatements;
     private ParameterDef[] returnParameters;
     private BType[] returnParamTypes;
     private BlockStmt functionBody;
     private int stackFrameSize;
+
+    private Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -107,8 +113,14 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      *
      * @return list of Workers
      */
+    @Override
     public Worker[] getWorkers() {
         return workers;
+    }
+
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return workerInteractionStatements;
     }
 
     /**
@@ -317,6 +329,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
                 worker.setParameterDefs(bFunc.getParameterDefs());
             }
             bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bFunc.workerInteractionStatements = this.workerInteractionStatements;
             bFunc.functionBody = this.body;
             bFunc.isNative = this.isNative;
             return bFunc;

@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is the main class which used as the data channel for worker to worker data communication.
@@ -53,7 +54,7 @@ public class WorkerDataChannel {
     public Object[] takeData() {
         Object[] data = null;
         try {
-            data = channel.take();
+            data = channel.poll(60, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             // Handle the error properly
             log.error("Error occurred when taking data from the channel");

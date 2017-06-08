@@ -46,6 +46,11 @@ public class BArrayType extends BType implements BIndexedType {
         this.dimensions = dimensions;
     }
 
+    public BArrayType(BType elementType) {
+        super(null, null, null, BArray.class);
+        this.elementType = elementType;
+    }
+
     public BType getElementType() {
         return elementType;
     }
@@ -60,6 +65,16 @@ public class BArrayType extends BType implements BIndexedType {
         BArray emptyVal = new BArray<V>(elementType.getValueClass());
         emptyVal.setType(this);
         return (V) emptyVal;
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_ARRAY, elementType.getSig());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ARRAY_TAG;
     }
 
     public boolean equals(Object obj) {

@@ -19,12 +19,12 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -35,16 +35,16 @@ import org.testng.annotations.Test;
  */
 public class VariableDefinitionTest {
     private static final double DELTA = 0.01;
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/variable-definition-stmt.bal");
+        programFile = BTestUtils.getProgramFile("lang/statements/variable-definition-stmt.bal");
     }
 
     @Test
     public void testVariableDefaultValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "variableDefaultValue");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "variableDefaultValue");
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -66,7 +66,7 @@ public class VariableDefinitionTest {
 
     @Test
     public void testInlineVarInit() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "inlineVarInit");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "inlineVarInit");
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -97,7 +97,7 @@ public class VariableDefinitionTest {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
         };
 
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "updateVarValue", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "updateVarValue", args);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -128,7 +128,7 @@ public class VariableDefinitionTest {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
         };
 
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "updateVarValue", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "updateVarValue", args);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);

@@ -17,8 +17,13 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.nonblocking.BLangAbstractExecutionVisitor;
+import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
+import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -33,25 +38,49 @@ public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
     private ControlStack controlStack;
+    private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
     private CallableUnitInfo serviceInfo;
-    private BLangAbstractExecutionVisitor executor;
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
 
+    // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
+    private boolean vmBasedExecutor = false;
+    private int startIP;
+    private BStruct errorThrown;
+
+    // TODO : Temporary solution to make non-blocking working.
+    public boolean initFunction = false;
+    public BValue[] nativeArgValues;
+    public ProgramFile programFile;
+    public FunctionCallCPEntry funcCallCPEntry;
+    public ActionInfo actionInfo;
+
     public Context() {
         this.controlStack = new ControlStack();
+        this.controlStackNew = new ControlStackNew();
     }
 
     public Context(CarbonMessage cMsg) {
         this.cMsg = cMsg;
         this.controlStack = new ControlStack();
+        this.controlStackNew = new ControlStackNew();
+    }
+
+    public Context(ProgramFile programFile) {
+        this.programFile = programFile;
+        this.controlStack = new ControlStack();
+        this.controlStackNew = new ControlStackNew();
     }
 
     public ControlStack getControlStack() {
         return this.controlStack;
+    }
+
+    public ControlStackNew getControlStackNew() {
+        return controlStackNew;
     }
 
     public CarbonMessage getCarbonMessage() {
@@ -86,14 +115,6 @@ public class Context {
         this.serviceInfo = serviceInfo;
     }
 
-    public void setExecutor(BLangAbstractExecutionVisitor executor) {
-        this.executor = executor;
-    }
-
-    public BLangAbstractExecutionVisitor getExecutor() {
-        return executor;
-    }
-
     public Object getServerConnectorProtocol() {
         return serverConnectorProtocol;
     }
@@ -112,5 +133,33 @@ public class Context {
 
     public boolean isInTransaction() {
         return this.ballerinaTransactionManager != null;
+    }
+
+    public boolean isVMBasedExecutor() {
+        return vmBasedExecutor;
+    }
+
+    public void setVMBasedExecutor(boolean vmBasedExecutor) {
+        this.vmBasedExecutor = vmBasedExecutor;
+    }
+
+    public BStruct getError() {
+        return errorThrown;
+    }
+
+    public void setError(BStruct error) {
+        this.errorThrown = error;
+    }
+
+    public int getStartIP() {
+        return startIP;
+    }
+
+    public void setStartIP(int startIP) {
+        this.startIP = startIP;
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
     }
 }

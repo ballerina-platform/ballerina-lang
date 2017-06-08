@@ -12,7 +12,7 @@ connector Foo (string name, int age) {
         return x + 90 + ":" + myName, x + 90;
     }
 
-    action getName (Foo f, string name, int age) (int) {
+    action getName1 (Foo f, string name, int age) (int) {
         return x + 80;
     }
 }

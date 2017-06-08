@@ -20,7 +20,6 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.model.types.TypeLattice;
-import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -233,10 +232,6 @@ public class BallerinaFile implements Node {
         public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
             this.packageBuilder.addTypeMapper(typeMapper);
-        }
-
-        public void addWorkerInteractionDataHolder(WorkerInteractionDataHolder workerInteractionDataHolder) {
-            this.packageBuilder.addWorkerInteractionDataHolder(workerInteractionDataHolder);
         }
 
         /**

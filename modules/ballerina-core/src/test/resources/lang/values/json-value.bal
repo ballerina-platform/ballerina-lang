@@ -202,7 +202,7 @@ function testJsonExprAsIndex() (string) {
     string addressKey = "address";
     string cityKey = "city";
     
-    return (string)j.address[j.address.area];
+    return (string)j.address[(string)j.address.area];
 }
 
 function testSetArrayOutofBoundElement() (json) {

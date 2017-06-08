@@ -25,4 +25,5 @@ public class Constants {
     public static final String ANNOTATION_FILE_SOURCE = "FileSource";
     public static final String PROTOCOL_FILE = "file";
     public static final String TRANSPORT_PROPERTY_SERVICE_NAME = "TRANSPORT_FILE_SERVICE_NAME";
+    public static final String FILE_PACKAGE_NAME = "ballerina.net.file";
 }

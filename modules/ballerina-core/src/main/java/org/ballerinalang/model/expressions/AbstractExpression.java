@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -37,13 +36,11 @@ public abstract class AbstractExpression implements Expression {
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected BType type;
 
-    public LinkedNode next;
-    private LinkedNode sibling, parent;
     protected boolean multipleReturnsAvailable;
     protected int offset;
 
     // Non-Blocking Implementation related fields.
-    private int tempOffset;
+    protected int tempOffset;
     private boolean isTempOffsetSet = false;
 
     public AbstractExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
@@ -87,40 +84,6 @@ public abstract class AbstractExpression implements Expression {
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return whiteSpaceDescriptor;
-    }
-
-    @Override
-    public LinkedNode next() {
-        return next;
-    }
-
-    @Override
-    public void setNext(LinkedNode linkedNode) {
-        // Validation for incorrect Linking.
-        if (next != null && next != linkedNode && !next.getClass().equals(linkedNode.getClass())) {
-            throw new IllegalStateException(this.getClass() + " got different next." + next + " " + linkedNode);
-        }
-        this.next = linkedNode;
-    }
-
-    @Override
-    public LinkedNode getNextSibling() {
-        return sibling;
-    }
-
-    @Override
-    public void setNextSibling(LinkedNode linkedNode) {
-        this.sibling = linkedNode;
-    }
-
-    @Override
-    public LinkedNode getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(LinkedNode linkedNode) {
-        this.parent = linkedNode;
     }
 
     @Override

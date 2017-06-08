@@ -86,7 +86,7 @@ public class ConstructProviderClassBuilder {
     
     private Map<String, PackageHolder> nativePackages;
     private String symbolNameStr = "new %s(\"%s\")";
-    private String functionSymbolNameStr = "new %s(\"%s\", \"%s\", %d)";
+    private String functionSymbolNameStr = "new %s(\"%s\", %d)";
     private final String importPkg = "import " + NativeScope.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnitProxy.class.getCanonicalName() + ";\n" + 
                                      "import " + SymbolName.class.getCanonicalName() + ";\n" + 
@@ -316,8 +316,7 @@ public class ConstructProviderClassBuilder {
             BallerinaFunction function = functionHolder.getBalFunction();
             String pkgName = function.packageName();
             String className = functionHolder.getClassName();
-            String functionQualifiedName = Utils.getFunctionQualifiedName(function);
-            writeNativeConstruct(pkgName, function.functionName(), functionQualifiedName, className,
+            writeNativeConstruct(pkgName, function.functionName(), className,
                 function.args(), function.returnType());
         }
     }
@@ -357,8 +356,7 @@ public class ConstructProviderClassBuilder {
             // Add all the actions of this connector, ad generate the insertion string
             for (ActionHolder action : con.getActions()) {
                 BallerinaAction balAction = action.getBalAction();
-                String actionQualifiedName = Utils.getActionQualifiedName(balAction, balAction.connectorName()
-                        , balAction.packageName());
+                String actionQualifiedName = Utils.getActionQualifiedName(balAction, balAction.connectorName());
                 String actionPkgName = balAction.packageName();
                 String actionClassName = action.getClassName();
                 String actionAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, actionPkgName,
@@ -381,15 +379,14 @@ public class ConstructProviderClassBuilder {
      * 
      * @param packageName Package name of the construct
      * @param constructName Simple name of the construct
-     * @param constructQualifiedName Qualified name of the construct
      * @param constructImplClassName Name of the construct implementation class
      * @param arguments Input parameters for the native construct
      * @param returnTypes Return types of the native construct
      */
-    public void writeNativeConstruct(String packageName, String constructName, String constructQualifiedName, 
+    public void writeNativeConstruct(String packageName, String constructName,
             String constructImplClassName, Argument[] arguments, ReturnType[] returnTypes) {
         String functionSupplier = getFunctionConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, packageName,
-                constructName, constructQualifiedName, null, null, constructImplClassName, arguments, returnTypes,
+                constructName, null, null, constructImplClassName, arguments, returnTypes,
                 "nativeCallableUnit", null, nativeUnitClass, "nativeUnitClass", null, null);
         try {
             sourceFileWriter.write(functionSupplier);
@@ -452,7 +449,6 @@ public class ConstructProviderClassBuilder {
      * @param scope Scope to which the construct is added
      * @param constructPkgName Package name of the construct
      * @param constructName Simple name of the construct
-     * @param constructQualifiedName Qualified name of the construct
      * @param constructArgType Input parameter class for the parameterized constructor of this construct impl class
      * @param constructArg  Input parameter for the parameterized constructor of this construct impl class
      * @param constructImplClassName Name of the construct implementation class
@@ -469,11 +465,11 @@ public class ConstructProviderClassBuilder {
      * @return
      */
     private String getFunctionConstructInsertStr(String scope, String addMethod, String constructPkgName,
-                String constructName, String constructQualifiedName, String constructArgType, String constructArg,
+                String constructName, String constructArgType, String constructArg,
                 String constructImplClassName, Argument[] arguments, ReturnType[] returnTypes, String constructVarName,
                 String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
                 String enclosingScopePkg) {
-        String createSymbolStr = String.format(functionSymbolNameStr, functionSymbolNameClass, constructQualifiedName,
+        String createSymbolStr = String.format(functionSymbolNameStr, functionSymbolNameClass,
                                                constructName, arguments.length);
         String returnTypesArrayStr = getReturnTypes(returnTypes);
         String argsNamesArrayStr = getArgNames(arguments);

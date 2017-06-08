@@ -40,5 +40,20 @@ public class TypeConstants {
     static final String DATATABLE_TNAME = "datatable";
     static final String ANY_TNAME = "any";
     public static final String NULL_TNAME = "null";
+    public static final String VOID_TNAME = "void";
+
+
+    public static final String INT_TSIG = "I";
+    public static final String FLOAT_TSIG = "F";
+    public static final String STRING_TSIG = "S";
+    public static final String BOOLEAN_TSIG = "B";
+    public static final String REFTYPE_TSIG = "R";
+    public static final String CONNECTOR_TSIG = "C";
+    public static final String STRUCT_TSIG = "T";
+    public static final String ARRAY_TSIG = "[";
+    public static final String VOID_TSIG = "V";
+    public static final String ANY_TSIG = "A";
+
+
 }
 

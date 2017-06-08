@@ -33,7 +33,6 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 /**
  * {@code Patch} is the PATCH action implementation of the HTTP Connector.
@@ -93,11 +92,6 @@ public class Patch extends AbstractHTTPAction {
         try {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
-        } catch (ClientConnectorException | RuntimeException e) {
-            String msg = "Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
-                    + ". " + e.getMessage();
-            context.getExecutor().createBErrorFromException(e, msg);
-            context.getExecutor().handleBException();
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'patch' action in " + Constants.CONNECTOR_NAME
                                          + ". " + t.getMessage(), context);

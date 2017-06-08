@@ -19,9 +19,9 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -35,45 +35,45 @@ public class VariableScopeTest {
     @Test(expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "variable-if-scope.bal:12: undefined symbol 'k'")
     public void testIfScope() {
-        BTestUtils.parseBalFile("lang/statements/variable-if-scope.bal");
+        BTestUtils.getProgramFile("lang/statements/variable-if-scope.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "variable-else-scope.bal:9: undefined symbol 'b'")
     public void testElseScope() {
-        BTestUtils.parseBalFile("lang/statements/variable-else-scope.bal");
+        BTestUtils.getProgramFile("lang/statements/variable-else-scope.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "variable-while-scope.bal:7: undefined symbol 'b'")
     public void testWhileScope() {
-        BTestUtils.parseBalFile("lang/statements/variable-while-scope.bal");
+        BTestUtils.getProgramFile("lang/statements/variable-while-scope.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "variable-resource-scope.bal:10: undefined symbol 'b'")
     public void testResourceScope() {
-        BTestUtils.parseBalFile("lang/statements/variable-resource-scope.bal");
+        BTestUtils.getProgramFile("lang/statements/variable-resource-scope.bal");
     }
 
     @Test
     public void testScopeValue() {
 
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/variable-scope-value.bal");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/statements/variable-scope-value.bal");
 
-        scopeValue(bLangProgram, "scopeIfValue", 5, 10, 20, 6);
-        scopeValue(bLangProgram, "scopeIfValue", 13, 8, 7, 7);
-        scopeValue(bLangProgram, "scopeIfValue", 25, 30, 8, 100000);
+        scopeValue(programFile, "scopeIfValue", 5, 10, 20, 6);
+        scopeValue(programFile, "scopeIfValue", 13, 8, 7, 7);
+        scopeValue(programFile, "scopeIfValue", 25, 30, 8, 100000);
 
-        scopeValue(bLangProgram, "scopeWhileScope", 5, 10, 20, 5);
-        scopeValue(bLangProgram, "scopeWhileScope", 13, 8, 7, 105);
-        scopeValue(bLangProgram, "scopeWhileScope", 40, 30, 8, 205);
-        scopeValue(bLangProgram, "scopeWhileScope", 40, 30, 50, 305);
+        scopeValue(programFile, "scopeWhileScope", 5, 10, 20, 5);
+        scopeValue(programFile, "scopeWhileScope", 13, 8, 7, 105);
+        scopeValue(programFile, "scopeWhileScope", 40, 30, 8, 205);
+        scopeValue(programFile, "scopeWhileScope", 40, 30, 50, 305);
     }
 
-    private void scopeValue(BLangProgram bLangProgram, String functionName, int a, int b, int c, int expected) {
+    private void scopeValue(ProgramFile programFile, String functionName, int a, int b, int c, int expected) {
         BValue[] args = { new BInteger(a), new BInteger(b), new BInteger(c) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, functionName, args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, functionName, args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);

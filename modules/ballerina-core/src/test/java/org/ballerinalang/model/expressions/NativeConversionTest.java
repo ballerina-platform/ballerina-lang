@@ -207,15 +207,15 @@ public class NativeConversionTest {
     
     @Test(description = "Test converting a struct to a struct", 
             expectedExceptions = { SemanticException.class },
-            expectedExceptionsMessageRegExp = "struct-to-struct-conversion.bal:26: incompatible types: '.:Person' " +
-            "cannot be converted to '.:Student'")
+            expectedExceptionsMessageRegExp = "struct-to-struct-conversion.bal:26: incompatible types: 'Person' " +
+            "cannot be converted to 'Student'")
     public void testStructToStruct() {
         BTestUtils.parseBalFile("lang/expressions/type/conversion/struct-to-struct-conversion.bal");
     }
     
     @Test(description = "Test converting a map with missing field to a struct", 
             expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = "cannot cast 'map' to type '.:Person: error while mapping 'parent': no" +
+            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'Person: error while mapping 'parent': no" +
             " such field found")
     public void testIncompatibleMapToStruct() {
         BLangFunctions.invoke(bLangProgram, "testIncompatibleMapToStruct");
@@ -223,7 +223,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a map with incompatible inner array to a struct", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'map' to type '.:Person: error while mapping 'marks': " +
+            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'Person: error while mapping 'marks': " +
             "incompatible types: expected 'int\\[\\]', found 'float\\[\\]'")
     public void testMapWithIncompatibleArrayToStruct() {
         BLangFunctions.invoke(bLangProgram, "testMapWithIncompatibleArrayToStruct");
@@ -231,15 +231,15 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a map with incompatible inner struct to a struct", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'map' to type '.:Employee: error while mapping 'partner':" +
-            " incompatible types: expected '.:Person', found '.:Student'")
+            expectedExceptionsMessageRegExp = "cannot cast 'map' to type 'Employee: error while mapping 'partner':" +
+            " incompatible types: expected 'Person', found 'Student'")
     public void testMapWithIncompatibleStructToStruct() {
         BLangFunctions.invoke(bLangProgram, "testMapWithIncompatibleStructToStruct");
     }
 
     @Test(description = "Test converting a incompatible JSON to a struct", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping 'parent': " +
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping 'parent': " +
             "no such field found")
     public void testIncompatibleJsonToStruct() {
         BLangFunctions.invoke(bLangProgram, "testIncompatibleJsonToStruct");
@@ -247,7 +247,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping " +
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping " +
             "'address': incompatible types: expected 'json-object', found 'string'")
     public void testJsonWithIncompatibleMapToStruct() {
         BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleMapToStruct");
@@ -255,7 +255,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON with incompatible inner struct to a struct", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping 'parent': " +
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping 'parent': " +
             "incompatible types: expected 'json-object', found 'string'")
     public void testJsonWithIncompatibleStructToStruct() {
         BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleStructToStruct");
@@ -263,7 +263,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON array to a struct", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': incompatible types: expected " +
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': incompatible types: expected " +
             "'json-object', found 'json-array'")
     public void testJsonArrayToStruct() {
         BLangFunctions.invoke(bLangProgram, "testJsonArrayToStruct");
@@ -271,7 +271,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON with incompatible inner type to a struct", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:Person': error while mapping 'age': " +
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'Person': error while mapping 'age': " +
             "incompatible types: expected 'int', found 'float' in json")
     public void testJsonWithIncompatibleTypeToStruct() {
         BLangFunctions.invoke(bLangProgram, "testJsonWithIncompatibleTypeToStruct");
@@ -279,7 +279,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a struct with inner XML to a JSON", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast '.:Info' to type 'json': error while mapping 'name': " +
+            expectedExceptionsMessageRegExp = "cannot cast 'Info' to type 'json': error while mapping 'name': " +
             "incompatible types: expected 'json', found 'xml'")
     public void testStructWithXmlToJson() {
         BLangFunctions.invoke(bLangProgram, "testStructWithXmlToJson");
@@ -342,7 +342,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON array to xml array", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:XmlArray': error while mapping 'a': " +
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'XmlArray': error while mapping 'a': " +
             "incompatible types: expected 'xml', found 'string'")
     public void testJsonToXmlArray() {
         BLangFunctions.invoke(bLangProgram, "testJsonToXmlArray");
@@ -366,7 +366,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON string to string array", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'json' to type '.:StringArray': error while mapping 'a': " +
+            expectedExceptionsMessageRegExp = "cannot cast 'json' to type 'StringArray': error while mapping 'a': " +
             "incompatible types: expected 'json-array', found 'string'")
     public void testNonArrayJsonToArray() {
         BLangFunctions.invoke(bLangProgram, "testNonArrayJsonToArray");
@@ -411,7 +411,7 @@ public class NativeConversionTest {
         BStruct error = (BStruct) returns[1];
         BValue errorMsg = error.getValue(0);
         Assert.assertTrue(errorMsg instanceof BString);
-        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'json' to type '.:Person': error while mapping" +
+        Assert.assertEquals(errorMsg.stringValue(), "cannot cast 'json' to type 'Person': error while mapping" +
             " 'parent': incompatible types: expected 'json-object', found 'string'");
     }
 }

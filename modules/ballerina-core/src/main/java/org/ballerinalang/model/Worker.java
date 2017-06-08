@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMessage;
@@ -28,6 +29,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.Future;
 
 /**
@@ -62,6 +64,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
+    private Queue<Statement> workerInteractionStatements;
     private ParameterDef[] returnParams;
     private BType[] returnParamTypes;
     private BlockStmt workerBody;
@@ -236,10 +239,15 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
      *
      * @return list of Workers
      */
+    @Override
     public Worker[] getWorkers() {
         return workers;
     }
 
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return workerInteractionStatements;
+    }
     /**
      * Returns size of the stack frame which should be allocated for each invocations.
      *
@@ -375,6 +383,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
             bWorker.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bWorker.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bWorker.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bWorker.workerInteractionStatements = this.workerInteractionStatements;
             bWorker.workerBody = this.body;
             return bWorker;
         }

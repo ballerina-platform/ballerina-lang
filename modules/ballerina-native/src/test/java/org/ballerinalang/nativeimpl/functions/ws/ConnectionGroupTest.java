@@ -107,6 +107,6 @@ public class ConnectionGroupTest {
 
     @AfterClass
     public void cleanUp() {
-        EnvironmentInitializer.cleanup(wsApp);
+//        EnvironmentInitializer.cleanup(wsApp);
     }
 }

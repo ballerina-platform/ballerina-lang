@@ -18,9 +18,13 @@
 
 package org.ballerinalang.runtime.threadpool;
 
-import org.ballerinalang.bre.nonblocking.BLangAbstractExecutionVisitor;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
-import org.ballerinalang.runtime.ServerConnectorMessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -29,34 +33,31 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class ResponseWorkerThread extends WorkerThread {
 
+    private static final Logger logger = LoggerFactory.getLogger(ResponseWorkerThread.class);
+
     public ResponseWorkerThread(CarbonMessage cMsg, CarbonCallback callback) {
         super(cMsg, callback);
     }
 
     public void run() {
-        // TODO : Fix this properly.
-        // Connector callback's done method is called from different locations, i.e: MessageProcessor, from Netty etc.
-        // Because of this we have to start new thread from the callback, if non-blocking is enabled.
+//        // TODO : Fix this properly. Handle workers.
+//        // Connector callback's done method is called from different locations, i.e: MessageProcessor, from Netty etc.
+//        // Because of this we have to start new thread from the callback, if non-blocking is enabled.
         BalConnectorCallback connectorCallback = (BalConnectorCallback) this.callback;
-        BLangAbstractExecutionVisitor executor = connectorCallback.getContext().getExecutor();
+        Context context = connectorCallback.getContext();
+        BLangVM bLangVM = new BLangVM(context.getProgramFile());
         try {
-            boolean errorOccurred = false;
-            try {
-                connectorCallback.getActionNode().getCallableUnit().validate(connectorCallback);
-            } catch (RuntimeException e) {
-                errorOccurred = true;
-                executor.createBErrorFromException(e, null);
-            }
-            if (errorOccurred) {
-                // Pass this to catch statement.
-                executor.handleBException();
-                executor.continueExecution();
-            } else {
-                executor.continueExecution(connectorCallback.getCurrentNode().next());
-            }
-        } catch (Throwable unhandled) {
-            // Root level Error handler. we have to notify server connector.
-            ServerConnectorMessageHandler.handleErrorFromOutbound(connectorCallback.getContext(), unhandled);
+            connectorCallback.getNativeAction().validate(connectorCallback);
+        } catch (Exception e) {
+            logger.error("non-blocking action invocation validation failed. ", e);
+            BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1, e.getMessage());
+            context.setError(err);
+        }
+        // TODO : Fix error handling
+        try {
+            bLangVM.run(context);
+        } catch (Exception e) {
+            logger.error("unhandled exception ", e);
         }
     }
 }
