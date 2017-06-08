@@ -1557,6 +1557,9 @@ public class BLangVM {
 
         } else {
             ip = forkJoinStmt.getJoin().getIp();
+            if (forkJoinStmt.getTimeout().getIp() > 0) {
+                workerEndIP = forkJoinStmt.getTimeout().getIp();
+            }
             // Assign values to join block message arrays
             int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
                     getStackFrameOffset();

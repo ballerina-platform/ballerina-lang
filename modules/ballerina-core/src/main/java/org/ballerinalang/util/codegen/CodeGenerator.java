@@ -2322,6 +2322,10 @@ public class CodeGenerator implements NodeVisitor {
             join.getJoinBlock().accept(this);
         }
 
+        // Emit a GOTO instruction to jump out of the timeout block
+        Instruction gotoInstruction = new Instruction(InstructionCodes.GOTO, -1);
+        emit(gotoInstruction);
+
         // Generate code for timeout block
         ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
         timeout.setIp(nextIP());
@@ -2335,6 +2339,8 @@ public class CodeGenerator implements NodeVisitor {
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }
+
+        gotoInstruction.setOperand(0, nextIP());
     }
 
 
