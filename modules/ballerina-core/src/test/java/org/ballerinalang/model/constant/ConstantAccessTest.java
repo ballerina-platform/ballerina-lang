@@ -61,8 +61,9 @@ public class ConstantAccessTest {
 
     @Test(description = "Test negative constant values")
     public void testNegativeConstantValues() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/constant/main");
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getNegativeConstants");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/constant/main");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.constant.main",
+                "getNegativeConstants");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
