@@ -38,13 +38,13 @@ class EnableDefaultWSVisitor extends ASTVisitor {
             node.getLeftExpression().accept(this);
         } else if (Factory.isActionInvocationExpression(node)) {
             node.getArguments().forEach((arg) => {
-                arg.accpt(this);
+                arg.accept(this);
             })
         } else if (Factory.isConnectorInitExpression(node)) {
             node.getArgs().forEach((arg) => {
-                arg.accpt(this);
+                arg.accept(this);
             })
-            node.getConnectorName().accpt(this);
+            node.getConnectorName().accept(this);
         } else if (Factory.isCatchStatement(node)) {
             node.getParameter().accept(this);
         }
