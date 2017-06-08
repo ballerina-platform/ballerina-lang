@@ -18,7 +18,10 @@
 package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -49,7 +52,6 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -68,7 +70,6 @@ import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
@@ -137,7 +138,7 @@ public class BLangVM {
         this.ip = context.getStartIP();
 
 //        traceCode(null);
-            
+
         if (context.getError() != null) {
             handleError();
         } else if (context.actionInfo != null) {
@@ -184,15 +185,20 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry;
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
-        FunctionInfo functionInfo;
+        TypeCPEntry typeCPEntry;
         ActionRefCPEntry actionRefCPEntry;
+        StringCPEntry stringCPEntry;
+
+        FunctionInfo functionInfo;
         ActionInfo actionInfo;
         StructureTypeInfo structureTypeInfo;
-        StringCPEntry stringCPEntry;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
         WorkerInvokeCPEntry workerInvokeCPEntry;
         WorkerReplyCPEntry workerReplyCPEntry;
         WorkerDataChannel workerDataChannel;
+
+        StackFrame currentSF, callersSF;
+        int callersRetRegIndex;
 
         // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
@@ -931,25 +937,6 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeNativeAction(actionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.RET:
-                    cpIndex = operands[0];
-                    FunctionReturnCPEntry funcRetCPEntry = (FunctionReturnCPEntry) constPool[cpIndex];
-                    handleReturn(funcRetCPEntry.getRegIndexes());
-                    break;
-                case InstructionCodes.REP:
-                    i = operands[0];
-                    BMessage message = null;
-                    if (i >= 0) {
-                        message = (BMessage) sf.refRegs[i];
-                    }
-                    context.setError(null);
-                    // this should be fixed once JMS transactions are available as it requires callback
-                    if (context.getBalCallback() != null &&
-                            ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
-                        context.getBalCallback().done(message != null ? message.value() : null);
-                    }
-                    ip = -1;
-                    break;
                 case InstructionCodes.THROW:
                     i = operands[0];
                     if (i >= 0) {
@@ -1059,14 +1046,7 @@ public class BLangVM {
                 case InstructionCodes.S2JSON:
                     i = operands[0];
                     j = operands[1];
-                    String jsonStr = sf.stringRegs[i];
-
-                    // If this is a string-representation of complex JSON object, generate a BJSON out of it.
-                    if (jsonStr.matches("\\{.*\\}|\\[.*\\]")) {
-                        sf.refRegs[j] = new BJSON(jsonStr);
-                    }
-
-                    // Else, generate a BJSON with a quoted string.
+                    String jsonStr = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
                     sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
                     break;
                 case InstructionCodes.B2I:
@@ -1225,12 +1205,14 @@ public class BLangVM {
                     i = operands[0];
                     cpIndex = operands[1];
                     j = operands[2];
-                    TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+
                     // TODO NULL Check  and Array casting
                     if (checkCast(sf.refRegs[i].getType(), typeCPEntry.getType())) {
                         sf.refRegs[j] = sf.refRegs[i];
                     } else {
-                        throw new BallerinaException("Incompatible types");
+                        throw new BallerinaException("Incompatible types: " +
+                                sf.refRegs[i].getType() + " and " + typeCPEntry.getType());
                         // TODO Handle cast errors
                     }
                     break;
@@ -1262,7 +1244,9 @@ public class BLangVM {
                     break;
                 case InstructionCodes.RNEWARRAY:
                     i = operands[0];
-                    sf.refRegs[i] = new BRefValueArray();
+                    cpIndex = operands[1];
+                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BRefValueArray(typeCPEntry.getType());
                     break;
                 case InstructionCodes.LNEWARRAY:
                     i = operands[0];
@@ -1278,6 +1262,7 @@ public class BLangVM {
                     }
                     sf.refRegs[i] = new BJSON(stringJoiner.toString());
                     break;
+
                 case InstructionCodes.NEWSTRUCT:
                     cpIndex = operands[0];
                     i = operands[1];
@@ -1316,7 +1301,67 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
                     break;
-
+                case InstructionCodes.REP:
+                    i = operands[0];
+                    BMessage message = null;
+                    if (i >= 0) {
+                        message = (BMessage) sf.refRegs[i];
+                    }
+                    context.setError(null);
+                    context.getBalCallback().done(message != null ? message.value() : null);
+                    ip = -1;
+                    break;
+                case InstructionCodes.IRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
+                    break;
+                case InstructionCodes.FRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[j];
+                    break;
+                case InstructionCodes.SRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[j];
+                    break;
+                case InstructionCodes.BRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
+                    break;
+                case InstructionCodes.LRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
+                    break;
+                case InstructionCodes.RRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.getCurrentFrame();
+                    callersSF = controlStack.getStack()[controlStack.fp - 1];
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[j];
+                    break;
+                case InstructionCodes.RET:
+                    handleReturn();
+                    break;
                 default:
                     throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
             }
@@ -1490,44 +1535,15 @@ public class BLangVM {
         }
     }
 
-    private void handleReturn(int[] regIndexes) {
+    private void handleReturn() {
         StackFrame currentSF = controlStack.popFrame();
         context.setError(null);
         if (controlStack.fp >= 0) {
-
             StackFrame callersSF = controlStack.currentFrame;
-            BType[] retTypes = currentSF.callableUnitInfo.getRetParamTypes();
-
-            for (int i = 0; i < regIndexes.length; i++) {
-                int regIndex = regIndexes[i];
-                int callersRetRegIndex = currentSF.retRegIndexes[i];
-                BType retType = retTypes[i];
-                switch (retType.getTag()) {
-                    case TypeTags.INT_TAG:
-                        callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[regIndex];
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        callersSF.doubleRegs[callersRetRegIndex] = currentSF.doubleRegs[regIndex];
-                        break;
-                    case TypeTags.STRING_TAG:
-                        callersSF.stringRegs[callersRetRegIndex] = currentSF.stringRegs[regIndex];
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[regIndex];
-                        break;
-                    case TypeTags.BLOB_TAG:
-                        callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[regIndex];
-                        break;
-                    default:
-                        callersSF.refRegs[callersRetRegIndex] = currentSF.refRegs[regIndex];
-                }
-            }
-
             // TODO Improve
             this.constPool = callersSF.packageInfo.getConstPool();
             this.code = callersSF.packageInfo.getInstructions();
         }
-
         ip = currentSF.retAddrs;
     }
 
@@ -1775,7 +1791,7 @@ public class BLangVM {
     }
 
     private boolean checkCast(BType sourceType, BType targetType) {
-        if (sourceType == targetType) {
+        if (sourceType.equals(targetType)) {
             return true;
         }
 
@@ -1784,9 +1800,32 @@ public class BLangVM {
 
         }
 
-        // Array casting
+        if (targetType.getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
 
-        return false;
+        // Array casting
+        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayCast(sourceType, targetType);
+        }
+
+        return true;
+    }
+
+    private boolean checkArrayCast(BType sourceType, BType targetType) {
+        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType sourceArrayType = (BArrayType) sourceType;
+            BArrayType targetArrayType = (BArrayType) targetType;
+            if (targetArrayType.getDimensions() > sourceArrayType.getDimensions()) {
+                return false;
+            }
+
+            return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType());
+        } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            return targetType.getTag() == TypeTags.ANY_TAG;
+        }
+
+        return sourceType.equals(targetType);
     }
 
     public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {

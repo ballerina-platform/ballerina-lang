@@ -157,10 +157,8 @@ public interface InstructionCodes {
     int NCALL = 121;
     int ACALL = 122;
     int NACALL = 123;
-    int RET = 124;
-    int REP = 125;
-    int THROW = 126;
-    int ERRSTORE = 127;
+    int THROW = 124;
+    int ERRSTORE = 125;
 
     // Type Cast/Conversion related instructions
     int I2F = 130;
@@ -221,5 +219,14 @@ public interface InstructionCodes {
     int NEWMESSAGE = 214;
     int NEWDATATABLE = 215;
 
-    int INSTRUCTION_CODE_COUNT = 216;
+    int REP = 230;
+    int IRET = 231;
+    int FRET = 232;
+    int SRET = 233;
+    int BRET = 234;
+    int LRET = 235;
+    int RRET = 236;
+    int RET = 237;
+
+    int INSTRUCTION_CODE_COUNT = 238;
 }
