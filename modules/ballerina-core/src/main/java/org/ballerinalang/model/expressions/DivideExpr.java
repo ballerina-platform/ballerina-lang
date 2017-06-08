@@ -23,6 +23,7 @@ import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -36,23 +37,23 @@ import java.util.function.BiFunction;
 public class DivideExpr extends BinaryArithmeticExpression {
 
     // TODO improve the divide operation with type checking
-    public static final BiFunction<BValueType, BValueType, BValueType> DIV_INT_FUNC =
+    public static final BiFunction<BValue, BValue, BValue> DIV_INT_FUNC =
             (lVal, rVal) -> {
 
-                if (rVal.intValue() == 0) {
+                if (((BValueType) rVal).intValue() == 0) {
                     throw new BallerinaException(" / by zero");
                 }
-                return new BInteger(lVal.intValue() / rVal.intValue());
+                return new BInteger(((BValueType) lVal).intValue() / ((BValueType) rVal).intValue());
             };
 
-    public static final BiFunction<BValueType, BValueType, BValueType> DIV_FLOAT_FUNC =
+    public static final BiFunction<BValue, BValue, BValue> DIV_FLOAT_FUNC =
             (lVal, rVal) -> {
 
-                if (rVal.floatValue() == 0) {
+                if (((BValueType) rVal).floatValue() == 0) {
                     throw new BallerinaException(" / by zero");
                 }
 
-                return new BFloat(lVal.floatValue() / rVal.floatValue());
+                return new BFloat(((BValueType) lVal).floatValue() / ((BValueType) rVal).floatValue());
             };
 
     public DivideExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,

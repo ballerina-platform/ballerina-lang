@@ -137,6 +137,7 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.natives.typemappers.TypeMappingUtils;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
@@ -1835,6 +1836,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.typeString) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
+        }  else if (arithmeticExprType == BTypes.typeXML) {
+            addExpr.setEvalFunc(AddExpression.ADD_XML_FUNC);
+
         } else {
             throwInvalidBinaryOpError(addExpr);
         }
@@ -2178,6 +2182,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             valueExpr.accept(this);
 
+            if (structFieldType == BTypes.typeAny) {
+                AssignabilityResult result = performAssignabilityCheck(structFieldType, valueExpr);
+                if (result.implicitCastExpr != null) {
+                    valueExpr = result.implicitCastExpr;
+                    keyValueExpr.setValueExpr(valueExpr);
+                }
+            }
+
             if (!TypeMappingUtils.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
@@ -2317,7 +2329,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpr.setEvalFunc(newEdge.getTypeMapperFunction());
 
             if (!isMultiReturn) {
-                typeCastExpr.setTypes(new BType[] { targetType });
+                typeCastExpr.setTypes(new BType[]{targetType});
+                return;
+            }
+
+        } else if (sourceType == targetType) {
+            typeCastExpr.setOpcode(InstructionCodes.NOP);
+            // TODO Remove this once the interpreter is removed.
+            typeCastExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
+            if (!isMultiReturn) {
+                typeCastExpr.setTypes(new BType[]{targetType});
                 return;
             }
 
@@ -3322,9 +3343,26 @@ public class SemanticAnalyzer implements NodeVisitor {
             actionSymbol = nativeScope.resolve(name);
             if (actionSymbol != null) {
                 if (actionSymbol instanceof NativeUnitProxy) {
-                    NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
-                    Action action = (Action) nativeUnit;
-                    connectorDef.setInitAction(action);
+                    AbstractNativeAction nativeUnit = (AbstractNativeAction) ((NativeUnitProxy) actionSymbol).load();
+                    BallerinaAction.BallerinaActionBuilder ballerinaActionBuilder = new BallerinaAction
+                            .BallerinaActionBuilder(connectorDef);
+                    ballerinaActionBuilder.setIdentifier(nativeUnit.getIdentifier());
+                    ballerinaActionBuilder.setPkgPath(nativeUnit.getPackagePath());
+                    ballerinaActionBuilder.setNative(nativeUnit.isNative());
+                    ballerinaActionBuilder.setSymbolName(nativeUnit.getSymbolName());
+                    ParameterDef paramDef = new ParameterDef(connectorDef.getNodeLocation(), null,
+                            new Identifier(nativeUnit.getArgumentNames()[0]),
+                            nativeUnit.getArgumentTypeNames()[0],
+                            new SymbolName(nativeUnit.getArgumentNames()[0], connectorDef.getPackagePath()),
+                            ballerinaActionBuilder.getCurrentScope());
+                    paramDef.setType(connectorDef);
+                    ballerinaActionBuilder.addParameter(paramDef);
+                    BallerinaAction ballerinaAction = ballerinaActionBuilder.buildAction();
+                    ballerinaAction.setNativeAction((NativeUnitProxy) actionSymbol);
+                    ballerinaAction.setConnectorDef(connectorDef);
+                    BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+                    ballerinaAction.setParameterTypes(new BType[]{bType});
+                    connectorDef.setInitAction(ballerinaAction);
                 }
             }
         }
@@ -3729,18 +3767,39 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // 3) If both types are not array types, unsafe cast is not possible now.
-        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType targetArrayType = (BArrayType) targetType;
-            BArrayType sourceArrayType = (BArrayType) sourceType;
-
-            if (sourceArrayType.getDimensions() < targetArrayType.getDimensions()) {
-                return false;
-            }
-
-            return checkUnsafeCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
+        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            return isUnsafeArrayCastPossible(sourceType, targetType);
         }
 
         return false;
+    }
+
+    private boolean isUnsafeArrayCastPossible(BType sourceType, BType targetType) {
+        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType sourceArrayType = (BArrayType) sourceType;
+            BArrayType targetArrayType = (BArrayType) targetType;
+            return isUnsafeArrayCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
+
+        } else if (targetType.getTag() == TypeTags.ARRAY_TAG) {
+            // If only the target type is an array type, then the source type must be of type 'any'
+            return sourceType == BTypes.typeAny;
+
+        } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            // If only the source type is an array type, then the target type must be of type 'any'
+            return targetType == BTypes.typeAny;
+        }
+
+        // Now both types are not array types
+        if (sourceType == targetType) {
+            return true;
+        }
+
+        // In this case, target type should be of type 'any' and the source type cannot be a value type
+        if (targetType == BTypes.typeAny && !BTypes.isValueType(sourceType)) {
+            return true;
+        }
+
+        return !BTypes.isValueType(targetType) && sourceType == BTypes.typeAny;
     }
 
     private AssignabilityResult performAssignabilityCheck(BType lhsType, Expression rhsExpr) {
@@ -3789,18 +3848,37 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // 2) Check whether both types are array types
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType lhrArrayType = (BArrayType) lhsType;
-            BArrayType rhsArrayType = (BArrayType) rhsType;
-
-            if (rhsArrayType.getDimensions() < lhrArrayType.getDimensions()) {
-                return false;
-            }
-
-            return isImplicitiCastPossible(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG || rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            return isImplicitArrayCastPossible(lhsType, rhsType);
         }
 
         return false;
+    }
+
+    private boolean isImplicitArrayCastPossible(BType lhsType, BType rhsType) {
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            // Both types are array types
+            BArrayType lhrArrayType = (BArrayType) lhsType;
+            BArrayType rhsArrayType = (BArrayType) rhsType;
+            return isImplicitArrayCastPossible(lhrArrayType.getElementType(), rhsArrayType.getElementType());
+
+        } else if (rhsType.getTag() == TypeTags.ARRAY_TAG) {
+            // Only the right-hand side is an array type
+            // Then lhs type should 'any' type
+            return lhsType == BTypes.typeAny;
+
+        } else if (lhsType.getTag() == TypeTags.ARRAY_TAG) {
+            // Only the left-hand side is an array type
+            return false;
+        }
+
+        // Now both types are not array types
+        if (lhsType == rhsType) {
+            return true;
+        }
+
+        // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
+        return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {

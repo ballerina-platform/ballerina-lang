@@ -20,6 +20,7 @@ package org.ballerinalang.model.types;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLSequence;
 
 /**
  * {@code BXMLType} represents an XML Element.
@@ -44,7 +45,7 @@ public class BXMLType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BXML();
+        return (V) new BXMLSequence();
     }
 
     @Override

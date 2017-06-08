@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -96,8 +96,8 @@ public class ArrayTest {
     @Test
     public void testXMLArrayLength() {
         BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BXML("<t>a</t>"));
-        arrayValue.add(1, new BXML("<t>b</t>"));
+        arrayValue.add(0, new BXMLItem("<t>a</t>"));
+        arrayValue.add(1, new BXMLItem("<t>b</t>"));
         BValue[] args = {arrayValue};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testXMLArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
@@ -187,8 +187,8 @@ public class ArrayTest {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
         BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0,  new BXML(v1));
-        arrayValue.add(1,  new BXML(v2));
+        arrayValue.add(0,  new BXMLItem(v1));
+        arrayValue.add(1,  new BXMLItem(v2));
         BValue[] args = {arrayValue};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testXMLArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -379,10 +379,10 @@ public class ArrayTest {
         final String v3 = "<xml>c</xml>";
         final String v4 = "<xml>d</xml>";
         BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BXML(v1));
-        arrayValue.add(1, new BXML(v2));
-        arrayValue.add(2, new BXML(v3));
-        arrayValue.add(3, new BXML(v4));
+        arrayValue.add(0, new BXMLItem(v1));
+        arrayValue.add(1, new BXMLItem(v2));
+        arrayValue.add(2, new BXMLItem(v3));
+        arrayValue.add(3, new BXMLItem(v4));
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testXMLArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -399,8 +399,8 @@ public class ArrayTest {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
         BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BXML(v1));
-        arrayValue.add(1, new BXML(v2));
+        arrayValue.add(0, new BXMLItem(v1));
+        arrayValue.add(1, new BXMLItem(v2));
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
         BLangFunctions.invokeNew(programFile, "testXMLArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
@@ -412,8 +412,8 @@ public class ArrayTest {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
         BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BXML(v1));
-        arrayValue.add(1, new BXML(v2));
+        arrayValue.add(0, new BXMLItem(v1));
+        arrayValue.add(1, new BXMLItem(v2));
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
         BLangFunctions.invokeNew(programFile, "testXMLArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");

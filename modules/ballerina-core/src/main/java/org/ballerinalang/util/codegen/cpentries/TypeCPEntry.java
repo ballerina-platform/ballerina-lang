@@ -51,6 +51,6 @@ public class TypeCPEntry implements ConstantPoolEntry {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof TypeCPEntry && type == (((TypeCPEntry) obj).type);
+        return obj instanceof TypeCPEntry && type.equals(((TypeCPEntry) obj).type);
     }
 }

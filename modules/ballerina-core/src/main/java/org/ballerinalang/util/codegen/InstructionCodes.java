@@ -110,57 +110,56 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
-    int ISUB = 79;
-    int FSUB = 80;
-    int IMUL = 81;
-    int FMUL = 82;
-    int IDIV = 83;
-    int FDIV = 84;
-    int IMOD = 85;
-    int FMOD = 86;
-    int INEG = 87;
-    int FNEG = 88;
-    int BNOT = 89;
+    int XMLADD = 81;
+    int ISUB = 82;
+    int FSUB = 83;
+    int IMUL = 84;
+    int FMUL = 85;
+    int IDIV = 86;
+    int FDIV = 87;
+    int IMOD = 88;
+    int FMOD = 89;
+    int INEG = 90;
+    int FNEG = 91;
+    int BNOT = 92;
 
-    int IEQ = 90;
-    int FEQ = 91;
-    int SEQ = 92;
-    int BEQ = 93;
-    int REQ = 95;
+    int IEQ = 93;
+    int FEQ = 94;
+    int SEQ = 95;
+    int BEQ = 96;
+    int REQ = 98;
 
-    int INE = 96;
-    int FNE = 97;
-    int SNE = 98;
-    int BNE = 99;
-    int RNE = 101;
+    int INE = 99;
+    int FNE = 100;
+    int SNE = 101;
+    int BNE = 102;
+    int RNE = 104;
 
-    int IGT = 102;
-    int FGT = 103;
+    int IGT = 105;
+    int FGT = 106;
 
-    int IGE = 104;
-    int FGE = 105;
+    int IGE = 107;
+    int FGE = 108;
 
-    int ILT = 106;
-    int FLT = 107;
+    int ILT = 109;
+    int FLT = 110;
 
-    int ILE = 108;
-    int FLE = 109;
+    int ILE = 111;
+    int FLE = 112;
 
-    int REQ_NULL = 110;
-    int RNE_NULL = 111;
+    int REQ_NULL = 113;
+    int RNE_NULL = 114;
 
-    int BR_TRUE = 112;
-    int BR_FALSE = 113;
+    int BR_TRUE = 115;
+    int BR_FALSE = 116;
 
-    int GOTO = 114;
+    int GOTO = 117;
     int CALL = 120;
     int NCALL = 121;
     int ACALL = 122;
     int NACALL = 123;
-    int RET = 124;
-    int REP = 125;
-    int THROW = 126;
-    int ERRSTORE = 127;
+    int THROW = 124;
+    int ERRSTORE = 125;
 
     // Type Cast/Conversion related instructions
     int I2F = 130;
@@ -221,5 +220,14 @@ public interface InstructionCodes {
     int NEWMESSAGE = 214;
     int NEWDATATABLE = 215;
 
-    int INSTRUCTION_CODE_COUNT = 216;
+    int REP = 230;
+    int IRET = 231;
+    int FRET = 232;
+    int SRET = 233;
+    int BRET = 234;
+    int LRET = 235;
+    int RRET = 236;
+    int RET = 237;
+
+    int INSTRUCTION_CODE_COUNT = 238;
 }

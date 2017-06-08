@@ -35,6 +35,9 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -94,7 +97,7 @@ public class BLangProgramRunner {
     public void startServices(ProgramFile programFile) {
         String[] servicePackageNameList = programFile.getServicePackageNameList();
         if (servicePackageNameList.length == 0) {
-            throw new RuntimeException("no service found in '" + programFile.getProgramFilePath() + "'");
+            throw new BallerinaException("no service found in '" + programFile.getProgramFilePath() + "'");
         }
 
         // This is required to invoke package/service init functions;
@@ -104,11 +107,6 @@ public class BLangProgramRunner {
         int serviceCount = 0;
         for (String packageName : servicePackageNameList) {
             PackageInfo packageInfo = programFile.getPackageInfo(packageName);
-            if (packageInfo == null) {
-                // TODO Handle this condition. Throw a proper error
-                // This error cannot happen, because this condition has been validated before
-                throw new RuntimeException("error in ballerina program");
-            }
 
             // Invoke package init function
             BLangFunctions.invokeFunction(programFile, packageInfo, packageInfo.getInitFunctionInfo(), bContext);
@@ -126,7 +124,7 @@ public class BLangProgramRunner {
         }
 
         if (serviceCount == 0) {
-            throw new RuntimeException("no service found in '" + programFile.getProgramFilePath() + "'");
+            throw new BallerinaException("no service found in '" + programFile.getProgramFilePath() + "'");
         }
 
         if (ModeResolver.getInstance().isDebugEnabled()) {
@@ -144,17 +142,11 @@ public class BLangProgramRunner {
 
         PackageInfo mainPkgInfo = programFile.getPackageInfo(mainPkgName);
         if (mainPkgInfo == null) {
-            throw new RuntimeException("cannot find main function '" + programFile.getProgramFilePath() + "'");
+            throw new BallerinaException("cannot find main function in '" + programFile.getProgramFilePath() + "'");
         }
-
-        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
-        if (mainFuncInfo == null) {
-            throw new RuntimeException("cannot find main function '" + programFile.getProgramFilePath() + "'");
-        }
-
-        // TODO Validate main function signature - input and output parameters
 
         // Invoke package init function
+        FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokeFunction(programFile, mainPkgInfo, mainPkgInfo.getInitFunctionInfo(), bContext);
 
         // Prepare main function arguments
@@ -171,7 +163,6 @@ public class BLangProgramRunner {
 
         BLangVM bLangVM = new BLangVM(programFile);
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-        // TODO invoke package <init> function
         bLangVM.run(bContext);
     }
 
@@ -245,5 +236,24 @@ public class BLangProgramRunner {
             String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
             throw new BLangRuntimeException(errorMsg + "\n" + stacktrace);
         }
+    }
+
+    private FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
+        String errorMsg = "cannot find main function in '" +
+                mainPkgInfo.getProgramFile().getProgramFilePath() + "'";
+
+        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
+        if (mainFuncInfo == null) {
+            throw new BallerinaException(errorMsg);
+        }
+
+        BType[] paramTypes = mainFuncInfo.getParamTypes();
+        BType[] retParamTypes = mainFuncInfo.getRetParamTypes();
+        BArrayType argsType = new BArrayType(BTypes.typeString);
+        if (paramTypes.length != 1 || !paramTypes[0].equals(argsType) || retParamTypes.length != 0) {
+            throw new BallerinaException(errorMsg);
+        }
+
+        return mainFuncInfo;
     }
 }

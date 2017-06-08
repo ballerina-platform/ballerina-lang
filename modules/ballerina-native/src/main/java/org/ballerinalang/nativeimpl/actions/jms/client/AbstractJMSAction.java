@@ -29,7 +29,7 @@ public abstract class AbstractJMSAction extends AbstractNativeAction {
 
     protected boolean validateParams(BConnector connector) {
         if ((connector != null)
-                && (connector.getValue(0) != null) && (connector.getValue(0) instanceof BMap)) {
+                && (connector.getRefField(0) != null) && (connector.getRefField(0) instanceof BMap)) {
             return true;
         } else {
             throw new BallerinaException("Connector parameters not defined correctly.");
