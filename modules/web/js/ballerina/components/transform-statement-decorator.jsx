@@ -191,9 +191,9 @@ class TransformStatementDecorator extends React.Component {
             if(currentIndex < transformIndex) {
                 _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
                     if (structInfo[0] ==  predefinedStruct.getStructName()) {
-                        var struct = self.createType(structInfo[1], predefinedStruct);
-                        self.loadSchemaToComboBox(sourceId, struct.name);
-                        self.loadSchemaToComboBox(targetId, struct.name);
+                        var struct = self.createType(structInfo[1], structInfo[0], predefinedStruct);
+                        self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
+                        self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
                         isStruct = true;
                     }
                 });
@@ -205,8 +205,8 @@ class TransformStatementDecorator extends React.Component {
                     variableType.name  = varInfo[1];
                     variableType.type = varInfo[0];
                     self.predefinedStructs.push(variableType);
-                    self.loadSchemaToComboBox(sourceId, variableType.name);
-                    self.loadSchemaToComboBox(targetId, variableType.name);
+                    self.loadSchemaToComboBox(sourceId, variableType.name, variableType.type);
+                    self.loadSchemaToComboBox(targetId, variableType.name, variableType.type);
                 }
             }
         });
@@ -512,11 +512,12 @@ class TransformStatementDecorator extends React.Component {
         return prop;
     }
 
-    createType(name, predefinedStruct) {
+    createType(name, typeName, predefinedStruct) {
         var struct = {};
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
+        struct.typeName = typeName;
 
         _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
             var property = {};
@@ -526,7 +527,7 @@ class TransformStatementDecorator extends React.Component {
 
             var innerStruct = _.find(self._package.getStructDefinitions(), { _structName:property.type});
             if (innerStruct != null) {
-                property.innerType = self.createType(property.name, innerStruct);
+                property.innerType = self.createType(property.name, typeName, innerStruct);
             }
 
             struct.properties.push(property);
@@ -738,8 +739,8 @@ class TransformStatementDecorator extends React.Component {
     onUpdate(text){
     }
 
-    loadSchemaToComboBox(comboBoxId, name) {
-        $('#' + comboBoxId).append('<option value="' + name + '">' + name + '</option>');
+    loadSchemaToComboBox(comboBoxId, name, typeName) {
+        $('#' + comboBoxId).append('<option value="' + name + '">' + name + " : " + typeName + '</option>');
     }
 
     createAccessNode(name, property) {
