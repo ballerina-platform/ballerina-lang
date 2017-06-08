@@ -78,10 +78,10 @@ public class Send extends AbstractJMSAction {
     public BValue execute(Context context) {
 
         // Extracting Argument values
-        BConnector bConnector = (BConnector) getArgument(context, 0);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
 
         //Getting ballerina message and extract carbon message.
-        BMessage bMessage = (BMessage) getArgument(context, 3);
+        BMessage bMessage = (BMessage) getRefArgument(context, 1);
         if (bMessage == null) {
             throw new BallerinaException("Ballerina message not found", context);
         }
@@ -106,7 +106,7 @@ public class Send extends AbstractJMSAction {
         }
 
         //Creating message content according to the message type.
-        String messageType = getArgument(context, 2).stringValue();
+        String messageType = getStringArgument(context, 1);
         if (messageType.equalsIgnoreCase(JMSConstants.TEXT_MESSAGE_TYPE) ||
             messageType.equalsIgnoreCase(JMSConstants.BYTES_MESSAGE_TYPE)) {
             BallerinaMessageDataSource ballerinaMessageDataSource = bMessage.getMessageDataSource();
@@ -151,7 +151,7 @@ public class Send extends AbstractJMSAction {
         } else {
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.GENERIC_MESSAGE_TYPE);
         }
-        propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, getArgument(context, 1).stringValue());
+        propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, getStringArgument(context, 0));
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Sending " + messageType + " to " +
