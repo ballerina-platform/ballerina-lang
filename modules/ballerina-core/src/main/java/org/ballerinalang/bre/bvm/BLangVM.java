@@ -944,7 +944,8 @@ public class BLangVM {
                     }
                     context.setError(null);
                     // this should be fixed once JMS transactions are available as it requires callback
-                    if (((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
+                    if (context.getBalCallback() != null &&
+                            ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
                         context.getBalCallback().done(message != null ? message.value() : null);
                     }
                     ip = -1;
