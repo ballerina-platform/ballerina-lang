@@ -110,16 +110,16 @@ import java.util.StringJoiner;
 public class BLangVM {
 
     private static final Logger logger = LoggerFactory.getLogger(BLangVM.class);
-    protected Context context;
-    protected ControlStackNew controlStack;
+    private Context context;
+    private ControlStackNew controlStack;
     private ProgramFile programFile;
-    protected ConstantPoolEntry[] constPool;
+    private ConstantPoolEntry[] constPool;
 
     // Instruction pointer;
-    protected int ip = 0;
-    protected Instruction[] code;
+    private int ip = 0;
+    private Instruction[] code;
 
-    protected StructureType globalMemBlock;
+    private StructureType globalMemBlock;
 
     public BLangVM(ProgramFile programFile) {
         this.programFile = programFile;
@@ -127,7 +127,7 @@ public class BLangVM {
     }
 
     // TODO Remove
-    protected void traceCode(PackageInfo packageInfo) {
+    private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
             printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
@@ -1524,7 +1524,7 @@ public class BLangVM {
         return breakPointInfo;
     }
 
-    protected void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+    private void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
@@ -1546,7 +1546,7 @@ public class BLangVM {
 
     }
 
-    protected void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
+    private void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
         StackFrame currentFrame = controlStack.getCurrentFrame();
 
         // Extract the outgoing expressions
@@ -1569,7 +1569,7 @@ public class BLangVM {
 //        }
     }
 
-    protected void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
+    private void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
@@ -1603,7 +1603,7 @@ public class BLangVM {
 //        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
     }
 
-    protected static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
+    private static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
                                                     BValue[] arguments) {
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
@@ -1628,7 +1628,7 @@ public class BLangVM {
         }
     }
 
-    protected static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
+    private static void copyArgValuesForWorkerReply(StackFrame currentSF, int[] argRegs, BType[] paramTypes,
                                                    BValue[] passedInValues) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
@@ -1691,7 +1691,7 @@ public class BLangVM {
         }
     }
 
-    protected void handleReturn() {
+    private void handleReturn() {
         StackFrame currentSF = controlStack.popFrame();
         context.setError(null);
         if (controlStack.fp >= 0) {
@@ -1703,7 +1703,7 @@ public class BLangVM {
         ip = currentSF.retAddrs;
     }
 
-    protected String getOperandsLine(int[] operands) {
+    private String getOperandsLine(int[] operands) {
         if (operands.length == 0) {
             return "";
         }
@@ -1721,7 +1721,7 @@ public class BLangVM {
         return sb.toString();
     }
 
-    protected void invokeNativeFunction(FunctionInfo functionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    private void invokeNativeFunction(FunctionInfo functionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
         BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
                 functionInfo.getParamTypes());
@@ -1752,7 +1752,7 @@ public class BLangVM {
         prepareStructureTypeFromNativeAction(nativeArgValues);
     }
 
-    protected void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
+    private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
         // TODO : Remove after non blocking action usage
         BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
@@ -1803,7 +1803,7 @@ public class BLangVM {
         }
     }
 
-    protected static BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
+    private static BValue[] populateNativeArgs(StackFrame callerSF, int[] argRegs, BType[] paramTypes) {
         BValue[] nativeArgValues = new BValue[paramTypes.length];
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
@@ -1831,7 +1831,7 @@ public class BLangVM {
         return nativeArgValues;
     }
 
-    protected static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
+    private static void handleReturnFromNativeCallableUnit(StackFrame callerSF, int[] returnRegIndexes,
                                                           BValue[] returnValues, BType[] retTypes) {
         for (int i = 0; i < returnValues.length; i++) {
             int callersRetRegIndex = returnRegIndexes[i];
@@ -1948,7 +1948,7 @@ public class BLangVM {
         }
     }
 
-    protected boolean checkCast(BType sourceType, BType targetType) {
+    private boolean checkCast(BType sourceType, BType targetType) {
         if (sourceType.equals(targetType)) {
             return true;
         }
@@ -2007,7 +2007,7 @@ public class BLangVM {
     }
 
     // TODO Refactor these methods and move them to a proper util class
-    protected static void convertJSONToInt(int[] operands, StackFrame sf) {
+    private static void convertJSONToInt(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -2040,7 +2040,7 @@ public class BLangVM {
                 BTypes.typeInt, JSONUtils.getTypeName(jsonNode));
     }
 
-    protected static void convertJSONToFloat(int[] operands, StackFrame sf) {
+    private static void convertJSONToFloat(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -2074,7 +2074,7 @@ public class BLangVM {
                 BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
     }
 
-    protected static void convertJSONToString(int[] operands, StackFrame sf) {
+    private static void convertJSONToString(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -2099,7 +2099,7 @@ public class BLangVM {
         }
     }
 
-    protected static void convertJSONToBoolean(int[] operands, StackFrame sf) {
+    private static void convertJSONToBoolean(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
@@ -2133,7 +2133,7 @@ public class BLangVM {
                 BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
     }
 
-    protected void handleError() {
+    private void handleError() {
         int currentIP = ip - 1;
         StackFrame currentFrame = controlStack.getCurrentFrame();
         ErrorTableEntry match = null;
