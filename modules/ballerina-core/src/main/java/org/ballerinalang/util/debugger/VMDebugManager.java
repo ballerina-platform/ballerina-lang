@@ -20,14 +20,14 @@ package org.ballerinalang.util.debugger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMDebugger;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
-import sun.misc.VM;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +48,9 @@ public class VMDebugManager {
 
     private VMDebugServer debugServer;
 
-    private BLangVMDebugger mainThreadDebugger;
+    private ProgramFile programFile;
+
+    private boolean debugEnagled;
 
     private volatile boolean done;
 
@@ -61,6 +63,8 @@ public class VMDebugManager {
     private static VMDebugManager debugManagerInstance = null;
 
     private boolean waitingForClient;
+
+    private Context mainThreadContext;
 
     /**
      * Instantiates a new Debug manager.
@@ -86,11 +90,20 @@ public class VMDebugManager {
     /**
      * Initializes the debug manager single instance.
      */
-    public void init(BLangVMDebugger mainThreadDebugger) {
-        this.mainThreadDebugger = mainThreadDebugger;
-        this.mainThreadDebugger.setMainThread(true);
+//    public void init(BLangVMDebugger mainThreadDebugger) {
+//        ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+//        executor.submit(mainThreadDebugger);
+//        // start the debug server if it is not started yet.
+//        if (this.debugServer == null) {
+//            this.debugServer = new VMDebugServer();
+//            this.debugServer.startServer();
+//        }
+//    }
+
+    public void mainInit(DebuggerExecutor debuggerExecutor, Context mainThreadContext) {
+        this.mainThreadContext = mainThreadContext;
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        executor.submit(mainThreadDebugger);
+        executor.submit(debuggerExecutor);
         // start the debug server if it is not started yet.
         if (this.debugServer == null) {
             this.debugServer = new VMDebugServer();
@@ -126,27 +139,27 @@ public class VMDebugManager {
             // default block
             command.setCommand("invalid");
         }
-        BLangVMDebugger debugger = debugSession.getDebugger("main"); //todo fix
+        DebugInfoHolder holder = debugSession.getContext("main").getDebugInfoHolder(); //todo fix
         switch (command.getCommand()) {
             case DebugConstants.CMD_RESUME:
-                debugger.resume();
+                holder.resume();
                 break;
             case DebugConstants.CMD_STEP_OVER:
-                debugger.stepOver();
+                holder.stepOver();
                 break;
             case DebugConstants.CMD_STEP_IN:
-                debugger.stepIn();
+                holder.stepIn();
                 break;
             case DebugConstants.CMD_STEP_OUT:
-                debugger.stepOut();
+                holder.stepOut();
                 break;
             case DebugConstants.CMD_STOP:
-                debugger.clearDebugPoints();
-                debugger.resume();
+                holder.clearDebugLocations();
+                holder.resume();
                 break;
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
-                debugger.addDebugPoints(command.getBreakPoints());
+                holder.addDebugPoints(command.getBreakPoints());
                 sendAcknowledge(this.debugSession, "Debug points updated");
                 break;
             case DebugConstants.CMD_START:
@@ -156,7 +169,7 @@ public class VMDebugManager {
                     executionSem.release();
                     this.waitingForClient = false;
                     sendAcknowledge(this.debugSession, "Debug started.");
-                    debugger.resume();
+                    holder.resume();
                 }
                 break;
             default:
@@ -175,10 +188,10 @@ public class VMDebugManager {
     public void addDebugSession(Channel channel) {
         //@todo need to handle multiple connections
         this.debugSession = new VMDebugSession(channel);
-        if (this.mainThreadDebugger != null) {
-            this.mainThreadDebugger.setDebugSessionObserver(debugSession);
-            this.debugSession.addDebugger("main", mainThreadDebugger); //todo fix
-            this.mainThreadDebugger = null;
+        if (this.mainThreadContext != null) {
+            this.mainThreadContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
+            this.debugSession.addContext("main", mainThreadContext); //todo fix
+            this.mainThreadContext = null;
         }
         sendAcknowledge(this.debugSession, "Channel registered.");
     }
@@ -200,16 +213,25 @@ public class VMDebugManager {
     /**
      * Set {@link BLangExecutionDebugger} to current execution.
      *
-     * @param debugger Debugger
+     * @param threadId of the running thread
+     * @param bContext context to run
      */
-    public void setDebugger(String threadId, BLangVMDebugger debugger) {
+    public void setDebugger(String threadId, Context bContext) {
         // if we are handling multiple connections
         // we need to check and set to correct debugger session
         if (!isDebugSessionActive()) {
             throw new IllegalStateException("Debug session has not initialize, Unable to set debugger.");
         }
-        debugger.setDebugSessionObserver(debugSession);
-        this.debugSession.addDebugger(threadId, debugger);
+        bContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
+        this.debugSession.addContext(threadId, bContext);
+    }
+
+    public boolean isDebugEnagled() {
+        return debugEnagled;
+    }
+
+    public void setDebugEnagled(boolean debugEnagled) {
+        this.debugEnagled = debugEnagled;
     }
 
     public void setDone(boolean done) {

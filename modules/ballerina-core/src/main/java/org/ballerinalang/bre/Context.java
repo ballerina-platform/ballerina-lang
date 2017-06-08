@@ -47,6 +47,7 @@ public class Context {
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
+    private boolean debugEnabled = false;
 
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
@@ -83,6 +84,14 @@ public class Context {
 
     public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
         this.debugInfoHolder = debugInfoHolder;
+    }
+
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
     }
 
     public ControlStack getControlStack() {

@@ -20,9 +20,7 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMDebugger;
-import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.model.NodeLocation;
@@ -41,19 +39,19 @@ public class VMDebugSession implements DebugSessionObserver {
     private Channel channel = null;
 
     //key - threadid
-    private Map<String, BLangVMDebugger> debuggerMap;
+    private Map<String, Context> contextMap;
 
     public VMDebugSession(Channel channel) {
         this.channel = channel;
-        this.debuggerMap = new HashMap<>();
+        this.contextMap = new HashMap<>();
     }
 
-    public void addDebugger(String threadId, BLangVMDebugger vmDebugger) {
-        this.debuggerMap.put(threadId, vmDebugger);
+    public void addContext(String threadId, Context bContext) {
+        this.contextMap.put(threadId, bContext);
     }
 
-    public BLangVMDebugger getDebugger(String threadId) {
-        return this.debuggerMap.get(threadId);
+    public Context getContext(String threadId) {
+        return this.contextMap.get(threadId);
     }
 
     /**
@@ -62,10 +60,10 @@ public class VMDebugSession implements DebugSessionObserver {
      * @param breakPoints the debug points
      */
     public void setBreakPoints(String threadId, ArrayList<NodeLocation> breakPoints) {
-        BLangVMDebugger debugger = this.debuggerMap.get(threadId);
+        Context bContext = this.contextMap.get(threadId);
         if (null != breakPoints) {
             for (NodeLocation point : breakPoints) {
-                debugger.addDebugPoint(point);
+                bContext.getDebugInfoHolder().addDebugPoint(point);
             }
         }
     }

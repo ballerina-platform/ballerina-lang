@@ -23,7 +23,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.bvm.BLangVM;
-import org.ballerinalang.bre.bvm.BLangVMDebugger;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
@@ -74,7 +73,7 @@ public class VMDebuggerTest {
         DebugRunner debugRunner = new DebugRunner();
         debugRunner.setup();
         DebugSessionObserverImpl debugSessionObserver = new DebugSessionObserverImpl();
-        debugRunner.debugger.setDebugSessionObserver(debugSessionObserver);
+//        debugRunner.debugger.setDebugSessionObserver(debugSessionObserver);
 //        debugRunner.debugger.addDebugPoints(breakPoints);
 
         debugRunner.start();
@@ -105,16 +104,16 @@ public class VMDebuggerTest {
     private static void executeDebuggerCmd(DebugRunner debugRunner, String cmd) {
         switch (cmd) {
             case STEP_IN:
-                debugRunner.debugger.stepIn();
+//                debugRunner.debugger.stepIn();
                 break;
             case STEP_OVER:
-                debugRunner.debugger.stepOver();
+//                debugRunner.debugger.stepOver();
                 break;
             case STEP_OUT:
-                debugRunner.debugger.stepOut();
+//                debugRunner.debugger.stepOut();
                 break;
             case RESUME:
-                debugRunner.debugger.resume();
+//                debugRunner.debugger.resume();
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");
@@ -193,7 +192,7 @@ public class VMDebuggerTest {
 
         ProgramFile programFile;
         Context bContext;
-        BLangVMDebugger debugger;
+//        BLangVMDebugger debugger;
 
         void setup() {
             ModeResolver.getInstance().setNonblockingEnabled(true);
@@ -242,11 +241,11 @@ public class VMDebuggerTest {
             BLangVM bLangVM = new BLangVM(programFile);
             bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
 
-            debugger = new BLangVMDebugger(programFile, bContext);
+//            debugger = new BLangVMDebugger(programFile, bContext);
         }
 
         private void startDebug() {
-            debugger.run(bContext);
+//            debugger.run(bContext);
         }
 
         @Override
