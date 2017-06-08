@@ -1415,11 +1415,14 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ArrayInitExpr arrayInitExpr) {
         BType elementType = ((BArrayType) arrayInitExpr.getType()).getElementType();
 
+        TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(arrayInitExpr.getType().getSig()));
+        int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
+
         // Emit create array instruction
         int opcode = getOpcode(elementType.getTag(), InstructionCodes.INEWARRAY);
         int arrayVarRegIndex = ++regIndexes[REF_OFFSET];
         arrayInitExpr.setTempOffset(arrayVarRegIndex);
-        emit(opcode, arrayVarRegIndex);
+        emit(opcode, arrayVarRegIndex, typeCPindex);
 
         // Emit instructions populate initial array values;
         Expression[] argExprs = arrayInitExpr.getArgExprs();

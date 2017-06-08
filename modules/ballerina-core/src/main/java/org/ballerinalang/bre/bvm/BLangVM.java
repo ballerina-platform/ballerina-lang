@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -134,7 +135,7 @@ public class BLangVM {
         this.ip = context.getStartIP();
 
 //        traceCode(null);
-            
+
         if (context.getError() != null) {
             handleError();
         } else if (context.actionInfo != null) {
@@ -180,11 +181,13 @@ public class BLangVM {
         StructureRefCPEntry structureRefCPEntry;
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
-        FunctionInfo functionInfo;
+        TypeCPEntry typeCPEntry;
         ActionRefCPEntry actionRefCPEntry;
+        StringCPEntry stringCPEntry;
+
+        FunctionInfo functionInfo;
         ActionInfo actionInfo;
         StructureTypeInfo structureTypeInfo;
-        StringCPEntry stringCPEntry;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
         WorkerInvokeCPEntry workerInvokeCPEntry;
         WorkerReplyCPEntry workerReplyCPEntry;
@@ -1151,12 +1154,14 @@ public class BLangVM {
                     i = operands[0];
                     cpIndex = operands[1];
                     j = operands[2];
-                    TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+
                     // TODO NULL Check  and Array casting
                     if (checkCast(sf.refRegs[i].getType(), typeCPEntry.getType())) {
                         sf.refRegs[j] = sf.refRegs[i];
                     } else {
-                        throw new BallerinaException("Incompatible types");
+                        throw new BallerinaException("Incompatible types: " +
+                                sf.refRegs[i].getType() + " and " + typeCPEntry.getType());
                         // TODO Handle cast errors
                     }
                     break;
@@ -1188,7 +1193,9 @@ public class BLangVM {
                     break;
                 case InstructionCodes.RNEWARRAY:
                     i = operands[0];
-                    sf.refRegs[i] = new BRefValueArray();
+                    cpIndex = operands[1];
+                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BRefValueArray(typeCPEntry.getType());
                     break;
                 case InstructionCodes.JSONNEWARRAY:
                     i = operands[0];
@@ -1200,6 +1207,7 @@ public class BLangVM {
                     }
                     sf.refRegs[i] = new BJSON(stringJoiner.toString());
                     break;
+
                 case InstructionCodes.NEWSTRUCT:
                     cpIndex = operands[0];
                     i = operands[1];
@@ -1676,7 +1684,7 @@ public class BLangVM {
     }
 
     private boolean checkCast(BType sourceType, BType targetType) {
-        if (sourceType == targetType) {
+        if (sourceType.equals(targetType)) {
             return true;
         }
 
@@ -1685,9 +1693,32 @@ public class BLangVM {
 
         }
 
-        // Array casting
+        if (targetType.getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
 
-        return false;
+        // Array casting
+        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayCast(sourceType, targetType);
+        }
+
+        return true;
+    }
+
+    private boolean checkArrayCast(BType sourceType, BType targetType) {
+        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType sourceArrayType = (BArrayType) sourceType;
+            BArrayType targetArrayType = (BArrayType) targetType;
+            if (targetArrayType.getDimensions() > sourceArrayType.getDimensions()) {
+                return false;
+            }
+
+            return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType());
+        } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            return targetType.getTag() == TypeTags.ANY_TAG;
+        }
+
+        return sourceType.equals(targetType);
     }
 
     public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
