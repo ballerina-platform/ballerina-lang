@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -68,6 +69,8 @@ public class RemoveWithNamespaces extends AbstractNativeFunction {
             String xPath = getArgument(ctx, 1).stringValue();
             BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 2);
 
+            xml = XMLUtils.getSingletonValue(xml);
+            
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             if (namespaces != null && !namespaces.isEmpty()) {
@@ -90,9 +93,9 @@ public class RemoveWithNamespaces extends AbstractNativeFunction {
         } catch (XPathSyntaxException e) {
             ErrorHandler.handleInvalidXPath(OPERATION, e);
         } catch (JaxenException e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         } catch (Throwable e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         }
 
         return VOID_RETURN;

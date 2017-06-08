@@ -18,6 +18,7 @@ package org.ballerinalang.nativeimpl.lang.messages;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -64,10 +65,10 @@ public class GetXMLPayload extends AbstractNativeFunction {
                     result = (BXML) payload;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = new BXML(msg.getMessageDataSource().getMessageAsString());
+                    result = XMLUtils.parse(msg.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                result = new BXML(msg.value().getInputStream());
+                result = XMLUtils.parse(msg.value().getInputStream());
                 msg.setMessageDataSource(result);
                 msg.setAlreadyRead(true);
             }

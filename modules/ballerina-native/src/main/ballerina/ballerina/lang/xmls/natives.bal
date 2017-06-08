@@ -98,3 +98,35 @@ native function toString (xml x) (string);
 @doc:Param { value:"value: Attribute value" }
 native function addAttribute (xml x, string xPath, string name, string value);
 
+native function isSingleton(xml x) (boolean);
+
+native function isEmpty(xml x) (boolean);
+
+native function elements(xml x) (xml);
+
+native function select(xml x, string qname) (xml);
+
+native function getItemType(xml x) (string);
+
+native function getElementName(xml x) (string);
+
+native function getTextValue(xml x) (string);
+
+native function children(xml x) (xml);
+
+native function selectChildren(xml x, string qname) (xml);
+
+native function setChildren(xml x, xml children);
+
+native function copy(xml x) (xml);
+
+native function parse(string xmlStr) (xml);
+
+native function getAttribute(xml x, string qname) (string);
+
+native function setAttribute(xml x, string qname, string prefix, string value);
+
+native function strip(xml x) (xml);
+
+native function slice(xml x, int startIndex, int endIndex) (xml);
+
