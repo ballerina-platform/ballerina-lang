@@ -17,6 +17,7 @@
 package org.ballerinalang.nativeimpl.actions.jms.utils;
 
 import org.ballerinalang.model.util.MessageUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
@@ -92,10 +93,10 @@ public class JMSMessageUtils {
                     result = (BXML) payload;
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = new BXML(message.getMessageDataSource().getMessageAsString());
+                    result = XMLUtils.parse(message.getMessageDataSource().getMessageAsString());
                 }
             } else {
-                result = new BXML(message.value().getInputStream());
+                result = XMLUtils.parse(message.value().getInputStream());
                 message.setMessageDataSource(result);
                 message.setAlreadyRead(true);
             }
@@ -140,7 +141,7 @@ public class JMSMessageUtils {
             BJSON payload = new BJSON(serializableCarbonMessage.getPayload());
             bMessage.setMessageDataSource(payload);
         } else if (headerMap.get(Constants.CONTENT_TYPE).equals(Constants.APPLICATION_XML)) {
-            BXML payload = new BXML(serializableCarbonMessage.getPayload());
+            BXML payload = XMLUtils.parse(serializableCarbonMessage.getPayload());
             bMessage.setMessageDataSource(payload);
         } else if (headerMap.get(Constants.CONTENT_TYPE).equals(Constants.TEXT_PLAIN)) {
             BString payload = new BString(serializableCarbonMessage.getPayload());

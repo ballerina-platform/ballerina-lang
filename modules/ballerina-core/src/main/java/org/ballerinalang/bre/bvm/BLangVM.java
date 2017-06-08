@@ -30,6 +30,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
@@ -51,6 +52,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -679,6 +681,13 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
                     sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
+                    break;
+                case InstructionCodes.XMLADD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    // Here it is assumed that a refType addition can only be a xml-concat.
+                    sf.refRegs[k] = XMLUtils.concatenate((BXML) sf.refRegs[i], (BXML) sf.refRegs[j]);
                     break;
                 case InstructionCodes.ISUB:
                     i = operands[0];

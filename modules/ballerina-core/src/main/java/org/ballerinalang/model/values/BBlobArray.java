@@ -17,12 +17,19 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 import java.util.Arrays;
 
 /**
  * @since 0.88
  */
 public class BBlobArray extends BNewArray {
+
+    private static BType arrayType = new BArrayType(BTypes.typeBlob);
+
     private byte[][] values;
 
     public BBlobArray() {
@@ -37,6 +44,11 @@ public class BBlobArray extends BNewArray {
     public byte[] get(long index) {
         rangeCheckForGet(index, size);
         return values[(int) index];
+    }
+
+    @Override
+    public BType getType() {
+        return arrayType;
     }
 
     @Override
