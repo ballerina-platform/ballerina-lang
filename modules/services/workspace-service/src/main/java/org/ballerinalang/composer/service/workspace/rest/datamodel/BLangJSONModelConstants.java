@@ -91,7 +91,6 @@ public class BLangJSONModelConstants {
 
     public static final String PARAMETER_DEFINITION = "parameter_definition";
 
-
     public static final String ANNOTATION = "annotation";
 
     public static final String ANNOTATION_ENTRY = "annotation_entry";
@@ -335,20 +334,20 @@ public class BLangJSONModelConstants {
     public static final String JOIN_STATEMENT = "join_statement";
 
     public static final String FORK_JOIN_STATEMENT = "fork_join_statement";
-    
-	public static final String TRANSACTION_ABORTED_STATEMENT = "transaction_aborted_statement";
+
+    public static final String TRANSACTION_ABORTED_STATEMENT = "transaction_aborted_statement";
 
     public static final String TRANSACTION_STATEMENT = "transaction_statement";
 
     public static final String ABORTED_STATEMENT = "aborted_statement";
-    
-	public static final String COMMITTED_STATEMENT = "committed_statement";
 
-	public static final String JOIN_TYPE = "join_type";
+    public static final String COMMITTED_STATEMENT = "committed_statement";
+
+    public static final String JOIN_TYPE = "join_type";
 
     public static final String IS_IDENTIFIER_LITERAL = "is_identifier_literal";
 
-	public static final String TIMEOUT_STATEMENT = "timeout_statement";
+    public static final String TIMEOUT_STATEMENT = "timeout_statement";
 
     public static final String JOIN_PARAMETER = "join_parameter";
 

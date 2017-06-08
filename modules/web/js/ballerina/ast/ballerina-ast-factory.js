@@ -99,7 +99,7 @@ import transformStatement from './statements/transform-statement';
 import forkJoinStatement from './statements/fork-join-statement';
 import timeoutStatement from './statements/timeout-statement';
 import joinStatement from './statements/join-statement';
-import transactionAbortedStatement from './statements/transactionaborted-statement';
+import transactionAbortedStatement from './statements/transaction-aborted-statement';
 import transactionStatement from './statements/transaction-statement';
 import abortedStatement from './statements/aborted-statement';
 import abortStatement from './statements/abort-statement';

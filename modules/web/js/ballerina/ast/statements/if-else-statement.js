@@ -32,7 +32,7 @@ class IfElseStatement extends Statement {
     constructor(args) {
         super();
 
-        var ifStatement = new IfStatement(args);
+        let ifStatement = new IfStatement(args);
         this.addChild(ifStatement);
         this._ifStatement = ifStatement;
 
@@ -45,7 +45,6 @@ class IfElseStatement extends Statement {
     }
 
     getElseStatement() {
-        const isElseStatement = BallerinaASTFactory.isElseStatement;
         return this.children.find(c => (BallerinaASTFactory.isElseStatement(c)));
     }
 
@@ -62,7 +61,7 @@ class IfElseStatement extends Statement {
      * @param args
      */
     createElseStatement(args) {
-        var newElseStatement = new ElseStatement(args);
+        let newElseStatement = new ElseStatement(args);
         this._elseStatement = newElseStatement;
         this.addChild(newElseStatement);
         return newElseStatement;
@@ -73,7 +72,7 @@ class IfElseStatement extends Statement {
      * @param args
      */
     createElseIfStatement(args) {
-        var newElseIfStatement = new ElseIfStatement(args);
+        let newElseIfStatement = new ElseIfStatement(args);
         this._elseIfStatements.push(newElseIfStatement);
         this.addChild(newElseIfStatement);
         return newElseIfStatement;
