@@ -40,5 +40,9 @@ public class TypeConstants {
     static final String DATATABLE_TNAME = "datatable";
     static final String ANY_TNAME = "any";
     public static final String NULL_TNAME = "null";
+    public static final String FILE_TNAME = "file";
+    public static final String INPUTSTREAM_TNAME = "inputstream";
+    public static final String OUTPUTSTREAM_TNAME = "outputstream";
+    public static final String READER_TNAME = "reader";
 }
 
