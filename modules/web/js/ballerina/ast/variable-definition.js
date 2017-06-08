@@ -26,6 +26,8 @@ class VariableDefinition extends ASTNode {
         this._typeName = _.get(args, 'typeName', 'newTypeName');
         this._pkgName = _.get(args, 'pkgName');
         this._isPublic = _.get(args, 'isPublic', false);
+        this._isArray = _.get(args, 'isArray', false);
+        this._dimensions = _.get(args, 'dimensions', 0);
     }
 
     /**
@@ -126,6 +128,8 @@ class VariableDefinition extends ASTNode {
         this.setName(jsonNode.variable_name, {doSilently: true});
         this.setTypeName(jsonNode.variable_type, {doSilently: true});
         this.setPkgName(jsonNode.package_name, {doSilently: true});
+        this._isArray = jsonNode.is_array_type;
+        this._dimensions = jsonNode.dimensions;
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);

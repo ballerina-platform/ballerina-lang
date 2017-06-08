@@ -71,7 +71,7 @@ class ReturnStatement extends Statement {
             var childJsonNode = jsonNode.children[itr];
             var child = self.getFactory().createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
-            expression += child.getExpression();
+            expression += child.getExpressionString();
 
             if (itr !== jsonNode.children.length - 1) {
                 expression += ",";
