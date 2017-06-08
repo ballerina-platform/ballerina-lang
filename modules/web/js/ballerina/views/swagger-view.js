@@ -60,7 +60,6 @@ class SwaggerView extends EventChannel {
      * definitions.
      * @param {ServiceDefinition} swaggerInfos[].serviceDefinitionAST The Service definition.
      * @param {Object} swaggerInfos[].swagger The JSON swagger definition.
-     * @param {Object} swaggerInfos[].swagger The JSON swagger definition.
      */
     render(swaggerInfos) {
         this._swaggerData = swaggerInfos;
@@ -165,7 +164,7 @@ class SwaggerView extends EventChannel {
      */
     updateServices() {
         //we do not update the dom if swagger is not edited.
-        if(this.swaggerDirty){
+        if (this.swaggerDirty) {
             _.forEach(this._swaggerData, swaggerDataEntry => {
                 if (swaggerDataEntry.hasModified) {
                     let swaggerParser = new SwaggerParser(swaggerDataEntry.swagger, false);
@@ -175,7 +174,7 @@ class SwaggerView extends EventChannel {
         }
     }
 
-    getServicesForDropdown (swaggerInfos) {
+    getServicesForDropdown(swaggerInfos) {
         let dataArray = [];
         _.forEach(swaggerInfos, swaggerInfo => {
             dataArray.push({
@@ -206,120 +205,227 @@ class SwaggerView extends EventChannel {
         return $(this._container).is(':visible');
     }
 
+    /**
+     * Updates mappings of a resource with ace editor event
+     * 
+     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions.
+     * @param {Object} editorEvent The ace onChange event.
+     * 
+     * @memberof SwaggerView
+     */
     _updateResourceMappings(serviceDefinition, editorEvent) {
         // If there are no errors.
         let astPath = this._swaggerEditor.fn.AST.pathForPosition(this._swaggerAceEditor.getValue(), {
             line: editorEvent.start.row,
             column: editorEvent.start.column
         });
-        
-        if (!_.isUndefined(astPath) && _.isArray(astPath) && _.size(astPath) > 0 && _.isEqual(astPath[3],
-                'operationId')){
-            let oldOperationID;
-            if (_.isEqual(editorEvent.action, 'insert')) {
-                let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
-                oldOperationID = currentValue.substring(0, editorEvent.start.column) +
-                    currentValue.substring(editorEvent.end.column, currentValue.length);
-            } else if (_.isEqual(editorEvent.action, 'remove')) {
-                let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
-                oldOperationID = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
-                    currentValue.slice(editorEvent.start.column);
+
+        if (!_.isUndefined(astPath) && _.isArray(astPath)) {
+            if ((_.size(astPath) === 4 && _.isEqual(astPath[3], 'operationId')) ||
+                (this._resourceMappings.has(editorEvent.start.row) &&
+                    this._resourceMappings.get(editorEvent.start.row).type === 'operationId')) {
+                this._updateOperationID(astPath, serviceDefinition, editorEvent);
+            } else if (_.size(astPath) === 1 && _.isEqual(astPath[0], 'paths')) {
+                this._updatePath(astPath, serviceDefinition, editorEvent);
+            } else if (_.size(astPath) === 2) {
+                this._updateHttpMethod(astPath, serviceDefinition, editorEvent);
+            }
+        } else if (_.isNull(astPath) && this._resourceMappings.has(editorEvent.start.row)) {
+            let mapping = this._resourceMappings.get(editorEvent.start.row);
+            if (_.isEqual(mapping.type, 'path') && !_.isUndefined(mapping.ast)) {
+                mapping.ast.getChildren()[0].setRightValue('\"\"', { doSilently: true });
+            } else if (_.isEqual(mapping.type, 'method') && !_.isUndefined(mapping.ast)) {
+                mapping.ast.setIdentifier('', { doSilently: true });
+            }
+        }
+    }
+
+    /**
+     * Updates the resource name that maps to a corresponding resource using the editors change event.
+     * 
+     * @param {string[]} astPath The ast path
+     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions
+     * @param {Object} editorEvent The onchange event object of the ace editor
+     * 
+     * @memberof SwaggerView
+     */
+    _updateOperationID(astPath, serviceDefinition, editorEvent) {
+        // Getting the old operation ID.
+        let oldOperationID;
+        if (_.isEqual(editorEvent.action, 'insert')) {
+            let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+            oldOperationID = currentValue.substring(0, editorEvent.start.column) +
+                currentValue.substring(editorEvent.end.column, currentValue.length);
+        } else if (_.isEqual(editorEvent.action, 'remove')) {
+            let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+            oldOperationID = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
+                currentValue.slice(editorEvent.start.column);
+        }
+
+        oldOperationID = oldOperationID.trim();
+
+        // Getting the new operation ID.
+        let newOperationID = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim();
+
+        // Updating resource name .
+        for (let resourceDefinition of serviceDefinition.getResourceDefinitions()) {
+            // Using substring we can avoid having "operationdId: " prefix in the value.
+            if (resourceDefinition.getResourceName() === oldOperationID.substring(13)) {
+                resourceDefinition.setResourceName(newOperationID.substring(13));
+                this._resourceMappings.set(editorEvent.start.row,
+                    {
+                        type: 'operationId',
+                        ast: undefined,
+                    });
+                break;
+            }
+        }
+    }
+
+    /**
+     * Updates the path value that maps to a corresponding resource using the editors change event.
+     * 
+     * @param {string[]} astPath The ast path
+     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions
+     * @param {Object} editorEvent The onchange event object of the ace editor
+     * 
+     * @memberof SwaggerView
+     */
+    _updatePath(astPath, serviceDefinition, editorEvent) {
+        // When resource path is modified.
+        let oldResourcePath;
+        if (_.isEqual(editorEvent.action, 'insert')) {
+            let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+            oldResourcePath = currentValue.substring(0, editorEvent.start.column) +
+                currentValue.substring(editorEvent.end.column, currentValue.length);
+        } else if (_.isEqual(editorEvent.action, 'remove')) {
+            let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+            oldResourcePath = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
+                currentValue.slice(editorEvent.start.column);
+        }
+
+        oldResourcePath = oldResourcePath.trim().replace(/:\s*$/, '');
+
+        let newResourcePath = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim().replace(/:\s*$/, '');
+        // Getting the httpMethod value
+        for (let i = this._swaggerAceEditor.getCursorPosition().row + 1; i <= this._swaggerAceEditor
+            .getSession().getLength(); i++) {
+            let httpMethodLine = this._swaggerAceEditor.getSession().getLine(i).trim().replace(/:\s*$/, '');
+            if (!_.isEmpty(httpMethodLine)) {
+                let httpMethod = httpMethodLine;
+
+                // Get the operationId if exists.
+                let operationId;
+                let operationIDLineNumber = this._swaggerEditor.fn.AST.getLineNumberForPath(
+                    this._swaggerAceEditor.getValue(), astPath.concat([newResourcePath, httpMethodLine, 'operationId']));
+                if (!_.isUndefined(operationIDLineNumber)) {
+                    operationId = this._swaggerAceEditor.getSession().getLine(operationIDLineNumber - 1).trim().replace(/operationId:\s/, '');
+                }
+
+                // Finding the resource to update
+                let resourceDefinitionToUpdate;
+                for (let resourceDefinition of serviceDefinition.getResourceDefinitions()) {
+                    if (!_.isUndefined(operationId) && resourceDefinition.getResourceName() === operationId) {
+                        // Getting the resource to update using the operation ID
+                        resourceDefinitionToUpdate = resourceDefinition;
+                        break;
+                    } else {
+                        // Getting the resource to update using the path and http method.
+                        let currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
+                        let currentResourcePath = currentResourcePathAnnotation.getChildren()[0].getRightValue()
+                            .replace(/"/g, '');
+
+                        let currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+
+                        if (_.isEqual(currentResourcePath, oldResourcePath) &&
+                            _.isEqual(httpMethod, currentHttpMethodAnnotation.getIdentifier().toLowerCase())) {
+                            resourceDefinitionToUpdate = resourceDefinition;
+                            break;
+                        }
+                    }
+                }
+
+                // Updating the path of the resource.
+                if (resourceDefinitionToUpdate) {
+                    resourceDefinitionToUpdate.getPathAnnotation().getChildren()[0].setRightValue(
+                        JSON.stringify(newResourcePath), { doSilently: true });
+                    this._resourceMappings.set(editorEvent.start.row,
+                        {
+                            type: 'path',
+                            ast: resourceDefinitionToUpdate.getPathAnnotation(),
+                        });
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+     * Updates the http method value that maps to a corresponding resource using the editors change event.
+     * 
+     * @param {string[]} astPath The ast path
+     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions
+     * @param {Object} editorEvent The onchange event object of the ace editor
+     * 
+     * @memberof SwaggerView
+     */
+    _updateHttpMethod(astPath, serviceDefinition, editorEvent) {
+        // When http method is updated
+        let oldHttpMethod;
+        if (_.isEqual(editorEvent.action, 'insert')) {
+            let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+            oldHttpMethod = currentValue.substring(0, editorEvent.start.column) +
+                currentValue.substring(editorEvent.end.column, currentValue.length);
+        } else if (_.isEqual(editorEvent.action, 'remove')) {
+            let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
+            oldHttpMethod = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
+                currentValue.slice(editorEvent.start.column);
+        }
+
+        oldHttpMethod = oldHttpMethod.trim().replace(/:\s*$/, '');
+
+        let newHttpMethod = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim().replace(/:\s*$/, '');
+        let resourcePath = astPath[1];
+
+        // Get the operationId if exists.
+        let operationId;
+        let operationIDLineNumber = this._swaggerEditor.fn.AST.getLineNumberForPath(
+            this._swaggerAceEditor.getValue(), astPath.concat([newHttpMethod, 'operationId']));
+        if (!_.isUndefined(operationIDLineNumber)) {
+            operationId = this._swaggerAceEditor.getSession().getLine(operationIDLineNumber - 1).trim().replace(/operationId:\s/, '');
+        }
+
+        // Finding the resource to update
+        let resourceDefinitionToUpdate;
+        for (let resourceDefinition of serviceDefinition.getResourceDefinitions()) {
+            if (!_.isUndefined(operationId) && resourceDefinition.getResourceName() === operationId) {
+                // Getting the resource to update using the operation ID
+                resourceDefinitionToUpdate = resourceDefinition;
+                break;
+            } else {
+                // Getting the resource to update using the path and http method.
+                let currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
+                let currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+
+                if (!_.isUndefined(currentResourcePathAnnotation) &&
+                    !_.isUndefined(currentHttpMethodAnnotation) &&
+                    _.isEqual(currentResourcePathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, ''), resourcePath.toLowerCase()) &&
+                    _.isEqual(currentHttpMethodAnnotation.getIdentifier().toLowerCase().replace(/"/g, ''), oldHttpMethod.toLowerCase())) {
+                    resourceDefinitionToUpdate = resourceDefinition;
+                    break;
+                }
             }
         }
 
-        /*if (!_.isUndefined(astPath) && _.isArray(astPath) && _.size(astPath) > 0 && _.isEqual(astPath[0],
-                'paths')) {
-            // When resource path is modified.
-            if (_.isEqual(_.size(astPath), 1)) {
-                let oldResourcePath;
-                if (_.isEqual(editorEvent.action, 'insert')) {
-                    let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
-                    oldResourcePath = currentValue.substring(0, editorEvent.start.column) +
-                        currentValue.substring(editorEvent.end.column, currentValue.length);
-                } else if (_.isEqual(editorEvent.action, 'remove')) {
-                    let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
-                    oldResourcePath = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
-                        currentValue.slice(editorEvent.start.column);
-                }
-
-                oldResourcePath = oldResourcePath.trim().replace(/:\s*$/, '');
-
-                let newResourcePath = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim().replace(/:\s*$/, '');
-                // Getting the httpMethod value
-                for (let i = this._swaggerAceEditor.getCursorPosition().row + 1; i <= this._swaggerAceEditor
-                    .getSession().getLength(); i++) {
-                    let httpMethodLine = this._swaggerAceEditor.getSession().getLine(i).trim().replace(/:\s*$/, '');
-                    if (!_.isEmpty(httpMethodLine)) {
-                        let httpMethod = httpMethodLine;
-
-                        // Updating resource.
-                        let resourceDefinitions = serviceDefinition.getResourceDefinitions();
-                        _.forEach(resourceDefinitions, resourceDefinition => {
-                            let currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
-                            let currentResourcePath = currentResourcePathAnnotation.getChildren()[0].getRightValue()
-                                .replace(/"/g, '');
-
-                            let currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-                            if (_.isEqual(currentResourcePath, oldResourcePath) &&
-                                _.isEqual(httpMethod, currentHttpMethodAnnotation.getIdentifier().toLowerCase())) {
-                                currentResourcePathAnnotation.getChildren()[0].setRightValue(JSON.stringify(newResourcePath), {doSilently: true});
-                                this._resourceMappings.set(editorEvent.start.row,
-                                    {
-                                        type: 'path',
-                                        ast: currentResourcePathAnnotation,
-                                    });
-                            }
-                        });
-                        break;
-                    }
-                }
-            } else if (_.isEqual(_.size(astPath), 2)) {
-                // When http method is updated
-                let oldHttpMethod;
-                if (_.isEqual(editorEvent.action, 'insert')) {
-                    let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
-                    oldHttpMethod = currentValue.substring(0, editorEvent.start.column) +
-                        currentValue.substring(editorEvent.end.column, currentValue.length);
-                } else if (_.isEqual(editorEvent.action, 'remove')) {
-                    let currentValue = this._swaggerAceEditor.getSession().getLine(editorEvent.start.row);
-                    oldHttpMethod = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
-                        currentValue.slice(editorEvent.start.column);
-                }
-
-                oldHttpMethod = oldHttpMethod.trim().replace(/:\s*$/, '');
-
-                let newHttpMethod = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim().replace(/:\s*$/, '');
-                let resourcePath = astPath[1];
-
-                // Updating resource.
-                let resourceDefinitions = serviceDefinition.getResourceDefinitions();
-                _.forEach(resourceDefinitions, resourceDefinition => {
-                    let currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
-                    let currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-
-                    if (!_.isUndefined(currentResourcePathAnnotation) &&
-                        !_.isUndefined(currentHttpMethodAnnotation) &&
-                        _.isEqual(currentResourcePathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, ''), resourcePath.toLowerCase()) &&
-                        _.isEqual(currentHttpMethodAnnotation.getIdentifier().toLowerCase().replace(/"/g, ''), oldHttpMethod.toLowerCase())) {
-                        currentHttpMethodAnnotation.setIdentifier(newHttpMethod.toUpperCase(), {doSilently: true});
-                        this._resourceMappings.set(editorEvent.start.row,
-                            {
-                                type: 'method',
-                                ast: currentHttpMethodAnnotation
-                            });
-                    }
+        // Updating the http method of the resource.
+        if (resourceDefinitionToUpdate) {
+            resourceDefinitionToUpdate.getHttpMethodAnnotation().setIdentifier(newHttpMethod.toUpperCase(), { doSilently: true });
+            this._resourceMappings.set(editorEvent.start.row,
+                {
+                    type: 'method',
+                    ast: resourceDefinitionToUpdate.getHttpMethodAnnotation()
                 });
-            }
-        } else {
-            if (_.isNull(astPath) && this._resourceMappings.has(editorEvent.start.row)) {
-                let mapping = this._resourceMappings.get(editorEvent.start.row);
-                if (_.isEqual(mapping.type, 'path')) {
-                    mapping.ast.getChildren()[0].setRightValue('\"\"', {doSilently: true});
-                } else if (_.isEqual(mapping.type, 'method')) {
-                    mapping.ast.setIdentifier('', {doSilently: true});
-                }
-            }
-        }*/
+        }
     }
 
     /**
