@@ -80,15 +80,6 @@ function testNullMapAccess() (string) {
     return (string) marks["maths"];
 }
 
-
-typemapper json2xml (json j) (xml) {
-    if (j == null) {
-        return null;
-    }
-    xml x = `<name>converted xml</name>`;
-    return x;
-}
-
 function testCastingNull(any j) (xml) {
     xml x = (xml) j;
     
@@ -161,10 +152,10 @@ function testArrayOfNulls() (Person[]) {
 }
 
 function testMapOfNulls() (map) {
-    xml x1 = `<x1>test xml1<x1>`;
+    string x1 = "<x1>test xml1</x1>";
     xml x2;
     xml x3 = null;
-    xml x4 = `<x4>test xml4<x4>`;
+    string x4 = "<x4>test xml4</x4>";
     map xmlMap = {"x1":x1, "x2":x2, "x3":x3, "x4":x4, "x5":null};
     return xmlMap;
 }

@@ -1,4 +1,5 @@
 import ballerina.lang.arrays;
+import ballerina.lang.xmls;
 
 function testFloatArrayLength(float[] arg)(int, int){
     float[] defined;
@@ -25,10 +26,10 @@ function testXMLArrayLength(xml[] arg)(int, int){
     xml[] defined;
     xml v1;
     xml v2;
-    v1 = `<test>a</test>`;
-    v2 = `<test>b</test>`;
+    v1 = xmls:parse("<test>a</test>");
+    v2 = xmls:parse("<test>b</test>");
     defined = [v1, v2];
-    defined[2] = `<test>c</test>`;
+    defined[2] = xmls:parse("<test>c</test>");
     return arg.length , defined.length;
 }
 
@@ -84,9 +85,9 @@ function testStringArrayCopy(string[] arg)(string[]){
 function testXMLArrayCopy(xml[] arg)(xml[]){
     xml[] defined = [];
     arrays:copyOf(arg, defined);
-    defined[0] = `<test>a</test>`;
-    defined[1] = `<test>b</test>`;
-    defined[2] = `<test>c</test>`;
+    defined[0] = xmls:parse("<test>a</test>");
+    defined[1] = xmls:parse("<test>b</test>");
+    defined[2] = xmls:parse("<test>c</test>");
     return defined;
 }
 

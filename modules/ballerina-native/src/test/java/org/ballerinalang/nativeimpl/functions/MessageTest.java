@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -89,7 +89,7 @@ public class MessageTest {
     public void testSetXmlPayload() {
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         String xmlPayload = "<root><item>Text</item></root>";
-        BValue[] args = { new BMessage(carbonMsg), new BXML(xmlPayload) };
+        BValue[] args = { new BMessage(carbonMsg), new BXMLItem(xmlPayload) };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetXmlPayload", args);
         BMessage bMessage = ((BMessage) returns[0]);
         MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
