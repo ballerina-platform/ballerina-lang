@@ -35,12 +35,14 @@ public class StackFrame {
     String[] stringLocalVars;
     // These are used for array indexes and boolean values;
     int[] intLocalVars;
+    byte[][] byteLocalVars;
     BRefType[] refLocalVars;
 
     long[] longRegs;
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
+    byte[][] byteRegs;
     BRefType[] refRegs;
 
     // Return address of the caller
@@ -78,12 +80,14 @@ public class StackFrame {
         Arrays.fill(stringLocalVars, "");
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
+        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -124,6 +128,10 @@ public class StackFrame {
         return intLocalVars;
     }
 
+    public byte[][] getByteLocalVars() {
+        return byteLocalVars;
+    }
+
     public BRefType[] getRefLocalVars() {
         return refLocalVars;
     }
@@ -142,6 +150,10 @@ public class StackFrame {
 
     public int[] getIntRegs() {
         return intRegs;
+    }
+
+    public byte[][] getByteRegs() {
+        return byteRegs;
     }
 
     public BRefType[] getRefRegs() {
@@ -164,6 +176,10 @@ public class StackFrame {
         this.intLocalVars = intLocalVars;
     }
 
+    public void setByteLocalVars(byte[][] byteLocalVars) {
+        this.byteLocalVars = byteLocalVars;
+    }
+
     public void setRefLocalVars(BRefType[] refLocalVars) {
         this.refLocalVars = refLocalVars;
     }
@@ -182,6 +198,10 @@ public class StackFrame {
 
     public void setIntRegs(int[] intRegs) {
         this.intRegs = intRegs;
+    }
+
+    public void setByteRegs(byte[][] byteRegs) {
+        this.byteRegs = byteRegs;
     }
 
     public void setRefRegs(BRefType[] refRegs) {

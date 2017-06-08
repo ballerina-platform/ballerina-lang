@@ -2019,13 +2019,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
         TerminalNode terminalNode = ctx.IntegerLiteral();
         if (terminalNode != null) {
-            modelBuilder.createIntegerLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
+            String op = ctx.getChild(0).getText();
+            String value = terminalNode.getText();
+            if (op != null && "-".equals(op)) {
+                value = "-" + value;
+            }
+            modelBuilder.createIntegerLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, value);
             return;
         }
 
         terminalNode = ctx.FloatingPointLiteral();
         if (terminalNode != null) {
-            modelBuilder.createFloatLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
+            String op = ctx.getChild(0).getText();
+            String value = terminalNode.getText();
+            if (op != null && "-".equals(op)) {
+                value = "-" + value;
+            }
+            modelBuilder.createFloatLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, value);
             return;
         }
 

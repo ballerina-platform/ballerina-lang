@@ -68,6 +68,7 @@ public class TypeLattice {
         TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
         TypeVertex nullV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.NULL_TNAME)));
@@ -98,6 +99,8 @@ public class TypeLattice {
                 SAFE, InstructionCodes.S2ANY);
         implicitCastLattice.addEdge(booleanV, anyV, NativeCastMapper.BOOLEAN_TO_ANY_FUNC,
                 SAFE, InstructionCodes.B2ANY);
+        implicitCastLattice.addEdge(blobV, anyV, NativeCastMapper.BLOB_TO_ANY_FUNC,
+                SAFE, InstructionCodes.L2ANY);
 
         implicitCastLattice.addEdge(booleanV, stringV, NativeConversionMapper.BOOLEAN_TO_STRING_FUNC,
                 SAFE, InstructionCodes.B2S);
@@ -118,6 +121,7 @@ public class TypeLattice {
         TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
         TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
@@ -128,8 +132,9 @@ public class TypeLattice {
 
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(floatV, false);
-        explicitCastLattice.addVertex(booleanV, false);
         explicitCastLattice.addVertex(stringV, false);
+        explicitCastLattice.addVertex(booleanV, false);
+        explicitCastLattice.addVertex(blobV, false);
         explicitCastLattice.addVertex(xmlV, false);
         explicitCastLattice.addVertex(jsonV, false);
         explicitCastLattice.addVertex(anyV, false);
@@ -189,6 +194,9 @@ public class TypeLattice {
         explicitCastLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC,
                 SAFE, InstructionCodes.B2JSON);
 
+        explicitCastLattice.addEdge(blobV, anyV, NativeCastMapper.BLOB_TO_ANY_FUNC,
+                                    SAFE, InstructionCodes.L2ANY);
+
         explicitCastLattice.addEdge(connectorV, anyV, NativeCastMapper.CONNECTOR_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
 
@@ -198,6 +206,8 @@ public class TypeLattice {
                 UNSAFE, InstructionCodes.ANY2S);
         explicitCastLattice.addEdge(anyV, booleanV, NativeCastMapper.ANY_TO_BOOLEAN_FUNC,
                 UNSAFE, InstructionCodes.ANY2B);
+        explicitCastLattice.addEdge(anyV, blobV, NativeCastMapper.ANY_TO_BLOB_FUNC,
+                UNSAFE, InstructionCodes.ANY2L);
         explicitCastLattice.addEdge(anyV, intV, NativeCastMapper.ANY_TO_INT_FUNC,
                 UNSAFE, InstructionCodes.ANY2I);
         explicitCastLattice.addEdge(anyV, jsonV, NativeCastMapper.ANY_TO_JSON_FUNC,
@@ -229,7 +239,6 @@ public class TypeLattice {
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(xmlV, anyV, NativeCastMapper.XML_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
-        explicitCastLattice.addEdge(xmlV, stringV, NativeConversionMapper.XML_TO_STRING_FUNC);
 
         explicitCastLattice.addEdge(mapV, mapV, NativeCastMapper.MAP_TO_MAP_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -312,7 +321,6 @@ public class TypeLattice {
         conversionLattice.addEdge(jsonV, xmlV, NativeConversionMapper.JSON_TO_XML_FUNC);
 
         conversionLattice.addEdge(xmlV, jsonV, NativeConversionMapper.XML_TO_JSON_FUNC);
-        conversionLattice.addEdge(xmlV, stringV, NativeConversionMapper.XML_TO_STRING_FUNC);
     }
 
     /**

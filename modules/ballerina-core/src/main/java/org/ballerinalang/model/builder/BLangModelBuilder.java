@@ -333,8 +333,7 @@ public class BLangModelBuilder {
         SymbolName symbolName = new SymbolName(identifier.getName());
 
         // Check whether this constant is already defined.
-        StructuredUnit structScope = (StructuredUnit) currentScope;
-        BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
+        BLangSymbol fieldSymbol = ((StructuredUnit) currentScope).resolveMembers(symbolName);
         if (fieldSymbol != null) {
             String errMsg = BLangExceptionHelper
                     .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
@@ -736,9 +735,13 @@ public class BLangModelBuilder {
 
     public void createBacktickExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                    String stringContent) {
-        String templateStr = getValueWithinBackquote(stringContent);
-        BacktickExpr backtickExpr = new BacktickExpr(location, whiteSpaceDescriptor,  templateStr);
-        exprStack.push(backtickExpr);
+        String errMsg = location.getFileName() + ":" + location.getLineNumber() + ": " + 
+                "backtick expression is not supported";
+        errorMsgs.add(errMsg);
+    
+         String templateStr = getValueWithinBackquote(stringContent);
+         BacktickExpr backtickExpr = new BacktickExpr(location, whiteSpaceDescriptor,  templateStr);
+         exprStack.push(backtickExpr);
     }
 
     public void startExprList() {

@@ -108,7 +108,7 @@ public abstract class BNewArray implements BRefType {
         int x = currentArraySize / DEFAULT_ARRAY_SIZE;
 
         if (y - x >= 0) {
-            int newLength = (y + 1) * 100;
+            int newLength = (y + 1) * DEFAULT_ARRAY_SIZE;
             newLength = Math.min(newLength, MAX_ARRAY_SIZE);
             grow(newLength);
         }

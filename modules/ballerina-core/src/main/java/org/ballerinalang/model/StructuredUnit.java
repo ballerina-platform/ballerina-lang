@@ -28,6 +28,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
  * 
  * @since 0.85
  */
+@Deprecated
 public interface StructuredUnit {
     
     /**
