@@ -284,7 +284,7 @@ public class DataTableTest {
         long timestamp = cal.getTimeInMillis();
         args[2] = new BInteger(timestamp);
 
-            BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTime", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTime", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), time);

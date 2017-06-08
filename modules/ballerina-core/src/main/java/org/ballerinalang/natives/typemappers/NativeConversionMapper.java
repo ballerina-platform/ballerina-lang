@@ -441,9 +441,6 @@ public class NativeConversionMapper {
                 }
             };
 
-    public static final TriFunction<BValue, BType, Boolean, BValue[]> XML_TO_STRING_FUNC =
-            (rVal, targetType, returnErrors) -> new BValue[] { new BString(rVal.stringValue()) };
-
     public static final TriFunction<BValue, BType, Boolean, BValue[]> XML_TO_JSON_FUNC =
         (rVal, targetType, returnErrors) -> {
             if (rVal == null) {
