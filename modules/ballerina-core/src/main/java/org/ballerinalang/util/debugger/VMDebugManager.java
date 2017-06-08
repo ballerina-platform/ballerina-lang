@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
-import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -36,9 +35,9 @@ import java.util.concurrent.Semaphore;
 import static java.lang.Thread.sleep;
 
 /**
- * {@code DebugManager} Manages debug sessions and handle debug related actions.
+ * {@code VMDebugManager} Manages debug sessions and handle debug related actions.
  *
- * @since 0.8.0
+ * @since 0.88
  */
 public class VMDebugManager {
     /**
@@ -212,7 +211,7 @@ public class VMDebugManager {
     }
 
     /**
-     * Set {@link BLangExecutionDebugger} to current execution.
+     * Set {@link Context} to current execution.
      *
      * @param threadId of the running thread
      * @param bContext context to run

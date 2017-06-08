@@ -21,8 +21,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
+import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
+import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -61,12 +62,15 @@ import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.LocalVariableAttributeInfo;
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -81,6 +85,7 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
@@ -1485,42 +1490,37 @@ public class BLangVM {
         NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
                 current.getFileName(), current.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
-        for (StackFrame stackFrame : context.getControlStackNew().getStack()) {
-//            String pck = (stackFrame.packageInfo.getPkgPath() == null ? "default" : stackFrame
-//                    .packageInfo.getPkgPath());
-//            String functionName = stackFrame.callableUnitInfo.getName();
-//            NodeLocation location = stackFrame.getNodeInfo().getNodeLocation();
-//            FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
-//            HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables = stackFrame.variables;
-//            if (null != variables) {
-//                for (SymbolName name : variables.keySet()) {
-//                    AbstractMap.SimpleEntry<Integer, String> offSet = variables.get(name);
-//                    BValue value = null;
-//                    switch (offSet.getValue()) {
-//                        case "Arg":
-//                        case "Local":
-//                            value = stackFrame.values[offSet.getKey()];
-//                            break;
-//                        case "Service":
-//                        case "Const":
-//                            value = runtimeEnvironment.getStaticMemory().getValue(offSet.getKey());
-//                            break;
-//                        case "Connector":
-//                            BConnector bConnector = (BConnector) stackFrame.values[0];
-//                            if (bConnector != null) {
-//                                bConnector.getValue(offSet.getKey());
-//                            }
-//                            break;
-//                        default:
-//                            value = null;
-//                    }
-//                    VariableInfo variableInfo = new VariableInfo(name.getName(), offSet.getValue());
-//                    variableInfo.setBValue(value);
-//                    frameInfo.addVariableInfo(variableInfo);
-//                }
-//            }
-//            breakPointInfo.addFrameInfo(frameInfo);
+
+        String pck = controlStack.currentFrame.packageInfo.getPkgPath();
+        String functionName = controlStack.currentFrame.callableUnitInfo.getName();
+        //todo below line number is a dummy line number - remove later
+        FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
+        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) controlStack.currentFrame
+                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+        if (localVarAttrInfo != null) {
+            for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
+                UTF8CPEntry constantPoolEntry = (UTF8CPEntry) controlStack.currentFrame.packageInfo
+                        .getConstPool()[localVarInfo.getVariableNameCPIndex()];
+                VariableInfo variableInfo = new VariableInfo(constantPoolEntry.getValue(), "Local");
+                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BInteger(controlStack.currentFrame
+                            .longLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BFloat(controlStack.currentFrame
+                            .doubleLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BString(controlStack.currentFrame
+                            .stringLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BBoolean(controlStack.currentFrame
+                            .intLocalVars[localVarInfo.getVariableIndex()] == 1 ? true : false));
+                } else {
+                    variableInfo.setBValue(controlStack.currentFrame.refLocalVars[localVarInfo.getVariableIndex()]);
+                }
+                frameInfo.addVariableInfo(variableInfo);
+            }
         }
+        breakPointInfo.addFrameInfo(frameInfo);
         return breakPointInfo;
     }
 

@@ -18,26 +18,15 @@
 package org.ballerinalang.core.interpreter;
 
 import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.RuntimeEnvironment;
-import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FunctionInvocationExpr;
-import org.ballerinalang.model.values.BArray;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -57,7 +46,7 @@ import java.nio.file.Paths;
 import java.util.concurrent.Semaphore;
 
 /**
- * Test Cases for {@link BLangExecutionDebugger}.
+ * Test Cases for {@link org.ballerinalang.util.debugger.VMDebugManager}.
  */
 public class VMDebuggerTest {
 
@@ -269,7 +258,7 @@ public class VMDebuggerTest {
             try {
                 executionSem.acquire();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+
             }
         }
 

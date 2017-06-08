@@ -31,8 +31,10 @@ import java.util.Map;
 
 
 /**
- * The Debug Session class will be used to hold context for each client.
+ * {@code VMDebugSession} The Debug Session class will be used to hold context for each client.
  * Each client will get its own instance of debug session.
+ *
+ * @since 0.88
  */
 public class VMDebugSession implements DebugSessionObserver {
 

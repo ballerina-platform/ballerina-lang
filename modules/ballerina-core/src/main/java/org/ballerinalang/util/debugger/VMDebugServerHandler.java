@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.util.debugger;
 
 import io.netty.buffer.ByteBuf;
@@ -52,7 +51,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * {@code DebugServerHandler} Handle client connections and messaging with debug clients.
  *
- * @since 0.8.0
+ * @since 0.88
  */
 public class VMDebugServerHandler extends SimpleChannelInboundHandler<Object> {
 

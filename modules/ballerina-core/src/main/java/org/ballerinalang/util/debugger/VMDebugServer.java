@@ -15,7 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.util.debugger;
 
 
@@ -39,10 +38,10 @@ import java.io.PrintStream;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * {@code DebugServer} will open a websocket server for external clients to connect.
+ * {@code VMDebugServer} will open a websocket server for external clients to connect.
  * The websocket server is implemented with netty websocket library.
  *
- * @since 0.8.0
+ * @since 0.88
  */
 public class VMDebugServer {
 
