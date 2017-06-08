@@ -2006,7 +2006,7 @@ public class BLangVM {
             currentIP = currentFrame.retAddrs - 1;
             currentFrame = controlStack.getCurrentFrame();
         }
-        if (controlStack.getCurrentFrame() == null) {
+        if (controlStack.getCurrentFrame() != null) {
             // root level error handling.
             ip = -1;
             PrintStream err = System.err;
