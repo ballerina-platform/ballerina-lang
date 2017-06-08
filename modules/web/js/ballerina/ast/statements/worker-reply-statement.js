@@ -155,9 +155,12 @@ class WorkerReplyStatement extends Statement {
             self.addToExpressionList(expressionNode);
         }
 
-        var workerInstance = _.find(this.getParent().getChildren(), function (child) {
-            return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
-        });
+        let workerInstance;
+        if (!_.isNil(this.getParent())) {
+            workerInstance = _.find(this.getParent().getChildren(), function (child) {
+                return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
+            });
+        }
         this.setDestination(workerInstance);
         this.setWorkerName(workerName);
     }

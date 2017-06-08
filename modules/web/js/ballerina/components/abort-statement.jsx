@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 class AbortStatement extends React.Component {
     render() {
         let model = this.props.model;
-        let expression = model.getStatement();
+        let expression = model.getStatementString();
         return (<StatementDecorator model={model} viewState={model.viewState} expression={expression}/>);
     }
 }

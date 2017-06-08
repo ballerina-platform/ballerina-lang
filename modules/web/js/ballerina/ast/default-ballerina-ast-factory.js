@@ -138,15 +138,11 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement = function 
  * @returns {AssignmentStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function (args) {
-    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-    var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-    var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-    var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
-    rightOp.addChild(actionInExp);
-    rightOp.setExpressionFromString(actionInExp.getExpressionString());
-    assignmentStmt.addChild(leftOp);
-    assignmentStmt.addChild(rightOp);
-    return assignmentStmt;
+    var assignmentStatementString = 'm = ' + args.actionPackageName + ':' +
+        args.actionConnectorName + '.' + args.action + '()';
+    var assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+    assignmentStatement.setStatementFromString(assignmentStatementString);
+    return assignmentStatement;
 };
 
 /**
@@ -155,10 +151,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
  */
 DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
     var tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
-    var tryStatement = BallerinaASTFactory.createTryStatement(args);
-    tryCatchStatement.addChild(tryStatement);
-    var catchStatement = BallerinaASTFactory.createCatchStatement(args);
-    tryCatchStatement.addChild(catchStatement);
+    tryCatchStatement.setStatementFromString('try{}catch(exception e){}');
     return tryCatchStatement;
 };
 
@@ -169,7 +162,7 @@ DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
  */
 DefaultBallerinaASTFactory.createThrowStatement = function (args) {
     var throwStatement = BallerinaASTFactory.createThrowStatement(args);
-    throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableName: 'e'}));
+    throwStatement.setStatementFromString('throw e');
     return throwStatement;
 };
 
@@ -189,10 +182,7 @@ DefaultBallerinaASTFactory.createAbortStatement = function (args) {
  * */
 DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
     var transactionAbortedStatement = BallerinaASTFactory.createTransactionAbortedStatement(args);
-    var transactionStatement = BallerinaASTFactory.createTransactionStatement(args);
-    transactionAbortedStatement.addChild(transactionStatement);
-    var abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
-    transactionAbortedStatement.addChild(abortedStatement);
+    transactionAbortedStatement.setStatementFromString('transaction {} aborted {}');
     return transactionAbortedStatement;
 };
 
@@ -245,13 +235,35 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
 /**
  * creates FunctionInvocationStatement
  * @param args
- * @returns {FunctionInvocation}
+ * @returns {FunctionInvocationStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
     var funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
     var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
     funcInvocationStatement.addChild(funcInvocationExpression);
     return funcInvocationStatement;
+};
+
+/**
+ * creates WorkerInvocationStatement
+ * @param args
+ * @returns {WorkerInvocationStatement}
+ */
+DefaultBallerinaASTFactory.createWorkerInvocationStatement = function (args) {
+    var workerInvocationStatement = BallerinaASTFactory.createWorkerInvocationStatement();
+    workerInvocationStatement.setStatementFromString('m -> workerName');
+    return workerInvocationStatement;
+};
+
+/**
+ * creates workerReplyStatement
+ * @param args
+ * @returns WorkerReplyStatement}
+ */
+DefaultBallerinaASTFactory.createWorkerReplyStatement = function (args) {
+    var workerReplyStatement = BallerinaASTFactory.createWorkerReplyStatement();
+    workerReplyStatement.setStatementFromString('m <- workerName');
+    return workerReplyStatement;
 };
 
 export default DefaultBallerinaASTFactory;

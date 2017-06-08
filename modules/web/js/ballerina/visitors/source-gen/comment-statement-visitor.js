@@ -38,7 +38,7 @@ class CommentStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitCommentStatement(commentStatement) {
-        this.appendSource(commentStatement.getCommentString() + commentStatement.getWSRegion(1));
+        this.appendSource(commentStatement.getStatementString() + commentStatement.getWSRegion(1));
         log.debug('Visit Comment Statement Definition');
     }
 
