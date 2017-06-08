@@ -100,6 +100,18 @@ public class StackFrame {
         this.returnValues = returnValues;
     }
 
+    public StackFrame(int[] localVarMaxSizes, BValue[] returnValues) {
+        this.longLocalVars = new long[localVarMaxSizes[0]];
+        this.doubleLocalVars = new double[localVarMaxSizes[1]];
+
+        this.stringLocalVars = new String[localVarMaxSizes[2]];
+        Arrays.fill(stringLocalVars, "");
+
+        this.intLocalVars = new int[localVarMaxSizes[3]];
+        this.refLocalVars = new BRefType[localVarMaxSizes[4]];
+        this.returnValues = returnValues;
+    }
+
     public long[] getLongLocalVars() {
         return longLocalVars;
     }

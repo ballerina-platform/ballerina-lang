@@ -2178,6 +2178,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             valueExpr.accept(this);
 
+            if (structFieldType == BTypes.typeAny) {
+                AssignabilityResult result = performAssignabilityCheck(structFieldType, valueExpr);
+                if (result.implicitCastExpr != null) {
+                    valueExpr = result.implicitCastExpr;
+                    keyValueExpr.setValueExpr(valueExpr);
+                }
+            }
+
             if (!TypeMappingUtils.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
