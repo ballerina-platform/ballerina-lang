@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Set the children of a XML if its a singleton. Error otherwise.
+ * Set the children of an XML if its a singleton. Error otherwise.
  * Any existing children will be removed.
  * 
  * @since 0.88

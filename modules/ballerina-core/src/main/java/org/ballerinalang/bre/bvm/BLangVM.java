@@ -646,7 +646,7 @@ public class BLangVM {
                     k = operands[2];
                     sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
                     break;
-                case InstructionCodes.RADD:
+                case InstructionCodes.XMLADD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];

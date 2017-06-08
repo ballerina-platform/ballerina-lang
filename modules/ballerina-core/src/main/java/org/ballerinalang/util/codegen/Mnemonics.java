@@ -104,7 +104,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
-        mnemonics[InstructionCodes.RADD] = "radd";
+        mnemonics[InstructionCodes.XMLADD] = "radd";
         
         mnemonics[InstructionCodes.ISUB] = "isub";
         mnemonics[InstructionCodes.FSUB] = "fsub";

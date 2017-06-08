@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Slice and return a subsequence of the given XML sequence.
+ * Slice and return a subsequence of the an XML sequence.
  * 
  * @since 0.88
  */

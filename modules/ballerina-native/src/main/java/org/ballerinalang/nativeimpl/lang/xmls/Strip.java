@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Strips any text items from seq that are all whitespace.
+ * Strips any text items from an XML sequence that are all whitespace.
  * 
  * @since 0.88
  */
@@ -43,11 +43,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Strips any text items from seq that are all whitespace.") })
+        value = "Strips any text items from an XML sequence that are all whitespace.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "seq",
-        value = "xml seq with any text items that are all whitespace stripped") })
+        value = "XML seq with any text items that are all whitespace stripped") })
 public class Strip extends AbstractNativeFunction {
 
     private static final String OPERATION = "strip xml";

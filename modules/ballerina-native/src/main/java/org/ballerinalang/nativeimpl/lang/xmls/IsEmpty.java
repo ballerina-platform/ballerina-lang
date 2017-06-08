@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Check whether the XML sequence contains only a single element.
+ * Check whether the XML sequence is empty.
  * 
  * @since 0.88
  */

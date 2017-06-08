@@ -35,7 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Get a value of an attribute in the xml
+ * Get the value of an attribute in an XML
  * 
  * @since 0.88
  */
@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Get a value of an attribute in the xml") })
+        value = "Get the value of an attribute in an XML.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "qname",

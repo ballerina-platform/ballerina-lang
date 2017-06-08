@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Make a copy of a XML.
+ * Make a deep copy of an XML.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Make a copy of a XML") })
+        value = "Make a copy of an XML") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "copy",

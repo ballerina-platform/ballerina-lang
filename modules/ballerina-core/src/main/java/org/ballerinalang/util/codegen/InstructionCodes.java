@@ -110,7 +110,7 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
-    int RADD = 81;
+    int XMLADD = 81;
     int ISUB = 82;
     int FSUB = 83;
     int IMUL = 84;

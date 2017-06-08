@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Set a value of an attribute in the xml
+ * Set the value of an attribute in an XML.
  * 
  * @since 0.88
  */
@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Set a value of an attribute in the xml") })
+        value = "Set the value of an attribute in an XML.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "qname",

@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Parse a string and get a xml
+ * Parse a string and get an XML
  * 
  * @since 0.88
  */
@@ -44,9 +44,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Parse string and get a xml") })
+        value = "Parse string and get an XML") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xmlStr",
-        value = "String representation of xml") })
+        value = "String representation of XML") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "x",
         value = "Parsed xml") })
 public class Parse extends AbstractNativeFunction {

@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Get the type of a XML as a string. If the xml is singleton, type can be one of 
- * 'element', 'text', 'comment' or 'pi'. Returns and empty string is the xml is not a singleton.
+ * 'element', 'text', 'comment' or 'pi'. Returns an empty string if the xml is not a singleton.
  * 
  * @since 0.88
  */

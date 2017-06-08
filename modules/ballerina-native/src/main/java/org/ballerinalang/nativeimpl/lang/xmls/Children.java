@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Selects and concatenate all the children of the elements in a xml.
+ * Selects and concatenate all the children of the elements in an XML.
  * 
  * @since 0.88
  */
@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Selects and concatenate all the children of the elements in a xml.") })
+        value = "Selects and concatenate all the children of the elements in an XML.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "children",
