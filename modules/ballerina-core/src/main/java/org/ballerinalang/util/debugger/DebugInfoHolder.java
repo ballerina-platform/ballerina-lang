@@ -20,8 +20,6 @@ public class DebugInfoHolder {
     private DebugSessionObserver debugSessionObserver;
     private Stack<LineNumberInfo> currentLineStack;
     private DebugCommand currentCommand;
-    private CallableUnitInfo callableUnitInfo;
-    private LineNumberInfo stepOutFuncCallLine;
     private int previousIp = -1;
     private int nextIp = -1;
     private int[] functionCalls;
@@ -72,22 +70,6 @@ public class DebugInfoHolder {
         this.currentCommand = currentCommand;
     }
 
-    public CallableUnitInfo getCallableUnitInfo() {
-        return callableUnitInfo;
-    }
-
-    public void setCallableUnitInfo(CallableUnitInfo callableUnitInfo) {
-        this.callableUnitInfo = callableUnitInfo;
-    }
-
-    public LineNumberInfo getStepOutFuncCallLine() {
-        return stepOutFuncCallLine;
-    }
-
-    public void setStepOutFuncCallLine(LineNumberInfo stepOutFuncCallLine) {
-        this.stepOutFuncCallLine = stepOutFuncCallLine;
-    }
-
     public int getPreviousIp() {
         return previousIp;
     }
@@ -124,7 +106,7 @@ public class DebugInfoHolder {
 
     public int peekFunctionCallNextIp() {
         int nextIp = -1;
-        if (functionCallPointer > 0) {
+        if (functionCallPointer >= 0) {
             nextIp = functionCalls[functionCallPointer];
         }
         return nextIp;

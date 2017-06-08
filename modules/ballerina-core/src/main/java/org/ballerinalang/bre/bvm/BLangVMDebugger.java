@@ -1343,20 +1343,13 @@ public class BLangVMDebugger extends BLangVM implements Runnable {
         LineNumberInfo currentExecLine = controlStack.currentFrame.packageInfo.getLineNumberInfo(cp);
 
         DebugInfoHolder holder = context.getDebugInfoHolder();
-        if (code[cp].getOpcode() == InstructionCodes.CALL) {
+        if (code[cp].getOpcode() == InstructionCodes.CALL && holder.getCurrentCommand() != DebugInfoHolder
+                .DebugCommand.STEP_OUT) {
             holder.pushFunctionCallNextIp(cp + 1);
+        } else if (code[cp].getOpcode() == InstructionCodes.RET && holder.getCurrentCommand() != DebugInfoHolder
+                .DebugCommand.STEP_OUT) {
+            holder.popFunctionCallNextIp();
         }
-        if (holder.getCurrentCommand() == null) {
-            lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber();
-            location = holder.getDebugPoint(lineNum);
-            if (location != null) {
-                holder.getCurrentLineStack().push(currentExecLine);
-                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-                aquireLock();
-            }
-            return;
-        }
-
         switch (holder.getCurrentCommand()) {
             case RESUME:
                 if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
@@ -1405,6 +1398,10 @@ public class BLangVMDebugger extends BLangVM implements Runnable {
                 }
                 break;
             case STEP_OUT:
+                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
+                    holder.setPreviousIp(cp);
+                    holder.popFunctionCallNextIp();
+                }
                 if (holder.peekFunctionCallNextIp() != cp) {
                     return;
                 }

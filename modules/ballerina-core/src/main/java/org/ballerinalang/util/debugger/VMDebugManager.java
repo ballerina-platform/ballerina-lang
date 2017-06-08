@@ -157,7 +157,6 @@ public class VMDebugManager {
                     this.waitingForClient = false;
                     sendAcknowledge(this.debugSession, "Debug started.");
                     debugger.resume();
-//                    debugger.run();
                 }
                 break;
             default:
