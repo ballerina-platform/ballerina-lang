@@ -94,6 +94,12 @@ function booleanToAny(boolean value)(any) {
     return result;
 }
 
+function blobToAny(blob value)(any) {
+    any result;
+    result = (any)value;
+    return result;
+}
+
 function anyToInt () (int) {
     int i = 5;
     any a = i;
@@ -116,6 +122,12 @@ function anyToBoolean () (boolean) {
     boolean b;
     any a = b;
     return (boolean)a;
+}
+
+function anyToBlob (blob data) (blob) {
+    blob b = data;
+    any a = b;
+    return (blob)a;
 }
 
 function booleanappendtostring(boolean value)(string) {

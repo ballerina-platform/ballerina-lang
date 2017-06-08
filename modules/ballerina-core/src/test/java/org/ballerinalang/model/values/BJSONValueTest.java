@@ -400,4 +400,28 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"details\":{\"fname\":\"Supun\",\"lname\":\"Setunga\"}}");
     }
+    
+    @Test
+    public void testEmptyStringToJson() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyStringToJson");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        BJSON json = ((BJSON) returns[0]);
+        Assert.assertTrue(json.toString().isEmpty());
+    }
+    
+    @Test
+    public void testJsonStringToJson() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonStringToJson");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        BJSON json = ((BJSON) returns[0]);
+        Assert.assertEquals(json.toString(), "{\"name\", \"supun\"}");
+    }
+    
+    @Test
+    public void testStringWithEscapedCharsToJson() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStringWithEscapedCharsToJson");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        BJSON json = ((BJSON) returns[0]);
+        Assert.assertEquals(json.toString(), "{\\\"name\\\", \"supun\"}");
+    }
 }
