@@ -28,7 +28,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("package", "import", "const", "service",
             "function", "connector", "struct", "typemapper", "annotation");
     private static final List<String> ANY_TYPE = Collections.singletonList("any");
-    private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
+    private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "xmlDocument", "json",
             "datatable");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",

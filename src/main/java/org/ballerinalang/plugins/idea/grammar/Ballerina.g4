@@ -147,6 +147,7 @@ valueTypeName
     |   'int'
     |   'float'
     |   'string'
+    |   'blob'
     ;
 
 builtInReferenceTypeName
@@ -478,6 +479,7 @@ BOOLEAN         : 'boolean';
 INT             : 'int';
 FLOAT           : 'float';
 STRING          : 'string';
+BLOB            : 'blob';
 
 MESSAGE         : 'message';
 MAP             : 'map';

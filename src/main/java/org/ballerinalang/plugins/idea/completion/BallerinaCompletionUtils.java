@@ -100,6 +100,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder INT;
     private static final LookupElementBuilder FLOAT;
     private static final LookupElementBuilder STRING;
+    private static final LookupElementBuilder BLOB;
 
     // Reference types
     private static final LookupElementBuilder MESSAGE;
@@ -160,6 +161,7 @@ public class BallerinaCompletionUtils {
         INT = createTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
         FLOAT = createTypeLookupElement("float", AddSpaceInsertHandler.INSTANCE);
         STRING = createTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
+        BLOB = createTypeLookupElement("blob", AddSpaceInsertHandler.INSTANCE);
 
         MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
@@ -289,6 +291,7 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BLOB, VALUE_TYPES_PRIORITY));
     }
 
     /**
