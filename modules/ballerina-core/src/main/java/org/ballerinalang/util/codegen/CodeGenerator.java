@@ -2270,16 +2270,16 @@ public class CodeGenerator implements NodeVisitor {
 
     private void getForkJoinCPIndex(ForkJoinStmt forkJoinStmt) {
         Expression argExpr = forkJoinStmt.getTimeout().getTimeoutExpression();
-        int[] argRegs;
+        int[] retRegs;
         if (argExpr != null) {
-            argRegs = new int[1];
+            retRegs = new int[1];
             argExpr.accept(this);
-            argRegs[0] = argExpr.getTempOffset();
+            retRegs[0] = argExpr.getTempOffset();
         } else {
-            argRegs = new int[0];
+            retRegs = new int[0];
         }
 
-        int[] retRegs = new int[0];
+        int[] argRegs = lvIndexes;
         ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(argRegs, retRegs, forkJoinStmt);
         if (argExpr != null) {
             forkJoinCPEntry.setTimeoutAvailable(true);
@@ -2325,6 +2325,10 @@ public class CodeGenerator implements NodeVisitor {
         // Generate code for timeout block
         ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
         timeout.setIp(nextIP());
+        if (timeout.getTimeoutExpression() != null) {
+            timeout.getTimeoutExpression().accept(this);
+        }
+
         if (timeout.getTimeoutResult() != null) {
             visitForkJoinParameterDefs(timeout.getTimeoutResult());
         }

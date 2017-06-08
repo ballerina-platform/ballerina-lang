@@ -1488,15 +1488,20 @@ public class BLangVM {
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
 
+            StackFrame callerSF = controlStack.getCurrentFrame();
+            int[] argRegs = forkJoinCPEntry.getArgRegs();
+
             ControlStackNew controlStack = workerContext.getControlStackNew();
             StackFrame calleeSF = new StackFrame(currentCallableUnitInfo,
                     forkJoinCPEntry.getWorkerInfo(worker.getName()), -1, new int[1]);
             controlStack.pushFrame(calleeSF);
 
+            BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
+
 
             // Copy arg values from the current StackFrame to the new StackFrame
             // TODO fix this. Move the copyArgValues method to another util function
-            //BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+           // BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
             BLangVM bLangVM = new BLangVM(programFile);
             //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
@@ -1710,6 +1715,41 @@ public class BLangVM {
                     currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
             }
         }
+    }
+
+    public static void copyValuesForForkJoin(StackFrame callerSF, StackFrame calleeSF, int[] argRegs) {
+        int longLocalVals = argRegs[0];
+        int doubleLocalVals = argRegs[1];
+        int stringLocalVals = argRegs[2];
+        int booleanLocalVals = argRegs[3];
+        int blobLocalVals = argRegs[4];
+        int refLocalVals = argRegs[5];
+
+        for (int i = 0; i <= longLocalVals; i++) {
+            calleeSF.getLongLocalVars()[i] = callerSF.getLongLocalVars()[i];
+        }
+
+        for (int i = 0; i <= doubleLocalVals; i++) {
+            calleeSF.getDoubleLocalVars()[i] = callerSF.getDoubleLocalVars()[i];
+        }
+
+        for (int i = 0; i <= stringLocalVals; i++) {
+            calleeSF.getStringLocalVars()[i] = callerSF.getStringLocalVars()[i];
+        }
+
+        for (int i = 0; i <= booleanLocalVals; i++) {
+            calleeSF.getIntLocalVars()[i] = callerSF.getIntLocalVars()[i];
+        }
+
+        for (int i = 0; i <= refLocalVals; i++) {
+            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
+        }
+
+        for (int i = 0; i <= blobLocalVals; i++) {
+            calleeSF.getByteLocalVars()[i] = callerSF.getByteLocalVars()[i];
+        }
+
+
     }
 
 
