@@ -18,6 +18,7 @@
 
 import ASTNode from '../../ast/node';
 import ASTVisitor from '../ast-visitor';
+import Factory from '../../ast/ballerina-ast-factory';
 
 /**
  * Constructor for the Enable Format Visitor
@@ -32,6 +33,21 @@ class EnableDefaultWSVisitor extends ASTVisitor {
 
     visit(node) {
         node.whiteSpace.useDefault = true;
+        if (Factory.isBinaryExpression(node)) {
+            node.getRightExpression().accept(this);
+            node.getLeftExpression().accept(this);
+        } else if (Factory.isActionInvocationExpression(node)) {
+            node.getArguments().forEach((arg) => {
+                arg.accpt(this);
+            })
+        } else if (Factory.isConnectorInitExpression(node)) {
+            node.getArgs().forEach((arg) => {
+                arg.accpt(this);
+            })
+            node.getConnectorName().accpt(this);
+        } else if (Factory.isCatchStatement(node)) {
+            node.getParameter().accept(this);
+        }
     }
 }
 
