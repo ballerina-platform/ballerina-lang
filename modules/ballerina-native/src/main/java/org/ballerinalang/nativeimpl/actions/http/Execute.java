@@ -104,10 +104,10 @@ public class Execute extends AbstractHTTPAction {
 
     private CarbonMessage createCarbonMsg(Context context) {
         // Extract Argument values
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String httpVerb = getArgument(context, 1).stringValue();
-        String path = getArgument(context, 2).stringValue();
-        BMessage bMessage = (BMessage) getArgument(context, 3);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String httpVerb = getStringArgument(context, 0);
+        String path = getStringArgument(context, 1);
+        BMessage bMessage = (BMessage) getRefArgument(context, 1);
 
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();
