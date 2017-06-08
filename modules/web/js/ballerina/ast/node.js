@@ -120,7 +120,6 @@ class ASTNode extends EventChannel {
         child.setParent(this, {
             doSilently: true
         });
-        child.generateUniqueIdentifiers();
 
         if (!ignoreChildAddedEvent) {
             /**
