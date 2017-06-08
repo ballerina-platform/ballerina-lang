@@ -141,7 +141,8 @@ class ArgumentParameterDefinitionHolder extends React.Component {
             prefixView: this.props.model.parent.getViewState().components.parametersPrefixContainer,
             openingBracketClassName: 'parameter-bracket-text',
             closingBracketClassName: 'parameter-bracket-text',
-            prefixTextClassName: 'parameter-prefix-text'
+            prefixTextClassName: 'parameter-prefix-text',
+            defaultText: "+ Add Param"
         };
         let children = getComponentForNodeArray(model.getChildren());
         return (

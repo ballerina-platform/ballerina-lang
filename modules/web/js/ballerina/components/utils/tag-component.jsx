@@ -21,7 +21,7 @@ import SuggestionsText from './../suggestions-text';
 import {util} from './../../visitors/sizing-utils';
 import './tag-component.css';
 
-const DEFAULT_INPUT_VALUE = "+ Add Value";
+let defaultInputValue = "+ Add Value";
 
 /**
  * Common Tag Controller to render tag input box.
@@ -60,7 +60,7 @@ class TagController extends React.Component {
      * */
     onInputBlur(e) {
         let setter = this.props.setter;
-        if (DEFAULT_INPUT_VALUE !== this.state.editValue && this.state.editValue !== "") {
+        if (defaultInputValue !== this.state.editValue && this.state.editValue !== "") {
             if (!setter(this.state.editValue)) {
                 e.preventDefault();
             }
@@ -129,17 +129,17 @@ class TagController extends React.Component {
                 <g onClick={() => {
                     this.onSelectClick()
                 }}>
-                    <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y + 5 } width={90} height={20}
+                    <rect x={componentData.components.closingBracket.x - 130}
+                          y={componentData.components.closingBracket.y + 5 } width={120} height={20}
                           className="text-placeholder"/>
-                    <text x={componentData.components.closingBracket.x - 94}
+                    <text x={componentData.components.closingBracket.x - 124}
                           y={componentData.components.closingBracket.y + 19}
                           className="tag-component-attachment-text">
-                        {DEFAULT_INPUT_VALUE}
+                        {defaultInputValue}
                     </text>
-                    <SuggestionsText x={componentData.components.closingBracket.x - 104}
+                    <SuggestionsText x={componentData.components.closingBracket.x - 124}
                                      y={componentData.components.closingBracket.y + 6}
-                                     width={93}
+                                     width={123}
                                      height={20}
                                      className="tag-component-editable-text-box"
                                      onEnter={input => {
@@ -172,17 +172,17 @@ class TagController extends React.Component {
                 <g onClick={() => {
                     this.onSelectClick()
                 }}>
-                    <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y + 5 } width={90} height={20}
+                    <rect x={componentData.components.closingBracket.x - 130}
+                          y={componentData.components.closingBracket.y + 5 } width={120} height={20}
                           className="text-placeholder"/>
-                    <text x={componentData.components.closingBracket.x - 94}
+                    <text x={componentData.components.closingBracket.x - 124}
                           y={componentData.components.closingBracket.y + 19}
                           className="tag-component-attachment-text">
-                        {DEFAULT_INPUT_VALUE}
+                        {defaultInputValue}
                     </text>
-                    <SuggestionsText x={componentData.components.closingBracket.x - 104}
+                    <SuggestionsText x={componentData.components.closingBracket.x - 124}
                                      y={componentData.components.closingBracket.y + 6}
-                                     width={93}
+                                     width={123}
                                      height={20}
                                      className="tag-component-editable-text-box"
                                      onEnter={input => {
@@ -225,20 +225,20 @@ class TagController extends React.Component {
                 {modelComponents}
 
                 <g>
-                    <rect x={componentData.components.closingBracket.x - 104}
-                          y={componentData.components.closingBracket.y + 4 } width={90} height={21}
+                    <rect x={componentData.components.closingBracket.x - 124}
+                          y={componentData.components.closingBracket.y + 4 } width={100} height={21}
                           className="text-placeholder"
                           onClick={() => {
                               this.onInputClick()
                           }}/>
-                    <EditableText x={componentData.components.closingBracket.x - 105}
+                    <EditableText x={componentData.components.closingBracket.x - 125}
                                   y={componentData.components.closingBracket.y + 28 / 2}
-                                  width={93}
+                                  width={103}
                                   height={20}
                                   labelClass={"tag-component-label"}
                                   inputClass={"tag-component-input-text-box"}
-                                  displayText={DEFAULT_INPUT_VALUE}
-                                  placeholder={DEFAULT_INPUT_VALUE}
+                                  displayText={defaultInputValue}
+                                  placeholder={defaultInputValue}
                                   onKeyDown={e => {
                                       this.onKeyDown(e)
                                   }}
@@ -284,20 +284,20 @@ class TagController extends React.Component {
                 {modelComponents}
 
                 <g>
-                    <rect x={componentData.components.closingBracket.x - 100}
-                          y={componentData.components.closingBracket.y + 5 } width={90} height={21}
+                    <rect x={componentData.components.closingBracket.x - 120}
+                          y={componentData.components.closingBracket.y + 5 } width={100} height={21}
                           className="text-placeholder"
                           onClick={() => {
                               this.onInputClick()
                           }}/>
-                    <EditableText x={componentData.components.closingBracket.x - 98}
+                    <EditableText x={componentData.components.closingBracket.x - 118}
                                   y={componentData.components.closingBracket.y + 28 / 2 }
-                                  width={93}
+                                  width={103}
                                   height={20}
                                   labelClass={"tag-component-label"}
                                   inputClass={"tag-component-input-text-box"}
-                                  displayText={DEFAULT_INPUT_VALUE}
-                                  placeholder={DEFAULT_INPUT_VALUE}
+                                  displayText={defaultInputValue}
+                                  placeholder={defaultInputValue}
                                   onKeyDown={e => {
                                       this.onKeyDown(e);
                                   }}
@@ -325,6 +325,7 @@ class TagController extends React.Component {
     render() {
         let modelComponents = this.props.modelComponents;
         let componentData = this.props.componentData;
+        defaultInputValue = componentData.defaultText;
         if (this.props.isSelectBox) {
             return this.getSelectBoxController(componentData, modelComponents);
         } else {

@@ -144,6 +144,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
             openingBracketClassName: 'return-types-opening-brack-text',
             closingBracketClassName: 'return-types-closing-brack-text',
             prefixTextClassName: 'return-types-prefix-text',
+            defaultText: "+ Add Returns"
         };
         let children = getComponentForNodeArray(model.getChildren());
         return (
