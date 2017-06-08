@@ -768,6 +768,9 @@ public class BallerinaPsiImplUtil {
             if (statementNode != null) {
                 PsiElement prevSibling = statementNode.getPrevSibling();
                 if (prevSibling == null) {
+                    if (variableDefinition.getTextOffset() < statementNode.getTextOffset()) {
+                        results.add(variableDefinition);
+                    }
                     return;
                 }
                 if (!prevSibling.getText().equals(variableDefinition.getParent().getText())) {
