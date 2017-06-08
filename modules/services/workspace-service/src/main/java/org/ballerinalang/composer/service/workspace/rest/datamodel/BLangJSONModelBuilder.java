@@ -1573,14 +1573,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(keyValueEprObj, keyValueExpr.getWhiteSpaceDescriptor());
         keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
                 .KEY_VALUE_EXPRESSION);
+
+        tempJsonArrayRef.push(new JsonArray());
         //adding key expression
-        tempJsonArrayRef.push(new JsonArray());
         keyValueExpr.getKeyExpr().accept(this);
-        JsonArray keyObject = tempJsonArrayRef.pop();
         //adding value expression
-        tempJsonArrayRef.push(new JsonArray());
         keyValueExpr.getValueExpr().accept(this);
-        tempJsonArrayRef.peek().add(keyObject);
         keyValueEprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(keyValueEprObj);

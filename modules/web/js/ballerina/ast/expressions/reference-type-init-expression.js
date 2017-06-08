@@ -56,7 +56,7 @@ class ReferenceTypeInitExpression extends Expression {
     getExpressionString() {
         var generatedExpression = '';
         this.children.forEach((child) => {
-            generatedExpression += child.getExpression() + ',';
+            generatedExpression += child.getExpressionString() + ',';
         });
         generatedExpression = '{' + this.getWSRegion(1) + (generatedExpression.substring(0, generatedExpression.length-1))
             + '}' + this.getWSRegion(2);
