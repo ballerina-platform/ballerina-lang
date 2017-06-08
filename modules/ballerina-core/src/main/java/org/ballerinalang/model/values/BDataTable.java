@@ -18,14 +18,11 @@
 package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
-import org.ballerinalang.bre.StructVarLocation;
+import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.DataTableOMDataSource;
-import org.ballerinalang.model.Identifier;
-import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeEnum;
@@ -45,14 +42,14 @@ public class BDataTable implements BRefType<Object> {
 
     private DataIterator iterator;
     private List<ColumnDefinition> columnDefs;
-    private StructDef resultStructDef;
     private int columnCount;
+    private BStruct bStruct;
 
     public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
         this.columnDefs = columnDefs;
-        this.resultStructDef = generateStructDef();
         this.columnCount = columnDefs.size();
+        generateStruct();
     }
 
     @Override
@@ -130,7 +127,9 @@ public class BDataTable implements BRefType<Object> {
             dataArray[index] = value;
             ++index;
         }
-        return new BStruct(this.resultStructDef, dataArray);
+        bStruct.setMemoryBlock(dataArray);
+        BLangVM.prepareStructureTypeFromNativeAction(bStruct);
+        return bStruct;
     }
 
     private BMap<BString, BValue> getDataArray(String columnName) {
@@ -158,11 +157,12 @@ public class BDataTable implements BRefType<Object> {
         return returnMap;
     }
 
-    private StructDef generateStructDef() {
-        StructDef.StructBuilder structBuilder = new StructDef.StructBuilder();
-        structBuilder.setIdentifier(new Identifier("RS"));
-        StructDef structDef = structBuilder.build();
-        int structMemAddrOffset = -1;
+    private void generateStruct() {
+        BStructType structType = new BStructType("RS", null);
+        BStruct bStruct = new BStruct(structType);
+
+        BType[] structTypes = new BType[columnDefs.size()];
+        int typeIndex  = 0;
         for (ColumnDefinition columnDef : columnDefs) {
             BType type;
             switch (columnDef.getSQLType()) {
@@ -204,13 +204,15 @@ public class BDataTable implements BRefType<Object> {
             default:
                 type = BTypes.typeNull;
             }
-            SymbolName columnSymbolName = new SymbolName(columnDef.getName());
-            VariableDef variableDef = new VariableDef(null, null, type, columnSymbolName);
-            variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
-            structDef.define(columnSymbolName, variableDef);
+            structTypes[typeIndex] = type;
+            ++typeIndex;
         }
-        return structDef;
+        int[] fieldCount = BLangVM.populateMaxSizes(structTypes);
+        bStruct.init(fieldCount);
+        bStruct.setFieldTypes(structTypes);
+        this.bStruct = bStruct;
     }
+
 
     public String getString(long index) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {

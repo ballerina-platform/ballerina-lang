@@ -1532,6 +1532,7 @@ public class CodeGenerator implements NodeVisitor {
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
 
         actionInfo.setNativeAction((AbstractNativeAction) action);
+        actionInfo.setParamTypes(getParamTypes(connectorDef.getInitFunction().getParameterDefs()));
         emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
     }
 

@@ -199,6 +199,8 @@ public interface InstructionCodes {
     int NULL2JSON = 163;
     int CHECKCAST = 164;
     int ANY2MSG = 165;
+    int DT2JSON = 166;
+    int DT2XML = 167;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;

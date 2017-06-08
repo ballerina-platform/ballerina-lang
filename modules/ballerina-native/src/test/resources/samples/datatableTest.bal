@@ -284,7 +284,7 @@ function getArrayByIndex()(map int_arr, map long_arr, map float_arr, map string_
     return;
 }
 
-function testDateTime(string time, string date, string timestamp) (int time1, int date1, int timestamp1) {
+function testDateTime(int time, int date, int timestamp) (int time1, int date1, int timestamp1) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
