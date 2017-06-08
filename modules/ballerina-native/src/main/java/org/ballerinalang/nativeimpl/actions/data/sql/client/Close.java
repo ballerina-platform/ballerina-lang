@@ -58,7 +58,7 @@ public class Close extends AbstractSQLAction {
 
     @Override
     public BValue execute(Context context) {
-        BConnector bConnector = (BConnector) getArgument(context, 0);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
         BMap sharedMap = (BMap) bConnector.getValue(1);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {

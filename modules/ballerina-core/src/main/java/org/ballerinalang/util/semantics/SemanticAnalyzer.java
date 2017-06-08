@@ -2185,6 +2185,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             valueExpr.accept(this);
 
+            if (structFieldType == BTypes.typeAny) {
+                AssignabilityResult result = performAssignabilityCheck(structFieldType, valueExpr);
+                if (result.implicitCastExpr != null) {
+                    valueExpr = result.implicitCastExpr;
+                    keyValueExpr.setValueExpr(valueExpr);
+                }
+            }
+
             if (!TypeMappingUtils.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
@@ -2918,7 +2926,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // When getting the action symbol name, Package name for the action is set to null, since the action is 
         // registered under connector, and connecter contains the package
         SymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
-                actionIExpr.getPackagePath(), actionIExpr.getConnectorName(), paramTypes);
+                actionIExpr.getPackagePath(), actionIExpr.getConnectorName());
 
         // Now check whether there is a matching action
         BLangSymbol actionSymbol = null;
@@ -3361,7 +3369,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         action.setParameterTypes(paramTypes);
         SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
-                connectorDef.getName(), paramTypes);
+                connectorDef.getName());
         action.setSymbolName(symbolName);
 
         BLangSymbol actionSymbol = currentScope.resolve(symbolName);
@@ -3372,7 +3380,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (action.isNative()) {
             SymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
-                    connectorDef.getName(), action.getPackagePath(), paramTypes);
+                    connectorDef.getName(), action.getPackagePath());
             BLangSymbol nativeAction = nativeScope.resolve(nativeActionSymName);
 
             if (nativeAction == null || !(nativeAction instanceof NativeUnitProxy)) {
@@ -3428,7 +3436,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         resource.setParameterTypes(paramTypes);
         SymbolName symbolName = LangModelUtils.getActionSymName(resource.getName(),
-                resource.getPackagePath(), service.getName(), paramTypes);
+                resource.getPackagePath(), service.getName());
         resource.setSymbolName(symbolName);
 
         if (currentScope.resolve(symbolName) != null) {

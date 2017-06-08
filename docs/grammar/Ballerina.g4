@@ -221,6 +221,7 @@ transformStatementBody
     :   expressionAssignmentStatement
     |   expressionVariableDefinitionStatement
     |   transformStatement
+    |   commentStatement
     ;
 
 expressionAssignmentStatement

@@ -356,8 +356,7 @@ public class ConstructProviderClassBuilder {
             // Add all the actions of this connector, ad generate the insertion string
             for (ActionHolder action : con.getActions()) {
                 BallerinaAction balAction = action.getBalAction();
-                String actionQualifiedName = Utils.getActionQualifiedName(balAction, balAction.connectorName()
-                        , balAction.packageName());
+                String actionQualifiedName = Utils.getActionQualifiedName(balAction, balAction.connectorName());
                 String actionPkgName = balAction.packageName();
                 String actionClassName = action.getClassName();
                 String actionAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, actionPkgName,
