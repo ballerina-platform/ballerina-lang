@@ -111,9 +111,9 @@ public abstract class Node {
                 }
             }
             return tryMatchingToDefaultVerb(requestDetails);
-        } catch(Throwable e) {
+        } catch(Exception e) {
             requestDetails.put(Constants.HTTP_STATUS_CODE, "404");
-            throw  new BallerinaException("Method :"+requestDetails.get(Constants.HTTP_METHOD));
+            throw new BallerinaException("Method :"+ requestDetails.get(Constants.HTTP_METHOD));
         }
     }
 

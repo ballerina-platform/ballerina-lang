@@ -39,14 +39,12 @@ public class ErrorHandlerUtils {
      * @return Error message
      */
     public static String getErrorMessage(Throwable throwable) {
-        String errorMsg;
+        String errorMsg = "";
         String errorPrefix = "error in ballerina program: ";
         if (throwable instanceof StackOverflowError) {
             errorMsg = "fatal " + errorPrefix + "stack overflow ";
         } else if (throwable.getMessage() != null) {
             errorMsg = makeFirstLetterLowerCase(throwable.getMessage());
-        } else {
-            errorMsg = "";
         }
         return errorMsg;
     }

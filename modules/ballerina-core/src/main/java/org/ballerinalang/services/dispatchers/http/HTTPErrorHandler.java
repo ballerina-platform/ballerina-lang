@@ -45,9 +45,8 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
         Object carbonStatusCode = carbonMessage.getProperty
                 (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE);
-        callback.done(createErrorMessage
-                (noEntityBodyCheck(e, carbonStatusCode), (carbonStatusCode == null) ? 500 :
-                        Integer.parseInt(carbonStatusCode.toString())));
+        callback.done(createErrorMessage(noEntityBodyCheck(e, carbonStatusCode),
+                (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString())));
     }
 
     @Override

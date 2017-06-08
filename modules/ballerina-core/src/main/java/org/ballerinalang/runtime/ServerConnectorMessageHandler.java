@@ -104,7 +104,7 @@ public class ServerConnectorMessageHandler {
         } catch (Throwable throwable) {
             handleErrorInboundPath(cMsg, callback, throwable);
         }
-        }
+    }
 
     /**
      * Resource invocation logic.
