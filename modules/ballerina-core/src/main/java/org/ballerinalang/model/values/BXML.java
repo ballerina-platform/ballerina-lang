@@ -148,4 +148,9 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
         BXML clonedMessage = new BXML(clonedContent);
         return clonedMessage;
     }
+    
+    @Override
+    public BValue copy() {
+        return new BXML(this.value().cloneOMElement());
+    }
 }

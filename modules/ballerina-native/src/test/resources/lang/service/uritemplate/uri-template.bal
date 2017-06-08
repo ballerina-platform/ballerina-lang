@@ -49,7 +49,7 @@ service Ecommerce {
     }
 
     @http:GET{}
-    @http:Path {value:"/products/{productId}?regID={regID}"}
+    @http:Path {value:"/products/{productId}"}
     resource productsInfo4 (message m, @http:PathParam {value:"productId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
         json responseJson;
         message response = {};
@@ -62,7 +62,7 @@ service Ecommerce {
     }
 
     @http:GET{}
-    @http:Path {value:"/products?productId={prodId}&regID={regID}"}
+    @http:Path {value:"/products"}
     resource productsInfo6 (message m, @http:QueryParam {value:"prodId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
         json responseJson;
         message response = {};
@@ -75,7 +75,7 @@ service Ecommerce {
     }
 
     @http:GET{}
-    @http:Path {value:"/products5/{productId}/reg?regID={regID}*"}
+    @http:Path {value:"/products5/{productId}/reg"}
     resource productsInfo5 (message m, @http:PathParam {value:"productId"} string prdID, @http:QueryParam {value:"regID"} string rID) {
         json responseJson;
         message response = {};

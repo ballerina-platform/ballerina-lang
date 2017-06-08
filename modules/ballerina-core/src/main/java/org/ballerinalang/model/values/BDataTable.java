@@ -189,4 +189,9 @@ public class BDataTable implements BRefType<Object> {
             return type;
         }
     }
+    
+    @Override
+    public BValue copy() {
+        return null;
+    }
 }

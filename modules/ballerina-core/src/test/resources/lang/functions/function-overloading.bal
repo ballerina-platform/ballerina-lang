@@ -1,19 +1,3 @@
-function testOverloading() {
-    string dummy = "dummy";
-}
-
-function testOverloading(string a) (string) {
-    return a;
-}
-
-function testOverloading(int a) (int) {
-    return a;
-}
-
-function testOverloading(float a) {
-    string dummy = "dummy";
-}
-
 function testOverloading(string a, int b) (string) {
     return a + b;
 }

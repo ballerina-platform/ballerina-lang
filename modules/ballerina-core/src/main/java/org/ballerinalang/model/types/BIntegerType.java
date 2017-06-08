@@ -46,4 +46,14 @@ class BIntegerType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BInteger(0);
     }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_INT);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.INT_TAG;
+    }
 }

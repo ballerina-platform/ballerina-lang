@@ -554,7 +554,7 @@ public class JSONUtils {
         return new BJSON(json);
     }
     
-    private static String getTypeName(JsonNode jsonValue) {
+    public static String getTypeName(JsonNode jsonValue) {
         JsonNodeType nodeType = jsonValue.getNodeType();
         switch(nodeType) {
             case NUMBER:

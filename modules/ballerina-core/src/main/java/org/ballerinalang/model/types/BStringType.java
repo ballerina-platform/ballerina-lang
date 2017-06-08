@@ -46,4 +46,14 @@ public class BStringType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BString("");
     }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_STRING);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.STRING_TAG;
+    }
 }

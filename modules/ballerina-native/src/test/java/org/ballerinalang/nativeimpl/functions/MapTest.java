@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,22 +38,22 @@ import java.util.List;
  */
 public class MapTest {
 
-    private static BMap<BString, BValue> dataSet;
-    private BLangProgram bLangProgram;
+    private static BMap<String, BValue> dataSet;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/mapTest.bal");
+        programFile = BTestUtils.getProgramFile("samples/mapTest.bal");
         dataSet = new BMap<>();
-        dataSet.put(new BString("country"), new BString("US"));
-        dataSet.put(new BString("currency"), new BString("Dollar"));
-        dataSet.put(new BString("states"), new BInteger(50));
+        dataSet.put("country", new BString("US"));
+        dataSet.put("currency", new BString("Dollar"));
+        dataSet.put("states", new BInteger(50));
     }
 
     @Test
     public void testLength() {
         BValue[] args = {dataSet};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testLength", args);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BInteger);
@@ -63,13 +63,14 @@ public class MapTest {
     @Test
     public void testGetKeys() {
         BValue[] args = {dataSet};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetKeys", args);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testGetKeys", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BArray);
+        Assert.assertTrue(returnVals[0] instanceof BStringArray);
+        BStringArray stringArray = (BStringArray) returnVals[0];
         List<String> keys = new ArrayList<>();
-        for (int i = 0; i < ((BArray) returnVals[0]).size(); i++) {
-            keys.add(((BArray) returnVals[0]).get(i).stringValue());
+        for (int i = 0; i < stringArray.size(); i++) {
+            keys.add(stringArray.get(i));
         }
         Assert.assertTrue(keys.contains("country"), "Element didn't match");
         Assert.assertTrue(keys.contains("currency"), "Element didn't match");
@@ -79,14 +80,14 @@ public class MapTest {
     @Test
     public void testRemove() {
         BValue[] args = {dataSet, new BString("country")};
-        BLangFunctions.invoke(bLangProgram, "testRemove", args);
+        BLangFunctions.invokeNew(programFile, "testRemove", args);
         Assert.assertTrue(dataSet.size() == 2);
         Assert.assertFalse(dataSet.keySet().contains("country"), "Element still exits");
     }
 
     @Test
     public void testDefinition() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testDefinition");
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testDefinition");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue(), "Test Failed. Reason: " +

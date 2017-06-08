@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.NativeUnitProxy;
@@ -28,6 +29,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * An {@code Action} is a operation (function) that can be executed against a connector.
@@ -64,6 +66,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private BlockStmt actionBody;
     private BallerinaConnectorDef connectorDef;
     private int stackFrameSize;
+    private Queue<Statement> workerInteractionStatements;
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -142,6 +145,10 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     public Worker[] getWorkers() {
         return workers;
+    }
+
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return workerInteractionStatements;
     }
 
     public ConnectorDcl[] getConnectorDcls() {
@@ -298,6 +305,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
                 worker.setParameterDefs(bAction.getParameterDefs());
             }
             bAction.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bAction.workerInteractionStatements = this.workerInteractionStatements;
             bAction.actionBody = this.body;
             bAction.isNative = this.isNative;
             return bAction;

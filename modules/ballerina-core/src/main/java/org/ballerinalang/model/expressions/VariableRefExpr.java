@@ -38,6 +38,7 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
     private String pkgPath;
     private SymbolName symbolName;
     private VariableDef variableDef;
+    private boolean isLHSExpr;
 
     public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName) {
         super(location, whiteSpaceDescriptor);
@@ -76,6 +77,16 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
 
     public SymbolName getSymbolName() {
         return symbolName;
+    }
+
+    @Override
+    public boolean isLHSExpr() {
+        return isLHSExpr;
+    }
+
+    @Override
+    public void setLHSExpr(boolean lhsExpr) {
+        this.isLHSExpr = lhsExpr;
     }
 
     public BType getType() {

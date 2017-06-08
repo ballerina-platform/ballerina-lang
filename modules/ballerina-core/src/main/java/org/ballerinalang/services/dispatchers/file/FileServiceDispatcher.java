@@ -24,6 +24,8 @@ import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -43,7 +45,10 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     Map<String, Service> servicesMap = new HashMap<>();
 
+    Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
+
     @Override
+    @Deprecated
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
         Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
         String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
@@ -88,6 +93,54 @@ public class FileServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceUnregistered(Service service) {
         String serviceName = service.getSymbolName().getName();
+        if (servicesMap.get(serviceName) != null) {
+            servicesMap.remove(serviceName);
+            try {
+                BallerinaConnectorManager.getInstance().getServerConnector(serviceName).stop();
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Could not stop file server connector for " +
+                        "service: " + serviceName, e);
+            }
+        }
+    }
+
+    @Override
+    public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
+        Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
+        String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
+        if (serviceName == null) {
+            throw new BallerinaException("Service name is not found with the file input stream.");
+        }
+        ServiceInfo service = serviceInfoMap.get(serviceName);
+        if (service == null) {
+            throw new BallerinaException("No file service is registered with the service name " + serviceName);
+        }
+        return service;
+    }
+
+    @Override
+    public void serviceRegistered(ServiceInfo service) {
+        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants.FILE_PACKAGE_NAME,
+                Constants.ANNOTATION_FILE_SOURCE);
+
+        if (annotationInfo != null) {
+            Map<String, String> elementsMap = null; // TODO : Fix Annotation attachment in code generation.
+            String serviceName = service.getName();
+            ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
+                    Constants.PROTOCOL_FILE, serviceName, elementsMap);
+            try {
+                fileServerConnector.start();
+                serviceInfoMap.put(serviceName, service);
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Could not start File Server Connector for service: " +
+                        serviceName, e);
+            }
+        }
+    }
+
+    @Override
+    public void serviceUnregistered(ServiceInfo service) {
+        String serviceName = service.getName();
         if (servicesMap.get(serviceName) != null) {
             servicesMap.remove(serviceName);
             try {

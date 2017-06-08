@@ -19,11 +19,13 @@ package org.ballerinalang.model.structs;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -38,23 +40,25 @@ import org.testng.annotations.Test;
 public class StructTest {
 
     private BLangProgram bLangProgram;
-    
+    private ProgramFile programFile;
+
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/structs/struct.bal");
+        programFile = BTestUtils.getProgramFile("lang/structs/struct.bal");
     }
     
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCreateStruct");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
 
         Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<BString, ?> adrsMap = ((BMap) returns[1]);
-        Assert.assertEquals(adrsMap.get(new BString("country")), new BString("USA"));
-        Assert.assertEquals(adrsMap.get(new BString("state")), new BString("CA"));
+        BMap<String, ?> adrsMap = ((BMap) returns[1]);
+        Assert.assertEquals(adrsMap.get("country"), new BString("USA"));
+        Assert.assertEquals(adrsMap.get("state"), new BString("CA"));
 
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 25);
@@ -62,7 +66,7 @@ public class StructTest {
 
     @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jane");
     }
@@ -77,7 +81,7 @@ public class StructTest {
     
     @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructOfStruct");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructOfStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "USA");
@@ -85,22 +89,22 @@ public class StructTest {
     
     @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnStructAttributes");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnStructAttributes");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
-    
+
     @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
-    
+
     @Test(description = "Test default value of a struct field")
     public void testDefaultValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDefaultVal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testDefaultVal");
         
         // Check default value of a field where the default value is set
         Assert.assertTrue(returns[0] instanceof BString);
@@ -113,10 +117,10 @@ public class StructTest {
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
     }
-    
+
     @Test(description = "Test default value of a nested struct field")
     public void testNestedFieldDefaultValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedFieldDefaultVal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testNestedFieldDefaultVal");
         
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "default first name");
@@ -127,21 +131,36 @@ public class StructTest {
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
     }
-    
+
     @Test(description = "Test default value of a nested struct field")
     public void testNestedStructInit() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedStructInit");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testNestedStructInit");
         
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct person = ((BStruct) returns[0]);
-        Assert.assertEquals(person.getValue(0).stringValue(), "aaa");
-        Assert.assertEquals(((BInteger) person.getValue(3)).intValue(), 25);
+        Assert.assertEquals(person.getStringField(0), "aaa");
+        Assert.assertEquals(person.getIntField(0), 25);
         
-        Assert.assertTrue(person.getValue(5) instanceof BStruct);
-        BStruct parent = ((BStruct) person.getValue(5));
-        Assert.assertEquals(parent.getValue(0).stringValue(), "bbb");
-        Assert.assertEquals(((BInteger) parent.getValue(3)).intValue(), 50);
+        Assert.assertTrue(person.getRefField(2) instanceof BStruct);
+        BStruct parent = ((BStruct) person.getRefField(2));
+        Assert.assertEquals(parent.getStringField(0), "bbb");
+        Assert.assertEquals(parent.getIntField(0), 50);
     }
+
+    @Test(description = "Test negative default values in struct")
+    public void testNegativeDefaultValue() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getStructNegativeValues");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[2].getClass(), BFloat.class);
+        Assert.assertSame(returns[3].getClass(), BFloat.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -9);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), -8);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), -88.234);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), -24.99);
+    }
+
     
     /*
      *  Negative tests
@@ -221,7 +240,7 @@ public class StructTest {
     @Test(description = "Test defining a struct constant",
             expectedExceptions = {ParserException.class},
             expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3:6: " +
-            "missing \\{'boolean', 'int', 'float', 'string'\\} before 'Person'")
+            "missing \\{'boolean', 'int', 'float', 'string', 'blob'\\} before 'Person'")
     public void testStructConstant() {
         BTestUtils.parseBalFile("lang/structs/constants");
     }

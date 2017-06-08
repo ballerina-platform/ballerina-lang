@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.8.0
  */
-public final class BInteger extends BValueType {
+public final class BInteger extends BValueType implements BRefType<Long> {
 
     private long value;
 
@@ -49,6 +49,11 @@ public final class BInteger extends BValueType {
     }
 
     @Override
+    public byte[] blobValue() {
+        return null;
+    }
+
+    @Override
     public String stringValue() {
         return Long.toString(value);
     }
@@ -61,5 +66,15 @@ public final class BInteger extends BValueType {
     @Override
     public boolean equals(Object obj) {
         return ((BInteger) obj).intValue() == value;
+    }
+
+    @Override
+    public Long value() {
+        return value;
+    }
+
+    @Override
+    public BValue copy() {
+        return new BInteger(value);
     }
 }
