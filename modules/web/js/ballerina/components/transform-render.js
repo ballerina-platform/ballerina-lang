@@ -532,7 +532,7 @@ class TransformRender
         var structName = $('<div>');
 
         structName.append(structIcon);
-        structName.append($('<span>').text(struct.name));
+        structName.append($('<span>').text(struct.name + " : " + struct.typeName));
         newStruct.append(structName);
         var subPlaceHolder;
 
@@ -555,11 +555,12 @@ class TransformRender
 
 
     addVariable(variable, type, reference) {
-        this.references.push({name: variable.id, refObj: reference});
-        var newVar = $('<div>').attr('id', variable.id).attr('type', type).addClass('variable');
+        var id = variable.name + this.viewIdSeperator + this.viewId;
+        var propId = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+        this.references.push({name: id, refObj: reference});
+        var newVar = $('<div>').attr('id', id).attr('type', type).addClass('variable');
         var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
-        var id = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
-        var   property = $('<a>').attr('id', id).addClass('variable-content');
+        var   property = $('<a>').attr('id', propId).addClass('variable-content');
         var propertyName = $('<span>').addClass('property-name').text(variable.name);
         var seperator = $('<span>').addClass('property-name').text(':');
         var propertyType = $('<span>').addClass('property-type').text(variable.type);
@@ -924,9 +925,9 @@ class TransformRender
         var xFunctionPointer = ($('.middle-content').width()-300)/2;
         var yFunctionPointer = 120;
         var xSourcePointer = 0;
-        var ySourcePointer = 50;
+        var ySourcePointer = 0;
         var xTargetPointer = 0;
-        var yTargetPointer = 50;
+        var yTargetPointer = 0;
         var functionGap = 30;
         var svgLines = $('#' + self.placeHolderName + '> svg');
 
