@@ -134,6 +134,9 @@ public class ConfigServiceImpl {
 
         JsonObject programNativeTypes = new JsonObject();
         programNativeTypes.addProperty("endpoint", apiPath + "/service/program/native/types");
+
+        JsonObject programPackages = new JsonObject();
+        programPackages.addProperty("endpoint", apiPath + "/service/program/packages");
         
         JsonObject services = new JsonObject();
         services.add("workspace", workspace);
@@ -146,6 +149,7 @@ public class ConfigServiceImpl {
         services.add("debugger", debugger);
         services.add("langserver", langserver);
         services.add("programNativeTypes", programNativeTypes);
+        services.add("programPackages", programPackages);
 
         JsonObject config = new JsonObject();
         config.add("services", services);

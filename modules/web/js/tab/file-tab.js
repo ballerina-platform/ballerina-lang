@@ -53,6 +53,7 @@ FileTab = Tab.extend({
         this.app = options.application;
         this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
         this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
+        this.programPackagesBackend = new Backend({"url" : this.app.config.services.programPackages.endpoint});
         this.deserializer = BallerinaASTDeserializer;
         this._file.setLangserverCallbacks({
             documentDidSaveNotification:  (options) => {
@@ -69,6 +70,25 @@ FileTab = Tab.extend({
         return this._file;
     },
 
+    /**
+     * callback function for handling response from the program package resolving backend
+     * @param fileTab - same filetab object(this)
+     * @param data - response recieved from backend
+     */
+    onResponseRecieved: function (fileTab, data) {
+        let packages = data.packages;
+        let programPackages = fileTab._programPackages;
+        _.forEach(packages, (packageNode) => {
+            var pckg = BallerinaEnvFactory.createPackage();
+            pckg.initFromJson(packageNode);
+            programPackages.push(pckg);
+        });
+
+        fileTab._fileEditor.getEnvironment().addPackages(programPackages); 
+        fileTab._fileEditor.reRender();
+        fileTab._fileEditor.rerenderCurrentPackageTool();
+    },
+
     render: function () {
         Tab.prototype.render.call(this);
         // if file already has content
@@ -83,6 +103,11 @@ FileTab = Tab.extend({
             var parseResponse = this.parseBackend.parse({name: this._file.getName(), path: this._file.getPath(), package: this._astRoot, content: this._file.getContent()});
             //if no errors display the design.
             this.renderBallerinaEditor(parseResponse);
+
+            let model = this._fileEditor.getModel();
+            let packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName();
+            var content = { 'fileName': this._file.getName(), 'filePath': this._file.getPath(), 'packageName': packageName, 'content': this._file.getContent() };  
+            var programPackagesResponse = this.programPackagesBackend.call({'method':'POST', 'content': content, 'async': true, 'callback': this.onResponseRecieved, 'callbackObj':this});
         } else if(!_.isNil(this._parseResponse)) {
             this.renderBallerinaEditor(this._parseResponse, false);
             var updatedContent = this.getBallerinaFileEditor().generateSource();
@@ -125,12 +150,6 @@ FileTab = Tab.extend({
         var astRoot;
         if(!_.isUndefined(parseResponse)){
             astRoot = this.deserializer.getASTModel(parseResponse);
-            var packages = parseResponse.packages;
-            _.each(packages, (packageNode) => {
-                var pckg = BallerinaEnvFactory.createPackage();
-                pckg.initFromJson(packageNode);
-                this._programPackages.push(pckg);
-            });
         } else{
             astRoot = root;
         }
@@ -143,7 +162,6 @@ FileTab = Tab.extend({
             viewOptions: ballerinaEditorOptions,
             backendEndpointsOptions: backendEndpointsOptions,
             debugger: DebugManager,
-            programPackages: self._programPackages
         });
 
         // change tab header class to match look and feel of source view
