@@ -144,3 +144,11 @@ service echo33 {
     }
 }
 
+service echo44 {
+    resource echo1 (message m, string foo) {
+        message response = {};
+        json responseJson = {"first":foo, "echo44": "echo1"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+}
