@@ -1611,15 +1611,19 @@ public class BLangVM {
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
+        // TODO : Remove after non blocking action usage
         BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
                 actionInfo.getParamTypes());
 
-        // TODO Remove
-        prepareStructureTypeForNativeAction(nativeArgValues);
-
+        // TODO : Remove once we handle this properly for return values
         BType[] retTypes = actionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(actionInfo, nativeArgValues, returnValues);
+
+        StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), 0, null, returnValues);
+        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+                    actionInfo.getParamTypes());
+
+
         controlStack.pushFrame(caleeSF);
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
@@ -1647,8 +1651,6 @@ public class BLangVM {
                 controlStack.popFrame();
                 handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
 
-                // TODO Remove
-                prepareStructureTypeFromNativeAction(nativeArgValues);
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));

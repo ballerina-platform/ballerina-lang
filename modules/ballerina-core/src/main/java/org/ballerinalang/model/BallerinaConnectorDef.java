@@ -60,7 +60,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private int sizeOfConnectorMem;
 
     private BallerinaFunction initFunction;
-    private Action initAction;
+    private BallerinaAction initAction;
 
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -104,11 +104,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         this.initFunction = initFunction;
     }
 
-    public Action getInitAction() {
+    public BallerinaAction getInitAction() {
         return initAction;
     }
 
-    public void setInitAction(Action initAction) {
+    public void setInitAction(BallerinaAction initAction) {
         this.initAction = initAction;
     }
 
