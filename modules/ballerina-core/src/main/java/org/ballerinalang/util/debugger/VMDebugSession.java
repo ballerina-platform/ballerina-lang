@@ -38,6 +38,8 @@ public class VMDebugSession implements DebugSessionObserver {
 
     private Channel channel = null;
 
+    private ArrayList<NodeLocation> breakPoints;
+
     //key - threadid
     private Map<String, Context> contextMap;
 
@@ -48,6 +50,11 @@ public class VMDebugSession implements DebugSessionObserver {
 
     public void addContext(String threadId, Context bContext) {
         this.contextMap.put(threadId, bContext);
+        if (null != breakPoints) {
+            for (NodeLocation point: breakPoints) {
+                bContext.getDebugInfoHolder().addDebugPoint(point);
+            }
+        }
     }
 
     public Context getContext(String threadId) {
@@ -59,9 +66,9 @@ public class VMDebugSession implements DebugSessionObserver {
      *
      * @param breakPoints the debug points
      */
-    public void setBreakPoints(String threadId, ArrayList<NodeLocation> breakPoints) {
-        Context bContext = this.contextMap.get(threadId);
-        if (null != breakPoints) {
+    public void addDebugPoints(ArrayList<NodeLocation> breakPoints) {
+        this.breakPoints = breakPoints;
+        for (Context bContext : this.contextMap.values()) {
             for (NodeLocation point : breakPoints) {
                 bContext.getDebugInfoHolder().addDebugPoint(point);
             }

@@ -134,6 +134,7 @@ public class BLangProgramRunner {
             VMDebugManager debugManager = VMDebugManager.getInstance();
             // This will start the websocket server.
             debugManager.serviceInit();
+            debugManager.setDebugEnagled(true);
         }
     }
 

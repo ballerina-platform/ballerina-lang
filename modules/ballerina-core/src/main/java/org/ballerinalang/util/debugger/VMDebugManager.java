@@ -157,7 +157,7 @@ public class VMDebugManager {
                 break;
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
-                holder.addDebugPoints(command.getBreakPoints());
+                debugSession.addDebugPoints(command.getBreakPoints());
                 sendAcknowledge(this.debugSession, "Debug points updated");
                 break;
             case DebugConstants.CMD_START:
@@ -214,7 +214,7 @@ public class VMDebugManager {
      * @param threadId of the running thread
      * @param bContext context to run
      */
-    public void setDebugger(String threadId, Context bContext) {
+    public void setDebuggerContext(String threadId, Context bContext) {
         // if we are handling multiple connections
         // we need to check and set to correct debugger session
         if (!isDebugSessionActive()) {
