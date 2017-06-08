@@ -1617,12 +1617,7 @@ public class BLangVM {
 
         // TODO : Remove once we handle this properly for return values
         BType[] retTypes = actionInfo.getRetParamTypes();
-        BValue[] returnValues = null;
-        if (retTypes.length == 0) {
-            returnValues = new BValue[0];
-        } else {
-            returnValues = new BValue[retTypes.length];
-        }
+        BValue[] returnValues = new BValue[retTypes.length];
 
         StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), 0, null, returnValues);
         copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
