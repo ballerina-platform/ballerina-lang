@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.actions;
 
 import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
