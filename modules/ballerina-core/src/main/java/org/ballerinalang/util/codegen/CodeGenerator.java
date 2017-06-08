@@ -186,6 +186,7 @@ public class CodeGenerator implements NodeVisitor {
     private PackageInfo currentPkgInfo;
 
     private ServiceInfo currentServiceInfo;
+    private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -690,6 +691,8 @@ public class CodeGenerator implements NodeVisitor {
                 emit(opcode, rhsExpr.getTempOffset(), lvIndex);
             }
 
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
+            currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
         } else {
             // TODO
         }
@@ -2325,17 +2328,19 @@ public class CodeGenerator implements NodeVisitor {
         return annotationAttribValue;
     }
 
-    private void visitCallableUnitParameterDefs(ParameterDef[] parameterDefs, CallableUnitInfo callableUnitInfo) {
+    private void visitCallableUnitParameterDefs(ParameterDef[] parameterDefs, CallableUnitInfo callableUnitInfo,
+                                                LocalVariableAttributeInfo localVarAttributeInfo) {
         boolean paramAnnotationFound = false;
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
                 parameterDefs.length);
-        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(parameterDefs.length);
+
         for (int i = 0; i < parameterDefs.length; i++) {
             ParameterDef parameterDef = parameterDefs[i];
             int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
             parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
             parameterDef.accept(this);
-            LocalVariableInfo localVariableDetails = getLocalVariableAttributeInfo(parameterDef);
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(parameterDef);
+            localVarAttributeInfo.addLocalVarInfo(localVarInfo);
 
             AnnotationAttachment[] paramAnnotationAttachments = parameterDef.getAnnotations();
             if (paramAnnotationAttachments.length == 0) {
@@ -2347,22 +2352,25 @@ public class CodeGenerator implements NodeVisitor {
             for (AnnotationAttachment annotationAttachment : paramAnnotationAttachments) {
                 AnnotationAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
                 paramAttachmentInfo.addAnnotationAttachmentInfo(attachmentInfo);
-                localVariableDetails.addAttachmentIndex(attachmentInfo.nameCPIndex);
+                localVarInfo.addAttachmentIndex(attachmentInfo.nameCPIndex);
             }
 
             paramAttributeInfo.addParamAnnotationAttachmentInfo(i, paramAttachmentInfo);
-            localVariableAttributeInfo.addLocaleVaraibleDetails(localVariableDetails);
         }
 
-        callableUnitInfo.addAttributeInfo(AttributeInfo.LOCALVARIABLES_ATTRIBUTE, localVariableAttributeInfo);
+        callableUnitInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
         if (paramAnnotationFound) {
             callableUnitInfo.addAttributeInfo(AttributeInfo.PARAMETER_ANNOTATIONS_ATTRIBUTE, paramAttributeInfo);
         }
     }
 
     private void visitCallableUnit(CallableUnit callableUnit, CallableUnitInfo callableUnitInfo, Worker[] workers) {
-        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
-        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
+        UTF8CPEntry codeAttribUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
+        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeAttribUTF8CPEntry);
+
+        UTF8CPEntry localVarAttribUTF8CPEntry = new UTF8CPEntry(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+        int localVarAttribNameIndex = currentPkgInfo.addCPEntry(localVarAttribUTF8CPEntry);
+        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
 
         // Read annotations attached to this callableUnit
         AnnotationAttachment[] annotationAttachments = callableUnit.getAnnotations();
@@ -2372,7 +2380,7 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         // Add local variable indexes to the parameters and return parameters
-        visitCallableUnitParameterDefs(callableUnit.getParameterDefs(), callableUnitInfo);
+        visitCallableUnitParameterDefs(callableUnit.getParameterDefs(), callableUnitInfo, localVarAttributeInfo);
 
         // Visit return parameter defs
         for (ParameterDef parameterDef : callableUnit.getReturnParameters()) {
@@ -2395,6 +2403,10 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             defaultWorker.getCodeAttributeInfo().setCodeAddrs(nextIP());
 
+            currentlLocalVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+            currentlLocalVarAttribInfo.setLocalVariables(new ArrayList<>(localVarAttributeInfo.getLocalVariables()));
+            defaultWorker.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, currentlLocalVarAttribInfo);
+
             // Visit the callableUnit body
             callableUnit.getCallableUnitBody().accept(this);
 
@@ -2407,6 +2419,11 @@ public class CodeGenerator implements NodeVisitor {
                 workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
                 workerInfo.getCodeAttributeInfo().setCodeAddrs(nextIP());
 
+                currentlLocalVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+                currentlLocalVarAttribInfo.setLocalVariables(
+                        new ArrayList<>(localVarAttributeInfo.getLocalVariables()));
+                workerInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, currentlLocalVarAttribInfo);
+
                 lvIndexes = lvIndexesCopy.clone();
                 worker.getCallableUnitBody().accept(this);
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
@@ -2415,8 +2432,12 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             WorkerInfo defaultWorker = callableUnitInfo.getDefaultWorkerInfo();
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
+            defaultWorker.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
+
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
         }
+
+        currentlLocalVarAttribInfo = null;
     }
 
     private void addLineNumberInfo(NodeLocation nodeLocation) {
@@ -2428,10 +2449,13 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.addLineNumberInfo(lineNumberInfo);
     }
 
-    private LocalVariableInfo getLocalVariableAttributeInfo(ParameterDef parameterDef) {
-        UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(parameterDef.getName());
-        int annotationNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
-        return new LocalVariableInfo(annotationNameCPIndex);
+    private LocalVariableInfo getLocalVarAttributeInfo(VariableDef variableDef) {
+        UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(variableDef.getName());
+        int varNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
+        
+        // TODO Support other variable memory locations
+        int stackFrameOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
+        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, stackFrameOffset, variableDef.getType());
     }
 
     /**
