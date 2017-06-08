@@ -10,6 +10,9 @@ native function pushText (string text);
 @doc:Param { value:"text: Text which should be sent" }
 native function broadcastText (string text);
 
+@doc:Description { value:"Close the current client connection"}
+native function closeConnection ();
+
 @doc:Description { value:"Store the connection globally for the use of other services."}
 @doc:Param { value:"connectionName: Name of the connection" }
 native function storeConnection (string connectionName);
