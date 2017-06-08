@@ -654,7 +654,7 @@ class SizingUtil {
 
             viewState.components['heading'].w += viewState.components.openingParameter.w
                 + viewState.components.closingParameter.w
-                + this.getParameterTypeWidth(node) + 100;
+                + this.getParameterTypeWidth(node) + 120;
         }
 
         //// Creating components for attachment points of the annotation
@@ -669,7 +669,7 @@ class SizingUtil {
 
             viewState.components['heading'].w = viewState.components.openingParameter.w
                 + viewState.components.closingParameter.w
-                + this.annotationAttachmentPointWidth(node) + 100;
+                + this.annotationAttachmentPointWidth(node) + 140;
         }
 
         //// Creating components for return types
@@ -689,7 +689,7 @@ class SizingUtil {
             viewState.components['heading'].w += viewState.components.returnTypesIcon.w
                 + viewState.components.openingReturnType.w
                 + viewState.components.closingReturnType.w
-                + this.getReturnTypeWidth(node) + 100;
+                + this.getReturnTypeWidth(node) + 120;
         }
 
         viewState.components['heading'].w += viewState.titleWidth + 100;
