@@ -38,7 +38,7 @@ class NullLiteralExpression extends Expression {
         // nothing to do
     }
 
-    generateExpression() {
+    getExpressionString() {
         // directly return null sine this is a null expression.
         // todo need to add white space.
         return "null";

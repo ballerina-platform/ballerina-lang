@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Constructor for ConnectorInitExpression
@@ -63,28 +64,29 @@ class ConnectorInitExpression extends Expression {
         return this._arguments;
     }
 
-    accept(visitor) {
-        super.accept(visitor);
-        this.getArgs().forEach((arg) => {
-            visitor.visit(arg);
-            if (visitor.canVisit(arg)) {
-                arg.accept(visitor);
-            }
-        });
-        let connectorName = this.getConnectorName();
-        if (!_.isNil(connectorName)) {
-            visitor.visit(connectorName);
-            if (visitor.canVisit(connectorName)) {
-                connectorName.accept(visitor);
-            }
-        }
-    }
+    // accept(visitor) {
+    //     super.accept(visitor);
+    //     this.getArgs().forEach((arg) => {
+    //         visitor.visit(arg);
+    //         if (visitor.canVisit(arg)) {
+    //             arg.accept(visitor);
+    //         }
+    //     });
+    //     let connectorName = this.getConnectorName();
+    //     if (!_.isNil(connectorName)) {
+    //         visitor.visit(connectorName);
+    //         if (visitor.canVisit(connectorName)) {
+    //             connectorName.accept(visitor);
+    //         }
+    //     }
+    // }
 
     /**
      * initialize ConnectorInitExpression from json object
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         let self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
@@ -106,10 +108,38 @@ class ConnectorInitExpression extends Expression {
         this.setArgs(argExprs, {doSilently: true});
     }
 
-    generateExpression() {
+    setExpressionFromString(expressionString, callback) {
+        const fragment = FragmentUtils.createExpressionFragment(expressionString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'connector_init_expr')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'ConnectorInit Expression Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
+    }
+
+    getExpressionString() {
         let expr = 'create' + this.getWSRegion(1)
-          + this.getConnectorName().toString()
-          + this.getWSRegion(2) + '(';
+            + this.getConnectorName().toString()
+            + this.getWSRegion(2) + '(';
         this.getArgs().forEach((arg, index) => {
             expr += (index !== 0 && arg.whiteSpace.useDefault) ? ' ' : '';
             expr += arg.generateExpression();

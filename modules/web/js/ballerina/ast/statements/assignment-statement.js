@@ -65,23 +65,33 @@ class AssignmentStatement extends Statement {
      * Set the statement from the statement string
      * @param {string} statementString
      */
-    setStatementFromString(statementString) {
+    setStatementFromString(statementString, callback) {
         if (!_.isNil(statementString)) {
             let fragment = FragmentUtils.createStatementFragment(statementString + ';');
             let parsedJson = FragmentUtils.parseFragment(fragment);
-            if (_.isNil(parsedJson.type) || parsedJson.type !== 'assignment_statement') {
-                log.warn('Invalid node type returned. Expected Assignment Statement and found ' + parsedJson.type);
-            }
-            this.initFromJson(parsedJson);
 
-            // Manually firing the tree-modified event here.
-            // TODO: need a proper fix to avoid breaking the undo-redo
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'custom',
-                title: 'Assignment Statement Custom Tree modified',
-                context: this,
-            });
+            if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+                && _.isEqual(parsedJson.type, 'assignment_statement')) {
+
+                this.initFromJson(parsedJson);
+
+                // Manually firing the tree-modified event here.
+                // TODO: need a proper fix to avoid breaking the undo-redo
+                this.trigger('tree-modified', {
+                    origin: this,
+                    type: 'custom',
+                    title: 'Assignment Statement Custom Tree modified',
+                    context: this,
+                });
+
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
         }
     }
 

@@ -234,23 +234,36 @@ class ActionInvocationExpression extends Expression {
     /**
      * Set the expression model from the given expression string
      * @param {string} expression
+     * @param {function} callback
      * @override
      */
-    setExpressionFromString(expression) {
+    setExpressionFromString(expression, callback) {
         if(!_.isNil(expression)) {
             const fragment = FragmentUtils.createExpressionFragment(expression);
             const parsedJson = FragmentUtils.parseFragment(fragment);
 
-            this.initFromJson(parsedJson);
+            if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+                && _.isEqual(parsedJson.type, 'action_invocation_statement')) {
 
-            // Manually firing the tree-modified event here.
-            // TODO: need a proper fix to avoid breaking the undo-redo
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'custom',
-                title: 'Action Invocation Expression Custom Tree modified',
-                context: this,
-            });
+                this.initFromJson(parsedJson);
+
+                // Manually firing the tree-modified event here.
+                // TODO: need a proper fix to avoid breaking the undo-redo
+                this.trigger('tree-modified', {
+                    origin: this,
+                    type: 'custom',
+                    title: 'Action Invocation Expression Custom Tree modified',
+                    context: this,
+                });
+
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
         }
     }
 

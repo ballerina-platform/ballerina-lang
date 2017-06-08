@@ -30,7 +30,7 @@ class FunctionInvocationStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox( node.children[0].getFunctionalExpression() , node.getViewState());
+        util.populateSimpleStatementBBox( node.children[0].getExpressionString() , node.getViewState());
     }
 }
 

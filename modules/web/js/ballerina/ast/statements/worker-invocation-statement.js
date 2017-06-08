@@ -88,22 +88,35 @@ class WorkerInvocationStatement extends Statement {
     /**
      * Set the statement string
      * @param {string} statementString
+     * @param {function} callback
      * @override
      */
-    setStatementFromString(statementString) {
+    setStatementFromString(statementString, callback) {
         const fragment = FragmentUtils.createStatementFragment(statementString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
-        this.initFromJson(parsedJson);
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'worker_invocation_statement')) {
 
-        // Manually firing the tree-modified event here.
-        // TODO: need a proper fix to avoid breaking the undo-redo
-        this.trigger('tree-modified', {
-            origin: this,
-            type: 'custom',
-            title: 'Worker Invocation Custom Tree modified',
-            context: this,
-        });
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Worker Invoke Statement Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 
     canBeAChildOf(node) {

@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Constructor for VariableReferenceExpression
@@ -38,28 +39,63 @@ class ReferenceTypeInitExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
-        var generateExpression = '';
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
-            generateExpression +=child.getExpression() + ",";
         });
-        this.setExpression('{' + this.getWSRegion(1)
-            + (generateExpression.substring(0, generateExpression.length-1))
-            + '}' + this.getWSRegion(2),{doSilently: true});
     }
 
-    generateExpression() {
-        var generateExpression = '';
+    /**
+     * Get the expression String
+     * @returns {string}
+     * @override
+     */
+    getExpressionString() {
+        var generatedExpression = '';
         this.children.forEach((child) => {
-            generateExpression += child.getExpression() + ',';
-        })
-        this.setExpression('{' + this.getWSRegion(1)
-            + (generateExpression.substring(0, generateExpression.length-1))
-            + '}' + this.getWSRegion(2),{doSilently: true});
-        return this.getExpression();
+            generatedExpression += child.getExpression() + ',';
+        });
+        generatedExpression = '{' + this.getWSRegion(1) + (generatedExpression.substring(0, generatedExpression.length-1))
+            + '}' + this.getWSRegion(2);
+
+        return generatedExpression;
+    }
+
+    /**
+     * Set the expression from the string
+     * @param {string} expressionString
+     * @param {function} callback
+     * @override
+     */
+    setExpressionFromString(expressionString, callback) {
+        const fragment = FragmentUtils.createExpressionFragment(expressionString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'reference_type_init_expression')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Reference Type Init Expression Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 }
 
