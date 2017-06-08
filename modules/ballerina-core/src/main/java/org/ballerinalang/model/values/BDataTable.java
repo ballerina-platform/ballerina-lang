@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -207,10 +208,37 @@ public class BDataTable implements BRefType<Object> {
             structTypes[typeIndex] = type;
             ++typeIndex;
         }
-        int[] fieldCount = BLangVM.populateMaxSizes(structTypes);
+        int[] fieldCount = populateMaxSizes(structTypes);
         bStruct.init(fieldCount);
         bStruct.setFieldTypes(structTypes);
         this.bStruct = bStruct;
+    }
+
+    private static int[] populateMaxSizes(BType[] paramTypes) {
+        int[] maxSizes = new int[6];
+        for (int i = 0; i < paramTypes.length; i++) {
+            BType paramType = paramTypes[i];
+            switch (paramType.getTag()) {
+            case TypeTags.INT_TAG:
+                ++maxSizes[0];
+                break;
+            case TypeTags.FLOAT_TAG:
+                ++maxSizes[1];
+                break;
+            case TypeTags.STRING_TAG:
+                ++maxSizes[2];
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                ++maxSizes[3];
+                break;
+            case TypeTags.BLOB_TAG:
+                ++maxSizes[4];
+                break;
+            default:
+                ++maxSizes[5];
+            }
+        }
+        return maxSizes;
     }
 
 

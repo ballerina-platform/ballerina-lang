@@ -66,8 +66,8 @@ public class Init extends AbstractSQLAction {
         try {
             lock.lock();
             BConnector bConnector = (BConnector) getRefArgument(context, 0);
-            BMap optionMap = (BMap) bConnector.getValue(0);
-            BMap sharedMap = (BMap) bConnector.getValue(1);
+            BMap optionMap = (BMap) bConnector.getRefField(0);
+            BMap sharedMap = (BMap) bConnector.getRefField(1);
             if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
                 SQLDatasource datasource = new SQLDatasource();
                 datasource.init(optionMap);
