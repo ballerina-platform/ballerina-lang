@@ -36,7 +36,8 @@ public enum TypeEnum {
     DATATABLE("datatable"),
     STRUCT("struct"),
     EMPTY(""),
-    ANY("any");
+    ANY("any"),
+    BLOB("blob");
 
     private String name;
 
