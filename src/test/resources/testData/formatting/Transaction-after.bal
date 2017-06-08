@@ -13,6 +13,8 @@ function test () {
         }
     } aborted {
         system.println("The transaction is aborted");
+    } committed {
+        system.println("The transaction is committed");
     }
     sql:ClientConnector.close(testDB);
 }

@@ -123,6 +123,15 @@
         </context>
     </template>
 
+    <template description='Committed Statement' id='ballerina_lang_committed' name='ballerina_lang_committed'
+              toReformat='false' toShortenFQNames='true' value='committed {&#10;    $END$&#10;}'>
+        <context>
+            <option name="BALLERINA_RESOURCE" value="true"/>
+            <option name="BALLERINA_FUNCTION" value="true"/>
+            <option name="BALLERINA_ACTION" value="true"/>
+        </context>
+    </template>
+
     <template description='Try Statement' id='ballerina_lang_try' name='ballerina_lang_try'
               toReformat='false' toShortenFQNames='true' value='try {&#10;    $END$&#10;}'>
         <context>

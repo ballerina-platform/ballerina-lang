@@ -385,11 +385,19 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#triggerWorker}.
+	 * Visit a parse tree produced by the {@code invokeWorker}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx);
+	T visitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code invokeFork}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInvokeFork(BallerinaParser.InvokeForkContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#workerReply}.
 	 * @param ctx the parse tree

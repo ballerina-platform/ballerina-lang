@@ -117,6 +117,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(LT, TYPE_NAME).spaceIf(false)
                 .around(TYPE_NAME).spaceIf(false)
                 .around(ABORTED).spaceIf(true)
+                .around(COMMITTED).spaceIf(true)
                 .between(RBRACE, ABORTED).spaceIf(true)
                 .after(TRANSACTION).spaceIf(true)
                 .between(MESSAGE, IDENTIFIER).spaceIf(true)

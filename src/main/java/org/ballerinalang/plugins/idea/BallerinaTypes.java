@@ -109,6 +109,7 @@ public class BallerinaTypes {
     public static TokenIElementType ATTACH = tokenIElementTypes.get(BallerinaLexer.ATTACH);
     public static TokenIElementType BREAK = tokenIElementTypes.get(BallerinaLexer.BREAK);
     public static TokenIElementType CATCH = tokenIElementTypes.get(BallerinaLexer.CATCH);
+    public static TokenIElementType COMMITTED = tokenIElementTypes.get(BallerinaLexer.COMMITTED);
     public static TokenIElementType CONNECTOR = tokenIElementTypes.get(BallerinaLexer.CONNECTOR);
     public static TokenIElementType CONST = tokenIElementTypes.get(BallerinaLexer.CONST);
     public static TokenIElementType CREATE = tokenIElementTypes.get(BallerinaLexer.CREATE);

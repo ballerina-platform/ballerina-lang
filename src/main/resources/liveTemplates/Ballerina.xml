@@ -118,7 +118,7 @@
         </context>
     </template>
 
-    <template name="tran" value="transaction {&#10;    $END$&#10;} aborted {&#10;    &#10;}"
+    <template name="tran" value="transaction {&#10;    $END$&#10;} aborted {&#10;    &#10;} committed {&#10;    &#10;}"
               description="Transaction Template" toReformat="false" toShortenFQNames="false">
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>

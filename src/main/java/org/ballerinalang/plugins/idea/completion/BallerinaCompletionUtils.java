@@ -126,6 +126,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRANSACTION;
     private static final LookupElementBuilder ABORT;
     private static final LookupElementBuilder ABORTED;
+    private static final LookupElementBuilder COMMITTED;
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
@@ -185,6 +186,7 @@ public class BallerinaCompletionUtils {
         TRANSACTION = createKeywordLookupElement("transaction");
         ABORT = createKeywordLookupElement("abort");
         ABORTED = createKeywordLookupElement("aborted");
+        COMMITTED = createKeywordLookupElement("committed");
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
@@ -376,6 +378,7 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, TRANSACTION);
         addKeywordAsLookup(resultSet, ABORT);
         addKeywordAsLookup(resultSet, ABORTED);
+        addKeywordAsLookup(resultSet, COMMITTED);
         addKeywordAsLookup(resultSet, TRY);
         addKeywordAsLookup(resultSet, CATCH);
         addKeywordAsLookup(resultSet, FINALLY);
