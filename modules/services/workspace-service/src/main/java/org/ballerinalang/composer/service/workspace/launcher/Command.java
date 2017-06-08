@@ -16,15 +16,20 @@
 
 package org.ballerinalang.composer.service.workspace.launcher;
 
+import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
+import org.ballerinalang.model.BallerinaFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Command class represent the launcher commands.
  */
 public class Command {
-    
+
     private String fileName;
     private String filePath;
     private boolean debug = false;
@@ -33,7 +38,10 @@ public class Command {
     private int port;
     private Process program;
     private boolean errorOutputEnabled = true;
-    
+    private String packageDir = null;
+    private String packagePath = null;
+    private static final Logger logger = LoggerFactory.getLogger(Command.class);
+
     public Command(LauncherConstants.ProgramType type, String fileName, String filePath, boolean debug) {
         this.fileName = fileName;
         this.filePath = filePath;
@@ -90,63 +98,95 @@ public class Command {
     public void setPort(int port) {
         this.port = port;
     }
-    
+
     public String getCommandArgs() {
         return commandArgs;
     }
-    
+
     public void setCommandArgs(String commandArgs) {
         this.commandArgs = commandArgs;
     }
-    
+
     @Override
-    public String toString() {
-        String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "", commandArgs = "";
+    public String toString(){
+        String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "",
+                commandArgs = "";
         int port = -1;
-        
-        // path to bi directory
+
+        // path to bin directory
         ballerinaBin = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator;
-        
+
         if (LaunchUtils.isWindows()) {
             ballerinaCommand = "ballerina.bat run ";
         } else {
             ballerinaCommand = "ballerina run ";
         }
-        
+
         if (type == LauncherConstants.ProgramType.RUN) {
             programType = "main ";
         } else {
             programType = "service ";
         }
-        
+
         scriptLocation = getScript();
-        
+
         if (debug) {
-            debugSwitch = "  --ballerina.debug " + this.port;
+            debugSwitch = " --ballerina.debug " + this.port;
         }
 
         if (this.commandArgs != null) {
             commandArgs = " " + this.commandArgs;
         }
-        return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
+
+        try {
+            BallerinaFile bFile = Utils.getBFile(scriptLocation);
+            String packageName = bFile.getPackagePath();
+            if (!".".equals(packageName)) {
+                packagePath = bFile.getPackagePath().replace(".", File.separator);
+                packageDir = Utils.getProgramDirectory(bFile, scriptLocation).toString();
+            }
+        } catch (IOException e) {
+            logger.warn("could not find package name");
+        }
+
+        if (packagePath == null) {
+            return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
+        } else {
+            return ballerinaBin + ballerinaCommand + programType + " " + packagePath + debugSwitch
+                    + commandArgs;
+        }
+
     }
-    
+
+    public String getPackageDir() {
+        return this.packageDir;
+    }
+
+    public String getCommandIdentifier() {
+        String ballerinaCommand, programType;
+        if(this.packagePath == null) {
+            return this.getScript();
+        } else {
+            return this.packagePath;
+        }
+    }
+
     public String getScript() {
         return this.filePath + File.separator + fileName;
     }
-    
+
     public void setProgram(Process program) {
         this.program = program;
     }
-    
+
     public Process getProgram() {
         return program;
     }
-    
+
     public boolean isErrorOutputEnabled() {
         return errorOutputEnabled;
     }
-    
+
     public void setErrorOutputEnabled(boolean errorOutputEnabled) {
         this.errorOutputEnabled = errorOutputEnabled;
     }
