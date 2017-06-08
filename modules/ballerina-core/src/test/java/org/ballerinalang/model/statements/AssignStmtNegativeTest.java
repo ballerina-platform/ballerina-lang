@@ -78,11 +78,4 @@ public class AssignStmtNegativeTest {
     public void testAssignTypeMismatch2() {
         BTestUtils.getProgramFile("lang/statements/assignment/assign-types-mismatch-2.bal");
     }
-
-    @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "backtick-assign-mismatch-1.bal:6: incompatible types: " +
-                    "expected xml")
-    public void testTemplateJSONAssignTypeMismatch() {
-        BTestUtils.getProgramFile("lang/statements/assignment/backtick-assign-mismatch-1.bal");
-    }
 }

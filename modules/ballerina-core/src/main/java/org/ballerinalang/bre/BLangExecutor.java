@@ -82,6 +82,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.util.BValueUtils;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
@@ -93,7 +94,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -881,10 +881,10 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue visit(BinaryExpression binaryExpr) {
         Expression rExpr = binaryExpr.getRExpr();
-        BValueType rValue = (BValueType) rExpr.execute(this);
+        BValue rValue = rExpr.execute(this);
 
         Expression lExpr = binaryExpr.getLExpr();
-        BValueType lValue = (BValueType) lExpr.execute(this);
+        BValue lValue = lExpr.execute(this);
 
         return binaryExpr.getEvalFunc().apply(lValue, rValue);
     }
@@ -1058,7 +1058,7 @@ public class BLangExecutor implements NodeExecutor {
             return new BJSON(evaluatedString);
 
         } else {
-            return new BXML(evaluatedString);
+            return XMLUtils.parse(evaluatedString);
         }
     }
 

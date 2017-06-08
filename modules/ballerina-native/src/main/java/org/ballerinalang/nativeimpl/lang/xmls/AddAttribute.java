@@ -25,6 +25,7 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -83,6 +84,8 @@ public class AddAttribute extends AbstractNativeFunction {
                 return VOID_RETURN;
             }
             
+            xml = XMLUtils.getSingletonValue(xml);
+            
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             Object result = axiomxPath.evaluate(xml.value());
@@ -109,9 +112,9 @@ public class AddAttribute extends AbstractNativeFunction {
         } catch (XPathSyntaxException e) {
             ErrorHandler.handleInvalidXPath(OPERATION, e);
         } catch (JaxenException e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         } catch (Throwable e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         }
         
         return VOID_RETURN;

@@ -215,9 +215,9 @@ function testAnyArrayToJson() (json) {
     return (json) a;
 }
 
-function testAnyXmlToJson() (json) {
-    xml x = `<name>Supun<name>`;
-    any a = x;
+function testAnyMessageToJson() (json) {
+    message m = {};
+    any a = m;
     return (json) a;
 }
 
