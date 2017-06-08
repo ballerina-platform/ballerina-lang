@@ -103,7 +103,7 @@ public class Post extends AbstractHTTPAction {
         // Extract Argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String path = getStringArgument(context, 0);
-        BMessage bMessage = (BMessage) getArgument(context, 1);
+        BMessage bMessage = (BMessage) getRefArgument(context, 1);
 
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();
