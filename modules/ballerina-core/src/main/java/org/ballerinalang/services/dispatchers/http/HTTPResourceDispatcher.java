@@ -64,6 +64,10 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
+            } else if (requestDetails.get(Constants.HTTP_STATUS_CODE) != null &&
+                    requestDetails.get(Constants.HTTP_STATUS_CODE).equals("405")) {
+                cMsg.setProperty
+                        (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 405);
             }
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage());

@@ -204,6 +204,7 @@ public abstract class Node {
                 }
             }
         }
+        requestDetails.put(Constants.HTTP_STATUS_CODE,"405");
         return null;
     }
 }
