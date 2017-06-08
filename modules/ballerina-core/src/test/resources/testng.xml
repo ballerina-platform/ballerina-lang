@@ -51,6 +51,7 @@ under the License.
         </packages>
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.model.expressions.ArrayLengthAccessExprTest"/>
         </classes>
     </test>
 

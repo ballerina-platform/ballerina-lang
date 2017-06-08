@@ -53,6 +53,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -1004,6 +1005,12 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         rExp.setNextSibling(endNode);
         rExp.accept(this);
         endNode.setNext(findNext(endNode));
+    }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+        calculateTempOffSet(arrayLengthExpression);
+        arrayLengthExpression.setNext(findNext(arrayLengthExpression));
     }
 
     @Override

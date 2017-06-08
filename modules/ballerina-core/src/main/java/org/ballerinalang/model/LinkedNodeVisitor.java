@@ -19,6 +19,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -163,6 +164,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(TypeCastExpression typeCastExpression);
 
     void visit(UnaryExpression unaryExpression);
+
+    void visit(ArrayLengthExpression arrayLengthExpression);
 
     void visit(VariableRefExpr variableRefExpr);
 

@@ -47,6 +47,7 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -648,6 +649,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing UnaryExpression {}", getNodeLocation(unaryExpression.getNodeLocation()));
         }
         next = unaryExpression.next;
+    }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing ArrayLengthExpression {}",
+                    getNodeLocation(arrayLengthExpression.getNodeLocation()));
+        }
+        next = arrayLengthExpression.next;
     }
 
     @Override
@@ -1253,7 +1263,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         FieldAccessExpr structFieldAccessExpr = structFieldAccessExprEndNode.getExpression();
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = getTempValue(varRef);
-        setTempValue(structFieldAccessExpr.getTempOffset(), getFieldExprValue(structFieldAccessExpr, value));
+        if (value instanceof BArray) {
+            FieldAccessExpr childFieldExpr = structFieldAccessExpr.getFieldExpr();
+            if (childFieldExpr != null && childFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+                setTempValue(structFieldAccessExpr.getTempOffset(), new BInteger(((BArray) value).size()));
+            }
+        } else {
+            setTempValue(structFieldAccessExpr.getTempOffset(), getFieldExprValue(structFieldAccessExpr, value));
+        }
     }
 
     @Override
@@ -1936,6 +1953,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         BValue value = currentStructVal.getValue(fieldLocation);
+        if (value instanceof BArray && nestedFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+            return new BInteger(((BArray) value).size());
+        }
 
         // Recursively travel through the struct and get the value
         return getFieldExprValue(fieldExpr, value);
@@ -2019,6 +2039,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             FieldAccessExpr fieldAccessExpr = ((FieldAccessExpr) expression);
             Expression varRef = fieldAccessExpr.getVarRef();
             BValue value = getTempValue(varRef);
+            if (value instanceof BArray) {
+                FieldAccessExpr childFieldExpr = fieldAccessExpr.getFieldExpr();
+                if (childFieldExpr != null && childFieldExpr.getVarRef() instanceof ArrayLengthExpression) {
+                    return getTempValue(fieldAccessExpr.getTempOffset());
+                }
+            }
             return getFieldExprValue(fieldAccessExpr, value);
         } else {
             MemoryLocation memoryLocation = ((VariableRefExpr) expression).getVariableDef().getMemoryLocation();
