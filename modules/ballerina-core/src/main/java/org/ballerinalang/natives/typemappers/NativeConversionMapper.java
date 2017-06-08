@@ -411,7 +411,7 @@ public class NativeConversionMapper {
 
 
     /**
-     * Function to cast a given datatable to a JSON array.
+     * Function to cast a given datatable to a JSON.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> DATATABLE_TO_JSON_FUNC =
             (rVal, targetType, returnErrors) -> {
@@ -427,6 +427,9 @@ public class NativeConversionMapper {
                 }
             };
 
+    /**
+     * Function to cast a given datatable to a XML.
+     */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> DATATABLE_TO_XML_FUNC =
             (rVal, targetType, returnErrors) -> {
                 if (rVal == null) {
