@@ -71,7 +71,15 @@ class Backend {
      * @param content payload
      * @param queryParams query parameters in [{name: "foo", value: "bar"}, ...]
      */
-    call(uri, method, content, queryParams) {
+    call(opts) {
+        let uri = _.get(opts, 'uri', '');
+        let method = _.get(opts, 'method', 'GET');
+        let content = _.get(opts, 'content', undefined);
+        let queryParams = _.get(opts, 'queryParams', undefined);
+        let async = _.get(opts, 'async', false);
+        let handleResponse = _.get(opts, 'callback');
+        let callbackObj = _.get(opts, 'callbackObj');
+
         var response = {};
         var queryParamsStr = '';
         if (queryParams) {
@@ -94,7 +102,7 @@ class Backend {
             url: this._url + uri + queryParamsStr,
             data: JSON.stringify(content),
             contentType: 'application/json; charset=utf-8',
-            async: false,
+            async: async,
             dataType: 'json',
             success: function (data) {
                 if(data.errorMessage){
@@ -102,6 +110,7 @@ class Backend {
                 } else {
                     response = data;
                 }
+                handleResponse.call(this, callbackObj, response);
             },
             error: function () {
                 response = {'error': true, 'message': 'Unable to render design view due to parser errors.'};
