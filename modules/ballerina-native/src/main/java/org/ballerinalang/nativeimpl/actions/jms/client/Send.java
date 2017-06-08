@@ -18,6 +18,7 @@ package org.ballerinalang.nativeimpl.actions.jms.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
@@ -42,8 +43,8 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -88,13 +89,21 @@ public class Send extends AbstractJMSAction {
 
         validateParams(bConnector);
 
+        // set return value to the current frame
+        BValue valueRef = new BBoolean(true);
+        context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
+
         //Getting the map of properties.
-        BMap<BString, BString> properties = (BMap<BString, BString>) bConnector.getValue(0);
+        BMap<String, BString> properties = (BMap<String, BString>) bConnector.getValue(0);
 
         //Create property map to send to transport.
-        Map<String, String> propertyMap = properties.keySet()
-                .stream()
-                .collect(Collectors.toMap(BString::stringValue, k -> properties.get(k).stringValue()));
+//        Map<String, String> propertyMap = properties.keySet()
+//                .stream()
+//                .collect(Collectors.toMap(BString::stringValue, k -> properties.get(k).stringValue()));
+        Map<String, String> propertyMap = new HashMap<>();
+        for (String key:properties.keySet()) {
+            propertyMap.put(key, properties.get(key).stringValue());
+        }
 
         //Creating message content according to the message type.
         String messageType = getArgument(context, 2).stringValue();

@@ -19,6 +19,7 @@ package org.ballerinalang.model.structs;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -145,6 +146,21 @@ public class StructTest {
         Assert.assertEquals(parent.getStringField(0), "bbb");
         Assert.assertEquals(parent.getIntField(0), 50);
     }
+
+    @Test(description = "Test negative default values in struct")
+    public void testNegativeDefaultValue() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getStructNegativeValues");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertSame(returns[2].getClass(), BFloat.class);
+        Assert.assertSame(returns[3].getClass(), BFloat.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -9);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), -8);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), -88.234);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), -24.99);
+    }
+
     
     /*
      *  Negative tests
@@ -224,7 +240,7 @@ public class StructTest {
     @Test(description = "Test defining a struct constant",
             expectedExceptions = {ParserException.class},
             expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3:6: " +
-            "missing \\{'boolean', 'int', 'float', 'string'\\} before 'Person'")
+            "missing \\{'boolean', 'int', 'float', 'string', 'blob'\\} before 'Person'")
     public void testStructConstant() {
         BTestUtils.parseBalFile("lang/structs/constants");
     }

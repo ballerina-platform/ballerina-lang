@@ -253,3 +253,18 @@ function testUpdateNestedElement() (json) {
     j.details.lname = "Setunga";
     return j;
 }
+
+function testEmptyStringToJson() (json) {
+    string s = "";
+    return <json> s;
+}
+
+function testJsonStringToJson() (json) {
+    string s = "{\"name\", \"supun\"}";
+    return <json> s;
+}
+
+function testStringWithEscapedCharsToJson() (json) {
+    string s = "{\\\"name\\\", \"supun\"}";
+    return <json> s;
+}
