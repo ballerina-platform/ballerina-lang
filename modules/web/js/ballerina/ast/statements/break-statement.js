@@ -45,7 +45,12 @@ class BreakStatement extends Statement {
 
     }
 
-    getStatement() {
+    /**
+     * Get the statement string
+     * @returns {string}
+     * @override
+     */
+    getStatementString() {
         return 'break';
     }
 }

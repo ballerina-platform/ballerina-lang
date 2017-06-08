@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
 
 class TransactionAbortedStatement extends Statement {
     constructor(args) {
@@ -35,6 +36,40 @@ class TransactionAbortedStatement extends Statement {
             self.addChild(child);
             child.initFromJson(childNode);
         });
+    }
+
+    /**
+     * Set the statement from string
+     * @param {string} statementString
+     * @param {function} callback
+     * @override
+     */
+    setStatementFromString(statementString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(statementString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'transaction_aborted_statement')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'TransactionAborted Statement Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 }
 

@@ -40,27 +40,15 @@ class CommentStatement extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        this.setCommentString(jsonNode.comment_string, {doSilently: true});
-    }
-
-    /**
-     * sets comment string
-     * @param {string} commentString - comment string
-     * @param {Object} options - other options
-     */
-    setCommentString(commentString, options) {
-        if (!_.isNil(commentString)) {
-            this.setAttribute('_commentString', commentString, options);
-        } else {
-            log.error("Cannot set undefined to the commentString.");
-        }
+        this._commentString = jsonNode.comment_string;
     }
 
     /**
      * returns comment string
-     * @returns {*}
+     * @returns {string} statement string
+     * @override
      */
-    getCommentString() {
+    getStatementString() {
         return this._commentString;
     }
 }

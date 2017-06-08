@@ -69,8 +69,8 @@ class RightOperandExpression extends Expression {
         if (!_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childJsonNode) => {
                 let child = this.getFactory().createFromJson(childJsonNode);
-                child.initFromJson(childJsonNode);
                 this.addChild(child, undefined, true, true);
+                child.initFromJson(childJsonNode);
             });
         }
     }

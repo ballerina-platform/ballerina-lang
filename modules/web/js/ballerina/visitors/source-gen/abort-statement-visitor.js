@@ -38,7 +38,7 @@ class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
      * @param {AbortStatement} abortStatement
      * */
     beginVisitAbortStatement(abortStatement) {
-        this.appendSource(abortStatement.getStatement());
+        this.appendSource(abortStatement.getStatementString());
         log.debug('Begin Visit Abort Statement');
     }
 
