@@ -120,7 +120,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
-import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -136,7 +136,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -665,21 +665,23 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
-        TransactionRollbackStmtEndNode endNode = new TransactionRollbackStmtEndNode(transactionRollbackStmt);
-        Statement transactionBlock = transactionRollbackStmt.getTransactionBlock();
-        Statement rollbackBlock = transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt();
+    public void visit(TransactionStmt transactionStmt) {
+        TransactionStmtEndNode endNode = new TransactionStmtEndNode(transactionStmt);
+        Statement transactionBlock = transactionStmt.getTransactionBlock();
+        Statement abortedBlock = transactionStmt.getAbortedBlock().getAbortedBlockStmt();
+        Statement committedBlock = transactionStmt.getCommittedBlock().getCommittedBlockStmt();
         // Visit Transaction block.
-        transactionBlock.setParent(transactionRollbackStmt);
-        transactionRollbackStmt.setNext(transactionBlock);
+        transactionBlock.setParent(transactionStmt);
+        transactionStmt.setNext(transactionBlock);
         transactionBlock.setNextSibling(endNode);
-        abortTransactionStack.push(transactionRollbackStmt);
+        abortTransactionStack.push(transactionStmt);
         transactionBlock.accept(this);
         abortTransactionStack.pop();
-        endNode.setNext(findNext(transactionRollbackStmt));
-        // Visit Rollback Block.
-        rollbackBlock.setParent(transactionRollbackStmt);
-        rollbackBlock.accept(this);
+        endNode.setNext(findNext(transactionStmt));
+        // Visit Aborted Block.
+        abortedBlock.setParent(transactionStmt);
+        abortedBlock.accept(this);
+        committedBlock.accept(this);
     }
 
     @Override

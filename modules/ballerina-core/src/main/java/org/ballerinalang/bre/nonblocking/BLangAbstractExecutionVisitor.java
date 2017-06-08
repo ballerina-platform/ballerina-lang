@@ -102,7 +102,7 @@ import org.ballerinalang.model.nodes.fragments.statements.ForkJoinStartNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.ThrowStmtEndNode;
-import org.ballerinalang.model.nodes.fragments.statements.TransactionRollbackStmtEndNode;
+import org.ballerinalang.model.nodes.fragments.statements.TransactionStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.ballerinalang.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.ballerinalang.model.statements.AbortStmt;
@@ -118,7 +118,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -421,12 +421,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing TransactionRollbackStmt {}",
-                    getNodeLocation(transactionRollbackStmt.getNodeLocation()));
+            logger.debug("Executing TransactionStmt {}", getNodeLocation(transactionStmt.getNodeLocation()));
         }
-        next = transactionRollbackStmt.next;
+        next = transactionStmt.next;
     }
 
     @Override
@@ -1462,11 +1461,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
-    public void visit(TransactionRollbackStmtEndNode transactionRollbackStmtEndNode) {
+    public void visit(TransactionStmtEndNode transactionStmtEndNode) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing TransactionRollbackStmt - EndNode");
+            logger.debug("Executing TransactionStmt - EndNode");
         }
-        next = transactionRollbackStmtEndNode.next;
+        next = transactionStmtEndNode.next;
     }
 
     @Override
