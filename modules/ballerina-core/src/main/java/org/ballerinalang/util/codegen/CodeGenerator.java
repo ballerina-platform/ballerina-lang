@@ -195,7 +195,7 @@ public class CodeGenerator implements NodeVisitor {
 
     private Stack<List<Instruction>> breakInstructions = new Stack<>();
     private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
-    private Stack<List<Instruction>> abortInstructions = new Stack<>();
+    private Stack<Instruction> abortInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -1028,45 +1028,46 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TransactionStmt transactionStmt) {
-        Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
-        int iAbortedBlockIP = -1;
-        abortInstructions.push(new ArrayList<>());
+        Instruction gotoEndOfTransactionBlock = new Instruction(InstructionCodes.GOTO, -1);
+        Instruction gotoStartOfAbortedBlock = new Instruction(InstructionCodes.GOTO, -1);
+        abortInstructions.push(gotoStartOfAbortedBlock);
         //start transaction
+        int startIP = nextIP();
         emit(new Instruction(InstructionCodes.TRBGN));
         //process transaction statements
         transactionStmt.getTransactionBlock().accept(this);
         //end the transaction
+        int endIP = nextIP();
         emit(new Instruction(InstructionCodes.TREND, 0));
         //process committed block
         if (transactionStmt.getCommittedBlock() != null) {
             transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
-            emit(gotoEndOfTryCatchBlock);
         }
+        if (transactionStmt.getAbortedBlock() != null) {
+            emit(gotoEndOfTransactionBlock);
+        }
+        // if there is no abort block, this will become next instruction after transaction block.
+        gotoStartOfAbortedBlock.setOperand(0, nextIP());
+        abortInstructions.pop();
         //process aborted block
         if (transactionStmt.getAbortedBlock() != null) {
-            iAbortedBlockIP = nextIP();
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
-        }
-        //set end of transaction
-        emit(gotoEndOfTryCatchBlock);
-        int endofTransIP = nextIP();
-        gotoEndOfTryCatchBlock.setOperand(0, endofTransIP);
-        //set location of aborted block
-        if (iAbortedBlockIP == -1) {
-            iAbortedBlockIP = endofTransIP;
-        }
-        List<Instruction> abrtInstructions = abortInstructions.pop();
-        for (Instruction instruction : abrtInstructions) {
-            instruction.setOperand(0, iAbortedBlockIP);
+            emit(gotoEndOfTransactionBlock);
+            // CodeGen for error handling.
+            int errorTargetIP = nextIP();
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+            emit(new Instruction(InstructionCodes.THROW, -1));
+            gotoEndOfTransactionBlock.setOperand(0, nextIP());
+            ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+            currentPkgInfo.addErrorTableEntry(errorTableEntry);
+            errorTableEntry.setPackageInfo(currentPkgInfo);
         }
     }
 
     @Override
     public void visit(AbortStmt abortStmt) {
         emit(new Instruction(InstructionCodes.TREND, -1));
-        Instruction gotoAbortedInstruction = new Instruction(InstructionCodes.GOTO, 0);
-        emit(gotoAbortedInstruction);
-        abortInstructions.peek().add(gotoAbortedInstruction);
+        emit(abortInstructions.peek());
     }
 
 
