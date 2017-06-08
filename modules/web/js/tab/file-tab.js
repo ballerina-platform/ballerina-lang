@@ -86,6 +86,7 @@ FileTab = Tab.extend({
 
         fileTab._fileEditor.getEnvironment().addPackages(programPackages); 
         fileTab._fileEditor.reRender();
+        fileTab._fileEditor.rerenderCurrentPackageTool();
     },
 
     render: function () {
