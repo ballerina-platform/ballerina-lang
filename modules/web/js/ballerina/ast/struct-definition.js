@@ -95,8 +95,8 @@ class StructDefinition extends ASTNode {
         } else {
             // Creating new variable definition.
             var newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            newVariableDefinitionStatement.setLeftExpression(bType + ' ' + identifier);
-            newVariableDefinitionStatement.setRightExpression(defaultValue);
+            let stmtString = bType + ' ' + identifier + ' = ' + defaultValue;
+            newVariableDefinitionStatement.setStatementFromString(stmtString);
 
             // Get the index of the last definition.
             var index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
@@ -125,8 +125,8 @@ class StructDefinition extends ASTNode {
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
             child.initFromJson(childNode);
+            self.addChild(child);
         });
     }
 

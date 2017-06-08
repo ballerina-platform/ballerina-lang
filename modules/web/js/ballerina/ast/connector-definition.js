@@ -213,11 +213,11 @@ class ConnectorDefinition extends ASTNode {
         } else {
             // Creating new constant definition.
             let newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            newVariableDefinitionStatement.setLeftExpression(bType + " " + identifier);
+            let stmtString = bType + ' ' + identifier;
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
-                newVariableDefinitionStatement.setRightExpression(assignedValue);
+                stmtString +=  ' = ' + assignedValue;
             }
-
+            newVariableDefinitionStatement.setStatementFromString(stmtString);
             let self = this;
 
             // Get the index of the last variable definition statement.
@@ -296,8 +296,8 @@ class ConnectorDefinition extends ASTNode {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
             }
-            self.addChild(child);
             child.initFromJson(childNodeTemp);
+            self.addChild(child);
         });
     }
 

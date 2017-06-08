@@ -55,6 +55,21 @@ class VariableReferenceExpression extends Expression {
     }
 
     /**
+     * Getter for Variable type
+     * @returns var type
+     */
+    getVariableType() {
+        return this.children[0].getTypeName();
+    }
+
+    /**
+     * setter for Variable type
+     */
+    setVariableType(typeName) {
+        return this.children[0].setTypeName(typeName);
+    }
+
+    /**
      * Get the package name
      * @returns {string} package name
      */
@@ -122,6 +137,7 @@ class VariableReferenceExpression extends Expression {
                 + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
                 + this.getVariableName() + this.getWSRegion(3);
     }
+    
 }
 
 export default VariableReferenceExpression;

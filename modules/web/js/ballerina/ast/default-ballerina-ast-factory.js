@@ -116,8 +116,7 @@ DefaultBallerinaASTFactory.createConnectorAction = function (args) {
  */
 DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
     let variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
-    variableDefinitionStatement.setLeftExpression('int i');
-    variableDefinitionStatement.setRightExpression('0');
+    variableDefinitionStatement.setStatementFromString('int i = 0')
     return variableDefinitionStatement;
 };
 
