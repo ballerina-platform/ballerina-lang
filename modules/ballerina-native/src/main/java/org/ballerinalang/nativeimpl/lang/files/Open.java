@@ -84,12 +84,8 @@ public class Open extends AbstractNativeFunction {
 
     private void createDirs(File destinationFile) {
         File parent = destinationFile.getParentFile();
-        if (parent != null) {
-            if (!parent.exists()) {
-                if (!parent.mkdirs()) {
-                    throw new BallerinaException("Error in writing file");
-                }
-            }
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+            throw new BallerinaException("Error in writing file");
         }
     }
 }

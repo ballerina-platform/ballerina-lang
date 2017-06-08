@@ -27,6 +27,8 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
@@ -56,7 +58,9 @@ import java.io.OutputStream;
         value = "The location where the File should be pasted") })
 public class Copy extends AbstractNativeFunction {
 
-    @Override public BValue[] execute(Context context) {
+    private static final Logger logger = LoggerFactory.getLogger(Copy.class);
+    @Override
+    public BValue[] execute(Context context) {
 
         BStruct source = (BStruct) getArgument(context, 0);
         BStruct destination = (BStruct) getArgument(context, 1);
@@ -65,12 +69,8 @@ public class Copy extends AbstractNativeFunction {
             File destinationFile = new File(destination.getValue(0).stringValue());
 
             File parent = destinationFile.getParentFile();
-            if (parent != null) {
-                if (!parent.exists()) {
-                    if (!parent.mkdirs()) {
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
                         throw new BallerinaException("Error in writing file");
-                    }
-                }
             }
             if (!copy(file, destinationFile)) {
                 throw new BallerinaException("Error while copying file");
@@ -87,10 +87,8 @@ public class Copy extends AbstractNativeFunction {
 
             if (src.isDirectory()) {
 
-                if (!dest.exists()) {
-                    if (!dest.mkdir()) {
-                        return false;
-                    }
+                if (!dest.exists() && !dest.mkdir()) {
+                    return false;
                 }
 
                 String files[] = src.list();
@@ -138,8 +136,8 @@ public class Copy extends AbstractNativeFunction {
             if (resource != null) {
                 resource.close();
             }
-        } catch (Exception e) {
-            throw new BallerinaException("Exception during Resource.close()", e);
+        } catch (IOException e) {
+            logger.error("Exception during Resource.close()", e);
         }
     }
 }

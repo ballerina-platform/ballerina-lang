@@ -26,8 +26,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -48,6 +49,7 @@ import java.io.OutputStream;
  */
 public class FileTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(FileTest.class);
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -299,8 +301,8 @@ public class FileTest {
             if (resource != null) {
                 resource.close();
             }
-        } catch (Exception e) {
-            throw new BallerinaException("Exception during Resource.close()", e);
+        } catch (IOException e) {
+            logger.error("Exception during Resource.close()", e);
         }
     }
 

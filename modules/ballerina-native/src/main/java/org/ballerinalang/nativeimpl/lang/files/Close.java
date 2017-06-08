@@ -26,10 +26,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
@@ -48,23 +50,30 @@ import java.io.IOException;
         value = "The File struct") })
 public class Close extends AbstractNativeFunction {
 
+    private static final Logger logger = LoggerFactory.getLogger(Close.class);
     @Override
     public BValue[] execute(Context context) {
 
         BStruct struct = (BStruct) getArgument(context, 0);
         BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
         BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
-        try {
-            if (is != null) {
-                is.close();
-            }
-            if (os != null) {
-                os.close();
-            }
 
-        } catch (IOException e) {
-            throw new BallerinaException("Exception occurred when closing inputstream");
+        if (is != null) {
+            closeQuietly(is);
+        }
+        if (os != null) {
+            closeQuietly(os);
         }
         return VOID_RETURN;
+    }
+
+    private void closeQuietly(Closeable resource) {
+        try {
+            if (resource != null) {
+                resource.close();
+            }
+        } catch (IOException e) {
+            logger.error("Exception during Resource.close()", e);
+        }
     }
 }
