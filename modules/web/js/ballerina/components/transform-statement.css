@@ -199,20 +199,6 @@ svg.plumbConnect path {
     z-index: 30;
 }
 
-/*.rightType {*/
-    /*border: 1px solid gray;*/
-    /*width: 300px;*/
-    /*height: calc(100% - 150px);*/
-    /*margin-top: 60px;*/
-    /*margin-right: 20px;*/
-    /*background: #ffffff;*/
-    /*color: #3d3d3d;*/
-    /*position: relative;*/
-    /*float: right;*/
-    /*overflow-y: scroll;*/
-    /*overflow-x:scroll;*/
-/*}*/
-
 .type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
     top:10px;
     left:10px;
