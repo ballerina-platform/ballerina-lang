@@ -48,12 +48,11 @@ var toolView = Backbone.View.extend({
                 let nodeBeingDragged = toolView.toolPalette.dragDropManager.getNodeBeingDragged();
                 if(indexForNewNode >= 0){
                     toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(nodeBeingDragged, indexForNewNode);
+                            .addChild(nodeBeingDragged, indexForNewNode, false, false, true);
                 } else {
                     toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(nodeBeingDragged);
+                            .addChild(nodeBeingDragged, undefined, false, false, true);
                 }
-                nodeBeingDragged.generateUniqueIdentifiers();
             }
             toolView.toolPalette.dragDropManager.reset();
             toolView._$disabledIcon = undefined;

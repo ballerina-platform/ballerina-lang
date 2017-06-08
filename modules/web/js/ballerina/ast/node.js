@@ -106,10 +106,11 @@ class ASTNode extends EventChannel {
      * @param index
      * @param ignoreTreeModifiedEvent {boolean}
      * @param ignoreChildAddedEvent {boolean}
+     * @param generateId {boolean}
      * @fires  ASTNode#child-added
      * @fires  ASTNode#tree-modified
      */
-    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false, generateId = false) {
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
@@ -120,6 +121,9 @@ class ASTNode extends EventChannel {
         child.setParent(this, {
             doSilently: true
         });
+        if (generateId) {
+            child.generateUniqueIdentifiers();
+        }
 
         if (!ignoreChildAddedEvent) {
             /**
