@@ -446,7 +446,13 @@ class TransformStatementDecorator extends React.Component {
             con[type + 'Property'] = complexProp.names.reverse();
         } else if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
             con[type + 'Function'] = true;
-            con[type + 'Struct'] = expression.getPackageName() + '-' + expression.getFunctionName();
+            if (_.isNull(expression.getPackageName())) {
+                //for current package, where package name is null
+                let packageName  = expression.getFullPackageName().replace(' ','');
+                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
+            } else {
+                con[type + 'Struct'] = expression.getPackageName() + '-' + expression.getFunctionName();
+            }
             con[type + 'Id'] = expression.getID();
         } else if (BallerinaASTFactory.isVariableReferenceExpression(expression)) {
             con[type + 'Struct'] = expression.getVariableName();

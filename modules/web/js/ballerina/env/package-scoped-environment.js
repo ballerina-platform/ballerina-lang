@@ -54,10 +54,14 @@ class PackageScopedEnvironment {
         return this._packages;
     }
 
-    getPackageByName(packageName){
-        return _.find(this._packages, function (pckg) {
-            return pckg.getName() === packageName;
-        });
+    getPackageByName(packageName) {
+        if (_.isEqual(packageName, 'Current Package')) {
+            return this._currentPackage;
+        } else {
+            return _.find(this._packages, function (pckg) {
+                return pckg.getName() === packageName;
+            });
+        }
     }
 
     searchPackage(query, exclude) {
