@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -1273,7 +1274,10 @@ public class BLangVMDebugger extends BLangVM implements Runnable {
                         message = (BMessage) sf.refRegs[i];
                     }
                     context.setError(null);
-                    context.getBalCallback().done(message != null ? message.value() : null);
+                    if (context.getBalCallback() != null &&
+                            ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
+                        context.getBalCallback().done(message != null ? message.value() : null);
+                    }
                     ip = -1;
                     break;
                 case InstructionCodes.IRET:
