@@ -20,6 +20,7 @@ package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -176,6 +177,10 @@ public class ServerConnectorMessageHandler {
         calleeSF.setStringLocalVars(stringLocalVars);
         calleeSF.setIntLocalVars(intLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
+
+        // Execute workers
+        int[] retRegs = {0};
+        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, calleeSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         bLangVM.run(context);

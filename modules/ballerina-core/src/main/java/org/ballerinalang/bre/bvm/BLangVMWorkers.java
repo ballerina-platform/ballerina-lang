@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -74,7 +75,7 @@ public class BLangVMWorkers {
 
     }
 
-    static class WorkerExecutor implements Callable<BRefValueArray> {
+    static class WorkerExecutor implements Callable<WorkerResult> {
 
         private static final Logger log = LoggerFactory.getLogger(org.ballerinalang.bre.WorkerExecutor.class);
 //        private static PrintStream outStream = System.err;
@@ -89,9 +90,14 @@ public class BLangVMWorkers {
             this.workerInfo = workerInfo;
         }
 
+
+        public WorkerInfo getWorkerInfo() {
+            return workerInfo;
+        }
+
         @Override
-        public BRefValueArray call() throws BallerinaException {
-            BRefValueArray bRefValueArray = new BRefValueArray(BTypes.typeAny);
+        public WorkerResult call() throws BallerinaException {
+            BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
             try {
                 bLangVM.execWorker(bContext,
                         workerInfo.getCodeAttributeInfo().getCodeAddrs(), workerInfo.getWorkerEndIP());
@@ -118,7 +124,7 @@ public class BLangVMWorkers {
                         }
                     }
                 }
-                return bRefValueArray;
+
 //                worker.getCallableUnitBody().execute(executor);
             } catch (RuntimeException throwable) {
                 String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
@@ -128,7 +134,7 @@ public class BLangVMWorkers {
                 log.error(errorWithTrace);
                 //outStream.println(errorWithTrace);
             }
-            return bRefValueArray;
+            return new WorkerResult(workerInfo.getWorkerName(), bRefValueArray);
         }
     }
 }

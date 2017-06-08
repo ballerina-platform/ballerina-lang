@@ -154,7 +154,7 @@ public class BLangVM {
         this.controlStack = context.getControlStackNew();
         this.context.setVMBasedExecutor(true);
         this.ip = context.getStartIP();
-
+        currentCallableUnitInfo = currentFrame.getCallableUnitInfo();
 //        traceCode(null);
 
         if (context.getError() != null) {
@@ -1464,7 +1464,9 @@ public class BLangVM {
     public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
         ForkJoinStmt forkJoinStmt = forkJoinCPEntry.getForkJoinStmt();
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
-        List<BRefValueArray> resultMsgs = new ArrayList<>();
+        List<WorkerResult> resultMsgs = new ArrayList<>();
+        //Map<String, BRefValueArray> resultInvokeAll = new HashMap<>();
+        //BRefValueArray resultInvokeAny = null;
         long timeout = 60; // Default timeout value is 60 seconds
         if (forkJoinCPEntry.isTimeoutAvailable()) {
             timeout = controlStack.getCurrentFrame().getLongRegs()[0];
@@ -1499,15 +1501,15 @@ public class BLangVM {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                BRefValueArray res = invokeAnyWorker(workerRunnerList, timeout);
-                resultMsgs.add(res);
+                resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
+                //resultMsgs.add(res);
             } else {
                 List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                BRefValueArray res = invokeAnyWorker(workerRunnersSpecified, timeout);
-                resultMsgs.add(res);
+                resultMsgs.add(invokeAnyWorker(workerRunnersSpecified, timeout));
+                //resultMsgs.add(res);
             }
         } else {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
@@ -1529,12 +1531,12 @@ public class BLangVM {
 
             int offsetTimeout = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
                     getStackFrameOffset();
-            BRefValueArray bbArray = new BRefValueArray();
-            for (int i = 0; i < resultMsgs.size(); i++) {
-                BRefValueArray bArray = resultMsgs.get(i);
-                bbArray.add(i, bArray);
+            BMap<String, BRefValueArray> mbMap = new BMap<>();
+            for (WorkerResult workerResult : resultMsgs) {
+                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = bbArray;
+            controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
+
             //controlStack.setValue(offsetTimeout, bbArray);
             //forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
             isForkJoinTimedOut = false;
@@ -1544,12 +1546,11 @@ public class BLangVM {
             // Assign values to join block message arrays
             int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
                     getStackFrameOffset();
-            BRefValueArray bbArray = new BRefValueArray();
-            for (int i = 0; i < resultMsgs.size(); i++) {
-                BRefValueArray bArray = resultMsgs.get(i);
-                bbArray.add(i, bArray);
+            BMap<String, BRefValueArray> mbMap = new BMap<>();
+            for (WorkerResult workerResult : resultMsgs) {
+                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
-            controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = bbArray;
+            controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
             //controlStack.setValue(offsetJoin, bbArray);
             //forkJoinStmt.getJoin().getJoinBlock().execute(this);
         }
@@ -1575,9 +1576,9 @@ public class BLangVM {
 //        }
     }
 
-    private BRefValueArray invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
+    private WorkerResult invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
-        BRefValueArray result;
+        WorkerResult result;
         try {
             result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException e) {
@@ -1589,9 +1590,10 @@ public class BLangVM {
         return result;
     }
 
-    private List<BRefValueArray> invokeAllWorkers(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
+    private List<WorkerResult> invokeAllWorkers(List<BLangVMWorkers.WorkerExecutor> workerRunnerList,
+                                                         long timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
-        List<BRefValueArray> result = new ArrayList<>();
+        List<WorkerResult> result = new ArrayList<>();
         try {
             allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
                 try {
@@ -1604,7 +1606,7 @@ public class BLangVM {
                     return null;
                 }
 
-            }).forEach((BRefValueArray b) -> {
+            }).forEach((WorkerResult b) -> {
                 result.add(b);
             });
         } catch (InterruptedException e) {

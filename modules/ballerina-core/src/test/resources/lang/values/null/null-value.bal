@@ -144,9 +144,14 @@ function testNullInForkJoin() (message, message) {
             message resp2 = {};
             resp2 -> fork;
         }
-    } join (all) (any[][] allReplies) {
-        return (message)allReplies[0][0], (message)allReplies[1][0];
-    } timeout (30000) (any[][] msgs) {
+    } join (all) (map allReplies) {
+        any[] temp;
+        temp,_ = (any[])allReplies["foo"];
+        message m1 = (message) temp[0];
+        temp,_ = (any[])allReplies["bar"];
+        message m2 = (message) temp[0];
+        return m1,m2;
+    } timeout (30000) (map msgs) {
         return null, null;
     }
 }

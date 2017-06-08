@@ -1503,13 +1503,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameter.accept(this);
             join.define(parameter.getSymbolName(), parameter);
 
-            if (!(parameter.getType() instanceof BArrayType &&
-                    (((BArrayType) parameter.getType()).getElementType() instanceof BArrayType) &&
-                    (((BArrayType) (((BArrayType) parameter.getType()).getElementType())).getElementType()
-                            == BTypes.typeAny))) {
-                throw new SemanticException("Incompatible types: expected any[][] in " +
-                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
+            if (!(parameter.getType() instanceof BMapType)) {
+                throw new SemanticException("Incompatible types: expected map in " +
+                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().
+                        getLineNumber());
             }
+
         }
 
         // Visit join body
@@ -1534,12 +1533,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             timeoutParam.accept(this);
             timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
-            if (!(timeoutParam.getType() instanceof BArrayType &&
-                    (((BArrayType) timeoutParam.getType()).getElementType() instanceof BArrayType) &&
-                    (((BArrayType) (((BArrayType) timeoutParam.getType()).getElementType())).getElementType()
-                            == BTypes.typeAny))) {
-                throw new SemanticException("Incompatible types: expected any[][] in " + timeoutParam.
-                        getNodeLocation().getFileName() + ":" + timeoutParam.getNodeLocation().getLineNumber());
+            if (!(parameter.getType() instanceof BMapType)) {
+                throw new SemanticException("Incompatible types: expected map in " +
+                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
             }
         }
 

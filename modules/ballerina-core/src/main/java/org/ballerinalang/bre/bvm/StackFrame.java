@@ -100,6 +100,10 @@ public class StackFrame {
         this.returnValues = returnValues;
     }
 
+    public CallableUnitInfo getCallableUnitInfo() {
+        return callableUnitInfo;
+    }
+
     public long[] getLongLocalVars() {
         return longLocalVars;
     }
