@@ -146,8 +146,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleImportDeclarationNode(parameters, resultSet);
         } else if (parent instanceof ConstantDefinitionNode) {
             handleConstantDefinitionNode(parameters, resultSet);
-        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode
-                || parent instanceof ActionDefinitionNode) {
+        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode) {
             handleNameReferenceNode(parameters, resultSet);
         } else if (parent instanceof StatementNode || parent instanceof WorkerInterationStatementNode) {
             handleStatementNode(parameters, resultSet);
@@ -163,6 +162,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             identifyAndAddSuggestions(parameters, resultSet);
         } else if (parent instanceof AnnotationAttributeNode) {
             handleAnnotationAttributeNode(parameters, resultSet);
+        } else if (parent instanceof ResourceDefinitionNode) {
+            handleResourceDefinitionNode(parameters, resultSet);
+        } else if (parent instanceof ActionDefinitionNode) {
+            handleActionDefinitionNode(parameters, resultSet);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -172,6 +175,34 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFileLevelKeywordsAsLookups(resultSet, true, true);
             } else {
                 addFileLevelKeywordsAsLookups(resultSet, false, true);
+            }
+        }
+    }
+
+    private void handleResourceDefinitionNode(CompletionParameters parameters, CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement element = parameters.getPosition();
+        PsiElement prevSibling = getPreviousNonEmptyElement(originalFile, element.getTextOffset());
+        if (prevSibling != null) {
+            if (prevSibling instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                if (elementType == BallerinaTypes.RBRACE) {
+                    addServiceSpecificKeywords(resultSet);
+                }
+            }
+        }
+    }
+
+    private void handleActionDefinitionNode(CompletionParameters parameters, CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement element = parameters.getPosition();
+        PsiElement prevSibling = getPreviousNonEmptyElement(originalFile, element.getTextOffset());
+        if (prevSibling != null) {
+            if (prevSibling instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+                if (elementType == BallerinaTypes.RBRACE) {
+                    addConnectorSpecificKeywords(resultSet);
+                }
             }
         }
     }
@@ -303,9 +334,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      */
     private void handleNameReferenceNode(@NotNull CompletionParameters parameters,
                                          @NotNull CompletionResultSet resultSet) {
-        PsiFile originalFile = parameters.getOriginalFile();
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
+
         ParameterNode parameterNode = PsiTreeUtil.getParentOfType(parent, ParameterNode.class);
         if (parameterNode != null) {
             checkPrevNodeAndHandle(parameters, resultSet, parameters.getOffset(),
@@ -323,10 +354,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         if (handleGlobalVariableDefinition(parameters, resultSet)) {
             return;
         }
-        if (handleServiceBodyInReferenceNode(resultSet, parent)) {
+        if (handleServiceBodyInReferenceNode(parameters, resultSet)) {
             return;
         }
-        if (handleConnectorBodyInReferenceNode(parameters, resultSet, originalFile, element, parent)) {
+        if (handleConnectorBodyInReferenceNode(parameters, resultSet)) {
             return;
         }
         PsiElement superParent = parent.getParent();
@@ -353,7 +384,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     (p, r, prevElement) -> {
                         PsiElement parent = prevElement.getParent();
                         if (parent instanceof AnnotationDefinitionNode) {
-                            addKeywordAsLookup(resultSet, ATTACH);
+                            addAttachKeyword(resultSet);
                         } else {
                             addTypeNamesAsLookups(resultSet);
                             if (parent.getTextOffset() == 0) {
@@ -408,26 +439,37 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         return false;
     }
 
-    private boolean handleServiceBodyInReferenceNode(@NotNull CompletionResultSet resultSet, PsiElement parent) {
+    private boolean handleServiceBodyInReferenceNode(@NotNull CompletionParameters parameters,
+                                                     @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement element = parameters.getPosition();
+        PsiElement parent = element.getParent();
+
         ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(parent, ServiceBodyNode.class);
-        if (serviceBodyNode != null) {
-            ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(parent,
-                    ResourceDefinitionNode.class);
-            if (resourceDefinitionNode == null) {
-                AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(parent,
-                        AnnotationAttachmentNode.class);
-                if (annotationAttachmentNode == null) {
-                    addKeywordAsLookup(resultSet, RESOURCE);
-                    return true;
-                }
+        if (serviceBodyNode == null) {
+            return false;
+        }
+        ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(parent,
+                ResourceDefinitionNode.class);
+        if (resourceDefinitionNode != null) {
+            return false;
+        }
+        AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(parent,
+                AnnotationAttachmentNode.class);
+        if (annotationAttachmentNode == null) {
+            if (handleBodyNode(parameters, resultSet, originalFile, element, true)) {
+                return true;
             }
         }
         return false;
     }
 
     private boolean handleConnectorBodyInReferenceNode(@NotNull CompletionParameters parameters,
-                                                       @NotNull CompletionResultSet resultSet, PsiFile originalFile,
-                                                       PsiElement element, PsiElement parent) {
+                                                       @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement element = parameters.getPosition();
+        PsiElement parent = element.getParent();
+
         ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(parent, ConnectorBodyNode.class);
         if (connectorBodyNode == null) {
             return false;
@@ -440,41 +482,53 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(parent,
                 AnnotationAttachmentNode.class);
         if (annotationAttachmentNode == null) {
-            PsiElement prevSibling = getPreviousNonEmptyElement(originalFile, element.getTextOffset());
-            if ((prevSibling instanceof LeafPsiElement)) {
-                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
-                if (elementType == BallerinaTypes.AT) {
-                    addLookups(resultSet, originalFile, true, false, false, false);
-                    checkPrevNodeAndHandle(parameters, resultSet, parameters.getOffset(),
-                            this::handleIdentifierInNameReference,
-                            this::handleLeafElementInNameReference,
-                            null);
-                    return true;
-                } else if (elementType == BallerinaTypes.COLON) {
-                    if (element.getParent().getText().matches("@.*")) {
-                        String type = getAttachmentType(parameters);
-                        if (type == null) {
-                            return true;
-                        }
-                        PsiElement packageNode = originalFile.findElementAt(prevSibling.getTextOffset() - 2);
-                        suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
-                    } else {
-                        PsiElement packageNode = originalFile.findElementAt(prevSibling.getTextOffset() - 2);
-                        suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true,
-                                true, true);
+            if (handleBodyNode(parameters, resultSet, originalFile, element, false)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean handleBodyNode(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet resultSet,
+                                   PsiFile originalFile, PsiElement element, boolean isResource) {
+        PsiElement prevSibling = getPreviousNonEmptyElement(originalFile, element.getTextOffset());
+        if ((prevSibling instanceof LeafPsiElement)) {
+            IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+            if (elementType == BallerinaTypes.AT) {
+                addLookups(resultSet, originalFile, true, false, false, false);
+                checkPrevNodeAndHandle(parameters, resultSet, parameters.getOffset(),
+                        this::handleIdentifierInNameReference,
+                        this::handleLeafElementInNameReference,
+                        null);
+            } else if (elementType == BallerinaTypes.COLON) {
+                if (element.getParent().getText().matches("@.*")) {
+                    String type = getAttachmentType(parameters);
+                    if (type == null) {
                         return true;
                     }
-                } else if (elementType == BallerinaTypes.ASSIGN) {
-                    addCreateKeyword(resultSet);
-                    addLookups(resultSet, originalFile, true, true, true, true);
-                    return true;
-                } else if (elementType == BallerinaTypes.CREATE) {
-                    addLookups(resultSet, originalFile, true, true, true, true);
-                    return true;
-                } else if (elementType == BallerinaTypes.ACTION) {
-                    return true;
+                    PsiElement packageNode = originalFile.findElementAt(prevSibling.getTextOffset() - 2);
+                    suggestAnnotationsFromPackage(parameters, resultSet, packageNode, type);
+                } else {
+                    PsiElement packageNode = originalFile.findElementAt(prevSibling.getTextOffset() - 2);
+                    suggestElementsFromAPackage(parameters, resultSet, packageNode, false, true,
+                            true, true);
+                }
+            } else if (elementType == BallerinaTypes.ASSIGN) {
+                addCreateKeyword(resultSet);
+                addLookups(resultSet, originalFile, true, true, true, false);
+            } else if (elementType == BallerinaTypes.CREATE) {
+                addLookups(resultSet, originalFile, true, true, true, false);
+            } else if (elementType == BallerinaTypes.LBRACE || elementType == BallerinaTypes.RBRACE
+                    || elementType == BallerinaTypes.SEMI) {
+                addLookups(resultSet, originalFile, true, false, true, true);
+                addTypeNamesAsLookups(resultSet);
+                if (isResource) {
+                    addServiceSpecificKeywords(resultSet);
+                } else {
+                    addConnectorSpecificKeywords(resultSet);
                 }
             }
+            return true;
         }
         return false;
     }
@@ -1462,7 +1516,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             return;
         }
         if (superParent instanceof ResourceDefinitionNode || superParent instanceof ServiceBodyNode) {
-            addKeywordAsLookup(resultSet, RESOURCE);
+            addServiceSpecificKeywords(resultSet);
+            return;
+        }
+        if (superParent instanceof ActionDefinitionNode || superParent instanceof ConnectorDefinitionNode) {
+            addConnectorSpecificKeywords(resultSet);
+            return;
         }
         if (superParent instanceof StatementNode || superParent instanceof ForkJoinStatementNode
                 || superParent instanceof TransformStatementBodyNode) {
@@ -1493,7 +1552,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
             }
         } else if (superParent instanceof AnnotationDefinitionNode) {
-            addKeywordAsLookup(resultSet, ATTACH);
+            addAttachKeyword(resultSet);
         } else if (superParent instanceof AttachmentPointNode) {
             addAttachmentPointsAsLookups(resultSet);
         } else if (superParent instanceof VariableReferenceNode) {

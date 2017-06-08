@@ -82,14 +82,14 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder IMPORT;
     private static final LookupElementBuilder CONST;
     private static final LookupElementBuilder SERVICE;
-    static final LookupElementBuilder RESOURCE;
+    private static final LookupElementBuilder RESOURCE;
     private static final LookupElementBuilder FUNCTION;
     private static final LookupElementBuilder CONNECTOR;
     private static final LookupElementBuilder ACTION;
     private static final LookupElementBuilder STRUCT;
     private static final LookupElementBuilder TYPEMAPPER;
     private static final LookupElementBuilder ANNOTATION;
-    static final LookupElementBuilder ATTACH;
+    private static final LookupElementBuilder ATTACH;
     private static final LookupElementBuilder PARAMETER;
 
     // Any type
@@ -403,6 +403,10 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, CREATE);
     }
 
+    static void addAttachKeyword(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, ATTACH);
+    }
+
     /**
      * Adds function specific keywords like <b>return</b> as lookup elements.
      *
@@ -450,6 +454,14 @@ public class BallerinaCompletionUtils {
         if (resourceDefinitionNode != null) {
             addKeywordAsLookup(resultSet, REPLY);
         }
+    }
+
+    static void addServiceSpecificKeywords(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, RESOURCE);
+    }
+
+    static void addConnectorSpecificKeywords(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, ACTION);
     }
 
     /**
