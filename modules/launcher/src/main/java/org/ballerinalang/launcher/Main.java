@@ -259,8 +259,11 @@ public class Main {
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
-        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
+        @Parameter(names = {"--ballerina-debug", "-bd" }, description = "remote debugging port")
         private String ballerinaDebugPort;
+
+        @Parameter(names = {"--program-directory", "-pd"}, description = "program directory path")
+        private String programDir;
 
         public void execute() {
             if (helpFlag) {
@@ -283,6 +286,11 @@ public class Main {
             if (null != ballerinaDebugPort) {
                 System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
             }
+
+            if (null != programDir) {
+                BProgramRunner.setProgramDirPath(Paths.get(programDir));
+            }
+
             Path sourcePath = Paths.get(argList.get(0));
             BProgramRunner.runMain(sourcePath, programArgs);
         }
@@ -329,8 +337,11 @@ public class Main {
         @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
         private String serviceRootPath;
 
-        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
+        @Parameter(names = {"--ballerina-debug", "-bd"}, description = "remote debugging port")
         private String ballerinaDebugPort;
+
+        @Parameter(names = {"--program-directory", "-pd"}, description = "program directory path")
+        private String programDir;
 
         public void execute() {
             if (helpFlag) {
@@ -378,6 +389,11 @@ public class Main {
             if (null != ballerinaDebugPort) {
                 System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
             }
+
+            if (null != programDir) {
+                BProgramRunner.setProgramDirPath(Paths.get(programDir));
+            }
+
             BProgramRunner.runServices(paths);
         }
 
