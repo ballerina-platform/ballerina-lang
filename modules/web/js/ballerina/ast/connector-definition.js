@@ -295,9 +295,9 @@ class ConnectorDefinition extends ASTNode {
             } else {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;
-            }
-            child.initFromJson(childNodeTemp);
+            }    
             self.addChild(child);
+            child.initFromJson(childNodeTemp);
         });
     }
 

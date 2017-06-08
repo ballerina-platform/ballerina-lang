@@ -139,26 +139,26 @@ class IfElseStatement extends Statement {
         let ifStmtNode = jsonNode.if_statement;
         if (!_.isNil(ifStmtNode)) {
             let ifStatement = this.getFactory().createFromJson(ifStmtNode);
+            this.addChild(ifStatement);
             ifStatement.initFromJson(ifStmtNode);
             this.setIfStatement(ifStatement);
-            this.addChild(ifStatement);
         }
         // create else statement
         let elseStmtNode = jsonNode.else_statement;
         if (!_.isNil(elseStmtNode)) {
             let elseStatement = this.getFactory().createFromJson(elseStmtNode);
+            this.addChild(elseStatement);
             elseStatement.initFromJson(elseStmtNode);
             this._elseStatement = elseStatement;
-            this.addChild(elseStatement);
         }
         // create else if statements
         if (!_.isNil(jsonNode.else_if_statements) && _.isArray(jsonNode.else_if_statements)) {
             _.each(jsonNode.else_if_statements, (elseIfStmtNode) => {
                 if (!_.isNil(elseIfStmtNode)) {
-                    let elseIfStatement = this.getFactory().createFromJson(elseIfStmtNode);
+                    let elseIfStatement = this.getFactory().createFromJson(elseIfStmtNode);    
+                    this.addChild(elseIfStatement);
                     elseIfStatement.initFromJson(elseIfStmtNode);
                     this._elseIfStatements.push(elseIfStatement);
-                    this.addChild(elseIfStatement);
                 }
             });
         }
