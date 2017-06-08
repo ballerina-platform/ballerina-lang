@@ -28,46 +28,46 @@ public class BlockStmtTest {
 
     @Test(description = "Testing the valid block with return statement")
     public void testReturnStmtLocationValidity() {
-        BTestUtils.parseBalFile("lang/statements/block/valid-block-with-return.bal");
+        BTestUtils.getProgramFile("lang/statements/block/valid-block-with-return.bal");
     }
 
     @Test(description = "Testing the comment statement after return")
     public void testCommentStmtAfterReturnStmt() {
-        BTestUtils.parseBalFile("lang/statements/block/comment-after-return-stmt.bal");
+        BTestUtils.getProgramFile("lang/statements/block/comment-after-return-stmt.bal");
     }
 
     @Test(description = "Testing the unreachable statement in function block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "function-unreachable-stmt1.bal:9: unreachable statement")
     public void testUnreachableStmtInFunction1() {
-        BTestUtils.parseBalFile("lang/statements/block/function-unreachable-stmt1.bal");
+        BTestUtils.getProgramFile("lang/statements/block/function-unreachable-stmt1.bal");
     }
 
     @Test(description = "Testing the unreachable statement in function block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "function-unreachable-stmt2.bal:11: unreachable statement")
     public void testUnreachableStmtInFunction2() {
-        BTestUtils.parseBalFile("lang/statements/block/function-unreachable-stmt2.bal");
+        BTestUtils.getProgramFile("lang/statements/block/function-unreachable-stmt2.bal");
     }
 
     @Test(description = "Testing the unreachable statement in if block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "ifblock-unreachable-stmt.bal:6: unreachable statement")
     public void testUnreachableStmtInIfBlock() {
-        BTestUtils.parseBalFile("lang/statements/block/ifblock-unreachable-stmt.bal");
+        BTestUtils.getProgramFile("lang/statements/block/ifblock-unreachable-stmt.bal");
     }
 
     @Test(description = "Testing the unreachable statement in while block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "whileblock-unreachable-stmt.bal:7: unreachable statement")
     public void testUnreachableStmtInWhileBlock() {
-        BTestUtils.parseBalFile("lang/statements/block/whileblock-unreachable-stmt.bal");
+        BTestUtils.getProgramFile("lang/statements/block/whileblock-unreachable-stmt.bal");
     }
 
     @Test(description = "Testing the unreachable statement after comment statement",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "unreachable-stmt-after-comment.bal:12: unreachable statement")
     public void testUnreachableStmtAfterComment() {
-        BTestUtils.parseBalFile("lang/statements/block/unreachable-stmt-after-comment.bal");
+        BTestUtils.getProgramFile("lang/statements/block/unreachable-stmt-after-comment.bal");
     }
 }

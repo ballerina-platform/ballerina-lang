@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -32,10 +33,12 @@ import org.testng.annotations.Test;
 public class BNullValueTest   {
 
     private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/values/null/null-value.bal");
+        programFile = BTestUtils.getProgramFile("lang/values/null/null-value.bal");
     }
 
     @Test(description = "Test null value of a xml")
@@ -49,6 +52,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a json")
     public void testJsonNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testJsonNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testJsonNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(6));
@@ -57,6 +61,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a struct")
     public void testStructNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testStructNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testStructNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(7));
@@ -65,6 +70,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a connector")
     public void testConnectorNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testConnectorNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testConnectorNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(8));
@@ -73,6 +79,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a array")
     public void testArrayNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testArrayNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testArrayNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(9));
@@ -81,6 +88,7 @@ public class BNullValueTest   {
     @Test(description = "Test null value of a map")
     public void testMapNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testMapNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testMapNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertEquals(vals[1], null);
         Assert.assertEquals(vals[2], new BInteger(10));
@@ -91,14 +99,15 @@ public class BNullValueTest   {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testCastingNull", new BValue[] { null });
         Assert.assertEquals(vals[0], null);
 
-        vals = BLangFunctions.invoke(bLangProgram, "testCastingNull", new BValue[] { new BJSON("{}") });
-        Assert.assertTrue(vals[0] instanceof BXML);
-        Assert.assertEquals(((BXML) vals[0]).getMessageAsString(), "<name>converted xml</name>");
+//        vals = BLangFunctions.invoke(bLangProgram, "testCastingNull", new BValue[] { new BJSON("{}") });
+//        Assert.assertTrue(vals[0] instanceof BXML);
+//        Assert.assertEquals(((BXML) vals[0]).getMessageAsString(), "<name>converted xml</name>");
     }
 
     @Test(description = "Test passing null to a function expects a reference type")
     public void testFunctionCallWithNull() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testFunctionCallWithNull", new BValue[]{});
+//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testFunctionCallWithNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
     
@@ -204,14 +213,6 @@ public class BNullValueTest   {
             expectedExceptionsMessageRegExp = "invalid-function-call-with-nulll.bal:2: undefined function 'foo'")
     void testInvalidFunctionCallWithNull() {
         BTestUtils.parseBalFile("lang/values/null/invalid-function-call-with-nulll.bal");
-    }
-    
-    @Test(description = "Test passing null to a ambguous function", 
-            expectedExceptions = SemanticException.class, 
-            expectedExceptionsMessageRegExp = "ambiguous-function-call-with-nulll.bal:2: function reference 'foo' " +
-            "is ambiguous, functions 'foo\\(xml\\)' and 'foo\\(json\\)' matches")
-    void testAmbiguousFunctionCallWithNull() {
-        BTestUtils.parseBalFile("lang/values/null/ambiguous-function-call-with-nulll.bal");
     }
     
     @Test(description = "Test accessing an element in a null array",

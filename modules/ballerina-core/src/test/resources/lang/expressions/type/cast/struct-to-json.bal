@@ -18,5 +18,6 @@ function testStructToJson() (json) {
                  info:{status:"single"},
                  marks:[87,94,72]
                };
-    return p;
+    json j = (json) p;
+    return j;
 }

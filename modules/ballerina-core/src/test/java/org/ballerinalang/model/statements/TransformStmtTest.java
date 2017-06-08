@@ -18,10 +18,10 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,21 +33,37 @@ import org.testng.annotations.Test;
  * @since 0.8.7
  */
 public class TransformStmtTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/statements/transformStmt/transform-stmt.bal");
+        programFile = BTestUtils.getProgramFile("lang/statements/transformStmt/transform-stmt.bal");
     }
 
     @Test(description = "Test one to one simple transformation")
     public void testOneToOneTransform() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "oneToOneTransform");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "oneToOneTransform");
 
         Assert.assertEquals(returns.length, 3);
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "John");
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
+
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "London");
+    }
+
+    @Test(description = "Test one to one simple transformation")
+    public void testFunctionsInTransform() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "functionsInTransform");
+
+        Assert.assertEquals(returns.length, 3);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Mr.John");
 
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);

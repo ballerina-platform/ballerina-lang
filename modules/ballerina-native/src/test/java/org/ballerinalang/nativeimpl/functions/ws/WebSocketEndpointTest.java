@@ -76,6 +76,6 @@ public class WebSocketEndpointTest {
 
     @AfterClass
     public void cleanUp() {
-        EnvironmentInitializer.cleanup(application);
+//        EnvironmentInitializer.cleanup(application);
     }
 }

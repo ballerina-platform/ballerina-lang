@@ -1,6 +1,6 @@
 function testComplexMapToJson() (json) {
     Person p = {name:"Supun"};
-    json j = {title:"SE"};
+    json j1 = {title:"SE"};
     map m = { name:"Supun", 
               age:25,
               gpa:2.81,
@@ -14,7 +14,8 @@ function testComplexMapToJson() (json) {
                     {address:{city:"Galle", "country":"SriLanka"}}
               ],
               parent:p,
-              occupation:j
+              occupation:j1
             };
-    return m;
+    json j2 = (json) m;
+    return j2;
 }

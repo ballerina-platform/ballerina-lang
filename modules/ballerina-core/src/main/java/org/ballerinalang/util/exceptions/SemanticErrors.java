@@ -100,10 +100,14 @@ public enum SemanticErrors {
     ABORT_STMT_NOT_ALLOWED_HERE("abort.stmt.not.allowed.here", "SEMANTIC_0074"),
     RETURN_CANNOT_USED_IN_TRANSACTION("return.cannot.used.in.transaction",  "SEMANTIC_0075"),
     WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076"),
-
+    INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT("incompatible.types.in.multiple.assignment", "SEMANTIC_0077"),
+    CANNOT_RESOLVE_STRUCT("cannot.resolve.struct", "SEMANTIC_0078"),
+    
     DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
     RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
     IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
+    REPLY_STMT_NOT_ALLOWED_HERE("reply.stmt.not.allowed.here", "SEMANTIC_0083"),
+    RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
     ;
 
     private String errorMsgKey;

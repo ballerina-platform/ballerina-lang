@@ -46,4 +46,14 @@ public class BXMLType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BXML();
     }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.XML.getName());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.XML_TAG;
+    }
 }

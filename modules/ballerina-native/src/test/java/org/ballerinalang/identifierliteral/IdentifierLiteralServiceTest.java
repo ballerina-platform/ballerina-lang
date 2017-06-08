@@ -54,7 +54,7 @@ public class IdentifierLiteralServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(bLangProgram);
+//        EnvironmentInitializer.cleanup(bLangProgram);
     }
 
 }

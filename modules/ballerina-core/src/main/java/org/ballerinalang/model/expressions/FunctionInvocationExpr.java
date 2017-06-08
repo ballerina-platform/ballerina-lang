@@ -40,6 +40,8 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
+    private int[] offsets;
+
     public FunctionInvocationExpr(NodeLocation location,
                                   WhiteSpaceDescriptor whiteSpaceDescriptor,
                                   String name,
@@ -96,6 +98,14 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
         if (!multipleReturnsAvailable && types.length == 1) {
             this.type = types[0];
         }
+    }
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
     @Override

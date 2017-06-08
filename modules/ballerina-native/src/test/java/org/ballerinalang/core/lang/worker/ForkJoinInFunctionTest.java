@@ -19,6 +19,8 @@ package org.ballerinalang.core.lang.worker;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -26,7 +28,6 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-//import org.testng.annotations.Test;
 
 /**
  * Test cases for usages of fork-join in functions.
@@ -81,5 +82,15 @@ public class ForkJoinInFunctionTest {
         Assert.assertTrue(returns[0] instanceof BArray);
         Assert.assertEquals(((BArray) returns[0]).size(), 1);
         Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
+    }
+
+    @Test(description = "Test Fork Join Without Timeout Expression")
+    public void testForkJoinWithoutTimeoutExpression() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinWithoutTimeoutExpression");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.23);
     }
 }

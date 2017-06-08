@@ -2,6 +2,12 @@ import ballerina.lang.system;
 import ballerina.lang.messages;
 
 function testworker(message msg)(message) {
+    message q;
+    q = testworkerVM(msg);
+    return q;
+}
+
+function testworkerVM(message msg)(message) {
   float aa;
   message result;
   int count = 1000;
@@ -11,9 +17,8 @@ function testworker(message msg)(message) {
   count, aa, msg -> sampleWorker;
   system:println("Worker in function test started");
   result <- sampleWorker;
-  string s = messages:getStringPayload(result);
   aa -> sampleWorker3;
-  system:println(s);
+  system:println(result);
   result <- sampleWorker3;
   return result;
 
@@ -71,6 +76,12 @@ function testworker(message msg)(message) {
 }
 
 function testSimpleWorker(message msg)(message) {
+    message q;
+    q = testSimpleWorkerVM(msg);
+    return q;
+}
+
+function testSimpleWorkerVM(message msg)(message) {
     message result;
     //message msg = {};
     int x = 100;
@@ -102,6 +113,11 @@ function testSimpleWorker(message msg)(message) {
 }
 
 function testFunctionArgumentAccessFromWorker(int x)(int q) {
+    q = testFunctionArgumentAccessFromWorkerVM(x);
+    return q;
+}
+
+function testFunctionArgumentAccessFromWorkerVM(int x)(int q) {
     system:println("Argument in default worker " + x);
     //int y;
     map nn;

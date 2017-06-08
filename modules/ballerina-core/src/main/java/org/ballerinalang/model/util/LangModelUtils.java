@@ -37,13 +37,7 @@ public class LangModelUtils {
     }
 
     public static FunctionSymbolName getFuncSymNameWithParams(String identifier, String pkgPath, BType[] types) {
-        //with current usage, "types" cannot be null here
-        StringBuilder sBuilder = new StringBuilder(identifier);
-        for (BType type : types) {
-            sBuilder.append(".").append(type);
-        }
-
-        return new FunctionSymbolName(sBuilder.toString(), identifier, pkgPath, types.length);
+        return new FunctionSymbolName(identifier, pkgPath, types.length);
     }
 
     public static SymbolName getTypeMapperSymName(String pkgName, BType source, BType target) {
@@ -54,24 +48,13 @@ public class LangModelUtils {
         return new SymbolName(identifier, pkgPath);
     }
 
-    public static SymbolName getActionSymName(String actionName, String pkgPath, String connectorName,
-                                              BType[] types) {
-        StringBuilder sBuilder = new StringBuilder(connectorName + "." + actionName);
-        for (BType type : types) {
-            sBuilder.append(".").append(type);
-        }
-
-        return new SymbolName(sBuilder.toString(), pkgPath);
+    public static SymbolName getActionSymName(String actionName, String pkgPath, String connectorName) {
+        return new SymbolName(connectorName + "." + actionName, pkgPath);
     }
 
     public static SymbolName getNativeActionSymName(String actionName, String connectorName,
-                                              String pkgPath, BType[] types) {
-        StringBuilder sBuilder = new StringBuilder("NativeAction" + "." + connectorName + "." + actionName);
-        for (BType type : types) {
-            sBuilder.append(".").append(type);
-        }
-
-        return new SymbolName(sBuilder.toString(), pkgPath);
+                                              String pkgPath) {
+        return new SymbolName("NativeAction" + "." + connectorName + "." + actionName, pkgPath);
     }
 
     public static BType[] getTypesOfParams(ParameterDef[] parameterDefs) {
