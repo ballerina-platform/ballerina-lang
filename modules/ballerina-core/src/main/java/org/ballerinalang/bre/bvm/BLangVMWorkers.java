@@ -60,7 +60,7 @@ public class BLangVMWorkers {
 
             BLangVM bLangVM = new BLangVM(programFile);
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, callableUnitInfo, workerContext, workerInfo);
+            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo);
             executor.submit(workerRunner);
         }
 
@@ -72,14 +72,11 @@ public class BLangVMWorkers {
 //        private static PrintStream outStream = System.err;
 
         private BLangVM bLangVM;
-        private CallableUnitInfo callableUnitInfo;
         private Context bContext;
         private WorkerInfo workerInfo;
 
-        public WorkerExecutor(BLangVM bLangVM, CallableUnitInfo callableUnitInfo,
-                              Context bContext, WorkerInfo workerInfo) {
+        public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo) {
             this.bLangVM = bLangVM;
-            this.callableUnitInfo = callableUnitInfo;
             this.bContext = bContext;
             this.workerInfo = workerInfo;
         }
@@ -87,7 +84,7 @@ public class BLangVMWorkers {
         @Override
         public BValue[] call() throws BallerinaException {
             try {
-                bLangVM.execWorker(callableUnitInfo.getPackageInfo(), bContext,
+                bLangVM.execWorker(bContext,
                         workerInfo.getCodeAttributeInfo().getCodeAddrs(), workerInfo.getWorkerEndIP());
                 BValue[] results = new BValue[0];
                 if (workerInfo.getWorkerDataChannelForForkJoin() != null) {

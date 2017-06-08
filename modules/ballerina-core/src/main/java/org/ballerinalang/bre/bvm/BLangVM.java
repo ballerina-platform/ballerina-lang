@@ -174,19 +174,22 @@ public class BLangVM {
         exec();
     }
 
-    public void execWorker(PackageInfo packageInfo, Context context, int startIP, int endIP) {
-        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
-        this.constPool = currentFrame.packageInfo.getConstPool();
-        this.code = currentFrame.packageInfo.getInstructions();
-
-        this.context = context;
-        this.controlStack = context.getControlStackNew();
-        this.context.setVMBasedExecutor(true);
-        this.ip = startIP;
+    public void execWorker(Context context, int startIP, int endIP) {
+        context.setStartIP(startIP);
         this.workerEndIP = endIP;
-
-//        traceCode();
-        exec();
+        run(context);
+//        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
+//        this.constPool = currentFrame.packageInfo.getConstPool();
+//        this.code = currentFrame.packageInfo.getInstructions();
+//
+//        this.context = context;
+//        this.controlStack = context.getControlStackNew();
+//        this.context.setVMBasedExecutor(true);
+//        this.ip = startIP;
+//        this.workerEndIP = endIP;
+//
+////        traceCode();
+//        exec();
     }
 
     /**
@@ -1432,7 +1435,7 @@ public class BLangVM {
             BLangVM bLangVM = new BLangVM(programFile);
             //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                    currentCallableUnitInfo, workerContext, forkJoinCPEntry.getWorkerInfo(worker.getName()));
+                    workerContext, forkJoinCPEntry.getWorkerInfo(worker.getName()));
             workerRunnerList.add(workerRunner);
             triggeredWorkers.put(worker.getName(), workerRunner);
         }
