@@ -177,7 +177,7 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START), " ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START),
-                "\n                            ");
+                System.lineSeparator() + "                            ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN), "  ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
