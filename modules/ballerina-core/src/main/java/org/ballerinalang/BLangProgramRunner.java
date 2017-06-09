@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
@@ -156,6 +157,14 @@ public class BLangProgramRunner {
         }
 
         WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
+
+        // Execute workers
+        org.ballerinalang.bre.bvm.StackFrame callerSF = new org.ballerinalang.bre.bvm.StackFrame(mainFuncInfo,
+                defaultWorkerInfo, -1, new int[0]);
+        callerSF.getRefRegs()[0] = arrayArgs;
+        int[] argRegs = {0};
+        BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs);
+
         org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(mainFuncInfo,
                 defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefLocalVars()[0] = arrayArgs;

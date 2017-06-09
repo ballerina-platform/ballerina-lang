@@ -115,7 +115,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -464,7 +464,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (statement instanceof WorkerInvocationStmt) {
                     targetWorkerName = ((WorkerInvocationStmt) statement).getName();
                     if (targetWorkerName == "fork" && isForkJoinStmt) {
-                        // This is a special worker invocation statement which returns data to the join block
                         break;
                     }
                     if (callableUnit instanceof Worker) {
@@ -595,9 +594,28 @@ public class SemanticAnalyzer implements NodeVisitor {
             do {
                 buildWorkerInteractions(callableUnit, tempWorkers, isWorkerInWorker, isForkJoinStmt);
                 callableUnit = workers[i];
-                System.arraycopy(workers, i + 1, tempWorkers, 0, workers.length - (i + 1));
                 i++;
-            } while (i < workers.length - 1);
+                System.arraycopy(workers, i, tempWorkers, 0, workers.length - i);
+            } while (i < workers.length);
+        }
+    }
+
+    private void resolveForkJoin(ForkJoinStmt forkJoinStmt) {
+        Worker[] workers = forkJoinStmt.getWorkers();
+        if (workers != null && workers.length > 0) {
+            for (Worker worker : workers) {
+                for (Statement statement : worker.getWorkerInteractionStatements()) {
+                    if (statement instanceof WorkerInvocationStmt) {
+                        String targetWorkerName = ((WorkerInvocationStmt) statement).getName();
+                        if (targetWorkerName.equalsIgnoreCase("fork")) {
+                            String sourceWorkerName = worker.getName();
+                            WorkerDataChannel workerDataChannel = new WorkerDataChannel
+                                    (sourceWorkerName, targetWorkerName);
+                            ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -834,7 +852,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         blockStmt.accept(this);
         isWithinWorker = false;
 
-        resolveWorkerInteractions(worker);
+        //resolveWorkerInteractions(worker);
+
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
@@ -1485,13 +1504,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameter.accept(this);
             join.define(parameter.getSymbolName(), parameter);
 
-            if (!(parameter.getType() instanceof BArrayType &&
-                    (((BArrayType) parameter.getType()).getElementType() instanceof BArrayType) &&
-                    (((BArrayType) (((BArrayType) parameter.getType()).getElementType())).getElementType()
-                            == BTypes.typeAny))) {
-                throw new SemanticException("Incompatible types: expected any[][] in " +
-                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
+            if (!(parameter.getType() instanceof BMapType)) {
+                throw new SemanticException("Incompatible types: expected map in " +
+                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().
+                        getLineNumber());
             }
+
         }
 
         // Visit join body
@@ -1516,12 +1534,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             timeoutParam.accept(this);
             timeout.define(timeoutParam.getSymbolName(), timeoutParam);
 
-            if (!(timeoutParam.getType() instanceof BArrayType &&
-                    (((BArrayType) timeoutParam.getType()).getElementType() instanceof BArrayType) &&
-                    (((BArrayType) (((BArrayType) timeoutParam.getType()).getElementType())).getElementType()
-                            == BTypes.typeAny))) {
-                throw new SemanticException("Incompatible types: expected any[][] in " + timeoutParam.
-                        getNodeLocation().getFileName() + ":" + timeoutParam.getNodeLocation().getLineNumber());
+            if (!(parameter.getType() instanceof BMapType)) {
+                throw new SemanticException("Incompatible types: expected map in " +
+                        parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().getLineNumber());
             }
         }
 
@@ -1533,6 +1548,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         resolveWorkerInteractions(forkJoinStmt);
+        resolveForkJoin(forkJoinStmt);
         closeScope();
 
         forkJoinStmt.setAlwaysReturns(stmtReturns);
@@ -1543,10 +1559,17 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
         transactionStmtCount++;
-        transactionRollbackStmt.getTransactionBlock().accept(this);
-        transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().accept(this);
+        transactionStmt.getTransactionBlock().accept(this);
+        TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
+        if (abortedBlock != null) {
+            abortedBlock.getAbortedBlockStmt().accept(this);
+        }
+        TransactionStmt.CommittedBlock committedBlock = transactionStmt.getCommittedBlock();
+        if (committedBlock != null) {
+            committedBlock.getCommittedBlockStmt().accept(this);
+        }
         transactionStmtCount--;
     }
 
@@ -3888,11 +3911,22 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Statement[] statements = blockStmt.getStatements();
         int length = statements.length;
-        Statement lastStatement = statements[length - 1];
-        if (!(lastStatement instanceof ReturnStmt)) {
-            NodeLocation location = lastStatement.getNodeLocation();
+        if (length > 0) {
+            Statement lastStatement = statements[length - 1];
+            if (!(lastStatement instanceof ReturnStmt)) {
+                NodeLocation location = lastStatement.getNodeLocation();
+                ReturnStmt returnStmt = new ReturnStmt(
+                        new NodeLocation(location.getFileName(),
+                                location.getLineNumber() + 1), null, new Expression[0]);
+                statements = Arrays.copyOf(statements, length + 1);
+                statements[length] = returnStmt;
+                blockStmt.setStatements(statements);
+            }
+        } else {
+            NodeLocation location = blockStmt.getNodeLocation();
             ReturnStmt returnStmt = new ReturnStmt(
-                    new NodeLocation(location.getFileName(), location.getLineNumber() + 1), null, new Expression[0]);
+                    new NodeLocation(location.getFileName(),
+                            location.getLineNumber() + 1), null, new Expression[0]);
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = returnStmt;
             blockStmt.setStatements(statements);
