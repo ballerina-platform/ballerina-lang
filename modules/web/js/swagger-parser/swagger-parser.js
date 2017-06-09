@@ -84,27 +84,27 @@ class SwaggerParser {
 
         // Updating/Creating resources using path annotation
         _.forEach(this._swaggerJson.paths, (httpMethodObjects, pathString) => {
-            _.forEach(httpMethodObjects , (operation, httpMethodAsString) => {
+            _.forEach(httpMethodObjects, (operation, httpMethodAsString) => {
                 let existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
                     let resourceName = resourceDefinition.getResourceName();
                     let operationId = operation.operationId;
-                    if(resourceName == operationId){
+                    if (resourceName == operationId) {
                         return true;
                     }
                     return false;
                 });
 
                 //if the operation id does not match we will check if a resource exist with matching path and methos
-                if(_.isUndefined(existingResource)){
+                if (_.isUndefined(existingResource)) {
                     existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
                         let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
                         let pathAnnotation = resourceDefinition.getPathAnnotation(true);
                         return !_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
                             _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().replace(/"/g, '')) &&
-                            _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());                       
+                            _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());
                     });
                     //if operationId exists set it as resource name.
-                    if(operation.operationId){
+                    if (operation.operationId) {
                         existingResource.setResourceName(operation.operationId);
                     }
                 }
@@ -129,7 +129,7 @@ class SwaggerParser {
      */
     _createServiceInfoAnnotation(serviceDefinition) {
         let serviceInfoAnnotation = BallerinaASTFactory.createAnnotation({
-            fullPackageName: 'ballerina.net.http.swagger', 
+            fullPackageName: 'ballerina.net.http.swagger',
             packageName: 'swagger',
             identifier: 'ServiceInfo'
         });
@@ -203,10 +203,10 @@ class SwaggerParser {
      * @private
      */
     _createSwaggerAnnotation(serviceDefinition) {
-        let swaggerAnnotation = BallerinaASTFactory.createAnnotation({ 
-            fullPackageName: 'ballerina.net.http.swagger', 
-            packageName: 'swagger', 
-            identifier: 'Swagger' 
+        let swaggerAnnotation = BallerinaASTFactory.createAnnotation({
+            fullPackageName: 'ballerina.net.http.swagger',
+            packageName: 'swagger',
+            identifier: 'Swagger'
         });
         swaggerAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
             leftValue: 'version',
@@ -224,7 +224,7 @@ class SwaggerParser {
      */
     _createServiceConfigAnnotation(serviceDefinition) {
         let serviceConfigAnnotation = BallerinaASTFactory.createAnnotation({
-            fullPackageName: 'ballerina.net.http.swagger', 
+            fullPackageName: 'ballerina.net.http.swagger',
             packageName: 'swagger',
             identifier: 'ServiceConfig'
         });
@@ -264,9 +264,9 @@ class SwaggerParser {
 
         // this._createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject);
         let pathAnnotation = resourceDefinition.getPathAnnotation(true);
-        pathAnnotation.getChildren()[0].setRightValue(JSON.stringify(pathString), {doSilently: true});
+        pathAnnotation.getChildren()[0].setRightValue(JSON.stringify(pathString), { doSilently: true });
         let methodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-        methodAnnotation.setIdentifier(httpMethodAsString.toUpperCase(), {doSilently: true});
+        methodAnnotation.setIdentifier(httpMethodAsString.toUpperCase(), { doSilently: true });
 
         let resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
 
@@ -302,7 +302,7 @@ class SwaggerParser {
      */
     _createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
         let resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotation({
-            fullPackageName: 'ballerina.net.http.swagger', 
+            fullPackageName: 'ballerina.net.http.swagger',
             packageName: 'swagger',
             identifier: 'ResourceConfig'
         });
@@ -357,13 +357,16 @@ class SwaggerParser {
     /**
      * Creates the @ParametersInfo annotation for a given {@link ResourceDefinition} using the http method object of the
      * swagger JSON.
-     * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
-     * @private
+     * 
+     * @param {ResourceDefinition} resourceDefinition The resource definition to be updated.
+     * @param {Object} httpMethodJsonObject The http method json object of the swagger json.
+     * 
+     * @memberof SwaggerParser
      */
     _createParametersAnnotation(resourceDefinition, httpMethodJsonObject) {
         if (!_.isUndefined(httpMethodJsonObject.parameters)) {
             let parametersAnnotation = BallerinaASTFactory.createAnnotation({
-                fullPackageName: 'ballerina.net.http.swagger', 
+                fullPackageName: 'ballerina.net.http.swagger',
                 packageName: 'swagger',
                 identifier: 'ParametersInfo'
             });
@@ -402,7 +405,7 @@ class SwaggerParser {
                 if (!_.isUndefined(parameter.required)) {
                     responseAnnotation.addChild(BallerinaASTFactory.createAnnotationEntry({
                         leftValue: 'required',
-                        rightValue: parameter.required
+                        rightValue: parameter.required.toString()
                     }));
                 }
 
@@ -459,7 +462,7 @@ class SwaggerParser {
         let newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
 
         //if an operation id is defined set it as resource name.
-        if(httpMethodJsonObject.operationId){
+        if (httpMethodJsonObject.operationId) {
             newResourceDefinition.setResourceName(httpMethodJsonObject.operationId);
         }
 

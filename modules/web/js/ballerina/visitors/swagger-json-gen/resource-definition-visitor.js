@@ -35,7 +35,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     beginVisitResourceDefinition(resourceDefinition) {
         // Creating path element that maps to the path annotation of the source.
         let pathAnnotation = resourceDefinition.getPathAnnotation();
-        let pathValue = '/' + resourceDefinition.getResourceName() ; // default path
+        let pathValue = '/' + resourceDefinition.getResourceName(); // default path
         if (!_.isUndefined(pathAnnotation)) {
             pathValue = pathAnnotation.getChildren()[0].getRightValue().replace(/"/g, '');
         }
@@ -50,7 +50,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         // Creating http method element that maps to the http:<Method> annotation.
         let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
         let httpMethodValue = !_.isUndefined(httpMethodAnnotation) ?
-                                httpMethodAnnotation.getIdentifier().toLowerCase() : 'get';
+            httpMethodAnnotation.getIdentifier().toLowerCase() : 'get';
         _.set(pathJson, httpMethodValue, {});
 
         let httpMethodJson = _.get(pathJson, httpMethodValue);
@@ -60,9 +60,9 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         // Removing http:Path and http:<Method> annotations
         existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation => {
             return !(_.isEqual(existingAnnotation.getPackageName(), httpMethodAnnotation.getPackageName()) &&
-                    _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier()) ||
-                    _.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
-                    _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier()));
+                _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier()) ||
+                _.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
+                _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier()));
         });
 
         // Creating default annotations
@@ -75,7 +75,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 this.parseResourceConfigAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceInfo')) {
                 this.parseResourceInfoAnnotation(existingAnnotation, httpMethodJson);
-            } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ParametersInfo')) {
+            } else if ((_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ParametersInfo'))) {
                 this.parseParameterInfoAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'Responses')) {
                 this.parseResponsesAnnotation(existingAnnotation, httpMethodJson);
@@ -95,6 +95,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 _.set(httpMethodJson, 'produces', produces);
             }
         });
+
+        // Updating json with related to non-annotation models.
+        this.addParametersAsAnnotations(resourceDefinition, httpMethodJson);
+
         log.debug('Begin Visit Resource Definition');
     }
 
@@ -155,9 +159,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     }
 
     /**
-     * Creates the swagger JSON using the @ParametersInfo annotation..
+     * Creates the swagger JSON using the @ParametersInfo annotation. Adds missing path params as they are required.
      * @param {Annotation} parametersAnnotation The @ParametersInfo annotation of the resource definition.
      * @param {object} httpMethodJson The swagger json to be updated.
+     * @param {ResourceDefinition} resourceDefinition The resource definition which is being visited
      */
     parseParameterInfoAnnotation(parametersAnnotation, httpMethodJson) {
         let parametersAnnotationArray = parametersAnnotation.getChildren()[0].getRightValue();
@@ -172,7 +177,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
                     _.set(tempParameterObj, 'description', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'required')) {
-                    if(_.isString(responseAnnotationEntry.getRightValue())) {
+                    if (_.isString(responseAnnotationEntry.getRightValue())) {
                         _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue() === 'true');
                     } else {
                         _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue());
@@ -238,6 +243,74 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         });
 
         _.set(httpMethodJson, 'responses', responses);
+    }
+
+    /**
+     * Adds the parameters of the resource definition to "parameters" array in the swagger json.
+     * 
+     * @param {ResourceDefinition} resourceDefinition The resource definition which has the parameters.
+     * @param {Object} httpMethodJson The http method json which needs to be updated.
+     * 
+     * @memberof ResourceDefinitionVisitor
+     */
+    addParametersAsAnnotations(resourceDefinition, httpMethodJson) {
+        // Ignoring the first argument as it is "message" by default.
+        if (resourceDefinition.getArguments().length > 1) {
+            let parametersArray = [];
+            if (_.has(httpMethodJson, 'parameters')) {
+                parametersArray = _.get(httpMethodJson, 'parameters');
+            } else {
+                _.set(httpMethodJson, 'parameters', parametersArray);
+            }
+
+            for (const [index, param] of resourceDefinition.getArguments().entries()) {
+                if (index > 0 && param.getChildren().length > 0 && param.getChildren()[0].getChildren().length > 0 && 
+                        resourceDefinition.getFactory().isAnnotationEntry(param.getChildren()[0].getChildren()[0])) {
+                    let paramAlreadyExists = false;
+                    for (const existingParameter of parametersArray) {
+                        // Check if parameter already exists.
+                        const annotation = param.getChildren()[0];
+                        const annotationValue = annotation.getChildren()[0].getRightValue();
+                        if (this.removeDoubleQuotes(annotationValue) === existingParameter.name) {
+                            paramAlreadyExists = true;
+                        }
+                    }
+
+                    // Add if parameter does not exist
+                    if (!paramAlreadyExists) {
+
+                        // Setting values by the type of the parameter.
+                        const annotation = param.getChildren()[0];
+                        if (resourceDefinition.getFactory().isAnnotation(annotation)) {
+                            const tempParameterObj = {};
+                            const annotationValue = annotation.getChildren()[0].getRightValue();
+
+                            _.set(tempParameterObj, 'name', this.removeDoubleQuotes(annotationValue));
+                            if (annotation.getIdentifier() === 'PathParam') {
+                                _.set(tempParameterObj, 'required', true);
+                                _.set(tempParameterObj, 'in', 'path');
+                            } else if (annotation.getIdentifier() === 'QueryParam') {
+                                _.set(tempParameterObj, 'required', false);
+                                _.set(tempParameterObj, 'in', 'query');
+                            }
+
+                            // Setting the type of the parameter.
+                            if (annotationValue.startsWith('\"')) {
+                                _.set(tempParameterObj, 'type', 'string');
+                            } else if (!_.isNaN(parseInt(annotationValue))) {
+                                _.set(tempParameterObj, 'type', 'integer');
+                            } else if (annotationValue === 'true' || annotationValue === 'false') {
+                                _.set(tempParameterObj, 'type', 'boolean');
+                            } else if (annotationValue.includes('[') && annotationValue.includes(']')) {
+                                _.set(tempParameterObj, 'type', 'array');
+                            }
+
+                            parametersArray.push(tempParameterObj);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
