@@ -204,8 +204,8 @@ public interface InstructionCodes {
     int DT2XML = 167;
 
     // Transactions
-    int TRBGN = 166;
-    int TREND = 167;
+    int TRBGN = 168;
+    int TREND = 169;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;
