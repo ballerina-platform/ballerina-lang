@@ -47,6 +47,7 @@ import Renderer from '../components/renderer';
 import StructOperationsRenderer from '../components/struct-operations-renderer';
 import FindDebugHitVisitor from './../visitors/find-debug-hit-visitor';
 import EventChannel from 'event_channel';
+import DragDropManager from '../tool-palette/drag-drop-manager';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -212,6 +213,8 @@ class BallerinaFileEditor extends EventChannel {
         this._environment.addPackages(this._programPackages); 
         this._package = this._environment.getCurrentPackage();
 
+        this.dragDropManager = new DragDropManager();
+
         this.toolPaletteItemProvider = new ToolPaletteItemProvider({editor: this});
         this.toolPaletteContainer = $(this._container)
                                     .find(_.get(viewOptions, 'design_view.tool_palette.container'))
@@ -263,7 +266,7 @@ class BallerinaFileEditor extends EventChannel {
         //create Rect component for diagram
         let root = React.createElement(BallerinaDiagram, {
             editor: this,
-            dragDropManager: this.toolPalette.dragDropManager,
+            dragDropManager: this.dragDropManager,
             messageManager: this.messageManager,
             container: this._$canvasContainer,
             renderingContext: this.diagramRenderingContext,
@@ -281,7 +284,7 @@ class BallerinaFileEditor extends EventChannel {
         let toolPalette = React.createElement(ToolPaletteView, {
             editor: this,
             provider: this.toolPaletteItemProvider,
-            dragDropManager: this.toolPalette.dragDropManager
+            dragDropManager: this.dragDropManager
         }, null);
         ReactDOM.render(
             toolPalette,
