@@ -33,7 +33,8 @@ class CommittedStatementVisitor extends AbstractStatementSourceGenVisitor {
     beginVisitCommittedStatement(committedStatement) {
         log.debug('begin visit CommittedStatementVisitor');
         this.node = committedStatement;
-        this.appendSource(' committed {\n');
+        this.appendSource('committed' + committedStatement.getWSRegion(1) + '{' + committedStatement.getWSRegion(2));
+        this.appendSource((committedStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
 
@@ -49,7 +50,24 @@ class CommittedStatementVisitor extends AbstractStatementSourceGenVisitor {
     endVisitCommittedStatement(committedStatement) {
         log.debug('end visit CommittedStatementVisitor');
         this.outdent();
-        this.appendSource(this.getIndentation() + "}");
+        /*if using default ws, add a new line to end unless there are any
+         aborted statement available*/
+        let parent = committedStatement.getParent();
+        let tailingWS = committedStatement.getWSRegion(3);
+        if (committedStatement.whiteSpace.useDefault
+            && (_.isEmpty(parent.getAbortedStatement()))) {
+            tailingWS = '\n';
+        } else {
+            let abortedIndex = parent.children.indexOf(parent.getAbortedStatement());
+            let committedIndex = parent.children.indexOf(committedStatement);
+            if (abortedIndex < committedIndex) {
+                tailingWS = '\n';
+            } else {
+                tailingWS = ' ';
+            }
+        }
+
+        this.appendSource("}" + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

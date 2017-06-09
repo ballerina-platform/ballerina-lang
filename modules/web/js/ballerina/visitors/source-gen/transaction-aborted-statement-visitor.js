@@ -27,6 +27,14 @@ class TransactionAbortedStatementVisitor extends AbstractStatementSourceGenVisit
         return true;
     }
 
+    beginVisitTransactionAbortedStatement(statement) {
+        this.parentNode = statement;
+        if (statement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+    }
+
     visitTransactionStatement(statement) {
         let statementVisitorFactory = new StatementVisitorFactory();
         let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
@@ -46,7 +54,9 @@ class TransactionAbortedStatementVisitor extends AbstractStatementSourceGenVisit
     }
 
     endVisitTransactionAbortedStatement(statement) {
-        this.getParent().appendSource('\n' + this.getGeneratedSource() + '\n');
+        this.appendSource((statement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

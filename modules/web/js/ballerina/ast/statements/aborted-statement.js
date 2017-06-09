@@ -22,6 +22,12 @@ class AbortedStatement extends Statement {
     constructor() {
         super();
         this.type = "AbortedStatement";
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '\n',
+            3: ' '
+        }
     }
 
     /**

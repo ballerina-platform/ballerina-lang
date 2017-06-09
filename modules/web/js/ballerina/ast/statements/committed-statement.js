@@ -23,6 +23,12 @@ class CommittedStatement extends Statement {
     constructor() {
         super();
         this.type = 'CommittedStatement';
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '\n',
+            3: ' '
+        }
     }
 
     /**

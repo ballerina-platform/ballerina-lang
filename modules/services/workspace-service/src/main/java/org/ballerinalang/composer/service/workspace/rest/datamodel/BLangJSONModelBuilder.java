@@ -735,7 +735,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             ifStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.IF_STATEMENT);
             this.addPosition(ifStmtObj, ifElseStmt.getNodeLocation());
             this.addWhitespaceDescriptor(ifStmtObj, ifElseStmt.getWhiteSpaceDescriptor()
-                                    .getChildDescriptor(BLangModelBuilder.IF_CLAUSE));
+                    .getChildDescriptor(BLangModelBuilder.IF_CLAUSE));
             tempJsonArrayRef.push(new JsonArray());
             ifElseStmt.getCondition().accept(this);
             // add condition expr of if
@@ -861,6 +861,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             transactionBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                     BLangJSONModelConstants.TRANSACTION_STATEMENT);
             this.addPosition(transactionBlockObj, transactionStmt.getTransactionBlock().getNodeLocation());
+            this.addWhitespaceDescriptor(transactionBlockObj, transactionStmt.getWhiteSpaceDescriptor());
             tempJsonArrayRef.push(new JsonArray());
             transactionStmt.getTransactionBlock().accept(this);
             transactionBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -880,6 +881,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                     BLangJSONModelConstants.ABORTED_STATEMENT);
             this.addPosition(abortedBlockObj,
                     transactionStmt.getAbortedBlock().getAbortedBlockStmt().getNodeLocation());
+            this.addWhitespaceDescriptor(abortedBlockObj, transactionStmt.getWhiteSpaceDescriptor()
+                    .getChildDescriptor(BLangJSONModelConstants.ABORTED_CLAUSE));
             tempJsonArrayRef.push(new JsonArray());
             transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
             abortedBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -899,6 +902,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                     BLangJSONModelConstants.COMMITTED_STATEMENT);
             this.addPosition(committedBlockObj,
                     transactionStmt.getCommittedBlock().getCommittedBlockStmt().getNodeLocation());
+            this.addWhitespaceDescriptor(committedBlockObj, transactionStmt.getWhiteSpaceDescriptor()
+                    .getChildDescriptor(BLangJSONModelConstants.COMMITTED_CLAUSE));
             tempJsonArrayRef.push(new JsonArray());
             transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
             committedBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -949,7 +954,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tryBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TRY_BLOCK);
             this.addPosition(tryBlockObj, tryCatchStmt.getTryBlock().getNodeLocation());
             this.addWhitespaceDescriptor(tryBlockObj, tryCatchStmt.getWhiteSpaceDescriptor()
-                                                        .getChildDescriptor("TryClause"));
+                    .getChildDescriptor("TryClause"));
             tempJsonArrayRef.push(new JsonArray());
             tryCatchStmt.getTryBlock().accept(this);
             tryBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -1249,7 +1254,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         String basicLiteralValue;
         if ((basicLiteral.getTypeName().getName().equals("float") ||
                 basicLiteral.getTypeName().getName().equals("double")) &&
-                        basicLiteral.getBValue().stringValue().contains("E")) {
+                basicLiteral.getBValue().stringValue().contains("E")) {
             // float or the double has been represented in the scientific notation. We need to convert it back to
             // the normal representation
             String[] tokens = basicLiteral.getBValue().stringValue().split("E");
@@ -1880,7 +1885,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     private JsonObject simpleTypeNameToJson(SimpleTypeName simpleTypeName) {
         JsonObject simpleTypeNameObj = new JsonObject();
         simpleTypeNameObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
-                                        BLangJSONModelConstants.SIMPLE_TYPE_NAME);
+                BLangJSONModelConstants.SIMPLE_TYPE_NAME);
         this.addWhitespaceDescriptor(simpleTypeNameObj, simpleTypeName.getWhiteSpaceDescriptor());
         simpleTypeNameObj.addProperty(BLangJSONModelConstants.TYPE_NAME, simpleTypeName.getName());
         simpleTypeNameObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, simpleTypeName.getPackageName());
