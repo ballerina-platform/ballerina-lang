@@ -6148,8 +6148,8 @@ public class BallerinaParser extends Parser {
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public SimpleExpressionContext simpleExpression() {
+			return getRuleContext(SimpleExpressionContext.class,0);
 		}
 		public TypeCastingExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
@@ -6214,8 +6214,8 @@ public class BallerinaParser extends Parser {
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
 		}
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public SimpleExpressionContext simpleExpression() {
+			return getRuleContext(SimpleExpressionContext.class,0);
 		}
 		public TypeConversionExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
@@ -6428,7 +6428,7 @@ public class BallerinaParser extends Parser {
 				setState(1025);
 				match(GT);
 				setState(1026);
-				expression(11);
+				simpleExpression();
 				}
 				break;
 			case 10:
@@ -6443,7 +6443,7 @@ public class BallerinaParser extends Parser {
 				setState(1030);
 				match(RPAREN);
 				setState(1031);
-				expression(10);
+				simpleExpression();
 				}
 				break;
 			case 11:
@@ -7598,8 +7598,8 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\u03fa\u03fb\5<\37\2\u03fb\u03fc\7>\2\2\u03fc\u03fd\7]\2\2\u03fd"+
 		"\u0412\3\2\2\2\u03fe\u0412\5\u0082B\2\u03ff\u0412\5\u0092J\2\u0400\u0412"+
 		"\5\u0098M\2\u0401\u0402\7A\2\2\u0402\u0403\5\66\34\2\u0403\u0404\7@\2"+
-		"\2\u0404\u0405\5\u0094K\r\u0405\u0412\3\2\2\2\u0406\u0407\7\66\2\2\u0407"+
-		"\u0408\5\66\34\2\u0408\u0409\7\67\2\2\u0409\u040a\5\u0094K\f\u040a\u0412"+
+		"\2\u0404\u0405\5\u0096L\2\u0405\u0412\3\2\2\2\u0406\u0407\7\66\2\2\u0407"+
+		"\u0408\5\66\34\2\u0408\u0409\7\67\2\2\u0409\u040a\5\u0096L\2\u040a\u0412"+
 		"\3\2\2\2\u040b\u040c\t\4\2\2\u040c\u0412\5\u0096L\2\u040d\u040e\7\66\2"+
 		"\2\u040e\u040f\5\u0094K\2\u040f\u0410\7\67\2\2\u0410\u0412\3\2\2\2\u0411"+
 		"\u03f2\3\2\2\2\u0411\u03f4\3\2\2\2\u0411\u03f5\3\2\2\2\u0411\u03f6\3\2"+
