@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.composer.service.workspace.launcher;
 
 import org.apache.commons.io.IOUtils;
@@ -18,20 +34,19 @@ public class TerminatorUnix implements Terminator {
     TerminatorUnix(Command command) {
         this.command = command;
     }
-
     private String[] getFindProcessCommand(String script) {
         String[] cmd = {
                 "/bin/sh",
                 "-c",
-                "ps -ef | grep " + script + " | grep run | grep -v 'grep' | awk '{print $2}'"
+                "ps -ef | grep " + script + " | grep run | grep ballerina | grep -v 'grep' | awk '{print $2}'"
         };
         return cmd;
     }
 
     public void terminate() {
-        String script = command.getScript();
+        String cmd = command.getCommandIdentifier();
         int processID = -1;
-        String[] findProcessCommand = getFindProcessCommand(script);
+        String[] findProcessCommand = getFindProcessCommand(cmd);
         BufferedReader reader = null;
         try {
             Process findProcess = Runtime.getRuntime().exec(findProcessCommand);
@@ -47,7 +62,7 @@ public class TerminatorUnix implements Terminator {
                 }
             }
         } catch (Throwable e) {
-            logger.error("Launcher was unable to find the process ID for " + script + ".");
+            logger.error("Launcher was unable to find the process ID for " + cmd + ".");
         } finally {
             if (reader != null) {
                 IOUtils.closeQuietly(reader);

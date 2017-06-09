@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -94,7 +95,13 @@ public class LaunchManager {
         }
         
         try {
-            program = Runtime.getRuntime().exec(command.toString());
+            String cmd = command.toString();
+            if(command.getPackageDir() == null) {
+                program = Runtime.getRuntime().exec(cmd);
+            } else {
+                program = Runtime.getRuntime().exec(cmd, null, new File(command.getPackageDir()));
+            }
+
             command.setProgram(program);
             
             
