@@ -56,7 +56,7 @@ class TransformRender
             Connector: self.getConnectorConfig(self.midpoint),
             Container: this.placeHolderName,
             PaintStyle: {
-                strokeWidth: 2,
+                strokeWidth: 1,
             //todo : load colors from css
                 stroke: '#666769',
                 cssClass: 'plumbConnect',
@@ -64,9 +64,9 @@ class TransformRender
                 outlineWidth: 2
             },
             HoverPaintStyle: {
-                strokeWidth: 3,
+                strokeWidth: 2,
                 stroke: '#ff9900',
-                outlineWidth: 3,
+                outlineWidth: 2,
                 outlineStroke: '#ffe0b3'
             },
             EndpointStyle: {radius: 1},
@@ -74,8 +74,9 @@ class TransformRender
                 ['Arrow', {
                     location: 1,
                     visible: true,
-                    width: 11,
-                    length: 11
+                    width: 6,
+                    length: 6,
+                    foldback: 1
                 }],
                 ['Custom', {
                     create: function (component) {
