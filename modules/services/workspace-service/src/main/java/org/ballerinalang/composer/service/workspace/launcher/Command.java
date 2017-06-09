@@ -47,54 +47,54 @@ public class Command {
         this.filePath = filePath;
         this.debug = debug;
         this.type = type;
-        
+
         if (debug) {
             this.port = LaunchUtils.getFreePort();
         }
     }
-    
+
     public Command(LauncherConstants.ProgramType type, String fileName, String filePath, String commandArgs, boolean
             debug) {
         this(type, fileName, filePath, debug);
         this.commandArgs = commandArgs;
     }
-    
+
     public String getFileName() {
         return fileName;
     }
-    
+
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-    
+
     public String getFilePath() {
         return filePath;
     }
-    
+
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
-    
+
     public boolean isDebug() {
         return debug;
     }
-    
+
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
-    
+
     public LauncherConstants.ProgramType getType() {
         return type;
     }
-    
+
     public void setType(LauncherConstants.ProgramType type) {
         this.type = type;
     }
-    
+
     public int getPort() {
         return port;
     }
-    
+
     public void setPort(int port) {
         this.port = port;
     }

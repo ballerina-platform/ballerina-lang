@@ -93,7 +93,6 @@ public class BLangJSONModelConstants {
 
     public static final String PARAMETER_DEFINITION = "parameter_definition";
 
-
     public static final String ANNOTATION = "annotation";
 
     public static final String ANNOTATION_ENTRY = "annotation_entry";
@@ -349,6 +348,8 @@ public class BLangJSONModelConstants {
     public static final String TRANSACTION_STATEMENT = "transaction_statement";
 
     public static final String ABORTED_STATEMENT = "aborted_statement";
+
+    public static final String COMMITTED_STATEMENT = "committed_statement";
 
     public static final String JOIN_TYPE = "join_type";
 

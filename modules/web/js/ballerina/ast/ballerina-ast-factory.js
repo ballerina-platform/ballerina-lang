@@ -95,10 +95,11 @@ import transformStatement from './statements/transform-statement';
 import forkJoinStatement from './statements/fork-join-statement';
 import timeoutStatement from './statements/timeout-statement';
 import joinStatement from './statements/join-statement';
-import transactionAbortedStatement from './statements/transactionaborted-statement';
+import transactionAbortedStatement from './statements/transaction-aborted-statement';
 import transactionStatement from './statements/transaction-statement';
 import abortedStatement from './statements/aborted-statement';
 import abortStatement from './statements/abort-statement';
+import committedStatement from './statements/committed-statement';
 import connectorInitExpression from './expressions/connector-init-expression';
 import simpleTypeName from './simple-type-name';
 
@@ -663,7 +664,6 @@ BallerinaASTFactory.createConnectorInitExpression= function (args) {
     return new connectorInitExpression(args);
 };
 
-
 /**
  * creates ArrayMapAccessExpression
  * @param {Object} args - Arguments for creating a new instance creation.
@@ -778,6 +778,15 @@ BallerinaASTFactory.createTransactionStatement = function (args) {
  * */
 BallerinaASTFactory.createAbortedStatement = function (args) {
     return new abortedStatement();
+};
+
+/**
+ * Create {@link CommittedStatement}
+ * @param {object} args - Arguments to create the committed statement.
+ * @return {CommittedStatement} new Committed Statement.
+ * */
+BallerinaASTFactory.createCommittedStatement = function (args) {
+    return new committedStatement();
 };
 
 /**
@@ -1511,6 +1520,15 @@ BallerinaASTFactory.isAbortStatement = function (child) {
     return child instanceof abortStatement;
 };
 
+/**
+ * instanceof check for the CommittedStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isCommittedStatement = function (child) {
+    return child instanceof committedStatement;
+};
+
 BallerinaASTFactory.createFromJson = function (jsonNode) {
     var node;
     var nodeType = jsonNode.type;
@@ -1776,6 +1794,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'abort_statement':
         node = BallerinaASTFactory.createAbortStatement();
+        break;
+    case 'committed_statement':
+        node = BallerinaASTFactory.createCommittedStatement();
         break;
     default:
         throw new Error('Unknown node definition for ' + jsonNode.type);

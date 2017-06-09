@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -113,7 +113,24 @@ class StatementVisitor extends ASTVisitor {
 
     endVisitAbortedStatement(statement) {
     }
-    canVisitStatement(statement) {
+
+    /// begin - abstract methods for committed statement source gen visitor function.
+    canVisitCommittedStatement(statement) {
+        return false;
+    }
+
+    beginVisitCommittedStatement(statement) {
+    }
+
+    visitCommittedStatement(statement) {
+    }
+
+    endVisitCommittedStatement(statement) {
+    }
+
+    /// end - abstract method for committed statement source gen visitor function.
+    
+	canVisitStatement(statement) {
         return false;
     }
 
@@ -437,6 +454,8 @@ class StatementVisitor extends ASTVisitor {
             return this.visitAbortStatement(node);
         } else if (ASTFactory.isJoinStatement(node)) {
             return this.visitJoinStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.visitCommittedStatement(node);
         }
     }
 
@@ -502,6 +521,8 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.canVisitAbortStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.canVisitCommittedStatement(node);
         }
     }
 
@@ -567,6 +588,8 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitForkJoinStatement(node);
         } else if (ASTFactory.isJoinStatement(node)) {
             return this.beginVisitJoinStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.beginVisitCommittedStatement(node);
         }
     }
 
@@ -632,6 +655,8 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitForkJoinStatement(node);
         } else if (ASTFactory.isJoinStatement(node)) {
             return this.endVisitJoinStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.endVisitCommittedStatement(node);
         }
     }
 }

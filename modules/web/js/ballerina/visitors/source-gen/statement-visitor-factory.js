@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -43,6 +43,7 @@ import AbortStatementVisitor from './abort-statement-visitor';
 import TimeoutStatementVisitor from './timeout-statement-visitor';
 import ForkJoinStatementVisitor from './fork-join-statement-visitor';
 import JoinStatementVisitor from './join-statement-visitor';
+import CommittedStatementVisitor from './committed-statement-visitor';
 
 class StatementVisitorFactor {
     getStatementVisitor(statement, parent) {
@@ -100,6 +101,8 @@ class StatementVisitorFactor {
             return new AbortedStatementVisitor(parent);
         } else if (ASTFactory.isAbortStatement(statement)) {
             return new AbortStatementVisitor(parent);
+        } else if (ASTFactory.isCommittedStatement(statement)) {
+            return new CommittedStatementVisitor(parent);
         }
     }
 }

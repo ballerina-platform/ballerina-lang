@@ -23,17 +23,62 @@ import {getComponentForNodeArray} from './utils';
 class AbortedStatement extends React.Component {
     constructor(props) {
         super(props);
+        this.onAddCommittedClick = this.onAddCommittedClick.bind(this);
     }
 
-    render() {
+    /**
+     * Get add committed statement button
+     * @return {object} react element or null
+     * */
+    getAddCommittedStatementButton() {
+        let model = this.props.model;
+        let parent = model.parent;
+        let bBox = model.viewState.bBox;
+        if (!parent.getCommittedStatement()) {
+            return (<g onClick={this.onAddCommittedClick}>
+                <rect x={bBox.x + bBox.w - 20} y={bBox.y + bBox.h - 20} width={20} height={20}
+                      className="add-else-button"/>
+                <text x={bBox.x + bBox.w - 15} y={bBox.y + bBox.h - 10} width={20} height={20}
+                      className="add-else-button-label">+
+                </text>
+            </g>);
+        }
+        return null;
+    }
+
+    /**
+     * Event handler for click add committed button.
+     * */
+    onAddCommittedClick() {
+        let parent = this.props.model.parent;
+        parent.createCommittedStatement();
+    }
+
+    /**
+     * Get block statement decorator for aborted statement.
+     * @param {object} utilities
+     * @return {object}
+     * */
+    getBlockStatementDecorator(utilities) {
         let model = this.props.model;
         let bBox = model.viewState.bBox;
         let titleWidth = model.viewState.titleWidth;
         let children = getComponentForNodeArray(model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-                                         title={"Aborted"}>
-            {children}
-        </BlockStatementDecorator>);
+        if (utilities) {
+            return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+                                             title={"Aborted"} utilities={utilities}>
+                {children}
+            </BlockStatementDecorator>);
+        } else {
+            return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+                                             title={"Aborted"}>
+                {children}
+            </BlockStatementDecorator>);
+        }
+    }
+
+    render() {
+        return this.getBlockStatementDecorator(this.getAddCommittedStatementButton());
     }
 }
 

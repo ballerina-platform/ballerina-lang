@@ -182,7 +182,7 @@ DefaultBallerinaASTFactory.createAbortStatement = function (args) {
  * */
 DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
     var transactionAbortedStatement = BallerinaASTFactory.createTransactionAbortedStatement(args);
-    transactionAbortedStatement.setStatementFromString('transaction {} aborted {}');
+    transactionAbortedStatement.setStatementFromString('transaction {} aborted {} committed {}');
     return transactionAbortedStatement;
 };
 

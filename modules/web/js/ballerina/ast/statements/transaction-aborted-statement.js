@@ -17,12 +17,51 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import BallerinaASTFactory from './../ballerina-ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
 
 class TransactionAbortedStatement extends Statement {
     constructor(args) {
         super();
         this.type = "TransactionAbortedStatement";
+    }
+
+    /**
+     * Get Aborted Statement associated with transaction.
+     * @return {AbortedStatement}
+     * */
+    getAbortedStatement() {
+        return this.children.find(c => (BallerinaASTFactory.isAbortedStatement(c)));
+    }
+
+    /**
+     * Get Committed Statement associated with transaction.
+     * @return {CommittedStatement}
+     * */
+    getCommittedStatement() {
+        return this.children.find(c => (BallerinaASTFactory.isCommittedStatement(c)));
+    }
+
+    /**
+     * Create Aborted Statement.
+     * @param {object} args
+     * @return {AbortedStatement}
+     * */
+    createAbortedStatement(args) {
+        let abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
+        this.addChild(abortedStatement);
+        return abortedStatement;
+    }
+
+    /**
+     * Create Committed Statement.
+     * @param {object} args
+     * @return {CommittedStatement}
+     * */
+    createCommittedStatement(args) {
+        let committedStatement = BallerinaASTFactory.createCommittedStatement(args);
+        this.addChild(committedStatement);
+        return committedStatement;
     }
 
     /**

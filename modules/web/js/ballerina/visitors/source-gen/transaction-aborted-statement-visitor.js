@@ -39,6 +39,12 @@ class TransactionAbortedStatementVisitor extends AbstractStatementSourceGenVisit
         statement.accept(statementVisitor);
     }
 
+    visitCommittedStatement(statement) {
+        let statementVisitorFactory = new StatementVisitorFactory();
+        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
+
     endVisitTransactionAbortedStatement(statement) {
         this.getParent().appendSource('\n' + this.getGeneratedSource() + '\n');
     }

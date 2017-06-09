@@ -106,7 +106,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -845,23 +845,23 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
         JsonObject transactionAbortedStmtObj = new JsonObject();
         transactionAbortedStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.TRANSACTION_ABORTED_STATEMENT);
-        this.addPosition(transactionAbortedStmtObj, transactionRollbackStmt.getNodeLocation());
-        this.addWhitespaceDescriptor(transactionAbortedStmtObj, transactionRollbackStmt.getWhiteSpaceDescriptor());
+        this.addPosition(transactionAbortedStmtObj, transactionStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(transactionAbortedStmtObj, transactionStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
 
-        if (transactionRollbackStmt.getTransactionBlock() != null) {
+        if (transactionStmt.getTransactionBlock() != null) {
             tempJsonArrayRef.push(new JsonArray());
 
             JsonObject transactionBlockObj = new JsonObject();
             transactionBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                     BLangJSONModelConstants.TRANSACTION_STATEMENT);
-            this.addPosition(transactionBlockObj, transactionRollbackStmt.getTransactionBlock().getNodeLocation());
+            this.addPosition(transactionBlockObj, transactionStmt.getTransactionBlock().getNodeLocation());
             tempJsonArrayRef.push(new JsonArray());
-            transactionRollbackStmt.getTransactionBlock().accept(this);
+            transactionStmt.getTransactionBlock().accept(this);
             transactionBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
             tempJsonArrayRef.peek().add(transactionBlockObj);
@@ -871,16 +871,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tempJsonArrayRef.peek().addAll(transactionStatement);
         }
 
-        if (transactionRollbackStmt.getRollbackBlock() != null) {
+        if (transactionStmt.getAbortedBlock() != null) {
             tempJsonArrayRef.push(new JsonArray());
 
             JsonObject abortedBlockObj = new JsonObject();
             abortedBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                     BLangJSONModelConstants.ABORTED_STATEMENT);
             this.addPosition(abortedBlockObj,
-                    transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().getNodeLocation());
+                    transactionStmt.getAbortedBlock().getAbortedBlockStmt().getNodeLocation());
             tempJsonArrayRef.push(new JsonArray());
-            transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().accept(this);
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
             abortedBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
             tempJsonArrayRef.peek().add(abortedBlockObj);
@@ -888,6 +888,25 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             JsonArray abortedStatement = tempJsonArrayRef.peek();
             tempJsonArrayRef.pop();
             tempJsonArrayRef.peek().addAll(abortedStatement);
+        }
+
+        if (transactionStmt.getCommittedBlock() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+            JsonObject committedBlockObj = new JsonObject();
+
+            committedBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                    BLangJSONModelConstants.COMMITTED_STATEMENT);
+            this.addPosition(committedBlockObj,
+                    transactionStmt.getCommittedBlock().getCommittedBlockStmt().getNodeLocation());
+            tempJsonArrayRef.push(new JsonArray());
+            transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
+            committedBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(committedBlockObj);
+
+            JsonArray committedStatement = tempJsonArrayRef.peek();
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().addAll(committedStatement);
         }
 
         transactionAbortedStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
