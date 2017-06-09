@@ -34,6 +34,7 @@ import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -87,18 +88,7 @@ public class ServerConnectorMessageHandler {
             }
 
             // Find the Resource
-            ResourceInfo resource = null;
-            try {
-                resource = resourceDispatcher.findResource(service, cMsg, callback);
-            } catch (BallerinaException ex) {
-                throw new BallerinaException("no resource found to handle the request to Service: " +
-                        service.getName() + " : " + ex.getMessage());
-            }
-            if (resource == null) {
-                throw new BallerinaException("no resource found to handle the request to Service: " +
-                        service.getName());
-                // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
-            }
+            ResourceInfo resource = resourceDispatcher.findResource(service, cMsg, callback);
 
             invokeResource(cMsg, callback, resource, service);
 
@@ -118,8 +108,9 @@ public class ServerConnectorMessageHandler {
     public static void invokeResource(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
+        ProgramFile programFile = packageInfo.getProgramFile();
 
-        Context context = new Context(packageInfo.getProgramFile());
+        Context context = new Context(programFile);
         context.setServiceInfo(serviceInfo);
         context.setCarbonMessage(carbonMessage);
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
@@ -194,9 +185,8 @@ public class ServerConnectorMessageHandler {
 
     public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback,
                                               Throwable throwable) {
-        // TODO : Refactor this logic.
         String errorMsg = throwable.getMessage();
-        outStream.println(errorMsg);
+
         // bre log should contain bre stack trace, not the ballerina stack trace
         breLog.error("error: " + errorMsg, throwable);
         Object protocol = cMsg.getProperty("PROTOCOL");

@@ -43,7 +43,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 /**
- * This class contains helper functions to invoke workers
+ * This class contains helper functions to invoke workers.
  *
  * @since 0.88
  */
@@ -54,7 +54,7 @@ public class BLangVMWorkers {
         BType[] paramTypes = callableUnitInfo.getParamTypes();
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context();
+            Context workerContext = new Context(programFile);
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());

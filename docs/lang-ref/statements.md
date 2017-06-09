@@ -21,10 +21,13 @@ The rest of this page describes the statements you can use in your Ballerina pro
 An assignment statement allows you to assign a value to a variable accessor. In the Composer, you can drag the Assignment icon ![alt-text](../images/icons/assign.png "Assignment icon") from the tool palette to the canvas to add the statement to your program. 
 
 An assignment statement is defined as follows:
+
 ```
 VariableAccessor = Expression;
 ```
+
 where a `VariableAccessor` is one of:
+
 - VariableName
 - VariableAccessor'['ArrayIndex']'
 - VariableAccessor'['MapIndex']'
@@ -87,13 +90,15 @@ fork (MessageName) {
   Statement;*  
 }]
 ```
+
 Note that if the `join` clause is missing, it is equivalent to waiting for all workers to complete and ignorning the results.
 
 The `JoinCondition` is one of the following:
+
 - `any IntegerValue [(WorkerNameList)]`: wait for any k (i.e., the IntegerValue) of the given workers or any of the workers
 - `all [(WorkerNameList)]`: wait for all given workers or all of the workers
 
-where `WorkerNameList` is a list of comma-separated names of workers.
+In this scenario, `WorkerNameList` is a list of comma-separated names of workers.
 
 > **Note:** The join condition "any k" where k != 1 is not yet implemented.
 
@@ -106,6 +111,7 @@ The `timeout` clause allows one to specify a maximum time (in seconds) within wh
 The Return statement evaluates the expression, stops the current function, and returns the result of the expression to the caller. In the Composer, you can drag the Return icon ![alt-text](../images/icons/return.png "Return icon") from the tool palette to the canvas to add the statement to your program. 
 
 A `return` statement is defined as follows:
+
 ```
 return Expression*;
 ```
@@ -115,6 +121,7 @@ return Expression*;
 The Reply statement sends the request message back to the client. In the Composer, you can drag the Reply icon ![alt-text](../images/icons/reply.png "Reply icon") from the tool palette to the canvas to add the statement to your program. 
 
 A `reply` statement is defined as follows:
+
 ```
 reply Message?;
 ```

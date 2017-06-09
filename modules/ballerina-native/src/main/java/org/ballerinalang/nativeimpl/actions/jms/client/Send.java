@@ -94,7 +94,7 @@ public class Send extends AbstractJMSAction {
         context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
 
         //Getting the map of properties.
-        BMap<String, BString> properties = (BMap<String, BString>) bConnector.getValue(0);
+        BMap<String, BString> properties = (BMap<String, BString>) bConnector.getRefField(0);
 
         //Create property map to send to transport.
 //        Map<String, String> propertyMap = properties.keySet()

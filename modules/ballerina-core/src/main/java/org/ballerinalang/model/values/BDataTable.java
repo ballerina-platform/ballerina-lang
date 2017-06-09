@@ -72,8 +72,8 @@ public class BDataTable implements BRefType<Object> {
         return iterator.next();
     }
 
-    public void close() {
-        iterator.close();
+    public void close(boolean isInTransaction) {
+        iterator.close(isInTransaction);
     }
 
     public BStruct getNext() {
@@ -326,13 +326,13 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getArray(columnName);
     }
     
-    public BJSON toJSON() {
-        return new BJSON(new DataTableJSONDataSource(this));
+    public BJSON toJSON(boolean isInTransaction) {
+        return new BJSON(new DataTableJSONDataSource(this, isInTransaction));
     }
 
-    public BXML toXML(String rootWrapper, String rowWrapper) {
+    public BXML toXML(String rootWrapper, String rowWrapper, boolean isInTransaction) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper));
+        omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper, isInTransaction));
         return new BXMLItem(omSourcedElement);
     }
 
