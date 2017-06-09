@@ -2343,8 +2343,9 @@ public class CodeGenerator implements NodeVisitor {
             currentWorkerInfo = workerInfo;
             lvIndexes = lvIndexesCopy.clone();
             worker.getCallableUnitBody().accept(this);
-            workerInfo.setWorkerEndIP(nextIP());
             endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
+            // emit HALT instruction to finish the worker activity
+            emit(InstructionCodes.HALT);
         }
 
         lvIndexes = lvIndexesCopy;
@@ -2579,8 +2580,10 @@ public class CodeGenerator implements NodeVisitor {
 
                 lvIndexes = lvIndexesCopy.clone();
                 worker.getCallableUnitBody().accept(this);
-                workerInfo.setWorkerEndIP(nextIP());
+                //workerInfo.setWorkerEndIP(nextIP());
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
+                // emit HALT instruction to finish the worker activity
+                emit(InstructionCodes.HALT);
             }
 
         } else {
