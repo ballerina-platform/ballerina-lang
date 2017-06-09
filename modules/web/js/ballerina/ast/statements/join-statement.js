@@ -29,6 +29,7 @@ class JoinStatement extends Statement {
     constructor(args) {
         super('JoinStatement');
         this._joinType = _.get(args, 'joinType', 'all');
+        this._joinWorkers = _.get(args, 'joinWorkers', []);
         const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'message[]', name: 'm'});
         this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
     }

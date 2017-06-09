@@ -41,7 +41,7 @@ class JoinStatementPositionCalcVisitor {
         components.statementContainer.y = bBox.y + blockStatement.heading.height;
 
         let title_w = blockStatement.heading.width;
-        const typeWidth = util.getTextWidth(node.getJoinType(), 3);
+        const typeWidth = util.getTextWidth(node.getJoinConditionString(), 3);
         components.param.x = bBox.x + title_w + blockStatement.heading.paramSeparatorOffsetX + typeWidth.w;
         components.param.y = bBox.y;
     }
