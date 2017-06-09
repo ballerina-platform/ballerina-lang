@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -280,7 +280,7 @@ public class StringTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testXmlValueOfNegative() {
         BValue[] args = {new BXMLItem("<test>name<test>")};
         BLangFunctions.invokeNew(programFile, "xmlValueOf", args);
