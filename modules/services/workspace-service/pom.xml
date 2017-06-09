@@ -59,10 +59,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-native</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.wso2.ballerina.connectors</groupId>
             <artifactId>connectors</artifactId>
-        </dependency>
+        </dependency -->
         <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
