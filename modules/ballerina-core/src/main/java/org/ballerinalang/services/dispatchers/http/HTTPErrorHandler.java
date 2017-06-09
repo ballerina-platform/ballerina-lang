@@ -44,7 +44,9 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
     @Override
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback callback) {
         ErrorHandlerUtils.printError(e);
-        callback.done(createErrorMessage(e.getMessage(), 500));
+        Object carbonStatusCode = carbonMessage.getProperty(Constants.HTTP_STATUS_CODE);
+        callback.done(createErrorMessage(ErrorHandlerUtils.getErrorMessage(e), (carbonStatusCode == null) ? 500 :
+                Integer.parseInt(carbonStatusCode.toString())));
     }
 
     @Override
