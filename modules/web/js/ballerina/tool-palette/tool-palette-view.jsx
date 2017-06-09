@@ -366,7 +366,10 @@ class ToolPaletteView extends React.Component {
 		this.editor = props.editor;	
         this.editor.on("update-diagram", () => {
             this.forceUpdate();
-        });		
+        });
+		this.editor.on('import-new-package',() => {
+            this.forceUpdate();
+        });
 	}
 
 	onSearchTextChange(value){
@@ -383,7 +386,7 @@ class ToolPaletteView extends React.Component {
 		//get the environment
 		let environment = this.props.editor.getEnvironment();
 		//get the current package
-		let currentPackage = environment.getPackageByName('Current Package');
+		let currentPackage = this.props.editor.generateCurrentPackage();
 		let currentTools = this.provider.getCombinedToolGroup(currentPackage);
 		//get the constructs
 		let constructs = _.cloneDeep(InitialTools[0]);
