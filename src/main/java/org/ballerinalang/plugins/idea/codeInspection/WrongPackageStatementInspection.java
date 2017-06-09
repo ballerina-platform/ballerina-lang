@@ -44,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,92 +52,109 @@ public class WrongPackageStatementInspection extends BaseJavaBatchLocalInspectio
 
     @Override
     @Nullable
-    public ProblemDescriptor[] checkFile(@NotNull PsiFile file, @NotNull InspectionManager manager, boolean
-            isOnTheFly) {
+    public ProblemDescriptor[] checkFile(@NotNull PsiFile file, @NotNull InspectionManager manager,
+                                         boolean isOnTheFly) {
         // does not work in tests since CodeInsightTestCase copies file into temporary location
         if (ApplicationManager.getApplication().isUnitTestMode()) {
             return new ProblemDescriptor[0];
         }
-        if (file instanceof BallerinaFile) {
-            if (FileTypeUtils.isInServerPageFile(file)) {
-                return new ProblemDescriptor[0];
-            }
-            BallerinaFile ballerinaFile = (BallerinaFile) file;
+        if (!(file instanceof BallerinaFile)) {
+            return new ProblemDescriptor[0];
+        }
+        if (FileTypeUtils.isInServerPageFile(file)) {
+            return new ProblemDescriptor[0];
+        }
+        BallerinaFile ballerinaFile = (BallerinaFile) file;
+        PsiDirectory directory = ballerinaFile.getContainingDirectory();
+        if (directory == null) {
+            return new ProblemDescriptor[0];
+        }
 
-            PsiDirectory directory = ballerinaFile.getContainingDirectory();
-            if (directory == null) {
-                return new ProblemDescriptor[0];
-            }
+        String packageName = BallerinaUtil.suggestPackageNameForDirectory(directory);
+        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file, PackageDeclarationNode.class);
+        DefinitionNode definitionNode = PsiTreeUtil.findChildOfType(file, DefinitionNode.class);
+        if (definitionNode == null) {
+            return new ProblemDescriptor[0];
+        }
+        PsiElement firstChild = definitionNode.getFirstChild();
+        if (firstChild == null || !(firstChild instanceof IdentifierDefSubtree)) {
+            return new ProblemDescriptor[0];
+        }
 
-            String packageName = BallerinaUtil.suggestPackageNameForDirectory(directory);
-            PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file,
-                    PackageDeclarationNode.class);
-            DefinitionNode definitionNode = PsiTreeUtil.findChildOfType(file, DefinitionNode.class);
-            if (definitionNode == null) {
-                return new ProblemDescriptor[0];
-            }
-            PsiElement firstChild = definitionNode.getFirstChild();
+        PsiElement nameIdentifier = ((IdentifierDefSubtree) firstChild).getNameIdentifier();
+        if (nameIdentifier == null) {
+            return new ProblemDescriptor[0];
+        }
+        if (!Comparing.strEqual(packageName, "", true) && packageDeclarationNode == null) {
+            String description = JavaErrorMessages.message("missing.package.statement", packageName);
+            return new ProblemDescriptor[]{manager.createProblemDescriptor(nameIdentifier, description,
+                    new AdjustPackageNameFix(packageName), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly)};
+        }
 
-            if (firstChild == null || !(firstChild instanceof IdentifierDefSubtree)) {
-                return new ProblemDescriptor[0];
-            }
+        if (packageDeclarationNode == null) {
+            return new ProblemDescriptor[0];
+        }
+        PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(packageDeclarationNode, PackagePathNode.class);
+        if (packagePathNode == null) {
+            return new ProblemDescriptor[0];
+        }
 
-            PsiElement nameIdentifier = ((IdentifierDefSubtree) firstChild).getNameIdentifier();
-            if (nameIdentifier == null) {
-                return new ProblemDescriptor[0];
-            }
-            if (!Comparing.strEqual(packageName, "", true) && packageDeclarationNode == null) {
-                String description = JavaErrorMessages.message("missing.package.statement", packageName);
-                return new ProblemDescriptor[]{manager.createProblemDescriptor(nameIdentifier,
-                        description, new AdjustPackageNameFix(packageName),
-                        ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly)
-                };
-            }
+        Collection<PackageNameNode> packageNames = PsiTreeUtil.findChildrenOfType(packageDeclarationNode,
+                PackageNameNode.class);
+        if (packageNames.isEmpty()) {
+            return new ProblemDescriptor[0];
+        }
 
-            if (packageDeclarationNode != null) {
-                PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(packageDeclarationNode,
-                        PackagePathNode.class);
-                if (packagePathNode == null) {
-                    return new ProblemDescriptor[0];
-                }
-                LinkedList<PackageNameNode> packageNameNodes = new LinkedList<>(
-                        PsiTreeUtil.findChildrenOfType(packageDeclarationNode, PackageNameNode.class)
-                );
+        LinkedList<PackageNameNode> packageNameNodes = new LinkedList<>();
+        packageNameNodes.addAll(packageNames);
+        PackageNameNode lastElement = packageNameNodes.getLast();
+        if (lastElement == null) {
+            return new ProblemDescriptor[0];
+        }
+        List<LocalQuickFix> availableFixes = new ArrayList<>();
+        PsiElement packageNameIdentifier = lastElement.getNameIdentifier();
+        if (packageNameIdentifier == null) {
+            availableFixes.add(new AdjustPackageNameFix(packageName));
+            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+                    lastElement);
+        }
 
-                PackageNameNode lastElement = packageNameNodes.getLast();
-                PsiElement packageNameIdentifier = lastElement.getNameIdentifier();
-                if (packageNameIdentifier == null) {
-                    return new ProblemDescriptor[0];
-                }
+        PsiReference reference = packageNameIdentifier.getReference();
+        if (reference == null) {
+            availableFixes.add(new AdjustPackageNameFix(packageName));
+            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+                    lastElement);
+        }
 
-                PsiReference reference = packageNameIdentifier.getReference();
-                if (reference == null) {
-                    return new ProblemDescriptor[0];
-                }
+        PsiElement resolvedElement = reference.resolve();
+        if (!(resolvedElement instanceof PsiDirectory)) {
+            availableFixes.add(new AdjustPackageNameFix(packageName));
+            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+                    lastElement);
+        }
+        String containingDirectoryPackageName =
+                BallerinaUtil.suggestPackageNameForDirectory(((PsiDirectory) resolvedElement));
 
-                PsiElement resolvedElement = reference.resolve();
-                if (!(resolvedElement instanceof PsiDirectory)) {
-                    return new ProblemDescriptor[0];
-                }
-                String containingDirectoryPackageName =
-                        BallerinaUtil.suggestPackageNameForDirectory(((PsiDirectory) resolvedElement));
-
-                List<LocalQuickFix> availableFixes = new ArrayList<>();
-                if (!Comparing.equal(packageName, containingDirectoryPackageName, true)) {
-                    availableFixes.add(new AdjustPackageNameFix(packageName));
-                    if (!availableFixes.isEmpty()) {
-                        String description = JavaErrorMessages.message("package.name.file.path.mismatch",
-                                lastElement.getText(), packageName);
-                        LocalQuickFix[] fixes = availableFixes.toArray(new LocalQuickFix[availableFixes.size()]);
-                        ProblemDescriptor descriptor =
-                                manager.createProblemDescriptor(packagePathNode, description, isOnTheFly,
-                                        fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
-                        return new ProblemDescriptor[]{descriptor};
-                    }
-                }
+        if (!Comparing.equal(packageName, containingDirectoryPackageName, true)) {
+            availableFixes.add(new AdjustPackageNameFix(packageName));
+            if (!availableFixes.isEmpty()) {
+                return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes,
+                        packagePathNode, lastElement);
             }
         }
         return new ProblemDescriptor[0];
+    }
+
+    @NotNull
+    private ProblemDescriptor[] getProblemDescriptors(@NotNull InspectionManager manager, boolean isOnTheFly,
+                                                      String packageName, List<LocalQuickFix> availableFixes,
+                                                      PackagePathNode packagePathNode, PackageNameNode lastElement) {
+        String description = JavaErrorMessages.message("package.name.file.path.mismatch", lastElement.getText(),
+                packageName);
+        LocalQuickFix[] fixes = availableFixes.toArray(new LocalQuickFix[availableFixes.size()]);
+        ProblemDescriptor descriptor = manager.createProblemDescriptor(packagePathNode, description, isOnTheFly,
+                fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
+        return new ProblemDescriptor[]{descriptor};
     }
 
     @Override
