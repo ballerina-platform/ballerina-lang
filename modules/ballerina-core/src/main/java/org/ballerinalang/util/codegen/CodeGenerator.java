@@ -107,7 +107,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -133,7 +133,6 @@ import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.FunctionReturnCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
@@ -160,25 +159,26 @@ public class CodeGenerator implements NodeVisitor {
     private static final int FLOAT_OFFSET = 1;
     private static final int STRING_OFFSET = 2;
     private static final int BOOL_OFFSET = 3;
-    private static final int REF_OFFSET = 4;
+    private static final int BLOB_OFFSET = 4;
+    private static final int REF_OFFSET = 5;
 
-    private int[] maxRegIndexes = {-1, -1, -1, -1, -1};
+    private int[] maxRegIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current local variable index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] lvIndexes = {-1, -1, -1, -1, -1};
+    private int[] lvIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current register index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] regIndexes = {-1, -1, -1, -1, -1};
+    private int[] regIndexes = {-1, -1, -1, -1, -1, -1};
 
     // This int array hold then current register index of following types
     // index 0 - int, 1 - float, 2 - string, 3 - boolean, 4 - reference(BValue)
-    private int[] fieldIndexes = {-1, -1, -1, -1, -1};
+    private int[] fieldIndexes = {-1, -1, -1, -1, -1, -1};
 
     // Package level variable indexes. This includes package constants, package level variables and
     //  service level variables
-    private int[] gvIndexes = {-1, -1, -1, -1, -1};
+    private int[] gvIndexes = {-1, -1, -1, -1, -1, -1};
 
     private ProgramFile programFile = new ProgramFile();
     private String currentPkgPath;
@@ -186,6 +186,7 @@ public class CodeGenerator implements NodeVisitor {
     private PackageInfo currentPkgInfo;
 
     private ServiceInfo currentServiceInfo;
+    private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -195,6 +196,7 @@ public class CodeGenerator implements NodeVisitor {
 
     private Stack<List<Instruction>> breakInstructions = new Stack<>();
     private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
+    private Stack<Instruction> abortInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -552,6 +554,10 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(BallerinaConnectorDef connectorDef) {
         BallerinaFunction initFunction = connectorDef.getInitFunction();
         visit(initFunction);
+        BallerinaAction initAction = connectorDef.getInitAction();
+        if (initAction != null) {
+            visit(initAction);
+        }
 
         ConnectorInfo connectorInfo = currentPkgInfo.getConnectorInfo(connectorDef.getName());
         AnnotationAttachment[] annotationAttachments = connectorDef.getAnnotations();
@@ -563,6 +569,7 @@ public class CodeGenerator implements NodeVisitor {
         for (BallerinaAction action : connectorDef.getActions()) {
             action.accept(this);
         }
+
     }
 
     @Override
@@ -685,6 +692,8 @@ public class CodeGenerator implements NodeVisitor {
                 emit(opcode, rhsExpr.getTempOffset(), lvIndex);
             }
 
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
+            currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
         } else {
             // TODO
         }
@@ -812,23 +821,37 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ReturnStmt returnStmt) {
         int[] regIndexes;
         if (returnStmt.getExprs().length == 1 &&
-                returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr) {
+                returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr &&
+                !(returnStmt.getExprs()[0] instanceof TypeCastExpression
+                        || returnStmt.getExprs()[0] instanceof TypeConversionExpr)) {
             ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) returnStmt.getExprs()[0];
             returnStmt.getExprs()[0].accept(this);
             regIndexes = multiReturnExpr.getOffsets();
-
+            BType[] retTypes = multiReturnExpr.getTypes();
+            for (int i = 0; i < regIndexes.length; i++) {
+                // 1: return value position; 2:callee's value index;
+                emit(new Instruction(getOpcode(retTypes[i].getTag(), InstructionCodes.IRET), i, regIndexes[i]));
+            }
         } else {
             regIndexes = new int[returnStmt.getExprs().length];
             for (int i = 0; i < returnStmt.getExprs().length; i++) {
                 Expression expr = returnStmt.getExprs()[i];
                 expr.accept(this);
                 regIndexes[i] = expr.getTempOffset();
+                emit(new Instruction(getOpcode(expr.getType().getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         }
-
-        FunctionReturnCPEntry funcRetCPEntry = new FunctionReturnCPEntry(regIndexes);
-        int funcRetCPEntryIndex = currentPkgInfo.addCPEntry(funcRetCPEntry);
-        emit(InstructionCodes.RET, funcRetCPEntryIndex);
+        if (finallyBlocks.size() > 0) {
+            resetIndexes(this.regIndexes);
+            Stack<TryCatchStmt.FinallyBlock> original = (Stack<TryCatchStmt.FinallyBlock>) finallyBlocks.clone();
+            while (!finallyBlocks.empty()) {
+                TryCatchStmt.FinallyBlock finallyBlock = finallyBlocks.pop();
+                finallyBlock.getFinallyBlockStmt().accept(this);
+            }
+            // restore.
+            finallyBlocks = original;
+        }
+        emit(InstructionCodes.RET);
     }
 
     @Override
@@ -862,6 +885,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        resetIndexes(regIndexes);
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
         if (tryCatchStmt.getFinallyBlock() != null) {
             finallyBlocks.push(tryCatchStmt.getFinallyBlock());
@@ -1026,13 +1050,50 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
+        Instruction gotoEndOfTransactionBlock = new Instruction(InstructionCodes.GOTO, -1);
+        Instruction gotoStartOfAbortedBlock = new Instruction(InstructionCodes.GOTO, -1);
+        abortInstructions.push(gotoStartOfAbortedBlock);
+        //start transaction
+        int startIP = nextIP();
+        emit(new Instruction(InstructionCodes.TRBGN));
+        //process transaction statements
+        transactionStmt.getTransactionBlock().accept(this);
+        //end the transaction
+        int endIP = nextIP();
+        emit(new Instruction(InstructionCodes.TREND, 0));
+        //process committed block
+        if (transactionStmt.getCommittedBlock() != null) {
+            transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
+        }
+        if (transactionStmt.getAbortedBlock() != null) {
+            emit(gotoEndOfTransactionBlock);
+        }
+        abortInstructions.pop();
+        gotoStartOfAbortedBlock.setOperand(0, nextIP());
+        emit(new Instruction(InstructionCodes.TREND, -1));
+        //process aborted block
+        if (transactionStmt.getAbortedBlock() != null) {
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+        }
+        emit(gotoEndOfTransactionBlock);
+        // CodeGen for error handling.
+        int errorTargetIP = nextIP();
+        emit(new Instruction(InstructionCodes.TREND, -1));
+        if (transactionStmt.getAbortedBlock() != null) {
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+        }
+        emit(new Instruction(InstructionCodes.THROW, -1));
+        gotoEndOfTransactionBlock.setOperand(0, nextIP());
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        currentPkgInfo.addErrorTableEntry(errorTableEntry);
+        errorTableEntry.setPackageInfo(currentPkgInfo);
 
     }
 
     @Override
     public void visit(AbortStmt abortStmt) {
-
+        emit(abortInstructions.peek());
     }
 
 
@@ -1415,11 +1476,14 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ArrayInitExpr arrayInitExpr) {
         BType elementType = ((BArrayType) arrayInitExpr.getType()).getElementType();
 
+        TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(arrayInitExpr.getType().getSig()));
+        int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
+
         // Emit create array instruction
         int opcode = getOpcode(elementType.getTag(), InstructionCodes.INEWARRAY);
         int arrayVarRegIndex = ++regIndexes[REF_OFFSET];
         arrayInitExpr.setTempOffset(arrayVarRegIndex);
-        emit(opcode, arrayVarRegIndex);
+        emit(opcode, arrayVarRegIndex, typeCPindex);
 
         // Emit instructions populate initial array values;
         Expression[] argExprs = arrayInitExpr.getArgExprs();
@@ -1498,7 +1562,7 @@ public class CodeGenerator implements NodeVisitor {
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
 
         // Invoke Connector init native action if any
-        Action action = connectorDef.getInitAction();
+        BallerinaAction action = connectorDef.getInitAction();
         if (action == null) {
             return;
         }
@@ -1513,7 +1577,8 @@ public class CodeGenerator implements NodeVisitor {
         actionRefCPEntry.setActionInfo(actionInfo);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
 
-        actionInfo.setNativeAction((AbstractNativeAction) action);
+        actionInfo.setNativeAction((AbstractNativeAction) action.getNativeAction().load());
+        actionInfo.setParamTypes(getParamTypes(connectorDef.getInitFunction().getParameterDefs()));
         emit(InstructionCodes.NACALL, actionRefCPIndex, initFuncCallIndex);
     }
 
@@ -1905,12 +1970,14 @@ public class CodeGenerator implements NodeVisitor {
         codeAttributeInfo.setMaxDoubleLocalVars(lvIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringLocalVars(lvIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntLocalVars(lvIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxByteLocalVars(lvIndexes[BLOB_OFFSET] + 1);
         codeAttributeInfo.setMaxBValueLocalVars(lvIndexes[REF_OFFSET] + 1);
 
         codeAttributeInfo.setMaxLongRegs(maxRegIndexes[INT_OFFSET] + 1);
         codeAttributeInfo.setMaxDoubleRegs(maxRegIndexes[FLOAT_OFFSET] + 1);
         codeAttributeInfo.setMaxStringRegs(maxRegIndexes[STRING_OFFSET] + 1);
         codeAttributeInfo.setMaxIntRegs(maxRegIndexes[BOOL_OFFSET] + 1);
+        codeAttributeInfo.setMaxByteRegs(maxRegIndexes[BLOB_OFFSET] + 1);
         codeAttributeInfo.setMaxBValueRegs(maxRegIndexes[REF_OFFSET] + 1);
 
         resetIndexes(lvIndexes);
@@ -1950,6 +2017,10 @@ public class CodeGenerator implements NodeVisitor {
                 opcode = baseOpcode + BOOL_OFFSET;
                 index = ++indexes[BOOL_OFFSET];
                 break;
+            case TypeTags.BLOB_TAG:
+                opcode = baseOpcode + BLOB_OFFSET;
+                index = ++indexes[BLOB_OFFSET];
+                break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
                 index = ++indexes[REF_OFFSET];
@@ -1977,6 +2048,9 @@ public class CodeGenerator implements NodeVisitor {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 opcode = baseOpcode + BOOL_OFFSET;
+                break;
+            case TypeTags.BLOB_TAG:
+                opcode = baseOpcode + BLOB_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -2117,6 +2191,8 @@ public class CodeGenerator implements NodeVisitor {
                 return BTypes.typeString;
             case TypeSignature.SIG_BOOLEAN:
                 return BTypes.typeBoolean;
+            case TypeSignature.SIG_BLOB:
+                return BTypes.typeBlob;
             case TypeSignature.SIG_REFTYPE:
                 return BTypes.getTypeFromName(typeSig.getName());
             case TypeSignature.SIG_ANY:
@@ -2290,17 +2366,19 @@ public class CodeGenerator implements NodeVisitor {
         return annotationAttribValue;
     }
 
-    private void visitCallableUnitParameterDefs(ParameterDef[] parameterDefs, CallableUnitInfo callableUnitInfo) {
+    private void visitCallableUnitParameterDefs(ParameterDef[] parameterDefs, CallableUnitInfo callableUnitInfo,
+                                                LocalVariableAttributeInfo localVarAttributeInfo) {
         boolean paramAnnotationFound = false;
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
                 parameterDefs.length);
-        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(parameterDefs.length);
+
         for (int i = 0; i < parameterDefs.length; i++) {
             ParameterDef parameterDef = parameterDefs[i];
             int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
             parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
             parameterDef.accept(this);
-            LocalVariableInfo localVariableDetails = getLocalVariableAttributeInfo(parameterDef);
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(parameterDef);
+            localVarAttributeInfo.addLocalVarInfo(localVarInfo);
 
             AnnotationAttachment[] paramAnnotationAttachments = parameterDef.getAnnotations();
             if (paramAnnotationAttachments.length == 0) {
@@ -2312,22 +2390,25 @@ public class CodeGenerator implements NodeVisitor {
             for (AnnotationAttachment annotationAttachment : paramAnnotationAttachments) {
                 AnnotationAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
                 paramAttachmentInfo.addAnnotationAttachmentInfo(attachmentInfo);
-                localVariableDetails.addAttachmentIndex(attachmentInfo.nameCPIndex);
+                localVarInfo.addAttachmentIndex(attachmentInfo.nameCPIndex);
             }
 
             paramAttributeInfo.addParamAnnotationAttachmentInfo(i, paramAttachmentInfo);
-            localVariableAttributeInfo.addLocaleVaraibleDetails(localVariableDetails);
         }
 
-        callableUnitInfo.addAttributeInfo(AttributeInfo.LOCALVARIABLES_ATTRIBUTE, localVariableAttributeInfo);
+        callableUnitInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
         if (paramAnnotationFound) {
             callableUnitInfo.addAttributeInfo(AttributeInfo.PARAMETER_ANNOTATIONS_ATTRIBUTE, paramAttributeInfo);
         }
     }
 
     private void visitCallableUnit(CallableUnit callableUnit, CallableUnitInfo callableUnitInfo, Worker[] workers) {
-        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
-        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeUTF8CPEntry);
+        UTF8CPEntry codeAttribUTF8CPEntry = new UTF8CPEntry(AttributeInfo.CODE_ATTRIBUTE);
+        int codeAttribNameIndex = currentPkgInfo.addCPEntry(codeAttribUTF8CPEntry);
+
+        UTF8CPEntry localVarAttribUTF8CPEntry = new UTF8CPEntry(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+        int localVarAttribNameIndex = currentPkgInfo.addCPEntry(localVarAttribUTF8CPEntry);
+        LocalVariableAttributeInfo localVarAttributeInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
 
         // Read annotations attached to this callableUnit
         AnnotationAttachment[] annotationAttachments = callableUnit.getAnnotations();
@@ -2337,7 +2418,7 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         // Add local variable indexes to the parameters and return parameters
-        visitCallableUnitParameterDefs(callableUnit.getParameterDefs(), callableUnitInfo);
+        visitCallableUnitParameterDefs(callableUnit.getParameterDefs(), callableUnitInfo, localVarAttributeInfo);
 
         // Visit return parameter defs
         for (ParameterDef parameterDef : callableUnit.getReturnParameters()) {
@@ -2360,6 +2441,10 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             defaultWorker.getCodeAttributeInfo().setCodeAddrs(nextIP());
 
+            currentlLocalVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+            currentlLocalVarAttribInfo.setLocalVariables(new ArrayList<>(localVarAttributeInfo.getLocalVariables()));
+            defaultWorker.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, currentlLocalVarAttribInfo);
+
             // Visit the callableUnit body
             callableUnit.getCallableUnitBody().accept(this);
 
@@ -2372,6 +2457,11 @@ public class CodeGenerator implements NodeVisitor {
                 workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
                 workerInfo.getCodeAttributeInfo().setCodeAddrs(nextIP());
 
+                currentlLocalVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+                currentlLocalVarAttribInfo.setLocalVariables(
+                        new ArrayList<>(localVarAttributeInfo.getLocalVariables()));
+                workerInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, currentlLocalVarAttribInfo);
+
                 lvIndexes = lvIndexesCopy.clone();
                 worker.getCallableUnitBody().accept(this);
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
@@ -2380,8 +2470,12 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             WorkerInfo defaultWorker = callableUnitInfo.getDefaultWorkerInfo();
             defaultWorker.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
+            defaultWorker.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
+
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
         }
+
+        currentlLocalVarAttribInfo = null;
     }
 
     private void addLineNumberInfo(NodeLocation nodeLocation) {
@@ -2393,10 +2487,13 @@ public class CodeGenerator implements NodeVisitor {
         currentPkgInfo.addLineNumberInfo(lineNumberInfo);
     }
 
-    private LocalVariableInfo getLocalVariableAttributeInfo(ParameterDef parameterDef) {
-        UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(parameterDef.getName());
-        int annotationNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
-        return new LocalVariableInfo(annotationNameCPIndex);
+    private LocalVariableInfo getLocalVarAttributeInfo(VariableDef variableDef) {
+        UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(variableDef.getName());
+        int varNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
+        
+        // TODO Support other variable memory locations
+        int stackFrameOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
+        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, stackFrameOffset, variableDef.getType());
     }
 
     /**

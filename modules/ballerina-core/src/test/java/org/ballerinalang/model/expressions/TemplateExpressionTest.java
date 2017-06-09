@@ -23,7 +23,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -45,16 +44,6 @@ public class TemplateExpressionTest {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/template-expr.bal");
     }
 
-    @Test(description = "Test XML backtick expression definition")
-    public void testBacktickXMLExpr() {
-        BValue[] args = { new BString("WSO2")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickXMLTest", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BXML.class);
-        String expected = "<name>John</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
     @Test(description = "Test JSON backtick expression definition")
     public void testJSONInit() {
         BValue[] args = { new BString("WSO2")};
@@ -72,16 +61,6 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"WSO2\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test(description = "Test XML backtick expression with variable reference")
-    public void testBacktickXMLVariableAccessExpr() {
-        BValue[] args = { new BString("WSO2")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickVariableAccessXML", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BXML.class);
-        String expected = "<name>WSO2</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -124,30 +103,12 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(description = "Test XML backtick expression with int and string arrays variable reference")
-    public void testBacktickXMLArrayVariableAccess() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickXMLArrayVariableAccess");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BXML.class);
-        String expected = "<root><stringIndex1>value1</stringIndex1><intIndex1>1</intIndex1></root>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
     @Test(description = "Test JSON backtick expression with map variable reference")
     public void testMapVariableAccessInJSONInit() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testMapVariableAccessInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"val1\":\"value0\",\"val2\":1}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test(description = "Test XML backtick expression with map variable reference")
-    public void testBacktickXMLMapVariableAccess() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickXMLMapVariableAccess");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BXML.class);
-        String expected = "<root><stringIndex0>value0</stringIndex0><intIndex1>1</intIndex1></root>";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -163,7 +124,7 @@ public class TemplateExpressionTest {
     
     @Test(description = "Test backtick expression for JSON type",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "json-backtick-expr.bal:2: incompatible types: expected xml")
+            expectedExceptionsMessageRegExp = "json-backtick-expr.bal:2: backtick expression is not supported")
     public void testBacktickJSON() {
         programFile = BTestUtils.getProgramFile("lang/expressions/json-backtick-expr.bal");
     }

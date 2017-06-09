@@ -1536,7 +1536,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startTransactionhStmt(getCurrentLocation(ctx));
+            modelBuilder.startTransactionStmt(getCurrentLocation(ctx));
         }
     }
 
@@ -1548,16 +1548,43 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+    public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addTransactionBlockStmt();
+    }
+
+    @Override
+    public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+
+    }
+
+    @Override
+    public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startRollbackClause(getCurrentLocation(ctx));
+            modelBuilder.startAbortedClause(getCurrentLocation(ctx));
         }
     }
 
     @Override
-    public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+    public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addRollbackClause();
+            modelBuilder.addAbortedClause();
+        }
+    }
+
+    @Override
+    public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCommittedClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addCommittedClause();
         }
     }
 
@@ -1992,13 +2019,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
         TerminalNode terminalNode = ctx.IntegerLiteral();
         if (terminalNode != null) {
-            modelBuilder.createIntegerLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
+            String op = ctx.getChild(0).getText();
+            String value = terminalNode.getText();
+            if (op != null && "-".equals(op)) {
+                value = "-" + value;
+            }
+            modelBuilder.createIntegerLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, value);
             return;
         }
 
         terminalNode = ctx.FloatingPointLiteral();
         if (terminalNode != null) {
-            modelBuilder.createFloatLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, terminalNode.getText());
+            String op = ctx.getChild(0).getText();
+            String value = terminalNode.getText();
+            if (op != null && "-".equals(op)) {
+                value = "-" + value;
+            }
+            modelBuilder.createFloatLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, value);
             return;
         }
 

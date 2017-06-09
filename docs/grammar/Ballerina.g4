@@ -147,6 +147,7 @@ valueTypeName
     |   'int'
     |   'float'
     |   'string'
+    |   'blob'
     ;
 
 builtInReferenceTypeName
@@ -221,6 +222,7 @@ transformStatementBody
     :   expressionAssignmentStatement
     |   expressionVariableDefinitionStatement
     |   transformStatement
+    |   commentStatement
     ;
 
 expressionAssignmentStatement
@@ -382,11 +384,19 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' rollbackClause
+    :   'transaction' '{' statement* '}' transactionHandlers
     ;
 
-rollbackClause
+transactionHandlers
+    : abortedClause? committedClause?
+    | committedClause? abortedClause?
+    ;
+abortedClause
     :   'aborted' '{' statement* '}'
+    ;
+
+committedClause
+    :   'committed' '{' statement* '}'
     ;
 
 abortStatement
@@ -450,8 +460,8 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   IntegerLiteral
-    |   FloatingPointLiteral
+    :   ('-')? IntegerLiteral
+    |   ('-')? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral

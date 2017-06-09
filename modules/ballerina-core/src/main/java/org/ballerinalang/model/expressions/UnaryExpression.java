@@ -40,28 +40,29 @@ public class UnaryExpression extends AbstractExpression {
     protected Operator op;
     protected Expression rExpr;
     //ToDO this has to be improved property since Unary does not need BiFunction
-    private BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew;
+    private BiFunction<BValue, BValue, BValue> evalFuncNewNew;
 
-    public static final BiFunction<BValueType, BValueType, BValueType> NOT_BOOLEAN_FUNC =
-            (lVal, rVal) -> new BBoolean(!rVal.booleanValue());
+    public static final BiFunction<BValue, BValue, BValue> NOT_BOOLEAN_FUNC =
+            (lVal, rVal) -> new BBoolean(!((BValueType) rVal).booleanValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> NEGATIVE_INT_FUNC =
-            (lVal, rVal) -> new BInteger(-(rVal.intValue()));
+    public static final BiFunction<BValue, BValue, BValue> NEGATIVE_INT_FUNC =
+            (lVal, rVal) -> new BInteger(-(((BValueType) rVal).intValue()));
 
-    public static final BiFunction<BValueType, BValueType, BValueType> POSITIVE_INT_FUNC =
+    public static final BiFunction<BValue, BValue, BValue> POSITIVE_INT_FUNC =
             (lVal, rVal) -> rVal;
 
-    public static final BiFunction<BValueType, BValueType, BValueType> NEGATIVE_FLOAT_FUNC =
-            (lVal, rVal) -> new BFloat(-(rVal.floatValue()));
+    public static final BiFunction<BValue, BValue, BValue> NEGATIVE_FLOAT_FUNC =
+            (lVal, rVal) -> new BFloat(-(((BValueType) rVal).floatValue()));
 
-    public static final BiFunction<BValueType, BValueType, BValueType> POSITIVE_FLOAT_FUNC =
+    public static final BiFunction<BValue, BValue, BValue> POSITIVE_FLOAT_FUNC =
             (lVal, rVal) -> rVal;
 
-    public BiFunction<BValueType, BValueType, BValueType> getEvalFunc() {
+            
+    public BiFunction<BValue, BValue, BValue> getEvalFunc() {
         return evalFuncNewNew;
     }
 
-    public void setEvalFunc(BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew) {
+    public void setEvalFunc(BiFunction<BValue, BValue, BValue> evalFuncNewNew) {
         this.evalFuncNewNew = evalFuncNewNew;
     }
     

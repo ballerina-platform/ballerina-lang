@@ -49,7 +49,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
     public void testJsonInAnyCastToX() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "successfulXmlCasting");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BXML.class);
+        Assert.assertTrue(returns[0] instanceof BXML);
         BXML xmlVal = (BXML) returns[0];
         Assert.assertTrue(xmlVal.stringValue().contains("<PropertyName>Value</PropertyName>"),
                           "Invalid xml value returned.");
