@@ -762,6 +762,7 @@ class TransformRender
                     self.midpoint = self.midpoint + self.midpointVariance;
                     self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
                     connection.id = self.onConnection(connection);
+                    params.connection.setParameter('id', connection.id);
                 }
                 return isValidTypes;
             }
