@@ -34,7 +34,7 @@ class WorkerInvocationStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox(node.getInvocationStatement() , node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString() , node.getViewState());
     }
 }
 

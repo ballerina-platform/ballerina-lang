@@ -25,7 +25,7 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         super(parent);
     }
 
-    canVisitActionInvocationExpression(actionInvocation) {
+    canVisitActionInvocationExpression(actionInvocationExpr) {
         return true;
     }
 
@@ -33,12 +33,22 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         return true;
     }
 
-    beginVisitActionInvocationExpression(actionInvocationStatement) {
-        this.appendSource(actionInvocationStatement.getExpression());
+    beginVisitActionInvocationStatement(actionInvocationStatement) {
+        if (actionInvocationStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
     }
 
-    endVisitActionInvocationStatement(action) {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
+    beginVisitActionInvocationExpression(actionInvocationExpr) {
+        this.appendSource(actionInvocationExpr.getExpressionString());
+    }
+
+    endVisitActionInvocationStatement(actionInvocationStatement) {
+        this.appendSource(';' + actionInvocationStatement.getWSRegion(1));
+        this.appendSource((actionInvocationStatement.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

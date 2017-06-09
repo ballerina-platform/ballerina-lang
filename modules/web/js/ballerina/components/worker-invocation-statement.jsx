@@ -33,8 +33,8 @@ class WorkerInvocationStatement extends React.Component {
             propertyType: 'text',
             key: 'WorkerInvocationStatement',
             model: props.model,
-            getterMethod: props.model.getInvocationStatement,
-            setterMethod: props.model.setInvocationStatement
+            getterMethod: props.model.getStatementString,
+            setterMethod: props.model.setStatementFromString
         };
     }
 

@@ -29,6 +29,14 @@ class AnnotationAttributeDefinition extends ASTNode {
         this._attributeType = _.get(args, 'attributeType');
         this._attributeValue = _.get(args, 'attributeValue', '');
         this._pkgPath = _.get(args, 'pkgPath');
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: ' ',
+            4: '',
+            5: '\n'
+        }
     }
 
     setAttributeName(attributeName, options) {
@@ -70,10 +78,17 @@ class AnnotationAttributeDefinition extends ASTNode {
     }
 
     getAttributeStatementString() {
-        let statement = this.getAttributeType() + ' ' + this.getAttributeName();
+        let statement = this.getAttributeType() + this.getWSRegion(1)
+            + this.getAttributeName();
         if (!_.isEmpty(this.getAttributeValue())) {
-            statement += ' = ' + this.getAttributeValue();
+            statement += this.getWSRegion(2) + '=' + this.getWSRegion(3)
+                + this.getAttributeValue()
+                + this.getWSRegion(4);
+        } else if (!this.whiteSpace.useDefault) {
+            // ignore a default space between indenifier & semicolon
+            statement += this.getWSRegion(2);
         }
+        statement += ';' + this.getWSRegion(5);
         return statement;
     }
 
@@ -92,7 +107,7 @@ class AnnotationAttributeDefinition extends ASTNode {
         });
         if (this.getChildren().length > 0) {
             if (this.getFactory().isExpression(this.getChildren()[0])) {
-                this.setAttributeValue(this.getChildren()[0].getExpression(), {doSilently: true});
+                this.setAttributeValue(this.getChildren()[0].generateExpression(), {doSilently: true});
             }
         }
     }

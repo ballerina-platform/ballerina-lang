@@ -30,16 +30,22 @@ class CommentStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitCommentStatement(commentStatement) {
+        if (commentStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
         log.debug('Begin Visit Comment Statement Definition');
     }
 
     visitCommentStatement(commentStatement) {
+        this.appendSource(commentStatement.getStatementString() + commentStatement.getWSRegion(1));
         log.debug('Visit Comment Statement Definition');
     }
 
     endVisitCommentStatement(commentStatement) {
-        this.appendSource(commentStatement.getCommentString() + "\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource((commentStatement.whiteSpace.useDefault)
+          ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Comment Statement Definition');
     }
 }

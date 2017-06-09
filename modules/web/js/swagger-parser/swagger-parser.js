@@ -100,7 +100,7 @@ class SwaggerParser {
                         let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
                         let pathAnnotation = resourceDefinition.getPathAnnotation(true);
                         return !_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
-                            _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, '')) &&
+                            _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().replace(/"/g, '')) &&
                             _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());                       
                     });
                     //if operationId exists set it as resource name.

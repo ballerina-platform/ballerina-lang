@@ -61,6 +61,8 @@ public class BLangJSONModelConstants {
 
     public static final String IMPORT_PACKAGE_PATH = "import_package_path";
 
+    public static final String IMPORT_AS_NAME = "import_as_name";
+
     public static final String CONSTANT_DEFINITION = "constant_definition";
 
     public static final String CONSTANT_DEFINITION_BTYPE = "constant_definition_btype";
@@ -259,9 +261,11 @@ public class BLangJSONModelConstants {
 
     public static final String ELSE_IF_STATEMENT = "else_if_statement";
 
-    public static final String ELSE_IF_BLOCKS = "else_if_blocks";
+    public static final String ELSE_IF_STATEMENTS = "else_if_statements";
 
     public static final String STATEMENT = "statement";
+
+    public static final String CONDITION = "condition";
 
     public static final String EXPRESSION = "expression";
 
@@ -325,6 +329,10 @@ public class BLangJSONModelConstants {
 
     public static final String IS_ARRAY_EXPRESSION = "is_array_expression";
 
+    public static final String IS_ARRAY_TYPE = "is_array_type";
+
+    public static final String DIMENSIONS = "dimensions";
+
     public static final String EXPRESSION_LIST = "expression_list";
 
     public static final String WORKER_REPLY_EXPRESSION = "worker_reply_expression";
@@ -352,4 +360,6 @@ public class BLangJSONModelConstants {
     public static final String JOIN_PARAMETER = "join_parameter";
 
     public static final String IS_NATIVE = "is_native";
+
+    public static final String SIMPLE_TYPE_NAME = "simple_type_name";
 }

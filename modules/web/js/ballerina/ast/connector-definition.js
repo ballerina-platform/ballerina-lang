@@ -31,6 +31,13 @@ class ConnectorDefinition extends ASTNode {
         this.connector_name = _.get(args, 'connector_name');
         this.annotations = _.get(args, 'annotations', []);
         this.arguments = _.get(args, 'arguments', []);
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: '\n',
+            4: '\n'
+        };
     }
 
     /**
@@ -126,11 +133,13 @@ class ConnectorDefinition extends ASTNode {
      * @param child
      * @param index
      */
-    addChild(child, index) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId)  {
         if (this.getFactory().isConnectorDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+            Object.getPrototypeOf(this.constructor.prototype)
+              .addChild.call(this, child, 0, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+            Object.getPrototypeOf(this.constructor.prototype)
+            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) ;
         }
     }
 
@@ -206,11 +215,11 @@ class ConnectorDefinition extends ASTNode {
         } else {
             // Creating new constant definition.
             let newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            newVariableDefinitionStatement.setLeftExpression(bType + " " + identifier);
+            let stmtString = bType + ' ' + identifier;
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
-                newVariableDefinitionStatement.setRightExpression(assignedValue);
+                stmtString +=  ' = ' + assignedValue;
             }
-
+            newVariableDefinitionStatement.setStatementFromString(stmtString);
             let self = this;
 
             // Get the index of the last variable definition statement.

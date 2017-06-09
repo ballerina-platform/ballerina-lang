@@ -15,11 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import FunctionInvocation from '../../ast/statements/function-invocation-statement';
 
 class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -30,13 +27,22 @@ class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
         return true;
     }
 
+    beginVisitFuncInvocationStatement(functionInvocation) {
+        if (functionInvocation.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+    }
+
     visitFuncInvocationExpression(functionInvocation) {
-        this.appendSource(functionInvocation.getFunctionalExpression());
+        this.appendSource(functionInvocation.getExpressionString());
     }
 
     endVisitFuncInvocationStatement(functionInvocation) {
-        this.appendSource(";\n");
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(';' + functionInvocation.getWSRegion(4));
+        this.appendSource((functionInvocation.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Function Invocation Statement');
     }
 }

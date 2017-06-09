@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -32,20 +31,23 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitElseIfStatement(elseIfStatement) {
         this.node = elseIfStatement;
-        this.appendSource(' else if (' + elseIfStatement.getCondition() + ') {\n');
+        this.appendSource('else' + elseIfStatement.getWSRegion(1) + 'if' + elseIfStatement.getWSRegion(2)
+                            + '(' + elseIfStatement.getWSRegion(3) +  elseIfStatement.getConditionString()
+                            + ')' + elseIfStatement.getWSRegion(4) + '{' + elseIfStatement.getWSRegion(5));
+        this.appendSource((elseIfStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
         log.debug('Begin Visit Else If Statement Definition');
     }
 
-    visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
-    }
-
     endVisitElseIfStatement(elseIfStatement) {
         this.outdent();
-        this.appendSource("}");
+        // if using default ws, add a new line to end unless there are anymore elseif stmts available
+        // or an else statement is available
+        let tailingWS = (elseIfStatement.whiteSpace.useDefault
+                            && (_.isNil(elseIfStatement.getParent().getElseStatement())
+                                      && _.isEqual(_.last(elseIfStatement.getParent().getElseIfStatements()), elseIfStatement)))
+                        ? '\n' : elseIfStatement.getWSRegion(6);
+        this.appendSource('}' + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Else If Statement Definition');
     }

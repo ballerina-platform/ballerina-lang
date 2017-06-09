@@ -30,7 +30,7 @@ class BreakStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox( node.getStatement() , node.getViewState());
+        util.populateSimpleStatementBBox( node.getStatementString() , node.getViewState());
     }
 }
 

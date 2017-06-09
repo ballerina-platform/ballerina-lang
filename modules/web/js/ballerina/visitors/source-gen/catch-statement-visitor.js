@@ -37,7 +37,13 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource(' catch ('+ catchStatement.getParameterDefString() + ') {\n');
+        this.appendSource('catch' + catchStatement.getWSRegion(1) + '('
+                            + catchStatement.getWSRegion(2)
+                            + catchStatement.getParameterDefString() // FIXME fix the model to support different catches
+                            + catchStatement.getWSRegion(4) + ')'
+                            + catchStatement.getWSRegion(5) + '{'
+                            + catchStatement.getWSRegion(6));
+        this.appendSource((catchStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
         log.debug('Begin Visit Catch Statement');
     }
@@ -52,7 +58,7 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitCatchStatement(catchStatement) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}");
+        this.appendSource('}' + catchStatement.getWSRegion(7));
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Catch Statement');
     }

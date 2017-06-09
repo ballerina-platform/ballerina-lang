@@ -918,6 +918,10 @@ class BallerinaFileEditor extends EventChannel {
         }
     }
 
+    getEnvironment(){
+        return this._environment || new PackageScopedEnvironment();
+    }
+   
 }
 
 

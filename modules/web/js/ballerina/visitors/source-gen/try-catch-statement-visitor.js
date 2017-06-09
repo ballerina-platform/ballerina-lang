@@ -1,4 +1,4 @@
-/**
+  /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,9 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -28,6 +25,13 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     canVisitTryCatchStatement(statement) {
         return true;
+    }
+
+    beginVisitTryCatchStatement(statement) {
+        if (statement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
     }
 
     visitTryStatement(statement) {
@@ -43,7 +47,9 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitTryCatchStatement(statement) {
-        this.getParent().appendSource('\n' + this.getGeneratedSource() + '\n');
+        this.appendSource((statement.whiteSpace.useDefault)
+          ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

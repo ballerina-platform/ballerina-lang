@@ -15,9 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -28,6 +25,14 @@ class IfElseStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     canVisitIfElseStatement(statement) {
         return true;
+    }
+
+    beginVisitIfElseStatement(statement) {
+        this.parentNode = statement;
+        if (statement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
     }
 
     visitIfStatement(statement) {
@@ -49,7 +54,9 @@ class IfElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitIfElseStatement(statement) {
-        this.getParent().appendSource( '\n' + this.getGeneratedSource() + '\n');
+        this.appendSource((statement.whiteSpace.useDefault)
+          ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

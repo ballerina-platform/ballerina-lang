@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import Statement from './statement';
-import _ from "lodash";
+import FragmentUtils from './../../utils/fragment-utils';
+
 class CommittedStatement extends Statement {
     constructor() {
         super();

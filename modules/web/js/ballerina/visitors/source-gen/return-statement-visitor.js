@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import ReturnStatement from '../../ast/statements/return-statement';
 import ExpressionVisitorFactory from './expression-visitor-factory';
@@ -37,13 +35,19 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
+        if (returnStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
         this.appendSource(returnStatement.getReturnExpression());
         log.debug('Begin Visit Return Statement Definition');
     }
 
     endVisitReturnStatement(returnStatement) {
-        this.appendSource(";\n");
-        this.getParent().appendSource( '\n\n' + this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(';' + returnStatement.getWSRegion(3));
+        this.appendSource((returnStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Return Statement Definition');
     }
 

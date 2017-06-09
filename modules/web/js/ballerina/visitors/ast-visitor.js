@@ -49,8 +49,6 @@ class ASTVisitor extends EventChannel {
             return this.canVisitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.canVisitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.canVisitAssignment(node);
         } else if( ASTFactory.isFunctionInvocationExpression(node)){
             return this.canVisitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
@@ -65,8 +63,6 @@ class ASTVisitor extends EventChannel {
             return this.canVisitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.canVisitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.canVisitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.canVisitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -110,8 +106,6 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.beginVisitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.beginVisitAssignment(node);
         } else if(ASTFactory.isFunctionInvocationExpression(node)){
             return this.beginVisitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
@@ -126,8 +120,6 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.beginVisitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.beginVisitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.beginVisitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -171,8 +163,6 @@ class ASTVisitor extends EventChannel {
             return this.visitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.visitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.visitAssignment(node);
         } else if(ASTFactory.isFunctionInvocationExpression(node)){
             return this.visitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
@@ -187,8 +177,6 @@ class ASTVisitor extends EventChannel {
             return this.visitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.visitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.visitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.visitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -233,8 +221,6 @@ class ASTVisitor extends EventChannel {
             return this.endVisitWorkerDeclaration(node);
         } else if( ASTFactory.isConnectorDeclaration(node)){
             return this.endVisitConnectorDeclaration(node);
-        } else if( ASTFactory.isAssignment(node)){
-            return this.endVisitAssignment(node);
         } else if(ASTFactory.isFunctionInvocationExpression(node)) {
             return this.endVisitFuncInvocationExpression(node);
         } else if(ASTFactory.isActionInvocationExpression(node)){
@@ -249,8 +235,6 @@ class ASTVisitor extends EventChannel {
             return this.endVisitConnectorAction(node);
         } else if(ASTFactory.isStructDefinition(node)){
             return this.endVisitStructDefinition(node);
-        } else if(ASTFactory.isTypeMapperDefinition(node)){
-            return this.endVisitTypeMapperDefinition(node);
         } else if(ASTFactory.isResourceParameter(node)){
             return this.endVisitResourceParameter(node);
         } else if(ASTFactory.isReturnType(node)){
@@ -371,19 +355,6 @@ class ASTVisitor extends EventChannel {
     }
 
     endVisitStructDefinition(structDefinition) {
-    }
-
-    canVisitTypeMapperDefinition(typeMapperDefinition) {
-        return false;
-    }
-
-    beginVisitTypeMapperDefinition(typeMapperDefinition) {
-    }
-
-    visitTypeMapperDefinition(typeMapperDefinition) {
-    }
-
-    endVisitTypeMapperDefinition(typeMapperDefinition) {
     }
 
     canVisitResourceParameter(resourceParameter) {

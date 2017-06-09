@@ -33,7 +33,7 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitWhileStatement(whileStatement) {
         this.node = whileStatement;
-        this.appendSource('\n' + this.getIndentation() + 'while (' + whileStatement.getCondition() + ') {\n');
+        this.appendSource('\n' + this.getIndentation() + 'while (' + whileStatement.getConditionString() + ') {\n');
         this.indent();
         log.debug('Begin Visit If Statement Definition');
     }

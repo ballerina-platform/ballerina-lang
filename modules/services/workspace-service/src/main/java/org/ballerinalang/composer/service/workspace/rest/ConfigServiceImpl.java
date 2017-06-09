@@ -117,6 +117,9 @@ public class ConfigServiceImpl {
         JsonObject parser = new JsonObject();
         parser.addProperty("endpoint", apiPath + "/ballerina/model/content");
 
+        JsonObject fragmentParser = new JsonObject();
+        fragmentParser.addProperty("endpoint", apiPath + "/ballerina/model/parse-fragment");
+
         JsonObject validator = new JsonObject();
         validator.addProperty("endpoint", apiPath + "/ballerina/validate");
 
@@ -131,17 +134,22 @@ public class ConfigServiceImpl {
 
         JsonObject programNativeTypes = new JsonObject();
         programNativeTypes.addProperty("endpoint", apiPath + "/service/program/native/types");
+
+        JsonObject programPackages = new JsonObject();
+        programPackages.addProperty("endpoint", apiPath + "/service/program/packages");
         
         JsonObject services = new JsonObject();
         services.add("workspace", workspace);
         services.add("packages", packages);
         services.add("swagger", swagger);
         services.add("parser", parser);
+        services.add("fragmentParser", fragmentParser);
         services.add("validator", validator);
         services.add("launcher", launcher);
         services.add("debugger", debugger);
         services.add("langserver", langserver);
         services.add("programNativeTypes", programNativeTypes);
+        services.add("programPackages", programPackages);
 
         JsonObject config = new JsonObject();
         config.add("services", services);

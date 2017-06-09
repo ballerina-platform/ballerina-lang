@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
@@ -47,22 +46,34 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        var functionReturnTypes = connectorAction.getReturnTypesAsString();
+        var actionReturnTypes = connectorAction.getReturnTypes();
+        let useDefaultWS = connectorAction.whiteSpace.useDefault;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
         var connectorActionReturnTypesSource = '';
-        if (!_.isEmpty(functionReturnTypes)) {
-            connectorActionReturnTypesSource = '(' + connectorAction.getReturnTypesAsString() + ') ';
+        if (!_.isEmpty(actionReturnTypes)) {
+            // if return types were not there before && no space ATM before (, add a space before
+            let precedingWS = ((_.isEmpty(connectorAction.getWSRegion(3))  &&
+                    actionReturnTypes[0].whiteSpace.useDefault) ? ' ' : connectorAction.getWSRegion(3));
+            connectorActionReturnTypesSource = precedingWS + '(' + connectorAction.getReturnTypesAsString() + ')';
         }
 
-
-        let constructedSourceSegment = '\n';
+        let constructedSourceSegment = '';
         _.forEach(connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
+                constructedSourceSegment += annotationNode.toString()
+                  + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
             }
         });
 
-        constructedSourceSegment += this.getIndentation() + 'action ' + connectorAction.getActionName() + ' (' +
-            connectorAction.getArgumentsAsString() + ') ' + connectorActionReturnTypesSource + '{\n';
+        constructedSourceSegment += 'action' + connectorAction.getWSRegion(1)
+            + connectorAction.getActionName()
+            + connectorAction.getWSRegion(2) + '(' + connectorAction.getArgumentsAsString()
+            + ')' + connectorActionReturnTypesSource
+            + connectorAction.getWSRegion(4) + '{' + connectorAction.getWSRegion(5);
+        constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
         log.debug('Begin Visit Connector Action');
@@ -78,7 +89,9 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorAction(connectorAction) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}\n");
+        this.appendSource('}' + connectorAction.getWSRegion(6));
+        this.appendSource((connectorAction.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }

@@ -115,10 +115,10 @@ class TransformStatementDecorator extends React.Component {
         var sourceId = 'sourceStructs' + this.props.model.id;
         var targetId = 'targetStructs' + this.props.model.id;
 
-        var sourceContent = $('<div class="leftType">' +
+        var sourceContent = $(
                 '<div class="source-view">' +
                 '<select id="' + sourceId + '" class="type-mapper-combo">' +
-                '<option value="-1">--Select--</option>' +
+                '<option value="-1">-- Select source --</option>' +
                 '</select>'+
                 ' <span id="btn-add-source" class="btn-add-type fw-stack fw-lg btn btn-add">'+
                 '            <i class="fw fw-add fw-stack-1x"></i>'+
@@ -126,14 +126,14 @@ class TransformStatementDecorator extends React.Component {
                 '           <span id="btn-remove-source" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
                 '            <i class="fw fw-delete fw-stack-1x"></i>'+
                 '          </span>' +
-              '</div></div>');
+                '</div><div class="leftType"></div>');
 
         var middleContent =  $('<div class="middle-content"></div>');
 
-        var targetContent = $('<div class="rightType">' +
+        var targetContent = $(
                 '<div class="target-view">' +
                 '<select id="' + targetId + '" class="type-mapper-combo">' +
-                '<option value="-1">--Select--</option>' +
+                '<option value="-1">-- Select target --</option>' +
                 '</select>' +
                 ' <span id="btn-add-target" class="btn-add-type fw-stack fw-lg btn btn-add">'+
                 '            <i class="fw fw-add fw-stack-1x"></i>'+
@@ -141,7 +141,7 @@ class TransformStatementDecorator extends React.Component {
                 '           <span id="btn-remove-target" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
                 '            <i class="fw fw-delete fw-stack-1x"></i>'+
                 '          </span>' +
-              '</div></div>');
+                '</div><div class="rightType"></div>');
 
         var transformNameText = $('<p class="transform-header-text ">'
                                 +'<i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
@@ -191,9 +191,9 @@ class TransformStatementDecorator extends React.Component {
             if(currentIndex < transformIndex) {
                 _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
                     if (structInfo[0] ==  predefinedStruct.getStructName()) {
-                        var struct = self.createType(structInfo[1], predefinedStruct);
-                        self.loadSchemaToComboBox(sourceId, struct.name);
-                        self.loadSchemaToComboBox(targetId, struct.name);
+                        var struct = self.createType(structInfo[1], structInfo[0], predefinedStruct);
+                        self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
+                        self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
                         isStruct = true;
                     }
                 });
@@ -205,8 +205,8 @@ class TransformStatementDecorator extends React.Component {
                     variableType.name  = varInfo[1];
                     variableType.type = varInfo[0];
                     self.predefinedStructs.push(variableType);
-                    self.loadSchemaToComboBox(sourceId, variableType.name);
-                    self.loadSchemaToComboBox(targetId, variableType.name);
+                    self.loadSchemaToComboBox(sourceId, variableType.name, variableType.type);
+                    self.loadSchemaToComboBox(targetId, variableType.name, variableType.type);
                 }
             }
         });
@@ -512,11 +512,12 @@ class TransformStatementDecorator extends React.Component {
         return prop;
     }
 
-    createType(name, predefinedStruct) {
+    createType(name, typeName, predefinedStruct) {
         var struct = {};
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
+        struct.typeName = typeName;
 
         _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
             var property = {};
@@ -526,7 +527,7 @@ class TransformStatementDecorator extends React.Component {
 
             var innerStruct = _.find(self._package.getStructDefinitions(), { _structName:property.type});
             if (innerStruct != null) {
-                property.innerType = self.createType(property.name, innerStruct);
+                property.innerType = self.createType(property.name, typeName, innerStruct);
             }
 
             struct.properties.push(property);
@@ -738,8 +739,8 @@ class TransformStatementDecorator extends React.Component {
     onUpdate(text){
     }
 
-    loadSchemaToComboBox(comboBoxId, name) {
-        $('#' + comboBoxId).append('<option value="' + name + '">' + name + '</option>');
+    loadSchemaToComboBox(comboBoxId, name, typeName) {
+        $('#' + comboBoxId).append('<option value="' + name + '">' + name + " : " + typeName + '</option>');
     }
 
     createAccessNode(name, property) {

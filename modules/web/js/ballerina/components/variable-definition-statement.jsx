@@ -38,7 +38,7 @@ class VariableDefinitionStatement extends React.Component {
             key: 'VariableDefinition',
             model: this.props.model,
             getterMethod: this.props.model.getStatementString,
-            setterMethod: this.props.model.setStatementString
+            setterMethod: this.props.model.setStatementFromString
         };
 	}
 

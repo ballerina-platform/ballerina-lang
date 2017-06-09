@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
-import EventChannel from 'event_channel';
+import _ from 'lodash';
 import ASTVisitor from '../ast-visitor';
 
 /**
@@ -62,6 +61,17 @@ class AbstractSourceGenVisitor extends ASTVisitor {
 
     getParent() {
         return this.parent;
+    }
+
+    getCurrentPrecedingIndentation() {
+        return _.last(_.split(this.getParent().getGeneratedSource(), '\n'));
+    }
+
+    replaceCurrentPrecedingIndentation(newIndentation) {
+        let tokens = _.split(this.getParent().getGeneratedSource(), '\n');
+        tokens.pop();
+        tokens.push(newIndentation);
+        this.getParent().setGeneratedSource(_.join(tokens, '\n'));
     }
 }
 

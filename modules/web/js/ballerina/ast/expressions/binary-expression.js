@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for BinaryExpression
@@ -28,6 +29,14 @@ class BinaryExpression extends Expression {
     constructor(args) {
         super('BinaryExpression');
         this._operator = _.get(args, 'operator');
+        this._leftExpression = _.get(args, 'leftExpression');
+        this._rightExpression = _.get(args, 'rightExpression');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: ' '
+        };
     }
 
     /**
@@ -35,35 +44,70 @@ class BinaryExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.setExpression(this.generateExpressionFromJson(jsonNode), {doSilently: true});
-    }
-
-    /**
-     * Generates the binary expression as a string.
-     * @param {Object} jsonNode - A node explaining the structure of binary expression.
-     * @return {string} - Arguments as a string.
-     * @private
-     */
-    generateExpressionFromJson(jsonNode) {
-        var self = this;
-        var expString = "";
-        if(!_.isNil(jsonNode.children[0]) && !_.isNil(jsonNode.children[1])){
-            var leftExpression = self.getFactory().createFromJson(jsonNode.children[0]);
-            var rightExpression = self.getFactory().createFromJson(jsonNode.children[1]);
+        if(!_.isNil(jsonNode.children[0])){
+            var leftExpression = this.getFactory().createFromJson(jsonNode.children[0]);
+            leftExpression.setParent(this);
             leftExpression.initFromJson(jsonNode.children[0]);
-            rightExpression.initFromJson(jsonNode.children[1]);
-            expString = leftExpression.getExpression() + " " + this.getOperator() + " " + rightExpression.getExpression();
+            this._leftExpression = leftExpression;
         }
-        this._expression = expString;
-        return expString;
+        if(!_.isNil(jsonNode.children[1])){
+            var rightExpression = this.getFactory().createFromJson(jsonNode.children[1]);
+            rightExpression.setParent(this);
+            rightExpression.initFromJson(jsonNode.children[1]);
+            this._rightExpression = rightExpression;
+        }
     }
 
-    generateExpression() {
-        return this._expression;
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                    || !_.has(parsedJson, 'syntax_errors'))) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
+        }
+    }
+
+    getExpressionString() {
+        let expressionString = '';
+        expressionString += (!_.isNil(this.getLeftExpression()))
+                ? this.getLeftExpression().getExpressionString() : '';
+        expressionString += this._operator + this.getWSRegion(2);
+        expressionString += (!_.isNil(this.getRightExpression()))
+                ? this.getRightExpression().getExpressionString() : '';
+        return expressionString;
+    }
+
+    setOperator(operator) {
+        this._operator = operator;
     }
 
     getOperator() {
         return this._operator;
+    }
+
+    setLeftExpression(leftExpression) {
+        this._leftExpression = leftExpression;
+    }
+
+    getLeftExpression() {
+        return this._leftExpression;
+    }
+
+    setRightExpression(rightExpression) {
+        this._rightExpression = rightExpression;
+    }
+
+    getRightExpression() {
+        return this._rightExpression;
     }
 }
 

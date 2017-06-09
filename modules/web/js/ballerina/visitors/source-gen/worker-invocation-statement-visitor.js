@@ -31,7 +31,7 @@ class WorkerInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     beginVisitWorkerInvocationStatement(workerInvocationStatement) {
-        this.appendSource(workerInvocationStatement.getInvocationStatement());
+        this.appendSource(workerInvocationStatement.getStatementString());
         log.debug('Begin Visit Worker Invocation Statement');
     }
 

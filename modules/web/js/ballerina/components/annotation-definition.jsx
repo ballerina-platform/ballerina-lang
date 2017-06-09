@@ -66,7 +66,8 @@ class AnnotationDefinition extends React.Component {
             prefixView: this.props.model.getViewState().components.parametersPrefixContainer,
             openingBracketClassName: 'parameter-bracket-text',
             closingBracketClassName: 'parameter-bracket-text',
-            prefixTextClassName: 'parameter-prefix-text'
+            prefixTextClassName: 'parameter-prefix-text',
+            defaultText: "+ Add Attachment"
         };
 
         let tagController = (<TagController key={model.getID()} model={model} setter={this.addAttachmentPoint}

@@ -37,7 +37,7 @@ class AssignmentStatement extends React.Component {
             key: 'Assignment',
             model: props.model,
             getterMethod: props.model.getStatementString,
-            setterMethod: props.model.setStatementString
+            setterMethod: props.model.setStatementFromString
         };
 	}
 
@@ -154,7 +154,7 @@ class AssignmentStatement extends React.Component {
 
         messageManager.startDrawMessage(function (source, destination) {
             source.setConnector(destination);
-            model.generateStatementString();
+            model.getStatementString();
             model.trigger('tree-modified', {type:'custom', title:'action set'});
         });
     }

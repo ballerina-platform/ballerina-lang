@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Statement from './statement';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class to represent a worker invocation statement in ballerina.
@@ -61,26 +62,61 @@ class WorkerInvocationStatement extends Statement {
         this._expressionList.push(expression);
     }
 
-    setExpressionList(expressionList) {
-        this._expressionList = expressionList;
-    }
+    /**
+     * Get the statement String
+     * @returns {string} statement string\
+     * @override
+     */
+    getStatementString() {
+        let statementStr = '';
+        for(var itr = 0; itr < this._expressionList.length; itr ++) {
+            if (BallerinaASTFactory.isExpression(this.getExpressionList()[itr])) {
+                statementStr += this.getExpressionList()[itr].getExpressionString();
+            } else if (BallerinaASTFactory.isStatement(this.getExpressionList()[itr])) {
+                statementStr += this.getExpressionList()[itr].getStatementString();
+            }
 
-    getExpressionList() {
-        return this._expressionList;
-    }
-
-    setInvocationStatement(invocationStatement) {
-        let tokens = (invocationStatement.split('->'));
-        if (tokens.length > 1) {
-            this._workerName = (tokens[1]).trim();
-        } else {
-            this._workerName = '';
+            if (itr !== this._expressionList.length - 1) {
+                statementStr += ',';
+            }
         }
-        this.setAttribute('_invokeStatement', invocationStatement);
+        statementStr += '->' + this.getWorkerName();
+
+        return statementStr;
     }
 
-    getInvocationStatement() {
-        return this._invokeStatement;
+    /**
+     * Set the statement string
+     * @param {string} statementString
+     * @param {function} callback
+     * @override
+     */
+    setStatementFromString(statementString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'worker_invocation_statement')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Worker Invoke Statement Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 
     canBeAChildOf(node) {
@@ -98,23 +134,21 @@ class WorkerInvocationStatement extends Statement {
     initFromJson(jsonNode) {
         var workerName = jsonNode.worker_name;const self = this;
         const expressionList = jsonNode.expression_list;
-        let expressionString = '';
+        this.getExpressionList().length = 0;
 
         for (let itr = 0; itr < expressionList.length; itr ++) {
             const expressionNode = BallerinaASTFactory.createFromJson(expressionList[itr].expression[0]);
             expressionNode.initFromJson(expressionList[itr].expression[0]);
             self.addToExpressionList(expressionNode);
-            expressionString += expressionNode.getExpression();
-            if (itr !== expressionList.length - 1) {
-                expressionString += ',';
-            }
         }
 
-        var invokeStatement = expressionString + ' -> ' + workerName;
-        this.setInvocationStatement(invokeStatement);
-        var workerInstance = _.find(this.getParent().getChildren(), function (child) {
-            return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
-        });
+        let workerInstance;
+        if (!_.isNil(this.getParent())) {
+            workerInstance = _.find(this.getParent().getChildren(), function (child) {
+                return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
+            });
+        }
+
         this.setDestination(workerInstance);
         this.setWorkerName(workerName);
     }
@@ -124,6 +158,14 @@ class WorkerInvocationStatement extends Statement {
             || this.getFactory().isResourceDefinition(target)
             || this.getFactory().isFunctionDefinition(target)
             || this.getFactory().isConnectorAction(target);
+    }
+
+    /**
+     * Get the expression List
+     * @returns {Array} expressionList
+     */
+    getExpressionList() {
+        return this._expressionList;
     }
 }
 

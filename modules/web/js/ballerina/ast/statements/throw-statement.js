@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class for throw statement in ballerina.
@@ -40,18 +41,45 @@ class ThrowStatement extends Statement {
 
     /**
      * Set the throw statement string
-     * @param {string} throwString
+     * @param {string} statementString
+     * @param {function} callback
+     * @override
      */
-    setStatementString(statementString, options) {
-        this.getChildren()[0].setExpression(statementString.split('throw ')[1]);
+    setStatementFromString(statementString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'throw_statement')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Throw Statement Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 
     /**
      * Get the throw statement string
      * @return {string} throw statement string
+     * @override
      */
     getStatementString() {
-        return 'throw ' + this.getChildren()[0].getExpression();
+        return 'throw ' + this.getChildren()[0].getExpressionString();
     }
 
     /**
@@ -59,6 +87,7 @@ class ThrowStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);

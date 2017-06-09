@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Constructor for BackTickExpression
@@ -30,34 +31,44 @@ class BackTickExpression extends Expression {
     }
 
     /**
-     * Setter for BackTickEnclosedString
-     * @param backTickEnclosedString
-     */
-    setBackTickEnclosedString(backTickEnclosedString, options) {
-        this.setAttribute('_backTickEnclosedString', backTickEnclosedString, options);
-    }
-
-    /**
-     * Getter for BackTickEnclosedString
-     * @returns backTickEnclosedString
-     */
-    getBackTickEnclosedString() {
-        return this._backTickEnclosedString;
-    }
-
-    /**
      * initialize BackTickExpression from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.back_tick_enclosed_string] - back quote enclosed string
      */
     initFromJson(jsonNode) {
-        this.setBackTickEnclosedString(jsonNode.back_tick_enclosed_string, {doSilently: true});
-        this.setExpression(this.generateExpression(), {doSilently: true});
+        this._backTickEnclosedString = jsonNode.back_tick_enclosed_string;
     }
 
-    generateExpression() {
-        this._expression = '`' + this.getBackTickEnclosedString() + '`';
-        return this._expression;
+    getExpressionString() {
+        return ('`' + this._backTickEnclosedString + '`');
+    }
+
+    setExpressionFromString(expressionString, callback) {
+        const fragment = FragmentUtils.createExpressionFragment(expressionString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'back_tick_expression')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Back Tick Expression Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 }
 
