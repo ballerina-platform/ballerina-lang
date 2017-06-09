@@ -29,6 +29,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This will test binary expression precedence.
+ */
 public class BinaryExprEvalPrecedenceTest {
 
     private ProgramFile programFile;

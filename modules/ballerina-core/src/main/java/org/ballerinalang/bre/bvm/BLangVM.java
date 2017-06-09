@@ -198,7 +198,7 @@ public class BLangVM {
     }
 
     /**
-     * Act as a virtual CPU
+     * Act as a virtual CPU.
      */
     private void exec() {
         int i;
