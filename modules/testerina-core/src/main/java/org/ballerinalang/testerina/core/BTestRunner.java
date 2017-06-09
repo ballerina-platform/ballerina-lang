@@ -18,16 +18,14 @@
 package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -50,13 +48,10 @@ public class BTestRunner {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
-        BLangProgram[] bLangPrograms = Arrays.stream(sourceFilePaths).map(BTestRunner::buildTestModel)
-                .toArray(BLangProgram[]::new);
-        Arrays.stream(bLangPrograms).forEachOrdered(bLangProgram -> {
-            TesterinaRegistry.getInstance().addBLangProgram(bLangProgram);
-            // Create a runtime environment for this Ballerina application
-            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-            bLangProgram.setRuntimeEnvironment(runtimeEnv);
+        ProgramFile[] programFiles = Arrays.stream(sourceFilePaths).map(BTestRunner::buildTestModel)
+                .toArray(ProgramFile[]::new);
+        Arrays.stream(programFiles).forEachOrdered(programFile -> {
+            TesterinaRegistry.getInstance().addProgramFile(programFile);
         });
 
         if (ModeResolver.getInstance().isDebugEnabled()) {
@@ -65,26 +60,17 @@ public class BTestRunner {
             debugManager.init();
         }
 
-        executeTestFunctions(bLangPrograms);
+        executeTestFunctions(programFiles);
         tReport.printTestSummary();
         Runtime.getRuntime().exit(0);
     }
 
-    private static BLangProgram buildTestModel(Path sourceFilePath) {
-        BLangProgram bLangProgram = new BLangProgramLoader().loadService(programDirPath, sourceFilePath);
-        BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-        if (servicePackages.length == 0) {
-            throw new BallerinaException("no service(s) found in '" + bLangProgram.getProgramFilePath() + "'");
-        }
-
-        // Create a runtime environment for this Ballerina application
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-        bLangProgram.setRuntimeEnvironment(runtimeEnv);
-        return bLangProgram;
+    private static ProgramFile buildTestModel(Path sourceFilePath) {
+        return new BLangProgramLoader().loadServiceProgramFile(programDirPath, sourceFilePath);
     }
 
-    private static void executeTestFunctions(BLangProgram[] bLangPrograms) {
-        TesterinaContext tFile = new TesterinaContext(bLangPrograms);
+    private static void executeTestFunctions(ProgramFile[] programFiles) {
+        TesterinaContext tFile = new TesterinaContext(programFiles);
         ArrayList<TesterinaFunction> testFunctions = tFile.getTestFunctions();
         ArrayList<TesterinaFunction> beforeTestFunctions = tFile.getBeforeTestFunctions();
         ArrayList<TesterinaFunction> afterTestFunctions = tFile.getAfterTestFunctions();

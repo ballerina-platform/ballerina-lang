@@ -7,6 +7,7 @@ import ballerina.net.http;
 service mockService {
 
     @http:GET{}
+    @http:Path{ value: "/"}
     resource mockResource(message m) {
         message resp = {};
         messages:setStringPayload(resp, "You invoked mockService!");
