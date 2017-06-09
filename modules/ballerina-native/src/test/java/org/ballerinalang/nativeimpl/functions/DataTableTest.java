@@ -316,6 +316,96 @@ public class DataTableTest {
                         + "</type></types>");
     }
 
+    @Test(description = "Check getByIndex methods for primitive types.")
+    public void getXXXByIndexWithStruct() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getXXXByIndexWithStruct");
+
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+    }
+
+    @Test(description = "Check getObjectAsStringByName methods for complex types.")
+    public void getObjectAsStringByNameWithStruct() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "getObjectAsStringByNameWithStruct");
+
+        Assert.assertEquals(returns.length, 7);
+        Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
+        Assert.assertEquals((returns[1]).stringValue(), "very long text");
+        Assert.assertTrue(returns[2].stringValue().contains("11:35:45"));
+        Assert.assertTrue(returns[3].stringValue().contains("2017-02-03"));
+        Assert.assertTrue(returns[4].stringValue().contains("2017-02-03T11:53:00"));
+        Assert.assertTrue(returns[5].stringValue().contains("2017-02-03T11:53:00"));
+        Assert.assertEquals((returns[6]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(description = "Check getXXXArray methods for complex types.")
+    public void testGetArrayByNameWithStruct() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testGetArrayByNameWithStruct");
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<BString, BInteger> intArray = (BMap) returns[0];
+        Assert.assertTrue(intArray.get(new BString("0")) instanceof BInteger);
+        Assert.assertEquals(intArray.get(new BString("0")).intValue(), 1);
+        Assert.assertEquals(intArray.get(new BString("1")).intValue(), 2);
+        Assert.assertEquals(intArray.get(new BString("2")).intValue(), 3);
+
+        Assert.assertTrue(returns[1] instanceof BMap);
+        BMap<BString, BInteger> longArray = (BMap) returns[1];
+        Assert.assertTrue(longArray.get(new BString("0")) instanceof BInteger);
+        Assert.assertEquals(longArray.get(new BString("0")).intValue(), 100000000);
+        Assert.assertEquals(longArray.get(new BString("1")).intValue(), 200000000);
+        Assert.assertEquals(longArray.get(new BString("2")).intValue(), 300000000);
+
+        Assert.assertTrue(returns[2] instanceof BMap);
+        BMap<BString, BFloat> doubleArray = (BMap) returns[2];
+        Assert.assertTrue(doubleArray.get(new BString("0")) instanceof BFloat);
+        Assert.assertEquals(doubleArray.get(new BString("0")).floatValue(), 245.23);
+        Assert.assertEquals(doubleArray.get(new BString("1")).floatValue(), 5559.49);
+        Assert.assertEquals(doubleArray.get(new BString("2")).floatValue(), 8796.123);
+
+        Assert.assertTrue(returns[3] instanceof BMap);
+        BMap<BString, BString> stringArray = (BMap) returns[3];
+        Assert.assertTrue(stringArray.get(new BString("0")) instanceof BString);
+        Assert.assertEquals(stringArray.get(new BString("0")).stringValue(), "Hello");
+        Assert.assertEquals(stringArray.get(new BString("1")).stringValue(), "Ballerina");
+
+        Assert.assertTrue(returns[4] instanceof BMap);
+        BMap<BString, BBoolean> booleanArray = (BMap) returns[4];
+        Assert.assertTrue(booleanArray.get(new BString("0")) instanceof BBoolean);
+        Assert.assertEquals(booleanArray.get(new BString("0")).booleanValue(), true);
+        Assert.assertEquals(booleanArray.get(new BString("1")).booleanValue(), false);
+        Assert.assertEquals(booleanArray.get(new BString("2")).booleanValue(), true);
+    }
+
+    @Test(description = "Check toJson methods.")
+    public void testtoJsonWithStruct() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testtoJsonWithStruct");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,"
+                        + "\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]");
+    }
+
+    @Test(description = "Check toXml methods with wrapper element.")
+    public void testToXmlWithStruct() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXmlWithStruct");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<results><result><INT_TYPE>1</INT_TYPE><LONG_TYPE>9223372036854774807</LONG_TYPE>"
+                        + "<FLOAT_TYPE>123.34</FLOAT_TYPE><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
+                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE></result></results>");
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

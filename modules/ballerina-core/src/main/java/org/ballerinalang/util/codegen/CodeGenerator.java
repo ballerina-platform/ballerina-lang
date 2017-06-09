@@ -107,7 +107,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -198,6 +198,7 @@ public class CodeGenerator implements NodeVisitor {
 
     private Stack<List<Instruction>> breakInstructions = new Stack<>();
     private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
+    private Stack<Instruction> abortInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -1073,13 +1074,50 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
+        Instruction gotoEndOfTransactionBlock = new Instruction(InstructionCodes.GOTO, -1);
+        Instruction gotoStartOfAbortedBlock = new Instruction(InstructionCodes.GOTO, -1);
+        abortInstructions.push(gotoStartOfAbortedBlock);
+        //start transaction
+        int startIP = nextIP();
+        emit(new Instruction(InstructionCodes.TRBGN));
+        //process transaction statements
+        transactionStmt.getTransactionBlock().accept(this);
+        //end the transaction
+        int endIP = nextIP();
+        emit(new Instruction(InstructionCodes.TREND, 0));
+        //process committed block
+        if (transactionStmt.getCommittedBlock() != null) {
+            transactionStmt.getCommittedBlock().getCommittedBlockStmt().accept(this);
+        }
+        if (transactionStmt.getAbortedBlock() != null) {
+            emit(gotoEndOfTransactionBlock);
+        }
+        abortInstructions.pop();
+        gotoStartOfAbortedBlock.setOperand(0, nextIP());
+        emit(new Instruction(InstructionCodes.TREND, -1));
+        //process aborted block
+        if (transactionStmt.getAbortedBlock() != null) {
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+        }
+        emit(gotoEndOfTransactionBlock);
+        // CodeGen for error handling.
+        int errorTargetIP = nextIP();
+        emit(new Instruction(InstructionCodes.TREND, -1));
+        if (transactionStmt.getAbortedBlock() != null) {
+            transactionStmt.getAbortedBlock().getAbortedBlockStmt().accept(this);
+        }
+        emit(new Instruction(InstructionCodes.THROW, -1));
+        gotoEndOfTransactionBlock.setOperand(0, nextIP());
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
+        currentPkgInfo.addErrorTableEntry(errorTableEntry);
+        errorTableEntry.setPackageInfo(currentPkgInfo);
 
     }
 
     @Override
     public void visit(AbortStmt abortStmt) {
-
+        emit(abortInstructions.peek());
     }
 
 

@@ -86,7 +86,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -157,8 +157,7 @@ public class BLangModelBuilder {
 
     protected Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
 
-    protected Stack<TransactionRollbackStmt.TransactionRollbackStmtBuilder> transactionRollbackStmtBuilderStack =
-            new Stack<>();
+    protected Stack<TransactionStmt.TransactionStmtBuilder> transactionStmtBuilderStack = new Stack<>();
 
     protected Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
     protected Stack<List<Worker>> workerStack = new Stack<>();
@@ -1565,47 +1564,66 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
-    public void startTransactionhStmt(NodeLocation location) {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
-                = new TransactionRollbackStmt.TransactionRollbackStmtBuilder();
-        transactionRollbackStmtBuilder.setLocation(location);
-        transactionRollbackStmtBuilderStack.push(transactionRollbackStmtBuilder);
+    public void startTransactionStmt(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = new TransactionStmt.TransactionStmtBuilder();
+        transactionStmtBuilder.setLocation(location);
+        transactionStmtBuilderStack.push(transactionStmtBuilder);
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void startRollbackClause(NodeLocation location) {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
-                transactionRollbackStmtBuilderStack.peek();
-        // Creating Transaction clause.
+    public void addTransactionBlockStmt() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt transactionBlock = blockStmtBuilder.build();
-        transactionRollbackStmtBuilder.setTransactionBlock(transactionBlock);
+        transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
-        // Staring parsing rollback clause.
-        TransactionRollbackStmt.RollbackBlock rollbackBlock = new TransactionRollbackStmt.RollbackBlock(currentScope);
-        transactionRollbackStmtBuilder.setRollbackBlock(rollbackBlock);
-        currentScope = rollbackBlock;
-        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
-        blockStmtBuilderStack.push(rollbackBlockBuilder);
-        currentScope = rollbackBlockBuilder.getCurrentScope();
     }
 
-    public void addRollbackClause() {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
-                transactionRollbackStmtBuilderStack.peek();
-        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = blockStmtBuilderStack.pop();
-        BlockStmt rollbackBlock = rollbackBlockBuilder.build();
-        currentScope = rollbackBlock.getEnclosingScope();
-        transactionRollbackStmtBuilder.setRollbackBlockStmt(rollbackBlock);
+    public void startAbortedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing aborted clause.
+        TransactionStmt.AbortedBlock abortedBlock = new TransactionStmt.AbortedBlock(currentScope);
+        transactionStmtBuilder.setAbortedBlock(abortedBlock);
+        currentScope = abortedBlock;
+        BlockStmt.BlockStmtBuilder abortedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(abortedBlockBuilder);
+        currentScope = abortedBlockBuilder.getCurrentScope();
+    }
+
+    public void addAbortedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder abortedBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt abortedBlock = abortedBlockBuilder.build();
+        currentScope = abortedBlock.getEnclosingScope();
+        transactionStmtBuilder.setAbortedBlockStmt(abortedBlock);
+    }
+
+    public void startCommittedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing committed clause.
+        TransactionStmt.CommittedBlock committedBlock = new TransactionStmt.CommittedBlock(currentScope);
+        transactionStmtBuilder.setCommittedBlock(committedBlock);
+        currentScope = committedBlock;
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(committedBlockBuilder);
+        currentScope = committedBlockBuilder.getCurrentScope();
+    }
+
+    public void addCommittedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt committedBlock = committedBlockBuilder.build();
+        currentScope = committedBlock.getEnclosingScope();
+        transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
     public void addTransactionStmt() {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
-                = transactionRollbackStmtBuilderStack.pop();
-        TransactionRollbackStmt transactionRollbackStmt = transactionRollbackStmtBuilder.build();
-        addToBlockStmt(transactionRollbackStmt);
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
+        TransactionStmt transactionStmt = transactionStmtBuilder.build();
+        addToBlockStmt(transactionStmt);
     }
 
     public void createAbortStmt(NodeLocation location) {
