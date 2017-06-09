@@ -190,6 +190,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
 
+        // Transactions
+        mnemonics[InstructionCodes.TRBGN] = "trbgn";
+        mnemonics[InstructionCodes.TREND] = "trend";
+
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";
 

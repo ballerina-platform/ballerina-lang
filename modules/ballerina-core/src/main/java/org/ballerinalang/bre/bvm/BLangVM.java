@@ -18,8 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -901,6 +901,32 @@ public class BLangVM {
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    break;
+                case InstructionCodes.TRBGN: {
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager == null) {
+                        ballerinaTransactionManager = new BallerinaTransactionManager();
+                        context.setBallerinaTransactionManager(ballerinaTransactionManager);
+                    }
+                    ballerinaTransactionManager.beginTransactionBlock();
+                }
+                    break;
+                case InstructionCodes.TREND: {
+                    i = operands[0];
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager != null) {
+                        if (i == 0) {
+                            ballerinaTransactionManager.commitTransactionBlock();
+                        } else {
+                            ballerinaTransactionManager.setTransactionError(true);
+                            ballerinaTransactionManager.rollbackTransactionBlock();
+                        }
+                        ballerinaTransactionManager.endTransactionBlock();
+                        if (ballerinaTransactionManager.isOuterTransaction()) {
+                            context.setBallerinaTransactionManager(null);
+                        }
+                    }
+                }
                     break;
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];

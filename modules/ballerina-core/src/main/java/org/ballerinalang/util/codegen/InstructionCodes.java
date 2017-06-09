@@ -201,6 +201,10 @@ public interface InstructionCodes {
     int CHECKCAST = 164;
     int ANY2MSG = 165;
 
+    // Transactions
+    int TRBGN = 166;
+    int TREND = 167;
+
     int WRKINVOKE = 190;
     int WRKREPLY = 191;
 
