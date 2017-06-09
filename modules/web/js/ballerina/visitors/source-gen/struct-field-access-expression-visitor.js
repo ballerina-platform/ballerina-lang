@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
 class SructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisitor {
@@ -30,7 +28,7 @@ class SructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisit
     }
 
     beginVisitStructFieldAccessExpression(structFieldAccessExpression) {
-        this.appendSource(structFieldAccessExpression.getExpression());
+        this.appendSource(structFieldAccessExpression.getExpressionString());
         log.debug('Begin Visit Struct Field Access Expression');
     }
 
@@ -39,7 +37,7 @@ class SructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisit
     }
 
     endVisitStructFieldAccessExpression(structFieldAccessExpression) {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Struct Field Access Expression');
     }
 }

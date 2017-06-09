@@ -31,7 +31,7 @@ class VariableReferenceExpression extends Expression {
             0: '',
             1: '',
             2: '',
-            3: ' '
+            3: ''
 
         };
         this.setVariableName(_.get(args, 'variableName'));
@@ -137,7 +137,7 @@ class VariableReferenceExpression extends Expression {
                 + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
                 + this.getVariableName() + this.getWSRegion(3);
     }
-    
+
 }
 
 export default VariableReferenceExpression;

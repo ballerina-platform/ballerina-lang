@@ -24,6 +24,10 @@ class FieldAccessExpression extends Expression {
     constructor(args) {
         super('FieldAccessExpression');
         this._isArrayExpression = _.get(args, 'isArrayExpression', false);
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ''
+        };
     }
 
     /**

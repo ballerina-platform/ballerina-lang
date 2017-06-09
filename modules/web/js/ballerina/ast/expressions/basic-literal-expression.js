@@ -31,7 +31,7 @@ class BasicLiteralExpression extends Expression {
         this._basicLiteralValue = _.get(args, 'basicLiteralValue', '');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
-            1: ' '
+            1: ''
         };
     }
 
