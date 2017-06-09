@@ -50,14 +50,17 @@ import java.io.IOException;
         value = "The File struct") })
 public class Close extends AbstractNativeFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Close.class);
+    private static final Logger log = LoggerFactory.getLogger(Close.class);
+
     @Override
     public BValue[] execute(Context context) {
 
         BStruct struct = (BStruct) getArgument(context, 0);
         BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
         BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
-
+        if (is == null && os == null) {
+            log.error("Cannot close file because it is not open");
+        }
         if (is != null) {
             closeQuietly(is);
         }
@@ -73,7 +76,7 @@ public class Close extends AbstractNativeFunction {
                 resource.close();
             }
         } catch (IOException e) {
-            logger.error("Exception during Resource.close()", e);
+            log.error("Exception during Resource.close()", e);
         }
     }
 }

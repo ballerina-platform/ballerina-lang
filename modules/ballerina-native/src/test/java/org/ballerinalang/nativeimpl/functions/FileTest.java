@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +105,19 @@ public class FileTest {
         }
     }
 
+    @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = "Error while copying file")
+    public void testCopyNonExistentFile() throws IOException {
+
+        String sourcePath = "temp/original.txt";
+        String destPath = "temp/duplicate.txt";
+        BValue[] source = { new BString(sourcePath) };
+        BValue[] dest = { new BString(destPath) };
+        BStruct sourceStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+        BStruct destStruct = new BStruct(new StructDef(GlobalScope.getInstance()), dest);
+        BValue[] args = { sourceStruct, destStruct };
+        BLangFunctions.invoke(bLangProgram, "testCopy", args);
+    }
+
     @Test
     public void testCopyDir() throws IOException {
 
@@ -155,6 +169,21 @@ public class FileTest {
         }
     }
 
+    @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = "Error while moving file")
+    public void testMoveNonExistentFile() throws IOException {
+
+        String sourcePath = "temp/original.txt";
+        String destPath = "temp/test/original.txt";
+
+        BValue[] source = { new BString(sourcePath) };
+        BValue[] dest = { new BString(destPath) };
+        BStruct sourceStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+        BStruct destStruct = new BStruct(new StructDef(GlobalScope.getInstance()), dest);
+        BValue[] args = { sourceStruct, destStruct };
+
+        BLangFunctions.invoke(bLangProgram, "testMove", args);
+    }
+
     @Test
     public void testMoveDir() throws IOException {
 
@@ -199,6 +228,18 @@ public class FileTest {
         } else {
             Assert.fail("Error in file creation.");
         }
+    }
+
+    @Test(expectedExceptions = BallerinaException.class,
+            expectedExceptionsMessageRegExp = "File intended to delete does not exist")
+    public void testDeleteNonExistentFile() throws IOException {
+
+        String targetPath = "temp/original.txt";
+        BValue[] source = { new BString(targetPath) };
+        BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+        BValue[] args = { targetStruct };
+
+        BLangFunctions.invoke(bLangProgram, "testDelete", args);
     }
 
     @Test
@@ -276,6 +317,18 @@ public class FileTest {
 
     }
 
+    @Test(expectedExceptions = BallerinaException.class,
+            expectedExceptionsMessageRegExp = "Exception occurred since file does not exist")
+    public void testOpenNonExistentFile() throws IOException {
+
+        String sourcePath = "temp/original.txt";
+        BValue[] source = { new BString(sourcePath) };
+        BStruct sourceStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+        BValue[] args = { sourceStruct, new BString("rw") };
+        BLangFunctions.invoke(bLangProgram, "testOpen", args);
+
+    }
+
     @Test(expectedExceptions = IOException.class)
     public void testClose() throws IOException {
 
@@ -311,11 +364,25 @@ public class FileTest {
         BBlob byteContent = new BBlob(content);
         BValue[] source = { new BString(targetPath) };
         BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+        BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile));
+        targetStruct.addNativeData("outStream", os);
         BValue[] args = { byteContent, targetStruct };
-
         BLangFunctions.invoke(bLangProgram, "testWrite", args);
         Assert.assertTrue(targetFile.exists(), "File not created");
         Assert.assertEquals(byteContent.blobValue(), getBytesFromFile(targetFile), "Written wrong content");
+    }
+
+    @Test(expectedExceptions = BallerinaException.class,
+            expectedExceptionsMessageRegExp = "The file isn't opened in write or append mode")
+    public void testWriteWithoutOpeningFile() throws IOException {
+
+        String targetPath = "temp/text.txt";
+        byte[] content = "Sample Text".getBytes();
+        BBlob byteContent = new BBlob(content);
+        BValue[] source = { new BString(targetPath) };
+        BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+        BValue[] args = { byteContent, targetStruct };
+        BLangFunctions.invoke(bLangProgram, "testWrite", args);
     }
 
     @Test
