@@ -22,7 +22,7 @@ service productmgt {
 
     @http:POST{}
     @http:Path {value:"/"}
-    resource product (message m) {
+    resource product2 (message m) {
         json jsonReq = messages:getJsonPayload(m);
         string productId = jsons:getString(jsonReq, "$.Product.ID");
         productsMap[productId] = jsonReq;
