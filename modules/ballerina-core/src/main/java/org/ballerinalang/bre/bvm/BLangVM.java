@@ -18,8 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
@@ -100,7 +100,6 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -918,6 +917,32 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
                     break;
+                case InstructionCodes.TRBGN: {
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager == null) {
+                        ballerinaTransactionManager = new BallerinaTransactionManager();
+                        context.setBallerinaTransactionManager(ballerinaTransactionManager);
+                    }
+                    ballerinaTransactionManager.beginTransactionBlock();
+                }
+                    break;
+                case InstructionCodes.TREND: {
+                    i = operands[0];
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager != null) {
+                        if (i == 0) {
+                            ballerinaTransactionManager.commitTransactionBlock();
+                        } else {
+                            ballerinaTransactionManager.setTransactionError(true);
+                            ballerinaTransactionManager.rollbackTransactionBlock();
+                        }
+                        ballerinaTransactionManager.endTransactionBlock();
+                        if (ballerinaTransactionManager.isOuterTransaction()) {
+                            context.setBallerinaTransactionManager(null);
+                        }
+                    }
+                }
+                    break;
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
@@ -1242,6 +1267,18 @@ public class BLangVM {
                         // TODO Handle cast errors
                     }
                     break;
+                case InstructionCodes.DT2XML:
+                    i = operands[0];
+                    j = operands[1];
+                    bRefType = sf.refRegs[i];
+                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType);
+                    break;
+                case InstructionCodes.DT2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    bRefType = sf.refRegs[i];
+                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType);
+                    break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
@@ -1325,7 +1362,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
+                    sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
                     break;
                 case InstructionCodes.REP:
                     i = operands[0];
