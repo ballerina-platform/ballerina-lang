@@ -87,7 +87,7 @@ class TimeoutStatement extends Statement {
         const expressionChildNode = jsonNode['expression'];
         const expressionChild = self.getFactory().createFromJson(expressionChildNode);
         expressionChild.initFromJson(expressionChildNode);
-        self.setExpression(expressionChild.getExpression());
+        self.setExpression(expressionChild.getExpressionString());
 
         const paramJsonNode = jsonNode['timeout_parameter'];
         const paramChild = self.getFactory().createFromJson(paramJsonNode);
