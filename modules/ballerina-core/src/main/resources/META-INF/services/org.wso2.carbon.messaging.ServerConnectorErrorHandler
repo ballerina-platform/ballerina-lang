@@ -1,2 +1,2 @@
 org.ballerinalang.services.dispatchers.http.HTTPErrorHandler
-org.ballerinalang.services.dispatchers.websocket.WebSocketErrorHandler
+org.ballerinalang.services.dispatchers.ws.WebSocketErrorHandler

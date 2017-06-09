@@ -196,9 +196,8 @@ public class ServerConnectorMessageHandler {
 
     public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback,
                                               Throwable throwable) {
-        // TODO : Refactor this logic.
         String errorMsg = throwable.getMessage();
-        outStream.println(errorMsg);
+
         // bre log should contain bre stack trace, not the ballerina stack trace
         breLog.error("error: " + errorMsg, throwable);
         Object protocol = cMsg.getProperty("PROTOCOL");

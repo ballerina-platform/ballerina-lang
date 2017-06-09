@@ -41,6 +41,7 @@ public class DefaultServerConnectorErrorHandler implements ServerConnectorErrorH
 
     @Override
     public void handleError(Exception exception, CarbonMessage cMsg, CarbonCallback callback) throws Exception {
+        ErrorHandlerUtils.printError(exception);
         log.error("unhandled error in server connector, " + exception.getMessage(), exception);
     }
 

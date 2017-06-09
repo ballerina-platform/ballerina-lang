@@ -23,6 +23,7 @@ import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.PrintStream;
 import java.util.Stack;
 
 /**
@@ -31,6 +32,7 @@ import java.util.Stack;
 public class ErrorHandlerUtils {
 
     private static final int STACK_TRACE_LIMIT = 20;
+    private static final PrintStream outStream = System.err;
 
     /**
      * Get the error message of a throwable.
@@ -80,6 +82,18 @@ public class ErrorHandlerUtils {
     public static String getMainFuncStackTrace(Context context, Throwable throwable) {
         // Need to omit the main function invocation from the stack trace. Hence the starting index is 1
         return getStackTrace(context, throwable, 0);
+    }
+
+    /**
+     * Print the error
+     *
+     * @param throwable Throwable associated with the error
+     */
+    public static void printError(Throwable throwable) {
+        String errorMessage = throwable.getMessage();
+        if (errorMessage != null) {
+            outStream.println(errorMessage);
+        }
     }
 
     /**
