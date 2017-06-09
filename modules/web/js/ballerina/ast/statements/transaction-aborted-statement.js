@@ -19,6 +19,7 @@ import _ from 'lodash';
 import Statement from './statement';
 import BallerinaASTFactory from './../ballerina-ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 
 class TransactionAbortedStatement extends Statement {
     constructor(args) {
@@ -89,16 +90,16 @@ class TransactionAbortedStatement extends Statement {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'transaction_aborted_statement')) {
-
+            let nodeToFireEvent = this;
             this.initFromJson(parsedJson);
-
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
             // Manually firing the tree-modified event here.
             // TODO: need a proper fix to avoid breaking the undo-redo
             this.trigger('tree-modified', {
-                origin: this,
+                origin: nodeToFireEvent,
                 type: 'custom',
                 title: 'TransactionAborted Statement Custom Tree modified',
-                context: this,
+                context: nodeToFireEvent,
             });
 
             if (_.isFunction(callback)) {

@@ -31,7 +31,9 @@ class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitAbortedStatement(abortedStatement) {
         this.node = abortedStatement;
-        this.appendSource(' aborted {\n');
+        this.appendSource('aborted' + abortedStatement.getWSRegion(1) + '{'
+            + abortedStatement.getWSRegion(2));
+        this.appendSource((abortedStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
         log.debug('Begin Visit Aborted Statement');
     }
@@ -46,7 +48,24 @@ class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitAbortedStatement(abortedStatement) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}");
+        /*if using default ws, add a new line to end unless there are any
+         committed statement available*/
+        let parent = abortedStatement.getParent();
+        let tailingWS = abortedStatement.getWSRegion(3);
+        if (abortedStatement.whiteSpace.useDefault
+            && (_.isEmpty(parent.getCommittedStatement()))) {
+            tailingWS = '\n';
+        } else {
+            let abortedIndex = parent.children.indexOf(abortedStatement);
+            let committedIndex = parent.children.indexOf(parent.getCommittedStatement());
+            if (committedIndex < abortedIndex) {
+                tailingWS = '\n';
+            } else {
+                tailingWS = ' ';
+            }
+        }
+
+        this.appendSource("}" + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Aborted Statement');
     }

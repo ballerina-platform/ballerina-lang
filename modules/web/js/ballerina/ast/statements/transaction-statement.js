@@ -22,6 +22,12 @@ class TransactionStatement extends Statement {
     constructor() {
         super();
         this.type = "TransactionStatement";
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '\n',
+            3: ' '
+        }
     }
 
     /**
