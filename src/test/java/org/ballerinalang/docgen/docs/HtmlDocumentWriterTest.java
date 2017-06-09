@@ -105,8 +105,7 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(content1
                     .contains("<td>response</td><td><a href=\"#message\">message</a></td><td>response object</td>"));
             // asserting struct content
-            Assert.assertTrue(content1.contains("struct Argument(<a href=\"#string\">string</a> text, <a href=\"#int\">"
-                    + "int</a> argumentId, <a href=\"#int\">int</a> sentiment)"));
+            Assert.assertTrue(content1.contains("struct Argument"));
             Assert.assertTrue(content1
                     .contains("<td>text</td><td><a href=\"#string\">string</a></td><td>a string</td>"));
             
