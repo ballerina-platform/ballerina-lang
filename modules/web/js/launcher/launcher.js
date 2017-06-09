@@ -69,8 +69,8 @@ let Launcher = Backbone.View.extend({
             + '     <span class="tool-group-header-title">Program Running</span></span>'
             + '</div>'
             + '<div class="btn-group col-xs-12">'
+            + '<button type="button" class="btn btn-default btn-debug-activate" title="Redeploy" id="reploy-program"><i class="fw fw-refresh" /> Redeploy Application</button>'
             + '<button type="button" class="btn btn-default btn-debug-activate" title="Stop Application" id="stop_program"><i class="fw fw-stop" /> Stop Application</button>'
-            + '<button type="button" class="btn btn-default btn-debug-activate" title="Redeploy" id="reploy-program"><i class="fw fw-stop" /> Redeploy Application</button>'
             + '</div><% } %></div>');
 
         this.appArgsDialog = $('#modalRunApplicationWithArgs');
@@ -133,11 +133,16 @@ let Launcher = Backbone.View.extend({
     },
 
     reDeployProgram() {
-        this.stopProgram();
-        // wait for termination message from channel
-        LaunchManager.once('execution-ended', () => {
-            this.runService();
-        });
+        const activeTab = this.application.tabController.getActiveTab();
+        if(this.isReadyToRun(activeTab)) {
+            this.stopProgram();
+            // wait for termination message from channel
+            LaunchManager.once('execution-ended', () => {
+                this.runService();
+            });
+        } else {
+            alerts.error('Save file before redeploying service');
+        }
     },
 
     isActive(){
