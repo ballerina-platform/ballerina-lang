@@ -118,7 +118,7 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_PARAM_LIST_END_TO_BODY_START), "  ");
         Assert.assertEquals(resource.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_BODY_START_TO_FIRST_CHILD),
-                System.lineSeparator() + System.lineSeparator() +"      ");
+                System.lineSeparator() + System.lineSeparator() + "      ");
         Assert.assertEquals(resource.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_END_TO_NEXT_TOKEN),
                 System.lineSeparator());
@@ -138,7 +138,7 @@ public class WhiteSpaceCaptureTest {
                         "    ");
         Assert.assertEquals(annotationAttachment.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN),
-                System.lineSeparator() + System.lineSeparator() +"  ");
+                System.lineSeparator() + System.lineSeparator() + "  ");
     }
 
 
@@ -317,7 +317,7 @@ public class WhiteSpaceCaptureTest {
         Map<Integer, String> wsRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
 
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_PRECEDING_WHITESPACE),
-                System.lineSeparator() + System.lineSeparator() +"    ");
+                System.lineSeparator() + System.lineSeparator() + "    ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER), "  ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_IDENTIFIER_TO_BODY_START), "   ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN),
