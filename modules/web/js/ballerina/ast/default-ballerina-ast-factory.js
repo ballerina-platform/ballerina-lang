@@ -94,6 +94,8 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
 DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
     let connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
     connectorDef.addArgument('message', 'm');
+    let connectorActionDef = DefaultBallerinaASTFactory.createConnectorAction();
+    connectorDef.addChild(connectorActionDef, undefined, undefined, undefined, true);
     return connectorDef;
 };
 
