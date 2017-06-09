@@ -55,13 +55,14 @@ class Tool extends React.Component {
         return (event, ui) => {
             if(this.context.dragDropManager.isAtValidDropTarget()){
                 var indexForNewNode = this.context.dragDropManager.getDroppedNodeIndex();
+                let nodeBeingDragged = this.context.dragDropManager.getNodeBeingDragged();				
                 if(indexForNewNode >= 0){
                     this.context.dragDropManager.getActivatedDropTarget()
-                            .addChild(this.context.dragDropManager.getNodeBeingDragged(), indexForNewNode);
+                            .addChild(nodeBeingDragged, indexForNewNode, false, false, true);
                 } else {
                     this.context.dragDropManager.getActivatedDropTarget()
-                            .addChild(this.context.dragDropManager.getNodeBeingDragged());
-                }
+                            .addChild(nodeBeingDragged, undefined, false, false, true);
+                }				
             }
             this.context.dragDropManager.reset();
             this._$disabledIcon = undefined;
@@ -189,7 +190,7 @@ class ToolGroup extends React.Component {
 
 		return (
             <div id="tool-group-constructs-tool-group" className="tool-group">
-				<Collapsible trigger={trigger} triggerDisabled={disabled} open={open} triggerWhenOpen={triggerWhenOpen} >
+				<Collapsible trigger={trigger} triggerDisabled={disabled} open={open} triggerWhenOpen={triggerWhenOpen} transitionTime={200}>
 					<div className={"tool-group-body tool-group-body-" + this.state.activeGridStyle }>
 						{ this.props.showGridStyles &&
 						<div className="tools-view-modes-controls clearfix">
@@ -252,17 +253,17 @@ class ToolsPane extends React.Component {
 		return (
 			<div>
 				{ this.props.constructs &&	<ToolGroup group={this.props.constructs} key="constructs" showGridStyles={true} /> }
-				{ this.props.currentTools &&	<ToolGroup group={this.props.currentTools} key="Current Package" showGridStyles={false} /> }
+				{ this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&	<ToolGroup group={this.props.currentTools} key="Current Package" showGridStyles={false} /> }
 				<ToolsPanel name="Connectors"  >
 					{ this.props.connectors }
 					<a className="tool-palette-add-button" onClick={() => this.changePane("connectors")}>
-						<i className="fw fw-add fw-helper fw-helper-circle-outline icon"></i> Add
+						<i className="fw fw-add fw-helper fw-helper-circle-outline icon"></i> More
 					</a>
 				</ToolsPanel>								
 				<ToolsPanel name="Libraries"  >
 					{this.props.library}
 					<a className="tool-palette-add-button"  onClick={() => this.changePane("library")} >				
-						<i className="fw fw-add fw-helper fw-helper-circle-outline icon"></i> Add
+						<i className="fw fw-add fw-helper fw-helper-circle-outline icon"></i> More
 					</a>
 				</ToolsPanel>
 			</div>	
@@ -373,7 +374,7 @@ class ToolPaletteView extends React.Component {
 	}
 
 	changePane(type){
-		this.setState({ tab: type });
+		this.setState({ tab: type, search: '' });
 	}
 
 	render() {
@@ -389,6 +390,8 @@ class ToolPaletteView extends React.Component {
 		//get imported packages
 		let imports = model.getImportDeclarations();
 
+		let searching = this.state.search.length > 0;
+		currentTools.collapsed = searching;
 		//convert imports to tool groups
 		let connectors = [];
 		let library = [];
@@ -399,12 +402,14 @@ class ToolPaletteView extends React.Component {
 				let group = this.provider.getConnectorToolGroup(pkg);
 				group = this.searchTools(this.state.search, _.cloneDeep(group));
 				if(group != undefined && !_.isEmpty(group.tools)){ 
+					group.collapsed = searching;
 					connectors.push(<ToolGroup group={group} key={"connector" + item.getPackageName() } showGridStyles={false} />);
 				}
 
 				group = this.provider.getLibraryToolGroup(pkg);
 				group = this.searchTools(this.state.search, _.cloneDeep(group));
 				if(group != undefined && !_.isEmpty(group.tools)){
+					group.collapsed = searching;
 					library.push(<ToolGroup group={group} key={"library" + item.getPackageName() } showGridStyles={false} />);
 				}
 			});
@@ -421,13 +426,16 @@ class ToolPaletteView extends React.Component {
 					group = this.provider.getConnectorToolGroup(pkg);
 					group = this.searchTools(this.state.search, _.cloneDeep(group));
 					if(group != undefined && !_.isEmpty(group.tools)){
+						group.collapsed = searching;
 						connectors.push(<ToolGroup group={group} key={"connector" + pkg.getName() } showGridStyles={false} />);
 					}
 				}
 				else{
 					group = this.provider.getLibraryToolGroup(pkg);
 					group = this.searchTools(this.state.search, _.cloneDeep(group));
+					
 					if(group != undefined && !_.isEmpty(group.tools)){
+						group.collapsed = searching;
 						library.push(<ToolGroup group={group} key={"library" + pkg.getName() } showGridStyles={false} />);
 					}
 				}
