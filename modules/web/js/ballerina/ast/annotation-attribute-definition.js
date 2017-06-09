@@ -30,12 +30,11 @@ class AnnotationAttributeDefinition extends ASTNode {
         this._attributeValue = _.get(args, 'attributeValue', '');
         this._pkgPath = _.get(args, 'pkgPath');
         this.whiteSpace.defaultDescriptor.regions =  {
-            0: '',
+            0: ' ',
             1: ' ',
             2: ' ',
-            3: ' ',
-            4: '',
-            5: '\n'
+            3: '',
+            4: '\n'
         }
     }
 
@@ -78,17 +77,17 @@ class AnnotationAttributeDefinition extends ASTNode {
     }
 
     getAttributeStatementString() {
-        let statement = this.getAttributeType() + this.getWSRegion(1)
+        let statement = this.getAttributeType() + this.getWSRegion(0)
             + this.getAttributeName();
         if (!_.isEmpty(this.getAttributeValue())) {
-            statement += this.getWSRegion(2) + '=' + this.getWSRegion(3)
+            statement += this.getWSRegion(1) + '=' + this.getWSRegion(2)
                 + this.getAttributeValue()
-                + this.getWSRegion(4);
+                + this.getWSRegion(3);
         } else if (!this.whiteSpace.useDefault) {
             // ignore a default space between indenifier & semicolon
-            statement += this.getWSRegion(2);
+            statement += this.getWSRegion(1);
         }
-        statement += ';' + this.getWSRegion(5);
+        statement += ';' + this.getWSRegion(4);
         return statement;
     }
 
