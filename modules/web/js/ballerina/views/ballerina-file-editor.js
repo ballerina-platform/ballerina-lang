@@ -156,7 +156,7 @@ class BallerinaFileEditor extends EventChannel {
         }, this);
 
         this._model.on('import-new-package', function(packageString) {
-            self.addNewImportPackage(packageString);
+            self.trigger('update-tool-patette');
         });
     }
 
@@ -220,16 +220,6 @@ class BallerinaFileEditor extends EventChannel {
                                     .find(_.get(viewOptions, 'design_view.tool_palette.container'))
                                     .get(0);
 
-
-        var toolPaletteItemProvider = new ToolPaletteItemProvider({editor: this});
-        var toolPaletteContainer = $(this._container)
-                                    .find(_.get(viewOptions, 'design_view.tool_palette.container'))
-                                    .get(0);
-        var toolPaletteOpts = _.clone(_.get(viewOptions, 'design_view.tool_palette'));
-        toolPaletteOpts.itemProvider = toolPaletteItemProvider;
-        toolPaletteOpts.container = toolPaletteContainer;
-        toolPaletteOpts.ballerinaFileEditor = this;
-        this.toolPalette = new ToolPalette(toolPaletteOpts);
         this.messageManager = new MessageManager({fileEditor: this});
 
         // init undo manager
@@ -246,11 +236,6 @@ class BallerinaFileEditor extends EventChannel {
         //TODO remove this for adding filecontext to the map
         this.diagramRenderingContext.ballerinaFileEditor = this;
         this.diagramRenderingContext.packagedScopedEnvironemnt = this._environment;
-
-        if(!this._parseFailed){
-            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
-            this.addCurrentPackageToToolPalette();
-        }
 
         var importDeclarations = [];
 
@@ -289,13 +274,7 @@ class BallerinaFileEditor extends EventChannel {
         ReactDOM.render(
             toolPalette,
             this.toolPaletteContainer
-        );        
-
-        // add current imported packages to tool pallet
-        _.forEach(importDeclarations, function (importDeclaration) {
-            var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-            self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
-        });
+        );
 
         // container for per-tab source view TODO improve source view to wrap this logic
         var sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
@@ -377,7 +356,6 @@ class BallerinaFileEditor extends EventChannel {
             }
 
             lastRenderedTimestamp = this._file.getLastPersisted();
-            this.toolPalette.hide();
             // If the file has changed we will add the generated source to source view
             // If not we will display the content as it is in the file.
             const generatedSource = this.generateSource();
@@ -428,7 +406,6 @@ class BallerinaFileEditor extends EventChannel {
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     self._sourceView.markClean();
-                    self.addCurrentPackageToToolPalette();
                 }
 
                 var treeModel = self.generateNodeTree();
@@ -516,7 +493,7 @@ class BallerinaFileEditor extends EventChannel {
                 }
             }
             //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
-            self.toolPalette.show();
+            //self.toolPalette.show();
             sourceViewContainer.hide();
             swaggerViewContainer.hide();
             self._$designViewContainer.show();
@@ -526,8 +503,7 @@ class BallerinaFileEditor extends EventChannel {
             self.setActiveView('design');
             self.trigger("update-diagram");
             if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
-                self._environment.resetCurrentPackage();
-                self.rerenderCurrentPackageTool();
+                //trigger contet drawing
             }
         });
 
@@ -580,19 +556,6 @@ class BallerinaFileEditor extends EventChannel {
      */
     addCurrentPackageToToolPalette() {
         this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
-    }
-
-    rerenderCurrentPackageTool() {
-        var currentPackage = this.generateCurrentPackage();
-        var provider = this.toolPalette.getItemProvider();
-
-        // Remove current package tool group from pallete and re add it.
-        provider.removeImportToolGroup(currentPackage.getName());
-        var options = {
-            addToTop: true,
-            collapsed: false
-        };
-        provider.addImportToolGroup(currentPackage, options);
     }
 
     /**

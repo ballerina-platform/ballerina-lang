@@ -367,7 +367,7 @@ class ToolPaletteView extends React.Component {
         this.editor.on("update-diagram", () => {
             this.forceUpdate();
         });
-		this.editor.on('import-new-package',() => {
+		this.editor.on('update-tool-patette', () => {
             this.forceUpdate();
         });
 	}
