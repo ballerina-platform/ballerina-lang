@@ -745,6 +745,10 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(BlockStmt blockStmt) {
         for (Statement stmt : blockStmt.getStatements()) {
+            if (stmt instanceof CommentStmt) {
+                continue;
+            }
+
             addLineNumberInfo(stmt.getNodeLocation());
             stmt.accept(this);
 
@@ -2349,7 +2353,7 @@ public class CodeGenerator implements NodeVisitor {
 
         lvIndexes = lvIndexesCopy;
         regIndexes = regIndexesCopy;
-        
+
         // Generate code for Join block
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
         join.setIp(nextIP());
@@ -2606,7 +2610,7 @@ public class CodeGenerator implements NodeVisitor {
     private LocalVariableInfo getLocalVarAttributeInfo(VariableDef variableDef) {
         UTF8CPEntry annotationNameCPEntry = new UTF8CPEntry(variableDef.getName());
         int varNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
-        
+
         // TODO Support other variable memory locations
         int stackFrameOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
         return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, stackFrameOffset, variableDef.getType());
