@@ -1312,13 +1312,13 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     bRefType = sf.refRegs[i];
-                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType);
+                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
                     break;
                 case InstructionCodes.DT2JSON:
                     i = operands[0];
                     j = operands[1];
                     bRefType = sf.refRegs[i];
-                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType);
+                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
                     break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
