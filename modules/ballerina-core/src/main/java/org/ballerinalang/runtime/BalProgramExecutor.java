@@ -59,9 +59,6 @@ public class BalProgramExecutor {
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
 
-//        balContext.setServiceInfo(
-//                new CallableUnitInfo(service.getName(), service.getPackagePath(), service.getNodeLocation()));
-
         balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameterDefs().length];
 

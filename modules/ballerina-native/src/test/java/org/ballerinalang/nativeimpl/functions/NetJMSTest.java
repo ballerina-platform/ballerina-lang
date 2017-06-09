@@ -53,7 +53,8 @@ public class NetJMSTest {
         cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.CLIENT_ACKNOWLEDGE);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg, new BString("SUCCESS") };
         BLangFunctions.invoke(bLangProgram, "testAcknowledge", inputArgs, ctx);
@@ -71,7 +72,8 @@ public class NetJMSTest {
         cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg };
         BLangFunctions.invoke(bLangProgram, "testCommit", inputArgs, ctx);
@@ -85,7 +87,8 @@ public class NetJMSTest {
         cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg };
         BLangFunctions.invoke(bLangProgram, "testRollback", inputArgs, ctx);

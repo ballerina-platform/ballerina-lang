@@ -34,6 +34,8 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.websocket.Session;
 
 /**
@@ -81,6 +83,11 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
             BallerinaException {
         try {
+
+            // Setting default resource arguments
+            Map<String, String> resourceArgumentValues = new HashMap<>();
+            cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
+
             if (cMsg instanceof TextCarbonMessage) {
                 return getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
             } else if (cMsg instanceof BinaryCarbonMessage) {
