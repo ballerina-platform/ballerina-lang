@@ -279,10 +279,10 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a struct with inner XML to a JSON", 
             expectedExceptions = { BallerinaException.class }, 
-            expectedExceptionsMessageRegExp = "cannot cast 'Info' to type 'json': error while mapping 'name': " +
-            "incompatible types: expected 'json', found 'xml'")
-    public void testStructWithXmlToJson() {
-        BLangFunctions.invoke(bLangProgram, "testStructWithXmlToJson");
+            expectedExceptionsMessageRegExp = "cannot cast 'Info' to type 'json': error while mapping 'msg': " +
+            "incompatible types: expected 'json', found 'message'")
+    public void testStructWithMessageToJson() {
+        BLangFunctions.invoke(bLangProgram, "testStructWithMessageToJson");
     }
 
     @Test(description = "Test converting a JSON array to any array")

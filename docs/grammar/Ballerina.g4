@@ -384,11 +384,19 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' rollbackClause
+    :   'transaction' '{' statement* '}' transactionHandlers
     ;
 
-rollbackClause
+transactionHandlers
+    : abortedClause? committedClause?
+    | committedClause? abortedClause?
+    ;
+abortedClause
     :   'aborted' '{' statement* '}'
+    ;
+
+committedClause
+    :   'committed' '{' statement* '}'
     ;
 
 abortStatement

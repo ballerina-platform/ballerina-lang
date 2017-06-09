@@ -274,6 +274,22 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with all default values")
+    public void testAllDefaultValues() {
+        String path = "/echo44/echo1?foo=zzz";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("first").asText(), "zzz"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("echo44").asText(), "echo1"
+               , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);

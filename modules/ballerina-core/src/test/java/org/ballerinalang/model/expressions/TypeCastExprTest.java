@@ -480,9 +480,9 @@ public class TypeCastExprTest {
     
     @Test(description = "Test casting a xml as any type to json",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'xml' to type 'json'")
-    public void testAnyXmlToJson() {
-        BLangFunctions.invoke(bLangProgram, "testAnyXmlToJson");
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'message' to type 'json'")
+    public void testAnyMessageToJson() {
+        BLangFunctions.invoke(bLangProgram, "testAnyMessageToJson");
     }
     
     @Test(description = "Test casting a struct to map",

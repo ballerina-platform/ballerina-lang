@@ -104,6 +104,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.IADD] = "iadd";
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
+        mnemonics[InstructionCodes.XMLADD] = "radd";
+        
         mnemonics[InstructionCodes.ISUB] = "isub";
         mnemonics[InstructionCodes.FSUB] = "fsub";
         mnemonics[InstructionCodes.SADD] = "sadd";
@@ -187,6 +189,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
+        mnemonics[InstructionCodes.DT2JSON] = "dt2json";
+        mnemonics[InstructionCodes.DT2XML] = "dt2xml";
+
+        // Transactions
+        mnemonics[InstructionCodes.TRBGN] = "trbgn";
+        mnemonics[InstructionCodes.TREND] = "trend";
 
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";

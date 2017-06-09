@@ -70,7 +70,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -82,6 +82,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.util.BValueUtils;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
@@ -93,7 +94,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -625,7 +625,7 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
         BallerinaTransactionManager ballerinaTransactionManager = bContext.getBallerinaTransactionManager();
         if (ballerinaTransactionManager == null) {
             ballerinaTransactionManager = new BallerinaTransactionManager();
@@ -635,7 +635,7 @@ public class BLangExecutor implements NodeExecutor {
         //execute transaction block
         ballerinaTransactionManager.beginTransactionBlock();
         try {
-            transactionRollbackStmt.getTransactionBlock().execute(this);
+            transactionStmt.getTransactionBlock().execute(this);
             if (isErrorThrown) {
                 ballerinaTransactionManager.setTransactionError(true);
             }
@@ -656,7 +656,15 @@ public class BLangExecutor implements NodeExecutor {
             if (ballerinaTransactionManager.isTransactionError()) {
                 ballerinaTransactionManager.rollbackTransactionBlock();
                 inRollbackBlock = true;
-                transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().execute(this);
+                TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
+                if (abortedBlock != null) {
+                    abortedBlock.getAbortedBlockStmt().execute(this);
+                }
+            } else {
+                TransactionStmt.CommittedBlock committedBlock = transactionStmt.getCommittedBlock();
+                if (committedBlock != null) {
+                    committedBlock.getCommittedBlockStmt().execute(this);
+                }
             }
         } catch (Exception e) {
             throw new BallerinaException(e);
@@ -881,10 +889,10 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue visit(BinaryExpression binaryExpr) {
         Expression rExpr = binaryExpr.getRExpr();
-        BValueType rValue = (BValueType) rExpr.execute(this);
+        BValue rValue = rExpr.execute(this);
 
         Expression lExpr = binaryExpr.getLExpr();
-        BValueType lValue = (BValueType) lExpr.execute(this);
+        BValue lValue = lExpr.execute(this);
 
         return binaryExpr.getEvalFunc().apply(lValue, rValue);
     }
@@ -1058,7 +1066,7 @@ public class BLangExecutor implements NodeExecutor {
             return new BJSON(evaluatedString);
 
         } else {
-            return new BXML(evaluatedString);
+            return XMLUtils.parse(evaluatedString);
         }
     }
 
@@ -1587,7 +1595,7 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private void invokeConnectorInitAction(BallerinaConnectorDef connectorDef, BConnector bConnector) {
-        Action action = connectorDef.getInitAction();
+        BallerinaAction action = connectorDef.getInitAction();
         if (action == null) {
             return;
         }
@@ -1602,7 +1610,7 @@ public class BLangExecutor implements NodeExecutor {
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
-        AbstractNativeAction nativeAction = (AbstractNativeAction) action;
+        AbstractNativeAction nativeAction = (AbstractNativeAction) action.getNativeAction().load();
         nativeAction.execute(bContext);
         controlStack.popFrame();
 

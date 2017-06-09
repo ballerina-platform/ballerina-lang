@@ -19,9 +19,9 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
@@ -70,10 +70,10 @@ public class Update extends AbstractSQLAction {
 
     @Override
     public BValue execute(Context context) {
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String query = getArgument(context, 1).stringValue();
-        BArray parameters = (BArray) getArgument(context, 2);
-        BMap sharedMap = (BMap) bConnector.getValue(1);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String query = getStringArgument(context, 0);
+        BRefValueArray parameters = (BRefValueArray) getRefArgument(context, 1);
+        BMap sharedMap = (BMap) bConnector.getRefField(1);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
             datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));

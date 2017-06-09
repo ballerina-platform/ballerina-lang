@@ -153,10 +153,10 @@ public class BNullValueTest   {
     public void testMapOfNulls() {
         BValue[] vals = BLangFunctions.invoke(bLangProgram, "testMapOfNulls", new BValue[] {});
         BMap<BString, ?> nullMap = (BMap<BString, ?>) vals[0];
-        Assert.assertTrue(nullMap.get(new BString("x1")) instanceof BXML);
+        Assert.assertTrue(nullMap.get(new BString("x1")) instanceof BString);
         Assert.assertEquals(nullMap.get(new BString("x2")), null);
         Assert.assertEquals(nullMap.get(new BString("x3")), null);
-        Assert.assertTrue(nullMap.get(new BString("x4")) instanceof BXML);
+        Assert.assertTrue(nullMap.get(new BString("x4")) instanceof BString);
         Assert.assertEquals(nullMap.get(new BString("x5")), null);
     }
     

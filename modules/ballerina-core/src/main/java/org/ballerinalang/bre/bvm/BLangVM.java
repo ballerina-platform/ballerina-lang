@@ -18,8 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
@@ -47,6 +48,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -87,7 +89,6 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -644,6 +645,13 @@ public class BLangVM {
                     k = operands[2];
                     sf.stringRegs[k] = sf.stringRegs[i] + sf.stringRegs[j];
                     break;
+                case InstructionCodes.XMLADD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    // Here it is assumed that a refType addition can only be a xml-concat.
+                    sf.refRegs[k] = XMLUtils.concatenate((BXML) sf.refRegs[i], (BXML) sf.refRegs[j]);
+                    break;
                 case InstructionCodes.ISUB:
                     i = operands[0];
                     j = operands[1];
@@ -892,6 +900,32 @@ public class BLangVM {
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(functionInfo, funcCallCPEntry);
+                    break;
+                case InstructionCodes.TRBGN: {
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager == null) {
+                        ballerinaTransactionManager = new BallerinaTransactionManager();
+                        context.setBallerinaTransactionManager(ballerinaTransactionManager);
+                    }
+                    ballerinaTransactionManager.beginTransactionBlock();
+                }
+                    break;
+                case InstructionCodes.TREND: {
+                    i = operands[0];
+                    BallerinaTransactionManager ballerinaTransactionManager = context.getBallerinaTransactionManager();
+                    if (ballerinaTransactionManager != null) {
+                        if (i == 0) {
+                            ballerinaTransactionManager.commitTransactionBlock();
+                        } else {
+                            ballerinaTransactionManager.setTransactionError(true);
+                            ballerinaTransactionManager.rollbackTransactionBlock();
+                        }
+                        ballerinaTransactionManager.endTransactionBlock();
+                        if (ballerinaTransactionManager.isOuterTransaction()) {
+                            context.setBallerinaTransactionManager(null);
+                        }
+                    }
+                }
                     break;
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];
@@ -1217,6 +1251,18 @@ public class BLangVM {
                         // TODO Handle cast errors
                     }
                     break;
+                case InstructionCodes.DT2XML:
+                    i = operands[0];
+                    j = operands[1];
+                    bRefType = sf.refRegs[i];
+                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType);
+                    break;
+                case InstructionCodes.DT2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    bRefType = sf.refRegs[i];
+                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType);
+                    break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
@@ -1300,7 +1346,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
+                    sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
                     break;
                 case InstructionCodes.REP:
                     i = operands[0];
@@ -1602,15 +1648,19 @@ public class BLangVM {
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
+        // TODO : Remove after non blocking action usage
         BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
                 actionInfo.getParamTypes());
 
-        // TODO Remove
-        prepareStructureTypeForNativeAction(nativeArgValues);
-
+        // TODO : Remove once we handle this properly for return values
         BType[] retTypes = actionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
-        StackFrame caleeSF = new StackFrame(actionInfo, nativeArgValues, returnValues);
+
+        StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), 0, null, returnValues);
+        copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
+                    actionInfo.getParamTypes());
+
+
         controlStack.pushFrame(caleeSF);
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
@@ -1638,8 +1688,6 @@ public class BLangVM {
                 controlStack.popFrame();
                 handleReturnFromNativeCallableUnit(callerSF, funcCallCPEntry.getRetRegs(), returnValues, retTypes);
 
-                // TODO Remove
-                prepareStructureTypeFromNativeAction(nativeArgValues);
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));

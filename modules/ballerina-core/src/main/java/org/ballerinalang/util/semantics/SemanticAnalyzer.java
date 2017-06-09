@@ -115,7 +115,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -137,6 +137,7 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.typemappers.NativeCastMapper;
 import org.ballerinalang.natives.typemappers.TypeMappingUtils;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
@@ -1542,10 +1543,17 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(TransactionRollbackStmt transactionRollbackStmt) {
+    public void visit(TransactionStmt transactionStmt) {
         transactionStmtCount++;
-        transactionRollbackStmt.getTransactionBlock().accept(this);
-        transactionRollbackStmt.getRollbackBlock().getRollbackBlockStmt().accept(this);
+        transactionStmt.getTransactionBlock().accept(this);
+        TransactionStmt.AbortedBlock abortedBlock = transactionStmt.getAbortedBlock();
+        if (abortedBlock != null) {
+            abortedBlock.getAbortedBlockStmt().accept(this);
+        }
+        TransactionStmt.CommittedBlock committedBlock = transactionStmt.getCommittedBlock();
+        if (committedBlock != null) {
+            committedBlock.getCommittedBlockStmt().accept(this);
+        }
         transactionStmtCount--;
     }
 
@@ -1834,6 +1842,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (arithmeticExprType == BTypes.typeString) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
+
+        }  else if (arithmeticExprType == BTypes.typeXML) {
+            addExpr.setEvalFunc(AddExpression.ADD_XML_FUNC);
 
         } else {
             throwInvalidBinaryOpError(addExpr);
@@ -2177,6 +2188,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             valueExpr.accept(this);
+
+            if (structFieldType == BTypes.typeAny) {
+                AssignabilityResult result = performAssignabilityCheck(structFieldType, valueExpr);
+                if (result.implicitCastExpr != null) {
+                    valueExpr = result.implicitCastExpr;
+                    keyValueExpr.setValueExpr(valueExpr);
+                }
+            }
 
             if (!TypeMappingUtils.isCompatible(structFieldType, valueExpr.getType())) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
@@ -3331,9 +3350,26 @@ public class SemanticAnalyzer implements NodeVisitor {
             actionSymbol = nativeScope.resolve(name);
             if (actionSymbol != null) {
                 if (actionSymbol instanceof NativeUnitProxy) {
-                    NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
-                    Action action = (Action) nativeUnit;
-                    connectorDef.setInitAction(action);
+                    AbstractNativeAction nativeUnit = (AbstractNativeAction) ((NativeUnitProxy) actionSymbol).load();
+                    BallerinaAction.BallerinaActionBuilder ballerinaActionBuilder = new BallerinaAction
+                            .BallerinaActionBuilder(connectorDef);
+                    ballerinaActionBuilder.setIdentifier(nativeUnit.getIdentifier());
+                    ballerinaActionBuilder.setPkgPath(nativeUnit.getPackagePath());
+                    ballerinaActionBuilder.setNative(nativeUnit.isNative());
+                    ballerinaActionBuilder.setSymbolName(nativeUnit.getSymbolName());
+                    ParameterDef paramDef = new ParameterDef(connectorDef.getNodeLocation(), null,
+                            new Identifier(nativeUnit.getArgumentNames()[0]),
+                            nativeUnit.getArgumentTypeNames()[0],
+                            new SymbolName(nativeUnit.getArgumentNames()[0], connectorDef.getPackagePath()),
+                            ballerinaActionBuilder.getCurrentScope());
+                    paramDef.setType(connectorDef);
+                    ballerinaActionBuilder.addParameter(paramDef);
+                    BallerinaAction ballerinaAction = ballerinaActionBuilder.buildAction();
+                    ballerinaAction.setNativeAction((NativeUnitProxy) actionSymbol);
+                    ballerinaAction.setConnectorDef(connectorDef);
+                    BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
+                    ballerinaAction.setParameterTypes(new BType[]{bType});
+                    connectorDef.setInitAction(ballerinaAction);
                 }
             }
         }

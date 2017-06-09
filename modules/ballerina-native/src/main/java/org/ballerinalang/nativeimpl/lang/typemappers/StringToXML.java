@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.lang.typemappers;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -50,7 +51,7 @@ public class StringToXML extends AbstractNativeTypeMapper {
 
     public BValue convert(Context ctx) {
         BString msg = (BString) getArgument(ctx, 0);
-        BXML result = new BXML(msg.stringValue());
+        BXML result = XMLUtils.parse(msg.stringValue());
         return result;
     }
 
