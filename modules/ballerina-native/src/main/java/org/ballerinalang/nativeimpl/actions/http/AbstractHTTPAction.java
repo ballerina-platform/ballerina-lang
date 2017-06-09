@@ -185,7 +185,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     @Override
     public boolean isNonBlockingAction() {
-        return true;
+        return false;
     }
 
     private void handleTransportException(BValue valueRef) {
