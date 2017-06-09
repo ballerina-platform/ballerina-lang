@@ -56,7 +56,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 import javax.sql.XAConnection;
 import javax.transaction.RollbackException;
@@ -83,7 +82,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, query);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
                     getColumnDefinitions(rs));
             context.getControlStackNew().getCurrentFrame().returnValues[0] = dataTable;
         } catch (SQLException e) {
@@ -162,7 +161,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
                         getColumnDefinitions(rs));
                 context.getControlStackNew().getCurrentFrame().returnValues[0] = datatable;
             } else {
@@ -263,7 +262,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             String colName = rsMetaData.getColumnName(i);
             int colType = rsMetaData.getColumnType(i);
             TypeEnum mappedType = SQLDatasourceUtils.getColumnType(colType);
-            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType));
+            columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType, colType));
         }
         return columnDefs;
     }

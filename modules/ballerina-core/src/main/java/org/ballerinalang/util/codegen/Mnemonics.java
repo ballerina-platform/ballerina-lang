@@ -189,6 +189,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
+        mnemonics[InstructionCodes.DT2JSON] = "dt2json";
+        mnemonics[InstructionCodes.DT2XML] = "dt2xml";
 
         // Transactions
         mnemonics[InstructionCodes.TRBGN] = "trbgn";

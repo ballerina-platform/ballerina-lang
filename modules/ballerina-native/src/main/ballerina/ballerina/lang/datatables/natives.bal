@@ -59,7 +59,12 @@ native function toJson (datatable dt) (json);
 @doc:Description { value:"Checks for a new row in the given datatable. If a new row is found, moves the cursor to it."}
 @doc:Param { value:"dt: The datatable object" }
 @doc:Return { value:"boolean: True if there is a new row; false otherwise" }
-native function next (datatable dt) (boolean);
+native function hasNext (datatable dt) (boolean);
+
+@doc:Description { value:"Retrives the current row and return a struct with the data in the columns"}
+@doc:Param { value:"dt: The datatable object" }
+@doc:Return { value:"any: The resulting row as a struct" }
+native function next (datatable dt) (any);
 
 @doc:Description { value:"Retrieves arrays values of a given column index."}
 @doc:Param { value:"dt: The datatable object" }

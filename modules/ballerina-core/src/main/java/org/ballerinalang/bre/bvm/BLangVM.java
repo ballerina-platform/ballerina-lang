@@ -89,7 +89,6 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -1252,6 +1251,18 @@ public class BLangVM {
                         // TODO Handle cast errors
                     }
                     break;
+                case InstructionCodes.DT2XML:
+                    i = operands[0];
+                    j = operands[1];
+                    bRefType = sf.refRegs[i];
+                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType);
+                    break;
+                case InstructionCodes.DT2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    bRefType = sf.refRegs[i];
+                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType);
+                    break;
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
@@ -1335,7 +1346,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWDATATABLE:
                     i = operands[0];
-                    sf.refRegs[i] = new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
+                    sf.refRegs[i] = new BDataTable(null, new ArrayList<>(0));
                     break;
                 case InstructionCodes.REP:
                     i = operands[0];

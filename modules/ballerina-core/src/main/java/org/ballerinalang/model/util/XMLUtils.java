@@ -30,7 +30,10 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
+import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.ballerinalang.model.DataTableOMDataSource;
+import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BXML;
@@ -71,18 +74,18 @@ public class XMLUtils {
     
     /**
      * Create a XML item from string literal
-     * 
+     *
      * @param xmlStr String representation of the XML
      * @return XML sequence
      */
     public static BXML<?> parse(String xmlStr) {
         try {
-            
+
             if (xmlStr.isEmpty()) {
                 return new BXMLItem(new TextImpl());
             }
-            
-            // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML. 
+
+            // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
             // This is to overcome the issue of axiom not allowing to parse xml-comments,
             // xml-text nodes, and pi nodes, without having a xml-element node.
             // TODO: improve this logic once the xml parsing is supported from the grammar.
@@ -92,12 +95,12 @@ public class XMLUtils {
             if (children.hasNext()) {
                 omNode = children.next();
             }
-            
+
             if (children.hasNext()) {
                 throw new BallerinaException("xml item must be one of the types: 'element', 'comment', 'text', 'pi'");
             }
-            
-            // Here the node is detached from the dummy root, and added to a 
+
+            // Here the node is detached from the dummy root, and added to a
             // document element. This is to get the xpath working correctly
             omNode = omNode.detach();
             OMDocument doc = new OMDocumentImpl();
@@ -109,10 +112,10 @@ public class XMLUtils {
             throw new BallerinaException("failed to parse xml: " + e.getMessage());
         }
     }
-    
+
     /**
      * Create a XML sequence from string inputstream
-     * 
+     *
      * @param xmlStream XML imput stream
      * @return  XML Sequence
      */
@@ -129,12 +132,12 @@ public class XMLUtils {
         } catch (Throwable e) {
             throw new BallerinaException("failed to create xml: " + e.getMessage());
         }
-        return new BXMLSequence(elementsSeq); 
+        return new BXMLSequence(elementsSeq);
     }
-    
+
     /**
      * Concatenate two XML sequences and produce a single sequence.
-     * 
+     *
      * @param firstSeq First XML sequence
      * @param secondSeq Second XML sequence
      * @return Concatenated XML sequence
@@ -142,7 +145,7 @@ public class XMLUtils {
     public static BXML<?> concatenate(BXML<?> firstSeq, BXML<?> secondSeq) {
         BRefValueArray concatSeq = new BRefValueArray();
         int j = 0;
-        
+
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             BRefValueArray seq = ((BXMLSequence) firstSeq).value();
@@ -152,7 +155,7 @@ public class XMLUtils {
         } else {
             concatSeq.add(j++, firstSeq);
         }
-        
+
         // Add all the items in the second sequence
         if (secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             BRefValueArray seq = ((BXMLSequence) secondSeq).value();
@@ -162,10 +165,10 @@ public class XMLUtils {
         } else {
             concatSeq.add(j++, secondSeq);
         }
-        
+
         return new BXMLSequence(concatSeq);
     }
-    
+
     /**
      * Converts a {@link BXML} to {@link BJSON}.
      * 
@@ -257,10 +260,10 @@ public class XMLUtils {
         result = new BXMLItem(new ByteArrayInputStream(xml));
         return result;
     }
-    
+
     /**
      * Get the singleton value of the xml, for xpath operations.
-     * 
+     *
      * @param xml source xml
      * @return singleton value
      */
@@ -268,11 +271,23 @@ public class XMLUtils {
         if (xml instanceof BXMLItem) {
             return xml;
         }
-        
+
         if (!xml.isSingleton().value()) {
             throw new BallerinaException("cannot execute xpath on a xml sequence");
         }
-        
+
         return (BXML) ((BXMLSequence) xml).value().get(0);
+    }
+
+    /**
+     * Converts a {@link BDataTable} to {@link BXML}.
+     *
+     * @param dataTable {@link BDataTable} to convert
+     * @return converted {@link BXML}
+     */
+    public static BXML datatableToXML(BDataTable dataTable) {
+        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null));
+        return new BXMLItem(omSourcedElement);
     }
 }
