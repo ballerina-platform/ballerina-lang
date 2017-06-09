@@ -176,8 +176,8 @@ class VariableDefinitionStatement extends Statement {
         this.children = [];
         _.each(jsonNode.children, (childNode) => {
             var child = this.getFactory().createFromJson(childNode);
-            child.initFromJson(childNode);
             this.addChild(child, undefined, true, true);
+            child.initFromJson(childNode);
         });
     }
 }
