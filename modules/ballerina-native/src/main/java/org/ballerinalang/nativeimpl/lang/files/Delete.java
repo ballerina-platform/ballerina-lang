@@ -67,8 +67,7 @@ public class Delete extends AbstractNativeFunction {
                 File currentFile = new File(targetFile.getPath(), s);
                 if (currentFile.isDirectory()) {
                     delete(currentFile);
-                }
-                if (!currentFile.delete()) {
+                } else if (!currentFile.delete()) {
                     return false;
                 }
             }
