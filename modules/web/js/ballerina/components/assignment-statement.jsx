@@ -24,6 +24,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
+import BallerinaASTFactory from './../../ballerina/ast/ballerina-ast-factory';
 
 /**
  * Assignment statement decorator.
@@ -61,7 +62,7 @@ class AssignmentStatement extends React.Component {
         const arrowStartPointX = bBox.getRight();
         const arrowStartPointY = this.statementBox.y + this.statementBox.h/2;
         const radius = 10;
-        const actionInvocation = !_.isNil(model.getChildren()[1].getChildren()[0]) ?
+        const actionInvocation = BallerinaASTFactory.isActionInvocationExpression(model.getChildren()[1].getChildren()[0]) ?
             model.getChildren()[1].getChildren()[0] : undefined;
         let connector;
         let arrowStart = { x: 0, y: 0 };
