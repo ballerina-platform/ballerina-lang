@@ -1593,9 +1593,7 @@ public class BLangVM {
                 .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
         if (localVarAttrInfo != null) {
             for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
-                UTF8CPEntry constantPoolEntry = (UTF8CPEntry) controlStack.currentFrame.packageInfo
-                        .getConstPool()[localVarInfo.getVariableNameCPIndex()];
-                VariableInfo variableInfo = new VariableInfo(constantPoolEntry.getValue(), "Local");
+                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
                 if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
                     variableInfo.setBValue(new BInteger(controlStack.currentFrame
                             .longLocalVars[localVarInfo.getVariableIndex()]));
