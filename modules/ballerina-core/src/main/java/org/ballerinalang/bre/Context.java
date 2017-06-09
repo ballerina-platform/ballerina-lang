@@ -62,13 +62,8 @@ public class Context {
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
 
+    @Deprecated
     public Context() {
-        this.controlStack = new ControlStack();
-        this.controlStackNew = new ControlStackNew();
-    }
-
-    public Context(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
@@ -107,6 +102,10 @@ public class Context {
         return this.cMsg;
     }
 
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
+    }
+
     public Object getProperty(String key) {
         return this.properties.get(key);
     }
@@ -133,10 +132,6 @@ public class Context {
 
     public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
-    }
-
-    public void setCarbonMessage(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
     }
 
     public Object getServerConnectorProtocol() {

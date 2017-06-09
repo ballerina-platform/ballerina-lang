@@ -51,7 +51,8 @@ public class NetHttpTest {
         BMessage msg = new BMessage();
         cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_GET);
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         BValue[] inputArg = {msg};
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetMethod", inputArg, ctx);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -68,7 +69,8 @@ public class NetHttpTest {
         cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_GET);
         cMsg.setProperty(org.ballerinalang.runtime.Constants.INTERMEDIATE_HEADERS, headers);
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         BValue[] inputArg = {msg};
         BLangFunctions.invoke(bLangProgram, "testConvertToResponse", inputArg, ctx);
         Assert.assertTrue(msg.value().getHeaders().contains("test"), "Can't find header test.");
@@ -79,7 +81,8 @@ public class NetHttpTest {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         int httpSC = 200;
         BValue[] inputArgs = { msg, new BInteger(httpSC) };
         BLangFunctions.invoke(bLangProgram, "testSetStatusCode", inputArgs, ctx);
@@ -93,7 +96,8 @@ public class NetHttpTest {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         BValue[] inputArgs = { msg, new BString("hello") };
         BLangFunctions.invoke(bLangProgram, "testSetStatusCode", inputArgs, ctx);
     }
@@ -103,7 +107,8 @@ public class NetHttpTest {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         int length = 123;
         BValue[] inputArgs = { msg, new BInteger(length) };
         BLangFunctions.invoke(bLangProgram, "testSetContentLength", inputArgs, ctx);
@@ -118,7 +123,8 @@ public class NetHttpTest {
         cMsg.setProperty("HTTP_STATUS_CODE", httpSC);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         BValue[] inputArgs = { msg };
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetStatusCode", inputArgs, ctx);
         Assert.assertEquals(returnVals.length, 1);
@@ -133,7 +139,8 @@ public class NetHttpTest {
         cMsg.setHeader("Content-Length", String.valueOf(cntLen));
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         BValue[] inputArgs = { msg };
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetContentLength", inputArgs, ctx);
         Assert.assertEquals(returnVals.length, 1);
@@ -148,7 +155,8 @@ public class NetHttpTest {
         cMsg.setHeader("Content-Length", String.valueOf("hello"));
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         BValue[] inputArgs = { msg };
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetContentLength", inputArgs, ctx);
     }
@@ -158,7 +166,8 @@ public class NetHttpTest {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
+        Context ctx = new Context();
+        ctx.setCarbonMessage(cMsg);
         String hello = "hello";
         BValue[] inputArgs = { msg, new BString(hello) };
         BLangFunctions.invoke(bLangProgram, "testSetReasonPhrase", inputArgs, ctx);

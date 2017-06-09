@@ -18,11 +18,11 @@
 
 package org.ballerinalang.nativeimpl.functions.ws;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
 import org.ballerinalang.testutils.ws.MockWebSocketSession;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,7 +34,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class WebSocketEndpointTest {
 
-    private BLangProgram application;
+    private ProgramFile application;
     private final String uri = "/test/websocket";
 
     // Client properties
@@ -43,7 +43,7 @@ public class WebSocketEndpointTest {
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        application = EnvironmentInitializer.setup("samples/websocket/endpointTest.bal");
+        application = EnvironmentInitializer.setupProgramFile("samples/websocket/endpointTest.bal");
     }
 
     @Test(description = "Test the client connection establishment and broadcast.")
@@ -76,6 +76,6 @@ public class WebSocketEndpointTest {
 
     @AfterClass
     public void cleanUp() {
-//        EnvironmentInitializer.cleanup(application);
+        EnvironmentInitializer.cleanup(application);
     }
 }
