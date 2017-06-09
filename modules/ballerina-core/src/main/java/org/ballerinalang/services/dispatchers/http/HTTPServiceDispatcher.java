@@ -24,6 +24,7 @@ import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnotationAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -33,8 +34,8 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Service Dispatcher for HTTP Protocol.
@@ -44,6 +45,7 @@ import java.util.Map;
 public class HTTPServiceDispatcher implements ServiceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPServiceDispatcher.class);
+    private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
 
     @Deprecated
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
@@ -126,11 +128,18 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 log.error("Failed to parse URIs", e);
             }
         }
+
+        String basePath = getServiceBasePath(service);
+        sortedServiceURIs.add(basePath);
+        sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
     }
 
     @Override
     public void serviceUnregistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().unregisterService(service);
+
+        String basePath = getServiceBasePath(service);
+        sortedServiceURIs.remove(basePath);
     }
 
     protected String getInterface(CarbonMessage cMsg) {
@@ -146,19 +155,34 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     }
 
     private String findTheMostSpecificBasePath(String requestURIPath, Map<String, ServiceInfo> services) {
-        // TODO: Could improve the logic here with CopyOnWriteArray
-        Object[] keys = services.keySet().toArray();
-        Arrays.sort(keys, (o1, o2) -> o2.toString().length() - o1.toString().length());
-
-        for (Object key : keys) {
+        for (Object key : sortedServiceURIs) {
             if (requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
                 return key.toString();
             }
         }
-
         if (services.containsKey(Constants.DEFAULT_BASE_PATH)) {
             return Constants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    private String getServiceBasePath(ServiceInfo service) {
+        String basePath = service.getName();
+        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_BASE_PATH);
+
+        if (annotationInfo != null) {
+            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
+                    (Constants.VALUE_ATTRIBUTE);
+            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
+                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
+                basePath = annotationAttributeValue.getStringValue();
+            }
+        }
+
+        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
+            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+        return basePath;
     }
 }
