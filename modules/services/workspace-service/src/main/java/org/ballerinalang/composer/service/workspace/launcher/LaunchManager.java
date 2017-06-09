@@ -96,7 +96,7 @@ public class LaunchManager {
         
         try {
             String cmd = command.toString();
-            if(command.getPackageDir() == null) {
+            if (command.getPackageDir() == null) {
                 program = Runtime.getRuntime().exec(cmd);
             } else {
                 program = Runtime.getRuntime().exec(cmd, null, new File(command.getPackageDir()));

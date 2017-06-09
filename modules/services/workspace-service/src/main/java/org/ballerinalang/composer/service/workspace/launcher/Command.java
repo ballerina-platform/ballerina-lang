@@ -108,7 +108,7 @@ public class Command {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "",
                 commandArgs = "";
         int port = -1;
@@ -164,7 +164,7 @@ public class Command {
 
     public String getCommandIdentifier() {
         String ballerinaCommand, programType;
-        if(this.packagePath == null) {
+        if (this.packagePath == null) {
             return this.getScript();
         } else {
             return this.packagePath;

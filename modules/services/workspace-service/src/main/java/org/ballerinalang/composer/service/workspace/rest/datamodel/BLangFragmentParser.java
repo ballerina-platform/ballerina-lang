@@ -126,7 +126,8 @@ public class BLangFragmentParser {
                 && (((BallerinaFunction) bFile.getCompilationUnits()[0]).getCallableUnitBody()
                 .getStatements().length == 1)
                 /* if the only recovered error is the additional semicolon error*/
-                && errorStrategy.getErrorTokens().size() == 1 && errorStrategy.getErrorTokens().get(0).getText().contains("unwanted token ';'"))) {
+                && errorStrategy.getErrorTokens().size() == 1 &&
+                    errorStrategy.getErrorTokens().get(0).getText().contains("unwanted token ';'"))) {
             BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(jsonModelRoot);
             bFile.accept(jsonModelBuilder);
         } else {
