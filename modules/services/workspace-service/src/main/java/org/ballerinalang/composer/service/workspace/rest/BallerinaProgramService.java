@@ -132,51 +132,42 @@ public class BallerinaProgramService {
     /**
      * Generate a json with packages in program directory
      *
-     * @param filePath - file path to parent directory of the .bal file
+     * @param filePath    - file path to parent directory of the .bal file
      * @param packageName - package name
      */
     private String resolveProgramPackages(java.nio.file.Path filePath, String packageName) {
         JsonObject response = new JsonObject();
         // Filter out Default package scenario
         if (!".".equals(packageName)) {
-            try {
-                // find nested directory count using package name
-                int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
-                        : 1;
+            // find nested directory count using package name
+            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
+                    : 1;
 
-                // find program directory
-                java.nio.file.Path parentDir = filePath.getParent();
-                for (int i = 0; i < directoryCount; ++i) {
-                    if (parentDir != null) {
-                        parentDir = parentDir.getParent();
-                    } else {
-                        return response.toString();
-                    }
-                }
-
-                // we shouldn't proceed if the parent directory is null
-                if (parentDir == null) {
+            // find program directory
+            java.nio.file.Path parentDir = filePath.getParent();
+            for (int i = 0; i < directoryCount; ++i) {
+                if (parentDir != null) {
+                    parentDir = parentDir.getParent();
+                } else {
                     return response.toString();
                 }
-
-                // get packages in program directory
-                Map<String, ModelPackage> packages = getPackagesInProgramDirectory(parentDir);
-                Collection<ModelPackage> modelPackages = packages.values();
-
-                // add package info into response
-                Gson gson = new Gson();
-                String json = gson.toJson(modelPackages);
-                JsonParser parser = new JsonParser();
-                JsonArray packagesArray = parser.parse(json).getAsJsonArray();
-                response.add("packages", packagesArray);
-            } catch (BallerinaException e) {
-                logger.warn(e.getMessage());
-                // TODO : we shouldn't catch runtime exceptions. Need to validate properly before executing
-
-                // There might be situations where program directory contains unresolvable/un-parsable .bal files. In
-                // those scenarios we still needs to proceed even without package resolving. Hence ignoring the
-                // exception
             }
+
+            // we shouldn't proceed if the parent directory is null
+            if (parentDir == null) {
+                return response.toString();
+            }
+
+            // get packages in program directory
+            Map<String, ModelPackage> packages = getPackagesInProgramDirectory(parentDir);
+            Collection<ModelPackage> modelPackages = packages.values();
+
+            // add package info into response
+            Gson gson = new Gson();
+            String json = gson.toJson(modelPackages);
+            JsonParser parser = new JsonParser();
+            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+            response.add("packages", packagesArray);
         }
         return response.toString();
     }
@@ -184,12 +175,12 @@ public class BallerinaProgramService {
 
     /**
      * Get packages in program directory
+     *
      * @param programDirPath
      * @return a map contains package details
      * @throws BallerinaException
      */
-    private Map<String, ModelPackage> getPackagesInProgramDirectory(java.nio.file.Path programDirPath)
-            throws BallerinaException {
+    private Map<String, ModelPackage> getPackagesInProgramDirectory(java.nio.file.Path programDirPath) {
         Map<String, ModelPackage> modelPackageMap = new HashMap();
 
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
@@ -201,10 +192,19 @@ public class BallerinaProgramService {
             int compare = filePath.compareTo(programDirPath);
             String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
                     filePath.toString().length());
-            BLangProgram bLangProgram = new BLangProgramLoader()
-                    .loadMain(programDirPath, Paths.get(sourcePath));
-            String[] packageNames = {bLangProgram.getMainPackage().getName()};
-            modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
+            try {
+                BLangProgram bLangProgram = new BLangProgramLoader()
+                        .loadMain(programDirPath, Paths.get(sourcePath));
+                String[] packageNames = {bLangProgram.getMainPackage().getName()};
+                modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
+            } catch (BallerinaException e) {
+                logger.warn(e.getMessage());
+                // TODO : we shouldn't catch runtime exceptions. Need to validate properly before executing
+
+                // There might be situations where program directory contains unresolvable/un-parsable .bal files. In
+                // those scenarios we still needs to proceed even without package resolving for that particular package.
+                // Hence ignoring the exception.
+            }
         }
         return modelPackageMap;
     }
