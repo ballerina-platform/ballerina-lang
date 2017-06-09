@@ -100,6 +100,10 @@ public class StackFrame {
         this.returnValues = returnValues;
     }
 
+    public CallableUnitInfo getCallableUnitInfo() {
+        return callableUnitInfo;
+    }
+
     public StackFrame(CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, int retAddrs, int[] retRegIndexes,
                       BValue[] returnValues) {
         this.callableUnitInfo = callableUnitInfo;

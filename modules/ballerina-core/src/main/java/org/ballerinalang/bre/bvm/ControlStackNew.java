@@ -48,6 +48,7 @@ public class ControlStackNew {
         if (fp > 0) {
             currentFrame = stackFrames[--fp];
         }  else {
+            currentFrame = null;
             fp--;
         }
 

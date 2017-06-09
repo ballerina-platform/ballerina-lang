@@ -20,6 +20,7 @@ package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -120,9 +121,11 @@ public class ServerConnectorMessageHandler {
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
 
-        Context context = new Context();
-        ControlStackNew controlStackNew = context.getControlStackNew();
+        Context context = new Context(packageInfo.getProgramFile());
+        context.setServiceInfo(serviceInfo);
+        context.setCarbonMessage(carbonMessage);
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
+        ControlStackNew controlStackNew = context.getControlStackNew();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
@@ -178,6 +181,10 @@ public class ServerConnectorMessageHandler {
         calleeSF.setStringLocalVars(stringLocalVars);
         calleeSF.setIntLocalVars(intLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
+
+        // Execute workers
+        int[] retRegs = {0};
+        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, calleeSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         if (VMDebugManager.getInstance().isDebugEnagled()) {

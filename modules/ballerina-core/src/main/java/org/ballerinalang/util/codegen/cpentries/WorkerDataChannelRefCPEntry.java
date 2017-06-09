@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.util.codegen.cpentries;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
 import java.util.Objects;
@@ -31,6 +32,8 @@ public class WorkerDataChannelRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
+
+    private BType[] types;
 
     private WorkerDataChannel workerDataChannel;
 
@@ -69,5 +72,14 @@ public class WorkerDataChannelRefCPEntry implements ConstantPoolEntry {
         return obj instanceof WorkerDataChannelRefCPEntry && packageCPIndex ==
                 (((WorkerDataChannelRefCPEntry) obj).packageCPIndex) &&
                 nameCPIndex == ((WorkerDataChannelRefCPEntry) obj).nameCPIndex;
+    }
+
+
+    public BType[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(BType[] types) {
+        this.types = types;
     }
 }

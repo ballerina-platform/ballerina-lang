@@ -34,6 +34,7 @@ import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,11 +58,21 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
     private int tempStackFrameSize;
+    private WorkerDataChannel workerDataChannel;
 
     private ForkJoinStmt(NodeLocation nodeLocation, SymbolScope enclosingScope) {
         super(nodeLocation);
         this.enclosingScope = enclosingScope;
         symbolMap = new HashMap<>();
+    }
+
+
+    public WorkerDataChannel getWorkerDataChannel() {
+        return workerDataChannel;
+    }
+
+    public void setWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+        this.workerDataChannel = workerDataChannel;
     }
 
     /**
@@ -78,6 +89,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         // Scope related variables
         private SymbolScope enclosingScope;
         private Map<SymbolName, BLangSymbol> symbolMap;
+        private int ip;
 
         public Join (NodeLocation nodeLocation, SymbolScope enclosingScope) {
             this.enclosingScope = enclosingScope;
@@ -85,6 +97,13 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
             this.symbolMap = new HashMap<>();
         }
 
+        public int getIp() {
+            return ip;
+        }
+
+        public void setIp(int ip) {
+            this.ip = ip;
+        }
 
         public NodeLocation getNodeLocation() {
             return nodeLocation;
@@ -147,6 +166,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         private ParameterDef timeoutResult;
         private Statement timeoutBlock;
         private NodeLocation nodeLocation;
+        private int ip;
 
         // Scope related variables
         private SymbolScope enclosingScope;
@@ -158,6 +178,13 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
             symbolMap = new HashMap<>();
         }
 
+        public int getIp() {
+            return ip;
+        }
+
+        public void setIp(int ip) {
+            this.ip = ip;
+        }
 
         public NodeLocation getNodeLocation() {
             return nodeLocation;
