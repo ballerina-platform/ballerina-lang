@@ -18,7 +18,6 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -33,19 +32,17 @@ import org.testng.annotations.Test;
  */
 public class BArrayValueTest {
     private static final double DELTA = 0.01;
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/values/array-value.bal");
         programFile = BTestUtils.getProgramFile("lang/values/array-value.bal");
     }
 
     @Test(description = "Test lazy arrays creation", expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "array index out of range: index: 0, size: 0")
     public void testLazyArrayCreation() {
-        BLangFunctions.invoke(bLangProgram, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
+        BLangFunctions.invokeNew(programFile, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }
 
     @Test(description = "Test lazy arrays initializer. Size should be zero")
@@ -115,7 +112,7 @@ public class BArrayValueTest {
     @Test(description = "test default value of an element in an json array")
     public void testDefaultValueOfJsonArrayElement() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDefaultValueOfJsonArrayElement", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testDefaultValueOfJsonArrayElement", args);
 
         Assert.assertNull(returns[0]);
         Assert.assertNull(returns[1]);

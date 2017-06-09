@@ -293,6 +293,10 @@ public class JSONUtils {
      * @param element json element
      */
     public static void setElement(BJSON json, String elementName, BJSON element) {
+        if (json == null) {
+            return;
+        }
+
         JsonNode jsonNode = json.value();
         JsonNode jsonElement = element == null ? null : element.value();
 
