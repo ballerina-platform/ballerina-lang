@@ -107,7 +107,7 @@ class AnnotationAttributeDefinition extends ASTNode {
         });
         if (this.getChildren().length > 0) {
             if (this.getFactory().isExpression(this.getChildren()[0])) {
-                this.setAttributeValue(this.getChildren()[0].generateExpression(), {doSilently: true});
+                this.setAttributeValue(this.getChildren()[0].getExpressionString(), {doSilently: true});
             }
         }
     }
