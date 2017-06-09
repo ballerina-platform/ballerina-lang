@@ -21,4 +21,8 @@ function test () {
                             "c"       :      "d"
                           }     ;
 
+          string         s       =      <   int    >   a  ;
+
+     string         s       =      (   int    )   a  ;
+
 }
