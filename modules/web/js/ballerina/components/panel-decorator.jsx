@@ -118,8 +118,8 @@ class PanelDecorator extends React.Component {
         panelBBox.h = bBox.h - titleHeight - annotationBodyHeight;
 
         // following config is to style the panel rect, we use it to hide the top stroke line of the panel.
-        let panelRectStyles = {
-            'stroke-dasharray' : `0, ${panelBBox.w}, ${panelBBox.h} , 0 , ${panelBBox.w} , 0 , ${panelBBox.h}`
+        let panelRectStyles =  {
+            'strokeDasharray' : `0, ${panelBBox.w}, ${panelBBox.h} , 0 , ${panelBBox.w} , 0 , ${panelBBox.h}`
         };
 
         return (<g className="panel">

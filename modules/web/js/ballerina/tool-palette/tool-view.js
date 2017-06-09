@@ -108,7 +108,7 @@ var toolView = Backbone.View.extend({
         this.$el.find('.tool-block').tooltip();
 
         this.$el.draggable({
-            helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
+            helper: 'clone',
             cursor: 'move',
             cursorAt: dragCursorOffset,
             containment: _.get(self._options, 'containment_element'),

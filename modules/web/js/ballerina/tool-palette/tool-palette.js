@@ -50,7 +50,7 @@ var ToolPalette = Backbone.View.extend({
         }
 
         this._$parent_el = $("<div class='tool_palette_wrapper'></div>");
-        container.append(this._$parent_el);
+        //container.append(this._$parent_el);
         this._options = options;
         this.ballerinaFileEditor = options.ballerinaFileEditor;
         this._imports = [];
@@ -64,14 +64,14 @@ var ToolPalette = Backbone.View.extend({
         this._$parent_el.on("click", "#addImportSearch", _.bindKey(this, 'showSearchImport'));
         Mousetrap.bind('ctrl+i', _.bindKey(this, 'showSearchImport'));
 
-        $(container).mCustomScrollbar({
+        /*$(container).mCustomScrollbar({
             theme: "minimal-dark",
             scrollInertia: 0
-        });
+        });*/
     },
 
     render: function () {
-        var self = this;
+        var self = this;/*
         this._$parent_el.empty();
         var toolPaletteDiv = $('<div></div>');
         // Adding search bar to tool-palette
@@ -113,7 +113,7 @@ var ToolPalette = Backbone.View.extend({
         this._itemProvider.getDynamicToolGroups().forEach(function (group) {
             var view = self.addVerticallyFormattedToolGroup({group: group});
             self._itemProvider.saveImportToolGroupView(group.attributes.toolGroupName, view);
-        });
+        });*/
         return this;
     },
 

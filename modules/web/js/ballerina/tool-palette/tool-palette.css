@@ -161,7 +161,6 @@
     width: 100%;
     border-bottom: 1px solid #e4e4e4;
     padding:10px;
-    display: none;
 }
 .search-input{
     background-color: #f0f0f0;
@@ -240,4 +239,39 @@
     border-bottom: 1px solid #e4e4e4;
     clear: both;
     margin: 0 0 7px 0;
+}
+
+.tool-palette-panel-header-title{
+    display: block;
+    font-weight: bold;
+    padding: 20px 10px 0px 10px;
+    font-size: 1.1em;
+}
+
+.tool-palette-add-button{
+    display: block;
+    text-align: center;
+    padding: 8px 0px 0px 0px;
+    width: 100%;
+}
+
+.tool-palette-add-button .icon{
+    font-size: 8px;
+}
+
+.tool-pane-header{
+    padding: 5px 10px;
+    background-color:#7b7b7b;
+    color:white;
+    font-weight: 400;
+}
+
+.tool-pane-header .back{
+    display: block;
+    float: right;
+}
+
+.tool-pane-header .icon{
+    font-size: 8px;
+    color:white;
 }

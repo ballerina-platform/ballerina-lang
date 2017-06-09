@@ -41,7 +41,7 @@ class PackageScopedEnvironment {
 
     getCurrentPackage() {
         return this._currentPackage;
-    }
+    }  
 
     resetCurrentPackage() {
         this._currentPackage = new Package({ name: 'Current Package' });
@@ -53,6 +53,15 @@ class PackageScopedEnvironment {
     getPackages() {
         return this._packages;
     }
+
+    /**
+     * @return {[Package]}
+     */
+    getFilteredPackages(excludes) {
+        return this._packages.filter((item)=>{
+            return _.isEmpty(_.find(excludes, item.getName()));
+        });
+    }    
 
     getPackageByName(packageName) {
         if (_.isEqual(packageName, 'Current Package')) {
