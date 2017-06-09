@@ -16,9 +16,12 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -162,7 +165,7 @@ public class BallerinaPsiImplUtil {
         // Add matching directories from content roots.
         addMatchingDirectoriesFromContentRoots(packages, project, results);
         // Add matching directories from SDK sources.
-        addMatchingDirectoriesFromSDK(project, packages, results);
+        addMatchingDirectoriesFromSDK(project, packages, results, identifierElement);
         // Return the results.
         return results.toArray(new PsiDirectory[results.size()]);
     }
@@ -182,8 +185,24 @@ public class BallerinaPsiImplUtil {
     }
 
     private static void addMatchingDirectoriesFromSDK(Project project, List<PsiElement> packages,
-                                                      List<PsiDirectory> results) {
-        // Get all project source roots and find matching directories.
+                                                      List<PsiDirectory> results, PsiElement identifier) {
+        // First we check the sources of module sdk.
+        Module module = ModuleUtilCore.findModuleForPsiElement(identifier);
+        if (module != null) {
+            Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+            if (moduleSdk != null) {
+                VirtualFile[] roots = moduleSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+                for (VirtualFile root : roots) {
+                    VirtualFile match = getMatchingDirectory(root, packages);
+                    if (match != null) {
+                        results.add(PsiManager.getInstance(project).findDirectory(match));
+                    }
+                }
+            }
+            return;
+        }
+
+        // Then we check the sources of project sdk.
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
@@ -290,7 +309,23 @@ public class BallerinaPsiImplUtil {
             }
         }
 
-        // Get all project source roots and find matching directories.
+        // First we check the sources of module sdk.
+        Module module = ModuleUtilCore.findModuleForPsiElement(element);
+        if (module != null) {
+            Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+            if (moduleSdk != null) {
+                VirtualFile[] roots = moduleSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+                for (VirtualFile root : roots) {
+                    VirtualFile match = getMatchingDirectory(root, packages);
+                    if (match != null) {
+                        results.add(PsiManager.getInstance(project).findDirectory(match));
+                    }
+                }
+            }
+            return results.toArray(new PsiDirectory[results.size()]);
+        }
+
+        // Then we check the sources of project sdk.
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);

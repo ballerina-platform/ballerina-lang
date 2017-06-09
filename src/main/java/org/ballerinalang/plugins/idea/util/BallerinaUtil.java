@@ -16,22 +16,26 @@
 
 package org.ballerinalang.plugins.idea.util;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
 public class BallerinaUtil {
+
+    private BallerinaUtil() {
+
+    }
 
     /**
      * Returns the first library root found in the project.
@@ -106,22 +110,43 @@ public class BallerinaUtil {
                 }
                 return getImportPath(virtualFile, contentRoot);
             }
-            // Check directories in project source roots
-            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-            if (projectSdk != null) {
-                VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
-                for (VirtualFile root : roots) {
-                    if (!directory.getVirtualFile().getPath().startsWith(root.getPath())) {
-                        continue;
-                    }
-                    return getImportPath(virtualFile, root);
+
+            // First we check the sources of module sdk.
+            Module module = ModuleUtilCore.findModuleForPsiElement(directory);
+            if (module != null) {
+                Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+                String root = getImportPath(directory, virtualFile, moduleSdk);
+                if (root != null) {
+                    return root;
                 }
             }
+
+            // Then we check the sources of project sdk.
+            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            String root = getImportPath(directory, virtualFile, projectSdk);
+            if (root != null) {
+                return root;
+            }
+
             // If the package name cannot be constructed, return empty string
             return "";
         }
         // If the directory is null, return empty string
         return "";
+    }
+
+    @Nullable
+    private static String getImportPath(@NotNull PsiDirectory directory, VirtualFile virtualFile, Sdk sdk) {
+        if (sdk != null) {
+            VirtualFile[] roots = sdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+            for (VirtualFile root : roots) {
+                if (!directory.getVirtualFile().getPath().startsWith(root.getPath())) {
+                    continue;
+                }
+                return getImportPath(virtualFile, root);
+            }
+        }
+        return null;
     }
 
     /**
