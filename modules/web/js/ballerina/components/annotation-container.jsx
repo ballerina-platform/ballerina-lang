@@ -87,7 +87,7 @@ class AnnotationContainer extends React.Component {
         if (this.state.hasPackageNameSelected) {
             // Input properties for the package name
             const inputProps = {
-                placeholder: 'Annotation Identifier',
+                placeholder: 'Identifier',
                 value: this.state.selectedIdentifierValue,
                 onChange: this.onAnnotationIdentifierChange,
                 onKeyDown: this.onAnnotationIdentifierKeyDown,
@@ -113,7 +113,7 @@ class AnnotationContainer extends React.Component {
         } else {
             // Input properties for the package name
             const inputProps = {
-                placeholder: 'Annotation Package',
+                placeholder: 'Add Annotation',
                 value: this.state.selectedPackageNameValue,
                 onChange: this.onAnnotationPackageNameChange,
                 onBlur: this.onAnnotationPackageNameBlur
