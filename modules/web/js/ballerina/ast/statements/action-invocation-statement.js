@@ -18,8 +18,8 @@
 import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
-import FragmentUtils from '../../utils/fragment-utils';
-
+import FragmentUtils from './../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 /**
  * Class to represent a action invocation to ballerina.
  * @param args
@@ -64,28 +64,45 @@ class ActionInvocationStatement extends Statement {
      * @param {string} statementString
      * @param {function} callback
      */
-    setStatementFromString(statementString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
-        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
-            && _.isEqual(parsedJson.type, 'assignment_statement')) {
-
-            this.initFromJson(parsedJson);
-
-            // Manually firing the tree-modified event here.
-            // TODO: need a proper fix to avoid breaking the undo-redo
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'custom',
-                title: 'Assignment Statement Custom Tree modified',
-                context: this,
-            });
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'action_invocation_statement')) {
+                this.initFromJson(parsedJson);
+            } else if (_.has(parsedJson, 'type')) {
+                // user may want to change the statement type
+                let newNode = this.getFactory().createFromJson(parsedJson);
+                if (this.getFactory().isStatement(newNode)) {
+                    // somebody changed the type of statement to an assignment
+                    // to capture retun value of function Invocation
+                    let parent = this.getParent();
+                    let index = parent.getIndexOfChild(this);
+                    parent.removeChild(this, true);
+                    parent.addChild(newNode, index, true, true);
+                    newNode.initFromJson(parsedJson);
+                    nodeToFireEvent = newNode;
+                }
+            } else {
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            }
 
             if (_.isFunction(callback)) {
                 callback({isValid: true});
             }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Action Invocation Expression Custom Tree modified',
+                context: nodeToFireEvent,
+            });
         } else {
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             if (_.isFunction(callback)) {
                 callback({isValid: false, response: parsedJson});
             }

@@ -17,7 +17,8 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import FragmentUtils from '../../utils/fragment-utils';
+import FragmentUtils from './../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 import log from 'log';
 
 /**
@@ -65,32 +66,47 @@ class AssignmentStatement extends Statement {
      * Set the statement from the statement string
      * @param {string} statementString
      */
-    setStatementFromString(statementString, callback) {
-        if (!_.isNil(statementString)) {
-            let fragment = FragmentUtils.createStatementFragment(statementString + ';');
-            let parsedJson = FragmentUtils.parseFragment(fragment);
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
 
-            if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
-                && _.isEqual(parsedJson.type, 'assignment_statement')) {
-
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'assignment_statement')) {
                 this.initFromJson(parsedJson);
-
-                // Manually firing the tree-modified event here.
-                // TODO: need a proper fix to avoid breaking the undo-redo
-                this.trigger('tree-modified', {
-                    origin: this,
-                    type: 'custom',
-                    title: 'Assignment Statement Custom Tree modified',
-                    context: this,
-                });
-
-                if (_.isFunction(callback)) {
-                    callback({isValid: true});
+            } else if (_.has(parsedJson, 'type')) {
+                // user may want to change the statement type
+                let newNode = this.getFactory().createFromJson(parsedJson);
+                if (this.getFactory().isStatement(newNode)) {
+                    // somebody changed the type of statement to an assignment
+                    // to capture retun value of function Invocation
+                    let parent = this.getParent();
+                    let index = parent.getIndexOfChild(this);
+                    parent.removeChild(this, true);
+                    parent.addChild(newNode, index, true, true);
+                    newNode.initFromJson(parsedJson);
+                    nodeToFireEvent = newNode;
                 }
             } else {
-                if (_.isFunction(callback)) {
-                    callback({isValid: false, response: parsedJson});
-                }
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            }
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Assignment statement Custom Tree modified',
+                context: nodeToFireEvent,
+            });
+        } else {
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
             }
         }
     }

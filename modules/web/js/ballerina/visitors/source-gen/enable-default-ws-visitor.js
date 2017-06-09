@@ -16,38 +16,44 @@
  * under the License.
  */
 
-import ASTNode from '../../ast/node';
-import ASTVisitor from '../ast-visitor';
-import Factory from '../../ast/ballerina-ast-factory';
+import ASTNode from './../../ast/node';
 
 /**
  * Constructor for the Enable Format Visitor
  * @param parent
  * @constructor
  */
-class EnableDefaultWSVisitor extends ASTVisitor {
+class EnableDefaultWSVisitor {
 
     canVisit(node) {
         return node instanceof ASTNode;
     }
 
+    beginVisit(node) {
+        return true;
+    }
+
     visit(node) {
         node.whiteSpace.useDefault = true;
-        if (Factory.isBinaryExpression(node)) {
+        if (node.getFactory().isBinaryExpression(node)) {
             node.getRightExpression().accept(this);
             node.getLeftExpression().accept(this);
-        } else if (Factory.isActionInvocationExpression(node)) {
+        } else if (node.getFactory().isActionInvocationExpression(node)) {
             node.getArguments().forEach((arg) => {
                 arg.accept(this);
             })
-        } else if (Factory.isConnectorInitExpression(node)) {
+        } else if (node.getFactory().isConnectorInitExpression(node)) {
             node.getArgs().forEach((arg) => {
                 arg.accept(this);
             })
             node.getConnectorName().accept(this);
-        } else if (Factory.isCatchStatement(node)) {
+        } else if (node.getFactory().isCatchStatement(node)) {
             node.getParameter().accept(this);
         }
+    }
+
+    endVisit(node) {
+        return true;
     }
 }
 
