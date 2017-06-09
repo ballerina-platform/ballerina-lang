@@ -1602,7 +1602,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.createAbortStmt(getCurrentLocation(ctx));
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAbortStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createAbortStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
