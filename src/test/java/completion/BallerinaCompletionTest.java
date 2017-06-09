@@ -28,12 +28,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("package", "import", "const", "service",
             "function", "connector", "struct", "typemapper", "annotation");
     private static final List<String> ANY_TYPE = Collections.singletonList("any");
-    private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
+    private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "xmlDocument", "json",
             "datatable");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally", "iterate", "while",
-            "continue", "break", "throw");
+            "worker", "transform", "transaction", "abort", "aborted", "committed", "try", "catch", "finally", "iterate",
+            "while", "continue", "break", "throw");
     private static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
@@ -594,6 +594,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("continue");
         expectedLookups.add("iterate");
         expectedLookups.add("while");
+        expectedLookups.add("committed");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -1748,6 +1749,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testAbortedKeyword() {
         doCheckResult("test.bal", "function test(){ aborted<caret> }", "function test(){ aborted {\n    \n} }", null);
+    }
+
+    public void testCommittedKeyword() {
+        doCheckResult("test.bal", "function test(){ committed<caret> }", "function test(){ committed {\n    \n} }",
+                null);
     }
 
     public void testTryKeyword() {

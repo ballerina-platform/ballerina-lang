@@ -100,6 +100,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder INT;
     private static final LookupElementBuilder FLOAT;
     private static final LookupElementBuilder STRING;
+    private static final LookupElementBuilder BLOB;
 
     // Reference types
     private static final LookupElementBuilder MESSAGE;
@@ -125,6 +126,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRANSACTION;
     private static final LookupElementBuilder ABORT;
     private static final LookupElementBuilder ABORTED;
+    private static final LookupElementBuilder COMMITTED;
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
@@ -160,6 +162,7 @@ public class BallerinaCompletionUtils {
         INT = createTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
         FLOAT = createTypeLookupElement("float", AddSpaceInsertHandler.INSTANCE);
         STRING = createTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
+        BLOB = createTypeLookupElement("blob", AddSpaceInsertHandler.INSTANCE);
 
         MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
@@ -183,6 +186,7 @@ public class BallerinaCompletionUtils {
         TRANSACTION = createKeywordLookupElement("transaction");
         ABORT = createKeywordLookupElement("abort");
         ABORTED = createKeywordLookupElement("aborted");
+        COMMITTED = createKeywordLookupElement("committed");
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
@@ -289,6 +293,7 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BLOB, VALUE_TYPES_PRIORITY));
     }
 
     /**
@@ -373,6 +378,7 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, TRANSACTION);
         addKeywordAsLookup(resultSet, ABORT);
         addKeywordAsLookup(resultSet, ABORTED);
+        addKeywordAsLookup(resultSet, COMMITTED);
         addKeywordAsLookup(resultSet, TRY);
         addKeywordAsLookup(resultSet, CATCH);
         addKeywordAsLookup(resultSet, FINALLY);

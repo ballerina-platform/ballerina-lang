@@ -147,6 +147,7 @@ valueTypeName
     |   'int'
     |   'float'
     |   'string'
+    |   'blob'
     ;
 
 builtInReferenceTypeName
@@ -218,7 +219,7 @@ transformStatement
     ;
 
 transformStatementBody
-    :   (expressionAssignmentStatement | expressionVariableDefinitionStatement | transformStatement)*
+    :   (expressionAssignmentStatement | expressionVariableDefinitionStatement | transformStatement | commentStatement)*
     ;
 
 expressionAssignmentStatement
@@ -314,12 +315,13 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   variableReference (',' variableReference)* '->' Identifier? ';'
+    :   variableReference (',' variableReference)* '->' Identifier ';' #invokeWorker
+    |   variableReference (',' variableReference)* '->' 'fork' ';'     #invokeFork
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   variableReference (',' variableReference)* '<-' Identifier? ';'
+    :   variableReference (',' variableReference)* '<-' Identifier ';'
     ;
 
 commentStatement
@@ -350,7 +352,8 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' 'aborted' '{' statement* '}'
+    :   'transaction' '{' statement* '}' (('aborted' '{' statement* '}')? ('committed' '{' statement* '}')?
+                                          | ('committed' '{' statement* '}')? ('aborted' '{' statement* '}')?)
     ;
 
 abortStatement
@@ -374,8 +377,8 @@ expression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
     |   functionInvocation                              # functionInvocationExpression
-    |   '<' typeName '>' simpleExpression               # typeConversionExpression
     |   '(' typeName ')' simpleExpression               # typeCastingExpression
+    |   '<' typeName '>' simpleExpression               # typeConversionExpression
     |   ('+' | '-' | '!') simpleExpression              # unaryExpression
     |   '(' expression ')'                              # bracedExpression
     |   expression '^' expression                       # binaryPowExpression
@@ -442,6 +445,7 @@ AS              : 'as';
 ATTACH          : 'attach';
 BREAK           : 'break';
 CATCH           : 'catch';
+COMMITTED       : 'committed';
 CONNECTOR       : 'connector';
 CONST           : 'const';
 CONTINUE        : 'continue';
@@ -476,6 +480,7 @@ BOOLEAN         : 'boolean';
 INT             : 'int';
 FLOAT           : 'float';
 STRING          : 'string';
+BLOB            : 'blob';
 
 MESSAGE         : 'message';
 MAP             : 'map';
