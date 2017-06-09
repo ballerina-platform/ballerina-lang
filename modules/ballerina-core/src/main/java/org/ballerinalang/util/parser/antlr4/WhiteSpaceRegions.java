@@ -340,12 +340,11 @@ public class WhiteSpaceRegions {
     public static final int UNARY_EXP_FOLLOWING_WHITESPACE = 2;
 
     // white space regions in a field def
-    public static final int FILED_DEF_PRECEDING_WHITESPACE = 0;
-    public static final int FILED_DEF_TYPE_NAME_TO_ID = 1;
-    public static final int FILED_DEF_ID_TO_NEXT_TOKEN = 2;
-    public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 3;
-    public static final int FILED_DEF_LITERAL_TO_NEXT_TOKEN = 4;
-    public static final int FILED_DEF_FOLLOWING_WHITESPACE = 5;
+    public static final int FILED_DEF_TYPE_NAME_TO_ID = 0;
+    public static final int FILED_DEF_ID_TO_NEXT_TOKEN = 1;
+    public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 2;
+    public static final int FILED_DEF_LITERAL_TO_NEXT_TOKEN = 3;
+    public static final int FILED_DEF_FOLLOWING_WHITESPACE = 4;
 
     // whitespace regions in a transform statement
     public static final int TRANSFORM_STMT_PRECEDING_WHITESPACE = 0;
