@@ -2299,7 +2299,7 @@ public class BLangVM {
             ip = -1;
             PrintStream err = System.err;
             err.println(BLangVMErrors.getPrintableStackTrace(context.getError()));
-            if (context.getCarbonMessage() != null) {
+            if (context.getServiceInfo() != null) {
                 // Invoke ServiceConnector error handler.
                 Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
                 Optional<ServerConnectorErrorHandler> optionalErrorHandler =
