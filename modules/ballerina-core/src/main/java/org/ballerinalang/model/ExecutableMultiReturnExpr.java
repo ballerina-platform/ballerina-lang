@@ -50,4 +50,8 @@ public interface ExecutableMultiReturnExpr {
      * @param types arrays of argument types
      */
     void setTypes(BType[] types);
+
+    int[] getOffsets();
+
+    void setOffsets(int[] offsets);
 }

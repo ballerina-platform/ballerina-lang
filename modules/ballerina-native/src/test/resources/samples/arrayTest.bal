@@ -1,35 +1,36 @@
 import ballerina.lang.arrays;
+import ballerina.lang.xmls;
 
 function testFloatArrayLength(float[] arg)(int, int){
     float[] defined;
     defined = [10.1, 11.1];
     defined[2] = 12.1;
-    return arrays:length(arg) , arrays:length(defined);
+    return arg.length , defined.length;
 }
 
 function testIntArrayLength(int[] arg)(int, int){
     int[] defined;
     defined = [ 1, 2, 3];
     defined[3] = 4;
-    return arrays:length(arg) , arrays:length(defined);
+    return arg.length , defined.length;
 }
 
 function testStringArrayLength(string[] arg)(int, int){
     string[] defined;
     defined = [ "hello" , "world", "I", "am"];
     defined[4] = "Ballerina";
-    return arrays:length(arg) , arrays:length(defined);
+    return arg.length , defined.length;
 }
 
 function testXMLArrayLength(xml[] arg)(int, int){
     xml[] defined;
     xml v1;
     xml v2;
-    v1 = `<test>a</test>`;
-    v2 = `<test>b</test>`;
+    v1 = xmls:parse("<test>a</test>");
+    v2 = xmls:parse("<test>b</test>");
     defined = [v1, v2];
-    defined[2] = `<test>c</test>`;
-    return arrays:length(arg) , arrays:length(defined);
+    defined[2] = xmls:parse("<test>c</test>");
+    return arg.length , defined.length;
 }
 
 function testJSONArrayLength(json[] arg)(int, int){
@@ -40,7 +41,7 @@ function testJSONArrayLength(json[] arg)(int, int){
     v2 = { "test" : "2"};
     defined = [v1, v2];
     defined[2] = { "test" : "3"};
-    return arrays:length(arg) , arrays:length(defined);
+    return arg.length , defined.length;
 }
 
 function testMessageArrayLength(message[] arg)(int, int){
@@ -51,12 +52,12 @@ function testMessageArrayLength(message[] arg)(int, int){
     v2 = {};
     defined = [v1, v2];
     defined[2] = {};
-    return arrays:length(arg) , arrays:length(defined);
+    return arg.length , defined.length;
 }
 
 function testFloatArrayCopy(float[] arg)(float[]){
-    float[] defined;
-    defined = arrays:copyOf(arg);
+    float[] defined = [];
+    arrays:copyOf(arg, defined);
     defined[0] = 1;
     defined[1] = 1.1;
     defined[2] = 1.2;
@@ -64,8 +65,8 @@ function testFloatArrayCopy(float[] arg)(float[]){
 }
 
 function testIntArrayCopy(int[] arg)(int[]){
-    int[] defined;
-    defined = arrays:copyOf(arg);
+    int[] defined = [];
+    arrays:copyOf(arg, defined);
     defined[0] = 1;
     defined[1] = 2;
     defined[2] = 3;
@@ -73,8 +74,8 @@ function testIntArrayCopy(int[] arg)(int[]){
 }
 
 function testStringArrayCopy(string[] arg)(string[]){
-    string[] defined;
-    defined = arrays:copyOf(arg);
+    string[] defined = [];
+    arrays:copyOf(arg, defined);
     defined[0] = "hello";
     defined[1] = "world";
     defined[2] = "...!!!";
@@ -82,17 +83,17 @@ function testStringArrayCopy(string[] arg)(string[]){
 }
 
 function testXMLArrayCopy(xml[] arg)(xml[]){
-    xml[] defined;
-    defined = arrays:copyOf(arg);
-    defined[0] = `<test>a</test>`;
-    defined[1] = `<test>b</test>`;
-    defined[2] = `<test>c</test>`;
+    xml[] defined = [];
+    arrays:copyOf(arg, defined);
+    defined[0] = xmls:parse("<test>a</test>");
+    defined[1] = xmls:parse("<test>b</test>");
+    defined[2] = xmls:parse("<test>c</test>");
     return defined;
 }
 
 function testJSONArrayCopy(json[] arg)(json[]){
-    json[] defined;
-    defined = arrays:copyOf(arg);
+    json[] defined = [];
+    arrays:copyOf(arg, defined);
     defined[0] = { "test" : "1"};
     defined[1] = { "test" : "2"};
     defined[2] = { "test" : "3"};
@@ -100,8 +101,8 @@ function testJSONArrayCopy(json[] arg)(json[]){
 }
 
 function testMessageArrayCopy(message[] arg)(message[]){
-    message[] defined;
-    defined = arrays:copyOf(arg);
+    message[] defined = [];
+    arrays:copyOf(arg, defined);
     defined[0] = {};
     defined[1] = {};
     defined[2] = {};
@@ -109,38 +110,38 @@ function testMessageArrayCopy(message[] arg)(message[]){
 }
 
 function testFloatArrayCopyRange(float[] arg, int from, int to)(float[]){
-    float[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
+    float[] defined = [];
+    arrays:copyOfRange(arg, defined, from, to);
     return defined;
 }
 
 function testIntArrayCopyRange(int[] arg, int from, int to)(int[]){
-    int[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
+    int[] defined = [];
+    arrays:copyOfRange(arg, defined, from, to);
     return defined;
 }
 
 function testStringArrayCopyRange(string[] arg, int from, int to)(string[]){
-    string[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
+    string[] defined = [];
+    arrays:copyOfRange(arg, defined, from, to);
     return defined;
 }
 
 function testXMLArrayCopyRange(xml[] arg, int from, int to)(xml[]){
-    xml[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
+    xml[] defined = [];
+    arrays:copyOfRange(arg, defined, from, to);
     return defined;
 }
 
 function testJSONArrayCopyRange(json[] arg, int from, int to)(json[]){
-    json[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
+    json[] defined = [];
+    arrays:copyOfRange(arg, defined, from, to);
     return defined;
 }
 
 function testMessageArrayCopyRange(message[] arg, int from, int to)(message[]){
-    message[] defined;
-    defined = arrays:copyOfRange(arg, from, to);
+    message[] defined = [];
+    arrays:copyOfRange(arg, defined, from, to);
     return defined;
 }
 

@@ -47,7 +47,10 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     private boolean hasReturningBranch;
     protected List<Expression> expressionList = new ArrayList<>();
     private WorkerDataChannel workerDataChannel;
+    private String enclosingCallableUnitName;
+    private String packagePath;
 
+    private int[] offsets;
 
     public WorkerInvocationStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor) {
@@ -62,6 +65,14 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     }
 
 
+    public String getEnclosingCallableUnitName() {
+        return enclosingCallableUnitName;
+    }
+
+    public void setEnclosingCallableUnitName(String enclosingCallableUnitName) {
+        this.enclosingCallableUnitName = enclosingCallableUnitName;
+    }
+
     public WorkerDataChannel getWorkerDataChannel() {
         return workerDataChannel;
     }
@@ -72,7 +83,7 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
 
     @Override
     public String getName() {
-        return null;
+        return workerName;
     }
 
     @Override
@@ -82,9 +93,12 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
 
     @Override
     public String getPackagePath() {
-        return null;
+        return this.packagePath;
     }
 
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
+    }
     /**
      * Returns an arrays of arguments of this callable unit invocation expression.
      *
@@ -113,6 +127,14 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
+    }
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
     @Override

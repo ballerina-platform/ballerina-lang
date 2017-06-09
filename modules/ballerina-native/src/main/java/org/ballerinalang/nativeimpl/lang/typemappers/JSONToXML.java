@@ -23,6 +23,7 @@ import de.odysseus.staxon.json.JsonXMLInputFactory;
 import de.odysseus.staxon.xml.util.PrettyXMLEventWriter;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -104,7 +105,7 @@ public class JSONToXML extends AbstractNativeTypeMapper {
         }
 
         byte[] xml = output.toByteArray();
-        result = new BXML(new ByteArrayInputStream(xml));
+        result = XMLUtils.parse(new ByteArrayInputStream(xml));
         return result;
     }
 }

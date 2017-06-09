@@ -39,6 +39,9 @@ public class TypeCastExpression extends AbstractExpression implements Executable
     protected TriFunction<BValue, BType, Boolean, BValue[]> evalFunc;
     private BType[] types = new BType[0];
 
+    private int[] offsets;
+    private int opcode;
+
     public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
         super(location, whiteSpaceDescriptor);
@@ -67,6 +70,14 @@ public class TypeCastExpression extends AbstractExpression implements Executable
 
     public SimpleTypeName getTypeName() {
         return typeName;
+    }
+
+    public int getOpcode() {
+        return opcode;
+    }
+
+    public void setOpcode(int opcode) {
+        this.opcode = opcode;
     }
 
     @Override
@@ -117,6 +128,15 @@ public class TypeCastExpression extends AbstractExpression implements Executable
         if (!multipleReturnsAvailable && types.length == 1) {
             this.type = types[0];
         }
+    }
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
+        setTempOffset(offsets[0]);
     }
 
     /**

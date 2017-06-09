@@ -46,6 +46,14 @@ public class BArrayType extends BType implements BIndexedType {
         this.dimensions = dimensions;
     }
 
+    public BArrayType(BType elementType) {
+        super(null, null, null, BArray.class);
+        this.elementType = elementType;
+        if (elementType instanceof BArrayType) {
+            dimensions = ((BArrayType) elementType).getDimensions() + 1;
+        }
+    }
+
     public BType getElementType() {
         return elementType;
     }
@@ -54,7 +62,7 @@ public class BArrayType extends BType implements BIndexedType {
     public <V extends BValue> V getZeroValue() {
         return null;
     }
-    
+
     @Override
     public <V extends BValue> V getEmptyValue() {
         BArray emptyVal = new BArray<V>(elementType.getValueClass());
@@ -62,13 +70,34 @@ public class BArrayType extends BType implements BIndexedType {
         return (V) emptyVal;
     }
 
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_ARRAY, elementType.getSig());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ARRAY_TAG;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.toString().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
-            return this.typeName.equals(other.typeName);
+            return this.elementType.equals(other.elementType);
         }
 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return elementType + "[]";
     }
 
     public int getDimensions() {

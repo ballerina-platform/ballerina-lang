@@ -19,9 +19,9 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
@@ -40,14 +40,13 @@ class BProgramRunner {
     private static PrintStream outStream = System.out;
 
     static void runMain(Path sourceFilePath, List<String> args) {
-        BLangProgram bLangProgram = new BLangProgramLoader()
-                .loadMain(programDirPath, sourceFilePath);
+        ProgramFile programFile = new BLangProgramLoader().loadMainProgramFile(programDirPath, sourceFilePath);
 
         // Load Client Connectors
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
         // Check whether there is a main function
-        new BLangProgramRunner().runMain(bLangProgram, args.toArray(new String[0]));
+        new BLangProgramRunner().runMain(programFile, args.toArray(new String[0]));
         Runtime.getRuntime().exit(0);
     }
 
@@ -56,10 +55,10 @@ class BProgramRunner {
 
         for (Path servicePath : serviceFilePaths) {
             // TODO Handle errors
-            BLangProgram bLangProgram = new BLangProgramLoader().loadService(programDirPath, servicePath);
+            ProgramFile programFile = new BLangProgramLoader().loadServiceProgramFile(programDirPath, servicePath);
 
             outStream.println("ballerina: deploying service(s) in '" + servicePath + "'");
-            new BLangProgramRunner().startServices(bLangProgram);
+            new BLangProgramRunner().startServices(programFile);
         }
 
         try {

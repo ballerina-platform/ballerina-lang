@@ -22,6 +22,8 @@ import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeSignature;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.Collections;
@@ -58,7 +60,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private int sizeOfConnectorMem;
 
     private BallerinaFunction initFunction;
-    private Action initAction;
+    private BallerinaAction initAction;
 
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -102,11 +104,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         this.initFunction = initFunction;
     }
 
-    public Action getInitAction() {
+    public BallerinaAction getInitAction() {
         return initAction;
     }
 
-    public void setInitAction(Action initAction) {
+    public void setInitAction(BallerinaAction initAction) {
         this.initAction = initAction;
     }
 
@@ -152,7 +154,18 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     public <V extends BValue> V getEmptyValue() {
         return null;
     }
-    
+
+    @Override
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_CONNECTOR, packagePath, typeName);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.CONNECTOR_TAG;
+    }
+
     @Override
     public String getName() {
         return typeName;

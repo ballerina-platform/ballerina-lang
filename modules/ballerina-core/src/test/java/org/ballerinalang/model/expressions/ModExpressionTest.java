@@ -19,10 +19,10 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,11 +33,11 @@ import org.testng.annotations.Test;
  */
 public class ModExpressionTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/mod-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/mod-expr.bal");
     }
 
     @Test(description = "Test two int mod expression")
@@ -58,7 +58,7 @@ public class ModExpressionTest {
 
     private void intMod(int val1, int val2, long expected) {
         BValue[] args = { new BInteger(val1), new BInteger(val2) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMod", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "intMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -69,7 +69,7 @@ public class ModExpressionTest {
 
     private void floatMod(float val1, float val2, double expected) {
         BValue[] args = { new BFloat(val1), new BFloat(val2) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatMod", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);

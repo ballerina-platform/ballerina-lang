@@ -80,15 +80,6 @@ function testNullMapAccess() (string) {
     return (string) marks["maths"];
 }
 
-
-typemapper json2xml (json j) (xml) {
-    if (j == null) {
-        return null;
-    }
-    xml x = `<name>converted xml</name>`;
-    return x;
-}
-
 function testCastingNull(any j) (xml) {
     xml x = (xml) j;
     
@@ -97,10 +88,6 @@ function testCastingNull(any j) (xml) {
 
 function testFunctionCallWithNull() (any) {
     return foo(null);
-}
-
-function foo(string s) (string) {
-    return s;
 }
 
 function foo(xml x) (xml) {
@@ -141,16 +128,21 @@ function testNullInForkJoin() (message, message) {
     fork {
         worker foo {
             message resp1 = null;
-            reply resp1;
+            resp1 -> fork;
         }
 
         worker bar {
             message resp2 = {};
-            reply resp2;
+            resp2 -> fork;
         }
-    } join (all) (message[] allReplies) {
-        return allReplies[0], allReplies[1];
-    } timeout (30000) (message[] msgs) {
+    } join (all) (map allReplies) {
+        any[] temp;
+        temp,_ = (any[])allReplies["foo"];
+        message m1 = (message) temp[0];
+        temp,_ = (any[])allReplies["bar"];
+        message m2 = (message) temp[0];
+        return m1,m2;
+    } timeout (30000) (map msgs) {
         return null, null;
     }
 }
@@ -165,10 +157,10 @@ function testArrayOfNulls() (Person[]) {
 }
 
 function testMapOfNulls() (map) {
-    xml x1 = `<x1>test xml1<x1>`;
+    string x1 = "<x1>test xml1</x1>";
     xml x2;
     xml x3 = null;
-    xml x4 = `<x4>test xml4<x4>`;
+    string x4 = "<x4>test xml4</x4>";
     map xmlMap = {"x1":x1, "x2":x2, "x3":x3, "x4":x4, "x5":null};
     return xmlMap;
 }

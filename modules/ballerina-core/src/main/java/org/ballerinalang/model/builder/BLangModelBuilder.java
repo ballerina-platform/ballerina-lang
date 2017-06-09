@@ -86,7 +86,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -102,18 +102,15 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
-import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -160,8 +157,7 @@ public class BLangModelBuilder {
 
     protected Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
 
-    protected Stack<TransactionRollbackStmt.TransactionRollbackStmtBuilder> transactionRollbackStmtBuilderStack =
-            new Stack<>();
+    protected Stack<TransactionStmt.TransactionStmtBuilder> transactionStmtBuilderStack = new Stack<>();
 
     protected Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
     protected Stack<List<Worker>> workerStack = new Stack<>();
@@ -190,19 +186,6 @@ public class BLangModelBuilder {
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     
     protected List<String> errorMsgs = new ArrayList<>();
-
-    // This map is used to keep the worker interactions related data holders along with worker name for a given
-    // function/action/resource
-    protected Map<String, Queue<WorkerInteractionDataHolder>> workerInteractionDataHolders = new HashMap<>();
-
-    // This map holds the worker data channels against the respective source and target workers
-    protected Map<String, WorkerDataChannel> workerDataChannels = new HashMap<>();
-
-    // This queue holds the worker interactions which are started within a given worker
-    protected Queue<WorkerInteractionDataHolder> currentWorkerInteractions;
-
-    // This holds the name of the current worker
-    protected Stack<String> currentWorker = new Stack<>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
         this.currentScope = packageBuilder.getCurrentScope();
@@ -350,8 +333,7 @@ public class BLangModelBuilder {
         SymbolName symbolName = new SymbolName(identifier.getName());
 
         // Check whether this constant is already defined.
-        StructuredUnit structScope = (StructuredUnit) currentScope;
-        BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
+        BLangSymbol fieldSymbol = ((StructuredUnit) currentScope).resolveMembers(symbolName);
         if (fieldSymbol != null) {
             String errMsg = BLangExceptionHelper
                     .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
@@ -753,9 +735,13 @@ public class BLangModelBuilder {
 
     public void createBacktickExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                    String stringContent) {
-        String templateStr = getValueWithinBackquote(stringContent);
-        BacktickExpr backtickExpr = new BacktickExpr(location, whiteSpaceDescriptor,  templateStr);
-        exprStack.push(backtickExpr);
+        String errMsg = location.getFileName() + ":" + location.getLineNumber() + ": " + 
+                "backtick expression is not supported";
+        errorMsgs.add(errMsg);
+    
+         String templateStr = getValueWithinBackquote(stringContent);
+         BacktickExpr backtickExpr = new BacktickExpr(location, whiteSpaceDescriptor,  templateStr);
+         exprStack.push(backtickExpr);
     }
 
     public void startExprList() {
@@ -782,6 +768,7 @@ public class BLangModelBuilder {
         cIExprBuilder.setPkgName(nameReference.pkgName);
         cIExprBuilder.setPkgPath(nameReference.pkgPath);
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        invocationExpr.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         exprStack.push(invocationExpr);
     }
 
@@ -902,9 +889,6 @@ public class BLangModelBuilder {
     public void startCallableUnitBody(NodeLocation location) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
-        if (!currentWorker.isEmpty()) {
-            currentWorkerInteractions = new LinkedList<>();
-        }
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
@@ -913,27 +897,15 @@ public class BLangModelBuilder {
         BlockStmt blockStmt = blockStmtBuilder.build();
         currentCUBuilder.setBody(blockStmt);
         currentScope = blockStmt.getEnclosingScope();
-        if (!currentWorker.isEmpty()) {
-            workerInteractionDataHolders.put(currentWorker.pop(), currentWorkerInteractions);
-        }
     }
 
     public void startFunctionDef(NodeLocation location) {
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
-        currentWorker.push("default");
         currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
     public void startWorkerUnit() {
-        if (currentWorker.peek().equals("default")) {
-            if (!(workerInteractionDataHolders.containsKey("default"))) {
-                workerInteractionDataHolders.put(currentWorker.peek(), currentWorkerInteractions);
-            } else {
-                Queue<WorkerInteractionDataHolder> workerInteractions = workerInteractionDataHolders.get("default");
-                workerInteractions.addAll(currentWorkerInteractions);
-            }
-        }
         if (currentCUBuilder != null) {
             parentCUBuilder.push(currentCUBuilder);
         }
@@ -958,7 +930,6 @@ public class BLangModelBuilder {
 
         currentScope = function.getEnclosingScope();
         currentCUBuilder = null;
-        workerInteractionDataHolders.clear();
     }
 
     public void startTypeMapperDef(NodeLocation location) {
@@ -987,7 +958,7 @@ public class BLangModelBuilder {
         if (currentScope instanceof BlockStmt) {
             endCallableUnitBody();
         }
-        currentWorker.push("default");
+//        currentWorker.push("default");
         currentCUBuilder = new Resource.ResourceBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
     }
@@ -1006,7 +977,7 @@ public class BLangModelBuilder {
 
         currentScope = resource.getEnclosingScope();
         currentCUBuilder = null;
-        workerInteractionDataHolders.clear();
+//        workerInteractionDataHolders.clear();
     }
 
 
@@ -1034,7 +1005,7 @@ public class BLangModelBuilder {
     }
 
     public void createWorkerDefinition(NodeLocation sourceLocation, String name) {
-        currentWorker.push(name);
+//        currentWorker.push(name);
     }
 
     public void startActionDef(NodeLocation location) {
@@ -1042,7 +1013,6 @@ public class BLangModelBuilder {
         if (currentScope instanceof BlockStmt) {
             endCallableUnitBody();
         }
-        currentWorker.push("default");
         currentCUBuilder = new BallerinaAction.BallerinaActionBuilder(currentScope);
         currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
@@ -1062,7 +1032,6 @@ public class BLangModelBuilder {
 
         currentScope = action.getEnclosingScope();
         currentCUBuilder = null;
-        workerInteractionDataHolders.clear();
     }
 
 
@@ -1123,7 +1092,7 @@ public class BLangModelBuilder {
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
-
+        variableDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
             if (rhsExpr != null) {
                 if (rhsExpr instanceof ActionInvocationExpr) {
@@ -1379,12 +1348,7 @@ public class BLangModelBuilder {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         if (whiteSpaceDescriptor != null) {
-            WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
-            if (ws == null) {
-                ws = new WhiteSpaceDescriptor();
-                tryCatchStmtBuilder.setWhiteSpaceDescriptor(ws);
-            }
-            tryCatchStmtBuilder.getLastCatchBlock().setWhiteSpaceDescriptor(ws);
+            tryCatchStmtBuilder.getLastCatchBlock().setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         }
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
@@ -1566,155 +1530,100 @@ public class BLangModelBuilder {
 
 
         FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
+        functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
     public void createWorkerInvocationStmt(String workerName, NodeLocation sourceLocation,
                                            WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        List<Expression> exprList = exprListStack.peek();
+        //List<Expression> exprList = exprListStack.peek();
+        List<Expression> exprList = exprListStack.pop();
         WorkerInvocationStmt workerInvocationStmt = new WorkerInvocationStmt(workerName, exprList, sourceLocation,
                 whiteSpaceDescriptor);
-        if (!workerInteractionDataHolders.containsKey(workerName)) {
-            WorkerInteractionDataHolder workerInteractionDataHolder = new WorkerInteractionDataHolder();
-            workerInteractionDataHolder.setTargetWorker(workerName);
-            String interactionName = currentWorker.peek() + "->" + workerName;
-            if (!workerDataChannels.containsKey(interactionName)) {
-                WorkerDataChannel workerDataChannel = new WorkerDataChannel(currentWorker.peek(), workerName);
-                workerDataChannels.put(interactionName, workerDataChannel);
-                workerInvocationStmt.setWorkerDataChannel(workerDataChannel);
-            } else {
-                workerInvocationStmt.setWorkerDataChannel(workerDataChannels.get(interactionName));
-            }
-            workerInteractionDataHolder.setWorkerInvocationStmt(workerInvocationStmt);
-            currentWorkerInteractions.add(workerInteractionDataHolder);
-        } else {
-            Queue<WorkerInteractionDataHolder> currentQueue = workerInteractionDataHolders.get(workerName);
-            if (currentQueue.isEmpty()) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(sourceLocation,
-                        SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-                errorMsgs.add(errMsg);
-                return;
-            }
-            for (WorkerInteractionDataHolder workerInteraction : currentQueue) {
-                if (workerInteraction.getSourceWorker().equals(currentWorker.peek())) {
-                    workerInteraction.setTargetWorker(workerName);
-                    workerInteraction.setWorkerInvocationStmt(workerInvocationStmt);
-                    String interactionName = currentWorker.peek() + "->" + workerName;
-                    if (!workerDataChannels.containsKey(interactionName)) {
-                        WorkerDataChannel workerDataChannel = new WorkerDataChannel(currentWorker.peek(), workerName);
-                        workerDataChannels.put(interactionName, workerDataChannel);
-                        workerInvocationStmt.setWorkerDataChannel(workerDataChannel);
-                    } else {
-                        workerInvocationStmt.setWorkerDataChannel(workerDataChannels.get(interactionName));
-                    }
-                    bFileBuilder.addWorkerInteractionDataHolder(currentQueue.remove());
-                    break;
-                }
-            }
-        }
-
+        currentCUBuilder.addWorkerInteractionStatement(workerInvocationStmt);
         //workerInvocationStmt.setLocation(sourceLocation);
         blockStmtBuilderStack.peek().addStmt(workerInvocationStmt);
     }
 
     public void createWorkerReplyStmt(String workerName, NodeLocation sourceLocation,
                                       WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        List<Expression> exprList = exprListStack.peek();
+        //List<Expression> exprList = exprListStack.peek();
+        List<Expression> exprList = exprListStack.pop();
         WorkerReplyStmt workerReplyStmt = new WorkerReplyStmt(workerName, exprList, sourceLocation,
                 whiteSpaceDescriptor);
-        if (!workerInteractionDataHolders.containsKey(workerName)) {
-            WorkerInteractionDataHolder workerInteractionDataHolder = new WorkerInteractionDataHolder();
-            workerInteractionDataHolder.setSourceWorker(workerName);
-            String interactionName = workerName + "->" + currentWorker.peek();
-            if (!workerDataChannels.containsKey(interactionName)) {
-                WorkerDataChannel workerDataChannel = new WorkerDataChannel(workerName, currentWorker.peek());
-                workerDataChannels.put(interactionName, workerDataChannel);
-                workerReplyStmt.setWorkerDataChannel(workerDataChannel);
-            } else {
-                workerReplyStmt.setWorkerDataChannel(workerDataChannels.get(interactionName));
-            }
-            workerInteractionDataHolder.setWorkerReplyStmt(workerReplyStmt);
-            currentWorkerInteractions.add(workerInteractionDataHolder);
-        } else {
-            Queue<WorkerInteractionDataHolder> currentQueue = workerInteractionDataHolders.get(workerName);
-            if (currentQueue.isEmpty()) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(sourceLocation,
-                        SemanticErrors.WORKER_INTERACTION_NOT_VALID);
-                errorMsgs.add(errMsg);
-                return;
-            }
-            for (WorkerInteractionDataHolder workerInteraction : currentQueue) {
-                if (workerInteraction.getTargetWorker().equals(currentWorker.peek())) {
-                    workerInteraction.setSourceWorker(workerName);
-                    String interactionName = workerName + "->" + currentWorker.peek();
-                    if (!workerDataChannels.containsKey(interactionName)) {
-                        WorkerDataChannel workerDataChannel = new WorkerDataChannel(workerName, currentWorker.peek());
-                        workerDataChannels.put(interactionName, workerDataChannel);
-                        workerReplyStmt.setWorkerDataChannel(workerDataChannel);
-                    } else {
-                        workerReplyStmt.setWorkerDataChannel(workerDataChannels.get(interactionName));
-                    }
-                    workerInteraction.setWorkerReplyStmt(workerReplyStmt);
-                    bFileBuilder.addWorkerInteractionDataHolder(currentQueue.remove());
-                    break;
-                }
-            }
-        }
-
+        currentCUBuilder.addWorkerInteractionStatement(workerReplyStmt);
         //workerReplyStmt.setLocation(sourceLocation);
         blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
     }
 
-    public void createActionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                           NameReference nameReference, String actionName, boolean argsAvailable) {
-        addActionInvocationExpr(location, whiteSpaceDescriptor, nameReference, actionName, argsAvailable);
+    public void createActionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ActionInvocationExpr invocationExpr = (ActionInvocationExpr) exprStack.pop();
 
         ActionInvocationStmt actionInvocationStmt = new ActionInvocationStmt(location, invocationExpr);
+        actionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
-    public void startTransactionhStmt(NodeLocation location) {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
-                = new TransactionRollbackStmt.TransactionRollbackStmtBuilder();
-        transactionRollbackStmtBuilder.setLocation(location);
-        transactionRollbackStmtBuilderStack.push(transactionRollbackStmtBuilder);
+    public void startTransactionStmt(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = new TransactionStmt.TransactionStmtBuilder();
+        transactionStmtBuilder.setLocation(location);
+        transactionStmtBuilderStack.push(transactionStmtBuilder);
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void startRollbackClause(NodeLocation location) {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
-                transactionRollbackStmtBuilderStack.peek();
-        // Creating Transaction clause.
+    public void addTransactionBlockStmt() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt transactionBlock = blockStmtBuilder.build();
-        transactionRollbackStmtBuilder.setTransactionBlock(transactionBlock);
+        transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
-        // Staring parsing rollback clause.
-        TransactionRollbackStmt.RollbackBlock rollbackBlock = new TransactionRollbackStmt.RollbackBlock(currentScope);
-        transactionRollbackStmtBuilder.setRollbackBlock(rollbackBlock);
-        currentScope = rollbackBlock;
-        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
-        blockStmtBuilderStack.push(rollbackBlockBuilder);
-        currentScope = rollbackBlockBuilder.getCurrentScope();
     }
 
-    public void addRollbackClause() {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
-                transactionRollbackStmtBuilderStack.peek();
-        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = blockStmtBuilderStack.pop();
-        BlockStmt rollbackBlock = rollbackBlockBuilder.build();
-        currentScope = rollbackBlock.getEnclosingScope();
-        transactionRollbackStmtBuilder.setRollbackBlockStmt(rollbackBlock);
+    public void startAbortedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing aborted clause.
+        TransactionStmt.AbortedBlock abortedBlock = new TransactionStmt.AbortedBlock(currentScope);
+        transactionStmtBuilder.setAbortedBlock(abortedBlock);
+        currentScope = abortedBlock;
+        BlockStmt.BlockStmtBuilder abortedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(abortedBlockBuilder);
+        currentScope = abortedBlockBuilder.getCurrentScope();
+    }
+
+    public void addAbortedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder abortedBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt abortedBlock = abortedBlockBuilder.build();
+        currentScope = abortedBlock.getEnclosingScope();
+        transactionStmtBuilder.setAbortedBlockStmt(abortedBlock);
+    }
+
+    public void startCommittedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing committed clause.
+        TransactionStmt.CommittedBlock committedBlock = new TransactionStmt.CommittedBlock(currentScope);
+        transactionStmtBuilder.setCommittedBlock(committedBlock);
+        currentScope = committedBlock;
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(committedBlockBuilder);
+        currentScope = committedBlockBuilder.getCurrentScope();
+    }
+
+    public void addCommittedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt committedBlock = committedBlockBuilder.build();
+        currentScope = committedBlock.getEnclosingScope();
+        transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
     public void addTransactionStmt() {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
-                = transactionRollbackStmtBuilderStack.pop();
-        TransactionRollbackStmt transactionRollbackStmt = transactionRollbackStmtBuilder.build();
-        addToBlockStmt(transactionRollbackStmt);
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
+        TransactionStmt transactionStmt = transactionStmtBuilder.build();
+        addToBlockStmt(transactionStmt);
     }
 
     public void createAbortStmt(NodeLocation location) {
@@ -1945,28 +1854,30 @@ public class BLangModelBuilder {
 
     /**
      * Validates the statements in the transform statement body as explained below :
-     *  - Left expression of Assignment Statement becomes output of transform statement
-     *  - Right expressions of Assignment Statement becomes input of transform statement
-     *  - Variables in each of left and right expressions of all statements are extracted as input and output
-     *  - A variable that is used as an input cannot be used as an output in another statement
-     *  - If inputs and outputs are used interchangeably, a semantic error is thrown
+     * - Left expression of Assignment Statement becomes output of transform statement
+     * - Right expressions of Assignment Statement becomes input of transform statement
+     * - Variables in each of left and right expressions of all statements are extracted as input and output
+     * - A variable that is used as an input cannot be used as an output in another statement
+     * - If inputs and outputs are used interchangeably, a semantic error is thrown
+     *
      * @param blockStmt transform statement block statement
-     * @param inputs input variable reference expressions map
-     * @param outputs output variable reference expressions map
+     * @param inputs    input variable reference expressions map
+     * @param outputs   output variable reference expressions map
      */
     private void validateTransformStatementBody(BlockStmt blockStmt, Map<String, Expression> inputs,
                                                 Map<String, Expression> outputs) {
         for (Statement statement : blockStmt.getStatements()) {
             if (statement instanceof AssignStmt) {
                 for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
-                    if (lExpr instanceof FieldAccessExpr) {
-                        String varName = ((FieldAccessExpr) lExpr).getVarName();
+                    Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
+                    for (Expression exp : varRefExpressions) {
+                        String varName = ((VariableRefExpr) exp).getVarName();
                         if (inputs.get(varName) == null) {
                             //if variable has not been used as an input before
                             if (outputs.get(varName) == null) {
                                 List<Statement> stmtList = new ArrayList<>();
                                 stmtList.add(statement);
-                                outputs.put(varName, ((FieldAccessExpr) lExpr).getVarRef());
+                                outputs.put(varName, exp);
                             }
                         } else {
                             String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
@@ -1975,24 +1886,42 @@ public class BLangModelBuilder {
                         }
                     }
                 }
-                Expression rExpr =  ((AssignStmt) statement).getRExpr();
-                if (rExpr instanceof FieldAccessExpr) {
-                    String varName = ((FieldAccessExpr) rExpr).getVarName();
+                Expression rExpr = ((AssignStmt) statement).getRExpr();
+                Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
+                for (Expression exp : varRefExpressions) {
+                    String varName = ((VariableRefExpr) exp).getVarName();
                     if (outputs.get(varName) == null) {
                         //if variable has not been used as an output before
                         if (inputs.get(varName) == null) {
                             List<Statement> stmtList = new ArrayList<>();
                             stmtList.add(statement);
-                            inputs.put(varName, ((FieldAccessExpr) rExpr).getVarRef());
+                            inputs.put(varName, exp);
                         }
                     } else {
                         String errMsg = BLangExceptionHelper.constructSemanticError(statement.getNodeLocation(),
-                                               SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
+                                                SemanticErrors.TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT, statement);
                         errorMsgs.add(errMsg);
                     }
                 }
             }
         }
+    }
+
+    private Expression[] getVariableReferencesFromExpression(Expression expression) {
+        if (expression instanceof FieldAccessExpr) {
+            return new Expression[] { ((FieldAccessExpr) expression).getVarRef() };
+        } else if (expression instanceof FunctionInvocationExpr) {
+            Expression[] argExprs = ((FunctionInvocationExpr) expression).getArgExprs();
+            List<Expression> expList = new ArrayList<>();
+            for (Expression arg : argExprs) {
+                Expression[] varRefExps = getVariableReferencesFromExpression(arg);
+                expList.addAll(Arrays.asList(varRefExps));
+            }
+            return expList.toArray(new Expression[expList.size()]);
+        } else if (expression instanceof VariableRefExpr) {
+            return new Expression[] { expression };
+        }
+        return new Expression[] {};
     }
 
     /**

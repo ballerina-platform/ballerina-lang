@@ -47,4 +47,14 @@ class BFloatType extends BType {
     public <V extends BValue> V getEmptyValue() {
         return (V) new BFloat(0);
     }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_FLOAT);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.FLOAT_TAG;
+    }
 }

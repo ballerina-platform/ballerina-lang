@@ -19,12 +19,12 @@
 package org.ballerinalang.model.identifierliteral;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -36,26 +36,25 @@ import org.testng.annotations.Test;
  * Identifier literal test cases.
  */
 public class IdentifierLiteralTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/identifierliteral/identifier-literal-success.bal");
+        programFile = BTestUtils.getProgramFile("lang/identifierliteral/identifier-literal-success.bal");
     }
 
     @Test(description = "Test defining global variable with Identifier Literal and refer within a function")
     public void testGlobalVarWithIdentifierLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getGlobalVarWithIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "getGlobalVarWithIL");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         String actual = ((BString) returns[0]).stringValue();
         Assert.assertEquals(actual, "this is a IL with global var");
     }
 
-
     @Test(description = "Test defining constant with Identifier Literal and refer within a function")
     public void testConstantWithIdentifierLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getConstWithIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "getConstWithIL");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         double actual = ((BFloat) returns[0]).floatValue();
@@ -64,7 +63,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test defining local variables with Identifier Literal")
     public void testIdentifierLiteralsAsLocalVariables() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "defineAndGetIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "defineAndGetIL");
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BFloat.class);
@@ -79,7 +78,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test defining struct variables with Identifier Literal")
     public void testIdentifierLiteralInStructs() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "useILWithinStruct");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "useILWithinStruct");
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -94,7 +93,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test defining struct with identifier literal")
     public void testStructVarWithIdentifierLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "useILInStructVar");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "useILInStructVar");
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -109,7 +108,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test defining reference type with identifier literal and initialize later")
     public void testUsingIdentifierLiteralAsReferenceType() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "useILAsrefType");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "useILAsrefType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String actualFirstName = ((BJSON) returns[0]).stringValue();
@@ -118,7 +117,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test using identifier literals in arrays and array indexes")
     public void testUsingIdentifierLiteralAsArrayIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "useILAsArrayIndex");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "useILAsArrayIndex");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         double actual = ((BFloat) returns[0]).floatValue();
@@ -127,7 +126,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test using identifier literals in function parameters")
     public void testUsingIdentifierLiteralAsFunctionParams() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "passILValuesToFunction");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "passILValuesToFunction");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
@@ -139,7 +138,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test character range in identifier literal")
     public void testCharacterRangeInIdentifierLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCharInIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCharInIL");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         String actualString = ((BString) returns[0]).stringValue();
@@ -148,7 +147,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test function name with identifier literal")
     public void testFunctionNameWithInIdentifierLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFunctionNameWithIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFunctionNameWithIL");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         String actualString = ((BString) returns[0]).stringValue();
@@ -157,7 +156,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test connector name with identifier literal")
     public void testConnectorWithIdentifierLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorNameWithIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testConnectorNameWithIL");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -166,7 +165,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test connector action with identifier literal")
     public void testConnectorActionWithIdentifierLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorActionWithIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testConnectorActionWithIL");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -175,7 +174,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test defining local variables with Identifier Literal")
     public void testIdentifierLiteralInStructName() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "useILInStructName");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "useILInStructName");
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -190,7 +189,7 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test unicode with identifier literal")
     public void testUnicodeWithIntegerLiteral() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testUnicodeInIL");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testUnicodeInIL");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -203,13 +202,13 @@ public class IdentifierLiteralTest {
             expectedExceptionsMessageRegExp = "identifier-literal-undefined-variable.bal:5: undefined " +
                     "symbol 'global v \" ar'")
     public void testTryToAccessUndefinedGlobalVarWithIdentifierLiteral() {
-        BTestUtils.parseBalFile("lang/identifierliteral/identifier-literal-undefined-variable.bal");
+        BTestUtils.getProgramFile("lang/identifierliteral/identifier-literal-undefined-variable.bal");
     }
 
     @Test(description = "Test wrong character in identifier literal",
             expectedExceptions = {ParserException.class},
             expectedExceptionsMessageRegExp = "identifier-literal-wrong-character.bal:3:21: missing ';' before 'var'")
     public void testIdentifierLiteralWithWrongCharacter() {
-        BTestUtils.parseBalFile("lang/identifierliteral/identifier-literal-wrong-character.bal");
+        BTestUtils.getProgramFile("lang/identifierliteral/identifier-literal-wrong-character.bal");
     }
 }

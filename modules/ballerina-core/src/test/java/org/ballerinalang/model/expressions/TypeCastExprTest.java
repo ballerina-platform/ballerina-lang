@@ -312,7 +312,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a struct to an incompatible struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "incompatible-struct-cast.bal:24: incompatible types: 'Student' " +
-            "cannot be converted to 'Person'")
+            "cannot be assigned to 'Person'")
     public void testIncompatibleStructToStructCast() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/incompatible-struct-cast.bal");
     }
@@ -449,7 +449,7 @@ public class TypeCastExprTest {
     
     @Test(description = "Test casting a struct as any type to json",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot cast 'any' with type '.:Address' to type 'json'")
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'Address' to type 'json'")
     public void testAnyStructToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAnyStructToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -480,14 +480,14 @@ public class TypeCastExprTest {
     
     @Test(description = "Test casting a xml as any type to json",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'xml' to type 'json'")
-    public void testAnyXmlToJson() {
-        BLangFunctions.invoke(bLangProgram, "testAnyXmlToJson");
+            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'message' to type 'json'")
+    public void testAnyMessageToJson() {
+        BLangFunctions.invoke(bLangProgram, "testAnyMessageToJson");
     }
     
     @Test(description = "Test casting a struct to map",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: '.:Person' cannot be cast " +
+            expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: 'Person' cannot be cast " +
             "to 'map'")
     public void testStructToMap() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/struct-to-map.bal");
@@ -496,7 +496,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a map to struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
-            "'.:Person'")
+            "'Person'")
     public void testMapToStruct() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/map-to-struct.bal");
     }
@@ -511,7 +511,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a json to struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types: 'json' cannot be cast to" +
-            " '.:Person'")
+            " 'Person'")
     public void testJsonToStruct() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/json-to-struct.bal");
     }
@@ -652,7 +652,7 @@ public class TypeCastExprTest {
         BStruct error = (BStruct) returns[1];
         BValue errorMsg = error.getValue(0);
         Assert.assertTrue(errorMsg instanceof BString);
-        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected '.:A', found '.:B'");
+        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected 'A', found 'B'");
         
         BValue sourceType = error.getValue(2);
         Assert.assertTrue(sourceType instanceof BString);
@@ -666,7 +666,7 @@ public class TypeCastExprTest {
     @Test(description = "Test returning a mismatching error when casting",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types for" +
-            " 'err': expected 'ballerina.lang.errors:CastError', found '.:Error'")
+            " 'err': expected 'ballerina.lang.errors:CastError', found 'Error'")
     public void testMistmatchErrorInMultiReturnCasting() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/mismatch-error-in-multi-return-casting.bal");
     }
@@ -828,6 +828,6 @@ public class TypeCastExprTest {
         BStruct error = (BStruct) returns[1];
         BValue errorMsg = error.getValue(0);
         Assert.assertTrue(errorMsg instanceof BString);
-        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected '.:A', found '.:B'");
+        Assert.assertEquals(errorMsg.stringValue(), "incompatible types: expected 'A', found 'B'");
     }*/
 }
