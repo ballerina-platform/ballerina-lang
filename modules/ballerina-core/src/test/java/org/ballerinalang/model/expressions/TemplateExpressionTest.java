@@ -35,13 +35,11 @@ import org.testng.annotations.Test;
  */
 public class TemplateExpressionTest {
     private ProgramFile programFile;
-    private BLangProgram bLangProgram;
     
     @BeforeClass
     public void setup() {
         // Add Native functions.
         programFile = BTestUtils.getProgramFile("lang/expressions/template-expr.bal");
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/template-expr.bal");
     }
 
     @Test(description = "Test JSON backtick expression definition")

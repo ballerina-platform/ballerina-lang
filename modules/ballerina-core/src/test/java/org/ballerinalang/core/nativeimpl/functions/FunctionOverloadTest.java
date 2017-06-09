@@ -37,14 +37,14 @@ public class FunctionOverloadTest {
             expectedExceptionsMessageRegExp = "function-overloading-diff-arg-count.bal:5: " +
                     "redeclared symbol 'testOverloading'")
     public void testFunctionOverloadingDifferentArgCount() {
-        BTestUtils.parseBalFile("lang/functions/function-overloading-diff-arg-count.bal");
+        BTestUtils.getProgramFile("lang/functions/function-overloading-diff-arg-count.bal");
     }
 
     @Test(description = "Test functino overloading which has same argument count",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "function-overloading.bal:5: redeclared symbol 'testOverloading'")
     public void testFunctionOverloadingSameArgCountTest() {
-        BTestUtils.parseBalFile("lang/functions/function-overloading.bal");
+        BTestUtils.getProgramFile("lang/functions/function-overloading.bal");
     }
 
     @Test(description = "Test if incorrect function overloading produces errors")
