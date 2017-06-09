@@ -48,8 +48,9 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - Variable definition expression string
      */
     getStatementString() {
-        var variableDefinitionStatementString;
-        variableDefinitionStatementString = this.getBType();
+        var variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
+            (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
+        variableDefinitionStatementString += this.getBType();
         if (((this.getChildren()[0]).getChildren()[0])._isArray) {
             for (var itr = 0; itr < ((this.getChildren()[0]).getChildren()[0])._dimensions; itr ++) {
                 variableDefinitionStatementString += '[]';
