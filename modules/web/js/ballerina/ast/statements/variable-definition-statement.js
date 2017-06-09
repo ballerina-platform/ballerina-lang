@@ -16,10 +16,12 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
 import Statement from './statement';
 import CommonUtils from '../../utils/common-utils';
 import VariableDeclaration from './../variable-declaration';
 import FragmentUtils from '../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 
 /**
  * Class to represent an Variable Definition statement.
@@ -117,24 +119,48 @@ class VariableDefinitionStatement extends Statement {
      * Set the variable definition statement string
      * @param {string} variableDefinitionStatementString - variable definition statement string
      */
-    setStatementFromString(stmtString) {
-        if (!_.isNil(stmtString)) {
-            let fragment = FragmentUtils.createStatementFragment(stmtString + ';');
-            let parsedJson = FragmentUtils.parseFragment(fragment);
-            if ((!_.has(parsedJson, 'error')
-                   || !_.has(parsedJson, 'syntax_errors'))
-                   && _.isEqual(parsedJson.type, 'variable_definition_statement')) {
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'variable_definition_statement')) {
                 this.initFromJson(parsedJson);
+            } else if (_.has(parsedJson, 'type')) {
+                // user may want to change the statement type
+                let newNode = this.getFactory().createFromJson(parsedJson);
+                if (this.getFactory().isStatement(newNode)) {
+                    // somebody changed the type of statement to an assignment
+                    // to capture retun value of function Invocation
+                    let parent = this.getParent();
+                    let index = parent.getIndexOfChild(this);
+                    parent.removeChild(this, true);
+                    parent.addChild(newNode, index, true, true);
+                    newNode.initFromJson(parsedJson);
+                    nodeToFireEvent = newNode;
+                }
+            } else {
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             }
 
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
             // Manually firing the tree-modified event here.
             // TODO: need a proper fix to avoid breaking the undo-redo
-            this.trigger('tree-modified', {
-                origin: this,
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'Variable definition modified',
-                context: this,
+                title: 'Variable Definition Custom Tree modified',
+                context: nodeToFireEvent,
             });
+        } else {
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
         }
     }
 
