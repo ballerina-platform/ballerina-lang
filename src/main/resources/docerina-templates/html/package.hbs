@@ -125,9 +125,7 @@
                         <!-- Structs -->
                         <h2>Structs of {{refinePackagePath this}} package</h2>
                         {{#each structDefs}} {{currentObject this}}
-                        <h3 id="{{symbolName.name}}">
-                            struct {{symbolName.name}}({{#each fieldDefStmts}}<a href="{{#bindLink variableDef.type.symbolName}}{{/bindLink}}"{{typeTitle variableDef.type}}>{{variableDef.typeName}}</a> {{variableDef.name}}{{#unless @last}}, {{/unless}}{{/each}})
-                        </h3>
+                        <h3 id="{{symbolName.name}}">struct {{symbolName.name}}</h3>
                         <p>
                             <b>Fields:</b>
                             <table>
@@ -186,9 +184,7 @@
                         <h2>Annotations of {{refinePackagePath this}} package</h2>
                         {{#each annotationDefs}} {{currentObject this}}
                         <div style="padding-bottom: 30px;">
-                            <h3 id="{{name}}">
-                                annotation {{name}}({{#each attributeDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}})
-                            </h3>
+                            <h3 id="{{name}}">annotation {{name}}</h3>
                             <p>{{oneValueAnnotation "description"}}</p>
 
                             <p>
@@ -249,9 +245,8 @@
                             <span class="opener">Structs</span>
                             <ul>
                                 {{#each structDefs}}
-                                <li>
-                                    <a href="#{{symbolName.name}} ">{{symbolName.name}} ({{#each fieldDefStmts}}{{variableDef.typeName}} {{variableDef.name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
-                                </li>{{/each}}
+                                    <li><a href="#{{symbolName.name}} ">{{symbolName.name}}</a></li>
+                                {{/each}}
                             </ul>
                         </li>{{/hasStructs}} {{#hasTypeMappers}}
                         <li>
@@ -267,9 +262,8 @@
                             <span class="opener">Annotations</span>
                             <ul>
                                 {{#each annotationDefs}}
-                                <li>
-                                    <a href="#{{symbolName.name}} ">{{symbolName.name}} ({{#each attributeDefs}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
-                                </li>{{/each}}
+                                    <li><a href="#{{symbolName.name}} ">{{symbolName.name}}</a></li>
+                                {{/each}}
                             </ul>
                         </li>{{/hasAnnotations}}
                     </ul>
