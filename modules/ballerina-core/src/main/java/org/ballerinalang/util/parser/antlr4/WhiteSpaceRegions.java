@@ -326,7 +326,7 @@ public class WhiteSpaceRegions {
     public static final int TYPE_CAST_EXP_TYPE_CAST_START_TO_TYPE_NAME = 1;
     public static final int TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP = 2;
     public static final int TYPE_CAST_EXP_FOLLOWING_WHITESPACE = 3;
-    
+
     // white space regions in a type-conversion expr
     public static final int TYPE_CONVERSION_EXP_PRECEDING_WHITESPACE = 0;
     public static final int TYPE_CONVERSION_EXP_TYPE_CAST_START_TO_TYPE_NAME = 1;
@@ -350,4 +350,27 @@ public class WhiteSpaceRegions {
     public static final int TRANSFORM_STMT_PRECEDING_WHITESPACE = 0;
     public static final int TRANSFORM_STMT_TO_BODY_START = 2;
     public static final int TRANSFORM_STMT_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a transaction statement
+    public static final int TRANSACTION_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int TRANSACTION_STMT_TRANSACTION_KEYWORD_TO_BODY_START = 1;
+    public static final int TRANSACTION_STMT_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int TRANSACTION_STMT_BODY_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a committed clause
+    public static final int COMMITTED_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int COMMITTED_STMT_TRANSACTION_KEYWORD_TO_BODY_START = 1;
+    public static final int COMMITTED_STMT_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int COMMITTED_STMT_BODY_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a aborted clause
+    public static final int ABORTED_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int ABORTED_STMT_TRANSACTION_KEYWORD_TO_BODY_START = 1;
+    public static final int ABORTED_STMT_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int ABORTED_STMT_BODY_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in abort statement
+    public static final int ABORT_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int ABORT_STMT_ABORT_KEYWORD_TO_END = 1;
+    public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 2;
 }

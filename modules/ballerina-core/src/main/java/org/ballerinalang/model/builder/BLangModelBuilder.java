@@ -1620,14 +1620,15 @@ public class BLangModelBuilder {
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
-    public void addTransactionStmt() {
+    public void addTransactionStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
+        transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         TransactionStmt transactionStmt = transactionStmtBuilder.build();
         addToBlockStmt(transactionStmt);
     }
 
-    public void createAbortStmt(NodeLocation location) {
-        addToBlockStmt(new AbortStmt(location));
+    public void createAbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
     }
 
     // Literal Values
