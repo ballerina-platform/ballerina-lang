@@ -96,15 +96,4 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         }
         return subPath;
     }
-
-//    // Set status code using requestDetails map
-//    public Boolean setStatusCode(CarbonMessage cMsg, Map<String, String> requestDetails, String statusCode) {
-//        if (requestDetails.get(Constants.HTTP_STATUS_CODE) != null &&
-//                requestDetails.get(Constants.HTTP_STATUS_CODE).equals(statusCode)) {
-//            cMsg.setProperty
-//                    (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
-//            return true;
-//        }
-//        return false;
-//    }
 }
