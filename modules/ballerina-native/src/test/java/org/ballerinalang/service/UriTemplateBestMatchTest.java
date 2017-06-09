@@ -18,6 +18,7 @@
 package org.ballerinalang.service;
 
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
@@ -28,7 +29,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import static org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE;
 
 /**
  * Test class for Uri Template based resource dispatchers.
@@ -299,7 +299,7 @@ public class UriTemplateBestMatchTest {
         CarbonMessage response = Services.invoke(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HTTP_STATUS_CODE);
+        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
@@ -310,7 +310,7 @@ public class UriTemplateBestMatchTest {
         CarbonMessage response = Services.invoke(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HTTP_STATUS_CODE);
+        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
