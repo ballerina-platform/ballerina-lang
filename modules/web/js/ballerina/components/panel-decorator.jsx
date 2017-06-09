@@ -60,10 +60,7 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleInputBlur() {
-        this.setState({
-            titleEditing: false,
-            editingTitle: this.props.title
-        })
+        this.setPropertyName();
     }
 
     onTitleInputChange(e) {
@@ -72,14 +69,18 @@ class PanelDecorator extends React.Component {
 
     onTitleKeyDown(e) {
         if(e.keyCode === 13) {
-            const modelType = this.props.model.type.replace('Definition', '');
-
-            // Setter functions take form 'setModelTypeName'. eg: setServiceName
-            this.props.model[`set${modelType}Name`](this.state.editingTitle);
-            this.setState({
-                titleEditing: false,
-            })
+            this.setPropertyName();
         }
+    }
+
+    setPropertyName() {
+        const modelType = this.props.model.type.replace('Definition', '');
+
+        // Setter functions take form 'setModelTypeName'. eg: setServiceName
+        this.props.model[`set${modelType}Name`](this.state.editingTitle);
+        this.setState({
+            titleEditing: false,
+        });
     }
 
     render() {
@@ -165,8 +166,8 @@ class PanelDecorator extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}>
                     {!collapsed &&
-                    <rect x={panelBBox.x} 
-                          y={panelBBox.y} 
+                    <rect x={panelBBox.x}
+                          y={panelBBox.y}
                           width={panelBBox.w}
                           height={panelBBox.h}
                           rx="0" ry="0" fill="#fff"
