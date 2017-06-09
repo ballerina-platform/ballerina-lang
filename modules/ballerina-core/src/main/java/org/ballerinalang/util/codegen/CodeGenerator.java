@@ -2329,6 +2329,7 @@ public class CodeGenerator implements NodeVisitor {
         // Generate code for timeout block
         ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
         timeout.setIp(nextIP());
+        int timeoutIP = timeout.getIp();
         if (timeout.getTimeoutExpression() != null) {
             timeout.getTimeoutExpression().accept(this);
         }
@@ -2339,8 +2340,11 @@ public class CodeGenerator implements NodeVisitor {
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }
-
-        gotoInstruction.setOperand(0, nextIP());
+        if (timeoutIP == nextIP()) {
+            gotoInstruction.setOperand(0, nextIP() + 1);
+        } else {
+            gotoInstruction.setOperand(0, nextIP());
+        }
     }
 
 
