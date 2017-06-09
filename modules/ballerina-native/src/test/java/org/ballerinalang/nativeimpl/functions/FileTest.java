@@ -73,6 +73,11 @@ public class FileTest {
         if (temp.exists()) {
             deleteDir(temp);
         }
+
+        File tempDir = new File("tempDir");
+        if (tempDir.exists()) {
+            deleteDir(tempDir);
+        }
     }
 
 
@@ -94,6 +99,34 @@ public class FileTest {
             BLangFunctions.invoke(bLangProgram, "testCopy", args);
             Assert.assertTrue(sourceFile.exists(), "Source file does not exist");
             Assert.assertTrue(destFile.exists(), "File wasn't copied");
+        } else {
+            Assert.fail("Error in file creation.");
+        }
+    }
+
+    @Test
+    public void testCopyDir() throws IOException {
+
+        String fileOne = "temp/fileOne.txt";
+        String fileTwo = "temp/fileTwo.txt";
+        File one = new File(fileOne);
+        File two = new File(fileTwo);
+        String sourcePath = "temp";
+        String destPath = "tempDir";
+        if (one.createNewFile() && two.createNewFile()) {
+
+            BValue[] source = { new BString(sourcePath) };
+            BValue[] dest = { new BString(destPath) };
+            BStruct sourceStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+            BStruct destStruct = new BStruct(new StructDef(GlobalScope.getInstance()), dest);
+            BValue[] args = { sourceStruct, destStruct };
+
+            BLangFunctions.invoke(bLangProgram, "testCopy", args);
+            Assert.assertTrue(new File("temp/fileOne.txt").exists(), "Source file does not exist");
+            Assert.assertTrue(new File("temp/fileTwo.txt").exists(), "Source file does not exist");
+            Assert.assertTrue(new File("tempDir/fileOne.txt").exists(), "File wasn't copied");
+            Assert.assertTrue(new File("tempDir/fileTwo.txt").exists(), "File wasn't copied");
+
         } else {
             Assert.fail("Error in file creation.");
         }
@@ -123,18 +156,68 @@ public class FileTest {
     }
 
     @Test
+    public void testMoveDir() throws IOException {
+
+        String fileOne = "temp/fileOne.txt";
+        String fileTwo = "temp/fileTwo.txt";
+        File one = new File(fileOne);
+        File two = new File(fileTwo);
+        String sourcePath = "temp";
+        String destPath = "tempDir";
+        if (one.createNewFile() && two.createNewFile()) {
+
+            BValue[] source = { new BString(sourcePath) };
+            BValue[] dest = { new BString(destPath) };
+            BStruct sourceStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+            BStruct destStruct = new BStruct(new StructDef(GlobalScope.getInstance()), dest);
+            BValue[] args = { sourceStruct, destStruct };
+
+            BLangFunctions.invoke(bLangProgram, "testMove", args);
+            Assert.assertFalse(new File("temp/fileOne.txt").exists(), "Source file exists");
+            Assert.assertFalse(new File("temp/fileTwo.txt").exists(), "Source file exists");
+            Assert.assertTrue(new File("tempDir/fileOne.txt").exists(), "File wasn't moved");
+            Assert.assertTrue(new File("tempDir/fileTwo.txt").exists(), "File wasn't moved");
+
+        } else {
+            Assert.fail("Error in file creation.");
+        }
+    }
+
+    @Test
     public void testDelete() throws IOException {
 
         String targetPath = "temp/original.txt";
         File targetFile = new File(targetPath);
         if (targetFile.createNewFile()) {
 
-            BValue[] source = { new BString(targetPath) };
-            BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), source);
+            BValue[] target = { new BString(targetPath) };
+            BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), target);
             BValue[] args = { targetStruct };
 
             BLangFunctions.invoke(bLangProgram, "testDelete", args);
             Assert.assertFalse(targetFile.exists(), "Target file exists");
+        } else {
+            Assert.fail("Error in file creation.");
+        }
+    }
+
+    @Test
+    public void testDeleteDir() throws IOException {
+
+        String fileOne = "temp/fileOne.txt";
+        String fileTwo = "temp/fileTwo.txt";
+        File one = new File(fileOne);
+        File two = new File(fileTwo);
+        String targetPath = "temp";
+        File targetFile = new File(targetPath);
+        if (one.createNewFile() && two.createNewFile()) {
+
+            BValue[] target = { new BString(targetPath) };
+            BStruct targetStruct = new BStruct(new StructDef(GlobalScope.getInstance()), target);
+            BValue[] args = { targetStruct };
+
+            BLangFunctions.invoke(bLangProgram, "testDelete", args);
+            Assert.assertFalse(targetFile.exists(), "Target Directory exists");
         } else {
             Assert.fail("Error in file creation.");
         }
