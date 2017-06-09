@@ -21,6 +21,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.model.Worker;
+import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -28,6 +31,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
@@ -55,6 +59,7 @@ import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
+import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -71,6 +76,7 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
@@ -89,8 +95,17 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @since 0.87
@@ -102,10 +117,13 @@ public class BLangVM {
     private ControlStackNew controlStack;
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
+    private boolean isForkJoinTimedOut;
+    private CallableUnitInfo currentCallableUnitInfo;
 
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
+    private int workerEndIP = -1;
 
     private StructureType globalMemBlock;
 
@@ -138,7 +156,7 @@ public class BLangVM {
         this.controlStack = context.getControlStackNew();
         this.context.setVMBasedExecutor(true);
         this.ip = context.getStartIP();
-
+        currentCallableUnitInfo = currentFrame.getCallableUnitInfo();
 //        traceCode(null);
 
         if (context.getError() != null) {
@@ -153,12 +171,30 @@ public class BLangVM {
                     calleeSF.returnValues, retTypes);
 
             // TODO Remove
-            prepareStructureTypeFromNativeAction(context.nativeArgValues);
+            //prepareStructureTypeFromNativeAction(context.nativeArgValues);
             context.nativeArgValues = null;
             context.funcCallCPEntry = null;
             context.actionInfo = null;
         }
         exec();
+    }
+
+    public void execWorker(Context context, int startIP, int endIP) {
+        context.setStartIP(startIP);
+        this.workerEndIP = endIP;
+        run(context);
+//        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
+//        this.constPool = currentFrame.packageInfo.getConstPool();
+//        this.code = currentFrame.packageInfo.getInstructions();
+//
+//        this.context = context;
+//        this.controlStack = context.getControlStackNew();
+//        this.context.setVMBasedExecutor(true);
+//        this.ip = startIP;
+//        this.workerEndIP = endIP;
+//
+////        traceCode();
+//        exec();
     }
 
     /**
@@ -198,12 +234,13 @@ public class BLangVM {
         WorkerInvokeCPEntry workerInvokeCPEntry;
         WorkerReplyCPEntry workerReplyCPEntry;
         WorkerDataChannel workerDataChannel;
+        ForkJoinCPEntry forkJoinCPEntry;
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
 
         // TODO use HALT Instruction in the while condition
-        while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
+        while (ip >= 0 && ip < code.length && controlStack.fp >= 0 && (ip != workerEndIP)) {
 
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
@@ -931,19 +968,26 @@ public class BLangVM {
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
                     workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+                    BType[] types = workerRefCPEntry.getTypes();
 
                     cpIndex = operands[1];
                     workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
-                    invokeWorker(workerDataChannel, workerInvokeCPEntry);
+                    invokeWorker(workerDataChannel, workerInvokeCPEntry, types);
                     break;
                 case InstructionCodes.WRKREPLY:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
                     workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+                    types = workerRefCPEntry.getTypes();
 
                     cpIndex = operands[1];
                     workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
-                    replyWorker(workerDataChannel, workerReplyCPEntry);
+                    replyWorker(workerDataChannel, workerReplyCPEntry, types);
+                    break;
+                case InstructionCodes.FORKJOIN:
+                    cpIndex = operands[0];
+                    forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
+                    invokeForkJoin(forkJoinCPEntry);
                     break;
                 case InstructionCodes.NCALL:
                     cpIndex = operands[0];
@@ -1231,6 +1275,19 @@ public class BLangVM {
                         throw new BallerinaException("incompatible types");
                     }
                     break;
+                case InstructionCodes.ANY2MSG:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    bRefType = sf.refRegs[i];
+
+                    if (bRefType.getType() == BTypes.typeMessage) {
+                        sf.refRegs[j] = bRefType;
+                    } else {
+                        // TODO
+                        throw new BallerinaException("incompatible types");
+                    }
+                    break;
                 case InstructionCodes.NULL2JSON:
                     i = operands[0];
                     j = operands[1];
@@ -1419,6 +1476,7 @@ public class BLangVM {
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+        currentCallableUnitInfo = callableUnitInfo;
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
@@ -1440,36 +1498,198 @@ public class BLangVM {
 
     }
 
-    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
+    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry,
+                             BType[] types) {
         StackFrame currentFrame = controlStack.getCurrentFrame();
 
         // Extract the outgoing expressions
         BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
         copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
-                workerInvokeCPEntry.getbTypes(), arguments);
+                types, arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
         if (workerDataChannel != null) {
             workerDataChannel.putData(arguments);
+            workerDataChannel.setTypes(types);
+        } else {
+            BArray<BValue> bArray = new BArray<>(BValue.class);
+            for (int j = 0; j < arguments.length; j++) {
+                BValue returnVal = arguments[j];
+                bArray.add(j, returnVal);
+            }
+            controlStack.getCurrentFrame().returnValues[0] = bArray;
+        }
+    }
+
+    public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
+        ForkJoinStmt forkJoinStmt = forkJoinCPEntry.getForkJoinStmt();
+        List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
+        List<WorkerResult> resultMsgs = new ArrayList<>();
+        //Map<String, BRefValueArray> resultInvokeAll = new HashMap<>();
+        //BRefValueArray resultInvokeAny = null;
+        long timeout = 60; // Default timeout value is 60 seconds
+        if (forkJoinCPEntry.isTimeoutAvailable()) {
+            timeout = controlStack.getCurrentFrame().getLongRegs()[0];
         }
 
-//        else {
-//            BArray<BValue> bArray = new BArray<>(BValue.class);
-//            for (int j = 0; j < arguments.length; j++) {
-//                BValue returnVal = arguments[j];
-//                bArray.add(j, returnVal);
-//            }
-//            controlStack.setReturnValue(0, bArray);
+        Worker[] workers = forkJoinStmt.getWorkers();
+        Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
+        for (Worker worker : workers) {
+            Context workerContext = new Context();
+            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+            workerContext.setBalCallback(workerCallback);
+
+            StackFrame callerSF = controlStack.getCurrentFrame();
+            int[] argRegs = forkJoinCPEntry.getArgRegs();
+
+            ControlStackNew controlStack = workerContext.getControlStackNew();
+            StackFrame calleeSF = new StackFrame(currentCallableUnitInfo,
+                    forkJoinCPEntry.getWorkerInfo(worker.getName()), -1, new int[1]);
+            controlStack.pushFrame(calleeSF);
+
+            BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
+
+
+            // Copy arg values from the current StackFrame to the new StackFrame
+            // TODO fix this. Move the copyArgValues method to another util function
+           // BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+
+            BLangVM bLangVM = new BLangVM(programFile);
+            //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+            BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
+                    workerContext, forkJoinCPEntry.getWorkerInfo(worker.getName()));
+            workerRunnerList.add(workerRunner);
+            triggeredWorkers.put(worker.getName(), workerRunner);
+        }
+
+        if (forkJoinStmt.getJoin().getJoinType().equalsIgnoreCase("any")) {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for any of all the workers
+                resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
+                //resultMsgs.add(res);
+            } else {
+                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                resultMsgs.add(invokeAnyWorker(workerRunnersSpecified, timeout));
+                //resultMsgs.add(res);
+            }
+        } else {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for all of all the workers
+                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
+            } else {
+                List<BLangVMWorkers.WorkerExecutor> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout));
+            }
+        }
+
+        if (isForkJoinTimedOut) {
+            ip = forkJoinStmt.getTimeout().getIp();
+            // Execute the timeout block
+
+            int offsetTimeout = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
+                    getStackFrameOffset();
+            BMap<String, BRefValueArray> mbMap = new BMap<>();
+            for (WorkerResult workerResult : resultMsgs) {
+                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
+            }
+            controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
+
+            //controlStack.setValue(offsetTimeout, bbArray);
+            //forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
+            isForkJoinTimedOut = false;
+
+        } else {
+            ip = forkJoinStmt.getJoin().getIp();
+            if (forkJoinStmt.getTimeout().getIp() > 0) {
+                workerEndIP = forkJoinStmt.getTimeout().getIp();
+            }
+            // Assign values to join block message arrays
+            int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
+                    getStackFrameOffset();
+            BMap<String, BRefValueArray> mbMap = new BMap<>();
+            for (WorkerResult workerResult : resultMsgs) {
+                mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
+            }
+            controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
+            //controlStack.setValue(offsetJoin, bbArray);
+            //forkJoinStmt.getJoin().getJoinBlock().execute(this);
+        }
+
+//        for (WorkerInfo workerInfo : forkJoinCPEntry.getWorkerInfoMap().values()) {
+//            Context workerContext = new Context();
+//            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+//            workerContext.setBalCallback(workerCallback);
+//
+//            ControlStackNew controlStack = workerContext.getControlStackNew();
+//            StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
+//            controlStack.pushFrame(calleeSF);
+//
+//            // Copy arg values from the current StackFrame to the new StackFrame
+//            // TODO fix this. Move the copyArgValues method to another util function
+//            BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+//
+//            BLangVM bLangVM = new BLangVM(programFile);
+//            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+//            BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM, callableUnitInfo,
+//            workerContext, workerInfo);
+//            executor.submit(workerRunner);
 //        }
     }
 
-    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
+    private WorkerResult invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
+        ExecutorService anyExecutor = Executors.newWorkStealingPool();
+        WorkerResult result;
+        try {
+            result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        } catch (TimeoutException e) {
+            isForkJoinTimedOut = true;
+            return null;
+        }
+        return result;
+    }
+
+    private List<WorkerResult> invokeAllWorkers(List<BLangVMWorkers.WorkerExecutor> workerRunnerList,
+                                                         long timeout) {
+        ExecutorService allExecutor = Executors.newWorkStealingPool();
+        List<WorkerResult> result = new ArrayList<>();
+        try {
+            allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
+                try {
+                    return bMessageFuture.get();
+                } catch (CancellationException e) {
+                    // This means task has been timedout and cancelled by system.
+                    isForkJoinTimedOut = true;
+                    return null;
+                } catch (Exception e) {
+                    return null;
+                }
+
+            }).forEach((WorkerResult b) -> {
+                result.add(b);
+            });
+        } catch (InterruptedException e) {
+            return result;
+        }
+        return result;
+    }
+
+    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry, BType[] types) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
         //currentFrame.returnValues = passedInValues;
         copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
-                workerReplyCPEntry.getTypes(), passedInValues);
+                types, passedInValues);
 //        for (int i = 0; i < localVars.length; i++) {
 //            Expression lExpr = localVars[i];
 //            BValue rValue = passedInValues[i];
@@ -1549,6 +1769,41 @@ public class BLangVM {
                     currentSF.getRefRegs()[++refRegIndex] = (BRefType) passedInValues[i];
             }
         }
+    }
+
+    public static void copyValuesForForkJoin(StackFrame callerSF, StackFrame calleeSF, int[] argRegs) {
+        int longLocalVals = argRegs[0];
+        int doubleLocalVals = argRegs[1];
+        int stringLocalVals = argRegs[2];
+        int booleanLocalVals = argRegs[3];
+        int blobLocalVals = argRegs[4];
+        int refLocalVals = argRegs[5];
+
+        for (int i = 0; i <= longLocalVals; i++) {
+            calleeSF.getLongLocalVars()[i] = callerSF.getLongLocalVars()[i];
+        }
+
+        for (int i = 0; i <= doubleLocalVals; i++) {
+            calleeSF.getDoubleLocalVars()[i] = callerSF.getDoubleLocalVars()[i];
+        }
+
+        for (int i = 0; i <= stringLocalVals; i++) {
+            calleeSF.getStringLocalVars()[i] = callerSF.getStringLocalVars()[i];
+        }
+
+        for (int i = 0; i <= booleanLocalVals; i++) {
+            calleeSF.getIntLocalVars()[i] = callerSF.getIntLocalVars()[i];
+        }
+
+        for (int i = 0; i <= refLocalVals; i++) {
+            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
+        }
+
+        for (int i = 0; i <= blobLocalVals; i++) {
+            calleeSF.getByteLocalVars()[i] = callerSF.getByteLocalVars()[i];
+        }
+
+
     }
 
 
@@ -1648,9 +1903,6 @@ public class BLangVM {
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
-        // TODO : Remove after non blocking action usage
-        BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
-                actionInfo.getParamTypes());
 
         // TODO : Remove once we handle this properly for return values
         BType[] retTypes = actionInfo.getRetParamTypes();
@@ -1673,7 +1925,6 @@ public class BLangVM {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
                 context.programFile = programFile;
-                context.nativeArgValues = nativeArgValues;
                 context.funcCallCPEntry = funcCallCPEntry;
                 context.actionInfo = actionInfo;
                 BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
@@ -2048,7 +2299,7 @@ public class BLangVM {
             ip = -1;
             PrintStream err = System.err;
             err.println(BLangVMErrors.getPrintableStackTrace(context.getError()));
-            if (context.getCarbonMessage() != null) {
+            if (context.getServiceInfo() != null) {
                 // Invoke ServiceConnector error handler.
                 Object protocol = context.getCarbonMessage().getProperty("PROTOCOL");
                 Optional<ServerConnectorErrorHandler> optionalErrorHandler =

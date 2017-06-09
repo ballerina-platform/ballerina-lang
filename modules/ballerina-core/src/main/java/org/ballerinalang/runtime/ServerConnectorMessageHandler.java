@@ -20,6 +20,7 @@ package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -33,6 +34,7 @@ import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -117,10 +119,13 @@ public class ServerConnectorMessageHandler {
     public static void invokeResource(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
+        ProgramFile programFile = packageInfo.getProgramFile();
 
-        Context context = new Context();
-        ControlStackNew controlStackNew = context.getControlStackNew();
+        Context context = new Context(programFile);
+        context.setServiceInfo(serviceInfo);
+        context.setCarbonMessage(carbonMessage);
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
+        ControlStackNew controlStackNew = context.getControlStackNew();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
@@ -176,6 +181,10 @@ public class ServerConnectorMessageHandler {
         calleeSF.setStringLocalVars(stringLocalVars);
         calleeSF.setIntLocalVars(intLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
+
+        // Execute workers
+        int[] retRegs = {0};
+        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, calleeSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         bLangVM.run(context);

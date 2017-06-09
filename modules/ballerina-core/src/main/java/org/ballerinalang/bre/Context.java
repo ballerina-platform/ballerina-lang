@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -42,7 +43,7 @@ public class Context {
     private CarbonMessage cMsg;
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
-    private CallableUnitInfo serviceInfo;
+    private ServiceInfo serviceInfo;
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
 
@@ -58,13 +59,8 @@ public class Context {
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
 
+    @Deprecated
     public Context() {
-        this.controlStack = new ControlStack();
-        this.controlStackNew = new ControlStackNew();
-    }
-
-    public Context(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
@@ -87,6 +83,10 @@ public class Context {
         return this.cMsg;
     }
 
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
+    }
+
     public Object getProperty(String key) {
         return this.properties.get(key);
     }
@@ -107,11 +107,11 @@ public class Context {
         this.balCallback = balCallback;
     }
     
-    public CallableUnitInfo getServiceInfo() {
+    public ServiceInfo getServiceInfo() {
         return this.serviceInfo;
     }
 
-    public void setServiceInfo(CallableUnitInfo serviceInfo) {
+    public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
     }
 
