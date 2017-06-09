@@ -33,7 +33,7 @@ var DefaultBallerinaASTFactory = {};
 DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
     let serviceDef = BallerinaASTFactory.createServiceDefinition(args);
     let resourceDef = DefaultBallerinaASTFactory.createResourceDefinition(args);
-    serviceDef.addChild(resourceDef);
+    serviceDef.addChild(resourceDef, undefined, undefined, undefined, true);
     return serviceDef;
 };
 
