@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -25,6 +24,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -41,7 +41,7 @@ import java.io.PrintStream;
  */
 public class SystemTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
     private final String printFuncName = "testPrintAndPrintln";
 
     private PrintStream original;
@@ -53,7 +53,7 @@ public class SystemTest {
     public void setup() {
 //        rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         original = System.out;
-        bLangProgram = BTestUtils.parseBalFile("samples/systemTest.bal");
+        programFile = BTestUtils.getProgramFile("samples/systemTest.bal");
 //        rootLogger.().getLogger("org.ballerinalang.nativeimpl.model.system")
 //                .setLevel(Level.ALL);
     }
@@ -73,7 +73,7 @@ public class SystemTest {
             final String expected = s1 + "\n" + s2;
 
             BValueType[] args = {new BString(s1), new BString(s2)};
-            BLangFunctions.invoke(bLangProgram, printFuncName + "String", args);
+            BLangFunctions.invokeNew(programFile, printFuncName + "String", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -91,7 +91,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BInteger(v1), new BInteger(v2)};
-            BLangFunctions.invoke(bLangProgram, printFuncName + "Int", args);
+            BLangFunctions.invokeNew(programFile, printFuncName + "Int", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -109,7 +109,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BFloat(v1), new BFloat(v2)};
-            BLangFunctions.invoke(bLangProgram, printFuncName + "Float", args);
+            BLangFunctions.invokeNew(programFile, printFuncName + "Float", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -127,7 +127,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BBoolean(v1), new BBoolean(v2)};
-            BLangFunctions.invoke(bLangProgram, printFuncName + "Boolean", args);
+            BLangFunctions.invokeNew(programFile, printFuncName + "Boolean", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -141,7 +141,7 @@ public class SystemTest {
 //        rootLogger.addAppender(testLogAppender);
 //        try {
 //            BValueType[] args = {new BLong(100), new BDouble(10.1)};
-//            BLangFunctions.invoke(bLangProgram, "testLog", args);
+//            BLangFunctions.invoke(programFile, "testLog", args);
 //            // We are not expecting boolean log in event list.
 //            Assert.assertEquals(testLogAppender.getEvents().size(), 5, "Logging events didn't match.");
 //            Assert.assertEquals(testLogAppender.events.get(0).getLevel(), Level.TRACE);
@@ -156,7 +156,7 @@ public class SystemTest {
 
     @Test
     public void testFunctionTimes() {
-        BValue[] bValues = BLangFunctions.invoke(bLangProgram, "testTimeFunctions");
+        BValue[] bValues = BLangFunctions.invokeNew(programFile, "testTimeFunctions");
         // We are not expecting boolean log in event list.
         Assert.assertEquals(bValues.length, 3, "Return values didn't match.");
         Assert.assertTrue(bValues[0] != null);
@@ -166,7 +166,7 @@ public class SystemTest {
 
     @Test
     public void testFunctionDate() {
-        BValue[] bValues = BLangFunctions.invoke(bLangProgram, "testDateFunction");
+        BValue[] bValues = BLangFunctions.invokeNew(programFile, "testDateFunction");
         // We are not expecting boolean log in event list.
         Assert.assertEquals(bValues.length, 1, "Return values didn't match.");
         Assert.assertTrue(bValues[0] != null);
@@ -179,7 +179,7 @@ public class SystemTest {
         try {
             out = new java.io.ByteArrayOutputStream();
             System.setOut(new java.io.PrintStream(out));
-            BLangFunctions.invoke(bLangProgram, "printNewline");
+            BLangFunctions.invokeNew(programFile, "printNewline");
             String outPut = out.toString();
             Assert.assertNotNull(outPut, "string is not printed");
             //getting the last new line character
@@ -202,7 +202,7 @@ public class SystemTest {
             System.setOut(new PrintStream(outContent));
             final String pathValue = System.getenv("PATH");
             BValueType[] args = {new BString("PATH")};
-            BLangFunctions.invoke(bLangProgram, "getEnvVar", args);
+            BLangFunctions.invokeNew(programFile, "getEnvVar", args);
             Assert.assertEquals(outContent.toString(), pathValue);
         } finally {
             System.setOut(original);
@@ -214,7 +214,7 @@ public class SystemTest {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BValueType[] args = {new BString("PATH2")};
-            BLangFunctions.invoke(bLangProgram, "getEnvVar", args);
+            BLangFunctions.invokeNew(programFile, "getEnvVar", args);
             outContent.toString();
         } finally {
             System.setOut(original);
@@ -226,7 +226,7 @@ public class SystemTest {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BValueType[] args = {new BString("")};
-            BLangFunctions.invoke(bLangProgram, "getEnvVar", args);
+            BLangFunctions.invokeNew(programFile, "getEnvVar", args);
             outContent.toString();
         } finally {
             System.setOut(original);

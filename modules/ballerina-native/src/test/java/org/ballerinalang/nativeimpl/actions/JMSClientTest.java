@@ -34,12 +34,12 @@ import org.testng.annotations.Test;
  */
 public class JMSClientTest {
     private SymScope globalScope;
-    private ProgramFile bLangProgram;
+    private ProgramFile programFile;
     private boolean isNonBlockingEnabled;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("samples/jmsClientConnectorTest.bal");
+        programFile = BTestUtils.getProgramFile("samples/jmsClientConnectorTest.bal");
         globalScope = new SymScope(SymScope.Name.GLOBAL);
         BuiltInNativeConstructLoader.loadConstructs();
         isNonBlockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
@@ -51,7 +51,7 @@ public class JMSClientTest {
             expectedExceptionsMessageRegExp = ".*Connector parameters not defined correctly..*",
             enabled = false) // TODO: cannot initialize without loading external JMS client libraries
     public void testJMSClientConnectorWithoutValidInitialContextFactory() throws BallerinaException {
-        BLangFunctions.invokeNew(bLangProgram, "jmsClientConnectorTest");
+        BLangFunctions.invokeNew(programFile, "jmsClientConnectorTest");
     }
 
     @Test(description = "Test for jms client connector without valid message",
@@ -59,7 +59,7 @@ public class JMSClientTest {
             expectedExceptionsMessageRegExp = ".*If the message type is TextMessage, a string payload must be set.*",
     enabled = false) // TODO: cannot initialize without loading external JMS client libraries
     public void testJMSClientConnectorWithoutValidMessage() throws BallerinaException {
-        BLangFunctions.invokeNew(bLangProgram, "jmsSendNoMessageTest");
+        BLangFunctions.invokeNew(programFile, "jmsSendNoMessageTest");
     }
 
     @Test(description = "Test for jms client connector map message without data",
@@ -69,7 +69,7 @@ public class JMSClientTest {
                     "received jms map message*",
             enabled = false) // TODO: cannot initialize without loading external JMS client libraries
     public void testJMSClientConnectorMapMessageWithoutData() throws BallerinaException {
-        BLangFunctions.invokeNew(bLangProgram, "jmsSendMapMessageWithoutData");
+        BLangFunctions.invokeNew(programFile, "jmsSendMapMessageWithoutData");
     }
 
     @AfterClass

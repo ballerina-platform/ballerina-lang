@@ -17,9 +17,9 @@
 package org.ballerinalang.nativeimpl.actions;
 
 import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.nativeimpl.lang.system.PrintlnAny;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.annotations.BeforeClass;
 
 /**
@@ -27,12 +27,12 @@ import org.testng.annotations.BeforeClass;
  */
 public class NativeActionTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
     private SymScope globalScope;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/PassthroughService.bal");
+        programFile = BTestUtils.getProgramFile("samples/PassthroughService.bal");
 
         globalScope = new SymScope(SymScope.Name.GLOBAL);
 

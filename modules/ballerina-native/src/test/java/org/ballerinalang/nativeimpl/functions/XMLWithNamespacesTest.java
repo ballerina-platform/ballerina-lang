@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.nativeimpl.util.XMLUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.annotations.BeforeClass;
 
 /**
  * Test class for XML with namespaces.
  */
 public class XMLWithNamespacesTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
     private static String xmlMessage;
     BMap<BString, BString> namespaces = new BMap<>();
 
@@ -41,14 +41,14 @@ public class XMLWithNamespacesTest {
         // Define namespaces
         namespaces.put(new BString("soapenv"), new BString("http://schemas.xmlsoap.org/soap/envelope/"));
         namespaces.put(new BString("m0"), new BString("http://services.samples"));
-        bLangProgram = BTestUtils.parseBalFile("samples/xmlTestNamespaces.bal");
+        programFile = BTestUtils.getProgramFile("samples/xmlTestNamespaces.bal");
     }
 
 /*    @Test
     public void testGetString() {
         BValue[] args = {new BXML(xmlMessage), new BString
                 ("/m0:SampleMessage/m0:getQuote/m0:request/m0:symbol/text()"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getString", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "getString", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "IBM";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -57,7 +57,7 @@ public class XMLWithNamespacesTest {
     @Test
     public void testGetXML() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:SampleMessage/m0:getQuote"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getXML", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "getXML", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         OMElement returnElement = ((BXML) returns[0]).value();
         Assert.assertEquals(returnElement.toString(),
@@ -72,7 +72,7 @@ public class XMLWithNamespacesTest {
     public void testSetString() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:SampleMessage/m0:getQuote/m0:request/m0:symbol/text()")
                 , new BString("WSO2"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setString", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "setString", args);
         Assert.assertEquals(returns[0].stringValue(), "<m0:SampleMessage xmlns:m0=\"http://services.samples\">\n" +
                 "        <m0:getQuote>\n" +
                 "            <m0:request>\n" +
@@ -88,7 +88,7 @@ public class XMLWithNamespacesTest {
                 new BXML("<m0:request xmlns:m0=\"http://services.samples\">\n" +
                         "                <m0:symbol>WSO2</m0:symbol>\n" +
                         "            </m0:request>"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setXML", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "setXML", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         OMElement returnElement = ((BXML) returns[0]).value();
         //TODO Here the spaces are removed due to an implementation issue with the setXML function. Need to fix that.
@@ -106,7 +106,7 @@ public class XMLWithNamespacesTest {
     public void testAddElement() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:SampleMessage/m0:getQuote/m0:request"),
                 new BXML("<m0:stock xmlns:m0=\"http://services.samples\">NYSE</m0:stock>"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addElement", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "addElement", args);
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), "<m0:SampleMessage" +
                 "xmlns:m0=\"http://services.samples\">" +
                 "<m0:getQuote>" +
@@ -122,7 +122,7 @@ public class XMLWithNamespacesTest {
     public void testAddAttribute() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:SampleMessage/m0:getQuote"),
                 new BString("id"), new BString("person123"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addAttribute", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "addAttribute", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -143,7 +143,7 @@ public class XMLWithNamespacesTest {
     public void testRemove() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:SampleMessage/m0:getQuote/m0:request/m0:symbol")
                 , namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "remove", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "remove", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
 
@@ -161,19 +161,19 @@ public class XMLWithNamespacesTest {
     @Test(expectedExceptions = BallerinaException.class)
     public void testGetNonExistingString() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:xxx/text()"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "getString", args);
+        BLangFunctions.invoke(programFile, "getString", args);
     }
 
     @Test(expectedExceptions = BallerinaException.class)
     public void testGetNonExistingXML() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:xxx"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "getXML", args);
+        BLangFunctions.invoke(programFile, "getXML", args);
     }
 
     @Test
     public void testSetStringToNonExistingElement() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:xxx/text()"), new BString("Peter"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setString", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "setString", args);
         Assert.assertEquals(returns[0].stringValue().trim(), xmlMessage.trim());
     }
 
@@ -181,7 +181,7 @@ public class XMLWithNamespacesTest {
     public void testSetXMLToNonExistingElement() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:xxx"),
                 new BXML("<name><fname>Jack</fname><lname>Peter</lname></name>"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setXML", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "setXML", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         OMElement returnElement = ((BXML) returns[0]).value();
         Assert.assertEquals(returnElement.toString().trim(), xmlMessage.trim());
@@ -190,14 +190,14 @@ public class XMLWithNamespacesTest {
     @Test(expectedExceptions = BallerinaException.class)
     public void testAddElementToNonExistingElement() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:xxx"), new BXML("<address>wso2</address>"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "addElement", args);
+        BLangFunctions.invoke(programFile, "addElement", args);
     }
 
     @Test(expectedExceptions = BallerinaException.class)
     public void testAddAttributeToNonExistingElement() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:xxx"), new BString("id"), new BString("person123")
                 , namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addAttribute", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "addAttribute", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         OMElement returnElement = ((BXML) returns[0]).value();
         Assert.assertEquals(returnElement.toString(), xmlMessage);
@@ -206,7 +206,7 @@ public class XMLWithNamespacesTest {
     @Test
     public void testRemoveNonExistingElement() {
         BValue[] args = {new BXML(xmlMessage), new BString("/m0:xxx"), namespaces};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "remove", args);
+        BValue[] returns = BLangFunctions.invoke(programFile, "remove", args);
         Assert.assertEquals(returns[0].stringValue().trim(), xmlMessage.trim());
     }
 
@@ -214,46 +214,46 @@ public class XMLWithNamespacesTest {
     @Test(expectedExceptions = {BallerinaException.class})
     public void testGetStringFromMalformedXpath() {
         BValue[] args = {new BXML(xmlMessage), new BString("$worng#path"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "getString", args);
+        BLangFunctions.invoke(programFile, "getString", args);
     }
 
     @Test(expectedExceptions = {BallerinaException.class})
     public void testGetXMLFromMalformedXpath() {
         BValue[] args = {new BXML(xmlMessage), new BString("$worng#path"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "getXML", args);
+        BLangFunctions.invoke(programFile, "getXML", args);
     }
 
     @Test(expectedExceptions = {BallerinaException.class})
     public void testSetStringToMalformedXpath() {
         BValue[] args = {new BXML(xmlMessage), new BString("$worng#path"), new BString("Peter"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "setString", args);
+        BLangFunctions.invoke(programFile, "setString", args);
     }
 
     @Test(expectedExceptions = {BallerinaException.class})
     public void testSetXMLToMalformedXpath() {
         BValue[] args = {new BXML(xmlMessage), new BString("$worng#path"),
                 new BXML("<name><fname>Jack</fname><lname>Peter</lname></name>"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "setXML", args);
+        BLangFunctions.invoke(programFile, "setXML", args);
     }
 
     @Test(expectedExceptions = {BallerinaException.class})
     public void testAddElementToMalformedXpath() {
         BValue[] args = {new BXML(xmlMessage), new BString("$worng#path"), new BXML("<address>wso2</address>")
                 , namespaces};
-        BLangFunctions.invoke(bLangProgram, "addElement", args);
+        BLangFunctions.invoke(programFile, "addElement", args);
     }
 
     @Test(expectedExceptions = {BallerinaException.class})
     public void testAddAttributeToMalformedXpath() {
         BValue[] args = {new BXML(xmlMessage), new BString("$worng#path"), new BString("id"), new BString("person123")
                 , namespaces};
-        BLangFunctions.invoke(bLangProgram, "addAttribute", args);
+        BLangFunctions.invoke(programFile, "addAttribute", args);
     }
 
     @Test(expectedExceptions = {BallerinaException.class})
     public void testRemoveFromMalformedXpath() {
         BValue[] args = {new BXML(xmlMessage), new BString("$worng#path"), namespaces};
-        BLangFunctions.invoke(bLangProgram, "remove", args);
+        BLangFunctions.invoke(programFile, "remove", args);
     }
 */
 }
