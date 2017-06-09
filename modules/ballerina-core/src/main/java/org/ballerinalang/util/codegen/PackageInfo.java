@@ -64,6 +64,10 @@ public class PackageInfo {
         this.pkgPath = packageName;
     }
 
+    public String getPkgPath() {
+        return pkgPath;
+    }
+
     // CP
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
