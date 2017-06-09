@@ -36,7 +36,7 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception exception) {
         logger.error("Error in BLang parser rest service for composer", exception.getMessage());
         JsonObject entity = new JsonObject();
- break        entity.addProperty("errorMessage", "Error in BLang parser rest service for composer: " +
+        entity.addProperty("errorMessage", "Error in BLang parser rest service for composer: " +
                                            exception.getMessage());
         return Response.status(Response.Status.OK)
                 .entity(entity)
