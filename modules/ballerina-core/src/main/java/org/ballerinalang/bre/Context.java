@@ -25,8 +25,6 @@ import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -115,10 +113,6 @@ public class Context {
 
     public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
-    }
-
-    public void setCarbonMessage(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
     }
 
     public Object getServerConnectorProtocol() {
