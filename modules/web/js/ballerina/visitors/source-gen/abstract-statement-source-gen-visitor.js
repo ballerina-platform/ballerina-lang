@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import StatementVisitor from '../statement-visitor';
+import SourceGenUtil from './source-gen-util';
 
 /**
  * Constructor for the Abstract Source Generation Visitor for the statements
@@ -68,14 +69,13 @@ class AbstractStatementSourceGenVisitor extends StatementVisitor {
     }
 
     getCurrentPrecedingIndentation() {
-        return _.last(_.split(this.getParent().getGeneratedSource(), '\n'));
+        return SourceGenUtil.getTailingIndentation(this.getParent().getGeneratedSource());
     }
 
     replaceCurrentPrecedingIndentation(newIndentation) {
-        let tokens = _.split(this.getParent().getGeneratedSource(), '\n');
-        tokens.pop();
-        tokens.push(newIndentation);
-        this.getParent().setGeneratedSource(_.join(tokens, '\n'));
+        let newContent = SourceGenUtil
+            .replaceTailingIndentation(this.getParent().getGeneratedSource(), newIndentation);
+        this.getParent().setGeneratedSource(newContent);
     }
 }
 
