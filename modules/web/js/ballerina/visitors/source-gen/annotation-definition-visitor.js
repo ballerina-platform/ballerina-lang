@@ -37,9 +37,9 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
         if (annotationDefinition.getAttachmentPoints().length > 0) {
             constructedSourceSegment += 'attach';
             annotationDefinition.getAttachmentPoints().forEach((attachmentPoint, index) => {
-                constructedSourceSegment += annotationDefinition.getChildWSRegion('attachmentPoints.' + attachmentPoint, 0)
+                constructedSourceSegment += annotationDefinition.getChildWSRegion('attachmentPoints.children.' + attachmentPoint, 0)
                     + attachmentPoint
-                    + annotationDefinition.getChildWSRegion('attachmentPoints.' + attachmentPoint, 1);
+                    + annotationDefinition.getChildWSRegion('attachmentPoints.children.' + attachmentPoint, 1);
                 if (index  + 1 < annotationDefinition.getAttachmentPoints().length) {
                     constructedSourceSegment += ',';
                 }
