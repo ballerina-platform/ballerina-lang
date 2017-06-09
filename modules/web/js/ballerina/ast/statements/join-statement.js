@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class for Join clause in ballerina.
@@ -28,6 +29,7 @@ class JoinStatement extends Statement {
     constructor(args) {
         super('JoinStatement');
         this._joinType = _.get(args, 'joinType', 'all');
+        this._joinWorkers = _.get(args, 'joinWorkers', []);
         const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'message[]', name: 'm'});
         this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
     }
@@ -52,8 +54,38 @@ class JoinStatement extends Statement {
         }
     }
 
+    setJoinConditionFromString(cond, callback) {
+        const fragment = FragmentUtils.createJoinCondition(cond);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        this.initFromJson(parsedJson);
+    }
+
+    getJoinConditionString() {
+        return (this._joinType === 'any' ? 'some ' + this._joinCount : this._joinType) + ' ' + this._joinWorkers.join(',');
+    }
+
     getJoinType() {
         return this._joinType;
+    }
+
+    setJoinCount(count, options) {
+        if (!_.isNil(count)) {
+            this.setAttribute('_joinCount', count, options);
+        }
+    }
+
+    getJoinCount() {
+        return this._joinCount;
+    }
+
+    setJoinWorkers(workers, options) {
+        if (!_.isNil(workers)) {
+            this.setAttribute('_joinWorkers', workers, options);
+        }
+    }
+
+    getJoinWorkers() {
+        return this._joinWorkers;
     }
 
     setParameter(type, options) {
@@ -85,15 +117,23 @@ class JoinStatement extends Statement {
     initFromJson(jsonNode) {
         const self = this;
         self.setJoinType(jsonNode['join_type']);
+        self.setJoinCount(jsonNode['join_count']);
+        self.setJoinWorkers(jsonNode['join_workers']);
+
         const paramJsonNode = jsonNode['join_parameter'];
-        const paramASTNode = self.getFactory().createFromJson(paramJsonNode);
-        paramASTNode.initFromJson(paramJsonNode);
-        self.setParameter(paramASTNode);
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+        if (paramJsonNode) {
+            const paramASTNode = self.getFactory().createFromJson(paramJsonNode);
+            paramASTNode.initFromJson(paramJsonNode);
+            self.setParameter(paramASTNode);
+        }
+
+        if (jsonNode.children) {
+            _.each(jsonNode.children, function (childNode) {
+                let child = self.getFactory().createFromJson(childNode);
+                self.addChild(child);
+                child.initFromJson(childNode);
+            });
+        }
     }
 }
 

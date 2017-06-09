@@ -15,6 +15,13 @@ class FragmentUtils {
         };
     }
 
+    static createJoinCondition(sourceString) {
+        return {
+            expectedNodeType: 'join-condition',
+            source: sourceString
+        };
+    }
+
     static parseFragment(fragment) {
         var data = {};
         $.ajax({

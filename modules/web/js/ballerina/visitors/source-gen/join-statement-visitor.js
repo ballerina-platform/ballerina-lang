@@ -30,7 +30,7 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitJoinStatement(joinStatement) {
         this.node = joinStatement;
-        this.appendSource('join (' + joinStatement.getJoinType() + ') (' +
+        this.appendSource('join (' + joinStatement.getJoinConditionString() + ') (' +
             joinStatement.getParameter().getParameterDefinitionAsString() + '){\n');
         log.debug('Begin Visit Join Statement');
     }

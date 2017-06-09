@@ -37,7 +37,7 @@ class JoinStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit JoinStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
-        util.addParamDimenstion(node.getViewState(), node.getJoinType(), node.getParameterAsString(),
+        util.addParamDimenstion(node.getViewState(), node.getJoinConditionString(), node.getParameterAsString(),
             blockStatement.heading.width);
     }
 }

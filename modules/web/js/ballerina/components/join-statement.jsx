@@ -36,8 +36,8 @@ class JoinStatement extends React.Component {
             propertyType: 'text',
             key: 'Join Condition',
             model: props.model,
-            getterMethod: props.model.getJoinType,
-            setterMethod: props.model.setJoinType
+            getterMethod: props.model.getJoinConditionString,
+            setterMethod: props.model.setJoinConditionFromString
         };
         const parameterEditorOptions = {
             propertyType: 'text',
@@ -79,7 +79,7 @@ class JoinStatement extends React.Component {
                 <BlockStatementDecorator model={model} dropTarget={model} bBox={bBox} title={'Join'}
                                          parameterBbox={parameterBbox} utilities={addTimeoutBtn} undeletable={true}
                                          parameterEditorOptions={parameterEditorOptions}
-                                         expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
+                                         expression={{text: model.getJoinConditionString()}} editorOptions={this.editorOptions}>
                     {model.children.length > 0 &&
                     <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
                           className="join-lifeline"/> }
