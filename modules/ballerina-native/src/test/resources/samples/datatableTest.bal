@@ -1,6 +1,9 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
 import ballerina.lang.errors;
+import ballerina.lang.xmls;
+import ballerina.lang.jsons;
+
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -462,4 +465,49 @@ function testToXmlWithStruct()(xml) {
                 string_type from DataTable WHERE row_id = 1",parameters);
     result = <xml> df;
     return result;
+}
+
+
+function testToXmlWithinTransaction()(string, int){
+    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    int returnValue = 0;
+    string result;
+    try{
+        transaction{
+            sql:Parameter[] parameters=[];
+            datatable df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
+                WHERE row_id = 1", parameters);
+            xml xmlResult = <xml> df;
+            result = xmls:toString(xmlResult);
+        }aborted{
+            returnValue = -1;
+        }
+    }catch(errors:Error ex){
+        returnValue = -2;
+    }
+    return result, returnValue;
+}
+
+function testToJsonWithinTransaction()(string, int){
+    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    int returnValue = 0;
+    string result;
+    try{
+        transaction{
+            sql:Parameter[] parameters=[];
+            datatable df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
+                WHERE row_id = 1", parameters);
+            json jsonResult = <json> df;
+            result = jsons:toString(jsonResult);
+        }aborted{
+            returnValue = -1;
+        }
+    }catch(errors:Error ex){
+        returnValue = -2;
+    }
+    return result, returnValue;
 }

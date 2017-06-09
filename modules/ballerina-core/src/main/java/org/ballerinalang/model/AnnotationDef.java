@@ -284,7 +284,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         }
 
         /**
-         * Add an annotation attachment to the annotation
+         * Add an annotation attachment to the annotation.
          * 
          * @param annotation annotation attachment
          */

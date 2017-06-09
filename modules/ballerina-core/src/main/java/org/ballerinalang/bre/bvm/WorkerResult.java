@@ -20,7 +20,7 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BRefValueArray;
 
 /**
- * This class holds data about the result of a given worker
+ * This class holds data about the result of a given worker.
  */
 public class WorkerResult {
     private String workerName;

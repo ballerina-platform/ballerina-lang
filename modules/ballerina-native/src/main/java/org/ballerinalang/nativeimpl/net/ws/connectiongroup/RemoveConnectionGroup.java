@@ -30,7 +30,7 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Remove a connection group from {@link org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager}
+ * Remove a connection group from {@link org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager}.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",

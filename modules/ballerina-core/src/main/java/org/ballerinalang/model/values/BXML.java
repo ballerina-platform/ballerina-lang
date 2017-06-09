@@ -142,7 +142,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public abstract BXML<?> elements();
     
     /**
-     * Get all the elements-type items in the given sequence, that matches a given qualified name, 
+     * Get all the elements-type items in the given sequence, that matches a given qualified name.
      * 
      * @param qname qualified name of the element
      * @return All the elements-type items, that matches a given qualified name, from the this sequence.
