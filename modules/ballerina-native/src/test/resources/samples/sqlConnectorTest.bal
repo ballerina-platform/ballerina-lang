@@ -721,7 +721,7 @@ function testTransactonCommitted () (int, int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 300",
                                               parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);
@@ -765,7 +765,7 @@ function testTransactonHandlerOrder () (int, int, int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 400",
     parameters);
-    while (datatables:next(dt)) {
+    while (datatables:hasNext(dt)) {
         count = datatables:getInt(dt, 1);
     }
     datatables:close(dt);
@@ -790,7 +790,7 @@ function testTransactonWithoutHandlers () (int) {
     int count;
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 350",
                                               parameters);
-    while (datatables:next( dt)) {
+    while (datatables:hasNext( dt)) {
     count = datatables:getInt( dt, 1);
                        }
     datatables:close( dt);
