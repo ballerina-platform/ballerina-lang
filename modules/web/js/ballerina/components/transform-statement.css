@@ -36,7 +36,7 @@
     height: calc(100% - 200px);
     margin-top: 105px;
     margin-left: 20px;
-    background: #f3f3f3;
+    background: #fefefe;
     color: #3d3d3d;
     float: left;
     position: relative;
@@ -59,7 +59,7 @@
     height: calc(100% - 203px);
     margin-top: -2px;
     margin-right: 20px;
-    background: #f3f3f3;
+    background: #fefefe;
     color: #3d3d3d;
     position: relative;
     float: right;
@@ -82,8 +82,8 @@
     border-top: 1px;
     border-style: dotted none none none;
 }
-.variable:hover,
-.variable:hover > span {
+.variable-content:hover,
+.variable-content:hover > span {
     color: #f17b31 !important;
 }
 .variable-content{
