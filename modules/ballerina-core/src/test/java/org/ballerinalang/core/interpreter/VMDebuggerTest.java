@@ -21,12 +21,14 @@ import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -43,6 +45,9 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -59,23 +64,22 @@ public class VMDebuggerTest {
     private PrintStream original;
 
     private static void startDebug(NodeLocation[] breakPoints, NodeLocation[] expectedPoints, String[] debugCommand) {
-        DebugRunner debugRunner = new DebugRunner();
-        debugRunner.setup();
         DebugSessionObserverImpl debugSessionObserver = new DebugSessionObserverImpl();
-//        debugRunner.debugger.setDebugSessionObserver(debugSessionObserver);
-//        debugRunner.debugger.addDebugPoints(breakPoints);
+        DebugRunner debugRunner = new DebugRunner();
+        Context bContext = debugRunner.setup(debugSessionObserver, breakPoints);
 
-        debugRunner.start();
+        debugRunner.run();
+
+        bContext.getDebugInfoHolder().releaseLock();
 
         for (int i = 0; i <= expectedPoints.length; i++) {
+            debugSessionObserver.aquireSem();
             if (i < expectedPoints.length) {
-                debugSessionObserver.aquireSem();
                 Assert.assertEquals(debugSessionObserver.haltPosition, expectedPoints[i],
                         "Unexpected halt position for debug step " + (i + 1));
-                executeDebuggerCmd(debugRunner, debugCommand[i]);
+                executeDebuggerCmd(bContext, debugCommand[i]);
             } else {
-                debugSessionObserver.aquireSem();
-                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
+//                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
             }
         }
     }
@@ -90,19 +94,19 @@ public class VMDebuggerTest {
         return nodeLocations;
     }
 
-    private static void executeDebuggerCmd(DebugRunner debugRunner, String cmd) {
+    private static void executeDebuggerCmd(Context bContext, String cmd) {
         switch (cmd) {
             case STEP_IN:
-//                debugRunner.debugger.stepIn();
+                bContext.getDebugInfoHolder().stepIn();
                 break;
             case STEP_OVER:
-//                debugRunner.debugger.stepOver();
+                bContext.getDebugInfoHolder().stepOver();
                 break;
             case STEP_OUT:
-//                debugRunner.debugger.stepOut();
+                bContext.getDebugInfoHolder().stepOut();
                 break;
             case RESUME:
-//                debugRunner.debugger.resume();
+                bContext.getDebugInfoHolder().resume();
                 break;
             default:
                 throw new IllegalStateException("Unknown Command");
@@ -177,13 +181,12 @@ public class VMDebuggerTest {
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
-    static class DebugRunner extends Thread {
+    static class DebugRunner {
 
         ProgramFile programFile;
         Context bContext;
-//        BLangVMDebugger debugger;
 
-        void setup() {
+        Context setup(DebugSessionObserverImpl debugSessionObserver, NodeLocation[] breakPoints) {
             ModeResolver.getInstance().setNonblockingEnabled(true);
             String sourceFilePath = "samples/debug/testDebug.bal";
             Path path;
@@ -226,18 +229,19 @@ public class VMDebuggerTest {
                     defaultWorkerInfo, -1, new int[0]);
             stackFrame.getRefLocalVars()[0] = arrayArgs;
             controlStackNew.pushFrame(stackFrame);
-
-            BLangVM bLangVM = new BLangVM(programFile);
+            bContext.setDebugEnabled(true);
             bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-
-//            debugger = new BLangVMDebugger(programFile, bContext);
+            bContext.getDebugInfoHolder().setDebugSessionObserver(debugSessionObserver);
+            bContext.getDebugInfoHolder().addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
+            bContext.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+            return bContext;
         }
 
         private void startDebug() {
-//            debugger.run(bContext);
+            DebuggerExecutor executor = new DebuggerExecutor(programFile, bContext);
+            (new Thread(executor)).start();
         }
 
-        @Override
         public void run() {
             startDebug();
         }
