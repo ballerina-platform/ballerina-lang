@@ -118,9 +118,11 @@ public class ServerConnectorMessageHandler {
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
 
-        Context context = new Context();
-        ControlStackNew controlStackNew = context.getControlStackNew();
+        Context context = new Context(packageInfo.getProgramFile());
+        context.setServiceInfo(serviceInfo);
+        context.setCarbonMessage(carbonMessage);
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
+        ControlStackNew controlStackNew = context.getControlStackNew();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();

@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -42,7 +43,7 @@ public class Context {
     private CarbonMessage cMsg;
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
-    private CallableUnitInfo serviceInfo;
+    private ServiceInfo serviceInfo;
     private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
 
@@ -107,12 +108,16 @@ public class Context {
         this.balCallback = balCallback;
     }
     
-    public CallableUnitInfo getServiceInfo() {
+    public ServiceInfo getServiceInfo() {
         return this.serviceInfo;
     }
 
-    public void setServiceInfo(CallableUnitInfo serviceInfo) {
+    public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
+    }
+
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
     }
 
     public Object getServerConnectorProtocol() {
