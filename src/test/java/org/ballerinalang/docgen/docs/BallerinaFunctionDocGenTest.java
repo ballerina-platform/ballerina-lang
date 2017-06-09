@@ -90,35 +90,6 @@ public class BallerinaFunctionDocGenTest {
         }
     }
 
-    @Test(description = "Test a Bal file with functions that has same method signature and different arguments")
-    public void testBalWithSameFuncSignature() {
-        try {
-            Map<String, BLangPackage> docsMap =
-                    BallerinaDocGenerator.generatePackageDocsFromBallerina(
-                            resources + "balFuncWithSameSignature.bal");
-            Assert.assertNotNull(docsMap);
-            Assert.assertEquals(docsMap.size(), 1);
-            BallerinaDocGenTestUtils.printDocMap(docsMap);
-
-            BLangPackage doc = docsMap.get(".");
-            Collection<Function> functions = Arrays.asList(doc.getFunctions());
-            Assert.assertEquals(functions.size(), 2);
-
-            Iterator iterator = functions.iterator();
-            BallerinaFunction function = (BallerinaFunction) iterator.next();
-            Assert.assertEquals(function.getParameterDefs().length, 2);
-            Assert.assertEquals(function.getReturnParameters().length, 1);
-
-            BallerinaFunction function1 = (BallerinaFunction) iterator.next();
-            Assert.assertEquals(function1.getParameterDefs().length, 4);
-            Assert.assertEquals(function1.getReturnParameters().length, 2);
-        } catch (IOException e) {
-            Assert.fail();
-        } finally {
-            BallerinaDocGenTestUtils.cleanUp();
-        }
-    }
-    
     @Test(description = "Test a Bal file with a native function")
     public void testABalWithNativeFunction() {
         try {
