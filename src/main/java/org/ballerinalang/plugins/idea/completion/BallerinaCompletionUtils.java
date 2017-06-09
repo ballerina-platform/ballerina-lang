@@ -226,8 +226,8 @@ public class BallerinaCompletionUtils {
     }
 
 
-    @Nullable
-    public static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId) {
+    @NotNull
+    private static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId) {
         return (context, item) -> {
             Template template = TemplateSettings.getInstance().getTemplateById(templateId);
             Editor editor = context.getEditor();
@@ -545,7 +545,8 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which will be used to get imported packages
      */
-    static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+        String typeText = "package";
         Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
         for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
@@ -570,20 +571,21 @@ public class BallerinaCompletionUtils {
             if (aliasNode != null) {
                 LookupElementBuilder builder = LookupElementBuilder.create(aliasNode.getText())
                         .withTailText("(" + packagePath + ")", true)
-                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
                         .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             } else {
                 LookupElementBuilder builder = LookupElementBuilder.create(packageNameNode.getText())
                         .withTailText("(" + packagePath + ")", true)
-                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
                         .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             }
         }
     }
 
-    static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet,
+                                                          @NotNull PsiFile file) {
         // Get all imported packages in the current file.
         Map<String, String> importsMap = BallerinaPsiImplUtil.getAllImportsInAFile(file);
         // Get all packages in the resolvable scopes (project and libraries).
@@ -654,7 +656,7 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which is currently being edited
      */
-    static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
         List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(file.getContainingDirectory());
         addFunctionsAsLookups(resultSet, functions);
     }
@@ -723,7 +725,7 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which will be used to get structs
      */
-    static void addStructsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addStructsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
         List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(file);
         addStructsAsLookups(resultSet, structs);
     }
