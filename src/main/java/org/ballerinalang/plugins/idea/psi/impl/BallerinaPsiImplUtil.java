@@ -56,6 +56,7 @@ import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -728,21 +729,23 @@ public class BallerinaPsiImplUtil {
             return results;
         }
         // Get all variables from the context.
-        Collection<? extends PsiElement> variableDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
+        Collection<VariableDefinitionNode> variableDefinitions = PsiTreeUtil.findChildrenOfType(context,
+                VariableDefinitionNode.class);
         // Iterate through each definition.
-        for (PsiElement variableDefinition : variableDefinitions) {
+        for (VariableDefinitionNode variableDefinition : variableDefinitions) {
             if (variableDefinition == null) {
                 continue;
             }
             // If the variable definition or parent contains the PLACEHOLDER_STRING, then continue because that is
             // the node which we are currently editing.
-            if (variableDefinition.getText().contains(PLACEHOLDER_STRING) ||
-                    variableDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
+            if (variableDefinition.getText().contains(PLACEHOLDER_STRING)) {
                 continue;
             }
             // Add variables.
-            checkAndAddVariable(element, results, variableDefinition);
+            PsiElement nameIdentifier = variableDefinition.getNameIdentifier();
+            if (nameIdentifier != null) {
+                checkAndAddVariable(element, results, nameIdentifier);
+            }
         }
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
@@ -799,18 +802,24 @@ public class BallerinaPsiImplUtil {
         if (variableDefinitionNode == null) {
             handleVariableDefinition(element, results, variableDefinition);
         } else {
-            StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
-            if (statementNode != null) {
-                PsiElement prevSibling = statementNode.getPrevSibling();
-                if (prevSibling == null) {
-                    if (variableDefinition.getTextOffset() < statementNode.getTextOffset()) {
-                        results.add(variableDefinition);
-                    }
-                    return;
+            if (variableDefinition.getParent() instanceof ExpressionVariableDefinitionStatementNode) {
+                if (variableDefinition.getParent().getTextOffset() < variableDefinitionNode.getTextOffset()) {
+                    results.add(variableDefinition);
                 }
-                if (!prevSibling.getText().equals(variableDefinition.getParent().getText())) {
-                    if (statementNode.getTextOffset() > variableDefinition.getParent().getTextOffset()) {
-                        results.add(variableDefinition);
+            } else {
+                StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+                if (statementNode != null) {
+                    PsiElement prevSibling = statementNode.getPrevSibling();
+                    if (prevSibling == null) {
+                        if (variableDefinition.getTextOffset() < statementNode.getTextOffset()) {
+                            results.add(variableDefinition);
+                        }
+                        return;
+                    }
+                    if (!prevSibling.getText().equals(variableDefinition.getParent().getText())) {
+                        if (statementNode.getTextOffset() > variableDefinition.getParent().getTextOffset()) {
+                            results.add(variableDefinition);
+                        }
                     }
                 }
             }

@@ -69,7 +69,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
+import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
@@ -1524,7 +1524,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             return;
         }
         if (superParent instanceof StatementNode || superParent instanceof ForkJoinStatementNode
-                || superParent instanceof TransformStatementBodyNode) {
+                || superParent instanceof TransformStatementNode) {
             handleStatementNode(parameters, resultSet);
         } else if (superParent instanceof CompilationUnitNode) {
             // This can be called depending on the caret location.

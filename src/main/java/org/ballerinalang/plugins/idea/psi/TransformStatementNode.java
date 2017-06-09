@@ -24,9 +24,9 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TransformStatementBodyNode extends ANTLRPsiNode  implements ScopeNode {
+public class TransformStatementNode extends ANTLRPsiNode  implements ScopeNode {
 
-    public TransformStatementBodyNode(@NotNull ASTNode node) {
+    public TransformStatementNode(@NotNull ASTNode node) {
         super(node);
     }
 

@@ -214,13 +214,11 @@ statement
     ;
 
 transformStatement
-    :   'transform' '{' transformStatementBody* '}'
+    :   'transform' '{' transformStatementBody '}'
     ;
 
 transformStatementBody
-    :   expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
+    :   (expressionAssignmentStatement | expressionVariableDefinitionStatement | transformStatement)*
     ;
 
 expressionAssignmentStatement

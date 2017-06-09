@@ -1412,9 +1412,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("action");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
+
     public void testConnectorBodyAfterAnnotation() {
         doTest("connector C(){ @test:test{} <caret> }", "action");
     }
+
     public void testConnectorBodyVariableDeclarationPackage() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; struct TEST {}");
         doCheckResult("test.bal", "import org.test; connector C(){ te<caret> }",
@@ -1847,9 +1849,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("a");
+        expectedLookups.add("b");
+        expectedLookups.add("g");
         expectedLookups.add("any");
         expectedLookups.add("test");
-        doTest("function test(){ int a = 10; transform { <caret> } }",
+        doTest("int g = 1; function test(){ int a = 10; transform { int b = 5; <caret> } }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
