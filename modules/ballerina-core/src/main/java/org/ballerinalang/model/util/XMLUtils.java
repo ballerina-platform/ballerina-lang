@@ -285,9 +285,9 @@ public class XMLUtils {
      * @param dataTable {@link BDataTable} to convert
      * @return converted {@link BXML}
      */
-    public static BXML datatableToXML(BDataTable dataTable) {
+    public static BXML datatableToXML(BDataTable dataTable, boolean isInTransaction) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null));
+        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null, isInTransaction));
         return new BXMLItem(omSourcedElement);
     }
 }
