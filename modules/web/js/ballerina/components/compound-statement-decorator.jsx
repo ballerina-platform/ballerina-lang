@@ -27,9 +27,9 @@ class CompoundStatementDecorator extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        const {dragDropManager} = context;
-        dragDropManager.on('drag-start', this.startDropZones.bind(this));
-        dragDropManager.on('drag-stop', this.stopDragZones.bind(this));
+
+        this.startDropZones = this.startDropZones.bind(this)
+        this.stopDragZones = this.stopDragZones.bind(this)
 
         this.state = {
             innerDropZoneActivated: false,
@@ -37,6 +37,18 @@ class CompoundStatementDecorator extends React.Component {
             innerDropZoneExist: false,
             active: 'hidden'
         };
+    }
+
+    componentDidMount() {
+        const {dragDropManager} = this.context;
+        dragDropManager.on('drag-start', this.startDropZones);
+        dragDropManager.on('drag-stop', this.stopDragZones);
+    }
+
+    componentWillUnmount() {
+        const {dragDropManager} = this.context;
+        dragDropManager.off('drag-start', this.startDropZones);
+        dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
     startDropZones() {

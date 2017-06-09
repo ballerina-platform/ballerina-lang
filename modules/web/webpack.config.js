@@ -3,16 +3,13 @@ var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFilesWebpackPlugin;
 
-var extractThemes = new ExtractTextPlugin('./themes/[name].css');
+var extractThemes = new ExtractTextPlugin('./[name].css');
 var extractCSSBundle = new ExtractTextPlugin('./bundle.css');
 
-var config = {
+var config = [{
     entry: {
         bundle: './index.js',
-        'worker-ballerina': './js/ballerina/utils/ace-worker.js',
-        default: './scss/themes/default.scss',
-        light: './scss/themes/light.scss',
-        dark: './scss/themes/dark.scss',
+        'worker-ballerina': './js/ballerina/utils/ace-worker.js'
     },
     output: {
         filename: '[name].js',
@@ -21,7 +18,7 @@ var config = {
     module: {
         rules: [{
             test: /\.js$/,
-            exclude: /(node_modules|modules\/web\/lib)/,
+            exclude: /(node_modules|modules\/web\/lib\/scss)/,
             use: [
                 {
                     loader: 'babel-loader',
@@ -36,23 +33,6 @@ var config = {
             use: [ {
                 loader: 'html-loader'
             }]
-        },
-        {
-            test: /\.scss$/,
-            use: extractThemes.extract({
-                fallback: "style-loader",
-                use: [{
-                    loader: "css-loader",
-                    options: {
-                        sourceMap: true
-                    }
-                }, {
-                    loader: "sass-loader",
-                    options: {
-                        sourceMap: true
-                    }
-                }]
-            })
         },
         {
             test: /\.css$/,
@@ -72,7 +52,7 @@ var config = {
         },
         {
             test: /\.jsx$/,
-            exclude: /(node_modules|modules\/web\/lib)/,
+            exclude: /(node_modules|modules\/web\/lib\/scss)/,
             use: [
                 {
                     loader: 'babel-loader',
@@ -86,7 +66,6 @@ var config = {
     },
     plugins: [
         extractCSSBundle,
-        extractThemes,
         new UnusedFilesWebpackPlugin({
             pattern: 'js/**/*.*',
             globOptions: {
@@ -151,10 +130,45 @@ var config = {
         }
     }
 
-};
+}, {
+   entry: {
+        default: "./scss/themes/default.scss",
+        light: "./scss/themes/light.scss",
+        dark: "./scss/themes/dark.scss"
+    },
+    output: {
+        filename: "[name].css",
+        path: path.resolve(__dirname, "dist/themes/")
+    },
+    module: {
+        rules: [
+            {
+                test: /\.scss$/,
+                use: extractThemes.extract({
+                    fallback: "style-loader",
+                    use: [{
+                        loader: "css-loader",
+                        options: {
+                            sourceMap: true
+                        }
+                    }, {
+                        loader: "sass-loader",
+                        options: {
+                            sourceMap: true
+                        }
+                    }]
+                })
+            }
+        ]
+    },
+    plugins: [
+        extractThemes
+    ],
+    devtool: 'source-map'
+}];
 
 if (process.env.NODE_ENV === 'production') {
-    config.plugins.push(new webpack.DefinePlugin({
+    config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(true),
 
       // React does some optimizations to it if NODE_ENV is set to 'production'
@@ -165,28 +179,28 @@ if (process.env.NODE_ENV === 'production') {
 
   // Add UglifyJsPlugin only when we build for production.
   // uglyfying slows down webpack build so we avoid in when in development
-    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    config[0].plugins.push(new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
         mangle: { keep_fnames: true}
     }));
 
 }else{
-    config.plugins.push(new webpack.DefinePlugin({
+    config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(false)
     }));
 }
 
 if (process.env.NODE_ENV === 'test') {
   // we run tests on nodejs. So compile for nodejs
-    config.target = 'node';
+    config[0].target = 'node';
 }
 
 if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
   // we run tests on nodejs. So compile for nodejs
-    config.target = 'electron-renderer';
+    config[0].target = 'electron-renderer';
 
   // reassign entry so it uses the entry point for the electron app
-    config.entry = {
+    config[0].entry = {
         bundle: './electron-index.js'
     };
 }

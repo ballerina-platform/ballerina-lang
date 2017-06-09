@@ -1,0 +1,9 @@
+.add-timeout-button {
+    fill: #999;
+    cursor: pointer;
+}
+
+.add-timeout-button-label {
+    dominant-baseline: central;
+    cursor: pointer;
+}

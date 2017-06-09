@@ -148,6 +148,19 @@ class SizingUtil {
         viewState.components = components;
     }
 
+    addParamDimenstion(viewState, expression, param, offset) {
+        const components = viewState.components;
+        const paramW = util.getTextWidth(param, 3);
+        components['param'] = new SimpleBBox(0, 0, paramW.w, 0);
+        components['param'].text = paramW.text;
+        const joinTypeW = util.getTextWidth(expression, 3);
+        const widthOfText = paramW.w + joinTypeW.w + offset +
+            blockStatement.heading.paramSeparatorOffsetX + blockStatement.heading.paramSeparatorOffsetX +
+            blockStatement.heading.paramEndOffsetX;
+        viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
+
+    }
+
     populatePanelDecoratorBBox(node, name) {
         let viewState = node.getViewState();
         let components = {};

@@ -389,6 +389,10 @@ class StatementVisitor extends ASTVisitor {
         return false;
     }
 
+    canVisitForkJoinStatement(statement) {
+        return false;
+    }
+
     beginVisitCommentStatement(statement) {
     }
 

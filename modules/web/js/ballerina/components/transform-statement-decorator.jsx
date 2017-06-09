@@ -185,13 +185,13 @@ class TransformStatementDecorator extends React.Component {
         var transformIndex = this.props.model.parent.getIndexOfChild(this.props.model);
         _.forEach(this.props.model.parent.getVariableDefinitionStatements(), variableDefStmt => {
             var currentIndex = this.props.model.parent.getIndexOfChild(variableDefStmt);
-            var structInfo = variableDefStmt.getLeftExpression().split(' ');
             var isStruct = false;
                //Checks struct defined before the transform statement
             if(currentIndex < transformIndex) {
                 _.forEach(this._package.getStructDefinitions(), predefinedStruct => {
-                    if (structInfo[0] ==  predefinedStruct.getStructName()) {
-                        var struct = self.createType(structInfo[1], structInfo[0], predefinedStruct);
+                    if (variableDefStmt.children[0].getVariableType() ==  predefinedStruct.getStructName()) {
+                        var struct = self.createType(variableDefStmt.children[0].getVariableName(),
+                                                        variableDefStmt.children[0].getVariableType(),predefinedStruct);
                         self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
                         self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
                         isStruct = true;
@@ -201,9 +201,8 @@ class TransformStatementDecorator extends React.Component {
                 if(!isStruct) {
                     var variableType = {};
                     variableType.id = variableDefStmt.id;
-                    var varInfo = variableDefStmt.getLeftExpression().split(' ');
-                    variableType.name  = varInfo[1];
-                    variableType.type = varInfo[0];
+                    variableType.name  = variableDefStmt.children[0].getVariableName();
+                    variableType.type = variableDefStmt.children[0].getVariableType();
                     self.predefinedStructs.push(variableType);
                     self.loadSchemaToComboBox(sourceId, variableType.name, variableType.type);
                     self.loadSchemaToComboBox(targetId, variableType.name, variableType.type);
@@ -356,11 +355,11 @@ class TransformStatementDecorator extends React.Component {
         this.transformOverlayDiv.style.display = 'block';
 
         _.forEach(self.props.model.getInput(), input => {
-            self.setSource(input.getExpression(), self.predefinedStructs);
+            self.setSource(input.getExpressionString(), self.predefinedStructs);
         });
 
         _.forEach(self.props.model.getOutput(), output => {
-            self.setTarget(output.getExpression(), self.predefinedStructs);
+            self.setTarget(output.getExpressionString(), self.predefinedStructs);
         });
 
         _.forEach(this.props.model.getChildren(), statement => {
@@ -521,9 +520,8 @@ class TransformStatementDecorator extends React.Component {
 
         _.forEach(predefinedStruct.getVariableDefinitionStatements(), stmt => {
             var property = {};
-            var structPopInfo = stmt.getLeftExpression().split(' ');
-            property.name  = structPopInfo[1];
-            property.type  = structPopInfo[0];
+            property.name  = stmt.children[0].getVariableName();
+            property.type  = stmt.children[0].getVariableType();
 
             var innerStruct = _.find(self._package.getStructDefinitions(), { _structName:property.type});
             if (innerStruct != null) {
@@ -565,7 +563,7 @@ class TransformStatementDecorator extends React.Component {
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
-        let statementRectClass = 'transform-statement-rect';
+        let statementRectClass = 'statement-rect';
         if (model.isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }

@@ -37,46 +37,68 @@ class AnnotationDefinition extends ASTNode {
         }
         this.whiteSpace.defaultDescriptor.children = {
             'attachmentPoints': {
-                'service': {
-                    0: ' ',
-                    1: ''
-                },
-                'resource': {
-                    0: ' ',
-                    1: ''
-                },
-                'connector': {
-                    0: ' ',
-                    1: ''
-                },
-                'action': {
-                    0: ' ',
-                    1: ''
-                },
-                'function': {
-                    0: ' ',
-                    1: ''
-                },
-                'typemapper': {
-                    0: ' ',
-                    1: ''
-                },
-                'struct': {
-                    0: ' ',
-                    1: ''
-                },
-                'const': {
-                    0: ' ',
-                    1: ''
-                },
-                'parameter': {
-                    0: ' ',
-                    1: ''
-                },
-                'annotation': {
-                    0: ' ',
-                    1: ''
-                },
+                children: {
+                    'service': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'resource': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'connector': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'action': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'function': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'typemapper': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'struct': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'const': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'parameter': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'annotation': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    }
+                }
             }
         }
     }

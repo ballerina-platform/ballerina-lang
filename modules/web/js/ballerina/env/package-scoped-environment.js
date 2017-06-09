@@ -22,11 +22,13 @@ import Environment from './environment';
 class PackageScopedEnvironment {
     constructor(args) {
         this._packages = _.get(args, 'packages', []);
+        this._types = _.get(args, 'types', []);
         this.init();
     }
 
     init() {
         this._packages = _.union(this._packages, Environment.getPackages());
+        this._types = _.union(this._types, Environment.getTypes());
         this._currentPackage = new Package({ name: 'Current Package' });
         this._packages.push(this._currentPackage);
     }
@@ -41,7 +43,7 @@ class PackageScopedEnvironment {
 
     getCurrentPackage() {
         return this._currentPackage;
-    }
+    }  
 
     resetCurrentPackage() {
         this._currentPackage = new Package({ name: 'Current Package' });
@@ -53,6 +55,15 @@ class PackageScopedEnvironment {
     getPackages() {
         return this._packages;
     }
+
+    /**
+     * @return {[Package]}
+     */
+    getFilteredPackages(excludes) {
+        return this._packages.filter((item)=>{
+            return _.isEmpty(_.find(excludes, item.getName()));
+        });
+    }    
 
     getPackageByName(packageName) {
         if (_.isEqual(packageName, 'Current Package')) {
@@ -74,6 +85,17 @@ class PackageScopedEnvironment {
             return (existing.length == 0) && new RegExp(search_text.toUpperCase()).exec(pckg.getName().toUpperCase());
         });
         return result;
+    }
+
+    /**
+     * get available types for this environment including struct types
+     * @returns {String[]}
+     */
+    getTypes() {
+        let structs = this.getCurrentPackage().getStructDefinitions().map(function(struct){
+            return struct.getStructName();
+        });
+        return _.union(this._types, structs);
     }
 }
 

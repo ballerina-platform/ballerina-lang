@@ -31,7 +31,19 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
 
     beginVisitAnnotationDefinition(annotationDefinition) {
         let useDefaultWS = annotationDefinition.whiteSpace.useDefault;
-        let constructedSourceSegment = (useDefaultWS) ? ('\n' + this.getIndentation()) : '' ;
+
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
+        let constructedSourceSegment = '';
+        _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += annotationNode.toString()
+                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+            }
+        });
+        
         constructedSourceSegment += 'annotation' + annotationDefinition.getWSRegion(0)
             + annotationDefinition.getAnnotationName() + annotationDefinition.getWSRegion(1);
         if (annotationDefinition.getAttachmentPoints().length > 0) {

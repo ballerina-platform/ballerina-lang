@@ -111,7 +111,7 @@ class StructDefinition extends React.Component {
           bBox: bBox,
           display: true,
           initialValue: currentSelection || "",
-          options: renderingContext.environment.getTypes(),
+          options: renderingContext.packagedScopedEnvironemnt.getTypes(),
           onChange(value){
               if(model) {
                   model.setBType(value);

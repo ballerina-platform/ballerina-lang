@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import {util} from './../sizing-utils';
-import SimpleBBox from './../../ast/simple-bounding-box';
+import {blockStatement} from '../../configs/designer-defaults';
 
 class JoinStatementDimensionCalculatorVisitor {
 
@@ -37,10 +37,8 @@ class JoinStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit JoinStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
-        const viewState = node.getViewState();
-        const components = viewState.components;
-        const paramW = util.getTextWidth(node.getParameterAsString(), 3);
-        components['param'] = new SimpleBBox(0, 0, paramW, 0);
+        util.addParamDimenstion(node.getViewState(), node.getJoinType(), node.getParameterAsString(),
+            blockStatement.heading.width);
     }
 }
 

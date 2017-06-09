@@ -20,6 +20,7 @@ import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import {util} from './../sizing-utils';
+import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 class AnnotationDefinitionDimensionCalculatorVisitor {
     canVisit(node) {
@@ -50,9 +51,11 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
      * */
     getMaxWidthOfChildren(node) {
         let maxWidthAmongChildren = 0;
-        node.children.forEach(function (child, index) {
-            if (maxWidthAmongChildren < child.viewState.textLength.w) {
-                maxWidthAmongChildren = child.viewState.textLength.w;
+        node.children.forEach(child => {
+            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+                if (maxWidthAmongChildren < child.viewState.textLength.w) {
+                    maxWidthAmongChildren = child.viewState.textLength.w;
+                }
             }
         });
         return maxWidthAmongChildren;
@@ -66,17 +69,19 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         let bodyHeight = node.viewState.components['body'].h;
         let bodyWidth = node.viewState.components['body'].w;
         let maxWidthAmongChildren = this.getMaxWidthOfChildren(node);
-        node.children.forEach(function (child, index) {
-            bodyHeight += child.viewState.bBox.h
-                + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
-
-            if (maxWidthAmongChildren > child.viewState.bBox.w) {
-                child.viewState.bBox.w = maxWidthAmongChildren
+        node.children.forEach(child => {
+            if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
+                bodyHeight += child.viewState.bBox.h
                     + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
-            }
 
-            if (child.viewState.bBox.w > bodyWidth) {
-                bodyWidth = child.viewState.bBox.w;
+                if (maxWidthAmongChildren > child.viewState.bBox.w) {
+                    child.viewState.bBox.w = maxWidthAmongChildren
+                        + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
+                }
+
+                if (child.viewState.bBox.w > bodyWidth) {
+                    bodyWidth = child.viewState.bBox.w;
+                }
             }
         });
 

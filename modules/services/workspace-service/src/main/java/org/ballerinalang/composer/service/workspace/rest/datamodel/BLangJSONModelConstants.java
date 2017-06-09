@@ -363,6 +363,8 @@ public class BLangJSONModelConstants {
 
     public static final String JOIN_PARAMETER = "join_parameter";
 
+    public static final String TIMEOUT_PARAMETER = "timeout_parameter";
+
     public static final String IS_NATIVE = "is_native";
 
     public static final String SIMPLE_TYPE_NAME = "simple_type_name";
