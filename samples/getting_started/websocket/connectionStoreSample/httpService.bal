@@ -22,4 +22,13 @@ service<http> dataService {
         messages:setStringPayload(res, "done");
         reply res;
     }
+
+    @http:GET {}
+    @http:Path {value:"/close/{id}"}
+    resource deleteConnection (message m, @http:PathParam {value:"id"} string id) {
+        ws:closeStoredConnection(id);
+        message res = {};
+        messages:setStringPayload(res, "done");
+        reply res;
+    }
 }

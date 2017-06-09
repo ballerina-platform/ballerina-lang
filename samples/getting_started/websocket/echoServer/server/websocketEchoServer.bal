@@ -14,7 +14,11 @@ service<ws> websocketEchoServer {
 
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
-        ws:pushText(messages:getStringPayload(m));
+        string stringPayload = messages:getStringPayload(m);
+        if ("closeMe" == stringPayload) {
+            ws:closeConnection(); // Close connection from server side
+        }
+        ws:pushText();
         system:println("client: " + messages:getStringPayload(m));
     }
 

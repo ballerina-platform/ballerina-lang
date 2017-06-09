@@ -43,4 +43,22 @@ service<http> oddEvenHttpService {
         messages:setStringPayload(res, "done");
         reply res;
     }
+
+    @http:GET {}
+    @http:Path {value:"/close-even"}
+    resource closeEven (message m) {
+        ws:closeConnectionGroup(oddWebSocketConnectionGroupName);
+        message res = {};
+        messages:setStringPayload(res, "done");
+        reply res;
+    }
+
+    @http:GET {}
+    @http:Path {value:"/close-odd"}
+    resource closeOdd (message m) {
+        ws:closeConnectionGroup(oddWebSocketConnectionGroupName);
+        message res = {};
+        messages:setStringPayload(res, "done");
+        reply res;
+    }
 }
