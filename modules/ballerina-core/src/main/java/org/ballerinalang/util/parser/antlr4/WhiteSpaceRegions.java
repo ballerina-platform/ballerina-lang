@@ -353,5 +353,6 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in abort statement
     public static final int ABORT_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 1;
+    public static final int ABORT_STMT_ABORT_KEYWORD_TO_END = 1;
+    public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 2;
 }
