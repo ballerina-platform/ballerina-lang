@@ -21,6 +21,7 @@ package org.ballerinalang.services.dispatchers.uri.parser;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,8 +55,8 @@ public abstract class Node {
         return node;
     }
 
-    public ResourceInfo matchAll(String uriFragment, Map<String, String> requestDetails,
-            Map<String, String> variables, int start) {
+    public ResourceInfo matchAll(String uriFragment, Map<String, String> variables, CarbonMessage carbonMessage,
+            int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -70,23 +71,24 @@ public abstract class Node {
                     if (regex.equals("*")) {
                         regex = "." + regex;
                         if (subPath.matches(regex)) {
-                            resource = childNode.matchAll(subUriFragment, requestDetails,
-                                    variables, start + matchLength);
+                            resource = childNode.matchAll(subUriFragment, variables,
+                                    carbonMessage, start + matchLength);
                             if (resource != null) {
                                 return resource;
                             }
                         }
                     } else {
                         if (subPath.contains(regex)) {
-                            resource = childNode.matchAll(subUriFragment, requestDetails,
-                                    variables, start + matchLength);
+                            resource = childNode.matchAll(subUriFragment, variables, carbonMessage,
+                                    start + matchLength);
                             if (resource != null) {
                                 return resource;
                             }
                         }
                     }
                 } else {
-                    resource = childNode.matchAll(subUriFragment, requestDetails, variables, start + matchLength);
+                    resource = childNode.matchAll(subUriFragment, variables, carbonMessage,
+                            start + matchLength);
                     if (resource !=  null) {
                         return resource;
                     }
@@ -96,26 +98,26 @@ public abstract class Node {
             return null;
         }
         else if (matchLength == uriFragment.length()) {
-            return getResource(requestDetails);
+            return getResource(carbonMessage);
         } else {
             return null;
         }
     }
 
-    public ResourceInfo getResource(Map<String, String> requestDetails) {
-        try {
-            for (ResourceInfo resourceInfo : this.resource) {
-                if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                        requestDetails.get(Constants.HTTP_METHOD)) != null) {
-                    return resourceInfo;
-                }
+    public ResourceInfo getResource(CarbonMessage carbonMessage) {
+        String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
+        for (ResourceInfo resourceInfo : this.resource) {
+            if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
+                return resourceInfo;
             }
-            return tryMatchingToDefaultVerb(requestDetails);
-        } catch(Exception e) {
-            requestDetails.put(Constants.HTTP_STATUS_CODE, "404");
-            throw new BallerinaException("Method :"+ requestDetails.get(Constants.HTTP_METHOD));
         }
-    }
+        ResourceInfo resource = tryMatchingToDefaultVerb(httpMethod);
+        if (resource == null) {
+            carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
+            throw new BallerinaException();
+        }
+        return resource;
+        }
 
     public void setResource(ResourceInfo newResource) {
         if (isFirstTraverse) {
@@ -194,8 +196,8 @@ public abstract class Node {
         return subPath;
     }
 
-    private ResourceInfo tryMatchingToDefaultVerb(Map<String, String> requestDetails) {
-        if ("GET".equalsIgnoreCase(requestDetails.get(Constants.HTTP_METHOD))) {
+    private ResourceInfo tryMatchingToDefaultVerb(String method) {
+        if ("GET".equalsIgnoreCase(method)) {
             for (ResourceInfo resourceInfo : this.resource) {
                 boolean isMethodAnnotationFound = false;
                 for (String httpMethod : this.httpMethods) {
@@ -209,7 +211,6 @@ public abstract class Node {
                 }
             }
         }
-        requestDetails.put(Constants.HTTP_STATUS_CODE,"405");
         return null;
     }
 }

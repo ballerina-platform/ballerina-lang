@@ -70,12 +70,12 @@ public class UriTemplateDispatcherTest {
         cMsg.setHeader(xOrderIdHeadeName, xOrderIdHeadeValue);
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertEquals(
-                response.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE), 500,
+                response.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE), 404,
                 "Response code mismatch");
         Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
         //checking the exception message
         String errorMessage = response.getMessageDataSource().getMessageAsString();
-        Assert.assertTrue(errorMessage.contains("no resource found to handle the request to Service"),
+        Assert.assertTrue(errorMessage.contains("no matching resource found for path"),
                 "Expected error not found.");
     }
 

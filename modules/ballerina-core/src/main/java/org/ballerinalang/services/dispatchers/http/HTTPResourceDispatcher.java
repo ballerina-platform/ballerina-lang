@@ -23,6 +23,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
+import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,8 +56,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         try {
             requestDetails.put(Constants.HTTP_METHOD, method);
 
-            ResourceInfo resource = service.getUriTemplate().matches(subPath, requestDetails,
-                    resourceArgumentValues);
+            ResourceInfo resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
             if (resource != null) {
                 if (cMsg.getProperty(Constants.QUERY_STR) != null) {
                     QueryParamProcessor.processQueryParams
@@ -64,20 +65,16 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 }
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
-            } else if (setStatusCode(cMsg, requestDetails, "405")) {
-                // Set Method Not Allowed for incorrect methods
-                throw new BallerinaException("");
-            } else {
-                // Throw when resource is null
-                cMsg.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 404);
-                throw new BallerinaException("for Path : " + subPath + " , Method : " + method);
             }
-        } catch (Throwable e) {
-            setStatusCode(cMsg, requestDetails, "404");
+            // Throw an exception if the resource is not found.
+            cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+            throw new BallerinaException("no matching resource found for path : " + subPath + " , method : " + method);
+
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException(e.getMessage());
+        } catch (URITemplateException e) {
             throw new BallerinaException(e.getMessage());
         }
-        // Throw an exception if the resource is not found.
-        //throw new BallerinaException("for Path : " + subPath + " , Method : " + method);
     }
 
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
@@ -100,14 +97,14 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         return subPath;
     }
 
-    // Set status code using requestDetails map
-    public Boolean setStatusCode(CarbonMessage cMsg, Map<String, String> requestDetails, String statusCode) {
-        if (requestDetails.get(Constants.HTTP_STATUS_CODE) != null &&
-                requestDetails.get(Constants.HTTP_STATUS_CODE).equals(statusCode)) {
-            cMsg.setProperty
-                    (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
-            return true;
-        }
-        return false;
-    }
+//    // Set status code using requestDetails map
+//    public Boolean setStatusCode(CarbonMessage cMsg, Map<String, String> requestDetails, String statusCode) {
+//        if (requestDetails.get(Constants.HTTP_STATUS_CODE) != null &&
+//                requestDetails.get(Constants.HTTP_STATUS_CODE).equals(statusCode)) {
+//            cMsg.setProperty
+//                    (org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+//            return true;
+//        }
+//        return false;
+//    }
 }

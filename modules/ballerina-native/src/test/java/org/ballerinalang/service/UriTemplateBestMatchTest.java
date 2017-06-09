@@ -28,6 +28,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import static org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE;
+
 /**
  * Test class for Uri Template based resource dispatchers.
  * Ex: /products/{productId}?regID={regID}
@@ -288,6 +290,28 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertEquals(bJson.value().get("echo44").asText(), "echo1"
                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test suitable method with URL. /hello/so2 ")
+    public void testWrongGETMethod() {
+        String path = "/hello/so2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int trueResponse = (int) response.getProperty(HTTP_STATUS_CODE);
+        Assert.assertEquals(trueResponse, 405, "Method not found");
+    }
+
+    @Test(description = "Test suitable method with URL. /hello/echo2 ")
+    public void testWrongPOSTMethod() {
+        String path = "/hello/echo2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int trueResponse = (int) response.getProperty(HTTP_STATUS_CODE);
+        Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
     @AfterClass

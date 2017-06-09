@@ -31,8 +31,11 @@ public class TestErrorHandler implements ServerConnectorErrorHandler {
     public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
         DefaultCarbonMessage response = new DefaultCarbonMessage();
-        response.setMessageDataSource(new StringDataSource(exception.getMessage()));
-        response.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
+        if (exception.getMessage() != null) {
+            response.setMessageDataSource(new StringDataSource(exception.getMessage()));
+        }
+        response.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE,
+                carbonMessage.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE));
         carbonCallback.done(response);
     }
 
