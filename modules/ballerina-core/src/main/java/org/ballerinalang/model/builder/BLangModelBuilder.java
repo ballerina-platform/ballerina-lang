@@ -1620,8 +1620,9 @@ public class BLangModelBuilder {
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
-    public void addTransactionStmt() {
+    public void addTransactionStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
+        transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         TransactionStmt transactionStmt = transactionStmtBuilder.build();
         addToBlockStmt(transactionStmt);
     }
