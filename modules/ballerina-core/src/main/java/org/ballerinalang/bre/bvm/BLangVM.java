@@ -123,7 +123,6 @@ public class BLangVM {
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
-    private int workerEndIP = -1;
 
     private StructureType globalMemBlock;
 
@@ -181,7 +180,6 @@ public class BLangVM {
 
     public void execWorker(Context context, int startIP, int endIP) {
         context.setStartIP(startIP);
-        this.workerEndIP = endIP;
         run(context);
 //        StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
 //        this.constPool = currentFrame.packageInfo.getConstPool();
@@ -240,7 +238,7 @@ public class BLangVM {
         int callersRetRegIndex;
 
         // TODO use HALT Instruction in the while condition
-        while (ip >= 0 && ip < code.length && controlStack.fp >= 0 && (ip != workerEndIP)) {
+        while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
@@ -929,6 +927,9 @@ public class BLangVM {
                     i = operands[0];
                     ip = i;
                     break;
+                case InstructionCodes.HALT:
+                    ip = -1;
+                    break;
                 case InstructionCodes.CALL:
                     cpIndex = operands[0];
                     funcRefCPEntry = (FunctionRefCPEntry) constPool[cpIndex];
@@ -1608,9 +1609,6 @@ public class BLangVM {
 
         } else {
             ip = forkJoinStmt.getJoin().getIp();
-            if (forkJoinStmt.getTimeout().getIp() > 0) {
-                workerEndIP = forkJoinStmt.getTimeout().getIp();
-            }
             // Assign values to join block message arrays
             int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
                     getStackFrameOffset();

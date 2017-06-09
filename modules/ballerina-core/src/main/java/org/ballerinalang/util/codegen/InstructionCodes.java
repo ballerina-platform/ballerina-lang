@@ -154,6 +154,7 @@ public interface InstructionCodes {
     int BR_FALSE = 116;
 
     int GOTO = 117;
+    int HALT = 118;
     int CALL = 120;
     int NCALL = 121;
     int ACALL = 122;
