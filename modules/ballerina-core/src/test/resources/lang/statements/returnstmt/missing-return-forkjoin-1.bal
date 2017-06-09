@@ -10,9 +10,9 @@ function testNullInForkJoin () (message, message) {
             message resp2 = {};
             resp2 -> fork;
         }
-    } join (all) (any[][] allReplies) {
+    } join (all) (map allReplies) {
 
-    } timeout (30000) (any[][] msgs) {
+    } timeout (30000) (map msgs) {
         return null, null;
     }
 }

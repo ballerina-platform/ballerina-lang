@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -32,6 +33,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -243,6 +245,16 @@ public class JSONUtils {
         }
 
         return bjson;
+    }
+
+    /**
+     * Convert {@link BDataTable} to {@link BJSON}.
+     *
+     * @param dataTable {@link BDataTable} to be converted to {@link BJSON}
+     * @return JSON representation of the provided datatable
+     */
+    public static BJSON toJSON(BDataTable dataTable) {
+        return new BJSON(new DataTableJSONDataSource(dataTable));
     }
     
     /**

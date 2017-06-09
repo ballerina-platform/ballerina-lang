@@ -218,6 +218,8 @@ public class TypeLattice {
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, mapV, NativeCastMapper.ANY_TO_MAP_FUNC,
                 UNSAFE, InstructionCodes.ANY2MAP);
+        explicitCastLattice.addEdge(anyV, messageV, NativeCastMapper.ANY_TO_MSG_FUNC,
+                UNSAFE, InstructionCodes.ANY2MSG);
 
         explicitCastLattice.addEdge(jsonV, jsonV, NativeCastMapper.JSON_TO_JSON_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -256,6 +258,7 @@ public class TypeLattice {
         TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
         TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
 
         conversionLattice.addVertex(intV, false);
         conversionLattice.addVertex(floatV, false);
@@ -264,6 +267,7 @@ public class TypeLattice {
         conversionLattice.addVertex(xmlV, false);
         conversionLattice.addVertex(jsonV, false);
         conversionLattice.addVertex(connectorV, false);
+        conversionLattice.addVertex(datatableV, false);
 
         conversionLattice.addEdge(intV, intV, NativeConversionMapper.INT_TO_INT_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -321,6 +325,10 @@ public class TypeLattice {
         conversionLattice.addEdge(jsonV, xmlV, NativeConversionMapper.JSON_TO_XML_FUNC);
 
         conversionLattice.addEdge(xmlV, jsonV, NativeConversionMapper.XML_TO_JSON_FUNC);
+        conversionLattice.addEdge(datatableV, xmlV, NativeConversionMapper.DATATABLE_TO_XML_FUNC, UNSAFE,
+                InstructionCodes.DT2XML);
+        conversionLattice.addEdge(datatableV, jsonV, NativeConversionMapper.DATATABLE_TO_JSON_FUNC, UNSAFE,
+                InstructionCodes.DT2JSON);
     }
 
     /**

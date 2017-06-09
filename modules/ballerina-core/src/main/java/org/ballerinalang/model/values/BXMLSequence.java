@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.OutputStream;
 import java.util.Iterator;
 
 /**
@@ -245,6 +246,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         ((BXMLItem) sequence.get(0)).setChildren(seq);
     }
     
+    
     /**
      * {@inheritDoc}
      */
@@ -309,7 +311,20 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
+    public void setOutputStream(OutputStream outputStream) {
+        for (int i = 0; i < sequence.size(); i++) {
+            ((BXML<?>) sequence.get(i)).setOutputStream(outputStream);
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void serializeData() {
+        for (int i = 0; i < sequence.size(); i++) {
+            ((BXML<?>) sequence.get(i)).serializeData();
+        }
     }
 
     /**

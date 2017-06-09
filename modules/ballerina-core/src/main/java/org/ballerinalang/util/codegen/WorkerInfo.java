@@ -16,6 +16,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +30,11 @@ public class WorkerInfo {
 
     private String workerName;
     private int workerNameCPIndex;
+    private int workerEndIP;
 
     private CallableUnitInfo callableUnitInfo;
+
+    private WorkerDataChannel workerDataChannelForForkJoin;
 
     private CodeAttributeInfo codeAttributeInfo;
 
@@ -59,5 +64,21 @@ public class WorkerInfo {
 
     public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
         attributeInfoMap.put(attributeName, attributeInfo);
+    }
+
+    public WorkerDataChannel getWorkerDataChannelForForkJoin() {
+        return workerDataChannelForForkJoin;
+    }
+
+    public void setWorkerDataChannelForForkJoin(WorkerDataChannel workerDataChannelForForkJoin) {
+        this.workerDataChannelForForkJoin = workerDataChannelForForkJoin;
+    }
+
+    public int getWorkerEndIP() {
+        return workerEndIP;
+    }
+
+    public void setWorkerEndIP(int workerEndIP) {
+        this.workerEndIP = workerEndIP;
     }
 }
