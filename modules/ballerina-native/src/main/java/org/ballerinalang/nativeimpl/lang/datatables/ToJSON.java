@@ -51,7 +51,7 @@ public class ToJSON extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        return getBValues(dataTable.toJSON());
+        return getBValues(dataTable.toJSON(ctx.isInTransaction()));
     }
     
 }

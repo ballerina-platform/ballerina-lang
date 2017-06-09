@@ -419,7 +419,7 @@ public class NativeConversionMapper {
                     return new BValue[] { null, null };
                 }
                 try {
-                    return new BValue[] { JSONUtils.toJSON((BDataTable) rVal), null };
+                    return new BValue[] { JSONUtils.toJSON((BDataTable) rVal, false), null };
                 } catch (BallerinaException e) {
                     String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                             rVal.getType(), BTypes.typeJSON, e.getMessage());
@@ -436,7 +436,7 @@ public class NativeConversionMapper {
                     return new BValue[] { null, null };
                 }
                 try {
-                    return new BValue[] { XMLUtils.datatableToXML((BDataTable) rVal), null };
+                    return new BValue[] { XMLUtils.datatableToXML((BDataTable) rVal, false), null };
                 } catch (BallerinaException e) {
                     String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                             BTypes.typeDatatable, BTypes.typeXML, e.getMessage());
