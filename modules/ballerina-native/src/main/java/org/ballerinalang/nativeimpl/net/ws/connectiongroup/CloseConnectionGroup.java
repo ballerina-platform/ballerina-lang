@@ -82,6 +82,7 @@ public class CloseConnectionGroup extends AbstractNativeFunction {
                     }
                 }
         );
+        connectionManager.removeConnectionGroup(connectionGroupName);
         return VOID_RETURN;
     }
 }
