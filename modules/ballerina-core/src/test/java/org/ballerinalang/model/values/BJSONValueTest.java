@@ -75,7 +75,7 @@ public class BJSONValueTest   {
     
     @Test(description = "Test initializing json with a null")
     public void testNullAsJsonVal() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullAsJsonVal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testNullAsJsonVal");
         Assert.assertEquals(returns[0], null);
     }
     
@@ -322,32 +322,32 @@ public class BJSONValueTest   {
             expectedExceptionsMessageRegExp = "failed to set element to json: array index out of range: index: 7, " +
             "size: 3")
     public void testSetArrayOutofBoundElement() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetArrayOutofBoundElement");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetArrayOutofBoundElement");
     }
     
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "cannot set value to '7': expected a 'json-array', but found " +
             "'json-object'")
     public void testSetToNonArrayWithIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetToNonArrayWithIndex");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetToNonArrayWithIndex");
     }
     
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "cannot get value from '7': expected a 'json-array', but found " +
             "'json-object'")
     public void testGetFromNonArrayWithIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetFromNonArrayWithIndex");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetFromNonArrayWithIndex");
     }
     
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "cannot set value to 'name': expected a 'json-object', but found " +
             "'json-array'")
     public void testSetToNonObjectWithKey() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetToNonObjectWithKey");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetToNonObjectWithKey");
     }
     
     public void testGetFromNonObjectWithKey() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetFromNonObjectWithKey");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetFromNonObjectWithKey");
         Assert.assertEquals(returns[0], null);
     }
     
@@ -362,14 +362,14 @@ public class BJSONValueTest   {
             expectedExceptionsMessageRegExp = "failed to get element from json: array index out of range: index: 5, " +
             "size: 3")
     public void testGetArrayOutofBoundElement() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetArrayOutofBoundElement");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetArrayOutofBoundElement");
     }
     
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "cannot get value from 'fname': expected a 'json-object', but found " +
             "'string'")
     public void testGetStringFromPrimitive() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetStringFromPrimitive");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetStringFromPrimitive");
     }
     
 //    @Test
