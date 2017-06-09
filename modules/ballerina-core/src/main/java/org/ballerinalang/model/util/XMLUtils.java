@@ -73,7 +73,7 @@ public class XMLUtils {
     private static final String XML_ROOT = "root";
     
     /**
-     * Create a XML item from string literal
+     * Create a XML item from string literal.
      *
      * @param xmlStr String representation of the XML
      * @return XML sequence
@@ -114,7 +114,7 @@ public class XMLUtils {
     }
 
     /**
-     * Create a XML sequence from string inputstream
+     * Create a XML sequence from string inputstream.
      *
      * @param xmlStream XML imput stream
      * @return  XML Sequence

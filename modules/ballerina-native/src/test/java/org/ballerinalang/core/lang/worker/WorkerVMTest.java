@@ -26,6 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Worker vm test cases.
+ */
 public class WorkerVMTest {
     private ProgramFile bProgramFile;
 

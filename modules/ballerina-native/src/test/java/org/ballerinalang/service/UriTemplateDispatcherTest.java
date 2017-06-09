@@ -71,8 +71,7 @@ public class UriTemplateDispatcherTest {
         cMsg.setHeader(xOrderIdHeadeName, xOrderIdHeadeValue);
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertEquals(
-                response.getProperty(Constants.HTTP_STATUS_CODE), 404,
-                "Response code mismatch");
+                response.getProperty(Constants.HTTP_STATUS_CODE), 404, "Response code mismatch");
         Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
         //checking the exception message
         String errorMessage = response.getMessageDataSource().getMessageAsString();

@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Array index too large test
+ * Array index too large test.
  *
  * @since 0.86
  */

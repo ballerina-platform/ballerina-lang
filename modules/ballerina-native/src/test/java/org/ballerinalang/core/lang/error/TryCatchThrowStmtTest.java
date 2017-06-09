@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.core.lang.error;
 
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -25,7 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -92,11 +91,11 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(returns[1].stringValue(), "013", "Unexpected execution order.");
     }
 
-    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = ".*uncaught error: " +
-            "ballerina.lang.errors:Error \\{ msg : \"test message\" \\}", expectedExceptions = BallerinaException.class)
+    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = "error: " +
+            "ballerina.lang.errors:Error, message: test message.*", expectedExceptions = BLangRuntimeException.class)
     public void testUncaughtException() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testUncaughtException", args);
+        BLangFunctions.invokeNew(programFile, "testUncaughtException", args);
     }
 
     @Test(description = "Test getStack trace of an error in a function.")
@@ -109,12 +108,11 @@ public class TryCatchThrowStmtTest {
         Assert.assertTrue(returns[0] instanceof BStruct);
         BValue value = ((BStruct) returns[0]).getRefField(0);
         Assert.assertNotNull(value);
-        Assert.assertNotNull(value instanceof BArray);
         BRefValueArray bArray = (BRefValueArray) value;
         Assert.assertEquals(bArray.size(), 3);
-        Assert.assertEquals(((BStruct) bArray.get(0)).getStringField(0), "testStackTrace");
+        Assert.assertEquals(((BStruct) bArray.get(0)).getStringField(0), "testNestedThrow");
         Assert.assertEquals(((BStruct) bArray.get(1)).getStringField(0), "testUncaughtException");
-        Assert.assertEquals(((BStruct) bArray.get(2)).getStringField(0), "testNestedThrow");
+        Assert.assertEquals(((BStruct) bArray.get(2)).getStringField(0), "testStackTrace");
 
     }
 

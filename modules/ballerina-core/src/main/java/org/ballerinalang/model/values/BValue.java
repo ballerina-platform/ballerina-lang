@@ -31,7 +31,7 @@ public interface BValue {
     BType getType();
     
     /**
-     * Deep copy {@link BValue}
+     * Deep copy {@link BValue}.
      * 
      * @return A copy of this {@link BValue}
      */
