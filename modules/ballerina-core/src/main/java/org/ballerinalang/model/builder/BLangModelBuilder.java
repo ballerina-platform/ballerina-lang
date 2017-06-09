@@ -1626,8 +1626,8 @@ public class BLangModelBuilder {
         addToBlockStmt(transactionStmt);
     }
 
-    public void createAbortStmt(NodeLocation location) {
-        addToBlockStmt(new AbortStmt(location));
+    public void createAbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
     }
 
     // Literal Values
