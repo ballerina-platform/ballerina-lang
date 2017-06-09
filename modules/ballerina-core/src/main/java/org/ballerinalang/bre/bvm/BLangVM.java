@@ -171,7 +171,7 @@ public class BLangVM {
                     calleeSF.returnValues, retTypes);
 
             // TODO Remove
-            prepareStructureTypeFromNativeAction(context.nativeArgValues);
+            //prepareStructureTypeFromNativeAction(context.nativeArgValues);
             context.nativeArgValues = null;
             context.funcCallCPEntry = null;
             context.actionInfo = null;
@@ -1903,9 +1903,6 @@ public class BLangVM {
 
     private void invokeNativeAction(ActionInfo actionInfo, FunctionCallCPEntry funcCallCPEntry) {
         StackFrame callerSF = controlStack.currentFrame;
-        // TODO : Remove after non blocking action usage
-        BValue[] nativeArgValues = populateNativeArgs(callerSF, funcCallCPEntry.getArgRegs(),
-                actionInfo.getParamTypes());
 
         // TODO : Remove once we handle this properly for return values
         BType[] retTypes = actionInfo.getRetParamTypes();
@@ -1928,7 +1925,6 @@ public class BLangVM {
                     caleeSF.packageInfo = actionInfo.getPackageInfo();
                 }
                 context.programFile = programFile;
-                context.nativeArgValues = nativeArgValues;
                 context.funcCallCPEntry = funcCallCPEntry;
                 context.actionInfo = actionInfo;
                 BalConnectorCallback connectorCallback = new BalConnectorCallback(context);
