@@ -22,6 +22,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
+import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
+import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BArrayType;
@@ -1512,7 +1516,7 @@ public class BLangVM {
                         .equals(holder.getCurrentLineStack().peek())) {
                     return;
                 }
-                lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber();
+                lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber(); //todo add package
                 location = holder.getDebugPoint(lineNum);
                 if (location == null) {
                     return;

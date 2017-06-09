@@ -19,7 +19,6 @@ package org.ballerinalang.core.interpreter;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
@@ -28,7 +27,6 @@ import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -47,7 +45,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
 /**
