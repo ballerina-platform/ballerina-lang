@@ -1242,6 +1242,11 @@ public class BLangVM {
                     k = operands[2];
                     bRefType = sf.refRegs[i];
 
+                    if (bRefType == null) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+
                     if (bRefType.getType() == BTypes.typeJSON) {
                         sf.refRegs[j] = bRefType;
                     } else {
@@ -1254,6 +1259,11 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
                     bRefType = sf.refRegs[i];
+
+                    if (bRefType == null) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
 
                     if (bRefType.getType() instanceof BStructType) {
                         sf.refRegs[j] = bRefType;
@@ -1268,6 +1278,11 @@ public class BLangVM {
                     k = operands[2];
                     bRefType = sf.refRegs[i];
 
+                    if (bRefType == null) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+
                     if (bRefType.getType() == BTypes.typeMap) {
                         sf.refRegs[j] = bRefType;
                     } else {
@@ -1280,6 +1295,11 @@ public class BLangVM {
                     j = operands[1];
                     k = operands[2];
                     bRefType = sf.refRegs[i];
+
+                    if (bRefType == null) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
 
                     if (bRefType.getType() == BTypes.typeMessage) {
                         sf.refRegs[j] = bRefType;
