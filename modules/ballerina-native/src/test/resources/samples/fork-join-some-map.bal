@@ -1,6 +1,10 @@
 import ballerina.lang.system;
 
 function testForkJoinReturnAnyType()(int, string) {
+    return testForkJoinReturnAnyTypeVM();
+}
+
+function testForkJoinReturnAnyTypeVM()(int, string) {
     int p;
     string q;
     string r;
@@ -18,20 +22,20 @@ function testForkJoinReturnAnyType()(int, string) {
     float u = 10.23;
     s, u -> fork;
     }
-    } join (all) (map results) {
+    } join (some 1) (map results) {
         system:println("Within join block");
-        any[] t1;
-        t1,_ = (any[]) results["W1"];
+        //any[] t1;
+        //t1,_ = (any[]) results["W1"];
         system:println("After any array cast");
-        p = (int) t1[0];
-        q = (string) t1[1];
-        t1,_ = (any[]) results["W2"];
-        r = (string) t1[0];
-        t = (float) t1[1];
+        p = (int) results[0];
+        //system:println("After int cast");
+        //q = (string) results[1][0];
+        //r = (string) results[0][1];
+        //t = (float) results[1][1];
         system:println(p);
-        system:println(r);
-        system:println(q);
-        system:println(t);
+        //system:println(r);
+        //system:println(q);
+        //system:println(t);
     }
 
 system:println("After the fork-join statement");

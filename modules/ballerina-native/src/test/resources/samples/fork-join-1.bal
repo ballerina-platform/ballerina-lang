@@ -1,6 +1,7 @@
 import ballerina.lang.system;
 
-function testForkJoinReturnAnyType()(int, string) {
+function main(string[] args) {
+
     int p;
     string q;
     string r;
@@ -37,5 +38,5 @@ function testForkJoinReturnAnyType()(int, string) {
 system:println("After the fork-join statement");
 p = 111;
 q = "eeee";
-return p, q;
+
 }

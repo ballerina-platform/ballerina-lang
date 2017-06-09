@@ -218,6 +218,8 @@ public class TypeLattice {
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, mapV, NativeCastMapper.ANY_TO_MAP_FUNC,
                 UNSAFE, InstructionCodes.ANY2MAP);
+        explicitCastLattice.addEdge(anyV, messageV, NativeCastMapper.ANY_TO_MSG_FUNC,
+                UNSAFE, InstructionCodes.ANY2MSG);
 
         explicitCastLattice.addEdge(jsonV, jsonV, NativeCastMapper.JSON_TO_JSON_FUNC,
                 SAFE, InstructionCodes.NOP);
