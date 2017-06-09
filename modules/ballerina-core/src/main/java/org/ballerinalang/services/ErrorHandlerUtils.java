@@ -87,7 +87,7 @@ public class ErrorHandlerUtils {
     }
 
     /**
-     * Print the error
+     * Print the error.
      *
      * @param throwable Throwable associated with the error
      */
