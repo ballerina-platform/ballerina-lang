@@ -563,7 +563,7 @@ class TransformStatementDecorator extends React.Component {
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + ( bBox.w - actionBbox.w) / 2;
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
-        let statementRectClass = 'transform-statement-rect';
+        let statementRectClass = 'statement-rect';
         if (model.isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
