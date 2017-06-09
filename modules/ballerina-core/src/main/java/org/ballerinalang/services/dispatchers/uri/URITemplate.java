@@ -21,6 +21,7 @@ package org.ballerinalang.services.dispatchers.uri;
 import org.ballerinalang.services.dispatchers.uri.parser.Node;
 import org.ballerinalang.services.dispatchers.uri.parser.URITemplateParser;
 import org.ballerinalang.util.codegen.ResourceInfo;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
 
@@ -41,8 +42,8 @@ public class URITemplate {
         return null;
     }
 
-    public ResourceInfo matches(String uri, Map<String, String> requestDetails, Map<String, String> variables) {
-        return syntaxTree.matchAll(uri, requestDetails, variables, 0);
+    public ResourceInfo matches(String uri, Map<String, String> variables, CarbonMessage carbonMessage) {
+        return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
     }
 
     public void parse(String uriTemplate, ResourceInfo resource) throws URITemplateException {

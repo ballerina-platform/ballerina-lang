@@ -1858,7 +1858,7 @@ public class BLangModelBuilder {
      * - Right expressions of Assignment Statement becomes input of transform statement
      * - Variables in each of left and right expressions of all statements are extracted as input and output
      * - A variable that is used as an input cannot be used as an output in another statement
-     * - If inputs and outputs are used interchangeably, a semantic error is thrown
+     * - If inputs and outputs are used interchangeably, a semantic error is thrown.
      *
      * @param blockStmt transform statement block statement
      * @param inputs    input variable reference expressions map

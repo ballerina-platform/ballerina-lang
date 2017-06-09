@@ -23,6 +23,7 @@ import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.PrintStream;
 import java.util.Stack;
 
 /**
@@ -31,6 +32,7 @@ import java.util.Stack;
 public class ErrorHandlerUtils {
 
     private static final int STACK_TRACE_LIMIT = 20;
+    private static final PrintStream outStream = System.err;
 
     /**
      * Get the error message of a throwable.
@@ -39,14 +41,12 @@ public class ErrorHandlerUtils {
      * @return Error message
      */
     public static String getErrorMessage(Throwable throwable) {
-        String errorMsg;
+        String errorMsg = "";
         String errorPrefix = "error in ballerina program: ";
         if (throwable instanceof StackOverflowError) {
             errorMsg = "fatal " + errorPrefix + "stack overflow ";
         } else if (throwable.getMessage() != null) {
-            errorMsg = errorPrefix + makeFirstLetterLowerCase(throwable.getMessage());
-        } else {
-            errorMsg = errorPrefix;
+            errorMsg = makeFirstLetterLowerCase(throwable.getMessage());
         }
         return errorMsg;
     }
@@ -69,14 +69,6 @@ public class ErrorHandlerUtils {
         }
 
         String stackTrace = getStackTrace(context, throwable, 1);
-
-        // print the service info
-        CallableUnitInfo serviceInfo = null; // context.getServiceInfo();
-        if (serviceInfo != null) {
-            String pkgName = (serviceInfo.getPackage() != null) ? serviceInfo.getPackage() + ":" : "";
-            stackTrace = stackTrace + "\t at " + pkgName + serviceInfo.getName() + getNodeLocation(serviceInfo) + "\n";
-        }
-
         return stackTrace;
     }
 
@@ -90,6 +82,18 @@ public class ErrorHandlerUtils {
     public static String getMainFuncStackTrace(Context context, Throwable throwable) {
         // Need to omit the main function invocation from the stack trace. Hence the starting index is 1
         return getStackTrace(context, throwable, 0);
+    }
+
+    /**
+     * Print the error.
+     *
+     * @param throwable Throwable associated with the error
+     */
+    public static void printError(Throwable throwable) {
+        String errorMessage = throwable.getMessage();
+        if (errorMessage != null) {
+            outStream.println(errorMessage);
+        }
     }
 
     /**

@@ -351,7 +351,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     /**
-     * Get worker interaction statements related to a callable unit
+     * Get worker interaction statements related to a callable unit.
      *
      * @return Queue of worker interactions
      */
@@ -361,7 +361,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     /**
-     * Get the workers defined within a callable unit
+     * Get the workers defined within a callable unit.
      *
      * @return Array of workers
      */

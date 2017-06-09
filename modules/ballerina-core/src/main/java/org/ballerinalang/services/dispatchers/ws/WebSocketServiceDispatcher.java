@@ -45,7 +45,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         String serviceUri = (String) cMsg.getProperty(Constants.TO);
         serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
-            throw new BallerinaException("No service found to dispatch");
+            throw new BallerinaException("Internal error occurred during service dispatching");
         }
 
         String basePath = "";
@@ -60,16 +60,16 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         }
 
         if (service == null) {
-            throw new BallerinaException("No service found to handle message for " + serviceUri);
+            throw new BallerinaException("no service found to handle the service request received to " + serviceUri);
         }
         String webSocketUpgradePath = findWebSocketUpgradePath(service);
         if (webSocketUpgradePath == null) {
-            throw new BallerinaException("No service found to handle message for " + serviceUri);
+            throw new BallerinaException("no service found to handle the service request received to " + serviceUri);
         }
         if (webSocketUpgradePath.equals(serviceUri)) {
             return service;
         }
-        throw new BallerinaException("No service found to handle message for " + serviceUri);
+        throw new BallerinaException("no service found to handle the service request received to " + serviceUri);
     }
 
     @Override
@@ -104,23 +104,22 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
             }
         }
         if (service == null) {
-            throw new BallerinaException("No service found to handle message for " + serviceUri);
+            return null;
         }
         String webSocketUpgradePath = findWebSocketUpgradePath(service);
         if (webSocketUpgradePath == null) {
-            throw new BallerinaException("No service found to handle message for " + serviceUri);
+            return null;
         }
         if (webSocketUpgradePath.equals(serviceUri)) {
             return service;
         }
-        throw new BallerinaException("No service found to handle message for " + serviceUri);
+        return null;
     }
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        if (findWebSocketUpgradePath(service) != null) {
-            super.serviceRegistered(service);
-        }
+        // Nothing goes here since all the WebSocket services are registered as HTTP endpoints too.
+        // TODO: Implement a separate ServicesRegistry for WebSocket
     }
 
     private String findWebSocketUpgradePath(ServiceInfo service) {

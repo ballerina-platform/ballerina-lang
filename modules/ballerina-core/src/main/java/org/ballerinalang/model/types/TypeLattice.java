@@ -332,7 +332,7 @@ public class TypeLattice {
     }
 
     /**
-     * Merges a given type lattice with the current type lattice
+     * Merges a given type lattice with the current type lattice.
      *
      * @param typeLattice given type lattice
      * @param packageName package name to be merged into
@@ -518,7 +518,7 @@ public class TypeLattice {
     }
 
     /**
-     * Add conversion edges for structs
+     * Add conversion edges for structs.
      *
      * @param structDef Struct definition
      * @param scope     scope of the struct

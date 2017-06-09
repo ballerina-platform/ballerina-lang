@@ -23,6 +23,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
+import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,14 +50,13 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
+        Map<String, String> resourceArgumentValues = new HashMap<>();
+        Map<String, String> requestDetails = new HashMap<>();
 
         try {
-            Map<String, String> resourceArgumentValues = new HashMap<>();
-            Map<String, String> requestDetails = new HashMap<>();
             requestDetails.put(Constants.HTTP_METHOD, method);
 
-            ResourceInfo resource = service.getUriTemplate().matches(subPath, requestDetails,
-                    resourceArgumentValues);
+            ResourceInfo resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
             if (resource != null) {
                 if (cMsg.getProperty(Constants.QUERY_STR) != null) {
                     QueryParamProcessor.processQueryParams
@@ -65,12 +66,15 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
             }
-        } catch (Throwable e) {
+            // Throw an exception if the resource is not found.
+            cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
+            throw new BallerinaException("no matching resource found for path : " + subPath + " , method : " + method);
+
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException(e.getMessage());
+        } catch (URITemplateException e) {
             throw new BallerinaException(e.getMessage());
         }
-
-        // Throw an exception if the resource is not found.
-        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
     }
 
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
