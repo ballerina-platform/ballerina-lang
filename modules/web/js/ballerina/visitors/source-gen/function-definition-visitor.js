@@ -67,7 +67,8 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
             + functionDefinition.getArgumentsAsString() + ')';
         constructedSourceSegment += (!_.isNil(functionReturnTypesSource)
             ? (functionDefinition.getWSRegion(4) + functionReturnTypesSource) : '');
-        constructedSourceSegment +=  functionDefinition.getWSRegion(6) + '{' + functionDefinition.getWSRegion(7);
+        constructedSourceSegment +=  functionDefinition.getWSRegion(6) +
+            (functionDefinition.isNative() ? ';' : '{') + functionDefinition.getWSRegion(7);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
