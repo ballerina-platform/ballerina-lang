@@ -154,7 +154,7 @@ class Annotation extends React.Component {
                 <span className='annotation-separator'>:</span>
                 <AutoSuggestHtml
                     items={this.getIdentifiersForSuggestion()}
-                    placeholder={'Annotation Name'}
+                    placeholder={'Identifier'}
                     initialValue={model.getIdentifier()}
                     onSuggestionSelected={this.onIdentifierSelected.bind(this)}
                     onKeyDown={this.onIdentifierKeyDown.bind(this)}
@@ -166,7 +166,7 @@ class Annotation extends React.Component {
                 <span className='package-name'>@</span>
                 <AutoSuggestHtml
                     items={this.getPackageNamesForSuggestion()}
-                    placeholder={'Annotation Package'}
+                    placeholder={'Add Annotation'}
                     initialValue={model.getFullPackageName()}
                     onSuggestionSelected={this.onPackageNameSelected.bind(this)}
                     minWidth={150}
