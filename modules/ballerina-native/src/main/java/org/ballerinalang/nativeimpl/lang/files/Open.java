@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -56,6 +58,7 @@ import java.util.Locale;
         value = "The mode the file should be opened in") })
 public class Open extends AbstractNativeFunction {
 
+    private static final Logger log = LoggerFactory.getLogger(Open.class);
     @Override public BValue[] execute(Context context) {
         BStruct struct = (BStruct) getArgument(context, 0);
         BString accessMode = (BString) getArgument(context, 1);
@@ -67,11 +70,14 @@ public class Open extends AbstractNativeFunction {
                 BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
                 struct.addNativeData("inStream", is);
             }
-            if (accessLC.contains("w")) {
+            if (accessLC.contains("a") && accessLC.contains("w")) {
+                log.info("found both 'a' and 'w' in access mode string, opening file in append mode");
+            }
+            if (accessLC.contains("a")) {
                 createDirs(file);
                 BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file));
                 struct.addNativeData("outStream", os);
-            } else if (accessLC.contains("a")) {
+            } else if (accessLC.contains("w")) {
                 createDirs(file);
                 BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file, true));
                 struct.addNativeData("outStream", os);

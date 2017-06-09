@@ -84,13 +84,10 @@ public class Copy extends AbstractNativeFunction {
         InputStream in = null;
         OutputStream out = null;
         try {
-
             if (src.isDirectory()) {
-
                 if (!dest.exists() && !dest.mkdir()) {
                     return false;
                 }
-
                 String files[] = src.list();
                 if (files == null) {
                     return false;
@@ -103,20 +100,15 @@ public class Copy extends AbstractNativeFunction {
                         return false;
                     }
                 }
-
             } else {
-
                 in = new FileInputStream(src);
                 out = new FileOutputStream(dest);
-
                 byte[] buffer = new byte[1024];
-
                 int length;
 
                 while ((length = in.read(buffer)) > 0) {
                     out.write(buffer, 0, length);
                 }
-
             }
             return true;
         } catch (IOException e) {
