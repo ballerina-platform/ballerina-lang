@@ -63,7 +63,7 @@ public class BallerinaAnnotator implements Annotator {
 
     private static final String QUERY_PARAMETERS = "\\w+=(\\{([^&]+)})";
     private static final Pattern QUERY_PARAMETERS_PATTERN = Pattern.compile(QUERY_PARAMETERS);
-    private static final String PATH_PARAMETERS = "/(\\{(\\w+?)})";
+    private static final String PATH_PARAMETERS = "(?<!=)(\\{(\\w+?)})";
     private static final Pattern PATH_PARAMETERS_PATTERN = Pattern.compile(PATH_PARAMETERS);
 
     @Override
@@ -154,7 +154,7 @@ public class BallerinaAnnotator implements Annotator {
                     TextRange range = new TextRange(startOffset + matcher.start(1),
                             startOffset + matcher.start(1) + value.length() + 2);
                     // Check whether a matching resource parameter is available.
-                    boolean isMatchAvailable = isMatchingQueryParamAvailable(annotationAttributeNode, value,
+                    boolean isMatchAvailable = isMatchingParamAvailable(annotationAttributeNode, value,
                             "QueryParam");
                     // Create the annotation.
                     if (isMatchAvailable) {
@@ -186,7 +186,7 @@ public class BallerinaAnnotator implements Annotator {
                     TextRange range = new TextRange(startOffset + matcher.start(1),
                             startOffset + matcher.start(1) + value.length() + 2);
                     // Check whether a matching resource parameter is available.
-                    boolean isMatchAvailable = isMatchingQueryParamAvailable(annotationAttributeNode, value,
+                    boolean isMatchAvailable = isMatchingParamAvailable(annotationAttributeNode, value,
                             "PathParam");
                     // Create the annotation.
                     if (isMatchAvailable) {
@@ -216,8 +216,8 @@ public class BallerinaAnnotator implements Annotator {
         }
     }
 
-    private boolean isMatchingQueryParamAvailable(@NotNull AnnotationAttributeNode annotationAttributeNode,
-                                                  @NotNull String value, @NotNull String type) {
+    private boolean isMatchingParamAvailable(@NotNull AnnotationAttributeNode annotationAttributeNode,
+                                             @NotNull String value, @NotNull String typeText) {
         ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(annotationAttributeNode,
                 ResourceDefinitionNode.class);
         if (resourceDefinitionNode == null) {
@@ -247,7 +247,7 @@ public class BallerinaAnnotator implements Annotator {
             if (paramType == null) {
                 continue;
             }
-            if (!type.equals(paramType.getText())) {
+            if (!typeText.equals(paramType.getText())) {
                 continue;
             }
             Collection<AnnotationAttributeValueNode> annotationAttributeValueNodes =
@@ -270,6 +270,23 @@ public class BallerinaAnnotator implements Annotator {
                 if (value.equals(text)) {
                     return true;
                 }
+            }
+        }
+        // At this point, match might not be found for query params since the annotation attachment for the parameter
+        // is optional. So we need to go through all the parameters and check the identifiers of parameters which
+        // does not have an annotation attachments.
+        for (ParameterNode parameterNode : parameterNodes) {
+            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getChildOfType(parameterNode,
+                    AnnotationAttachmentNode.class);
+            if (annotationAttachmentNode != null) {
+                continue;
+            }
+            PsiElement nameIdentifier = parameterNode.getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (value.equals(nameIdentifier.getText())) {
+                return true;
             }
         }
         return false;

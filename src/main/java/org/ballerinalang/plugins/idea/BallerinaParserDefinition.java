@@ -50,6 +50,8 @@ import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionAssignmentStatementNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
@@ -82,6 +84,7 @@ import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
 import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
+import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
@@ -309,8 +312,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ReplyStatementNode(node);
             case BallerinaParser.RULE_annotationAttribute:
                 return new AnnotationAttributeNode(node);
+            case BallerinaParser.RULE_transformStatement:
+                return new TransformStatementNode(node);
             case BallerinaParser.RULE_transformStatementBody:
                 return new TransformStatementBodyNode(node);
+            case BallerinaParser.RULE_expressionAssignmentStatement:
+                return new ExpressionAssignmentStatementNode(node);
+            case BallerinaParser.RULE_expressionVariableDefinitionStatement:
+                return new ExpressionVariableDefinitionStatementNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

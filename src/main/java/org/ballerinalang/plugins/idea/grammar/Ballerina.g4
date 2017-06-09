@@ -215,14 +215,11 @@ statement
     ;
 
 transformStatement
-    :   'transform' '{' transformStatementBody* '}'
+    :   'transform' '{' transformStatementBody '}'
     ;
 
 transformStatementBody
-    :   expressionAssignmentStatement
-    |   expressionVariableDefinitionStatement
-    |   transformStatement
-    |   commentStatement
+    :   (expressionAssignmentStatement | expressionVariableDefinitionStatement | transformStatement | commentStatement)*
     ;
 
 expressionAssignmentStatement
@@ -380,8 +377,8 @@ expression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
     |   functionInvocation                              # functionInvocationExpression
-    |   '(' typeName ')' expression                     # typeCastingExpression
-    |   '<' typeName '>' expression                     # typeConversionExpression
+    |   '(' typeName ')' simpleExpression               # typeCastingExpression
+    |   '<' typeName '>' simpleExpression               # typeConversionExpression
     |   ('+' | '-' | '!') simpleExpression              # unaryExpression
     |   '(' expression ')'                              # bracedExpression
     |   expression '^' expression                       # binaryPowExpression

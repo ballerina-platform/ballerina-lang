@@ -11,12 +11,14 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li>Support Ballerina v0.88 grammar.</li>
         <li>Merge two run configurations into a single configuration.</li>
         <li>Add exit points highlighting support.</li>
+        <li>Add resource path query/path param highlighting support.</li>
+        <li>Add package validation support.</li>
         <li>Add array.length support.</li>
         <li>Add new hidden templates.</li>
         <li>Improve code completion.</li>
-        <li>Update worker grammar.</li>
         <li>Update live templates.</li>
       </ul>
       <a href="https://github.com/ballerinalang/plugin-intellij/milestone/7?closed=1">View all changes and bug fixes.</a>

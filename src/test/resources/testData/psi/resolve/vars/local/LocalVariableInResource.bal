@@ -1,8 +1,7 @@
 service test {
 
-    int /*def*/a;
-
     resource test (message m) {
+        int /*def*/a;
         /*ref*/a = 10;
     }
 }

@@ -1131,7 +1131,16 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testServiceBody() {
-        doTest("service S{<caret>}", "resource");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
+        expectedLookups.add("resource");
+        doTest("service S{<caret>}", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testServiceBodyAfterAnnotation() {
+        doTest("service S{ @http:GET {} <caret>}", "resource");
     }
 
     public void testServiceAnnotation() {
@@ -1399,16 +1408,20 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.add("C");
         expectedLookups.add("any");
+        expectedLookups.add("action");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testConnectorBodyAfterAnnotation() {
+        doTest("connector C(){ @test:test{} <caret> }", "action");
+    }
+
     public void testConnectorBodyVariableDeclarationPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doTest("import org.test; connector C(){ te<caret> }", "test", "aborted", "committed", "iterate");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; struct TEST {}");
+        doCheckResult("test.bal", "import org.test; connector C(){ te<caret> }",
+                "import org.test; connector C(){ test: }", null);
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {
@@ -1842,9 +1855,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("a");
+        expectedLookups.add("b");
+        expectedLookups.add("g");
         expectedLookups.add("any");
         expectedLookups.add("test");
-        doTest("function test(){ int a = 10; transform { <caret> } }",
+        doTest("int g = 1; function test(){ int a = 10; transform { int b = 5; <caret> } }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 

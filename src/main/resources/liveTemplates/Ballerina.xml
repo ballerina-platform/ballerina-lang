@@ -93,10 +93,10 @@
         </context>
     </template>
 
-    <template name="fojo" value="fork {&#10;    $END$&#10;} join ($JOIN_CONDITION$) (message[] $ARGS$) {&#10;    &#10;}"
+    <template name="fojo" value="fork {&#10;    $END$&#10;} join ($JOIN_CONDITION$) ($JOIN_ARGS$) {&#10;    &#10;}"
               description="Fork Join Template" toReformat="false" toShortenFQNames="false">
         <variable name="JOIN_CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="JOIN_ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>
@@ -105,7 +105,7 @@
     </template>
 
     <template name="fojot"
-              value="fork {&#10;    $END$&#10;} join ($JOIN_CONDITION$) (message[] $JOIN_ARGS$) {&#10;    &#10;} timeout ($EXPRESSION$) (message[] $TIMEOUT_ARGS$) { &#10;     &#10;}"
+              value="fork {&#10;    $END$&#10;} join ($JOIN_CONDITION$) ($JOIN_ARGS$) {&#10;    &#10;} timeout ($EXPRESSION$) ($TIMEOUT_ARGS$) { &#10;     &#10;}"
               description="Fork Join Template" toReformat="false" toShortenFQNames="false">
         <variable name="JOIN_CONDITION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="JOIN_ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
