@@ -26,6 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Worker implementation test cases.
+ */
 public class WorkerNewTest {
 
     //private BLangProgram bLangProgram;
