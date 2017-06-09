@@ -92,11 +92,10 @@ public class ErrorHandlerUtils {
      * @param throwable Throwable associated with the error
      */
     public static void printError(Throwable throwable) {
-        BallerinaException ballerinaException = (BallerinaException) throwable;
-        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(ballerinaException.getContext(), throwable);
-        String errorWithTrace = errorMsg + "\n" + stacktrace;
-        outStream.println(errorWithTrace);
+        String errorMessage = throwable.getMessage();
+        if (errorMessage != null) {
+            outStream.println(errorMessage);
+        }
     }
 
     /**
