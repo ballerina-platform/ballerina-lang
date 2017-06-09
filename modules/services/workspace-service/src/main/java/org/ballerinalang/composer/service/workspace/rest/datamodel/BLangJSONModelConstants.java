@@ -364,4 +364,8 @@ public class BLangJSONModelConstants {
     public static final String IS_NATIVE = "is_native";
 
     public static final String SIMPLE_TYPE_NAME = "simple_type_name";
+
+    public static final String JOIN_WORKERS = "join_workers";
+
+    public static final String JOIN_COUNT = "join_count";
 }

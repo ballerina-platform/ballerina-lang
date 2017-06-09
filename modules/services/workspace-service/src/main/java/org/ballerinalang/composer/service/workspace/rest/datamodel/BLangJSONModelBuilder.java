@@ -19,6 +19,7 @@
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.ConnectorVarLocation;
@@ -1102,6 +1103,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             JsonObject joinStmtObj = new JsonObject();
             joinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.JOIN_STATEMENT);
             joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_TYPE, joinType);
+            joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_COUNT, join.getJoinCount());
+            JsonArray joinWorkers = new JsonArray();
+            for (String worker : join.getJoinWorkers()) {
+                joinWorkers.add(worker);
+            }
+            joinStmtObj.add(BLangJSONModelConstants.JOIN_WORKERS, joinWorkers);
+
             this.addPosition(joinStmtObj, join.getNodeLocation());
 
             tempJsonArrayRef.push(new JsonArray());

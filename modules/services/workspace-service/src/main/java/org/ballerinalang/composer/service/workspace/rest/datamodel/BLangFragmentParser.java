@@ -83,6 +83,12 @@ public class BLangFragmentParser {
                 // 0 & 1 are function args and return types, 2 is the statement came from source fragment
                 fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2).getAsJsonObject();
                 break;
+            case BLangFragmentParserConstants.JOIN_CONDITION:
+                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(2)
+                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
+                fragmentNode.remove(BLangJSONModelConstants.CHILDREN);
+                fragmentNode.remove(BLangJSONModelConstants.JOIN_PARAMETER);
+                break;
             default:
                 fragmentNode = new JsonObject();
                 fragmentNode.addProperty(ERROR, "cannot find node for given fragment");
@@ -147,6 +153,10 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.STATEMENT:
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.JOIN_CONDITION:
+                parsableText = getFromTemplate(
+                        BLangFragmentParserConstants.FORK_JOIN_CONDITION_WRAPPER, sourceFragment.getSource());
                 break;
             default:
                 parsableText = "";
