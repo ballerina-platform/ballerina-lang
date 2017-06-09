@@ -68,6 +68,10 @@ public class BallerinaFormattingTest extends LightPlatformCodeInsightFixtureTest
         doTest();
     }
 
+    public void testForkJoin() {
+        doTest();
+    }
+
     public void testFunctionDefinition() {
         doTest();
     }

@@ -72,6 +72,7 @@ public class BallerinaTypes {
     public static RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(BallerinaParser.RULE_workerDeclaration);
     public static RuleIElementType WORKER_BODY = ruleIElementTypes.get(BallerinaParser.RULE_workerBody);
     public static RuleIElementType FORK_JOIN_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_forkJoinStatement);
+    public static RuleIElementType JOIN_CONDITIONS = ruleIElementTypes.get(BallerinaParser.RULE_joinConditions);
     public static RuleIElementType TRANSACTION_STATEMENT = ruleIElementTypes.get(BallerinaParser
             .RULE_transactionStatement);
     public static RuleIElementType TRANSFORM_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_transformStatement);
@@ -176,6 +177,8 @@ public class BallerinaTypes {
     public static TokenIElementType CARET = tokenIElementTypes.get(BallerinaLexer.CARET);
     public static TokenIElementType MOD = tokenIElementTypes.get(BallerinaLexer.MOD);
     public static TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
+
+    public static TokenIElementType INTEGER_LITERAL = tokenIElementTypes.get(BallerinaLexer.IntegerLiteral);
 
     public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
             BITAND, BITOR, CARET, MOD);
