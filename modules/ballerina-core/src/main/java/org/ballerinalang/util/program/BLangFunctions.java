@@ -55,6 +55,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
@@ -322,8 +323,8 @@ public class BLangFunctions {
         bLangVM.run(context);
 
         if (context.getError() != null) {
-            throw new BallerinaException(".*uncaught error: " +
-                    BLangVMErrors.getErrorMsg(context.getError()));
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
         }
 
         longRegCount = 0;

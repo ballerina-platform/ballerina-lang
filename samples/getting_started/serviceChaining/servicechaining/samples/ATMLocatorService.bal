@@ -8,10 +8,9 @@ import ballerina.lang.system;
 service ATMLocator {
     
     @http:POST{}
-    @http:Path {value:"/locator"}
     resource locator (message m) {
-        http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo");
-        http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator");
+        http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo/product");
+        http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator/product");
         
         message backendServiceReq = {};
         json jsonLocatorReq = messages:getJsonPayload(m);

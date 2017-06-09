@@ -347,9 +347,10 @@ public class BLangModelBuilder {
         
         if (currentScope instanceof StructDef) {
             VariableDef fieldDef = new VariableDef(location, null, identifier, typeName, symbolName, currentScope);
-            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, identifier.getName());
+            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, null, identifier.getName());
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
+            fieldDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
             currentStructBuilder.addField(fieldDefStmt);
         } else if (currentScope instanceof AnnotationDef) {
             AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, identifier, typeName,
@@ -1620,14 +1621,15 @@ public class BLangModelBuilder {
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
-    public void addTransactionStmt() {
+    public void addTransactionStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
+        transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         TransactionStmt transactionStmt = transactionStmtBuilder.build();
         addToBlockStmt(transactionStmt);
     }
 
-    public void createAbortStmt(NodeLocation location) {
-        addToBlockStmt(new AbortStmt(location));
+    public void createAbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
     }
 
     // Literal Values

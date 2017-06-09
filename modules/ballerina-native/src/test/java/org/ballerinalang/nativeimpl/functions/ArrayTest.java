@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
@@ -29,7 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,12 +41,10 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
  */
 public class ArrayTest {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/arrayTest.bal");
         programFile = BTestUtils.getProgramFile("samples/arrayTest.bal");
     }
 
@@ -251,8 +248,8 @@ public class ArrayTest {
         Assert.assertEquals(((BFloatArray) returnVals[0]).get(1), v3, "Value didn't match");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testFloatArrayCopyOfRangeNegative() {
         final double v1 = 10d;
         final double v2 = 11.1d;
@@ -265,8 +262,8 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testFloatArrayCopyOfRangNegativeMinusArgs() {
         final double v1 = 10d;
         final double v2 = 11.1d;
@@ -299,8 +296,8 @@ public class ArrayTest {
         Assert.assertEquals(((BIntArray) returnVals[0]).get(1), v3, "Value didn't match");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testIntArrayCopyOfRangeNegative() {
         final int v1 = 10;
         final int v2 = 11;
@@ -312,8 +309,8 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testIntArrayCopyOfRangNegativeMinusArgs() {
         final int v1 = 10;
         final int v2 = 11;
@@ -346,8 +343,8 @@ public class ArrayTest {
         Assert.assertEquals(((BStringArray) returnVals[0]).get(1), v3, "Value didn't match");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testStringArrayCopyOfRangeNegative() {
         final String v1 = "a";
         final String v2 = "b";
@@ -359,8 +356,8 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testStringArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "a";
         final String v2 = "b";
@@ -393,8 +390,8 @@ public class ArrayTest {
         Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testXMLArrayCopyOfRangeNegative() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
@@ -406,8 +403,8 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testXMLArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
@@ -440,8 +437,8 @@ public class ArrayTest {
         Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testJSONArrayCopyOfRangeNegative() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
@@ -453,8 +450,8 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testJSONArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
@@ -485,8 +482,8 @@ public class ArrayTest {
         Assert.assertEquals(((BRefValueArray) returnVals[0]).size(), 2, "Incorrect Array size.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testMessageArrayCopyOfRangNegative() {
         final CarbonMessage v1 = new DefaultCarbonMessage();
         final CarbonMessage v2 = new DefaultCarbonMessage();
@@ -498,8 +495,8 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = ".*Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testMessageArrayCopyOfRangNegativeMinusArgs() {
         final CarbonMessage v1 = new DefaultCarbonMessage();
         final CarbonMessage v2 = new DefaultCarbonMessage();
