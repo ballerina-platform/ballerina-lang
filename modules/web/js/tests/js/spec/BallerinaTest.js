@@ -30,7 +30,7 @@ var getModelBackend = 'http://localhost:8289/ballerina/model/content';
 //Ballerina AST Deserializer
 function ballerinaASTDeserializer(fileContent){
     var backend = new Backend({'url' : getModelBackend});
-    var response = backend.parse(fileContent);
+    var response = backend.parse({name: 'test.bal', path: '/temp', content: fileContent, 'package': 'test'});
     var ASTModel = BallerinaASTDeserializer.getASTModel(response);
     var sourceGenVisitor = new BallerinaASTRootVisitor();
     ASTModel.accept(sourceGenVisitor);
@@ -61,7 +61,7 @@ describe ('Ballerina Composer Test Suite', function() {
     let testResDir = path.resolve(path.join('js', 'tests', 'resources'));
     let testFiles = findBalFilesInDirSync(testResDir);
     testFiles.forEach(function(testFile) {
-        it (testFile.replace(/^.*[\\\/]/, '') + ' file serialize/deserialize test', function() {
+        it (testFile.replace(testResDir, '') + ' file serialize/deserialize test', function() {
             var expectedSource = readFile(testFile);
             var generatedSource = ballerinaASTDeserializer(expectedSource);
             if (generatedSource !== expectedSource) {
