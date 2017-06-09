@@ -397,7 +397,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     /**
-     * Get worker interaction statements related to a callable unit
+     * Get worker interaction statements related to a callable unit.
      *
      * @return Queue of worker interactions
      */
@@ -407,7 +407,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     /**
-     * Get the workers defined within a callable unit
+     * Get the workers defined within a callable unit.
      *
      * @return Array of workers
      */

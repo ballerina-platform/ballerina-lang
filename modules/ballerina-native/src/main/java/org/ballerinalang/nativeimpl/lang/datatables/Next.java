@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to get the current row of a datatable as a struct
+ * Native function to get the current row of a datatable as a struct.
  * ballerina.model.datatables:next(datatable)
  *
  * @since 0.88

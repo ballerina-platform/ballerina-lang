@@ -43,7 +43,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 /**
- * This class contains helper functions to invoke workers
+ * This class contains helper functions to invoke workers.
  *
  * @since 0.88
  */

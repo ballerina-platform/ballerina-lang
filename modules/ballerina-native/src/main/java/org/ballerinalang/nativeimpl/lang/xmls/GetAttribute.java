@@ -35,7 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Get the value of an attribute in an XML
+ * Get the value of an attribute in an XML.
  * 
  * @since 0.88
  */
