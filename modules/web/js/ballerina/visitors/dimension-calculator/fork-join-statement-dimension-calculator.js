@@ -39,7 +39,7 @@ class ForkJoinStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit ForkJoinStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
-        let containerW = DesignerDefaults.fork.lifeLineGutterH;
+        let bodyW = DesignerDefaults.fork.lifeLineGutterH;
         const workers = node.filterChildren(function (child) {
             return ASTFactory.isWorkerDeclaration(child);
         });
@@ -64,11 +64,10 @@ class ForkJoinStatementDimensionCalculatorVisitor {
         });
 
         _.forEach(workers, function (child) {
-            containerW += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;
+            bodyW += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;
         });
 
         let dropZoneHeight = DesignerDefaults.statement.gutter.v;
-        let bodyW;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
 
@@ -87,7 +86,7 @@ class ForkJoinStatementDimensionCalculatorVisitor {
                 joinBBox.h = hOfLowerParts;
                 joinStatementsBBox.h = hOfLowerParts;
             }
-            const halfW = Math.max(timeoutBBox.w, joinBBox.w, containerW / 2);
+            const halfW = Math.max(timeoutBBox.w, joinBBox.w, bodyW / 2);
 
             joinBBox.w = halfW;
             joinStatementsBBox.w = halfW;
@@ -100,7 +99,7 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             const joinStatementsBBox = join[0].viewState.components.statementContainer;
             hOfLowerParts = joinBBox.h;
 
-            const newW = Math.max(joinBBox.w, containerW);
+            const newW = Math.max(joinBBox.w, bodyW);
             joinBBox.w = newW;
             joinStatementsBBox.w = newW;
             bodyW = newW;
@@ -109,7 +108,6 @@ class ForkJoinStatementDimensionCalculatorVisitor {
         }
 
         viewState.components['body'] = new SimpleBBox(0, 0, bodyW, bodyH);
-        viewState.components['workers'] = new SimpleBBox(0, 0, containerW, bodyH);
         viewState.bBox.h = bodyH + dropZoneHeight + DesignerDefaults.blockStatement.heading.height + hOfLowerParts;
         viewState.bBox.w = bodyW;
     }

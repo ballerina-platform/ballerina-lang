@@ -1093,12 +1093,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             timeoutStmtObj.add(BLangJSONModelConstants.EXPRESSION, timeoutExpressionArr.get(0));
             tempJsonArrayRef.pop();
 
-            tempJsonArrayRef.push(new JsonArray());
-            timeout.getTimeoutResult().accept(this);
-            JsonArray param = this.tempJsonArrayRef.peek();
-            timeoutStmtObj.add(BLangJSONModelConstants.TIMEOUT_PARAMETER, param.get(0));
-            tempJsonArrayRef.pop();
-
             timeoutStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                     BLangJSONModelConstants.TIMEOUT_STATEMENT);
             this.addPosition(timeoutStmtObj, timeout.getNodeLocation());

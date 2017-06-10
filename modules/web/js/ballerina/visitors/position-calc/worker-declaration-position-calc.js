@@ -56,12 +56,8 @@ class WorkerDeclarationPositionCalcVisitor {
                 x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
                     parentViewState.components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h;
             } else {
-                if (isInFork) {
-                    x = parentViewState.components.body.getLeft() + DesignerDefaults.fork.lifeLineGutterH +
-                        (parentViewState.bBox.w - parentViewState.components.workers.w) / 2;
-                } else {
-                    x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
-                }
+                x = parentViewState.components.body.getLeft() +
+                    (isInFork ? DesignerDefaults.fork.lifeLineGutterH : DesignerDefaults.lifeLine.gutter.h);
             }
         } else if (workerIndex > 0) {
             const previousWorker = workers[workerIndex - 1];

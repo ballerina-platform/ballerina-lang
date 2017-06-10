@@ -29,19 +29,6 @@ class ForkJoinStatement extends Statement {
         super('ForkJoinStatement');
     }
 
-    /**
-     * return {boolean}
-     */
-    hasTimeout() {
-        if (this.children.length === 0) {
-            return false;
-        } else {
-            const child = this.children[this.children.length - 1];
-            const factory = this.getFactory();
-            return factory.isTimeoutStatement(child);
-        }
-    }
-
     getWorkerDeclarations() {
         const workerDeclarations = [];
         const self = this;
