@@ -27,7 +27,7 @@ import Statement from './statement';
 class TimeoutStatement extends Statement {
     constructor(args) {
         super('TimeoutStatement');
-        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'message[]', name: 'm'});
+        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'map', name: 'm'});
         this._timeoutParameter = _.get(args, 'timeoutParameter', parameterDefinition);
         this._expression = _.get(args, 'expression', '60');
     }
@@ -57,7 +57,7 @@ class TimeoutStatement extends Statement {
     }
 
     setParameterAsString(str) {
-        const myRegexp = /^\s*([^\s\[\]]+\s*\[\s*]\s*)([^\s\[\]]+)\s*$/g;
+        const myRegexp = /^\s*(map\s*)([^\s\[\]]+)\s*$/g;
         const match = myRegexp.exec(str);
         if (match) {
             const factory = this.getFactory();

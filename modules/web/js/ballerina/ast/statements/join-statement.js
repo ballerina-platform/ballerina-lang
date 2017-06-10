@@ -30,7 +30,7 @@ class JoinStatement extends Statement {
         super('JoinStatement');
         this._joinType = _.get(args, 'joinType', 'all');
         this._joinWorkers = _.get(args, 'joinWorkers', []);
-        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'message[]', name: 'm'});
+        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'map', name: 'm'});
         this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
     }
 
@@ -103,7 +103,7 @@ class JoinStatement extends Statement {
     }
 
     setParameterAsString(str) {
-        const myRegexp = /^\s*([^\s\[\]]+\s*\[\s*]\s*)([^\s\[\]]+)\s*$/g;
+        const myRegexp = /^\s*(map\s*)([^\s\[\]]+)\s*$/g;
         const match = myRegexp.exec(str);
         if (match) {
             const factory = this.getFactory();
