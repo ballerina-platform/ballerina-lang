@@ -15,11 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import AssignmentStatement from '../../ast/statements/assignment-statement';
-import LeftOperandExpressionVisitor from './left-operand-expression-visitor';
-import RightOperandExpressionVisitor from './right-operand-expression-visitor';
 
 class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -36,23 +33,7 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        if (!_.isNil(assignmentStatement.children[0])) {
-            this.visitLeftOperandExpression(assignmentStatement.children[0]);
-        }
-        if (!_.isNil(assignmentStatement.children[1])) {
-            this.visitRightOperandExpression(assignmentStatement.children[1]);
-        }
-    }
-
-    visitLeftOperandExpression(expression) {
-        var leftExpVisitor = new LeftOperandExpressionVisitor(this);
-        expression.accept(leftExpVisitor);
-    }
-
-    visitRightOperandExpression(expression) {
-        this.appendSource('=' + this.node.getWSRegion(2));
-        var rightExpVisitor = new RightOperandExpressionVisitor(this);
-        expression.accept(rightExpVisitor);
+        this.appendSource(assignmentStatement.getStatementString());
     }
 
     endVisitAssignmentStatement(assignmentStatement) {
