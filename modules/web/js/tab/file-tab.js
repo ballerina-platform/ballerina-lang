@@ -104,7 +104,7 @@ FileTab = Tab.extend({
             this.renderBallerinaEditor(parseResponse);
 
             let model = this._fileEditor.getModel();
-            let packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName();
+            let packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName() || '.';
             var content = { 'fileName': this._file.getName(), 'filePath': this._file.getPath(), 'packageName': packageName, 'content': this._file.getContent() };  
             var programPackagesResponse = this.programPackagesBackend.call({'method':'POST', 'content': content, 'async': true, 'callback': this.onResponseRecieved, 'callbackObj':this});
         } else if(!_.isNil(this._parseResponse)) {
