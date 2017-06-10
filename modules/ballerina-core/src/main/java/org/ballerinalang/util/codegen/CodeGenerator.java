@@ -1439,12 +1439,28 @@ public class CodeGenerator implements NodeVisitor {
             int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
             int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
 
+            int errorRegIndex = -1;
             if (typeCastExpr.isMultiReturnExpr()) {
-                typeCastExpr.setOffsets(new int[]{targetRegIndex, ++regIndexes[REF_OFFSET]});
+                errorRegIndex = ++regIndexes[REF_OFFSET];
+                typeCastExpr.setOffsets(new int[]{targetRegIndex, errorRegIndex});
             } else {
                 typeCastExpr.setOffsets(new int[]{targetRegIndex});
             }
-            emit(opCode, rExpr.getTempOffset(), typeCPindex, targetRegIndex);
+            emit(opCode, rExpr.getTempOffset(), typeCPindex, targetRegIndex, errorRegIndex);
+
+        } else if (opCode == InstructionCodes.ANY2T || opCode == InstructionCodes.ANY2C) {
+            TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(typeCastExpr.getType().getSig()));
+            int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
+            int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
+
+            int errorRegIndex = -1;
+            if (typeCastExpr.isMultiReturnExpr()) {
+                errorRegIndex = ++regIndexes[REF_OFFSET];
+                typeCastExpr.setOffsets(new int[]{targetRegIndex, errorRegIndex});
+            } else {
+                typeCastExpr.setOffsets(new int[]{targetRegIndex});
+            }
+            emit(opCode, rExpr.getTempOffset(), typeCPindex, targetRegIndex, errorRegIndex);
 
         } else if (opCode != 0) {
             int targetRegIndex = getNextIndex(typeCastExpr.getType().getTag(), regIndexes);
