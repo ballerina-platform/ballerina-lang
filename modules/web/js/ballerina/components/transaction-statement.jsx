@@ -37,11 +37,8 @@ class TransactionStatement extends React.Component {
         if (!parent.getCommittedStatement() || !parent.getAbortedStatement()) {
             return (
                 <g onClick={this.onAddAbortedCommittedClick}>
-                    <rect x={bBox.x + bBox.w - 20} y={bBox.y + bBox.h - 20} width={20} height={20}
-                          className="add-else-button"/>
-                    <text x={bBox.x + bBox.w - 15} y={bBox.y + bBox.h - 10} width={20} height={20}
-                          className="add-else-button-label">+
-                    </text>
+                    <rect x={bBox.x+bBox.w-10} y={bBox.y+bBox.h-25} width={20} height={20} rx={10} ry={10} className='add-else-button'/>
+                    <text x={bBox.x+bBox.w-4} y={bBox.y+bBox.h-15} width={20} height={20} className='add-else-button-label'>+</text>
                 </g>
             );
         }
