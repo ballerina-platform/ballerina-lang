@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.functions.impl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.system.LogUtil;
 import org.ballerinalang.natives.AbstractNativeFunction;

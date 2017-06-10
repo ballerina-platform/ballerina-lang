@@ -18,7 +18,6 @@
 package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;

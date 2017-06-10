@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.nativeimpl.typemappers;
 
+import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,17 +33,18 @@ import org.testng.annotations.Test;
  * Test cases for native type mappers.
  */
 public class NativeTypeMappersTest {
-    private ProgramFile bLangProgram;
+    //TODO : Refactor according to new VM impl
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("samples/typeMapperTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/typeMapperTest.bal");
     }
 
     @Test
     public void testXMLToJSON() {
         BValue[] args = {new BXMLItem("<name>chanaka</name>")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "xmltojson", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "xmltojson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -52,7 +53,7 @@ public class NativeTypeMappersTest {
     @Test
     public void testJSONToXML() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "jsontoxml", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsontoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<root><name>chanaka</name></root>";
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), expected);
@@ -61,7 +62,7 @@ public class NativeTypeMappersTest {
     @Test
     public void testStringToJSON() {
         BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "stringtojson", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringtojson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -70,7 +71,7 @@ public class NativeTypeMappersTest {
     @Test
     public void testStringToXML() {
         BValue[] args = {new BString("<name>chanaka</name>")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "stringtoxml", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringtoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -79,16 +80,16 @@ public class NativeTypeMappersTest {
     @Test
     public void testJSONToString() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "jsontostring", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsontostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
-    
+
     @Test
     public void testMultiRootedJSONToXML() {
         BValue[] args = { new BJSON("{\"name\":\"chanaka\", \"company\":\"wso2\"}") };
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "jsontoxml", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsontoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<root><name>chanaka</name><company>wso2</company></root>";
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), expected);
