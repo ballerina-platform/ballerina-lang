@@ -55,9 +55,9 @@ public class ToBlob extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         try {
-            BString string = (BString) getArgument(ctx, 0);
-            BString encoding = (BString) getArgument(ctx, 1);
-            byte[] arr = string.stringValue().getBytes(encoding.stringValue());
+            String string = getStringArgument(ctx, 0);
+            String encoding = getStringArgument(ctx, 1);
+            byte[] arr = string.getBytes(encoding);
             return getBValues(new BBlob(arr));
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Unsupported Encoding", e);

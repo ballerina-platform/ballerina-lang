@@ -54,8 +54,8 @@ public class Contains extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).stringValue();
-        String subString = getArgument(context, 1).stringValue();
+        String param1 = getStringArgument(context, 0);
+        String subString = getStringArgument(context, 1);
 
         BBoolean isContains = new BBoolean(param1.contains(subString));
         return getBValues(isContains);

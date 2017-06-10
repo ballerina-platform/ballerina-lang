@@ -41,12 +41,10 @@ public class SubString extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String initialString = getArgument(context, 0).stringValue();
-        BInteger argFrom = (BInteger) getArgument(context, 1);
-        BInteger argTo = (BInteger) getArgument(context, 2);
+        String initialString = getStringArgument(context, 0);
 
-        long fromLong = argFrom.intValue();
-        long toLong = argTo.intValue();
+        long fromLong = getIntArgument(context, 0);
+        long toLong = getIntArgument(context, 1);
 
         if (toLong != (int) toLong) {
             throw BLangExceptionHelper
