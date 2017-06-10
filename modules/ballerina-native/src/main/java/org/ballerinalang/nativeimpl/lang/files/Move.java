@@ -57,6 +57,9 @@ public class Move extends AbstractNativeFunction {
         BStruct destination = (BStruct) getArgument(context, 1);
 
         File sourceFile = new File(source.getValue(0).stringValue());
+        if (!sourceFile.exists()) {
+            throw new BallerinaException("The file that should be moved does not exist");
+        }
         File destinationFile = new File(destination.getValue(0).stringValue());
         File parent = destinationFile.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
