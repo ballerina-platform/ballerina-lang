@@ -55,8 +55,8 @@ public class SetChildren extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context ctx) {
         try {
-            BXML xml = (BXML) getArgument(ctx, 0);
-            BXML children = (BXML) getArgument(ctx, 1);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            BXML children = (BXML) getRefArgument(ctx, 1);
             xml.setChildren(children);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);

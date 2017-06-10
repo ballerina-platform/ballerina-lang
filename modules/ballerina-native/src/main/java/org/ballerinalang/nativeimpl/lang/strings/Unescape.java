@@ -51,7 +51,7 @@ public class Unescape extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String stringValue = getArgument(context, 0).stringValue();
+        String stringValue = getStringArgument(context, 0);
         //todo extend this in a proper way
         String unescapedString = stringValue.replace("\\", "");
         return getBValues(new BString(unescapedString));

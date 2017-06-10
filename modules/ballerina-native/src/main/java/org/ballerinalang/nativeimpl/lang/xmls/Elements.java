@@ -57,7 +57,7 @@ public class Elements extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getArgument(ctx, 0);
+            BXML value = (BXML) getRefArgument(ctx, 0);
             result = value.elements();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);

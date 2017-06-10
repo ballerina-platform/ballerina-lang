@@ -73,9 +73,9 @@ public class AddElement extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
-            OMElement value = (OMElement) ((BXML) getArgument(ctx, 2)).value();
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
+            OMElement value = (OMElement) ((BXML) getRefArgument(ctx, 1)).value();
 
             if (value == null) {
                 return VOID_RETURN;

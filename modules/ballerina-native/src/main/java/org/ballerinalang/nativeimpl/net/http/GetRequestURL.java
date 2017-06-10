@@ -52,7 +52,7 @@ import static org.ballerinalang.nativeimpl.actions.http.Constants.REQUEST_URL;
 public class GetRequestURL extends AbstractNativeFunction {
     String requestURL = "";
     public BValue[] execute(Context ctx) {
-        BMessage bMsg = (BMessage) getArgument(ctx, 0);
+        BMessage bMsg = (BMessage) getRefArgument(ctx, 0);
         Object requestURLPropertyObject = bMsg.value().getProperty(REQUEST_URL);
         if (requestURLPropertyObject != null) {
             requestURL = requestURLPropertyObject.toString();

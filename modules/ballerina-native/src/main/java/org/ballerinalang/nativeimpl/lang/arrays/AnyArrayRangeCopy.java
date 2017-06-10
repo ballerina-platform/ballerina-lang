@@ -66,13 +66,11 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 public class AnyArrayRangeCopy extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BNewArray arrayFrom = (BNewArray) getArgument(context, 0);
-        BNewArray arrayTo = (BNewArray) getArgument(context, 1);
-        BInteger argFrom = (BInteger) getArgument(context, 2);
-        BInteger argTo = (BInteger) getArgument(context, 3);
+        BNewArray arrayFrom = (BNewArray) getRefArgument(context, 0);
+        BNewArray arrayTo = (BNewArray) getRefArgument(context, 1);
 
-        long fromLong = argFrom.intValue();
-        long toLong = argTo.intValue();
+        long fromLong = getIntArgument(context, 0);
+        long toLong = getIntArgument(context, 1);
 
         if (toLong != (int) toLong) {
             throw BLangExceptionHelper

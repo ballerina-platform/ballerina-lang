@@ -57,7 +57,7 @@ public class Clone  extends AbstractNativeFunction {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Invoke message clone.");
         }
-        BMessage msg = (BMessage) getArgument(context, 0);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
         return getBValues(msg.clone());
     }
 }

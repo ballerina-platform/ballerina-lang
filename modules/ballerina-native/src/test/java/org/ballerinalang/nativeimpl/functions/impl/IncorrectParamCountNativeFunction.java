@@ -42,8 +42,8 @@ public class IncorrectParamCountNativeFunction extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         // Accessing First Parameter Value.
-        String param1 = getArgument(ctx, 0).stringValue();
-        String param2 = getArgument(ctx, 2).stringValue();
+        String param1 = getStringArgument(ctx, 0);
+        String param2 = getStringArgument(ctx, 1);
         // Return values.
         return getBValues(new BString(param1));
     }
