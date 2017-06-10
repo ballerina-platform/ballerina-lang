@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.nativeimpl.util.XMLUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -77,7 +77,7 @@ public class XMLTest {
     }
     
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetNonExistingString() {
         BValue[] args = {new BXMLItem(s1), new BString("/xxx/text()")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "getString", args);
@@ -85,7 +85,7 @@ public class XMLTest {
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testGetStringFromMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path")};
         BLangFunctions.invokeNew(programFile, "getString", args);
@@ -117,9 +117,9 @@ public class XMLTest {
                 "<address>wso2</address></person>");
     }
     
-    @Test(expectedExceptions = {BallerinaException.class},
-          expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
-          "to get element from xml: cannot execute xpath on a xml sequence\" \\}")
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to get element " +
+                  "from xml: cannot execute xpath on a xml sequence.*")
     public void testGetXMLFromSequence() {
         BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
@@ -151,7 +151,7 @@ public class XMLTest {
                 "</person>");
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetNonExistingXML() {
         BValue[] args = {new BXMLItem(s1), new BString("/xxx")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "getXML", args);
@@ -159,26 +159,26 @@ public class XMLTest {
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testGetXMLFromMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path")};
         BLangFunctions.invokeNew(programFile, "getXML", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromText() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person/name/text()")};
         BLangFunctions.invokeNew(programFile, "getXML", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromDocumentElement() {
         String d1 = XMLUtils.readFileToString("datafiles/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/")};
         BLangFunctions.invokeNew(programFile, "getXML", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetXMLFromAttribute() {
         String a1 = XMLUtils.readFileToString("datafiles/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id")};
@@ -205,9 +205,9 @@ public class XMLTest {
                 "</name><address>wso2</address></person></persons>");
     }
     
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
-            "to set string in xml: cannot execute xpath on a xml sequence\" \\}")
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to set " +
+                    "string in xml: cannot execute xpath on a xml sequence.*")
     public void testSetStringToSequence() {
         BRefValueArray seq = new BRefValueArray();
         seq.add(0, new BXMLItem(s1));
@@ -227,7 +227,7 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testSetStringToMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path"), new BString("Peter")};
         BLangFunctions.invokeNew(programFile, "setString", args);
@@ -271,14 +271,14 @@ public class XMLTest {
     }
 
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testSetXMLToMalformedXpath() {
         BValue[] args = {new BXMLItem(s2), new BString("$worng#path"),
                 new BXMLItem("<name><fname>Jack</fname><lname>Peter</lname></name>")};
         BLangFunctions.invokeNew(programFile, "setXML", args);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testSetXMLNullValue() {
         BValue[] args = {new BXMLItem(s2), new BString("/person/name"),
                 null};
@@ -294,7 +294,7 @@ public class XMLTest {
                 "<address>wso2</address></person>");
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToNonExistingElement() {
         BValue[] args = {new BXMLItem(s2), new BString("/xxx"), new BXMLItem("<address>wso2</address>")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "addElement", args);
@@ -302,27 +302,27 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), s2);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testAddElementToMalformedXpath() {
         BValue[] args = {new BXMLItem(s2), new BString("$worng#path"), new BXMLItem("<address>wso2</address>")};
         BLangFunctions.invokeNew(programFile, "addElement", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToText() {
         BValue[] args = {new BXMLItem(s1), new BString("/persons/person/name/text()"), 
             new BXMLItem("<address>wso2</address>")};
         BLangFunctions.invokeNew(programFile, "addElement", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToDocumentElement() {
         String d1 = XMLUtils.readFileToString("datafiles/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/"), new BXMLItem("<address>wso2</address>")};
         BLangFunctions.invokeNew(programFile, "addElement", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddElementToAttribute() {
         String a1 = XMLUtils.readFileToString("datafiles/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id"), 
@@ -341,7 +341,7 @@ public class XMLTest {
         Assert.assertEquals(returnElement.toString(), "<person><name id=\"person123\">Jack</name></person>");
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToNonExistingElement() {
         BValue[] args = {new BXMLItem(s2), new BString("/xxx"), new BString("id"), new BString("person123")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "addAttribute", args);
@@ -352,27 +352,27 @@ public class XMLTest {
         Assert.assertEquals(returnElement.toString(), s2);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testAddAttributeToMalformedXpath() {
         BValue[] args = {new BXMLItem(s2), new BString("$worng#path"), new BString("id"), new BString("person123")};
         BLangFunctions.invokeNew(programFile, "addAttribute", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToText() {
         BValue[] args = {new BXMLItem(s2), new BString("/persons/person/name/text()"), new BString("id"),
                 new BString("person123")};
         BLangFunctions.invokeNew(programFile, "addAttribute", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToDocumentElement() {
         String d1 = XMLUtils.readFileToString("datafiles/xmlDocumentSample.xml");
         BValue[] args = {new BXMLItem(d1), new BString("/"), new BString("id"), new BString("person123")};
         BLangFunctions.invokeNew(programFile, "addAttribute", args);
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testAddAttributeToAttribute() {
         String a1 = XMLUtils.readFileToString("datafiles/messageComplex.xml");
         BValue[] args = {new BXMLItem(a1), new BString("/employees/employee/@id"), new BString("id"),
@@ -399,7 +399,7 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testRemoveFromMalformedXpath() {
         BValue[] args = {new BXMLItem(s1), new BString("$worng#path")};
         BLangFunctions.invokeNew(programFile, "remove", args);
@@ -647,16 +647,16 @@ public class XMLTest {
                 "</book>");
     }
     
-    @Test(expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
-            "to set attribute to xml: Cannot create an unprefixed attribute with a namespace\" \\}")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to set " +
+                    "attribute to xml: Cannot create an unprefixed attribute with a namespace.*")
     public void testSetAttributeWithoutPrefix() {
         BLangFunctions.invokeNew(programFile, "testSetAttributeWithoutPrefix");
     }
     
-    @Test(expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
-            "to set attribute to xml: Cannot create a prefixed attribute with an empty namespace name\" \\}")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to set " +
+                    "attribute to xml: Cannot create a prefixed attribute with an empty namespace name.*")
     public void testSetAttributeWithoutNamspaceUri() {
         BLangFunctions.invokeNew(programFile, "testSetAttributeWithoutNamspaceUri");
     }
@@ -669,9 +669,9 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "<book id=\"1234\">Book1</book>");
     }
     
-    @Test(expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
-            "to set attribute to xml: localname of the attribute cannot be empty\" \\}")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to set " +
+                    "attribute to xml: localname of the attribute cannot be empty.*")
     public void testSetAttributeWithoutLocalName() {
         BLangFunctions.invokeNew(programFile, "testSetAttributeWithoutLocalName");
     }
@@ -684,9 +684,9 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "1234");
     }
     
-    @Test(expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed" +
-            " to get attribute from xml: atribute not found: \\{http://sample/com\\}status\" \\}")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to get attribute " +
+                    "from xml: atribute not found: \\{http://sample/com\\}status.*")
     public void testGetNonExistingAttribute() {
         BLangFunctions.invokeNew(programFile, "testGetNonExistingAttribute");
     }
@@ -699,9 +699,9 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "789");
     }
     
-    @Test(expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed " +
-            "to get attribute from xml: localname of the attribute cannot be empty\" \\}")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to get attribute " +
+                    "from xml: localname of the attribute cannot be empty.*")
     public void testGetAttributeWithoutLocalname() {
         BLangFunctions.invokeNew(programFile, "testGetAttributeWithoutLocalname");
     }
@@ -761,16 +761,16 @@ public class XMLTest {
                 "<bookId>001</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
     }
     
-    @Test(expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed" +
-            " to slice xml: invalid indices: 4 < 1\" \\}")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to slice xml: " +
+                    "invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
         BLangFunctions.invokeNew(programFile, "testSliceInvalidIndex");
     }
     
-    @Test(expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "\\.\\*uncaught error: ballerina.lang.errors:Error \\{ msg : \"Failed" +
-            " to slice xml: index out of range: \\[4,10\\]\" \\}")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to slice xml: " +
+                    "index out of range: \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
         BLangFunctions.invokeNew(programFile, "testSliceOutOfRangeIndex");
     }

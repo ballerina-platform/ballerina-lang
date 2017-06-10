@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Constant access test cases
+ * Constant access test cases.
  */
 public class ConstantAccessTest {
 

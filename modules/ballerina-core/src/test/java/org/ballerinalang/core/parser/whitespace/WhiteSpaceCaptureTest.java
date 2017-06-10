@@ -73,7 +73,8 @@ public class WhiteSpaceCaptureTest {
     @Test(description = "Test captured whitespace region at file start")
     public void testWhiteSpaceCaptureInBFileStart() {
         Assert.assertEquals(bFile.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_START), "\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_START),
+                System.lineSeparator() + System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of import declarations")
@@ -89,7 +90,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_IDENTIFIER_TO_IMPORT_DEC_END), "   ");
         Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_END_TO_NEXT_TOKEN), "\n\n\n  ");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + System.lineSeparator() + "  ");
     }
 
     @Test(description = "Test captured whitespace regions of package declaration node")
@@ -99,7 +101,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(bFile.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_PKG_NAME_END_TO_SEMICOLON), "   ");
         Assert.assertEquals(bFile.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_PKG_DEC_END_TO_NEXT_TOKEN), "\n\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.BFILE_PKG_DEC_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of resource definition node")
@@ -114,9 +117,11 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(resource.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_PARAM_LIST_END_TO_BODY_START), "  ");
         Assert.assertEquals(resource.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_BODY_START_TO_FIRST_CHILD), "\n\n      ");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_BODY_START_TO_FIRST_CHILD),
+                System.lineSeparator() + System.lineSeparator() + "      ");
         Assert.assertEquals(resource.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_END_TO_NEXT_TOKEN), "\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.RESOURCE_DEF_END_TO_NEXT_TOKEN),
+                System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of annotation attachment node")
@@ -132,7 +137,8 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_ATTRIB_LIST_START_TO_FIRST_ATTRIB),
                         "    ");
         Assert.assertEquals(annotationAttachment.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN), "\n\n  ");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.ANNOTATION_ATCHMNT_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + "  ");
     }
 
 
@@ -171,11 +177,12 @@ public class WhiteSpaceCaptureTest {
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START), " ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START),
-                "\n                            ");
+                System.lineSeparator() + "                            ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN), "  ");
         Assert.assertEquals(function.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of connector definition node")
@@ -188,7 +195,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(connector.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START), "   ");
         Assert.assertEquals(connector.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of action definition node")
@@ -200,7 +208,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START), "  ");
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START), "    ");
         Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN), "   ");
-        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+        Assert.assertEquals(ws.get(WhiteSpaceRegions.ACTION_DEF_BODY_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of struct definition node")
@@ -212,7 +221,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(structDef.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_IDENTIFIER_TO_BODY_START), "   ");
         Assert.assertEquals(structDef.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.STRUCT_DEF_BODY_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator());
     }
 
 
@@ -230,7 +240,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_RETURN_TYPE_WRAPPER_TO_BODY_START), "     ");
         Assert.assertEquals(typeMapper.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN), "\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.TYPE_MAP_DEF_BODY_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator());
     }
 
 
@@ -248,7 +259,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START), "    ");
         Assert.assertEquals(constDef.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN), "\n\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of global variable definition node")
@@ -265,7 +277,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_LAST_TOKEN), "    ");
         Assert.assertEquals(varDef.getWhiteSpaceDescriptor()
-                .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_NEXT_TOKEN), "\n\n\n");
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.GLOBAL_VAR_DEF_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + System.lineSeparator());
     }
 
     @Test(description = "Test captured whitespace regions of variable definition node")
@@ -280,7 +293,8 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(wsRegions
                 .get(WhiteSpaceRegions.VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START), "   ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_END_TO_LAST_TOKEN), "    ");
-        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_END_TO_NEXT_TOKEN), "\n\n\n\n  ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.VAR_DEF_END_TO_NEXT_TOKEN), System.lineSeparator()
+                + System.lineSeparator() + System.lineSeparator() + System.lineSeparator() + "  ");
     }
 
     @Test(description = "Test captured whitespace regions of a parameter definition node")
@@ -302,9 +316,11 @@ public class WhiteSpaceCaptureTest {
         WhiteSpaceDescriptor whiteSpaceDescriptor = worker.getWhiteSpaceDescriptor();
         Map<Integer, String> wsRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
 
-        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_PRECEDING_WHITESPACE), "\n\n    ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_PRECEDING_WHITESPACE),
+                System.lineSeparator() + System.lineSeparator() + "    ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER), "  ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_IDENTIFIER_TO_BODY_START), "   ");
-        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN), "\n\n  ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + "  ");
     }
 }

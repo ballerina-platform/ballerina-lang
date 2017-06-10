@@ -5,6 +5,11 @@ struct Error {
     Error cause;
 }
 
+struct NullReferenceError {
+    string msg;
+    Error cause;
+}
+
 struct StackTrace {
     StackTraceItem[] items;
 }

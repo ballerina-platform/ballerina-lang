@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Parse a string and get an XML
+ * Parse a string and get an XML.
  * 
  * @since 0.88
  */

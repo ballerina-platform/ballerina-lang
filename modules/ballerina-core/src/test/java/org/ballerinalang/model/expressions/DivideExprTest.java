@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -55,7 +55,7 @@ public class DivideExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int divide expression", expectedExceptions = BallerinaException.class)
+    @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(0) };
         BLangFunctions.invokeNew(bLangProgram, "intDivide", args);
@@ -78,7 +78,7 @@ public class DivideExprTest {
         Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
-    @Test(description = "Test two float divide expression", expectedExceptions = BallerinaException.class)
+    @Test(description = "Test two float divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testFloatDivideByZeroExpr() {
         BValue[] args = { new BFloat(300.0f), new BFloat(0) };
         BLangFunctions.invokeNew(bLangProgram, "floatDivide", args);

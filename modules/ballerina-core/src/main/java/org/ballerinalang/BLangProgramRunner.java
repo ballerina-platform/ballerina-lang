@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
@@ -187,6 +188,11 @@ public class BLangProgramRunner {
             debugManager.holdON();
         } else {
             bLangVM.run(bContext);
+        }
+
+        if (bContext.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
         }
     }
 

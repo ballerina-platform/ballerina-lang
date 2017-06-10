@@ -1,4 +1,3 @@
-import ballerina.lang.arrays;
 import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.lang.system;
@@ -9,7 +8,7 @@ import ballerina.utils;
 function main(string[] args) {
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector mediumEP = create http:ClientConnector("https://medium.com");
-    int argumentLength = arrays:length(args);
+    int argumentLength = args.length;
     if (argumentLength < 4) {
         system:println("Incorrect number of arguments");
         system:println("Please specify: consumerKey consumerSecret accessToken accessTokenSecret");

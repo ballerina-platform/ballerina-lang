@@ -133,13 +133,13 @@ public interface CallableUnit extends BLangSymbol, Node {
     void setParameterTypes(BType[] parameterTypes);
 
     /**
-     * Get worker interaction statements related to a callable unit
+     * Get worker interaction statements related to a callable unit.
      * @return Queue of worker interactions
      */
     Queue<Statement> getWorkerInteractionStatements ();
 
     /**
-     * Get the workers defined within a callable unit
+     * Get the workers defined within a callable unit.
      * @return Array of workers
      */
     Worker[] getWorkers();

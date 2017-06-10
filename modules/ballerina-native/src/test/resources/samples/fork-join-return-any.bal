@@ -34,8 +34,8 @@ function testForkJoinReturnAnyType()(int, string) {
         system:println(t);
     }
 
-system:println("After the fork-join statement");
 p = 111;
 q = "eeee";
+system:println("After the fork-join statement");
 return p, q;
 }

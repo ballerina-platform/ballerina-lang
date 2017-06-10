@@ -1543,7 +1543,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addTransactionStmt();
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getTransactionWS(tokenStream, ctx);
+            }
+            modelBuilder.addTransactionStmt(whiteSpaceDescriptor);
         }
     }
 
@@ -1598,7 +1602,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.createAbortStmt(getCurrentLocation(ctx));
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAbortStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createAbortStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
