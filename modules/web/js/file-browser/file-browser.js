@@ -21,6 +21,7 @@ import Backbone from 'backbone';
 import _ from 'lodash';
 import log from 'log';
 import 'jstree';
+import 'jstree/dist/themes/default/style.css';
 
 var FileBrowser = Backbone.View.extend({
 
