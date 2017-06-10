@@ -172,13 +172,16 @@ class ToolGroup extends React.Component {
 			optionsDisplay = { display : "block" };
 		}
 
+		//todo: find a proper solution, this is a hack to reduce connector package names.
+		let toolGroupName = group.get('toolGroupName').replace('org.wso2.ballerina.connectors.','')
+
 		let trigger = <div className="tool-group-header">
-						<a className="tool-group-header-title">{group.get('toolGroupName')}</a>
+						<a className="tool-group-header-title">{toolGroupName}</a>
 						<span className="collapse-icon fw fw-down"></span>
 					</div>;
 
 		let triggerWhenOpen = <div className="tool-group-header">
-						<a className="tool-group-header-title">{group.get('toolGroupName')}</a>
+						<a className="tool-group-header-title">{toolGroupName}</a>
 						<span className="collapse-icon fw fw-up"></span>
 					</div>;					
 
