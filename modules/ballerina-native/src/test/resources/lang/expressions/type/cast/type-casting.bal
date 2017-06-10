@@ -291,104 +291,104 @@ struct B {
     string x;
 }
 
-function testCompatibleStructForceCasting()(A, errors:CastError) {
+function testCompatibleStructForceCasting()(A, errors:TypeCastError) {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
     A c;
     
     b = (B) a;
-    errors:CastError err;
+    errors:TypeCastError err;
     c, err = (A) b;
     
     a.x = "updated-x-valueof-a";
     return c, err;
 }
 
-function testInCompatibleStructForceCasting()(A, errors:CastError) {
+function testInCompatibleStructForceCasting()(A, errors:TypeCastError) {
     B b = {x: "x-valueof-b"};
     A a;
-    errors:CastError err;
+    errors:TypeCastError err;
     a, err = (A) b;
     
     return a, err;
 }
 
-function testAnyToStringWithErrors()(string, errors:CastError) {
+function testAnyToStringWithErrors()(string, errors:TypeCastError) {
     any a = 5; 
     string s;
-    errors:CastError err;
+    errors:TypeCastError err;
     s, err = (string) a;
     
     return s, err;
 }
 
-function testAnyNullToStringWithErrors()(string, errors:CastError) {
+function testAnyNullToStringWithErrors()(string, errors:TypeCastError) {
     any a = null; 
     string s;
-    errors:CastError err;
+    errors:TypeCastError err;
     s, err = (string) a;
     
     return s, err;
 }
 
-function testAnyToBooleanWithErrors()(boolean, errors:CastError) {
+function testAnyToBooleanWithErrors()(boolean, errors:TypeCastError) {
     any a = 5; 
     boolean b;
-    errors:CastError err;
+    errors:TypeCastError err;
     b, err = (boolean) a;
     
     return b, err;
 }
 
-function testAnyNullToBooleanWithErrors()(boolean, errors:CastError) {
+function testAnyNullToBooleanWithErrors()(boolean, errors:TypeCastError) {
     any a = null; 
     boolean b;
-    errors:CastError err;
+    errors:TypeCastError err;
     b, err = (boolean) a;
     
     return b, err;
 }
 
-function testAnyToIntWithErrors()(int, errors:CastError) {
+function testAnyToIntWithErrors()(int, errors:TypeCastError) {
     any a = "foo"; 
     int b;
-    errors:CastError err;
+    errors:TypeCastError err;
     b, err = (int) a;
     
     return b, err;
 }
 
-function testAnyNullToIntWithErrors()(int, errors:CastError) {
+function testAnyNullToIntWithErrors()(int, errors:TypeCastError) {
     any a = null; 
     int b;
-    errors:CastError err;
+    errors:TypeCastError err;
     b, err = (int) a;
     
     return b, err;
 }
 
-function testAnyToFloatWithErrors()(float, errors:CastError) {
+function testAnyToFloatWithErrors()(float, errors:TypeCastError) {
     any a = "foo"; 
     float b;
-    errors:CastError err;
+    errors:TypeCastError err;
     b, err = (float) a;
     
     return b, err;
 }
 
-function testAnyNullToFloatWithErrors()(float, errors:CastError) {
+function testAnyNullToFloatWithErrors()(float, errors:TypeCastError) {
     any a = null; 
     float b;
-    errors:CastError err;
+    errors:TypeCastError err;
     b, err = (float) a;
     
     return b, err;
 }
 
-function testAnyToMapWithErrors()(map, errors:CastError) {
+function testAnyToMapWithErrors()(map, errors:TypeCastError) {
     any a = "foo"; 
     map b;
-    errors:CastError err;
+    errors:TypeCastError err;
     b, err = (map) a;
     
     return b, err;
@@ -397,7 +397,7 @@ function testAnyToMapWithErrors()(map, errors:CastError) {
 function testErrorInForceCasting()(A, errors:Error) {
     B b = {x: "x-valueof-b"};
     A a;
-    errors:CastError castError;
+    errors:TypeCastError castError;
     a, castError = (A) b;
     
     errors:Error error;

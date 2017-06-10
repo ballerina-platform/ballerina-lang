@@ -15,10 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.any;
+package org.ballerinalang.any;
 
-import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.annotations.BeforeClass;
@@ -28,23 +28,23 @@ import org.testng.annotations.Test;
  * Test class for assignment statement.
  */
 public class BAnyTypeInvalidCastError {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/any/any-type-invalid-cast.bal");
+        programFile = BTestUtils.getProgramFile("lang/any/any-type-invalid-cast.bal");
     }
     //todo below exception should be BLangRuntimeException, but current nonBlocking behavior throw BallerinaException
     //so for the time being, using that.
     @Test(expectedExceptions = {BallerinaException.class},
           expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'int' to type 'float'")
     public void testInvalidDirectCastFromAnyToDouble() {
-        BLangFunctions.invoke(bLangProgram, "invalidCastingError");
+        BLangFunctions.invokeNew(programFile, "invalidCastingError");
     }
 
     @Test(expectedExceptions = {BallerinaException.class},
           expectedExceptionsMessageRegExp = "cannot cast 'null' value to type 'int'")
     public void testCastingUndefinedAnyValue() {
-        BLangFunctions.invoke(bLangProgram, "undefinedCasting");
+        BLangFunctions.invokeNew(programFile, "undefinedCasting");
     }
 }

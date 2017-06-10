@@ -45,6 +45,8 @@ public class BLangVMErrors {
     public static final String ERROR_PACKAGE = "ballerina.lang.errors";
     public static final String STRUCT_GENERIC_ERROR = "Error";
     public static final String STRUCT_NULL_REF_ERROR = "NullReferenceError";
+    public static final String STRUCT_TYPE_CAST_ERROR = "TypeCastError";
+    public static final String STRUCT_TYPE_CONVERSION_ERROR = "TypeConversionError";
     public static final String STRUCT_STACKTRACE = "StackTrace";
     public static final String STRUCT_STACKTRACE_ITEM = "StackTraceItem";
 
@@ -90,14 +92,58 @@ public class BLangVMErrors {
     /**
      * Create NullReferenceError.
      *
-     * @param context   current Context
-     * @param ip        current instruction pointer
+     * @param context current Context
+     * @param ip      current instruction pointer
      * @return created NullReferenceError
      */
     public static BStruct createNullRefError(Context context, int ip) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_ERROR);
         BStruct error = createBStruct(errorStructInfo);
+
+        // Set StackTrace.
+        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
+        error.setStackTrace(bStackTrace);
+        return error;
+    }
+
+    /**
+     * Create TypeCastError.
+     *
+     * @param context current Context
+     * @param ip      current instruction pointer
+     * @return created NullReferenceError
+     */
+    public static BStruct createTypeCastError(Context context, int ip, BType sourceType, BType targetType) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CAST_ERROR);
+
+        String errorMsg = "'" + sourceType + "' cannot be cast to '" + targetType + "'";
+        BStruct error = createBStruct(errorStructInfo, errorMsg, null,
+                sourceType.toString(), targetType.toString());
+
+        // Set StackTrace.
+        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
+        error.setStackTrace(bStackTrace);
+        return error;
+    }
+
+    /**
+     * Create TypeConversionError.
+     *
+     * @param context current Context
+     * @param ip      current instruction pointer
+     * @return created NullReferenceError
+     */
+    public static BStruct createTypeConversionError(Context context, int ip, BType sourceType, BType targetType) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
+
+        String errorMsg = "'" + sourceType + "' cannot be converted to '" + targetType + "'";
+        BStruct error = createBStruct(errorStructInfo, errorMsg, null,
+                sourceType.toString(), targetType.toString());
 
         // Set StackTrace.
         StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);

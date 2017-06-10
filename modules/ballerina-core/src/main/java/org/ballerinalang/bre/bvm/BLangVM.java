@@ -200,6 +200,7 @@ public class BLangVM {
         BRefType bRefType;
         BJSON jsonVal;
         BXML xmlVal;
+        BStruct errorVal;
 
         StructureRefCPEntry structureRefCPEntry;
         FunctionCallCPEntry funcCallCPEntry;
@@ -1152,295 +1153,53 @@ public class BLangVM {
                     // clear error.
                     context.setError(null);
                     break;
-                case InstructionCodes.I2F:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.doubleRegs[j] = (double) sf.longRegs[i];
-                    break;
-                case InstructionCodes.I2S:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.stringRegs[j] = Long.toString(sf.longRegs[i]);
-                    break;
-                case InstructionCodes.I2B:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.intRegs[j] = sf.longRegs[i] != 0 ? 1 : 0;
-                    break;
+
                 case InstructionCodes.I2ANY:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BInteger(sf.longRegs[i]);
-                    break;
-                case InstructionCodes.I2JSON:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BJSON(Long.toString(sf.longRegs[i]));
-                    break;
-                case InstructionCodes.F2I:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.longRegs[j] = (long) sf.doubleRegs[i];
-                    break;
-                case InstructionCodes.F2S:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.stringRegs[j] = Double.toString(sf.doubleRegs[i]);
-                    break;
-                case InstructionCodes.F2B:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.intRegs[j] = sf.doubleRegs[i] != 0.0 ? 1 : 0;
-                    break;
                 case InstructionCodes.F2ANY:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BFloat(sf.doubleRegs[i]);
-                    break;
-                case InstructionCodes.F2JSON:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BJSON(Double.toString(sf.doubleRegs[i]));
-                    break;
-                case InstructionCodes.S2I:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-
-                    try {
-                        sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
-                    } catch (NumberFormatException e) {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
-                case InstructionCodes.S2F:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-
-                    try {
-                        sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
-                    } catch (NumberFormatException e) {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
-                case InstructionCodes.S2B:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-
-                    try {
-                        sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
-                    } catch (NumberFormatException e) {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
                 case InstructionCodes.S2ANY:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BString(sf.stringRegs[i]);
-                    break;
-                case InstructionCodes.S2JSON:
-                    i = operands[0];
-                    j = operands[1];
-                    String jsonStr = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
-                    sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
-                    break;
-                case InstructionCodes.B2I:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.longRegs[j] = sf.intRegs[i];
-                    break;
-                case InstructionCodes.B2F:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.doubleRegs[j] = sf.intRegs[i];
-                    break;
-                case InstructionCodes.B2S:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.stringRegs[j] = sf.intRegs[i] == 1 ? "true" : "false";
-                    break;
                 case InstructionCodes.B2ANY:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
-                    break;
-                case InstructionCodes.B2JSON:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
-                    break;
                 case InstructionCodes.L2ANY:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BBlob(sf.byteRegs[i]);
-                    break;
-                case InstructionCodes.JSON2I:
-                    convertJSONToInt(operands, sf);
-                    break;
-                case InstructionCodes.JSON2F:
-                    convertJSONToFloat(operands, sf);
-                    break;
-                case InstructionCodes.JSON2S:
-                    convertJSONToString(operands, sf);
-                    break;
-                case InstructionCodes.JSON2B:
-                    convertJSONToBoolean(operands, sf);
-                    break;
-
                 case InstructionCodes.ANY2I:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeInt) {
-                        sf.longRegs[j] = ((BInteger) bRefType).intValue();
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
                 case InstructionCodes.ANY2F:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeFloat) {
-                        sf.doubleRegs[j] = ((BFloat) bRefType).floatValue();
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
                 case InstructionCodes.ANY2S:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeString) {
-                        sf.stringRegs[j] = bRefType.stringValue();
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
                 case InstructionCodes.ANY2B:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeBoolean) {
-                        sf.intRegs[j] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
                 case InstructionCodes.ANY2L:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeBlob) {
-                        sf.byteRegs[j] = ((BBlob) bRefType).blobValue();
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
                 case InstructionCodes.ANY2JSON:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeJSON) {
-                        sf.refRegs[j] = bRefType;
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
-                case InstructionCodes.ANY2T:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() instanceof BStructType) {
-                        sf.refRegs[j] = bRefType;
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
+                case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeMap) {
-                        sf.refRegs[j] = bRefType;
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
                 case InstructionCodes.ANY2MSG:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    bRefType = sf.refRegs[i];
-
-                    if (bRefType.getType() == BTypes.typeMessage) {
-                        sf.refRegs[j] = bRefType;
-                    } else {
-                        // TODO
-                        throw new BallerinaException("incompatible types");
-                    }
-                    break;
+                case InstructionCodes.ANY2T:
+                case InstructionCodes.ANY2C:
                 case InstructionCodes.NULL2JSON:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BJSON("null");
-                    break;
                 case InstructionCodes.CHECKCAST:
-                    i = operands[0];
-                    cpIndex = operands[1];
-                    j = operands[2];
-                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    execTypeCastOpcodes(sf, opcode, operands);
+                    break;
 
-                    // TODO NULL Check  and Array casting
-                    if (checkCast(sf.refRegs[i].getType(), typeCPEntry.getType())) {
-                        sf.refRegs[j] = sf.refRegs[i];
-                    } else {
-                        throw new BallerinaException("Incompatible types: " +
-                                sf.refRegs[i].getType() + " and " + typeCPEntry.getType());
-                        // TODO Handle cast errors
-                    }
-                    break;
+                case InstructionCodes.I2F:
+                case InstructionCodes.I2S:
+                case InstructionCodes.I2B:
+                case InstructionCodes.I2JSON:
+                case InstructionCodes.F2I:
+                case InstructionCodes.F2S:
+                case InstructionCodes.F2B:
+                case InstructionCodes.F2JSON:
+                case InstructionCodes.S2I:
+                case InstructionCodes.S2F:
+                case InstructionCodes.S2B:
+                case InstructionCodes.S2JSON:
+                case InstructionCodes.B2I:
+                case InstructionCodes.B2F:
+                case InstructionCodes.B2S:
+                case InstructionCodes.B2JSON:
+                case InstructionCodes.JSON2I:
+                case InstructionCodes.JSON2F:
+                case InstructionCodes.JSON2S:
+                case InstructionCodes.JSON2B:
                 case InstructionCodes.DT2XML:
-                    i = operands[0];
-                    j = operands[1];
-                    bRefType = sf.refRegs[i];
-                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
-                    break;
                 case InstructionCodes.DT2JSON:
-                    i = operands[0];
-                    j = operands[1];
-                    bRefType = sf.refRegs[i];
-                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
+                    execTypeConversionOpcodes(sf, opcode, operands);
                     break;
+
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
@@ -1448,12 +1207,12 @@ public class BLangVM {
                 case InstructionCodes.ARRAYLEN:
                     i = operands[0];
                     j = operands[1];
+
                     BNewArray array = (BNewArray) sf.refRegs[i];
                     if (array == null) {
                         handleNullRefError();
                         break;
                     }
-
                     sf.longRegs[j] = array.size();
                     break;
                 case InstructionCodes.FNEWARRAY:
@@ -1569,6 +1328,324 @@ public class BLangVM {
                     throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
             }
         }
+    }
+
+    private void execTypeCastOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        int cpIndex; // Index of the constant pool
+
+        BRefType bRefType;
+        TypeCPEntry typeCPEntry;
+
+        switch (opcode) {
+            case InstructionCodes.I2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BInteger(sf.longRegs[i]);
+                break;
+            case InstructionCodes.F2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BFloat(sf.doubleRegs[i]);
+                break;
+            case InstructionCodes.S2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BString(sf.stringRegs[i]);
+                break;
+            case InstructionCodes.B2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
+                break;
+            case InstructionCodes.L2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BBlob(sf.byteRegs[i]);
+                break;
+            case InstructionCodes.ANY2I:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeInt);
+                } else if (bRefType.getType() == BTypes.typeInt) {
+                    sf.longRegs[j] = ((BInteger) bRefType).intValue();
+                } else {
+                    handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeInt);
+                }
+                break;
+            case InstructionCodes.ANY2F:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeFloat);
+                } else if (bRefType.getType() == BTypes.typeFloat) {
+                    sf.doubleRegs[j] = ((BFloat) bRefType).floatValue();
+                } else {
+                    handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeFloat);
+                }
+                break;
+            case InstructionCodes.ANY2S:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeString);
+                } else if (bRefType.getType() == BTypes.typeString) {
+                    sf.stringRegs[j] = bRefType.stringValue();
+                } else {
+                    handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeString);
+                }
+                break;
+            case InstructionCodes.ANY2B:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeBoolean);
+                } else if (bRefType.getType() == BTypes.typeBoolean) {
+                    sf.intRegs[j] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
+                } else {
+                    handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeBoolean);
+                }
+                break;
+            case InstructionCodes.ANY2L:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeBlob);
+                } else if (bRefType.getType() == BTypes.typeBlob) {
+                    sf.byteRegs[j] = ((BBlob) bRefType).blobValue();
+                } else {
+                    handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeBlob);
+                }
+                break;
+            case InstructionCodes.ANY2JSON:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeJSON);
+                break;
+            case InstructionCodes.ANY2XML:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeXML);
+                break;
+            case InstructionCodes.ANY2MAP:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeMap);
+                break;
+            case InstructionCodes.ANY2MSG:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeMessage);
+                break;
+            case InstructionCodes.ANY2DT:
+                handleAnyToRefTypeCast(sf, operands, BTypes.typeDatatable);
+                break;
+            case InstructionCodes.ANY2T:
+            case InstructionCodes.ANY2C:
+            case InstructionCodes.CHECKCAST:
+                i = operands[0];
+                cpIndex = operands[1];
+                j = operands[2];
+                k = operands[3];
+                typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.refRegs[j] = null;
+                } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
+                    sf.refRegs[j] = sf.refRegs[i];
+                } else {
+                    handleTypeCastError(sf, k, bRefType.getType(), typeCPEntry.getType());
+                }
+                break;
+            case InstructionCodes.NULL2JSON:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON("null");
+                break;
+            default:
+                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
+        }
+    }
+
+    private void execTypeConversionOpcodes(StackFrame sf, int opcode, int[] operands) {
+        int i;
+        int j;
+        int k;
+        int cpIndex; // Index of the constant pool
+
+        BRefType bRefType;
+        BStruct errorVal;
+        TypeCPEntry typeCPEntry;
+
+        switch (opcode) {
+            case InstructionCodes.I2F:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = (double) sf.longRegs[i];
+                break;
+            case InstructionCodes.I2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = Long.toString(sf.longRegs[i]);
+                break;
+            case InstructionCodes.I2B:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = sf.longRegs[i] != 0 ? 1 : 0;
+                break;
+            case InstructionCodes.I2JSON:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON(Long.toString(sf.longRegs[i]));
+                break;
+            case InstructionCodes.F2I:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = (long) sf.doubleRegs[i];
+                break;
+            case InstructionCodes.F2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = Double.toString(sf.doubleRegs[i]);
+                break;
+            case InstructionCodes.F2B:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = sf.doubleRegs[i] != 0.0 ? 1 : 0;
+                break;
+            case InstructionCodes.F2JSON:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON(Double.toString(sf.doubleRegs[i]));
+                break;
+            case InstructionCodes.S2I:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                try {
+                    sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
+                } catch (NumberFormatException e) {
+                    errorVal = BLangVMErrors.createTypeConversionError(context, ip,
+                            BTypes.typeString, BTypes.typeInt);
+
+                }
+                break;
+            case InstructionCodes.S2F:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                try {
+                    sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
+                } catch (NumberFormatException e) {
+                    // TODO
+                    throw new BallerinaException("incompatible types");
+                }
+                break;
+            case InstructionCodes.S2B:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                try {
+                    sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
+                } catch (NumberFormatException e) {
+                    // TODO
+                    throw new BallerinaException("incompatible types");
+                }
+                break;
+            case InstructionCodes.S2JSON:
+                i = operands[0];
+                j = operands[1];
+                String jsonStr = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
+                sf.refRegs[j] = new BJSON("\"" + jsonStr + "\"");
+                break;
+            case InstructionCodes.B2I:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = sf.intRegs[i];
+                break;
+            case InstructionCodes.B2F:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = sf.intRegs[i];
+                break;
+            case InstructionCodes.B2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = sf.intRegs[i] == 1 ? "true" : "false";
+                break;
+            case InstructionCodes.B2JSON:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
+                break;
+            case InstructionCodes.JSON2I:
+                convertJSONToInt(operands, sf);
+                break;
+            case InstructionCodes.JSON2F:
+                convertJSONToFloat(operands, sf);
+                break;
+            case InstructionCodes.JSON2S:
+                convertJSONToString(operands, sf);
+                break;
+            case InstructionCodes.JSON2B:
+                convertJSONToBoolean(operands, sf);
+                break;
+            case InstructionCodes.DT2XML:
+                i = operands[0];
+                j = operands[1];
+                bRefType = sf.refRegs[i];
+                sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
+                break;
+            case InstructionCodes.DT2JSON:
+                i = operands[0];
+                j = operands[1];
+                bRefType = sf.refRegs[i];
+                sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
+                break;
+            default:
+                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
+        }
+    }
+
+    private void handleAnyToRefTypeCast(StackFrame sf, int[] operands, BType targetType) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+
+        BRefType bRefType = sf.refRegs[i];
+        if (bRefType == null) {
+            sf.refRegs[j] = null;
+        } else if (bRefType.getType() == targetType) {
+            sf.refRegs[j] = bRefType;
+        } else {
+            handleTypeCastError(sf, k, bRefType.getType(), targetType);
+        }
+    }
+
+    private void handleTypeCastError(StackFrame sf, int errorRegIndex, BType sourceType, BType targetType) {
+        BStruct errorVal;
+        errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType, targetType);
+        if (errorRegIndex == -1) {
+            context.setError(errorVal);
+            handleError();
+            return;
+        }
+
+        sf.refRegs[errorRegIndex] = errorVal;
     }
 
     private void handleReply(int[] operands, StackFrame sf) {
@@ -1774,8 +1851,6 @@ public class BLangVM {
             }
             controlStack.getCurrentFrame().getRefLocalVars()[offsetTimeout] = mbMap;
 
-            //controlStack.setValue(offsetTimeout, bbArray);
-            //forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
             isForkJoinTimedOut = false;
 
         } else {
@@ -1788,29 +1863,7 @@ public class BLangVM {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
             }
             controlStack.getCurrentFrame().getRefLocalVars()[offsetJoin] = mbMap;
-            //controlStack.setValue(offsetJoin, bbArray);
-            //forkJoinStmt.getJoin().getJoinBlock().execute(this);
         }
-
-//        for (WorkerInfo workerInfo : forkJoinCPEntry.getWorkerInfoMap().values()) {
-//            Context workerContext = new Context();
-//            WorkerCallback workerCallback = new WorkerCallback(workerContext);
-//            workerContext.setBalCallback(workerCallback);
-//
-//            ControlStackNew controlStack = workerContext.getControlStackNew();
-//            StackFrame calleeSF = new StackFrame(callableUnitInfo, workerInfo, -1, new int[0]);
-//            controlStack.pushFrame(calleeSF);
-//
-//            // Copy arg values from the current StackFrame to the new StackFrame
-//            // TODO fix this. Move the copyArgValues method to another util function
-//            BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-//
-//            BLangVM bLangVM = new BLangVM(programFile);
-//            ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-//            BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM, callableUnitInfo,
-//            workerContext, workerInfo);
-//            executor.submit(workerRunner);
-//        }
     }
 
     private WorkerResult invokeAnyWorker(List<BLangVMWorkers.WorkerExecutor> workerRunnerList, long timeout) {
@@ -1856,34 +1909,8 @@ public class BLangVM {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
-        //currentFrame.returnValues = passedInValues;
         copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
                 types, passedInValues);
-//        for (int i = 0; i < localVars.length; i++) {
-//            Expression lExpr = localVars[i];
-//            BValue rValue = passedInValues[i];
-//            if (lExpr instanceof VariableRefExpr) {
-//                assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
-//            } else if (lExpr instanceof ArrayMapAccessExpr) {
-//                assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
-//            } else if (lExpr instanceof FieldAccessExpr) {
-//                assignValueToFieldAccessExpr(rValue, (FieldAccessExpr) lExpr);
-//            }
-//        }
-//        int[] argRegs = funcCallCPEntry.getArgRegs();
-//        BType[] paramTypes = callableUnitInfo.getParamTypes();
-//        StackFrame callerSF = controlStack.getCurrentFrame();
-//
-//        StackFrame calleeSF = new StackFrame(callableUnitInfo, ip, funcCallCPEntry.getRetRegs());
-//        controlStack.pushFrame(calleeSF);
-//
-//        // Copy arg values from the current StackFrame to the new StackFrame
-//        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
-//
-//        // TODO Improve following two lines
-//        this.constPool = calleeSF.packageInfo.getConstPool().toArray(new ConstantPoolEntry[0]);
-//        this.code = calleeSF.packageInfo.getInstructionList().toArray(new Instruction[0]);
-//        ip = callableUnitInfo.getCodeAttributeInfo().getCodeAddrs();
     }
 
     public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,

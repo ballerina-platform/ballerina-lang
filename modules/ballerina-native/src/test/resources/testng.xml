@@ -49,6 +49,24 @@ under the License.
         </packages>
     </test>
 
+    <test name="ballerina-native-expr-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.expressions"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-native-stmt-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.statements"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-native-values-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.values"/>
+        </packages>
+    </test>
+
     <!-- Service Related Test Cases -->
 
     <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
