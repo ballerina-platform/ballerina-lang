@@ -18,15 +18,16 @@
 import _ from 'lodash';
 import log from 'log';
 import Expression from './expression';
+import FragmentUtils from './../../utils/fragment-utils';
 
 class FieldAccessExpression extends Expression {
     constructor(args) {
         super('FieldAccessExpression');
         this._isArrayExpression = _.get(args, 'isArrayExpression', false);
-    }
-
-    getExpression(){
-        return this.generateExpression();
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ''
+        };
     }
 
     /**
@@ -34,22 +35,23 @@ class FieldAccessExpression extends Expression {
      * {@link VariableReferenceExpression} and the 2nd being {@link FieldAccessExpression} or another expression
      * such as {@link FunctionInvocationExpression}. Hence if 2nd child exists, we call getExpression() on that child.
      * @return {string}
+     * @override
      */
-    generateExpression() {
+    getExpressionString() {
         if (this.getChildren().length === 1) {
             var exp = this.getChildren()[0];
             if (this.getFactory().isBasicLiteralExpression(exp)) {
                 if (exp.getBasicLiteralType() === 'string') {
                     if (this.getIsArrayExpression()) {
-                        return '[' + exp.generateExpression() + ']';
+                        return '[' + exp.getExpressionString() + ']';
                     } else {
                         return '.' + exp.getBasicLiteralValue();
                     }
                 } else {
-                    return '[' + exp.generateExpression() + ']';
+                    return '[' + exp.getExpressionString() + ']';
                 }
             } else {
-                return '[' + exp.generateExpression() + ']';
+                return '[' + exp.getExpressionString() + ']';
             }
         } else if (this.getChildren().length === 2) {
             var firstVar = this.getChildren()[0];
@@ -57,26 +59,54 @@ class FieldAccessExpression extends Expression {
             if (this.getFactory().isFieldAccessExpression(this.getParent())) {
                 // if this is an inner field access expression
                 if (this.getIsArrayExpression()) {
-                    return '[' + firstVar.generateExpression() + ']' + secondVar.generateExpression();
+                    return '[' + firstVar.getExpressionString() + ']' + secondVar.getExpressionString();
                 } else {
                     if (this.getFactory().isBasicLiteralExpression(firstVar)) {
                         if (firstVar.getBasicLiteralType() === 'string') {
                             if (this.getIsArrayExpression()) {
-                                return '[' + firstVar.generateExpression() + ']' + secondVar.generateExpression();
+                                return '[' + firstVar.getExpressionString() + ']' + secondVar.getExpressionString();
                             } else {
-                                return '.' + firstVar.getBasicLiteralValue() + secondVar.generateExpression();
+                                return '.' + firstVar.getBasicLiteralValue() + secondVar.getExpressionString();
                             }
                         }
                     } else {
-                        return '.' + firstVar.generateExpression() + secondVar.generateExpression();
+                        return '.' + firstVar.getExpressionString() + secondVar.getExpressionString();
                     }
                 }
             } else {
-                return firstVar.generateExpression() + secondVar.generateExpression();
+                return firstVar.getExpressionString() + secondVar.getExpressionString();
             }
 
         } else {
             log.error('Error in determining Field Access expression');
+        }
+    }
+
+    setExpressionFromString(expressionString) {
+        const fragment = FragmentUtils.createExpressionFragment(expressionString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'field_access_expression')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Field Access Expression Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
         }
     }
 
@@ -93,6 +123,7 @@ class FieldAccessExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         this.setIsArrayExpression(jsonNode.is_array_expression, {doSilently: true});
         _.each(jsonNode.children, childNode => {
             var child = this.getFactory().createFromJson(childNode);

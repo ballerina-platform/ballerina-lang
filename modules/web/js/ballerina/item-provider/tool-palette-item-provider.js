@@ -48,13 +48,13 @@ class ToolPaletteItemProvider extends EventChannel {
         var self = this;
         // Packages to be added to the tool palette by default in order.
         this._defaultImportedPackages = [];
-        _.forEach(["ballerina.net.http", "ballerina.lang.*"],
+        /*_.forEach(["ballerina.net.http", "ballerina.lang.*"],
             function (defaultPackageString) {
                 var packagesToImport = self._ballerinaFileEditor._environment.searchPackage(defaultPackageString);
                 _.forEach(packagesToImport, function (packageToImport) {
                     self._defaultImportedPackages.push(packageToImport);
                 });
-            });
+            });*/
 
         // views added to tool palette for each imported package keyed by package name
         this._importedPackagesViews = {};
@@ -246,17 +246,32 @@ class ToolPaletteItemProvider extends EventChannel {
         }]);
 
         _.each(connectorsOrdered, function (connector) {
-            var packageName = _.last(_.split(pckg.getName(), '.'));
+            let packageName = _.last(_.split(pckg.getName(), '.'));
             connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
-            var getParamString = function() {
-                var params = _.map(connector.getParams(), function(p){return p.identifier;});
-                return _.join(params, ', ');
-            };
+            let createConnectorDeclChildren = function() {
+                let params =  _.map(connector.getParams(),
+                    (param) => {
+                        return BallerinaASTFactory
+                          .createVariableReferenceExpression({variableName: param.identifier});
+                    }
+                );
+                let varDef = BallerinaASTFactory
+                      .createVariableDefinition({pkgPath:packageName, typeName: connector.getName()});
+                let varRef = BallerinaASTFactory
+                  .createVariableReferenceExpression();
+                varRef.addChild(varDef);
+                let connectorName = BallerinaASTFactory.createSimpleTypeName({typeName:connector.getName(),
+                    packageName: packageName, fullPackageName: pckg.getName()});
+
+                let connectorInit = BallerinaASTFactory.createConnectorInitExpression({arguments: params,
+                    connectorName: connectorName})
+                let children = [];
+                children.push(varRef);
+                children.push(connectorInit);
+                return children;
+            }
             connector.meta = {
-                connectorName: connector.getName(),
-                connectorPackageName: packageName,
-                fullPackageName: pckg.getName(),
-                params: getParamString()
+                childrenFactory: createConnectorDeclChildren
             };
             //TODO : use a generic icon
             connector.icon = self.icons.connector;
@@ -271,11 +286,6 @@ class ToolPaletteItemProvider extends EventChannel {
                 _.forEach(connector.getActions(), function (action) {
                     self.updateToolItem(toolGroupID, action, '', newName, 'actionConnectorName');
                 });
-            });
-
-            connector.on('param-added', function (newName, oldName) {
-                var paramString = getParamString();
-                self.updateToolItem(toolGroupID, connector, 'params', paramString, 'params');
             });
 
             var actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
@@ -347,17 +357,10 @@ class ToolPaletteItemProvider extends EventChannel {
             }
 
             var packageName = _.last(_.split(pckg.getName(), '.'));
-            if (functionDef.getReturnParams().length > 0){
-                functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression;
-            } else {
-                functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
-            }
+            functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
             functionDef.meta = {
-                functionName: functionDef.getName(),
+                functionDef: functionDef,
                 packageName: packageName,
-                params: getArgumentString(functionDef.getParameters()),
-                returnParams: getReturnParamString(functionDef.getReturnParams()),
-                operandType: getReturnParamString(functionDef.getReturnParams()),
                 fullPackageName: pckg.getName()
             };
             functionDef.icon = self.icons.function;
@@ -386,16 +389,31 @@ class ToolPaletteItemProvider extends EventChannel {
             var toolGroupID = pckg.getName() + "-tool-group";
             var icon = self.icons.connector;
 
-            var getParamString = function() {
-                var params = _.map(connector.getParams(), function(p){return p.identifier;});
-                return _.join(params, ',');
-            };
+            let createConnectorDeclChildren = function() {
+                let params =  _.map(connector.getParams(),
+                    (param) => {
+                        return BallerinaASTFactory
+                          .createVariableReferenceExpression({variableName: param.identifier});
+                    }
+                );
+                let varDef = BallerinaASTFactory
+                      .createVariableDefinition({typeName: packageName + ':' + connector.getName()});
+                let varRef = BallerinaASTFactory
+                  .createVariableReferenceExpression();
+                varRef.addChild(varDef);
+                let connectorName = BallerinaASTFactory.createSimpleTypeName({typeName:connector.getName(),
+                    packageName: packageName});
+
+                let connectorInit = BallerinaASTFactory.createConnectorInitExpression({arguments: params,
+                    connectorName: connectorName})
+                let children = [];
+                children.push(varRef);
+                children.push(connectorInit);
+                return children;
+            }
 
             connector.meta = {
-                connectorName: connector.getName(),
-                connectorPackageName: packageName,
-                fullPackageName: pckg.getName(),
-                params: getParamString()
+                childrenFactory: createConnectorDeclChildren
             };
 
             this.addToToolGroup(toolGroupID, connector, nodeFactoryMethod, icon);
@@ -450,14 +468,11 @@ class ToolPaletteItemProvider extends EventChannel {
             }
 
             var nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
-            if (functionDef.getReturnParams().length > 0){
-                nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression;
-            }
 
             // since functions are added to the current package, function name does not need
             // packageName:functionName format
             functionDef.meta = {
-                functionName: functionDef.getName()
+                functionDef: functionDef
             };
             var toolGroupID = pckg.getName() + "-tool-group";
             var icon = self.icons.function;
@@ -538,6 +553,270 @@ class ToolPaletteItemProvider extends EventChannel {
     getPackageToImport(packageString) {
         return this._ballerinaFileEditor._environment.searchPackage(packageString);
     }
+
+    /**
+     * Create and return a ToolGroup object for a given package
+     * @param pckg {Package} Package Object.
+     */
+    getCombinedToolGroup(pckg) {
+		var definitions = [];
+        var self = this;
+
+        // Sort the connector package by name
+        var connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
+            return connectorPackage.getName();
+        }]);
+
+        var functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
+            return functionDef.getName();
+        }]);
+
+        _.each(connectorsOrdered, function (connector) {
+            let packageName = _.last(_.split(pckg.getName(), '.'));
+            connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
+            let createConnectorDeclChildren = function() {
+                let params =  _.map(connector.getParams(),
+                    (param) => {
+                        return BallerinaASTFactory
+                          .createVariableReferenceExpression({variableName: param.identifier});
+                    }
+                );
+                let varDef = BallerinaASTFactory
+                      .createVariableDefinition({pkgPath:packageName, typeName: connector.getName()});
+                let varRef = BallerinaASTFactory
+                  .createVariableReferenceExpression();
+                varRef.addChild(varDef);
+                let connectorName = BallerinaASTFactory.createSimpleTypeName({typeName:connector.getName(),
+                    packageName: packageName, fullPackageName: pckg.getName()});
+
+                let connectorInit = BallerinaASTFactory.createConnectorInitExpression({arguments: params,
+                    connectorName: connectorName})
+                let children = [];
+                children.push(varRef);
+                children.push(connectorInit);
+                return children;
+            }
+            connector.meta = {
+                childrenFactory: createConnectorDeclChildren
+            };
+            //TODO : use a generic icon
+            connector.icon = self.icons.connector;
+            connector.title = connector.getName();
+            connector.id = connector.getName();
+            definitions.push(connector);
+
+            var toolGroupID = pckg.getName() + "-tool-group";
+
+            var actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
+                return action.getName();
+            }]);
+            _.each(actionsOrdered, function (action, index, collection) {
+                /* We need to add a special class to actions to indent them in tool palette. */
+                action.setId(connector.getName() + "-" + action.getName());
+                action.classNames = "tool-connector-action";
+                if ((index + 1 ) == collection.length) {
+                    action.classNames = "tool-connector-action tool-connector-last-action";
+                }
+                action.meta = {
+                    action: action.getName(),
+                    actionConnectorName: connector.getName(),
+                    actionPackageName: packageName,
+                    fullPackageName: pckg.getName()
+                };
+                action.icon = self.icons.action;
+
+                action.title = action.getName();
+
+                action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                if (action.getReturnParams().length > 0){
+                    action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                }
+
+                action.id = action.getId();
+                definitions.push(action);
+                var toolGroupID = pckg.getName() + "-tool-group";
+                // registering connector action name-modified event
+                action.on('name-modified', function(newName, oldName){
+                    self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
+                });
+            });
+        });
+
+        _.each(functionsOrdered, function (functionDef) {
+            if(functionDef.getName() === "main") {
+                //do not add main function to tool palette
+                return;
+            }
+
+            var packageName = _.last(_.split(pckg.getName(), '.'));
+            functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+            functionDef.meta = {
+                functionDef: functionDef,
+                packageName: packageName,
+                fullPackageName: pckg.getName()
+            };
+            functionDef.icon = self.icons.function;
+
+            functionDef.title = functionDef.getName();
+            functionDef.id = functionDef.getName();
+            definitions.push(functionDef);
+
+            var toolGroupID = pckg.getName() + "-tool-group";
+        });
+
+        var group = new ToolGroup({
+            toolGroupName: pckg.getName(),
+            toolGroupID: pckg.getName() + "-tool-group",
+            toolOrder: "vertical",
+            toolDefinitions: definitions
+        });
+
+        return group;
+    }
+
+
+    /**
+     * Create and return a ToolGroup object for a given package
+     * @param pckg {Package} Package Object.
+     */
+    getConnectorToolGroup(pckg) {
+		var definitions = [];
+        var self = this;
+
+        // Sort the connector package by name
+        var connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
+            return connectorPackage.getName();
+        }]);
+
+        var functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
+            return functionDef.getName();
+        }]);
+
+        _.each(connectorsOrdered, function (connector) {
+            let packageName = _.last(_.split(pckg.getName(), '.'));
+            connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
+            let createConnectorDeclChildren = function() {
+                let params =  _.map(connector.getParams(),
+                    (param) => {
+                        return BallerinaASTFactory
+                          .createVariableReferenceExpression({variableName: param.identifier});
+                    }
+                );
+                let varDef = BallerinaASTFactory
+                      .createVariableDefinition({pkgPath:packageName, typeName: connector.getName()});
+                let varRef = BallerinaASTFactory
+                  .createVariableReferenceExpression();
+                varRef.addChild(varDef);
+                let connectorName = BallerinaASTFactory.createSimpleTypeName({typeName:connector.getName(),
+                    packageName: packageName, fullPackageName: pckg.getName()});
+
+                let connectorInit = BallerinaASTFactory.createConnectorInitExpression({arguments: params,
+                    connectorName: connectorName})
+                let children = [];
+                children.push(varRef);
+                children.push(connectorInit);
+                return children;
+            }
+            connector.meta = {
+                childrenFactory: createConnectorDeclChildren
+            };
+            //TODO : use a generic icon
+            connector.icon = self.icons.connector;
+            connector.title = connector.getName();
+            connector.id = connector.getName();
+            definitions.push(connector);
+
+            var toolGroupID = pckg.getName() + "-tool-group";
+
+            var actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
+                return action.getName();
+            }]);
+            _.each(actionsOrdered, function (action, index, collection) {
+                /* We need to add a special class to actions to indent them in tool palette. */
+                action.setId(connector.getName() + "-" + action.getName());
+                action.classNames = "tool-connector-action";
+                if ((index + 1 ) == collection.length) {
+                    action.classNames = "tool-connector-action tool-connector-last-action";
+                }
+                action.meta = {
+                    action: action.getName(),
+                    actionConnectorName: connector.getName(),
+                    actionPackageName: packageName,
+                    fullPackageName: pckg.getName()
+                };
+                action.icon = self.icons.action;
+
+                action.title = action.getName();
+
+                action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                if (action.getReturnParams().length > 0){
+                    action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                }
+
+                action.id = action.getId();
+                definitions.push(action);
+                var toolGroupID = pckg.getName() + "-tool-group";
+                // registering connector action name-modified event
+                action.on('name-modified', function(newName, oldName){
+                    self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
+                });
+            });
+        });
+
+        var group = new ToolGroup({
+            toolGroupName: pckg.getName(),
+            toolGroupID: pckg.getName() + "-tool-group",
+            toolOrder: "vertical",
+            toolDefinitions: definitions
+        });
+
+        return group;
+    }	  
+
+
+    /**
+     * Create and return a ToolGroup object for a given package
+     * @param pckg {Package} Package Object.
+     */
+    getLibraryToolGroup(pckg) {
+		var definitions = [];
+        var self = this;
+
+        var functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
+            return functionDef.getName();
+        }]);
+
+        _.each(functionsOrdered, function (functionDef) {
+            if(functionDef.getName() === "main") {
+                //do not add main function to tool palette
+                return;
+            }
+
+            var packageName = _.last(_.split(pckg.getName(), '.'));
+            functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+            functionDef.meta = {
+                functionDef: functionDef,
+                packageName: packageName,
+                fullPackageName: pckg.getName()
+            };
+            functionDef.icon = self.icons.function;
+
+            functionDef.title = functionDef.getName();
+            functionDef.id = functionDef.getName();
+            definitions.push(functionDef);
+
+            var toolGroupID = pckg.getName() + "-tool-group";
+        });
+
+        var group = new ToolGroup({
+            toolGroupName: pckg.getName(),
+            toolGroupID: pckg.getName() + "-tool-group",
+            toolOrder: "vertical",
+            toolDefinitions: definitions
+        });
+
+        return group;
+    }      
 }
 
 /**

@@ -176,7 +176,8 @@ class Tools extends EventChannel {
     connect() {
         $('.debug-connection-group').removeClass('has-error');
         $('.debug-connection-error').addClass('hide');
-        DebugManager.connect($('#debugUrl').val());
+        const debugUrl = `ws://${$('#debugUrl').val()}/debug`;
+        DebugManager.connect(debugUrl);
     }
 
     connectionError() {

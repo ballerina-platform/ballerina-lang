@@ -31,6 +31,15 @@ class ConnectorAction extends ASTNode {
         super('ConnectorAction');
         this.action_name = _.get(args, 'action_name');
         this.arguments = _.get(args, 'arguments', []);
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: ' ',
+            4: ' ',
+            5: '\n',
+            6: '\n'
+        };
     }
 
     /**
@@ -138,11 +147,13 @@ class ConnectorAction extends ASTNode {
      */
     getReturnTypesAsString() {
         let returnTypes = [];
-        _.forEach(this.getReturnTypes(), function (returnTypeChild) {
-            returnTypes.push(returnTypeChild.getParameterDefinitionAsString());
+        _.forEach(this.getReturnTypes(), function (returnTypeChild, index) {
+            let returnTypeTxt = (index !== 0 && returnTypeChild.whiteSpace.useDefault) ? ' ' : '';
+            returnTypeTxt += returnTypeChild.getParameterDefinitionAsString();
+            returnTypes.push(returnTypeTxt);
         });
 
-        return _.join(returnTypes, " , ");
+        return _.join(returnTypes, ',');
     }
 
     /**
@@ -356,9 +367,10 @@ class ConnectorAction extends ASTNode {
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId)  {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child);
+            Object.getPrototypeOf(this.constructor.prototype)
+              .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
@@ -367,7 +379,8 @@ class ConnectorAction extends ASTNode {
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
             }
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+            Object.getPrototypeOf(this.constructor.prototype)
+            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         }
     }
 

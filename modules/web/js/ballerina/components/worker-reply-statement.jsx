@@ -29,8 +29,8 @@ class WorkerReplyStatement extends React.Component {
             propertyType: 'text',
             key: 'WorkerReplyStatement',
             model: props.model,
-            getterMethod: props.model.getReplyStatement,
-            setterMethod: props.model.setReplyStatement
+            getterMethod: props.model.getStatementString,
+            setterMethod: props.model.setStatementFromString
         };
     }
 

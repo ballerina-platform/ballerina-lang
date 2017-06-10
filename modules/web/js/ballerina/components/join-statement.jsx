@@ -20,6 +20,8 @@ import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import PropTypes from 'prop-types';
 import {getComponentForNodeArray} from './utils';
+import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import './join-statement.css';
 
 class JoinStatement extends React.Component {
 
@@ -34,12 +36,13 @@ class JoinStatement extends React.Component {
             propertyType: 'text',
             key: 'Join Condition',
             model: props.model,
-            getterMethod: props.model.getJoinType,
-            setterMethod: props.model.setJoinType
+            getterMethod: props.model.getJoinConditionString,
+            setterMethod: props.model.setJoinConditionFromString
         };
         const parameterEditorOptions = {
             propertyType: 'text',
-            key: 'Join Condition',
+            key: 'Join Parameter',
+            value: parameterBbox.text,
             model: props.model,
             getterMethod: props.model.getParameterAsString,
             setterMethod: props.model.setParameterAsString
@@ -54,18 +57,39 @@ class JoinStatement extends React.Component {
             const lastChild = model.children[model.children.length - 1].viewState;
             lifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
         }
+
+        let addTimeoutBtn;
+        if (!model.parent.hasTimeout()) {
+            addTimeoutBtn =
+                (
+                    <g onClick={this.addTimeout.bind(this)}>
+                        <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20}  rx={10} ry={10} className='add-timeout-button'/>
+                        <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className='add-timeout-button-label'>+
+                        </text>
+                    </g>
+                );
+        } else {
+            addTimeoutBtn = null;
+        }
+
         return (
             <CompoundStatementDecorator model={model} bBox={bBox} onDelete={this.onDelete.bind(this)}>
                 <BlockStatementDecorator model={model} dropTarget={model} bBox={bBox} title={'Join'}
-                                         parameterBbox={parameterBbox} undeletable={true}
+                                         parameterBbox={parameterBbox} utilities={addTimeoutBtn} undeletable={true}
                                          parameterEditorOptions={parameterEditorOptions}
-                                         expression={{text: model.getJoinType()}} editorOptions={this.editorOptions}>
+                                         expression={{text: model.getJoinConditionString()}} editorOptions={this.editorOptions}>
                     {model.children.length > 0 &&
                     <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
                           className="join-lifeline"/> }
                     {children}
                 </BlockStatementDecorator>
             </CompoundStatementDecorator>);
+    }
+
+    addTimeout() {
+        const parent = this.props.model.parent;
+        const newTimeoutStatement = BallerinaASTFactory.createTimeoutStatement();
+        parent.addChild(newTimeoutStatement);
     }
 
     onDelete(){

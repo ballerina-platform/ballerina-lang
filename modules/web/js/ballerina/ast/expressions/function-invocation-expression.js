@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Constructor for FunctionInvocationExpression
@@ -29,11 +30,21 @@ class FunctionInvocationExpression extends Expression {
         super('FunctionInvocationExpression');
         this._packageName = _.get(args, 'packageName', '');
         this._functionName = _.get(args, 'functionName', 'callFunction');
-        this._params = _.get(args, 'params', '');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
-
-        //create the default expression for action invocation
-        this.setExpression(this.generateExpression());
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: '',
+            2: '',
+            3: ''
+        };
+        this.whiteSpace.defaultDescriptor.children =  {
+            nameRef: {
+                0: '',
+                1: '',
+                2: '',
+                3: ''
+            }
+        };
     }
 
     setFunctionName(functionName, options) {
@@ -60,46 +71,57 @@ class FunctionInvocationExpression extends Expression {
         return this._packageName;
     }
 
-    setParams(params, options) {
-        this.setAttribute('_params', params, options);
-    }
-
-    getParams() {
-        var params;
-        if(!_.isUndefined(this._params)) {
-            params = this._params.split(',');
-            return params;
-        }
-        else params = "";
-        return params;
-    }
-
-    setFunctionalExpression(expression, options) {
-        if(!_.isNil(expression) && expression !== "") {
-            var splittedText = expression.split("(",1)[0].split(":", 2);
-
-            if(splittedText.length == 2){
-                this.setPackageName(splittedText[0], options);
-                this.setFunctionName(splittedText[1]);
-            }else{
-                this.setPackageName("", options);
-                this.setFunctionName(splittedText[0]);
-            }
-
-            var params = expression.slice(((expression.indexOf(this._functionName) + 1)
-            + this._functionName.split("(", 1)[0].length), (expression.length - 1));
-
-            this.setParams(params, options);
-        }
-    }
-
-    getFunctionalExpression() {
-        var text = "";
+    /**
+     * Get the expression string
+     * @returns {string} expression string
+     * @override
+     */
+    getExpressionString() {
+        var text = '';
         if (!_.isNil(this._packageName) && !_.isEmpty(this._packageName) && !_.isEqual(this._packageName, 'Current Package')) {
-            text += this._packageName + ":";
+            text += this._packageName + this.getChildWSRegion('nameRef', 1) + ':';
         }
-        text += this._functionName + '('+ (this._params? this._params:'') +')';
+        text += this.getChildWSRegion('nameRef', 2) + this._functionName + this.getWSRegion(1);
+        text += '('+ this.getWSRegion(2);
+
+        this.children.forEach((child, index) => {
+            if (index !== 0) {
+                text += ',';
+                text += child.getExpressionString({includePrecedingWS: true});
+            } else {
+                text += child.getExpressionString();
+            }
+        })
+        text += ')' + this.getWSRegion(3);
         return text;
+    }
+
+    setExpressionFromString(expressionString, callback) {
+        const fragment = FragmentUtils.createExpressionFragment(expressionString);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
+            && _.isEqual(parsedJson.type, 'function_invocation_expression')) {
+
+            this.initFromJson(parsedJson);
+
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Function Invocation Expression Custom Tree modified',
+                context: this,
+            });
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+        } else {
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 
     /**
@@ -112,6 +134,7 @@ class FunctionInvocationExpression extends Expression {
      * @param {Object[]} jsonNode.children - The arguments of the function invocation.
      */
     initFromJson(jsonNode) {
+        this.children = [];
         var self = this;
         this.setPackageName(jsonNode.package_name, {doSilently: true});
         if (_.isEqual(jsonNode.package_path, '.')){
@@ -125,51 +148,8 @@ class FunctionInvocationExpression extends Expression {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-        this.setExpression(this.generateExpression());
-        this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
     }
 
-    /**
-     * Generates the arguments passed to a function as a string.
-     * @param {Object} jsonNode - A node explaining the structure function argument.
-     * @param {string} argsString - The argument string. This string is used for appending the generated arg strings.
-     * @param {string} separator - The separator between args.
-     * @return {string} - Arguments as a string.
-     * @private
-     */
-    _generateArgsString(jsonNode) {
-        var self = this;
-        var argsString = "";
-
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
-            var childJsonNode = jsonNode.children[itr];
-            var child = self.getFactory().createFromJson(childJsonNode);
-            child.initFromJson(childJsonNode);
-            argsString += child.getExpression();
-
-            if (itr !== jsonNode.children.length - 1) {
-                argsString += ', ';
-            }
-        }
-        return argsString;
-    }
-
-    /**
-     * Get the action invocation statement
-     * @return {string} action invocation statement
-     */
-    generateExpression() {
-        let args = [];
-        _.forEach(this.getChildren(), child => {
-            args.push(child.generateExpression());
-        });
-        let argsString = _.join(args, ',');
-
-        var functionName = (_.isNil(this.getPackageName()) || _.isEqual(this.getPackageName(), 'Current Package') )
-            ? this.getFunctionName() : this.getPackageName() + ':' + this.getFunctionName();
-
-        return functionName + '(' + argsString +  ')';
-    }
 }
 
 export default FunctionInvocationExpression;

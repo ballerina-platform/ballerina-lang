@@ -28,6 +28,79 @@ class AnnotationDefinition extends ASTNode {
         super('AnnotationDefinition');
         this._annotationName = _.get(args, 'annotationName');
         this._attachmentPoints = _.get(args, 'attachmentPoints', []);
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: '\n',
+            4: '\n'
+        }
+        this.whiteSpace.defaultDescriptor.children = {
+            'attachmentPoints': {
+                children: {
+                    'service': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'resource': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'connector': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'action': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'function': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'typemapper': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'struct': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'const': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'parameter': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    },
+                    'annotation': {
+                        regions: {
+                            0: ' ',
+                            1: ''
+                        }
+                    }
+                }
+            }
+        }
     }
 
     setAnnotationName(annotationName, options) {

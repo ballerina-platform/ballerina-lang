@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -35,26 +36,26 @@ import java.nio.charset.Charset;
  * Launch Manager which manage launch requests from the clients.
  */
 public class LaunchManager {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(LaunchManager.class);
-    
+
     private static LaunchManager launchManagerInstance;
-    
+
     private LaunchServer launchServer;
-    
+
     private LaunchSession launchSession;
-    
+
     private Command command;
 
     private String startedServiceURL;
-    
+
     /**
      * Instantiates a new Debug manager.
      */
     protected LaunchManager() {
-        
+
     }
-    
+
     /**
      * Launch manager singleton
      *
@@ -68,8 +69,8 @@ public class LaunchManager {
         }
         return launchManagerInstance;
     }
-    
-    
+
+
     public void init(int port, String startedServiceURL) {
         // start the debug server if it is not started yet.
         if (this.launchServer == null) {
@@ -80,7 +81,7 @@ public class LaunchManager {
         // set URL to invoke the started service.
         this.startedServiceURL = startedServiceURL;
     }
-    
+
     private void run(Command command) {
         Process program = null;
         this.command = command;
@@ -92,12 +93,18 @@ public class LaunchManager {
                     .SET_BAL_PATH_MESSAGE);
             return;
         }
-        
+
         try {
-            program = Runtime.getRuntime().exec(command.toString());
+            String cmd = command.toString();
+            if (command.getPackageDir() == null) {
+                program = Runtime.getRuntime().exec(cmd);
+            } else {
+                program = Runtime.getRuntime().exec(cmd, null, new File(command.getPackageDir()));
+            }
+
             command.setProgram(program);
-            
-            
+
+
             if (command.getType() == LauncherConstants.ProgramType.RUN) {
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
                         String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
@@ -105,14 +112,14 @@ public class LaunchManager {
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
                         String.format(LauncherConstants.SERVICE_MESSAGE, command.getFileName()));
             }
-            
+
             if (command.isDebug()) {
                 MessageDTO debugMessage = new MessageDTO();
                 debugMessage.setCode(LauncherConstants.DEBUG);
                 debugMessage.setPort(command.getPort());
                 pushMessageToClient(launchSession, debugMessage);
             }
-            
+
             // start a new thread to stream command output.
             Runnable output = new Runnable() {
                 public void run() {
@@ -126,12 +133,12 @@ public class LaunchManager {
                 }
             };
             (new Thread(error)).start();
-            
+
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
         }
     }
-    
+
     public void streamOutput() {
         BufferedReader reader = null;
         try {
@@ -156,7 +163,7 @@ public class LaunchManager {
             }
         }
     }
-    
+
     public void streamError() {
         BufferedReader reader = null;
         try {
@@ -176,7 +183,7 @@ public class LaunchManager {
             }
         }
     }
-    
+
     public void stopProcess() {
         int pid = -1;
         if (this.command != null && this.command.getProgram().isAlive()) {
@@ -200,11 +207,11 @@ public class LaunchManager {
         }
         return null;
     }
-    
+
     public void addLaunchSession(Channel channel) {
         this.launchSession = new LaunchSession(channel);
     }
-    
+
     public void processCommand(String json) {
         Gson gson = new Gson();
         CommandDTO command = gson.fromJson(json, CommandDTO.class);
@@ -235,7 +242,7 @@ public class LaunchManager {
                 launchServer.pushMessageToClient(launchSession, message);
         }
     }
-    
+
     /**
      * Push message to client.
      *
@@ -248,7 +255,7 @@ public class LaunchManager {
         session.getChannel().write(new TextWebSocketFrame(json));
         session.getChannel().flush();
     }
-    
+
     public void pushMessageToClient(LaunchSession session, String code, String type, String text) {
         MessageDTO message = new MessageDTO();
         message.setCode(code);

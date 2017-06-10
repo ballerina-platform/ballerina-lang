@@ -60,10 +60,7 @@ class PanelDecorator extends React.Component {
     }
 
     onTitleInputBlur() {
-        this.setState({
-            titleEditing: false,
-            editingTitle: this.props.title
-        })
+        this.setPropertyName();
     }
 
     onTitleInputChange(e) {
@@ -72,14 +69,18 @@ class PanelDecorator extends React.Component {
 
     onTitleKeyDown(e) {
         if(e.keyCode === 13) {
-            const modelType = this.props.model.type.replace('Definition', '');
-
-            // Setter functions take form 'setModelTypeName'. eg: setServiceName
-            this.props.model[`set${modelType}Name`](this.state.editingTitle);
-            this.setState({
-                titleEditing: false,
-            })
+            this.setPropertyName();
         }
+    }
+
+    setPropertyName() {
+        const modelType = this.props.model.type.replace('Definition', '');
+
+        // Setter functions take form 'setModelTypeName'. eg: setServiceName
+        this.props.model[`set${modelType}Name`](this.state.editingTitle);
+        this.setState({
+            titleEditing: false,
+        });
     }
 
     render() {
@@ -118,8 +119,8 @@ class PanelDecorator extends React.Component {
         panelBBox.h = bBox.h - titleHeight - annotationBodyHeight;
 
         // following config is to style the panel rect, we use it to hide the top stroke line of the panel.
-        let panelRectStyles = {
-            'stroke-dasharray' : `0, ${panelBBox.w}, ${panelBBox.h} , 0 , ${panelBBox.w} , 0 , ${panelBBox.h}`
+        let panelRectStyles =  {
+            'strokeDasharray' : `0, ${panelBBox.w}, ${panelBBox.h} , 0 , ${panelBBox.w} , 0 , ${panelBBox.h}`
         };
 
         return (<g className="panel">
@@ -140,7 +141,7 @@ class PanelDecorator extends React.Component {
                 </EditableText>
                 <image x={bBox.x + 8} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                        xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}/>
-                <rect x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight}
+                <rect x={bBox.x + iconSize + 16} y={bBox.y + annotationBodyHeight} width={iconSize + 15} height={titleHeight - 3}
                       className="annotation-icon-wrapper"/>
                 <image x={bBox.x + iconSize + 24} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                         xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
@@ -165,8 +166,8 @@ class PanelDecorator extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}>
                     {!collapsed &&
-                    <rect x={panelBBox.x} 
-                          y={panelBBox.y} 
+                    <rect x={panelBBox.x}
+                          y={panelBBox.y}
                           width={panelBBox.w}
                           height={panelBBox.h}
                           rx="0" ry="0" fill="#fff"

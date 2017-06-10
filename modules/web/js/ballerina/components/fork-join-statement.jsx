@@ -35,11 +35,10 @@ class ForkJoinStatement extends React.Component {
             + blockStatement.heading.height);
         const hiderTop = bBox.y + blockStatement.heading.height + statement.gutter.v + 1;
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
+            <line x1={bBox.getCenterX()} y1={hiderTop - 1} x2={bBox.getCenterX()}
+                  y2={bBox.getBottom()} className="life-line-hider"/>
             <BlockStatementDecorator model={model} dropTarget={model} bBox={forkBBox}
                                      title={'Fork'} draggable={ForkJoinStatement.isWorker}>
-                <line x1={bBox.getCenterX()} y1={hiderTop} x2={bBox.getCenterX()}
-                      y2={bBox.getBottom()}
-                      className="life-line-hider"/>
                 {children}
             </BlockStatementDecorator>
         </CompoundStatementDecorator>);

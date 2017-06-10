@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -113,7 +113,24 @@ class StatementVisitor extends ASTVisitor {
 
     endVisitAbortedStatement(statement) {
     }
-    canVisitStatement(statement) {
+
+    /// begin - abstract methods for committed statement source gen visitor function.
+    canVisitCommittedStatement(statement) {
+        return false;
+    }
+
+    beginVisitCommittedStatement(statement) {
+    }
+
+    visitCommittedStatement(statement) {
+    }
+
+    endVisitCommittedStatement(statement) {
+    }
+
+    /// end - abstract method for committed statement source gen visitor function.
+    
+	canVisitStatement(statement) {
         return false;
     }
 
@@ -307,31 +324,6 @@ class StatementVisitor extends ASTVisitor {
 
     endVisitAbortStatement(statement) {
     }
-    canVisitLeftOperandExpression(statement) {
-        return false;
-    }
-
-    beginVisitLeftOperandExpression(statement) {
-    }
-
-    visitLeftOperandExpression(statement) {
-    }
-
-    endVisitLeftOperandExpression(statement) {
-    }
-
-    canVisitRightOperandExpression(statement) {
-        return false;
-    }
-
-    beginVisitRightOperandExpression(statement) {
-    }
-
-    visitRightOperandExpression(statement) {
-    }
-
-    endVisitRightOperandExpression(statement) {
-    }
 
     canVisitVariableDefinitionStatement(statement) {
         return false;
@@ -397,6 +389,10 @@ class StatementVisitor extends ASTVisitor {
         return false;
     }
 
+    canVisitForkJoinStatement(statement) {
+        return false;
+    }
+
     beginVisitCommentStatement(statement) {
     }
 
@@ -430,8 +426,6 @@ class StatementVisitor extends ASTVisitor {
             return this.visitCatchStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.visitAssignmentStatement(node);
-        } else if (ASTFactory.isAssignment(node)) {
-            return this.visitAssignment(node);
         } else if (ASTFactory.isActionInvocationStatement(node)) {
             return this.visitActionInvocationStatement(node);
         } else if (ASTFactory.isExpression(node)) {
@@ -444,10 +438,6 @@ class StatementVisitor extends ASTVisitor {
             return this.visitFuncInvocationStatement(node);
         }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.visitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
-            return this.visitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
-            return this.visitRightOperandExpression(node);
         }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.visitVariableDefinitionStatement(node);
         }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
@@ -468,6 +458,8 @@ class StatementVisitor extends ASTVisitor {
             return this.visitAbortStatement(node);
         } else if (ASTFactory.isJoinStatement(node)) {
             return this.visitJoinStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.visitCommittedStatement(node);
         }
     }
 
@@ -495,8 +487,6 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitCatchStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.canVisitAssignmentStatement(node);
-        }  else if (ASTFactory.isAssignment(node)) {
-            return this.canVisitAssignment(node);
         } else if (ASTFactory.isTransformStatement(node)) {
             return this.canVisitTransformStatement(node);
         } else if (ASTFactory.isActionInvocationStatement(node)) {
@@ -511,10 +501,6 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitFuncInvocationStatement(node);
         }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.canVisitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
-            return this.canVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
-            return this.canVisitRightOperandExpression(node);
         }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.canVisitVariableDefinitionStatement(node);
         }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
@@ -539,6 +525,8 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitAbortedStatement(node);
         } else if (ASTFactory.isAbortStatement(node)) {
             return this.canVisitAbortStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.canVisitCommittedStatement(node);
         }
     }
 
@@ -578,10 +566,6 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitFuncInvocationStatement(node);
         }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.beginVisitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
-            return this.beginVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
-            return this.beginVisitRightOperandExpression(node);
         }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.beginVisitVariableDefinitionStatement(node);
         }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
@@ -608,6 +592,8 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitForkJoinStatement(node);
         } else if (ASTFactory.isJoinStatement(node)) {
             return this.beginVisitJoinStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.beginVisitCommittedStatement(node);
         }
     }
 
@@ -637,8 +623,6 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitAssignmentStatement(node);
         }  else if (ASTFactory.isTransformStatement(node)) {
             return this.endVisitTransformStatement(node);
-        } else if (ASTFactory.isAssignment(node)) {
-            return this.endVisitAssignment(node);
         } else if (ASTFactory.isActionInvocationStatement(node)) {
             return this.endVisitActionInvocationStatement(node);
         } else if (ASTFactory.isExpression(node)) {
@@ -651,10 +635,6 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitFuncInvocationStatement(node);
         }  else if (ASTFactory.isFunctionInvocationExpression(node)) {
             return this.endVisitFuncInvocationExpression(node);
-        }  else if (ASTFactory.isLeftOperandExpression(node)) {
-            return this.endVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
-            return this.endVisitRightOperandExpression(node);
         }  else if (ASTFactory.isVariableDefinitionStatement(node)) {
             return this.endVisitVariableDefinitionStatement(node);
         }  else if (ASTFactory.isWorkerInvocationStatement(node)) {
@@ -679,6 +659,8 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitForkJoinStatement(node);
         } else if (ASTFactory.isJoinStatement(node)) {
             return this.endVisitJoinStatement(node);
+        } else if (ASTFactory.isCommittedStatement(node)) {
+            return this.endVisitCommittedStatement(node);
         }
     }
 }

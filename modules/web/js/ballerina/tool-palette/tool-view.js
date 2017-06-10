@@ -45,12 +45,13 @@ var toolView = Backbone.View.extend({
         return function (event, ui) {
             if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
                 var indexForNewNode = toolView.toolPalette.dragDropManager.getDroppedNodeIndex();
+                let nodeBeingDragged = toolView.toolPalette.dragDropManager.getNodeBeingDragged();
                 if(indexForNewNode >= 0){
                     toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(toolView.toolPalette.dragDropManager.getNodeBeingDragged(), indexForNewNode);
+                            .addChild(nodeBeingDragged, indexForNewNode, false, false, true);
                 } else {
                     toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(toolView.toolPalette.dragDropManager.getNodeBeingDragged());
+                            .addChild(nodeBeingDragged, undefined, false, false, true);
                 }
             }
             toolView.toolPalette.dragDropManager.reset();
@@ -107,7 +108,7 @@ var toolView = Backbone.View.extend({
         this.$el.find('.tool-block').tooltip();
 
         this.$el.draggable({
-            helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
+            helper: 'clone',
             cursor: 'move',
             cursorAt: dragCursorOffset,
             containment: _.get(self._options, 'containment_element'),

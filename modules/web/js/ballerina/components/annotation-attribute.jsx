@@ -95,31 +95,7 @@ class AnnotationAttribute extends React.Component {
 
         // Creating the view for the right side value of the annotation entry.
         let value;
-        if (_.isString(model.getRightValue())) {
-            let endingComma = '';
-            if (ASTFactory.isAnnotationEntryArray(model.getParent()) || ASTFactory.isAnnotation(model.getParent())) {
-                let lengthSameLevelChildren = model.getParent().getChildren().length;
-                let indexOfCurrentNode = model.getParent().getIndexOfChild(model);
-                if (indexOfCurrentNode !== lengthSameLevelChildren - 1) {
-                    endingComma = ' ,';
-                }
-            }
-
-
-            if (this.state.isRightValueInEdit) {
-                value = <td className='annotation-attribute-value' onClick={this.onRightValueClick.bind(this)}>
-                    <input type='text' placeholder='value' value={this.state.rightValue}
-                        onChange={this.onRightValueChange.bind(this)} onBlur={() => { this.setState({ isRightValueInEdit: false }); }}
-                        ref={(input) => { this.rightValueInput = input; }} style={{ width: this.state.rightValueLength }} />
-                    {endingComma}{removeIcon}
-                </td>;
-            } else {
-                value = <td className='annotation-attribute-value' onClick={this.onRightValueClick.bind(this)}>
-                    {this.state.rightValue}{endingComma}{removeIcon}</td>;
-            }
-
-            return <tr>{key}{value}</tr>;
-        } else if (ASTFactory.isAnnotationEntryArray(model.getRightValue())) {
+        if (ASTFactory.isAnnotationEntryArray(model.getRightValue())) {
             let addIcon = <div className='annotation-attribute-add' onClick={this.addAnnotationEntry.bind(this)}>
                 <i className='fw fw-add'></i>
             </div>;
@@ -207,6 +183,29 @@ class AnnotationAttribute extends React.Component {
             value = <td className='annotation-attribute-value'>
                 <Annotation model={model.getRightValue()} haveEndingComma={haveEndingComma} removeIcon={removeIcon} />
             </td>;
+            return <tr>{key}{value}</tr>;
+        } else {
+            let endingComma = '';
+            if (ASTFactory.isAnnotationEntryArray(model.getParent()) || ASTFactory.isAnnotation(model.getParent())) {
+                let lengthSameLevelChildren = model.getParent().getChildren().length;
+                let indexOfCurrentNode = model.getParent().getIndexOfChild(model);
+                if (indexOfCurrentNode !== lengthSameLevelChildren - 1) {
+                    endingComma = ' ,';
+                }
+            }
+
+            if (this.state.isRightValueInEdit) {
+                value = <td className='annotation-attribute-value' onClick={this.onRightValueClick.bind(this)}>
+                    <input type='text' placeholder='value' value={this.state.rightValue}
+                        onChange={this.onRightValueChange.bind(this)} onBlur={() => { this.setState({ isRightValueInEdit: false }); }}
+                        ref={(input) => { this.rightValueInput = input; }} style={{ width: this.state.rightValueLength }} />
+                    {endingComma}{removeIcon}
+                </td>;
+            } else {
+                value = <td className='annotation-attribute-value' onClick={this.onRightValueClick.bind(this)}>
+                    {this.state.rightValue}{endingComma}{removeIcon}</td>;
+            }
+
             return <tr>{key}{value}</tr>;
         }
     }

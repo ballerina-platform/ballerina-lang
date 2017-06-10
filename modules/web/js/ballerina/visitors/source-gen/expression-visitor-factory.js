@@ -18,24 +18,27 @@
 import _ from 'lodash';
 import ASTFactory from '../../ast/ballerina-ast-factory';
 import FunctionInvocationVisitor from './function-invocation-visitor';
-import StructFieldAccessExpressionVisitor from './struct-field-access-expression-visitor';
 import VariableReferenceExpressionVisitor from './variable-reference-expression-visitor';
 import ReferenceTypeInitExpressionVisitor from './reference-type-init-expression-visitor';
 import TypeCastExpressionVisitor from './type-cast-expression-visitor';
+import LeftOperandExpressionVisitor from './left-operand-expression-visitor';
+import RightOperandExpressionVisitor from './right-operand-expression-visitor';
 
 class ExpressionViewFactory {
     getExpressionView(args) {
         var expression  = _.get(args, "model");
         if (ASTFactory.isFunctionInvocation(expression)) {
             return new FunctionInvocationVisitor(_.get(args, "parent"));
-        } else if (ASTFactory.isStructFieldAccessExpression(expression)) {
-            return new StructFieldAccessExpressionVisitor(_.get(args, "parent"));
         } else if (ASTFactory.isVariableReferenceExpression(expression)) {
             return new VariableReferenceExpressionVisitor(_.get(args, "parent"));
         } else if (ASTFactory.isReferenceTypeInitExpression(expression)) {
             return new ReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
         } else if (ASTFactory.isTypeCastExpression(expression)) {
             return new TypeCastExpressionVisitor(_.get(args, "parent"));
+        } else if (ASTFactory.isLeftOperandExpression(expression)) {
+            return new LeftOperandExpressionVisitor(expression);
+        } else if (ASTFactory.isRightOperandExpression(expression)) {
+            return new RightOperandExpressionVisitor(expression);
         }
     }
 }

@@ -16,27 +16,12 @@
  * under the License.
  */
 import ASTFactory from '../../ast/ballerina-ast-factory';
-import FunctionInvocationVisitor from './function-invocation-visitor';
 import TransformAssignmentStatementVisitor from './transform-assignment-statement-visitor';
-import TypeMapperFunctionInvocationExpressionVisitor from './type-mapper-function-invocation-expression-visitor';
-import TypeMapperLeftOperandExpressionVisitor from './type-mapper-left-operand-expression-visitor';
-import TypeMapperRightOperandExpressionVisitor from './type-mapper-right-operand-expression-visitor';
-import TypeMapperVariableDefinitionStatement from './type-mapper-variable-definition-statement-visitor';
 
 class TransformStatementVisitorFactory {
     getStatementVisitor(statement, parent) {
         if (ASTFactory.isAssignmentStatement(statement)) {
             return new TransformAssignmentStatementVisitor(parent);
-        } else if (ASTFactory.isFunctionInvocation(statement)) {
-            return new FunctionInvocationVisitor(parent);
-        }else if (ASTFactory.isFunctionInvocationExpression(statement)) {
-            return new TypeMapperFunctionInvocationExpressionVisitor(parent);
-        } else if (ASTFactory.isLeftOperandExpression(statement)) {
-            return new TypeMapperLeftOperandExpressionVisitor(parent);
-        } else if (ASTFactory.isRightOperandExpression(statement)) {
-            return new TypeMapperRightOperandExpressionVisitor(parent);
-        } else if (ASTFactory.isisVariableDefinitionStatement(statement)) {
-            return new TypeMapperVariableDefinitionStatement(parent);
         }
     }
 }

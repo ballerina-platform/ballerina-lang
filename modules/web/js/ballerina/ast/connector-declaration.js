@@ -22,69 +22,50 @@ import CommonUtils from '../utils/common-utils';
 /**
  * Defines a connector declaration AST node.
  * Default source will be as follows : http:HTTPConnector ep = new http:HTTPConnector("http://localhost:9090");
- * @param {Object} options - arguments for a connector.
- * @param {string} [options.connectorName="HTTPConnector"] - The name of the connector.
- * @param {string} [options.connectorVariable="ep"] - Variable identifier for the connector.
- * @param {string} [options.connectorPackageName="http"] - Package name of the connector.
- * @param {number} [options.timeout=""] - Timeout value.
- * @param {string} [options.uri="http://localhost:9090"] - The endpoint url.
+ * @param {Object} options - arguments for a connector declaration.
+ * @param {ASTNode[]} Child nodes: a variable ref expr as LHS and a connector init expr as RHS
  * @constructor
  * @augments ASTNode
  */
 class ConnectorDeclaration extends ASTNode {
     constructor(options) {
-        super("ConnectorDeclaration");
-        this._connectorName = _.get(options, "connectorName", "ClientConnector");
-        this._connectorVariable = _.get(options, "connectorVariable");
-        this._connectorType = _.get(options, "connectorType", "ConnectorDeclaration");
-        this._connectorPkgName = _.get(options, "connectorPackageName", "http");
-        this._timeout = _.get(options, "timeout", "");
-        this._params = _.get(options, "params", '\"http://localhost:9090\"');
-        this._arguments = _.get(options, "arguments", []);
-        this._connectorActionsReference = _.get(options, "connectorActionsReference", []);
-        this._fullPackageName = _.get(options, 'fullPackageName', '');
-    }
-
-    canBeConnectorOf(action) {
-        var BallerinaASTFactory = this.getFactory();
-    }
-
-    setConnectorName(name, options) {
-        this.setAttribute('_connectorName', name, options);
-    }
-
-    addConnectorActionReference(object) {
-        this._connectorActionsReference.push(object);
-    }
-
-    removeConnectorActionReference(id) {
-        _.pullAllBy(this._connectorActionsReference, [{ 'id': id }], 'id');
+        super('ConnectorDeclaration');
+        this.children = _.get(options, 'childrenFactory', () => {return [];}).call();
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: '',
+            4: '\n'
+        };
     }
 
     setConnectorVariable(connectorVariable, options) {
-        this.setAttribute('_connectorVariable', connectorVariable, options);
+        let varRef = this.getChildrenOfType(this.getFactory().isVariableReferenceExpression)[0];
+        if (!_.isNil(varRef)) {
+            varRef.setVariableName(connectorVariable, options);
+        }
     }
 
     setConnectorType(type, options) {
-        this.setAttribute('_connectorType', type, options);
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            connectorInitExpr.getConnectorName().setTypeName(type, options);
+        }
     }
 
     setConnectorPkgName(pkgName, options) {
-        this.setAttribute('_connectorPkgName', pkgName, options);
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            connectorInitExpr.getConnectorName().setPackageName(pkgName, options);
+        }
     }
 
     setFullPackageName(fullPkgName, options) {
-        this.setAttribute('_fullPackageName', fullPkgName, options);
-    }
-
-    /**
-     * Set parameters for the connector
-     *
-     * @param {string} params String with comma separable values
-     * @param {object} options
-     * */
-    setParams(params, options) {
-        this.setAttribute("_params", params, options);
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            connectorInitExpr.getConnectorName().setFullPackageName(fullPkgName, options);
+        }
     }
 
     /**
@@ -101,65 +82,79 @@ class ConnectorDeclaration extends ASTNode {
 
             if (leftSide) {
                 leftSide = leftSide.trim();
-                this.setAttribute("_connectorPkgName", leftSide.includes(":") ?
+                this.setConnectorPkgName(leftSide.includes(":") ?
                     leftSide.split(":", 1)[0]
                     : "");
 
-                this.setAttribute("_connectorName", leftSide.includes(":") ?
+                this.setConnectorType(leftSide.includes(":") ?
                     leftSide.split(":", 2)[1].split(" ", 1)[0]
                     : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 1)[0] : ""));
 
-                this.setAttribute("_connectorVariable", leftSide.includes(":") ?
+                this.setConnectorVariable(leftSide.includes(":") ?
                     leftSide.split(":", 2)[1].split(" ", 2)[1]
                     : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 2)[1] : ""));
             }
             if (rightSide) {
                 rightSide = rightSide.trim();
-                this.setAttribute("_params", rightSide.includes("(") ?
+                let args = this.getArgsFromString(rightSide.includes("(") ?
                     rightSide.split("(", 2)[1].slice(0, (rightSide.split("(", 2)[1].length - 1))
                     : "", options);
+                this.setArguments(args);
             }
         }
     }
 
-    setTimeout(timeout, options) {
-        this.setAttribute("_timeout", timeout, options);
+    getStringFromArgs(args) {
+        return _.join(args.map((arg) => { return arg.getExpressionString(); }), ', ');
     }
 
-    setArguments(argument) {
-        this._arguments.push(argument);
+    getArgsFromString(argList) {
+        let stringArgs = _.split(argList, ',');
+        return stringArgs.map((arg) => {
+            return this.getFactory().createVariableReferenceExpression({variableName: arg.trim()})
+        });
     }
 
-    getParams() {
-        return this._params;
+    setArguments(args) {
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            connectorInitExpr.setArgs(args);
+        }
     }
 
     getArguments() {
-        return this._arguments;
-    }
-
-    getConnectorName() {
-        return this._connectorName;
-    }
-
-    getConnectorActionsReference() {
-        return this._connectorActionsReference;
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            return connectorInitExpr.getArgs();
+        }
     }
 
     getConnectorVariable() {
-        return this._connectorVariable;
+        let varRef = this.getChildrenOfType(this.getFactory().isVariableReferenceExpression)[0];
+        if (!_.isNil(varRef)) {
+            return varRef.getVariableName();
+        }
     }
 
     getConnectorType() {
-        return this._connectorType;
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            return connectorInitExpr.getConnectorName().getTypeName();
+        }
     }
 
     getConnectorPkgName() {
-        return this._connectorPkgName;
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            return connectorInitExpr.getConnectorName().getPackageName();
+        }
     }
 
     getFullPackageName() {
-        return this._fullPackageName;
+        let connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0]
+        if (!_.isNil(connectorInitExpr)) {
+            return connectorInitExpr.getConnectorName().getFullPackageName();
+        }
     }
 
     /**
@@ -168,12 +163,7 @@ class ConnectorDeclaration extends ASTNode {
      * @return {string} expression
      * */
     getConnectorExpression() {
-        var self = this;
-        return generateExpression(self);
-    }
-
-    getTimeout() {
-        return this._timeout;
+        return this.generateExpression();
     }
 
     /**
@@ -181,30 +171,59 @@ class ConnectorDeclaration extends ASTNode {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        if(jsonNode.children[1].connector_name) {
-            var connectorName = jsonNode.children[1].connector_name.split(":");
-            if (connectorName.length > 1) {
-                this.setConnectorName(connectorName[1], {doSilently: true});
-                this.setConnectorPkgName(connectorName[0], {doSilently: true});
-            }
-            else {
-                //if no package name is available. i.e. : connector definition is in the same package
-                this.setConnectorName(jsonNode.children[1].connector_name, {doSilently: true});
-                this.setConnectorPkgName(undefined, {doSilently: true});
-            }
-        }
-        this.setConnectorVariable(jsonNode.children[0].variable_name, {doSilently: true});
-        this.setConnectorType('ConnectorDeclaration', {doSilently: true});
         var self = this;
-        self._arguments = [];
-        if (!_.isUndefined(jsonNode.children[1].arguments)) {
-            _.each(jsonNode.children[1].arguments, function (argNode) {
-                var arg = self.getFactory().createFromJson(argNode);
-                arg.initFromJson(argNode);
-                self.setArguments(arg);
-            });
+        if (!_.isNil(jsonNode.whitespace_descriptor)) {
+            this.whiteSpace.currentDescriptor = jsonNode.whitespace_descriptor;
+            this.whiteSpace.useDefault = false;
         }
-        generateParamString(self);
+        _.each(jsonNode.children, function (childNode) {
+            let child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    }
+
+    /**
+     * Generate Expression to Show on the edit textbox.
+     *
+     * @param {object} self Connector declaration
+     * @return {string} expression
+     * */
+    generateExpression () {
+        var expression = "";
+        if (!this.shouldSkipPackageName(this.getConnectorPkgName())) {
+            expression += this.getConnectorPkgName() + ":";
+        }
+
+        if (!_.isNil(this.getConnectorType())) {
+            expression += this.getConnectorType() + " ";
+        }
+
+        if (!_.isNil(this.getConnectorVariable())) {
+            expression += this.getConnectorVariable() + this.getWSRegion(1) + "=" + this.getWSRegion(2);
+        }
+
+        expression += "create ";
+
+        if (!this.shouldSkipPackageName(this.getConnectorPkgName())) {
+            expression += this.getConnectorPkgName() + ":";
+        }
+
+        if (!_.isNil(this.getConnectorType())) {
+            expression += this.getConnectorType() + " ";
+        }
+
+        expression += "(";
+        if (!_.isEmpty(this.getArguments())) {
+            expression += this.getStringFromArgs(this.getArguments());
+        }
+        expression += ")";
+        return expression;
+    }
+
+    shouldSkipPackageName(packageName) {
+        return _.isUndefined(packageName) || _.isNil(packageName) ||
+            _.isEqual(packageName, 'Current Package') || _.isEqual(packageName, '');
     }
 
     /**
@@ -267,63 +286,5 @@ class ConnectorDeclaration extends ASTNode {
         CommonUtils.generateUniqueIdentifier(uniqueIDGenObject);
     }
 }
-
-/**
- * Generate Param String
- *
- * @param {object} self Connector declaration
- * */
-var generateParamString = function (self) {
-    self._params = "";
-    for (var i = 0; i < self._arguments.length; i++) {
-        self._params += self._arguments[i].getExpression();
-        if (i !== (self._arguments.length - 1)) {
-            self._params += ",";
-        }
-    }
-};
-
-/**
- * Generate Expression to Show on the edit textbox.
- *
- * @param {object} self Connector declaration
- * @return {string} expression
- * */
-var generateExpression = function (self) {
-    var expression = "";
-    if (!shouldSkipPackageName(self._connectorPkgName)) {
-        expression += self._connectorPkgName + ":";
-    }
-
-    if (!_.isUndefined(self._connectorName) && !_.isNil(self._connectorName)) {
-        expression += self._connectorName + " ";
-    }
-
-    if (!_.isUndefined(self._connectorVariable) && !_.isNil(self._connectorVariable)) {
-        expression += self._connectorVariable + " = ";
-    }
-
-    expression += "create ";
-
-    if (!shouldSkipPackageName(self._connectorPkgName)) {
-        expression += self._connectorPkgName + ":";
-    }
-
-    if (!_.isUndefined(self._connectorName) && !_.isNil(self._connectorName)) {
-        expression += self._connectorName;
-    }
-
-    expression += "(";
-    if (!_.isUndefined(self._params) && !_.isNil(self._params)) {
-        expression += self._params;
-    }
-    expression += ")";
-    return expression;
-};
-
-var shouldSkipPackageName = function(packageName) {
-    return _.isUndefined(packageName) || _.isNil(packageName) ||
-        _.isEqual(packageName, 'Current Package') || _.isEqual(packageName, '');
-};
 
 export default ConnectorDeclaration;

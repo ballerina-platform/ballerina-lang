@@ -15,12 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import AssignmentStatement from '../../ast/statements/assignment-statement';
-import StatementVisitorFactory from './statement-visitor-factory';
 
 class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -32,30 +28,19 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitAssignmentStatement(assignmentStatement) {
-        log.debug('Begin Visit Assignment Statement');
-    }
-
-    visitLeftOperandExpression(expression) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-        expression.accept(statementVisitor);
-    }
-
-    visitRightOperandExpression(expression) {
-        // FIXME: right expression should neglect indentation inherited through
-        // parent scope, hence the temp swap of indentCount, should be fixed
-        // in a proper way
-        let indentCountTmp = this.indentCount;
-        this.indentCount = 0;
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-        this.indentCount = indentCountTmp;
-        expression.accept(statementVisitor);
+        this.node = assignmentStatement;
+        if (assignmentStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        this.appendSource(assignmentStatement.getStatementString());
     }
 
     endVisitAssignmentStatement(assignmentStatement) {
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-        log.debug('End Visit Assignment Statement');
+        this.appendSource(';' + assignmentStatement.getWSRegion(3));
+        this.appendSource((assignmentStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

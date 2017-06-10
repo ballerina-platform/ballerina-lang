@@ -30,12 +30,11 @@ class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitReplyStatement(replyStatement) {
-        /**
-         * set the configuration start for the reply statement definition language construct
-         * If we need to add additional parameters which are dynamically added to the configuration start
-         * that particular source generation has to be constructed here
-         */
-        this.appendSource('reply ');
+        if (replyStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        this.appendSource('reply' + replyStatement.getWSRegion(1) + replyStatement.getReplyMessage());
         log.debug('Begin Visit Reply Statement Definition');
     }
 
@@ -44,8 +43,10 @@ class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitReplyStatement(replyStatement) {
-        this.appendSource(replyStatement.getReplyMessage() + ";\n");
-        this.getParent().appendSource('\n' + this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(';' + replyStatement.getWSRegion(2));
+        this.appendSource((replyStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Reply Statement Definition');
     }
 }

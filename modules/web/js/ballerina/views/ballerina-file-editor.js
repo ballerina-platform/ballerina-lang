@@ -27,10 +27,12 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import SwaggerJsonVisitor from './../visitors/swagger-json-gen/service-definition-visitor';
 import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
 import ToolPalette from './../tool-palette/tool-palette';
+import ToolPaletteView from './../tool-palette/tool-palette-view';
 import UndoManager from './../undo-manager/undo-manager';
 import Backend from './backend';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
+import Package from './../env/package';
 import BallerinaEnvironment from './../env/environment';
 import ToolPaletteItemProvider from './../item-provider/tool-palette-item-provider';
 import alerts from 'alerts';
@@ -46,6 +48,7 @@ import Renderer from '../components/renderer';
 import StructOperationsRenderer from '../components/struct-operations-renderer';
 import FindDebugHitVisitor from './../visitors/find-debug-hit-visitor';
 import EventChannel from 'event_channel';
+import DragDropManager from '../tool-palette/drag-drop-manager';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -154,7 +157,7 @@ class BallerinaFileEditor extends EventChannel {
         }, this);
 
         this._model.on('import-new-package', function(packageString) {
-            self.addNewImportPackage(packageString);
+            self.trigger('update-tool-patette');
         });
     }
 
@@ -211,18 +214,14 @@ class BallerinaFileEditor extends EventChannel {
         this._environment.addPackages(this._programPackages); 
         this._package = this._environment.getCurrentPackage();
 
-        var toolPaletteItemProvider = new ToolPaletteItemProvider({editor: this});
-        var toolPaletteContainer = $(this._container)
+        this.dragDropManager = new DragDropManager();
+
+        this.toolPaletteItemProvider = new ToolPaletteItemProvider({editor: this});
+        this.toolPaletteContainer = $(this._container)
                                     .find(_.get(viewOptions, 'design_view.tool_palette.container'))
                                     .get(0);
-        var toolPaletteOpts = _.clone(_.get(viewOptions, 'design_view.tool_palette'));
-        toolPaletteOpts.itemProvider = toolPaletteItemProvider;
-        toolPaletteOpts.container = toolPaletteContainer;
-        toolPaletteOpts.ballerinaFileEditor = this;
-        this.toolPalette = new ToolPalette(toolPaletteOpts);
-        this.messageManager = new MessageManager({fileEditor: this});
 
-        //this._createImportDeclarationPane(canvasContainer);
+        this.messageManager = new MessageManager({fileEditor: this});
 
         // init undo manager
         this._undoManager = new UndoManager();
@@ -239,11 +238,6 @@ class BallerinaFileEditor extends EventChannel {
         this.diagramRenderingContext.ballerinaFileEditor = this;
         this.diagramRenderingContext.packagedScopedEnvironemnt = this._environment;
 
-        if(!this._parseFailed){
-            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
-            this.addCurrentPackageToToolPalette();
-        }
-
         var importDeclarations = [];
 
         // attach a wrapper to the react diagram so we can attach expression editor to the container.
@@ -258,7 +252,7 @@ class BallerinaFileEditor extends EventChannel {
         //create Rect component for diagram
         let root = React.createElement(BallerinaDiagram, {
             editor: this,
-            dragDropManager: this.toolPalette.dragDropManager,
+            dragDropManager: this.dragDropManager,
             messageManager: this.messageManager,
             container: this._$canvasContainer,
             renderingContext: this.diagramRenderingContext,
@@ -272,13 +266,16 @@ class BallerinaFileEditor extends EventChannel {
         );
 
         // render tool palette
-        this.toolPalette.render();
-
-        // add current imported packages to tool pallet
-        _.forEach(importDeclarations, function (importDeclaration) {
-            var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-            self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
-        });
+        //this.toolPalette.render();
+        let toolPalette = React.createElement(ToolPaletteView, {
+            editor: this,
+            provider: this.toolPaletteItemProvider,
+            dragDropManager: this.dragDropManager
+        }, null);
+        ReactDOM.render(
+            toolPalette,
+            this.toolPaletteContainer
+        );
 
         // container for per-tab source view TODO improve source view to wrap this logic
         var sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
@@ -360,7 +357,6 @@ class BallerinaFileEditor extends EventChannel {
             }
 
             lastRenderedTimestamp = this._file.getLastPersisted();
-            this.toolPalette.hide();
             // If the file has changed we will add the generated source to source view
             // If not we will display the content as it is in the file.
             const generatedSource = this.generateSource();
@@ -411,7 +407,6 @@ class BallerinaFileEditor extends EventChannel {
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     self._sourceView.markClean();
-                    self.addCurrentPackageToToolPalette();
                 }
 
                 var treeModel = self.generateNodeTree();
@@ -442,7 +437,6 @@ class BallerinaFileEditor extends EventChannel {
                 sourceViewBtn.show();
                 swaggerViewBtn.hide();
                 $(transformPopUp).remove();
-                self.toolPalette.hide();
                 self.setActiveView('swagger');
             } catch (err) {
                 log.error(err);
@@ -499,7 +493,7 @@ class BallerinaFileEditor extends EventChannel {
                 }
             }
             //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
-            self.toolPalette.show();
+            //self.toolPalette.show();
             sourceViewContainer.hide();
             swaggerViewContainer.hide();
             self._$designViewContainer.show();
@@ -509,10 +503,8 @@ class BallerinaFileEditor extends EventChannel {
             self.setActiveView('design');
             self.trigger("update-diagram");
             if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
-                self._environment.resetCurrentPackage();
-                self.rerenderCurrentPackageTool();
+                //trigger contet drawing
             }
-            // $('.outer-box').mCustomScrollbar('scrollTo', 'left');
         });
 
         if(this._parseFailed) {
@@ -535,7 +527,14 @@ class BallerinaFileEditor extends EventChannel {
      * @returns {Object}
      */
     generateCurrentPackage() {
-        var currentPackage;
+        // get the latest symbols from this file.
+        let currentPackage = new Package()
+        currentPackage.setName('Current Package');            
+        var symbolTableGenVisitor = new SymbolTableGenVisitor(currentPackage, this._model);
+        this._model.accept(symbolTableGenVisitor);
+        currentPackage = symbolTableGenVisitor.getPackage();
+
+        //check if a similar package exists.
         var packages = this._environment.getPackages();
         var currentPackageArray = _.filter(packages, (pkg) => {
             return !_.isEmpty(this._model.children) && (pkg.getName() ===  this._model.children[0].getPackageName());
@@ -543,18 +542,14 @@ class BallerinaFileEditor extends EventChannel {
         // Check whether the program contains a package name or it is in the dafault package
         if(!_.isEmpty(currentPackageArray)){
             // Update Current package object after the package resolving
-            currentPackage = _.clone(currentPackageArray[0]);
-            currentPackage.setName('Current Package');
-            _.remove(packages, function (pkg) {
-                return _.isEqual(pkg.getName(), 'Current Package');
-            });
-            packages.push(currentPackage);
-        }else{
-            // If the program in the default package this will traverse through the model and update the Current package.
-            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
-            this._model.accept(symbolTableGenVisitor);
-            currentPackage = symbolTableGenVisitor.getPackage();
+            let currentPackageInEvn = _.clone(currentPackageArray[0]);
+            //todo merge the package with this.
+            currentPackage = _.merge(currentPackageInEvn,currentPackage);
         }
+        // update the package scoped environment with current package
+        this._environment.setCurrentPackage(currentPackage);
+
+
         return currentPackage;
     }
 
@@ -564,19 +559,6 @@ class BallerinaFileEditor extends EventChannel {
      */
     addCurrentPackageToToolPalette() {
         this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
-    }
-
-    rerenderCurrentPackageTool() {
-        var currentPackage = this.generateCurrentPackage();
-        var provider = this.toolPalette.getItemProvider();
-
-        // Remove current package tool group from pallete and re add it.
-        provider.removeImportToolGroup(currentPackage.getName());
-        var options = {
-            addToTop: true,
-            collapsed: false
-        };
-        provider.addImportToolGroup(currentPackage, options);
     }
 
     /**
@@ -634,177 +616,6 @@ class BallerinaFileEditor extends EventChannel {
             root = this.getModel();
         }
         return root;
-    }
-
-    /**
-     * Creating the package view of a ballerina-file-editor.
-     * @param canvasContainer - The canvas container.
-     * @private
-     */
-    _createImportDeclarationPane(canvasContainer) {
-        var self = this;
-
-        var _paneAppendElement = $(canvasContainer).find('.package-imports-wrapper');
-        // Creating import button.
-        this._importDeclarationButton = $('<div class=\'imports-btn\' data-toggle=\'tooltip\' title=\'Imports\' ' +
-            'data-placement=\'bottom\'></div>')
-            .appendTo(_paneAppendElement);
-
-        $('<span class=\'btn-icon\'> Imports </span>').appendTo(this._importDeclarationButton).tooltip();
-
-        this._importDeclarationMainWrapper = $('<div class=\'imports-pane\'/>').appendTo(_paneAppendElement);
-
-        var importDeclarationWrapper = $('<div class=\'imports-wrapper\'/>').appendTo(this._importDeclarationMainWrapper);
-
-        var collapserWrapper = $('<div class=\'import-pane-collapser-wrapper btn-icon\' data-placement=\'bottom\' ' +
-            ' title=\'Open Import Pane\' data-toggle=\'tooltip\'/>')
-            .data('collapsed', 'true')
-            .appendTo(importDeclarationWrapper);
-
-        $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
-
-        var importDeclarationControlsWrapper = $('<div />').appendTo(importDeclarationWrapper);
-
-        var importDeclarationActionWrapper = $('<div class=\'imports-action-wrapper\'/>').appendTo(importDeclarationControlsWrapper);
-
-        // Creating add imports editor button.
-        var addImportButton = $('<div class=\'action-icon-wrapper import-add-icon-wrapper\' title=\'Add Import\'' +
-            'data-toggle=\'tooltip\' data-placement=\'bottom\'/>')
-            .appendTo(importDeclarationActionWrapper);
-        $('<i class=\'fw fw-add\'></i>').appendTo(addImportButton);
-
-        var importsAddPane = $('<div class=\'action-import-wrapper-heading import-add-action-wrapper\'/>')
-            .appendTo(importDeclarationActionWrapper);
-
-        var importValueText = $('<input id=\'import-package-text\' placeholder=\'Enter Package Name\'/>').appendTo(importsAddPane);
-
-        // Creating cancelling add new import button.
-        var importAddCancelButtonPane = $('<div class=\'action-icon-wrapper import-add-cancel-action-wrapper\' ' +
-            'data-placement=\'bottom\' title=\'Cancel\' data-toggle=\'tooltip\'/>')
-            .appendTo(importsAddPane);
-        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
-            '<i class=\'fw fw-cancel fw-stack-1x fw-inverse\'></i></span>').appendTo(importAddCancelButtonPane);
-        // Creating add new import button.
-        var importAddCompleteButtonPane = $('<div class=\'action-icon-wrapper ' +
-            'import-add-complete-action-wrapper\' title=\'Import\' data-placement=\'bottom\' data-toggle=\'tooltip\'/>')
-            .appendTo(importsAddPane);
-        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
-            '<i class=\'fw fw-check fw-stack-1x fw-inverse\'></i></span>').appendTo(importAddCompleteButtonPane);
-
-
-        // Add new constant activate button.
-        $(addImportButton).click(function () {
-            $(importsAddPane).show();
-            $(this).hide();
-            $(importValueText).focus();
-            self._importDeclarationButton.css('opacity', '1');
-        });
-
-        // Cancel adding a new constant.
-        $(importAddCancelButtonPane).click(function () {
-            $(importsAddPane).hide();
-            $(addImportButton).show();
-        });
-
-        var importsDeclarationContentWrapper = $("<span class='imports-content-wrapper'/>")
-            .appendTo(importDeclarationControlsWrapper);
-
-        var substringMatcher = function(strs) {
-            return function findMatches(q, cb) {
-                // an array that will be populated with substring matches
-                var matches = [];
-
-                // regex used to determine if a string contains the substring `q`
-                var substrRegex = new RegExp(q, 'i');
-
-                // iterate through the pool of strings and for any string that
-                // contains the substring `q`, add it to the `matches` array
-                $.each(strs, function(i, str) {
-                    if (substrRegex.test(str)) {
-                        matches.push(str);
-                    }
-                });
-
-                cb(matches);
-            };
-        };
-
-        //add import suggestions
-        var packages = self._environment.getPackages();
-        var packageNames = _.map(packages, function(p){return p._name;});
-
-        importValueText.typeahead({
-            hint: false,
-            highlight: true,
-            minLength: 1
-        },
-            {
-                name: 'packages',
-                source: substringMatcher(packageNames)
-            }
-        );
-
-        // Click event for adding an import.
-        importAddCompleteButtonPane.click(function () {
-            // TODO : Validate new import package name.
-            var importTestValue = importValueText.val().trim();
-            if (!_.isEmpty(importTestValue)) {
-                var currentASTRoot = self.getModel();
-                log.debug('Adding new import');
-
-                // Creating new import.
-                var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
-                newImportDeclaration.setPackageName(importValueText.val());
-
-                try {
-                    newImportDeclaration.setParent(currentASTRoot);
-                    currentASTRoot.addImport(newImportDeclaration);
-
-                    // add import to the tool pallet
-                    var newPackage = self._environment.searchPackage(newImportDeclaration.getPackageName())[0];
-                    // Only add to tool palette if the user input exactly matches an existing package.
-                    if(!_.isUndefined(newPackage) && (newPackage.getName() === importTestValue)) {
-                        self.toolPalette.getItemProvider().addImportToolGroup(newPackage);
-                    }
-
-                    //Clear the import value box
-                    importValueText.typeahead('val','');
-                    collapserWrapper.empty();
-                    collapserWrapper.data('collapsed', 'false');
-                    $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
-                    importDeclarationWrapper.show();
-                    self._importDeclarationMainWrapper.css('width', '92%');
-
-                } catch (error) {
-                    alerts.error(error);
-                }
-            }
-        });
-
-        // Add new import upon enter key.
-        $(importValueText).on('change paste keydown', function (e) {
-            if (e.which === 13) {
-                importAddCompleteButtonPane.click();
-            }
-        });
-
-        // The click event for hiding and showing constants.
-        collapserWrapper.click(function () {
-            $(this).empty();
-            if ($(this).data('collapsed') === 'false') {
-                $(this).data('collapsed', 'true').attr('data-original-title', 'Open Import Pane').tooltip('hide');
-                $('<i class=\'fw fw-right\'></i>').appendTo(this);
-                importDeclarationWrapper.find('.imports-content-wrapper').hide();
-                importDeclarationActionWrapper.hide();
-                self._importDeclarationMainWrapper.css('width', '0%');
-            } else {
-                $(this).data('collapsed', 'false').attr('data-original-title', 'Close Import Pane').tooltip('hide');
-                $('<i class=\'fw fw-left\'></i>').appendTo(this);
-                importDeclarationActionWrapper.show();
-                importDeclarationWrapper.find('.imports-content-wrapper').show();
-                self._importDeclarationMainWrapper.css('width', '92%');
-            }
-        });
     }
 
     getUndoManager() {
@@ -918,6 +729,10 @@ class BallerinaFileEditor extends EventChannel {
         }
     }
 
+    getEnvironment(){
+        return this._environment || new PackageScopedEnvironment();
+    }
+   
 }
 
 

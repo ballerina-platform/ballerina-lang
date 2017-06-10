@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ConnectorActionVisitor from './connector-action-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
@@ -47,24 +46,35 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let constructedSourceSegment = '\n';
+        let useDefaultWS = connectorDefinition.whiteSpace.useDefault;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
+        let constructedSourceSegment = '';
         _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += this.getIndentation() + annotationNode.toString() + '\n';
+                constructedSourceSegment += annotationNode.toString()
+                  + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
             }
         });
 
         let argumentsSrc = '';
         _.forEach(connectorDefinition.getArguments(), function (argument, index) {
-            argumentsSrc += argument.getTypeName() + ' ';
-            argumentsSrc += argument.getName();
+            argumentsSrc += (index !== 0 && argument.whiteSpace.useDefault) ? ' ' : '';
+            argumentsSrc += argument.getWSRegion(0) + argument.getTypeName();
+            argumentsSrc += argument.getWSRegion(1) + argument.getName();
+            argumentsSrc += argument.getWSRegion(2);
             if (connectorDefinition.getArguments().length - 1 !== index) {
-                argumentsSrc += ', ';
+                argumentsSrc += ',';
             }
         });
 
-        constructedSourceSegment += this.getIndentation() + 'connector ' + connectorDefinition.getConnectorName() +
-            ' (' + argumentsSrc + ')' + ' {\n';
+        constructedSourceSegment += 'connector'
+          + connectorDefinition.getWSRegion(0) + connectorDefinition.getConnectorName()
+          + connectorDefinition.getWSRegion(1) + '(' + argumentsSrc + ')'
+          + connectorDefinition.getWSRegion(2) + '{' + connectorDefinition.getWSRegion(3);
+        constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
         log.debug('Begin Visit Connector Definition');
@@ -80,7 +90,9 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorDefinition(connectorDefinition) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}\n");
+        this.appendSource('}' + connectorDefinition.getWSRegion(4));
+        this.appendSource((connectorDefinition.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Connector Definition');
     }

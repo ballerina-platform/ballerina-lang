@@ -15,12 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import BreakStatement from '../../ast/statements/break-statement';
-import ExpressionVisitorFactory from './expression-visitor-factory';
 
 class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -32,12 +29,12 @@ class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitBreakStatement(breakStatement) {
-        /**
-         * set the configuration start for the reply statement definition language construct
-         * If we need to add additional parameters which are dynamically added to the configuration start
-         * that particular source generation has to be constructed here
-         */
-        this.appendSource(breakStatement.getStatement());
+        this.node = breakStatement;
+        if (breakStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        this.appendSource(breakStatement.getStatementString());
         log.debug('Begin Visit Break Statement Definition');
     }
 
@@ -46,8 +43,11 @@ class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitBreakStatement(breakStatement) {
-        this.appendSource(";\n");
-        this.getParent().appendSource('\n' + this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(breakStatement.getWSRegion(1) + ';'
+                            + breakStatement.getWSRegion(2));
+        this.appendSource((breakStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Break Statement Definition');
     }
 }

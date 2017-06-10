@@ -30,7 +30,7 @@ class TransformAssignmentStatementVisitor extends AbstractStatementSourceGenVisi
     }
 
     visitAssignmentStatement(assignmentStatement) {
-        this.appendSource(assignmentStatement.generateStatementString() + ';\n');
+        this.appendSource(assignmentStatement.getStatementString() + ';\n');
     }
 
     endVisitAssignmentStatement(assignmentStatement) {

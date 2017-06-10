@@ -30,8 +30,8 @@ class IfStatement extends React.Component {
             propertyType: 'text',
             key: 'If condition',
             model: props.model,
-            getterMethod: props.model.getCondition,
-            setterMethod: props.model.setCondition
+            getterMethod: props.model.getConditionString,
+            setterMethod: props.model.setConditionFromString
         };
 
         this.onAddElseClick = this.onAddElseClick.bind(this);
@@ -40,7 +40,13 @@ class IfStatement extends React.Component {
     onAddElseClick() {
         const parent = this.props.model.parent;
         if(parent.getElseStatement()) {
-            const newElseIfStatement = BallerinaASTFactory.createElseIfStatement();
+            const condition = BallerinaASTFactory.createBasicLiteralExpression({
+                basicLiteralType: 'boolean',
+                basicLiteralValue: true
+            });
+            const newElseIfStatement = BallerinaASTFactory.createElseIfStatement({
+                condition: condition
+            });
             const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
             this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
         } else {
@@ -54,11 +60,10 @@ class IfStatement extends React.Component {
             bBox = model.viewState.bBox,
             expression = model.viewState.components['expression'];
         const children = getComponentForNodeArray(this.props.model.getChildren());
-
         const addElseBtn = (
             <g onClick={this.onAddElseClick}>
-                <rect x={bBox.x+bBox.w-20} y={bBox.y+bBox.h-20} width={20} height={20} className='add-else-button'/>
-                <text x={bBox.x+bBox.w-15} y={bBox.y+bBox.h-10} width={20} height={20} className='add-else-button-label'>+</text>
+                <rect x={bBox.x+bBox.w-10} y={bBox.y+bBox.h-25} width={20} height={20} rx={10} ry={10} className='add-else-button'/>
+                <text x={bBox.x+bBox.w-4} y={bBox.y+bBox.h-15} width={20} height={20} className='add-else-button-label'>+</text>
             </g>
         );
 

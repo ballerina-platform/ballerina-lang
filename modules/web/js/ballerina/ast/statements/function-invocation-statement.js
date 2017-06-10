@@ -16,7 +16,11 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
+
 
 /**
  * Class to represent a function invocation statement in ballerina.
@@ -26,6 +30,71 @@ import Statement from './statement';
 class FunctionInvocationStatement extends Statement {
     constructor(args) {
         super('FunctionInvocationStatement');
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: '',
+            2: '',
+            3: ' ',
+            4: '\n'
+        }
+        this.whiteSpace.defaultDescriptor.children =  {
+            nameRef: {
+                0: '',
+                1: '',
+                2: '',
+                3: ''
+            }
+        }
+    }
+
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'function_invocation_statement')) {
+                this.initFromJson(parsedJson);
+            } else if (_.has(parsedJson, 'type')) {
+                // user may want to change the statement type
+                let newNode = this.getFactory().createFromJson(parsedJson);
+                if (this.getFactory().isStatement(newNode)) {
+                    // somebody changed the type of statement to an assignment
+                    // to capture retun value of function Invocation
+                    let parent = this.getParent();
+                    let index = parent.getIndexOfChild(this);
+                    parent.removeChild(this, true);
+                    parent.addChild(newNode, index, true, true);
+                    newNode.initFromJson(parsedJson);
+                    nodeToFireEvent = newNode;
+                }
+            } else {
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            }
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Function Invocation Expression Custom Tree modified',
+                context: nodeToFireEvent,
+            });
+        } else {
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
+    }
+
+
+    getStatementString() {
+        return !_.isEmpty(this.children) ? this.children[0].getExpressionString() : '';
     }
 
     /**
@@ -34,6 +103,7 @@ class FunctionInvocationStatement extends Statement {
      */
     initFromJson(jsonNode) {
         var self = this;
+        this.children = [];
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
@@ -43,4 +113,3 @@ class FunctionInvocationStatement extends Statement {
 }
 
 export default FunctionInvocationStatement;
-

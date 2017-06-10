@@ -38,7 +38,12 @@ class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
      * @param {AbortStatement} abortStatement
      * */
     beginVisitAbortStatement(abortStatement) {
-        this.appendSource(abortStatement.getStatement());
+        this.node = abortStatement;
+        if (abortStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        this.appendSource(abortStatement.getStatementString());
         log.debug('Begin Visit Abort Statement');
     }
 
@@ -55,8 +60,10 @@ class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
      * @param {AbortStatement} abortStatement
      * */
     endVisitAbortStatement(abortStatement) {
-        this.appendSource(";\n");
-        this.getParent().appendSource("\n" + this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(abortStatement.getWSRegion(1) + ";" + abortStatement.getWSRegion(2));
+        this.appendSource((abortStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Abort Statement');
     }
 }

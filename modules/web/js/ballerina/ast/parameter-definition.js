@@ -35,6 +35,11 @@ class ParameterDefinition extends VariableDefinition {
         //since there are ParameterDefinitions without names (return types) we set this to undefined
         this._name = _.get(args, 'name', undefined);
         this.type = 'ParameterDefinition';
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ''
+        };
     }
 
     /**
@@ -49,11 +54,18 @@ class ParameterDefinition extends VariableDefinition {
 
     getParameterDefinitionAsString() {
         let argAsString = "";
+        //add annotations
+        this.getChildrenOfType(this.getFactory().isAnnotation).forEach( (annotationNode, index) => {
+            if (annotationNode.isSupported()) {
+                argAsString += annotationNode.toString();
+            }
+        });
         argAsString += this.getTypeName();
-        argAsString += !_.isNil(this.getName()) ? " " + this.getName() : "";
+        argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : "";
+        argAsString += this.getWSRegion(2);
         return argAsString;
     }
-    
+
     addAnnotation(annotation) {
         this.addChild(annotation);
     }
@@ -67,6 +79,7 @@ class ParameterDefinition extends VariableDefinition {
             let annotationJson = jsonNode.children[0];
             let child = this.getFactory().createFromJson(annotationJson);
             this.addChild(child);
+            child.initFromJson(annotationJson);
         }
     }
 }

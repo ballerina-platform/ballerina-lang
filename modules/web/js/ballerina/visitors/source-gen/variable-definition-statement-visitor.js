@@ -28,12 +28,19 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
     }
 
     beginVisitVariableDefinitionStatement(variableDefinitionStatement) {
+        if (variableDefinitionStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
         var constructedSource = variableDefinitionStatement.getStatementString();
         this.appendSource(constructedSource);
     }
 
     endVisitVariableDefinitionStatement(variableDefinitionStatement) {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
+        this.appendSource(';' + variableDefinitionStatement.getWSRegion(4));
+        this.appendSource((variableDefinitionStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

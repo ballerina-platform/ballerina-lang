@@ -21,6 +21,7 @@ import $ from 'jquery';
 import alerts from 'alerts';
 import EventChannel from 'event_channel';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
+import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
@@ -173,12 +174,21 @@ class SourceView extends EventChannel {
     }
 
     format(doSilently) {
-        let  parserRes = this._fileEditor.parserBackend.parse(this._editor.getSession().getValue());
+        let  parserRes = this._fileEditor.parserBackend.parse(
+            {
+                name: this._fileEditor.getFile().getName(),
+                path: this._fileEditor.getFile().getPath(),
+                content: this._editor.getSession().getValue(),
+                package: 'Current Package'
+            }
+        );
         if (parserRes.error && !_.isEmpty(parserRes.message)) {
             alerts.error('Cannot format due to syntax errors : ' + parserRes.message);
             return;
         }
         let ast = this._fileEditor.deserializer.getASTModel(parserRes);
+        let enableDefaultWSVisitor = new EnableDefaultWSVisitor();
+        ast.accept(enableDefaultWSVisitor);
         let sourceGenVisitor = new SourceGenVisitor();
         ast.accept(sourceGenVisitor);
         let formattedContent =  sourceGenVisitor.getGeneratedSource();

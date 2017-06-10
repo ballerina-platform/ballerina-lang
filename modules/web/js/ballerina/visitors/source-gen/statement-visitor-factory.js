@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,9 +30,6 @@ import ActionInvocationStatementVisitor from './action-invocation-statement-visi
 import ReplyStatementVisitor from './reply-statement-visitor';
 import ReturnStatementVisitor from './return-statement-visitor';
 import FunctionInvocationVisitor from './function-invocation-visitor';
-import AssignmentVisitor from './assignment-visitor';
-import LeftOperandExpressionVisitor from './left-operand-expression-visitor';
-import RightOperandExpressionVisitor from './right-operand-expression-visitor';
 import VariableDefinitionStatement from './variable-definition-statement-visitor';
 import WorkerInvocationStatementVisitor from './worker-invocation-statement-visitor';
 import WorkerReplyStatementVisitor from './worker-reply-statement-visitor';
@@ -46,6 +43,7 @@ import AbortStatementVisitor from './abort-statement-visitor';
 import TimeoutStatementVisitor from './timeout-statement-visitor';
 import ForkJoinStatementVisitor from './fork-join-statement-visitor';
 import JoinStatementVisitor from './join-statement-visitor';
+import CommittedStatementVisitor from './committed-statement-visitor';
 
 class StatementVisitorFactor {
     getStatementVisitor(statement, parent) {
@@ -75,12 +73,6 @@ class StatementVisitorFactor {
             return new ReturnStatementVisitor(parent);
         } else if (ASTFactory.isFunctionInvocationStatement(statement)) {
             return new FunctionInvocationVisitor(parent);
-        } else if (ASTFactory.isAssignment(statement)) {
-            return new AssignmentVisitor(parent);
-        } else if (ASTFactory.isLeftOperandExpression(statement)) {
-            return new LeftOperandExpressionVisitor(parent);
-        } else if (ASTFactory.isRightOperandExpression(statement)) {
-            return new RightOperandExpressionVisitor(parent);
         } else if (ASTFactory.isVariableDefinitionStatement(statement)) {
             return new VariableDefinitionStatement(parent);
         } else if (ASTFactory.isWorkerInvocationStatement(statement)) {
@@ -109,6 +101,8 @@ class StatementVisitorFactor {
             return new AbortedStatementVisitor(parent);
         } else if (ASTFactory.isAbortStatement(statement)) {
             return new AbortStatementVisitor(parent);
+        } else if (ASTFactory.isCommittedStatement(statement)) {
+            return new CommittedStatementVisitor(parent);
         }
     }
 }

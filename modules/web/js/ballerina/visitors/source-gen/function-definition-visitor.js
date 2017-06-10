@@ -43,22 +43,33 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
+        let useDefaultWS = functionDefinition.whiteSpace.useDefault;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
         let functionReturnTypes = functionDefinition.getReturnTypesAsString();
-        let functionReturnTypesSource = '';
-
+        let functionReturnTypesSource;
         if (!_.isEmpty(functionReturnTypes)) {
-            functionReturnTypesSource = '(' + functionDefinition.getReturnTypesAsString() + ') ';
+            functionReturnTypesSource = '(' + functionDefinition.getWSRegion(5) + functionDefinition.getReturnTypesAsString() + ')';
         }
 
-        let constructedSourceSegment = '\n';
+        let constructedSourceSegment = '';
         _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString() + '\n';
+                constructedSourceSegment += annotationNode.toString()
+                  + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
             }
         });
-
-        constructedSourceSegment += this.getIndentation() + (functionDefinition.isNative() ? 'native ' : '') + 'function ' + functionDefinition.getFunctionName() + '(' +
-            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + (functionDefinition.isNative() ? '' : '{\n');
+        constructedSourceSegment += ((functionDefinition.isNative() ? 'native' + functionDefinition.getWSRegion(0) : ''));
+        constructedSourceSegment += 'function' + functionDefinition.getWSRegion(1)
+            + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2) + '(' + functionDefinition.getWSRegion(3)
+            + functionDefinition.getArgumentsAsString() + ')';
+        constructedSourceSegment += (!_.isNil(functionReturnTypesSource)
+            ? (functionDefinition.getWSRegion(4) + functionReturnTypesSource) : '');
+        constructedSourceSegment +=  functionDefinition.getWSRegion(6) +
+            (functionDefinition.isNative() ? '' : '{') + functionDefinition.getWSRegion(7);
+        constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
         log.debug('Begin Visit FunctionDefinition');
@@ -70,8 +81,10 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitFunctionDefinition(functionDefinition) {
         this.outdent();
-        this.appendSource(functionDefinition.isNative() ? ';' : '}\n');
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource((functionDefinition.isNative() ? ';' : '}') + functionDefinition.getWSRegion(8));
+        this.appendSource((functionDefinition.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }
 

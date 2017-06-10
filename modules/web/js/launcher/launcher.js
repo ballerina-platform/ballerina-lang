@@ -69,6 +69,7 @@ let Launcher = Backbone.View.extend({
             + '     <span class="tool-group-header-title">Program Running</span></span>'
             + '</div>'
             + '<div class="btn-group col-xs-12">'
+            + '<button type="button" class="btn btn-default btn-debug-activate" title="Redeploy" id="reploy-program"><i class="fw fw-refresh" /> Redeploy Application</button>'
             + '<button type="button" class="btn btn-default btn-debug-activate" title="Stop Application" id="stop_program"><i class="fw fw-stop" /> Stop Application</button>'
             + '</div><% } %></div>');
 
@@ -78,6 +79,7 @@ let Launcher = Backbone.View.extend({
         this._$parent_el.on('click','#run_application', () => { this.runApplication(); });
         this._$parent_el.on('click','#run_service', () => { this.runService(); });
         this._$parent_el.on('click','#stop_program', () => { this.stopProgram(); });
+        this._$parent_el.on('click','#reploy-program', () => { this.reDeployProgram(); });
 
         LaunchManager.on('execution-started',() => { this.renderBody(); });
         LaunchManager.on('execution-ended',() => { this.renderBody(); });
@@ -128,6 +130,19 @@ let Launcher = Backbone.View.extend({
 
     stopProgram(){
         LaunchManager.stopProgram();
+    },
+
+    reDeployProgram() {
+        const activeTab = this.application.tabController.getActiveTab();
+        if(this.isReadyToRun(activeTab)) {
+            this.stopProgram();
+            // wait for termination message from channel
+            LaunchManager.once('execution-ended', () => {
+                this.runService();
+            });
+        } else {
+            alerts.error('Save file before redeploying service');
+        }
     },
 
     isActive(){

@@ -21,6 +21,11 @@ class AbortStatement extends Statement {
     constructor() {
         super();
         this.type = "AbortStatement";
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: '',
+            1: '',
+            2: '\n'
+        }
     }
 
     /**
@@ -41,10 +46,11 @@ class AbortStatement extends Statement {
     }
 
     /**
-     * Get the statement keyword.
-     * @return {string} Statement
+     * Get the statement string.
+     * @return {string} statement string
+     * @override
      * */
-    getStatement() {
+    getStatementString() {
         return "abort";
     }
 }

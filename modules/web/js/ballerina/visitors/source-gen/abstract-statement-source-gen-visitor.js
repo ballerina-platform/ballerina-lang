@@ -16,10 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import StatementVisitor from '../statement-visitor';
-import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import SourceGenUtil from './source-gen-util';
 
 /**
  * Constructor for the Abstract Source Generation Visitor for the statements
@@ -68,6 +66,16 @@ class AbstractStatementSourceGenVisitor extends StatementVisitor {
 
     getParent() {
         return this.parent;
+    }
+
+    getCurrentPrecedingIndentation() {
+        return SourceGenUtil.getTailingIndentation(this.getParent().getGeneratedSource());
+    }
+
+    replaceCurrentPrecedingIndentation(newIndentation) {
+        let newContent = SourceGenUtil
+            .replaceTailingIndentation(this.getParent().getGeneratedSource(), newIndentation);
+        this.getParent().setGeneratedSource(newContent);
     }
 }
 

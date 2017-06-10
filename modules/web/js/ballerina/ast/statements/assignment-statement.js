@@ -17,6 +17,9 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
+import log from 'log';
 
 /**
  * Class to represent an Assignment statement.
@@ -25,9 +28,13 @@ import Statement from './statement';
 class AssignmentStatement extends Statement {
     constructor(args) {
         super('AssignmentStatement');
-        this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
-        this._statementString = _.get(args, 'statementString', '');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: '\n'
+        };
     }
 
     /**
@@ -35,23 +42,13 @@ class AssignmentStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
+        this.children = [];
         var self = this;
-
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
-
-        this.generateStatementString();
-    }
-
-    /**
-     * Override the removeChild function
-     * @param {ASTNode} child - child node
-     */
-    removeChild(child) {
-        this.getParent().removeChild(this);
     }
 
     /**
@@ -59,27 +56,63 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
-                ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + "=" +
-            (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
-                ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
-    }
-
-    generateStatementString(){
-        const statementString =  this.getChildren()[0].generateExpression() + ' = ' + this.getChildren()[1].generateExpression();
-        return statementString;
+        return (!_.isNil(this.getChildren()[0].getExpressionString())
+                ? this.getChildren()[0].getExpressionString() : '')
+                //default tailing whitespace of expressions is emtpy - hence we need to
+                // append a sapce here
+                + ((this.getChildren()[0].whiteSpace.useDefault) ? ' ' : '') + '=' +
+            (!_.isNil(this.getChildren()[1].getExpressionString())
+                // we are getting following whitespace of = from assignment statement
+                ? this.getWSRegion(2) + this.getChildren()[1].getExpressionString() : '');
     }
 
     /**
-     * Set the assignment statement string
+     * Set the statement from the statement string
      * @param {string} statementString
      */
-    setStatementString(statementString, options) {
-        var equalIndex = _.indexOf(statementString, '=');
-        var leftOperand = statementString.substring(0, equalIndex);
-        var rightOperand = statementString.substring(equalIndex + 1);
-        this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand, options);
-        this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand, options);
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'assignment_statement')) {
+                this.initFromJson(parsedJson);
+            } else if (_.has(parsedJson, 'type')) {
+                // user may want to change the statement type
+                let newNode = this.getFactory().createFromJson(parsedJson);
+                if (this.getFactory().isStatement(newNode)) {
+                    // somebody changed the type of statement to an assignment
+                    // to capture retun value of function Invocation
+                    let parent = this.getParent();
+                    let index = parent.getIndexOfChild(this);
+                    parent.removeChild(this, true);
+                    parent.addChild(newNode, index, true, true);
+                    newNode.initFromJson(parsedJson);
+                    nodeToFireEvent = newNode;
+                }
+            } else {
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            }
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Assignment statement Custom Tree modified',
+                context: nodeToFireEvent,
+            });
+        } else {
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 
     /**

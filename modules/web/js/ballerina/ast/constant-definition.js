@@ -28,17 +28,25 @@ import VariableDeclaration from './variable-declaration';
 class ConstantDefinition extends VariableDeclaration {
     constructor(args) {
         super({
-            type: "Constant-Declaration",
-            bType: _.get(args, "bType"),
-            identifier: _.get(args, "identifier")
+            type: 'Constant-Declaration',
+            bType: _.get(args, 'bType'),
+            identifier: _.get(args, 'identifier')
         });
-        this._value = _.get(args, "value");
+        this._value = _.get(args, 'value');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: ' ',
+            4: '',
+            5: '\n'
+        };
     }
 
     setValue(value, options) {
         if (_.isNil(value) || _.isEmpty(value)) {
-            log.error("A constant requires to have a value.");
-            throw "A constant requires to have a value.";
+            log.error('A constant requires to have a value.');
+            throw 'A constant requires to have a value.';
         } else {
             this.setAttribute('_value', value, options);
         }
@@ -49,11 +57,15 @@ class ConstantDefinition extends VariableDeclaration {
     }
 
     getConstantDefinitionAsString() {
-        if (this._bType === "string") {
-            return "const " + this._bType + " " + this._identifier + " = \"" + this._value + "\"";
+        let sourceGen = 'const' + this.getWSRegion(0) + this._bType
+            + this.getWSRegion(1) + this._identifier
+            + this.getWSRegion(2) + '=' + this.getWSRegion(3);
+        if (this._bType === 'string') {
+            sourceGen += '"' + this._value + '"';
         } else {
-            return "const " + this._bType + " " + this._identifier + " = " + this._value;
+            sourceGen += this._value;
         }
+        return sourceGen;
     }
 
     /**
@@ -64,11 +76,20 @@ class ConstantDefinition extends VariableDeclaration {
      * @param {string} jsonNode.constant_definition_value - The value of the constant.
      */
     initFromJson(jsonNode) {
-        this.setBType(jsonNode.constant_definition_btype, {doSilently: true});
-        this.setIdentifier(jsonNode.constant_definition_identifier, {doSilently: true});
-        this.setValue(jsonNode.constant_definition_value, {doSilently: true});
+        if (!_.isNil(jsonNode.whitespace_descriptor)) {
+            this.whiteSpace.currentDescriptor = jsonNode.whitespace_descriptor;
+            this.whiteSpace.useDefault = false;
+        }
+        this.setBType(jsonNode.constant_definition_btype, { doSilently: true });
+        this.setIdentifier(jsonNode.constant_definition_identifier, { doSilently: true });
+        this.setValue(jsonNode.constant_definition_value, { doSilently: true });
+
+        for (const childNode of jsonNode.children) {
+            let child = this.getFactory().createFromJson(childNode);
+            this.addChild(child);
+            child.initFromJson(childNode);
+        }
     }
 }
 
 export default ConstantDefinition;
-

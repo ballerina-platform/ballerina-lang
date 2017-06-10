@@ -17,6 +17,7 @@
  */
 import log from 'log';
 import {util} from './../sizing-utils';
+import {timeout} from '../../configs/designer-defaults';
 
 class TimeoutStatementDimensionCalculatorVisitor {
 
@@ -36,6 +37,8 @@ class TimeoutStatementDimensionCalculatorVisitor {
     endVisit(node) {
         log.debug('End Visit TimeoutStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
+        util.addParamDimenstion(node.getViewState(), node.getExpression(), node.getParameterAsString()
+            , timeout.title.w);
     }
 }
 

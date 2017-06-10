@@ -19,99 +19,61 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import org.apache.commons.io.FilenameUtils;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BLangFragmentParserTest {
 
-    private Map<String, String> expressions = new HashMap<>();
-    private Map<String, String> expressionsExpected = new HashMap<>();
-    private Map<String, String> statements = new HashMap<>();
-    private Map<String, String> statementsExpected = new HashMap<>();
+    public static final ClassLoader CLASS_LOADER = BLangFragmentParserTest.class.getClassLoader();
+    public static final String SAMPLES_DIR = "samples/fragments/";
 
-    @BeforeClass
-    public void setup() throws Exception {
-        File expressionSamples = new File(getClass().getClassLoader()
-                .getResource("samples/fragments/expressions").getFile());
-        if (expressionSamples.isDirectory()) {
-            for (File expressionSample: expressionSamples.listFiles()) {
-                if (expressionSample.isFile()) {
-                    expressions.put(FilenameUtils.removeExtension(expressionSample.getName()),
-                            new String(Files.readAllBytes(expressionSample.toPath())));
+    private static void loadSamples(List<String[]> fragments, String type) throws IOException {
+        File samples = new File(CLASS_LOADER
+                .getResource(SAMPLES_DIR + type).getFile());
+        if (samples.isDirectory()) {
+            for (File sample : samples.listFiles()) {
+                if (sample.isFile()) {
+                    String nameWithoutExt = FilenameUtils.removeExtension(sample.getName());
+                    File expected = new File(CLASS_LOADER.getResource(
+                            SAMPLES_DIR + type + "/expected/" + nameWithoutExt + ".json").getFile());
+                    if (expected.isFile()) {
+                        fragments.add(new String[]{type, nameWithoutExt, sample.getPath(), expected.getPath()});
+                    }
                 }
             }
         }
-        File expressionSamplesExpected = new File(getClass().getClassLoader()
-                .getResource("samples/fragments/expressions/expected").getFile());
-        if (expressionSamplesExpected.isDirectory()) {
-            for (File expressionSampleExpected: expressionSamplesExpected.listFiles()) {
-                if (expressionSampleExpected.isFile()) {
-                    expressionsExpected.put(FilenameUtils.removeExtension(expressionSampleExpected.getName()),
-                            new String(Files.readAllBytes(expressionSampleExpected.toPath())));
-                }
-            }
-        }
-        File statementSamples = new File(getClass().getClassLoader()
-                .getResource("samples/fragments/statements").getFile());
-        if (statementSamples.isDirectory()) {
-            for (File statementSample: statementSamples.listFiles()) {
-                if (statementSample.isFile()) {
-                    statements.put(FilenameUtils.removeExtension(statementSample.getName()),
-                            new String(Files.readAllBytes(statementSample.toPath())));
-                }
-            }
-        }
-        File statementSamplesExpected = new File(getClass().getClassLoader()
-                .getResource("samples/fragments/statements/expected").getFile());
-        if (statementSamplesExpected.isDirectory()) {
-            for (File statementSampleExpected: statementSamplesExpected.listFiles()) {
-                if (statementSampleExpected.isFile()) {
-                    statementsExpected.put(FilenameUtils.removeExtension(statementSampleExpected.getName()),
-                            new String(Files.readAllBytes(statementSampleExpected.toPath())));
-                }
-            }
-        }
-
     }
 
-    @Test
-    public void testExpressionFragments() {
-        expressions.entrySet().stream().forEach(entry -> {
-            String caseName = entry.getKey();
-            String sourceFragment = entry.getValue();
-            String expectedJson = expressionsExpected.get(caseName);
-
-            BLangSourceFragment fragment = new BLangSourceFragment();
-            fragment.setSource(sourceFragment);
-            fragment.setExpectedNodeType(BLangFragmentParserConstants.EXPRESSION);
-
-            String result = BLangFragmentParser.parseFragment(fragment);
-            Assert.assertEquals(result, expectedJson.trim(),
-                    "Expected json not found while parsing expression fragment " + caseName);
-
-        });
+    @DataProvider(name = "fragments")
+    public static Object[][] primeNumbers() throws IOException {
+        ArrayList<String[]> fragments = new ArrayList<>();
+        loadSamples(fragments, BLangFragmentParserConstants.EXPRESSION);
+        loadSamples(fragments, BLangFragmentParserConstants.STATEMENT);
+        loadSamples(fragments, BLangFragmentParserConstants.JOIN_CONDITION);
+        return fragments.toArray(new String[fragments.size()][]);
     }
 
-    @Test
-    public void testStatementFragments() {
-        statements.entrySet().stream().forEach(entry -> {
-            String caseName = entry.getKey();
-            String sourceFragment = entry.getValue();
-            String expectedJson = statementsExpected.get(caseName);
+    @Test(dataProvider = "fragments")
+    public void testFragmentParse(String type, String caseName, String sourcePath, String expectedPath)
+            throws IOException {
+        BLangSourceFragment fragment = new BLangSourceFragment();
+        fragment.setSource(readFromFile(sourcePath));
+        fragment.setExpectedNodeType(type);
 
-            BLangSourceFragment fragment = new BLangSourceFragment();
-            fragment.setSource(sourceFragment);
-            fragment.setExpectedNodeType(BLangFragmentParserConstants.STATEMENT);
-
-            String result = BLangFragmentParser.parseFragment(fragment);
-            Assert.assertEquals(result, expectedJson.trim(),
-                    "Expected json not found while parsing statement fragment " + caseName);
-
-        });
+        String result = BLangFragmentParser.parseFragment(fragment);
+        Assert.assertEquals(result, readFromFile(expectedPath),
+                "Expected json not found while parsing " + type + " fragment " + caseName);
     }
+
+    private String readFromFile(String path) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(path))).trim();
+    }
+
 }

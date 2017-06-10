@@ -233,7 +233,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
         }
 
         // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 130;
         viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 
@@ -263,7 +263,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
         }
 
         // Positioning the closing bracket component of the parameters.
-        viewState.components.closingParameter.x = nextXPositionOfParameter + 110;
+        viewState.components.closingParameter.x = nextXPositionOfParameter + 140;
         viewState.components.closingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
     }
 
@@ -296,7 +296,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
         }
 
         // Positioning the closing bracket component of the parameters.
-        viewState.components.closingReturnType.x = nextXPositionOfReturnType + 110;
+        viewState.components.closingReturnType.x = nextXPositionOfReturnType + 130;
         viewState.components.closingReturnType.y = viewState.bBox.y
             + viewState.components.annotation.h;
     }

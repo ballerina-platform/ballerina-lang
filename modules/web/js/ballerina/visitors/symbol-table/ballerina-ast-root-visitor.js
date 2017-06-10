@@ -84,10 +84,17 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         var returnTypes = [];
         _.forEach(functionDefinition.getReturnTypes(), function (returnType) {
             // Return type contains an Argument child.
-            returnTypes.push({
-                name: returnType.getName(),
-                type: returnType.getTypeName()
-            });
+            if(_.isNull(returnType.getName())) {
+                //some return types only have a type
+                returnTypes.push({
+                    type: returnType.getTypeName()
+                });
+            } else {
+                returnTypes.push({
+                    name: returnType.getName(),
+                    type: returnType.getTypeName()
+                });
+            }
         });
         functionDef.setReturnParams(returnTypes);
 
@@ -95,6 +102,9 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 
         var self = this;
         functionDefinition.on('tree-modified', function (modifiedData) {
+            if (_.isNil(modifiedData.data)) {
+                return;
+            }
             var attributeName = modifiedData.data.attributeName;
             var oldValue = modifiedData.data.oldValue;
             var newValue = modifiedData.data.newValue;
@@ -291,4 +301,3 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 }
 
 export default BallerinaASTRootVisitor;
-    

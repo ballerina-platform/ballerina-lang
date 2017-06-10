@@ -16,9 +16,12 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
 import Statement from './statement';
 import CommonUtils from '../../utils/common-utils';
 import VariableDeclaration from './../variable-declaration';
+import FragmentUtils from '../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 
 /**
  * Class to represent an Variable Definition statement.
@@ -31,24 +34,13 @@ import VariableDeclaration from './../variable-declaration';
 class VariableDefinitionStatement extends Statement {
     constructor(args) {
         super('VariableDefinitionStatement');
-        this._leftExpression = _.get(args, 'leftExpression', "int i");
-        this._rightExpression = _.get(args, 'rightExpression');
-    }
-
-    /**
-     * Get the left expression
-     * @return {string} _leftExpression - Left expression
-     */
-    getLeftExpression() {
-        return this._leftExpression;
-    }
-
-    /**
-     * Get the right expression
-     * @return {string} _rightExpression - Right expression
-     */
-    getRightExpression() {
-        return this._rightExpression;
+        this.whiteSpace.defaultDescriptor.regions =  {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: '',
+            4: '\n'
+        };
     }
 
     /**
@@ -56,29 +48,22 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - Variable definition expression string
      */
     getStatementString() {
-        var variableDefinitionStatementString;
-        if (_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)) {
-            variableDefinitionStatementString = this._leftExpression;
+        var variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
+            (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
+        variableDefinitionStatementString += this.getBType();
+        if (((this.getChildren()[0]).getChildren()[0])._isArray) {
+            for (var itr = 0; itr < ((this.getChildren()[0]).getChildren()[0])._dimensions; itr ++) {
+                variableDefinitionStatementString += '[]';
+            }
+        }
+        variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
+        if (!_.isNil(this.children[1])) {
+            variableDefinitionStatementString +=
+              this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.children[1].getExpressionString();
         } else {
-            variableDefinitionStatementString = this._leftExpression + " = " + this._rightExpression;
+            variableDefinitionStatementString += this.getWSRegion(3);
         }
         return variableDefinitionStatementString;
-    }
-
-    /**
-     * Set the left expression
-     * @param {string} leftExpression - Left expression
-     */
-    setLeftExpression(leftExpression) {
-        this.setAttribute("_leftExpression", leftExpression.trim());
-    }
-
-    /**
-     * Set the right expression
-     * @param {string} rightExpression - Right expression
-     */
-    setRightExpression(rightExpression) {
-        this.setAttribute("_rightExpression", rightExpression.trim());
     }
 
     /**
@@ -86,7 +71,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The ballerina type.
      */
     getBType() {
-        return (this._leftExpression.split(" ")[0]).trim();
+        return !_.isNil(this.children[0]) ? this.children[0].getVariableType() : undefined;
     }
 
     /**
@@ -94,7 +79,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The identifier.
      */
     getIdentifier() {
-        return (this._leftExpression.split(" ")[1]).trim();
+        return !_.isNil(this.children[0]) ? this.children[0].getVariableName() : undefined;
     }
 
     /**
@@ -102,36 +87,82 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The identifier.
      */
     getValue() {
-        return this._rightExpression;
+        return !_.isNil(this.children[1]) ? this.children[1].getExpressionString()
+                  : undefined;
     }
 
     setIdentifier(identifier) {
-        this.setLeftExpression(this.getBType() + " " + identifier);
+        this.children[0].setVariableName(identifier);
     }
 
     setBType(bType) {
-        this.setLeftExpression(bType + " " + this.getIdentifier());
+        this.children[0].setVariableType(bType);
     }
 
     setValue(value) {
-        this.setRightExpression(value);
+        let fragment = FragmentUtils.createExpressionFragment(value);
+        let parsedJson = FragmentUtils.parseFragment(fragment);
+        if ((!_.has(parsedJson, 'error')
+               || !_.has(parsedJson, 'syntax_errors'))) {
+            let child = this.getFactory().createFromJson(parsedJson);
+            this.initFromJson(child);
+            this.children[1] = child;
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'custom',
+                title: 'Variable definition modified',
+                context: this,
+            });
+        }
     }
 
     /**
-     * Set the variable definition expression string
-     * @param {string} variableDefinitionStatementString - variable definition expression string
+     * Set the variable definition statement string
+     * @param {string} variableDefinitionStatementString - variable definition statement string
      */
-    setStatementString(variableDefinitionStatementString) {
-        var equalIndex = _.indexOf(variableDefinitionStatementString, '=');
-        if (equalIndex === -1) {
-            var leftOperand = variableDefinitionStatementString;
-        } else {
-            var leftOperand = variableDefinitionStatementString.substring(0, equalIndex);
-            var rightOperand = variableDefinitionStatementString.substring(equalIndex + 1);
-        }
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
 
-        this.setLeftExpression(!_.isNil(leftOperand) ? leftOperand.trim() : "");
-        this.setRightExpression(!_.isNil(rightOperand) ? rightOperand.trim() : "");
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'variable_definition_statement')) {
+                this.initFromJson(parsedJson);
+            } else if (_.has(parsedJson, 'type')) {
+                // user may want to change the statement type
+                let newNode = this.getFactory().createFromJson(parsedJson);
+                if (this.getFactory().isStatement(newNode)) {
+                    // somebody changed the type of statement to an assignment
+                    // to capture retun value of function Invocation
+                    let parent = this.getParent();
+                    let index = parent.getIndexOfChild(this);
+                    parent.removeChild(this, true);
+                    parent.addChild(newNode, index, true, true);
+                    newNode.initFromJson(parsedJson);
+                    nodeToFireEvent = newNode;
+                }
+            } else {
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            }
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Variable Definition Custom Tree modified',
+                context: nodeToFireEvent,
+            });
+        } else {
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
     }
 
     /**
@@ -169,22 +200,13 @@ class VariableDefinitionStatement extends Statement {
     }
 
     initFromJson(jsonNode) {
-        var self = this;
-
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+        this.children = [];
+        _.each(jsonNode.children, (childNode) => {
+            var child = this.getFactory().createFromJson(childNode);
+            this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
-
-        if (!_.isNil(this.getChildren()[0])){
-            this.setLeftExpression(this.getChildren()[0].getExpression());
-        }
-        if (!_.isNil(this.getChildren()[1])) {
-            this.setRightExpression(this.getChildren()[1].getExpression());
-        }
     }
 }
 
 export default VariableDefinitionStatement;
-

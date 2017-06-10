@@ -48,8 +48,10 @@ class ASTNode extends EventChannel {
         });
 
         this._generateUniqueIdentifiers = undefined;
-        this.whiteSpaceDescriptor = {};
-        this.shouldCalculateIndentation = true;
+        this.whiteSpace = {};
+        this.whiteSpace.defaultDescriptor = {};
+        this.whiteSpace.currentDescriptor = {};
+        this.whiteSpace.useDefault = true;
 
         /**
          * View State Object to keep track of the model's view properties
@@ -104,10 +106,11 @@ class ASTNode extends EventChannel {
      * @param index
      * @param ignoreTreeModifiedEvent {boolean}
      * @param ignoreChildAddedEvent {boolean}
+     * @param generateId {boolean}
      * @fires  ASTNode#child-added
      * @fires  ASTNode#tree-modified
      */
-    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false) {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent = false, generateId = false) {
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
@@ -118,7 +121,9 @@ class ASTNode extends EventChannel {
         child.setParent(this, {
             doSilently: true
         });
-        child.generateUniqueIdentifiers();
+        if (generateId) {
+            child.generateUniqueIdentifiers();
+        }
 
         if (!ignoreChildAddedEvent) {
             /**
@@ -488,11 +493,22 @@ class ASTNode extends EventChannel {
     generateUniqueIdentifiers() {}
 
     getWhiteSpaceDescriptor() {
-        return this.whiteSpaceDescriptor;
+        return (this.whiteSpace.useDefault) ? this.whiteSpace.defaultDescriptor :
+              this.whiteSpace.currentDescriptor;
     }
 
-    setWhiteSpaceDescriptor(whiteSpaceDescriptor, options) {
-        this.setAttribute('whiteSpaceDescriptor', whiteSpaceDescriptor, options);
+    setWhiteSpaceDescriptor(whiteSpaceDescriptor) {
+        this.whiteSpace.currentDescriptor = whiteSpaceDescriptor;
+    }
+
+    getWSRegion(regionId) {
+        let region = _.get(this.getWhiteSpaceDescriptor().regions, regionId);
+        return (!_.isNil(region)) ? region : '';
+    }
+
+    getChildWSRegion(childId, regionId) {
+        let region = _.get(_.get(this.getWhiteSpaceDescriptor().children, childId).regions, regionId);
+        return (!_.isNil(region)) ? region : '';
     }
 
     /** Gets the children of a specific type.

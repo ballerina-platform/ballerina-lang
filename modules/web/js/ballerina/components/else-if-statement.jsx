@@ -56,16 +56,16 @@ class ElseIfStatement extends React.Component {
             propertyType: 'text',
             key: 'If condition',
             model: this.props.model,
-            getterMethod: this.props.model.getCondition,
-            setterMethod: this.props.model.setCondition
+            getterMethod: this.props.model.getConditionString,
+            setterMethod: this.props.model.setConditionFromString
         };
 
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
         const addElseIfBtn = (
             <g onClick={this.onAddElseIfClick}>
-                <rect x={bBox.x+bBox.w-20} y={bBox.y+bBox.h-20} width={20} height={20} className='add-else-if-button'/>
-                <text x={bBox.x+bBox.w-15} y={bBox.y+bBox.h-10} width={20} height={20} className='add-else-if-button-label'>{'+'}</text>
+                <rect x={bBox.x+bBox.w-10} y={bBox.y+bBox.h-25} width={20} height={20} rx={10} ry={10} className='add-else-if-button'/>
+                <text x={bBox.x+bBox.w-4} y={bBox.y+bBox.h-15} width={20} height={20} className='add-else-if-button-label'>+</text>
             </g>
         );
 

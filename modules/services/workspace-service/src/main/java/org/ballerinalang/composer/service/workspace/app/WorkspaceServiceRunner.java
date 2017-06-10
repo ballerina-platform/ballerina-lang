@@ -202,6 +202,7 @@ public class WorkspaceServiceRunner {
         configService.setLauncherPath(launcherPath);
         configService.setLangserverPath(langserverPath);
         configService.setDebuggerPath(debuggerPath);
+        configService.setStartupFile(composer.filePath);
 
 
         fileServer.setContextRoot(contextRoot);
@@ -233,6 +234,9 @@ public class WorkspaceServiceRunner {
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
+
+        @Parameter(names = "--file" , description = "Specify a Ballerina program file to open at the startup.")
+        private String filePath;
     }
 
     private static void printUsage() {
@@ -241,6 +245,7 @@ public class WorkspaceServiceRunner {
         out.println("Usage: composer [options]");
         out.println("  Options:");
         out.println("    --port <port_number>      Specify a custom port for file server to start.");
+        out.println("    --file <file path>        Specify a Ballerina program file to open at the startup.");
         out.println("    --help -h help            for more information.");
         out.println("");
     }

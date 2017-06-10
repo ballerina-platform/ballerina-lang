@@ -17,9 +17,8 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
-import VariableDeclarationVisitor from './variable-declaration-visitor';
+import VariableDefinitionStatementVisitor from './variable-definition-statement-visitor';
 
 /**
  * @param parent
@@ -35,13 +34,31 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitStructDefinition(structDefinition) {
-        var constructedSourceSegment = '\n' + this.getIndentation() +  'struct ' + structDefinition.getStructName() + " {\n";
+        let useDefaultWS = structDefinition.whiteSpace.useDefault;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
+
+        // Adding annotations
+        let constructedSourceSegment = '';
+        _.forEach(structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += annotationNode.toString()
+                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+            }
+        });
+
+        constructedSourceSegment += 'struct' + structDefinition.getWSRegion(0)
+              + structDefinition.getStructName() + structDefinition.getWSRegion(1)
+              + '{' + structDefinition.getWSRegion(2);
+        this.appendSource(constructedSourceSegment);
+        this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
         _.forEach(structDefinition.getVariableDefinitionStatements(), (variableDefStatement) => {
-            constructedSourceSegment = constructedSourceSegment + this.getIndentation()
-                          + variableDefStatement.getStatementString() + ";\n";
+            let varDefVisitor = new VariableDefinitionStatementVisitor(this);
+            variableDefStatement.accept(varDefVisitor);
         });
-        this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit FunctionDefinition');
     }
 
@@ -51,7 +68,9 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitStructDefinition(structDefinition) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}\n");
+        this.appendSource('}' + structDefinition.getWSRegion(3));
+        this.appendSource((structDefinition.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit FunctionDefinition');
     }

@@ -17,6 +17,8 @@
  */
 
 import BallerinaASTFactory from './ballerina-ast-factory';
+import FragmentUtils from '../utils/fragment-utils';
+import _ from 'lodash';
 
 /**
  * @class DefaultBallerinaASTFactory
@@ -31,7 +33,7 @@ var DefaultBallerinaASTFactory = {};
 DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
     let serviceDef = BallerinaASTFactory.createServiceDefinition(args);
     let resourceDef = DefaultBallerinaASTFactory.createResourceDefinition(args);
-    serviceDef.addChild(resourceDef);
+    serviceDef.addChild(resourceDef, undefined, undefined, undefined, true);
     return serviceDef;
 };
 
@@ -92,6 +94,8 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
 DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
     let connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
     connectorDef.addArgument('message', 'm');
+    let connectorActionDef = DefaultBallerinaASTFactory.createConnectorAction();
+    connectorDef.addChild(connectorActionDef, undefined, undefined, undefined, true);
     return connectorDef;
 };
 
@@ -114,37 +118,9 @@ DefaultBallerinaASTFactory.createConnectorAction = function (args) {
  */
 DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
     let variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
-    variableDefinitionStatement.setLeftExpression('int i');
-    variableDefinitionStatement.setRightExpression('0');
+    variableDefinitionStatement.setStatementFromString('int i = 0')
     return variableDefinitionStatement;
 };
-
-/**
- * creates typeMapperDefinition with default statement
- * @param {Object} args - object for typeMapperDefinition creation
- * @returns {TypeMapperDefinition}
- */
-DefaultBallerinaASTFactory.createTypeMapperDefinition = function (args) {
-    var typeMapperDefinition = BallerinaASTFactory.createTypeMapperDefinition(args);
-    var blockStatement = BallerinaASTFactory.createBlockStatement(args);
-    var returnStatement = BallerinaASTFactory.createReturnStatement(args);
-    var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
-    var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression(args);
-    var referenceTypeInitiExpression = BallerinaASTFactory.createReferenceTypeInitExpression(args);
-
-    rightOperandExpression.addChild(referenceTypeInitiExpression);
-
-    var returnStatementVariableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
-    returnStatement.addChild(returnStatementVariableReferenceExpression);
-
-    variableDefinitionStatement.addChild(rightOperandExpression);
-
-    blockStatement.addChild(variableDefinitionStatement);
-    blockStatement.addChild(returnStatement);
-    typeMapperDefinition.addChild(blockStatement);
-    return typeMapperDefinition;
-};
-
 
 /**
  * Create the action invocation statement for action invocation
@@ -164,15 +140,11 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement = function 
  * @returns {AssignmentStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function (args) {
-    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-    var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-    var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-    var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
-    rightOp.addChild(actionInExp);
-    rightOp.setRightOperandExpressionString(actionInExp.getExpression());
-    assignmentStmt.addChild(leftOp);
-    assignmentStmt.addChild(rightOp);
-    return assignmentStmt;
+    var assignmentStatementString = 'm = ' + args.actionPackageName + ':' +
+        args.actionConnectorName + '.' + args.action + '()';
+    var assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+    assignmentStatement.setStatementFromString(assignmentStatementString);
+    return assignmentStatement;
 };
 
 /**
@@ -181,10 +153,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
  */
 DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
     var tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
-    var tryStatement = BallerinaASTFactory.createTryStatement(args);
-    tryCatchStatement.addChild(tryStatement);
-    var catchStatement = BallerinaASTFactory.createCatchStatement(args);
-    tryCatchStatement.addChild(catchStatement);
+    tryCatchStatement.setStatementFromString('try{}catch(exception e){}');
     return tryCatchStatement;
 };
 
@@ -195,7 +164,7 @@ DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
  */
 DefaultBallerinaASTFactory.createThrowStatement = function (args) {
     var throwStatement = BallerinaASTFactory.createThrowStatement(args);
-    throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableName: 'e'}));
+    throwStatement.setStatementFromString('throw e');
     return throwStatement;
 };
 
@@ -215,10 +184,7 @@ DefaultBallerinaASTFactory.createAbortStatement = function (args) {
  * */
 DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
     var transactionAbortedStatement = BallerinaASTFactory.createTransactionAbortedStatement(args);
-    var transactionStatement = BallerinaASTFactory.createTransactionStatement(args);
-    transactionAbortedStatement.addChild(transactionStatement);
-    var abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
-    transactionAbortedStatement.addChild(abortedStatement);
+    transactionAbortedStatement.setStatementFromString('transaction {} aborted {} committed {}');
     return transactionAbortedStatement;
 };
 
@@ -233,48 +199,74 @@ DefaultBallerinaASTFactory.createMainFunctionDefinition = function (args) {
     return functionDefinition;
 };
 
-/**Create the particular assignment statement for the function invocation
- * @param args
- * @returns {AssignmentStatement}
- */
-DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression = function (args) {
-    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-    var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-    var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-    var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
-    rightOp.addChild(functionInExp);
-    rightOp.setRightOperandExpressionString(functionInExp.getExpression());
-    assignmentStmt.addChild(leftOp);
-    assignmentStmt.addChild(rightOp);
-    return assignmentStmt;
-};
-
 /**
  * creates Aggregated AssignmentStatement
  * @param {Object} args
  * @returns {AssignmentStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
-    var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-    var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
-    leftOperand.setLeftOperandExpressionString('a');
-    var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
-    rightOperand.setRightOperandExpressionString('b');
-    assignmentStmt.addChild(leftOperand);
-    assignmentStmt.addChild(rightOperand);
-    return assignmentStmt;
+    let fragment = FragmentUtils.createStatementFragment('a = b;');
+    let parsedJson = FragmentUtils.parseFragment(fragment);
+    if ((!_.has(parsedJson, 'error')
+           || !_.has(parsedJson, 'syntax_errors'))
+           && _.isEqual(parsedJson.type, 'assignment_statement')) {
+        let node = BallerinaASTFactory.createFromJson(parsedJson);
+        node.initFromJson(parsedJson);
+        node.whiteSpace.useDefault = true;
+        return node;
+    }
+    return BallerinaASTFactory.createAssignmentStatement();
 };
 
 /**
  * creates FunctionInvocationStatement
  * @param args
- * @returns {FunctionInvocation}
+ * @returns {FunctionInvocationStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
-    var funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
-    var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+    let funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement();
+    let funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression();
+    if (!_.isNil(args) && _.has(args, 'functionDef')) {
+        let functionInvokeString = '';
+        if (!_.isNil(args.packageName)) {
+            functionInvokeString += args.packageName + ':';
+        }
+        functionInvokeString += args.functionDef.getName() + '(';
+        if (!_.isEmpty(args.functionDef.getParameters())) {
+            args.functionDef.getParameters().forEach((param, index) => {
+                if (index !== 0) {
+                    functionInvokeString += ', ';
+                }
+                functionInvokeString += param.name;
+            })
+        }
+        functionInvokeString += ')';
+        funcInvocationExpression.setExpressionFromString(functionInvokeString);
+    }
     funcInvocationStatement.addChild(funcInvocationExpression);
     return funcInvocationStatement;
+};
+
+/**
+ * creates WorkerInvocationStatement
+ * @param args
+ * @returns {WorkerInvocationStatement}
+ */
+DefaultBallerinaASTFactory.createWorkerInvocationStatement = function (args) {
+    var workerInvocationStatement = BallerinaASTFactory.createWorkerInvocationStatement();
+    workerInvocationStatement.setStatementFromString('m -> workerName');
+    return workerInvocationStatement;
+};
+
+/**
+ * creates workerReplyStatement
+ * @param args
+ * @returns WorkerReplyStatement}
+ */
+DefaultBallerinaASTFactory.createWorkerReplyStatement = function (args) {
+    var workerReplyStatement = BallerinaASTFactory.createWorkerReplyStatement();
+    workerReplyStatement.setStatementFromString('m <- workerName');
+    return workerReplyStatement;
 };
 
 export default DefaultBallerinaASTFactory;

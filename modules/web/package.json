@@ -1,6 +1,6 @@
 {
   "name": "ballerina-composer",
-  "version": "0.8.1",
+  "version": "0.88.0",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "clean": "rimraf dist",
@@ -67,6 +67,7 @@
     "jquery-ui": "^1.12.1",
     "js-yaml": "^3.7.0",
     "jsplumb": "2.3.5",
+    "jstree": "^3.3.4",
     "lodash": "^4.13.1",
     "log4javascript": "^1.4.15",
     "malihu-custom-scrollbar-plugin": "^3.1.5",
@@ -76,6 +77,8 @@
     "raw-loader": "^0.5.1",
     "react": "^15.4.2",
     "react-autosuggest": "^9.0.1",
+    "react-collapsible": "^1.4.0",
+    "react-custom-scrollbars": "^4.1.2",
     "react-dom": "^15.4.2",
     "react-transition-group": "^1.1.2",
     "select2": "^4.0.3",

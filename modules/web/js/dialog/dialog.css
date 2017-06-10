@@ -26,6 +26,7 @@
     overflow: auto;
     height:50%;
     width: 90%;
+    max-height: 350px;
     background-color: #2C2C2C;
     margin-left: 30px;
 }

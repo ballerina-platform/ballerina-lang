@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for VariableReferenceExpression
@@ -26,8 +27,14 @@ import Expression from './expression';
 class VariableReferenceExpression extends Expression {
     constructor(args) {
         super('VariableReferenceExpression');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '',
+            2: '',
+            3: ''
+
+        };
         this.setVariableName(_.get(args, 'variableName'));
-        this.setExpression(this.generateExpression(), {doSilently: true});
         this._packageName = _.get(args, 'packageName');
     }
 
@@ -45,6 +52,21 @@ class VariableReferenceExpression extends Expression {
      */
     getVariableName() {
         return this._variableName;
+    }
+
+    /**
+     * Getter for Variable type
+     * @returns var type
+     */
+    getVariableType() {
+        return this.children[0].getTypeName();
+    }
+
+    /**
+     * setter for Variable type
+     */
+    setVariableType(typeName) {
+        return this.children[0].setTypeName(typeName);
     }
 
     /**
@@ -70,26 +92,52 @@ class VariableReferenceExpression extends Expression {
      * @param {string} [jsonNode.variable_reference_name, jsonNode.package_name] - Variable name of the VariableReferenceExpression
      */
     initFromJson(jsonNode) {
+        this.getChildren().length = 0;
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
         this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
         this.setPackageName(jsonNode.package_name, {doSilently: true});
-        this.setExpression(this.generateExpression(), {doSilently: true});
     }
 
-    generateExpression() {
-        var varDef = this.findChild(this.getFactory().isVariableDefinition);
-        if (!_.isNil(varDef)) {
-            return (!_.isNil(varDef.getPkgPath()) ?
-                varDef.getPkgPath() + ":" : "") + varDef.getTypeName() + " " + varDef.getName();
-        } else {
-            return !_.isNil(this.getPackageName()) ? (this.getPackageName() + ':' + this.getVariableName()) : this.getVariableName();
+    /**
+     * Set the expression from the expression string
+     * @param {string} expressionString
+     * @override
+     */
+    setExpressionFromString(expression, callback) {
+        if(!_.isNil(expression)){
+            let fragment = FragmentUtils.createExpressionFragment(expression);
+            let parsedJson = FragmentUtils.parseFragment(fragment);
+            if ((!_.has(parsedJson, 'error')
+                   || !_.has(parsedJson, 'syntax_errors'))
+                   && _.isEqual(parsedJson.type, 'variable_reference_expression')) {
+                this.initFromJson(parsedJson);
+                if (_.isFunction(callback)) {
+                    callback({isValid: true});
+                }
+            } else {
+                if (_.isFunction(callback)) {
+                    callback({isValid: false, response: parsedJson});
+                }
+            }
         }
     }
+
+    /**
+     * Get the expression string
+     * @returns {string} expression string
+     * @override
+     */
+    getExpressionString() {
+        return (!_.isNil(this.getPackageName()) ? (this.getPackageName()
+                + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
+                + this.getVariableName() + this.getWSRegion(3);
+    }
+
 }
 
 export default VariableReferenceExpression;
