@@ -5,7 +5,7 @@ var UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFile
 
 var extractThemes = new ExtractTextPlugin('./[name].css');
 var extractCSSBundle = new ExtractTextPlugin('./bundle.css');
-
+var exportConfig = {};
 var config = [{
     entry: {
         bundle: './index.js',
@@ -165,7 +165,7 @@ var config = [{
     ],
     devtool: 'source-map'
 }];
-
+exportConfig = config;
 if (process.env.NODE_ENV === 'production') {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(true),
@@ -192,6 +192,7 @@ if (process.env.NODE_ENV === 'production') {
 if (process.env.NODE_ENV === 'test') {
   // we run tests on nodejs. So compile for nodejs
     config[0].target = 'node';
+    exportConfig = config[0];
 }
 
 if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
@@ -204,4 +205,4 @@ if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electro
     };
 }
 
-module.exports = config;
+module.exports = exportConfig;
