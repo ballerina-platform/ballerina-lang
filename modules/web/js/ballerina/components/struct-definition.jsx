@@ -30,6 +30,7 @@ import StructOperationsRenderer from './struct-operations-renderer';
 import Renderer from './renderer';
 import ASTNode from './../ast/node';
 import * as DesignerDefaults from './../configs/designer-defaults';
+import SuggestionsText from './suggestions-text2';
 
 const submitButtonWidth = 40;
 const columnPadding = 5;
@@ -53,14 +54,13 @@ class StructDefinition extends React.Component {
     }
 
     renderTextBox(textValue, bBox, callback) {
-        const self = this;
         this.context.renderer.renderTextBox({
-          bBox: bBox,
-          display: true,
-          initialValue: textValue || "",
-          onChange(value){
-            callback(value);
-          }
+            bBox: bBox,
+            display: true,
+            initialValue: textValue || '',
+            onChange(value){
+                callback(value);
+            }
         });
     }
 
@@ -103,33 +103,29 @@ class StructDefinition extends React.Component {
         );
     }
 
-    handleTypeClick(currentSelection, elementBBox, model) {
-        const { renderingContext } = this.context;
-        const self = this;
-        const bBox = {x: elementBBox.x, y: elementBBox.y , h: elementBBox.height, w: elementBBox.width};
-        this.context.renderer.renderDropdown({
-          bBox: bBox,
-          display: true,
-          initialValue: currentSelection || "",
-          options: renderingContext.packagedScopedEnvironemnt.getTypes(),
-          onChange(value){
-              if(model) {
-                  model.setBType(value);
-              } else {
-                  self.setState({
-                      newType: value
-                  });
-              }
-          }
+    handleAddTypeClick() {
+        this.setState({
+            canShowAddType: true
         });
     }
 
     createNew() {
         this.addVariableDefinitionStatement(this.state.newType, this.state.newIdentifier, this.state.newValue);
         this.setState({
-            newType: "",
-            newIdentifier: "",
-            newValue: ""
+            newType: '',
+            newIdentifier: '',
+            newValue: ''
+        });
+    }
+
+    hideAddSuggestions() {
+        this.setState({canShowAddType: false});
+    }
+
+    onAddStructTypeChange(value) {
+        this.validateStructType(value);
+        this.setState({
+            newType: value
         });
     }
 
@@ -137,10 +133,10 @@ class StructDefinition extends React.Component {
         const placeHolderPadding = 10;
         const submitButtonPadding = 5;
         const typeCellbox = {
-          x: x + panelPadding,
-          y: y + panelPadding,
-          width: columnSize - panelPadding - columnPadding /2,
-          height: h - panelPadding * 2
+            x: x + panelPadding,
+            y: y + panelPadding,
+            width: columnSize - panelPadding - columnPadding /2,
+            height: h - panelPadding * 2
         };
 
         const identifierCellBox = {
@@ -156,20 +152,32 @@ class StructDefinition extends React.Component {
             width: columnSize - columnPadding/2,
             height: h - panelPadding * 2
         };
-
+        const { renderingContext } = this.context;
+        const structSuggestions = renderingContext.environment.getTypes().map( name => {
+            return { name };
+        });
         return (
           <g>
               <rect x={x} y={y} width={w}  height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
-              <g onClick={ (e)=> this.handleTypeClick(this.state.newType, typeCellbox) } >
-                     <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
-                      <text x={typeCellbox.x + placeHolderPadding}  y={y + DesignerDefaults.contentOperations.height/2 + 2}
-                          className="struct-input-text" > {this.state.newType || "Select Type"} </text>
+                  <g onClick={ (e)=> this.handleAddTypeClick(this.state.newType, typeCellbox) } >
+                    <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
+                    <text x={typeCellbox.x + placeHolderPadding}  y={y + DesignerDefaults.contentOperations.height/2 + 2}
+                        className="struct-input-text" > {this.state.newType || "Select Type"}
+                    </text>
+                    <SuggestionsText {...typeCellbox}
+                        suggestionsPool={structSuggestions}
+                        show={this.state.canShowAddType}
+                        onBlur={() => this.hideAddSuggestions()}
+                        onEnter={ () => this.hideAddSuggestions()}
+                        onChange={ (value) => this.onAddStructTypeChange (value) }
+                        value={this.state.newType}
+                    />
                   </g>
                   <g onClick={(e)=> this.handleIdentifierClick(this.state.newIdentifier, identifierCellBox) } >
                       <rect {...identifierCellBox} className="struct-input-value-wrapper" />
-                       <text x={identifierCellBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2 + 2}
-                           className="struct-input-text" > {this.state.newIdentifier || " + Add Identifier"}
-                       </text>
+                      <text x={identifierCellBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height/2 + 2}
+                          className="struct-input-text" > {this.state.newIdentifier || " + Add Identifier"}
+                      </text>
                    </g>
                    <g onClick={(e)=> this.handleValueClick(this.state.newValue, defaultValueBox) } >
                        <rect {...defaultValueBox} className="struct-input-value-wrapper" />
@@ -209,6 +217,19 @@ class StructDefinition extends React.Component {
             throw errorString;
         }
     }
+    validateStructType (structType) {
+        if (!structType || !structType.length) {
+            const errorString = 'Struct Type cannot be empty';
+            Alerts.error(errorString);
+            throw errorString;
+        }
+
+        if (!ASTNode.isValidIdentifier(structType)) {
+            const errorString = `Invalid Struct Type : ${structType}`;
+            Alerts.error(errorString);
+            throw errorString;
+        }
+    }
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
         if(!bType) {
             const errorString = "Struct Type Cannot be empty";
@@ -234,7 +255,6 @@ class StructDefinition extends React.Component {
         };
 
         const columnSize = (coDimensions.w - submitButtonWidth) / 3;
-
 				return (
 					<PanelDecorator icon="tool-icons/struct" title={title} bBox={bBox} model={model}>
               { this.renderContentOperations(coDimensions, columnSize) }
@@ -269,7 +289,7 @@ class StructDefinition extends React.Component {
 
                         return (<g key={i} className="struct-definition-statement">
 
-                          <g className="struct-variable-definition-type"  onClick={ (e)=> this.handleTypeClick(type, typeCellbox, child) } >
+                          <g className="struct-variable-definition-type" >
                               <rect {...typeCellbox} className="struct-added-value-wrapper" />
                               <text x={panelPadding + coDimensions.x} y={y + DesignerDefaults.structDefinitionStatement.height/2 + 3 }
                                   className="struct-variable-definition-type-text" > {type} </text>
