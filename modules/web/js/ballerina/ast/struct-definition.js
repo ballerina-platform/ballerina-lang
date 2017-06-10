@@ -95,7 +95,12 @@ class StructDefinition extends ASTNode {
         } else {
             // Creating new variable definition.
             var newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            let stmtString = bType + ' ' + identifier + ' = ' + defaultValue;
+            let stmtString = ''; 
+            if(defaultValue == "")
+                stmtString = bType + ' ' + identifier;
+            else{
+                stmtString = bType + ' ' + identifier + ' = ' + defaultValue;
+            }
             newVariableDefinitionStatement.setStatementFromString(stmtString);
 
             // Get the index of the last definition.
