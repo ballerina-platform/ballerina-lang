@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
+import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.DataTableOMDataSource;
@@ -127,8 +128,8 @@ public class BDataTable implements BRefType<Object> {
             dataArray[index] = value;
             ++index;
         }
-        //bStruct.setMemoryBlock(dataArray);
-        //BLangVM.prepareStructureTypeFromNativeAction(bStruct);
+        bStruct.setMemoryBlock(dataArray);
+        BLangVM.prepareStructureTypeFromNativeAction(bStruct);
         return bStruct;
     }
 

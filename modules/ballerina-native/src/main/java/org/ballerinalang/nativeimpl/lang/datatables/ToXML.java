@@ -62,7 +62,7 @@ public class ToXML extends AbstractNativeFunction {
         String rootWrapper = null;
         String rowWrapper = null;
         rootWrapper = getStringArgument(ctx, 0);
-        rowWrapper = getStringArgument(ctx, 0);
+        rowWrapper = getStringArgument(ctx, 1);
         return getBValues(dataTable.toXML(rootWrapper, rowWrapper, ctx.isInTransaction()));
     }
 }

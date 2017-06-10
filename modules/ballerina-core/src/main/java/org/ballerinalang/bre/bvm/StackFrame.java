@@ -82,6 +82,7 @@ public class StackFrame {
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
         this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
@@ -89,6 +90,7 @@ public class StackFrame {
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
+        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
@@ -120,12 +122,14 @@ public class StackFrame {
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
+        this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
+        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
