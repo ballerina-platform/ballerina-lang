@@ -39,7 +39,17 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
-        var constructedSourceSegment = 'struct' + structDefinition.getWSRegion(0)
+
+        // Adding annotations
+        let constructedSourceSegment = '';
+        _.forEach(structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += annotationNode.toString()
+                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+            }
+        });
+
+        constructedSourceSegment += 'struct' + structDefinition.getWSRegion(0)
               + structDefinition.getStructName() + structDefinition.getWSRegion(1)
               + '{' + structDefinition.getWSRegion(2);
         this.appendSource(constructedSourceSegment);
