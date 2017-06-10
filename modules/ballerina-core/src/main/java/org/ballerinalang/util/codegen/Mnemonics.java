@@ -177,6 +177,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2F] = "json2f";
         mnemonics[InstructionCodes.JSON2S] = "json2s";
         mnemonics[InstructionCodes.JSON2B] = "json2b";
+        mnemonics[InstructionCodes.XML2JSON] = "xml2json";
+        mnemonics[InstructionCodes.JSON2XML] = "json2xml";
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";

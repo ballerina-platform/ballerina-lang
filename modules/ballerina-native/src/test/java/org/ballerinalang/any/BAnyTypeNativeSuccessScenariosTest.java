@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.any;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -36,18 +36,18 @@ import java.io.PrintStream;
  * @since 0.85
  */
 public class BAnyTypeNativeSuccessScenariosTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
     private PrintStream original;
 
     @BeforeClass
     public void setup() {
         original = System.out;
-        bLangProgram = BTestUtils.parseBalFile("lang/any/any-type-native-success.bal");
+        programFile = BTestUtils.getProgramFile("lang/any/any-type-native-success.bal");
     }
 
     @Test(description = "Test json value in any type get casted to xml in two steps")
     public void testJsonInAnyCastToX() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "successfulXmlCasting");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "successfulXmlCasting");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         BXML xmlVal = (BXML) returns[0];
@@ -61,7 +61,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BLangFunctions.invoke(bLangProgram, "printlnAnyVal");
+            BLangFunctions.invokeNew(programFile, "printlnAnyVal");
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}\n",
                               "Invalid xml printed");
         } finally {
@@ -75,7 +75,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BLangFunctions.invoke(bLangProgram, "printAnyVal");
+            BLangFunctions.invokeNew(programFile, "printAnyVal");
             Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}",
                                 "Invalid xml printed");
         } finally {
@@ -89,7 +89,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BLangFunctions.invoke(bLangProgram, "findBestNativeFunctionPrintln");
+            BLangFunctions.invokeNew(programFile, "findBestNativeFunctionPrintln");
             Assert.assertEquals(outContent.toString().replace("\r", ""), "8\n", "Invalid int value printed");
         } finally {
             outContent.close();
@@ -102,7 +102,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         try {
             System.setOut(new PrintStream(outContent));
-            BLangFunctions.invoke(bLangProgram, "findBestNativeFunctionPrint");
+            BLangFunctions.invokeNew(programFile, "findBestNativeFunctionPrint");
             Assert.assertEquals(outContent.toString().replace("\r", ""), "7", "Invalid int value printed");
         } finally {
             outContent.close();

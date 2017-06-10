@@ -1291,6 +1291,16 @@ public class BLangVM {
                 case InstructionCodes.JSON2B:
                     convertJSONToBoolean(operands, sf);
                     break;
+                case InstructionCodes.XML2JSON:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = XMLUtils.toJSON((BXML) sf.refRegs[i]);
+                    break;
+                case InstructionCodes.JSON2XML:
+                    i = operands[0];
+                    j = operands[1];
+                    sf.refRegs[j] = XMLUtils.jsonToXML((BJSON) sf.refRegs[i]);
+                    break;
 
                 case InstructionCodes.ANY2I:
                     i = operands[0];

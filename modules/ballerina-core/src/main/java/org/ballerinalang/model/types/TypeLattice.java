@@ -329,6 +329,12 @@ public class TypeLattice {
                 InstructionCodes.DT2XML);
         conversionLattice.addEdge(datatableV, jsonV, NativeConversionMapper.DATATABLE_TO_JSON_FUNC, UNSAFE,
                 InstructionCodes.DT2JSON);
+
+        // TODO : Do in the proper way
+        conversionLattice.addEdge(xmlV, jsonV, NativeConversionMapper.DATATABLE_TO_XML_FUNC, UNSAFE,
+                                  InstructionCodes.XML2JSON);
+        conversionLattice.addEdge(jsonV, xmlV, NativeConversionMapper.DATATABLE_TO_XML_FUNC, UNSAFE,
+                                  InstructionCodes.JSON2XML);
     }
 
     /**

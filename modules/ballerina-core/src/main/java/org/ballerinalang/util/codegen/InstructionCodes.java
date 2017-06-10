@@ -203,10 +203,12 @@ public interface InstructionCodes {
     int ANY2MSG = 165;
     int DT2JSON = 166;
     int DT2XML = 167;
+    int XML2JSON = 168;
+    int JSON2XML = 169;
 
     // Transactions
-    int TRBGN = 168;
-    int TREND = 169;
+    int TRBGN = 172;
+    int TREND = 173;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;

@@ -34,11 +34,11 @@ import org.testng.annotations.Test;
  */
 public class ArrayLengthAccessExprTest {
 
-    private ProgramFile bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/expressions/array-length-access-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/array-length-access-expr.bal");
     }
 
     @Test(description = "Test array length access expression when array is null.",
@@ -46,7 +46,7 @@ public class ArrayLengthAccessExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     public void testArrayLengthAccessExpArrayNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BLangFunctions.invokeNew(bLangProgram, "arrayLengthAccessNullArrayCase", args);
+        BLangFunctions.invokeNew(programFile, "arrayLengthAccessNullArrayCase", args);
     }
 
 }
