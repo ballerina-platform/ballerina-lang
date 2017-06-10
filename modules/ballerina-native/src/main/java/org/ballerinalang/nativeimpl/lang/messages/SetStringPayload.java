@@ -57,15 +57,15 @@ public class SetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
-        BString payload = (BString) getArgument(context, 1);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        String payload = getStringArgument(context, 0);
         // Clone the message without content
         CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
         msg.setValue(cmsg);
-        msg.setMessageDataSource(payload.stringValue());
+        msg.setMessageDataSource(payload);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
-            log.debug("Setting new payload: " + payload.stringValue());
+            log.debug("Setting new payload: " + payload);
         }
         return VOID_RETURN;
     }

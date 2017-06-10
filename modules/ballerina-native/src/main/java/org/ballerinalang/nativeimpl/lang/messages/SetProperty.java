@@ -53,12 +53,12 @@ public class SetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
-        BString propertyName = (BString) getArgument(context, 1);
-        BString propertyValue = (BString) getArgument(context, 2);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        String propertyName = getStringArgument(context, 0);
+        String propertyValue = getStringArgument(context, 1);
 
         if (propertyName != null && propertyValue != null) {
-            msg.setProperty(propertyName.stringValue(), propertyValue.stringValue());
+            msg.setProperty(propertyName, propertyValue);
         }
 
         return VOID_RETURN;
