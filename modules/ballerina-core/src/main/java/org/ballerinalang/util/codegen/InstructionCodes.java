@@ -154,6 +154,7 @@ public interface InstructionCodes {
     int BR_FALSE = 116;
 
     int GOTO = 117;
+    int HALT = 118;
     int CALL = 120;
     int NCALL = 121;
     int ACALL = 122;
@@ -161,51 +162,56 @@ public interface InstructionCodes {
     int THROW = 124;
     int ERRSTORE = 125;
 
-    // Type Cast/Conversion related instructions
+    // Type Conversion related instructions
     int I2F = 130;
     int I2S = 131;
     int I2B = 132;
-    int I2ANY = 133;
-    int I2JSON = 134;
-    int F2I = 135;
-    int F2S = 136;
-    int F2B = 137;
-    int F2ANY = 138;
-    int F2JSON = 139;
-    int S2I = 140;
-    int S2F = 141;
-    int S2B = 142;
-    int S2ANY = 143;
-    int S2JSON = 144;
-    int B2I = 145;
-    int B2F = 146;
-    int B2S = 147;
-    int B2ANY = 148;
-    int B2JSON = 149;
-    int L2ANY = 150;
-    int JSON2I = 151;
-    int JSON2F = 152;
-    int JSON2S = 153;
-    int JSON2B = 154;
+    int I2JSON = 133;
+    int F2I = 134;
+    int F2S = 135;
+    int F2B = 136;
+    int F2JSON = 137;
+    int S2I = 138;
+    int S2F = 139;
+    int S2B = 140;
+    int S2JSON = 141;
+    int B2I = 142;
+    int B2F = 143;
+    int B2S = 144;
+    int B2JSON = 145;
+    int JSON2I = 146;
+    int JSON2F = 147;
+    int JSON2S = 148;
+    int JSON2B = 149;
+    int DT2JSON = 150;
+    int DT2XML = 151;
 
     // Type cast
-    int ANY2I = 155;
-    int ANY2F = 156;
-    int ANY2S = 157;
-    int ANY2B = 158;
-    int ANY2L = 159;
-    int ANY2JSON = 160;
-    int ANY2T = 161;
-    int ANY2MAP = 162;
-    int NULL2JSON = 163;
-    int CHECKCAST = 164;
-    int ANY2MSG = 165;
-    int DT2JSON = 166;
-    int DT2XML = 167;
+    int I2ANY = 160;
+    int F2ANY = 161;
+    int S2ANY = 162;
+    int B2ANY = 163;
+    int L2ANY = 164;
+    int ANY2I = 165;
+    int ANY2F = 166;
+    int ANY2S = 167;
+    int ANY2B = 168;
+    int ANY2L = 169;
+    int ANY2JSON = 170;
+    int ANY2XML = 171;
+    int ANY2MAP = 172;
+    int ANY2MSG = 173;
+    int ANY2DT  = 174;
+
+    int ANY2T = 178;
+    int ANY2C = 179;
+    int CHECKCAST = 180;
+    int NULL2JSON = 181;
+
 
     // Transactions
-    int TRBGN = 168;
-    int TREND = 169;
+    int TRBGN = 188;
+    int TREND = 189;
 
     int WRKINVOKE = 190;
     int WRKREPLY = 191;

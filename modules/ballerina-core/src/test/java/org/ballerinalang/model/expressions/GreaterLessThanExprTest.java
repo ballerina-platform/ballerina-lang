@@ -35,17 +35,17 @@ import org.testng.annotations.Test;
  */
 public class GreaterLessThanExprTest {
 
-    private ProgramFile bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/expressions/greater-less-than-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/greater-less-than-expr.bal");
     }
 
     @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
         BValue[] args = {new BInteger(0)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntRanges", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -55,14 +55,14 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(50)};
-        returns = BLangFunctions.invokeNew(bLangProgram, "testIntRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(200)};
-        returns = BLangFunctions.invokeNew(bLangProgram, "testIntRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -72,7 +72,7 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
         BValue[] args = {new BFloat(-123.8f)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFloatRanges", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFloatRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -82,14 +82,14 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(75.4f)};
-        returns = BLangFunctions.invokeNew(bLangProgram, "testFloatRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(321.45f)};
-        returns = BLangFunctions.invokeNew(bLangProgram, "testFloatRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -104,7 +104,7 @@ public class GreaterLessThanExprTest {
         boolean expectedResult = a > b;
 
         BValue[] args = {new BInteger(a), new BFloat(b)};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntAndFloatCompare", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntAndFloatCompare", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);

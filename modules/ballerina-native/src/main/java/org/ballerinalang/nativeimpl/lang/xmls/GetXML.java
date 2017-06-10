@@ -74,8 +74,8 @@ public class GetXML extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
 
             xml = XMLUtils.getSingletonValue(xml);
             

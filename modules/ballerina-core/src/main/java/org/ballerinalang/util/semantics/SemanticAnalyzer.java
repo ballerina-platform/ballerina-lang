@@ -180,7 +180,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
     private static final Pattern compiledPattern = Pattern.compile(patternString);
     private static final String ERRORS_PACKAGE = "ballerina.lang.errors";
-    private static final String BALLERINA_CAST_ERROR = "CastError";
+    private static final String BALLERINA_CAST_ERROR = "TypeCastError";
+    private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
     private static final String BALLERINA_ERROR = "Error";
 
     private int whileStmtCount = 0;
@@ -584,8 +585,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void resolveWorkerInteractions(CallableUnit callableUnit) {
         //CallableUnit callableUnit = function;
-        boolean isWorkerInWorker = callableUnit instanceof Worker ? true : false;
-        boolean isForkJoinStmt = callableUnit instanceof ForkJoinStmt ? true : false;
+        boolean isWorkerInWorker = callableUnit instanceof Worker;
+        boolean isForkJoinStmt = callableUnit instanceof ForkJoinStmt;
         Worker[] workers = callableUnit.getWorkers();
         if (workers.length > 0) {
             Worker[] tempWorkers = new Worker[workers.length];
@@ -1043,7 +1044,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
     }
-    
+
     @Override
     public void visit(AnnotationAttributeDef annotationAttributeDef) {
         SimpleTypeName fieldType = annotationAttributeDef.getTypeName();
@@ -2328,8 +2329,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(TypeCastExpression typeCastExpr) {
         // Evaluate the expression and set the type
+        boolean isMultiReturn = typeCastExpr.isMultiReturnExpr();
         Expression rExpr = typeCastExpr.getRExpr();
         visitSingleValueExpr(rExpr);
+
         BType sourceType = rExpr.getType();
         BType targetType = typeCastExpr.getType();
         if (targetType == null) {
@@ -2343,13 +2346,17 @@ public class SemanticAnalyzer implements NodeVisitor {
                 sourceType, targetType);
         }
 
-        boolean isMultiReturn = typeCastExpr.isMultiReturnExpr();
-
         // Find the eval function from explicit casting lattice
         TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
             typeCastExpr.setOpcode(newEdge.getOpcode());
             typeCastExpr.setEvalFunc(newEdge.getTypeMapperFunction());
+
+            // TODO 0.89 release
+//            if (!newEdge.isSafe() && !isMultiReturn) {
+//                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
+//                        sourceType, targetType);
+//            }
 
             if (!isMultiReturn) {
                 typeCastExpr.setTypes(new BType[]{targetType});
@@ -2398,8 +2405,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(TypeConversionExpr typeConversionExpr) {
         // Evaluate the expression and set the type
+        boolean isMultiReturn = typeConversionExpr.isMultiReturnExpr();
         Expression rExpr = typeConversionExpr.getRExpr();
         visitSingleValueExpr(rExpr);
+
         BType sourceType = rExpr.getType();
         BType targetType = typeConversionExpr.getType();
         if (targetType == null) {
@@ -2413,31 +2422,40 @@ public class SemanticAnalyzer implements NodeVisitor {
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
 
-        boolean isMultiReturn = typeConversionExpr.isMultiReturnExpr();
-
         // Find the eval function from the conversion lattice
         TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
             typeConversionExpr.setOpcode(newEdge.getOpcode());
             typeConversionExpr.setEvalFunc(newEdge.getTypeMapperFunction());
 
+            // TODO 0.89 release
+//            if (!newEdge.isSafe() && !isMultiReturn) {
+//                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
+//                        sourceType, targetType);
+//            }
+
             if (!isMultiReturn) {
                 typeConversionExpr.setTypes(new BType[] { targetType });
                 return;
             }
 
+        } else if (sourceType == targetType) {
+            typeConversionExpr.setOpcode(InstructionCodes.NOP);
+
+            // TODO Remove this once the interpreter is removed.
+            typeConversionExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
+            if (!isMultiReturn) {
+                typeConversionExpr.setTypes(new BType[]{targetType});
+                return;
+            }
         } else {
             // TODO: print a suggestion
             BLangExceptionHelper.throwSemanticError(typeConversionExpr,
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
 
-        if (!isMultiReturn) {
-            return;
-        }
-
         // If this is a multi-value return conversion expression, set the return types. 
-        BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
+        BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CONVERSION_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeConversionExpr,
                 SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);

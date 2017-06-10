@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.lang.blobs;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -55,10 +54,10 @@ public class ToString extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         try {
-            BBlob blob = (BBlob) getArgument(ctx, 0);
-            BString encoding = (BString) getArgument(ctx, 1);
-            byte[] arr = blob.blobValue();
-            String s = new String(arr, encoding.stringValue());
+
+            String encoding = getStringArgument(ctx, 0);
+            byte[] arr = getBlobArgument(ctx, 0);
+            String s = new String(arr, encoding);
             return getBValues(new BString(s));
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Unsupported Encoding of Blob", e);

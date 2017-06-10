@@ -59,8 +59,8 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 public class AnyArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BNewArray arrayFrom = (BNewArray) getArgument(context, 0);
-        BNewArray arrayTo = (BNewArray) getArgument(context, 1);
+        BNewArray arrayFrom = (BNewArray) getRefArgument(context, 0);
+        BNewArray arrayTo = (BNewArray) getRefArgument(context, 1);
 
         if (arrayFrom instanceof BIntArray && arrayTo instanceof BIntArray) {
             BIntArray intArrayFrom = (BIntArray) arrayFrom;

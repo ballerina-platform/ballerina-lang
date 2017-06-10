@@ -60,8 +60,8 @@ import java.util.Map;
 public class GetArray extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        BValue index = getArgument(ctx, 1);
+        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
+        BValue index = getRefArgument(ctx, 1);
         Map<String, Object> arrayMap = null;
         if (index instanceof BInteger) {
             arrayMap = dataTable.getArray(((BInteger) index).intValue());

@@ -52,8 +52,8 @@ public class Split extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String initialString = getArgument(context, 0).stringValue();
-        String regex = getArgument(context, 1).stringValue();
+        String initialString = getStringArgument(context, 0);
+        String regex = getStringArgument(context, 1);
 
         String[] splitArray = initialString.split(regex);
                         

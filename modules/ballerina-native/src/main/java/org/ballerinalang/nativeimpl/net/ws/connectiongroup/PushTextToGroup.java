@@ -60,8 +60,8 @@ public class PushTextToGroup extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with services");
         }
 
-        String connectionGroupName = getArgument(context, 0).stringValue();
-        String text = getArgument(context, 1).stringValue();
+        String connectionGroupName = getStringArgument(context, 0);
+        String text = getStringArgument(context, 1);
         List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);
         if (sessions == null) {
             throw new BallerinaException("Connection group name " + connectionGroupName +

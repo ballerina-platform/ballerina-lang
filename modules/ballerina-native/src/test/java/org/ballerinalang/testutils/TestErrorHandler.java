@@ -18,6 +18,7 @@
 package org.ballerinalang.testutils;
 
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
@@ -31,8 +32,11 @@ public class TestErrorHandler implements ServerConnectorErrorHandler {
     public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
         DefaultCarbonMessage response = new DefaultCarbonMessage();
-        response.setMessageDataSource(new StringDataSource(exception.getMessage()));
-        response.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, 500);
+        if (exception.getMessage() != null) {
+            response.setMessageDataSource(new StringDataSource(exception.getMessage()));
+        }
+        response.setProperty(Constants.HTTP_STATUS_CODE,
+                carbonMessage.getProperty(Constants.HTTP_STATUS_CODE));
         carbonCallback.done(response);
     }
 

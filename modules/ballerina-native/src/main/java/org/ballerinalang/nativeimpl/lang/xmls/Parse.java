@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.lang.xmls;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -32,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Parse a string and get an XML
+ * Parse a string and get an XML.
  * 
  * @since 0.88
  */
@@ -58,8 +57,8 @@ private static final String OPERATION = "parse xml";
         BValue result = null;
         try {
             // Accessing Parameters.
-            BString xmlStr = (BString) getArgument(ctx, 0);
-            result = XMLUtils.parse(xmlStr.stringValue());
+            String xmlStr = getStringArgument(ctx, 0);
+            result = XMLUtils.parse(xmlStr);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

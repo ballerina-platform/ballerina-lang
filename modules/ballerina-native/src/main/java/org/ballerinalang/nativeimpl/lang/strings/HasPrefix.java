@@ -54,8 +54,8 @@ public class HasPrefix extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).stringValue();
-        String prefix = getArgument(context, 1).stringValue();
+        String param1 = getStringArgument(context, 0);
+        String prefix = getStringArgument(context, 1);
 
         BBoolean booleanValue = new BBoolean(param1.startsWith(prefix));
         return getBValues(booleanValue);

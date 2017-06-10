@@ -65,9 +65,9 @@ public class RemoveWithNamespaces extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
-            BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 2);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
+            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 1);
 
             xml = XMLUtils.getSingletonValue(xml);
             

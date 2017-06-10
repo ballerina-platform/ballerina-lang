@@ -75,10 +75,10 @@ public class SetString extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
             // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            String value = getArgument(ctx, 2).stringValue();
+            String value = getStringArgument(ctx, 1);
             
             xml = XMLUtils.getSingletonValue(xml);
             

@@ -30,7 +30,7 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Remove a connection group from {@link org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager}
+ * Remove a connection group from {@link org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager}.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
@@ -52,7 +52,7 @@ public class RemoveConnectionGroup extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with services");
         }
 
-        String connectionGroupName = getArgument(context, 0).stringValue();
+        String connectionGroupName = getStringArgument(context, 0);
         boolean connectionGroupRemoved = WebSocketConnectionManager.getInstance().
                 removeConnectionGroup(connectionGroupName);
         if (!connectionGroupRemoved) {

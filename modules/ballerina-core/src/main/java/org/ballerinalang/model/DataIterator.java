@@ -33,7 +33,7 @@ public interface DataIterator {
 
     boolean next();
 
-    void close();
+    void close(boolean isInTransaction);
 
     String getString(int columnIndex);
 

@@ -91,6 +91,10 @@ public class PackageInfo {
         return functionInfoMap.get(functionName);
     }
 
+    public FunctionInfo[] getFunctionInfoCollection() {
+        return functionInfoMap.values().toArray(new FunctionInfo[0]);
+    }
+
     public void addFunctionInfo(String functionName, FunctionInfo functionInfo) {
         functionInfoMap.put(functionName, functionInfo);
     }
@@ -199,5 +203,9 @@ public class PackageInfo {
     public void complete() {
         this.constPool = constantPoolEntries.toArray(new ConstantPoolEntry[0]);
         this.instructions = instructionList.toArray(new Instruction[0]);
+    }
+
+    public String getPkgPath() {
+        return pkgPath;
     }
 }

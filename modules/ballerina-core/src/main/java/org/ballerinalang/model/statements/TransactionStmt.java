@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.model.statements;
 
+
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.Collections;
@@ -39,7 +41,7 @@ public class TransactionStmt extends AbstractStatement {
     private CommittedBlock committedBlock;
 
     private TransactionStmt(NodeLocation location, Statement transactionBlock, AbortedBlock abortedBlock,
-            CommittedBlock committedBlock) {
+                            CommittedBlock committedBlock) {
         super(location);
         this.transactionBlock = transactionBlock;
         this.abortedBlock = abortedBlock;
@@ -174,6 +176,7 @@ public class TransactionStmt extends AbstractStatement {
         private AbortedBlock abortedBlock;
         private CommittedBlock committedBlock;
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
         public void setTransactionBlock(Statement transactionBlock) {
             this.transactionBlock = transactionBlock;
@@ -203,8 +206,19 @@ public class TransactionStmt extends AbstractStatement {
             this.location = location;
         }
 
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public TransactionStmt build() {
-            return new TransactionStmt(location, transactionBlock, abortedBlock, committedBlock);
+            TransactionStmt transactionStmt = new TransactionStmt(location, transactionBlock,
+                    abortedBlock, committedBlock);
+            transactionStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+            return transactionStmt;
         }
     }
 }

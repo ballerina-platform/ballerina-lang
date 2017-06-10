@@ -73,7 +73,7 @@ public class XMLUtils {
     private static final String XML_ROOT = "root";
     
     /**
-     * Create a XML item from string literal
+     * Create a XML item from string literal.
      *
      * @param xmlStr String representation of the XML
      * @return XML sequence
@@ -114,7 +114,7 @@ public class XMLUtils {
     }
 
     /**
-     * Create a XML sequence from string inputstream
+     * Create a XML sequence from string inputstream.
      *
      * @param xmlStream XML imput stream
      * @return  XML Sequence
@@ -285,9 +285,9 @@ public class XMLUtils {
      * @param dataTable {@link BDataTable} to convert
      * @return converted {@link BXML}
      */
-    public static BXML datatableToXML(BDataTable dataTable) {
+    public static BXML datatableToXML(BDataTable dataTable, boolean isInTransaction) {
         OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null));
+        omSourcedElement.init(new DataTableOMDataSource(dataTable, null, null, isInTransaction));
         return new BXMLItem(omSourcedElement);
     }
 }

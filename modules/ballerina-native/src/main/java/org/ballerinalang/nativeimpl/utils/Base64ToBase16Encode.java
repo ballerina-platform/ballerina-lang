@@ -59,7 +59,7 @@ public class Base64ToBase16Encode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String stringValue = getArgument(context, 0).stringValue();
+        String stringValue = getStringArgument(context, 0);
 
         String result;
         byte[] keyBytes = Base64.getDecoder().decode(stringValue.getBytes(Charset.defaultCharset()));

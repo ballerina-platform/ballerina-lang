@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -91,8 +92,8 @@ public class ArrayAccessExprTest {
     }
     
     @Test(description = "Test accessing an out of bound arrays-index",
-            expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = "array index out of range: index: 5, size: 2")
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*array index out of range: index: 5, size: 2.*")
     public void testArrayIndexOutOfBoundError() {
         BLangFunctions.invokeNew(programFile, "arrayIndexOutOfBoundTest");
     }

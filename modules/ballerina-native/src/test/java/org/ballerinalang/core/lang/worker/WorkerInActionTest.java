@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -31,12 +30,10 @@ import org.testng.annotations.Test;
  * Test cases for usages of worker in actions.
  */
 public class WorkerInActionTest {
-    private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass()
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/worker-in-action.bal");
         bProgramFile = BTestUtils.getProgramFile("samples/worker-in-action.bal");
     }
 

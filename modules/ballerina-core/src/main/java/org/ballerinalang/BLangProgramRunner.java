@@ -24,6 +24,7 @@ import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
@@ -137,7 +138,9 @@ public class BLangProgramRunner {
 
     public void runMain(ProgramFile programFile, String[] args) {
         Context bContext = new Context(programFile);
+        // Non blocking is not support in the main program flow..
         bContext.initFunction = true;
+        
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         String mainPkgName = programFile.getMainPackageName();
 
@@ -173,6 +176,11 @@ public class BLangProgramRunner {
         BLangVM bLangVM = new BLangVM(programFile);
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         bLangVM.run(bContext);
+
+        if (bContext.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
     }
 
     @Deprecated

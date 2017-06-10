@@ -58,15 +58,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ToXML extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
         String rootWrapper = null;
         String rowWrapper = null;
-        if (getArgument(ctx, 1) != null) {
-            rootWrapper = getArgument(ctx, 1).stringValue();
-        }
-        if (getArgument(ctx, 2) != null) {
-            rowWrapper = getArgument(ctx, 2).stringValue();
-        }
-        return getBValues(dataTable.toXML(rootWrapper, rowWrapper));
+        rootWrapper = getStringArgument(ctx, 0);
+        rowWrapper = getStringArgument(ctx, 1);
+        return getBValues(dataTable.toXML(rootWrapper, rowWrapper, ctx.isInTransaction()));
     }
 }

@@ -253,8 +253,8 @@ public class JSONUtils {
      * @param dataTable {@link BDataTable} to be converted to {@link BJSON}
      * @return JSON representation of the provided datatable
      */
-    public static BJSON toJSON(BDataTable dataTable) {
-        return new BJSON(new DataTableJSONDataSource(dataTable));
+    public static BJSON toJSON(BDataTable dataTable, boolean isInTransaction) {
+        return new BJSON(new DataTableJSONDataSource(dataTable, isInTransaction));
     }
     
     /**
@@ -293,6 +293,10 @@ public class JSONUtils {
      * @param element json element
      */
     public static void setElement(BJSON json, String elementName, BJSON element) {
+        if (json == null) {
+            return;
+        }
+
         JsonNode jsonNode = json.value();
         JsonNode jsonElement = element == null ? null : element.value();
 
