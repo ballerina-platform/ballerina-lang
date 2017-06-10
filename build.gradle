@@ -19,6 +19,7 @@ dependencies {
 apply plugin: 'idea'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
+apply plugin: "jacoco"
 
 sourceSets {
     main {
@@ -34,4 +35,12 @@ intellij {
     pluginName 'Ballerina-IntelliJ-Plugin'
     updateSinceUntilBuild false
     plugins 'coverage' //Bundled plugin dependencies
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/jacocoHtml"
+    }
 }
