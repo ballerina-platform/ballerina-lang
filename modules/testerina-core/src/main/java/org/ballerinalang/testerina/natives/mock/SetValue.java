@@ -172,8 +172,8 @@ public class SetValue extends AbstractNativeFunction {
     }
 
     private MockConnectorPath parseMockConnectorPath(Context ctx) {
-        String mockCntrPathString = getArgument(ctx, 0).stringValue();
-        String mockValue = getArgument(ctx, 1).stringValue();
+        String mockCntrPathString = getStringArgument(ctx, 0);
+        String mockValue = getStringArgument(ctx, 1);
         String[] mockCntrPathArr = mockCntrPathString.split("\\.");
         if (mockCntrPathArr.length < 2) {
             throw new BallerinaException(
