@@ -163,6 +163,7 @@ public class BDataTable implements BRefType<Object> {
         BStruct bStruct = new BStruct(structType);
 
         BType[] structTypes = new BType[columnDefs.size()];
+        BStructType.StructField[] structFields = new BStructType.StructField[columnDefs.size()];
         int typeIndex  = 0;
         for (ColumnDefinition columnDef : columnDefs) {
             BType type;
@@ -206,11 +207,13 @@ public class BDataTable implements BRefType<Object> {
                 type = BTypes.typeNull;
             }
             structTypes[typeIndex] = type;
+            structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
             ++typeIndex;
         }
         int[] fieldCount = populateMaxSizes(structTypes);
         bStruct.init(fieldCount);
         bStruct.setFieldTypes(structTypes);
+        ((BStructType) bStruct.getType()).setStructFields(structFields);
         this.bStruct = bStruct;
     }
 
@@ -325,7 +328,7 @@ public class BDataTable implements BRefType<Object> {
     public Map<String, Object> getArray(String columnName) {
         return iterator.getArray(columnName);
     }
-    
+
     public BJSON toJSON(boolean isInTransaction) {
         return new BJSON(new DataTableJSONDataSource(this, isInTransaction));
     }
@@ -339,7 +342,7 @@ public class BDataTable implements BRefType<Object> {
     public List<ColumnDefinition> getColumnDefs() {
         return columnDefs;
     }
-    
+
     /**
      * This represents a column definition for a column in a datatable.
      */
@@ -368,7 +371,7 @@ public class BDataTable implements BRefType<Object> {
         }
 
     }
-    
+
     @Override
     public BValue copy() {
         return null;

@@ -25,7 +25,7 @@ function testStructToMap() (map) {
                  info:{status:"single"},
                  marks:[67,38,91]
                };
-    errors:CastError err;
+    errors:TypeCastError err;
     map m;
     m, err = <map> p;
     return m;
@@ -390,7 +390,7 @@ function testNullStructToMap() (map) {
     return m;
 }
 
-function testIncompatibleJsonToStructWithErrors() (Person, errors:CastError) {
+function testIncompatibleJsonToStructWithErrors() (Person, errors:TypeCastError) {
     json j = { name:"Child", 
                age:25,
                parent:{
@@ -405,7 +405,7 @@ function testIncompatibleJsonToStructWithErrors() (Person, errors:CastError) {
                info:{status:"single"},
                marks:[87,94,72]
              };
-    errors:CastError err;
+    errors:TypeCastError err;
     Person p;
     p, err = <Person> j; 
     return p, err;
@@ -416,8 +416,8 @@ struct PersonA {
     int age;
 }
 
-function JsonToStructWithErrors() (PersonA, errors:CastError) {
-    errors:CastError err;
+function JsonToStructWithErrors() (PersonA, errors:TypeCastError) {
+    errors:TypeCastError err;
     PersonA person;
     json j = {name:"supun"};
     

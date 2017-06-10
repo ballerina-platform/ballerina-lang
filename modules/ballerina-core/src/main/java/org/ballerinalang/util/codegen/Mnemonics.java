@@ -185,6 +185,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2B] = "any2b";
         mnemonics[InstructionCodes.ANY2L] = "any2l";
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
+        mnemonics[InstructionCodes.ANY2XML] = "any2xml";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";

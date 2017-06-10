@@ -10,10 +10,6 @@ function modifyInt(string a)(string) {
     return b;
 }
 
-
-
-
-
 function testImplicitCastInvocationWithMultipleParams() (string) {
     int a = 8;
     float b = 5;

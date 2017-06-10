@@ -64,7 +64,6 @@ under the License.
     <test name="ballerina-any-type-test-suite">
         <classes>
             <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
-            <class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
         </classes>
     </test>
