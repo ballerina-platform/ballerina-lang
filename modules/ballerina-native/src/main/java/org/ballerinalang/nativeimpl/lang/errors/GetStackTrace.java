@@ -50,7 +50,7 @@ public class GetStackTrace extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct value = ((BStruct) getArgument(context, 0)).getStackTrace();
+        BStruct value = ((BStruct) getRefArgument(context, 0)).getStackTrace();
         if (value == null) {
             return new BValue[]{};
         }
