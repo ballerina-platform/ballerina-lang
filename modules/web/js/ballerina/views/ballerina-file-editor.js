@@ -437,7 +437,6 @@ class BallerinaFileEditor extends EventChannel {
                 sourceViewBtn.show();
                 swaggerViewBtn.hide();
                 $(transformPopUp).remove();
-                self.toolPalette.hide();
                 self.setActiveView('swagger');
             } catch (err) {
                 log.error(err);
@@ -547,6 +546,9 @@ class BallerinaFileEditor extends EventChannel {
             //todo merge the package with this.
             currentPackage = _.merge(currentPackageInEvn,currentPackage);
         }
+        // update the package scoped environment with current package
+        this._environment.setCurrentPackage(currentPackage);
+
 
         return currentPackage;
     }
