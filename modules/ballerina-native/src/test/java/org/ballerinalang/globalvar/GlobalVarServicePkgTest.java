@@ -18,7 +18,6 @@
 
 package org.ballerinalang.globalvar;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;

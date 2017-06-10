@@ -16,11 +16,11 @@
 
 package org.ballerinalang.nativeimpl.actions;
 
-import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.nativeimpl.lang.system.PrintlnAny;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.testng.annotations.BeforeClass;
+//import org.ballerinalang.bre.SymScope;
+//import org.ballerinalang.model.BLangProgram;
+//import org.ballerinalang.nativeimpl.lang.system.PrintlnAny;
+//import org.ballerinalang.nativeimpl.util.BTestUtils;
+//import org.testng.annotations.BeforeClass;
 
 /**
  * Test class for Native Action test.

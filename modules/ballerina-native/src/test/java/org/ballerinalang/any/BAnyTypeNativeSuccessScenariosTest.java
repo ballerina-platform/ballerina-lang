@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.any;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
