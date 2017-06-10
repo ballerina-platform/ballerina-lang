@@ -65,9 +65,9 @@ public class Slice extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getArgument(ctx, 0);
-            long startIndex = ((BInteger) getArgument(ctx, 1)).intValue();
-            long endIndex = ((BInteger) getArgument(ctx, 2)).intValue();
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            long startIndex = getIntArgument(ctx, 0);
+            long endIndex = getIntArgument(ctx, 1);
             
             if (startIndex < -1) {
                 throw new BallerinaException("invalid start index: " + startIndex);

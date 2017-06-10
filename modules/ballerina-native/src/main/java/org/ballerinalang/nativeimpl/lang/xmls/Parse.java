@@ -58,8 +58,8 @@ private static final String OPERATION = "parse xml";
         BValue result = null;
         try {
             // Accessing Parameters.
-            BString xmlStr = (BString) getArgument(ctx, 0);
-            result = XMLUtils.parse(xmlStr.stringValue());
+            String xmlStr = getStringArgument(ctx, 0);
+            result = XMLUtils.parse(xmlStr);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
