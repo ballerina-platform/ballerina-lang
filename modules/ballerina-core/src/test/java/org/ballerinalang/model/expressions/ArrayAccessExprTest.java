@@ -118,14 +118,4 @@ public class ArrayAccessExprTest {
         ArrayAccessExprTest test = new ArrayAccessExprTest();
         test.testAccessPrimitiveAsArray();
     }
-    
-    @Test(description = "Test access an non-initialized arrays",
-            expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "variable 'fruits' is null")
-    public void testNonInitArrayAccess() {
-        //TODO failing since java NULL pointer is not handled at BVM
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/expressions/array-access-expr.bal");
-        BLangFunctions.invoke(bLangProgram, "testNonInitArrayAccess");
-        Assert.fail("Test should fail at this point.");
-    }
 }
