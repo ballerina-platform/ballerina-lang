@@ -149,7 +149,7 @@ public class StructTest {
 
     @Test(description = "Test negative default values in struct")
     public void testNegativeDefaultValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getStructNegativeValues");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "getStructNegativeValues");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
@@ -205,28 +205,28 @@ public class StructTest {
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "duplicate-structs.bal:7: redeclared symbol 'Department'")
     public void testDuplicateStructDefinitions() {
-        BTestUtils.parseBalFile("lang/structs/duplicate-structs.bal");
+        BTestUtils.getProgramFile("lang/structs/duplicate-structs.bal");
     }
     
     @Test(description = "Test defining structs with duplicate fields",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "duplicate-fields.bal:4: redeclared symbol 'id'")
     public void testStructWithDuplicateFields() {
-        BTestUtils.parseBalFile("lang/structs/duplicate-fields.bal");
+        BTestUtils.getProgramFile("lang/structs/duplicate-fields.bal");
     }
     
     @Test(description = "Test initializing an undeclraed structs",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-struct-init.bal:2: undefined type 'Department'")
     public void testUndeclaredStructInit() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-struct-init.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-struct-init.bal");
     }
     
     @Test(description = "Test accessing an undeclared struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: undefined symbol 'dpt1'")
     public void testUndeclaredStructAccess() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-struct-access.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-struct-access.bal");
     }
     
     @Test(description = "Test accessing an undeclared field of a struct",
@@ -234,7 +234,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "undeclared-attribute-access.bal:5: unknown field 'id' in struct "
                     + "'Department'")
     public void testUndeclaredFieldAccess() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-attribute-access.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-attribute-access.bal");
     }
     
     @Test(description = "Test defining a struct constant",
@@ -242,7 +242,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3:6: " +
             "missing \\{'boolean', 'int', 'float', 'string', 'blob'\\} before 'Person'")
     public void testStructConstant() {
-        BTestUtils.parseBalFile("lang/structs/constants");
+        BTestUtils.getProgramFile("lang/structs/constants");
     }
     
     @Test(description = "Test initializing a struct with undeclared field",

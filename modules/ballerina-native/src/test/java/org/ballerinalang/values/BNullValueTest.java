@@ -107,7 +107,6 @@ public class BNullValueTest   {
     @Test(description = "Test passing null to a function expects a reference type")
     public void testFunctionCallWithNull() {
         BValue[] vals = BLangFunctions.invokeNew(programFile, "testFunctionCallWithNull", new BValue[]{});
-//        BValue[] vals = BLangFunctions.invokeNew(programFile, "testFunctionCallWithNull", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
     

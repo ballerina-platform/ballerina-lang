@@ -94,7 +94,8 @@ public class WhiteSpaceRegions {
     // whitespace regions in a struct definition
     public static final int STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER = 0;
     public static final int STRUCT_DEF_IDENTIFIER_TO_BODY_START = 1;
-    public static final int STRUCT_DEF_BODY_END_TO_NEXT_TOKEN = 2;
+    public static final int STRUCT_DEF_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int STRUCT_DEF_BODY_END_TO_NEXT_TOKEN = 3;
 
     // whitespace regions in a type mapper definition
     public static final int TYPE_MAP_DEF_NATIVE_KEYWORD_TO_SIGNATURE_START = 0;
@@ -339,12 +340,11 @@ public class WhiteSpaceRegions {
     public static final int UNARY_EXP_FOLLOWING_WHITESPACE = 2;
 
     // white space regions in a field def
-    public static final int FILED_DEF_PRECEDING_WHITESPACE = 0;
-    public static final int FILED_DEF_TYPE_NAME_TO_ID = 1;
-    public static final int FILED_DEF_ID_TO_NEXT_TOKEN = 2;
-    public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 3;
-    public static final int FILED_DEF_LITERAL_TO_NEXT_TOKEN = 4;
-    public static final int FILED_DEF_FOLLOWING_WHITESPACE = 5;
+    public static final int FILED_DEF_TYPE_NAME_TO_ID = 0;
+    public static final int FILED_DEF_ID_TO_NEXT_TOKEN = 1;
+    public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 2;
+    public static final int FILED_DEF_LITERAL_TO_NEXT_TOKEN = 3;
+    public static final int FILED_DEF_FOLLOWING_WHITESPACE = 4;
 
     // whitespace regions in a transform statement
     public static final int TRANSFORM_STMT_PRECEDING_WHITESPACE = 0;
