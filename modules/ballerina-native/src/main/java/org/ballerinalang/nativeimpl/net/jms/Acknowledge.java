@@ -56,9 +56,9 @@ public class Acknowledge extends AbstractNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Acknowledge.class);
 
     public BValue[] execute(Context ctx) {
-        BMessage msg = (BMessage) getArgument(ctx, 0);
+        BMessage msg = (BMessage) getRefArgument(ctx, 0);
         CarbonMessage carbonMessage = msg.value();
-        String deliveryStatus = getArgument(ctx, 1).stringValue();
+        String deliveryStatus = getStringArgument(ctx, 0);
         Object jmsSessionAcknowledgementMode = carbonMessage
                 .getProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
 
