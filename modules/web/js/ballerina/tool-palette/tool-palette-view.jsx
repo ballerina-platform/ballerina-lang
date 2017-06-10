@@ -364,13 +364,29 @@ class ToolPaletteView extends React.Component {
 		}
 
 		this.editor = props.editor;	
+		this.setModel(this.editor.getModel());
         this.editor.on("update-diagram", () => {
+            // only update model if it's new
+            if (this.getModel().id !== this.editor.getModel().id) {
+                this.setModel(this.editor.getModel());
+            }
             this.forceUpdate();
         });
 		this.editor.on('update-tool-patette', () => {
             this.forceUpdate();
         });
 	}
+
+    setModel(model) {
+        this.model = model;
+        this.model.on('tree-modified', () => {
+            this.forceUpdate();
+        });
+    }
+
+    getModel() {
+        return this.model;
+    }
 
 	onSearchTextChange(value){
 		this.setState({ search: value});
