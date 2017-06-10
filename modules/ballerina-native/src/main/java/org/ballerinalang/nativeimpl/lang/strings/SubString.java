@@ -2,7 +2,6 @@ package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -41,12 +40,10 @@ public class SubString extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String initialString = getArgument(context, 0).stringValue();
-        BInteger argFrom = (BInteger) getArgument(context, 1);
-        BInteger argTo = (BInteger) getArgument(context, 2);
+        String initialString = getStringArgument(context, 0);
 
-        long fromLong = argFrom.intValue();
-        long toLong = argTo.intValue();
+        long fromLong = getIntArgument(context, 0);
+        long toLong = getIntArgument(context, 1);
 
         if (toLong != (int) toLong) {
             throw BLangExceptionHelper

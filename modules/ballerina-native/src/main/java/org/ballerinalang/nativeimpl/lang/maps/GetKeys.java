@@ -52,7 +52,7 @@ import java.util.Set;
 public class GetKeys extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BMap<String, BValue> map = (BMap<String, BValue>) getArgument(ctx, 0);
+        BMap<String, BValue> map = (BMap<String, BValue>) getRefArgument(ctx, 0);
         Set<String> keySet = map.keySet();
         BStringArray keyArray = new BStringArray();
         int i = 0;

@@ -104,10 +104,6 @@ public class TypeLattice {
 
         implicitCastLattice.addEdge(booleanV, stringV, NativeConversionMapper.BOOLEAN_TO_STRING_FUNC,
                 SAFE, InstructionCodes.B2S);
-        implicitCastLattice.addEdge(booleanV, intV, NativeConversionMapper.BOOLEAN_TO_INT_FUNC,
-                SAFE, InstructionCodes.B2I);
-        implicitCastLattice.addEdge(booleanV, floatV, NativeConversionMapper.BOOLEAN_TO_FLOAT_FUNC,
-                SAFE, InstructionCodes.B2F);
         implicitCastLattice.addEdge(booleanV, jsonV, NativeConversionMapper.BOOLEAN_TO_JSON_FUNC,
                 SAFE, InstructionCodes.B2JSON);
 
@@ -128,7 +124,8 @@ public class TypeLattice {
         TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
         TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
         TypeVertex messageV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MESSAGE_TNAME)));
-        
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
+
 
         explicitCastLattice.addVertex(intV, false);
         explicitCastLattice.addVertex(floatV, false);
@@ -140,6 +137,7 @@ public class TypeLattice {
         explicitCastLattice.addVertex(anyV, false);
         explicitCastLattice.addVertex(connectorV, false);
         explicitCastLattice.addVertex(messageV, false);
+        explicitCastLattice.addVertex(datatableV, false);
 
         explicitCastLattice.addEdge(intV, intV, NativeConversionMapper.INT_TO_INT_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -195,7 +193,7 @@ public class TypeLattice {
                 SAFE, InstructionCodes.B2JSON);
 
         explicitCastLattice.addEdge(blobV, anyV, NativeCastMapper.BLOB_TO_ANY_FUNC,
-                                    SAFE, InstructionCodes.L2ANY);
+                SAFE, InstructionCodes.L2ANY);
 
         explicitCastLattice.addEdge(connectorV, anyV, NativeCastMapper.CONNECTOR_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -212,14 +210,18 @@ public class TypeLattice {
                 UNSAFE, InstructionCodes.ANY2I);
         explicitCastLattice.addEdge(anyV, jsonV, NativeCastMapper.ANY_TO_JSON_FUNC,
                 UNSAFE, InstructionCodes.ANY2JSON);
-        explicitCastLattice.addEdge(anyV, xmlV, NativeCastMapper.ANY_TO_XML_FUNC);
-        explicitCastLattice.addEdge(anyV, connectorV, NativeCastMapper.ANY_TO_CONNECTOR_FUNC);
+        explicitCastLattice.addEdge(anyV, xmlV, NativeCastMapper.ANY_TO_XML_FUNC,
+                UNSAFE, InstructionCodes.ANY2XML);
+        explicitCastLattice.addEdge(anyV, connectorV, NativeCastMapper.ANY_TO_CONNECTOR_FUNC,
+                UNSAFE, InstructionCodes.ANY2C);
         explicitCastLattice.addEdge(anyV, anyV, NativeCastMapper.ANY_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, mapV, NativeCastMapper.ANY_TO_MAP_FUNC,
                 UNSAFE, InstructionCodes.ANY2MAP);
         explicitCastLattice.addEdge(anyV, messageV, NativeCastMapper.ANY_TO_MSG_FUNC,
                 UNSAFE, InstructionCodes.ANY2MSG);
+        explicitCastLattice.addEdge(anyV, datatableV, NativeCastMapper.ANY_TO_MSG_FUNC,
+                UNSAFE, InstructionCodes.ANY2DT);
 
         explicitCastLattice.addEdge(jsonV, jsonV, NativeCastMapper.JSON_TO_JSON_FUNC,
                 SAFE, InstructionCodes.NOP);
@@ -246,7 +248,9 @@ public class TypeLattice {
                 SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(mapV, anyV, NativeCastMapper.MAP_TO_ANY_FUNC,
                 SAFE, InstructionCodes.NOP);
-        // explicitCastLattice.addEdge(mapV, jsonV, NativeCastMapper.MAP_TO_JSON_FUNC);
+
+        explicitCastLattice.addEdge(datatableV, anyV, NativeCastMapper.ANY_TO_MSG_FUNC,
+                SAFE, InstructionCodes.NOP);
     }
 
     public static void loadConversionLattice(SymbolScope scope) {
@@ -325,10 +329,10 @@ public class TypeLattice {
         conversionLattice.addEdge(jsonV, xmlV, NativeConversionMapper.JSON_TO_XML_FUNC);
 
         conversionLattice.addEdge(xmlV, jsonV, NativeConversionMapper.XML_TO_JSON_FUNC);
-        conversionLattice.addEdge(datatableV, xmlV, NativeConversionMapper.DATATABLE_TO_XML_FUNC, UNSAFE,
-                InstructionCodes.DT2XML);
-        conversionLattice.addEdge(datatableV, jsonV, NativeConversionMapper.DATATABLE_TO_JSON_FUNC, UNSAFE,
-                InstructionCodes.DT2JSON);
+        conversionLattice.addEdge(datatableV, xmlV, NativeConversionMapper.DATATABLE_TO_XML_FUNC,
+                UNSAFE, InstructionCodes.DT2XML);
+        conversionLattice.addEdge(datatableV, jsonV, NativeConversionMapper.DATATABLE_TO_JSON_FUNC,
+                UNSAFE, InstructionCodes.DT2JSON);
     }
 
     /**

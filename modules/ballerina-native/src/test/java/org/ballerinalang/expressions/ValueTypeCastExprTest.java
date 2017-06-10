@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.expressions;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -25,6 +24,7 @@ import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;

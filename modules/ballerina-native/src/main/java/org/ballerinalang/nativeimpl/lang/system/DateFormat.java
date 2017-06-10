@@ -47,7 +47,7 @@ public class DateFormat extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
 
-        String format = getArgument(context, 0).stringValue();
+        String format = getStringArgument(context, 0);
         final Date date = new Date();
         final TimeZone timeZone = TimeZone.getTimeZone("GMT");
         final SimpleDateFormat dateFormat = new SimpleDateFormat(format);

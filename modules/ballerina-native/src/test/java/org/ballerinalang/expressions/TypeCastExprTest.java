@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.expressions;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
@@ -28,6 +27,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -666,7 +666,7 @@ public class TypeCastExprTest {
     @Test(description = "Test returning a mismatching error when casting",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types for" +
-            " 'err': expected 'ballerina.lang.errors:CastError', found 'Error'")
+            " 'err': expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
     public void testMistmatchErrorInMultiReturnCasting() {
         BTestUtils.parseBalFile("lang/expressions/type/cast/mismatch-error-in-multi-return-casting.bal");
     }

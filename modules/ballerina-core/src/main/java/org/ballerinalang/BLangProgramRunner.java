@@ -142,7 +142,9 @@ public class BLangProgramRunner {
 
     public void runMain(ProgramFile programFile, String[] args) {
         Context bContext = new Context(programFile);
+        // Non blocking is not support in the main program flow..
         bContext.initFunction = true;
+        
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         String mainPkgName = programFile.getMainPackageName();
 

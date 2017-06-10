@@ -54,7 +54,7 @@ public class AnyValueOf extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BValue value = getArgument(context, 0);
+        BValue value = getRefArgument(context, 0);
         if (value instanceof BJSON) {
             BString jsonStr = null;
             try {

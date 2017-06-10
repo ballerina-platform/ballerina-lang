@@ -55,8 +55,8 @@ public class SetMapPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
-        BMap payload = (BMap) getArgument(context, 1);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        BMap payload = (BMap) getRefArgument(context, 1);
         // Clone the message without content
         msg.setMessageDataSource(payload);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);

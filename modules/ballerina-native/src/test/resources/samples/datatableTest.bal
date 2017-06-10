@@ -352,7 +352,7 @@ function getXXXByIndexWithStruct()(int, int, float, float, boolean, string) {
     float d;
     boolean b;
     string s;
-    errors:CastError err;
+    errors:TypeCastError err;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
                 string_type from DataTable WHERE row_id = 1",parameters);
@@ -386,7 +386,7 @@ function getObjectAsStringByNameWithStruct()(string, string, string, string, str
     string timestamp;
     string datetime;
     string binary;
-    errors:CastError err;
+    errors:TypeCastError err;
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
                 datetime_type, binary_type from ComplexTypes LIMIT 1",parameters);
@@ -419,7 +419,7 @@ function testGetArrayByNameWithStruct()(map, map, map, map, map) {
     map float_arr;
     map string_arr;
     map boolean_arr;
-    errors:CastError err;
+    errors:TypeCastError err;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
                 from ArrayTypes LIMIT 1",parameters);

@@ -19,7 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,8 +39,8 @@ public class BArrayValueTest {
         programFile = BTestUtils.getProgramFile("lang/values/array-value.bal");
     }
 
-    @Test(description = "Test lazy arrays creation", expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "array index out of range: index: 0, size: 0")
+    @Test(description = "Test lazy arrays creation", expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testLazyArrayCreation() {
         BLangFunctions.invokeNew(programFile, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }

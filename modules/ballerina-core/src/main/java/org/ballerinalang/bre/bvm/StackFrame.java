@@ -27,7 +27,10 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 import java.util.Arrays;
 
 /**
- * @since 0.87
+ * {@code StackFrame} represents frame in a control stack.
+ * Holds references to parameters, local variables and return values.
+ *
+ * @since 0.88
  */
 public class StackFrame {
     long[] longLocalVars;
@@ -81,6 +84,8 @@ public class StackFrame {
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
         this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
+        Arrays.fill(byteLocalVars, new byte[0]);
+
         this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
@@ -119,12 +124,15 @@ public class StackFrame {
         Arrays.fill(stringLocalVars, "");
 
         this.intLocalVars = new int[codeAttribInfo.getMaxIntLocalVars()];
+        this.byteLocalVars = new byte[codeAttribInfo.getMaxByteLocalVars()][];
+        Arrays.fill(byteLocalVars, new byte[0]);
         this.refLocalVars = new BRefType[codeAttribInfo.getMaxRefLocalVars()];
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
+        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
