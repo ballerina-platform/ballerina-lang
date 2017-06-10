@@ -56,9 +56,9 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 public class GetStringValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
         CarbonMessage carbonMessage = msg.value();
-        String mapKey = getArgument(context, 1).stringValue();
+        String mapKey = getStringArgument(context, 0);
         String mapValue = null;
         if (carbonMessage instanceof MapCarbonMessage) {
             mapValue = ((MapCarbonMessage) carbonMessage).getValue(mapKey);

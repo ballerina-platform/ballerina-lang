@@ -71,10 +71,10 @@ public class AddAnyToObject extends AbstractJSONFunction {
         String jsonPath = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) getArgument(ctx, 0);
-            jsonPath = getArgument(ctx, 1).stringValue();
-            String key = getArgument(ctx, 2).stringValue();
-            BValue value = getArgument(ctx, 3);
+            BJSON json = (BJSON) getRefArgument(ctx, 0);
+            jsonPath = getStringArgument(ctx, 0);
+            String key = getStringArgument(ctx, 1);
+            BValue value = getRefArgument(ctx, 1);
 
             // Adding the value to JSON Object
             WriteContext jsonCtx = JsonPath.parse(json.value());

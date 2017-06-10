@@ -67,9 +67,9 @@ public class SetAny extends AbstractJSONFunction {
         String jsonPath = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) getArgument(ctx, 0);
-            jsonPath = getArgument(ctx, 1).stringValue();
-            BValue value = getArgument(ctx, 2);
+            BJSON json = (BJSON) getRefArgument(ctx, 0);
+            jsonPath = getStringArgument(ctx, 0);
+            BValue value = getRefArgument(ctx, 1);
 
             // Setting the value to JSON
             WriteContext jsonCtx = JsonPath.parse(json.value());

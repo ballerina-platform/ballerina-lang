@@ -31,12 +31,10 @@ import org.testng.annotations.Test;
  * Test cases for usages of worker in functions.
  */
 public class WorkerInFunctionTest {
-    //private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/worker-declaration-stmt.bal");
         bProgramFile = BTestUtils.getProgramFile("samples/worker-in-function-test.bal");
     }
 

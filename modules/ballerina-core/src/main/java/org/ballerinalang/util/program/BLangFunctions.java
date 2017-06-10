@@ -92,6 +92,10 @@ public class BLangFunctions {
         return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram));
     }
 
+    public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args, Context bContext) {
+        return invokeNew(bLangProgram, ".", functionName, args, bContext);
+    }
+
     /**
      * Invokes a Ballerina function defined in the given language model.
      *

@@ -69,7 +69,7 @@ public class Acknowledge extends AbstractNativeFunction {
         BMessage msg;
         CarbonMessage cMsg = null;
         try {
-            msg = (BMessage) getArgument(context, 0);
+            msg = (BMessage) getRefArgument(context, 0);
             cMsg = msg.value();
 
             if (cMsg instanceof StreamingCarbonMessage) {

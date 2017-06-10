@@ -57,9 +57,9 @@ public class ReplaceAll extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String mainString = getArgument(context, 0).stringValue();
-        String replacePattern = getArgument(context, 1).stringValue();
-        String replaceWith = getArgument(context, 2).stringValue();
+        String mainString = getStringArgument(context, 0);
+        String replacePattern = getStringArgument(context, 1);
+        String replaceWith = getStringArgument(context, 2);
 
         String replacedString = mainString.replaceAll(replacePattern, replaceWith);
         return getBValues(new BString(replacedString));

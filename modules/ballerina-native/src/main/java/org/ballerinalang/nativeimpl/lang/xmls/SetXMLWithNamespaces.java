@@ -77,10 +77,10 @@ public class SetXMLWithNamespaces extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
-            OMElement value = (OMElement) ((BXML) getArgument(ctx, 2)).value();
-            BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 3);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
+            OMElement value = (OMElement) ((BXML) getRefArgument(ctx, 1)).value();
+            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 2);
 
             if (value == null) {
                 return VOID_RETURN;

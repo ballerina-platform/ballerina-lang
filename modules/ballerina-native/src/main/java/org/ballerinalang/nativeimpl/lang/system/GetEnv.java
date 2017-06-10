@@ -49,7 +49,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetEnv extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        String varName = getArgument(ctx, 0).stringValue();
+        String varName = getStringArgument(ctx, 0);
         if (varName != null && varName.trim().length() > 0) {
             String varValue = System.getenv(varName);
             if (varValue != null && varValue.trim().length() > 0) {

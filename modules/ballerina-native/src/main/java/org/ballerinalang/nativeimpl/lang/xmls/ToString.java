@@ -58,7 +58,7 @@ public class ToString extends AbstractNativeFunction {
         String xmlStr = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
             xmlStr = xml.stringValue();
             if (log.isDebugEnabled()) {
                 log.debug("XML toString: " + xmlStr);

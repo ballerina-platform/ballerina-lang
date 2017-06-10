@@ -55,7 +55,7 @@ private static final String OPERATION = "get children from xml";
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getArgument(ctx, 0);
+            BXML value = (BXML) getRefArgument(ctx, 0);
             result = value.copy();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);

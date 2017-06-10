@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.http.Constants;
@@ -53,8 +52,8 @@ public class SetStatusCode extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            BMessage bMsg = (BMessage) getArgument(context, 0);
-            long statusCode = ((BInteger) getArgument(context, 1)).intValue();
+            BMessage bMsg = (BMessage) getRefArgument(context, 0);
+            long statusCode = getIntArgument(context, 0);
             if (statusCode != (int) statusCode) {
                 throw BLangExceptionHelper
                         .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, statusCode);
