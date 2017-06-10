@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -29,18 +30,18 @@ import org.testng.annotations.Test;
 /**
  * Test class for ballerina map.
  */
-public class BJSONValueTest   {
+public class BJSONValueTest {
 
     private BLangProgram bLangProgram;
     private ProgramFile programFile;
     private static final double DELTA = 0.01;
-    
+
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/values/json-value.bal");
         programFile = BTestUtils.getProgramFile("lang/values/json-value.bal");
     }
-    
+
     @Test(description = "Test initializing json with a string")
     public void testStringAsJsonVal() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testStringAsJsonVal");
@@ -48,7 +49,7 @@ public class BJSONValueTest   {
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asText(), "Supun");
     }
-    
+
     @Test(description = "Test initializing json with an integer")
     public void testIntAsJsonVal() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntAsJsonVal");
@@ -56,7 +57,7 @@ public class BJSONValueTest   {
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asInt(), 5);
     }
-    
+
     @Test(description = "Test initializing json with a float")
     public void testFloatAsJsonVal() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testFloatAsJsonVal");
@@ -64,7 +65,7 @@ public class BJSONValueTest   {
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asDouble(), 7.65);
     }
-    
+
     @Test(description = "Test initializing json with a boolean")
     public void testBooleanAsJsonVal() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testBooleanAsJsonVal");
@@ -72,23 +73,24 @@ public class BJSONValueTest   {
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.value().asBoolean(), true);
     }
-    
+
     @Test(description = "Test initializing json with a null")
     public void testNullAsJsonVal() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testNullAsJsonVal");
         Assert.assertEquals(returns[0], null);
     }
-    
+
     @Test(description = "Test inline initializing of a json")
     public void testNestedJsonInit() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testNestedJsonInit");
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON person = ((BJSON) returns[0]);
         Assert.assertEquals(person.toString(), "{\"name\":\"aaa\",\"age\":25," +
-            "\"parent\":{\"name\":\"bbb\",\"age\":50},\"address\":{\"city\":\"Colombo\",\"country\":\"SriLanka\"}," +
-            "\"array\":[1,5,7]}");
+                "\"parent\":{\"name\":\"bbb\",\"age\":50},\"address\":{\"city\":\"Colombo\"," +
+                "\"country\":\"SriLanka\"}," +
+                "\"array\":[1,5,7]}");
     }
-    
+
     @Test
     public void testJsonWithNull() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonWithNull");
@@ -98,7 +100,7 @@ public class BJSONValueTest   {
 
         Assert.assertEquals(returns[1], null);
     }
-    
+
     @Test
     public void testGetString() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetString");
@@ -107,7 +109,7 @@ public class BJSONValueTest   {
         Assert.assertEquals(returns[0].stringValue(), "Supun");
         Assert.assertEquals(returns[1].stringValue(), "Setunga");
     }
-    
+
     @Test
     public void testGetInt() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetInt");
@@ -116,14 +118,14 @@ public class BJSONValueTest   {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 25);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 43);
     }
-    
+
     @Test
     public void testGetFloat() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetFloat");
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 9.73, DELTA);
     }
-    
+
     @Test
     public void testGetBoolean() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetBoolean");
@@ -137,13 +139,13 @@ public class BJSONValueTest   {
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
     }
-    
+
     @Test
     public void testGetNonExistingElement() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetNonExistingElement");
         Assert.assertEquals(returns[0], null);
     }
-    
+
     @Test
     public void testAddString() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testAddString");
@@ -151,7 +153,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"lname\":\"Setunga\"}");
     }
-    
+
     @Test
     public void testAddInt() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testAddInt");
@@ -159,7 +161,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"age\":25}");
     }
-    
+
     @Test
     public void testAddFloat() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testAddFloat");
@@ -167,7 +169,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"score\":4.37}");
     }
-    
+
     @Test
     public void testAddBoolean() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testAddBoolean");
@@ -175,7 +177,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"status\":true}");
     }
-    
+
     @Test
     public void testAddJson() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testAddJson");
@@ -183,7 +185,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
-    
+
     @Test
     public void testUpdateString() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateString");
@@ -191,7 +193,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"lname\":\"Setunga\"}");
     }
-    
+
     @Test
     public void testUpdateInt() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateInt");
@@ -199,7 +201,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"age\":25}");
     }
-    
+
     @Test
     public void testUpdateFloat() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateFloat");
@@ -207,7 +209,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"score\":4.37}");
     }
-    
+
     @Test
     public void testUpdateBoolean() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateBoolean");
@@ -215,7 +217,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"status\":true}");
     }
-    
+
     @Test
     public void testUpdateJson() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateJson");
@@ -223,7 +225,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"fname\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
-    
+
     @Test
     public void testUpdateStringInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateStringInArray");
@@ -231,7 +233,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",\"d\",\"c\"]");
     }
-    
+
     @Test
     public void testUpdateIntInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateIntInArray");
@@ -239,7 +241,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",64,\"c\"]");
     }
-    
+
     @Test
     public void testUpdateFloatInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateFloatInArray");
@@ -247,7 +249,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",4.72,\"c\"]");
     }
-    
+
     @Test
     public void testUpdateBooleanInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateBooleanInArray");
@@ -255,7 +257,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",true,\"c\"]");
     }
-    
+
     @Test
     public void testUpdateNullInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateNullInArray");
@@ -263,7 +265,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",null,\"c\"]");
     }
-    
+
     @Test
     public void testUpdateJsonInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateJsonInArray");
@@ -271,7 +273,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",{\"country\":\"SriLanka\"},\"c\"]");
     }
-    
+
     @Test
     public void testUpdateJsonArrayInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateJsonArrayInArray");
@@ -279,7 +281,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",[1,2,3],\"c\"]");
     }
-    
+
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "cannot get 'fname' from null")
     public void testGetFromNull() {
@@ -288,111 +290,111 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",[1,2,3],\"c\"]");
     }
-    
+
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "cannot set 'country' of null")
     public void testAddToNull() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAddToNull");
     }
-    
+
     @Test
     public void testGetNestedJsonElement() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetNestedJsonElement");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Colombo");
-        
+
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "Colombo");
-        
+
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "Colombo");
-        
+
         Assert.assertTrue(returns[3] instanceof BString);
         Assert.assertEquals(returns[3].stringValue(), "Colombo");
     }
-    
+
     @Test
     public void testJsonExprAsIndex() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonExprAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Colombo");
     }
-    
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "failed to set element to json: array index out of range: index: 7, " +
-            "size: 3")
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*failed to set element to json: array index out of range: index: 7, " +
+                    "size: 3.*")
     public void testSetArrayOutofBoundElement() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetArrayOutofBoundElement");
     }
-    
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot set value to '7': expected a 'json-array', but found " +
-            "'json-object'")
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*cannot set value to '7': expected a 'json-array', but found " +
+                    "'json-object'.*")
     public void testSetToNonArrayWithIndex() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetToNonArrayWithIndex");
     }
-    
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot get value from '7': expected a 'json-array', but found " +
-            "'json-object'")
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*cannot get value from '7': expected a 'json-array', but found " +
+                    "'json-object'.*")
     public void testGetFromNonArrayWithIndex() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetFromNonArrayWithIndex");
     }
-    
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot set value to 'name': expected a 'json-object', but found " +
-            "'json-array'")
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*cannot set value to 'name': expected a 'json-object', but found " +
+                    "'json-array'.*")
     public void testSetToNonObjectWithKey() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetToNonObjectWithKey");
     }
-    
+
     public void testGetFromNonObjectWithKey() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetFromNonObjectWithKey");
         Assert.assertEquals(returns[0], null);
     }
-    
+
     @Test
     public void testGetStringInArray() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetStringInArray");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "b");
     }
-    
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "failed to get element from json: array index out of range: index: 5, " +
-            "size: 3")
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*failed to get element from json: array index out of " +
+                    "range: index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetArrayOutofBoundElement");
     }
-    
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot get value from 'fname': expected a 'json-object', but found " +
-            "'string'")
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*cannot get value from 'fname': expected a 'json-object', but found " +
+                    "'string'.*")
     public void testGetStringFromPrimitive() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetStringFromPrimitive");
     }
-    
+
 //    @Test
 //    public void testJsonArrayWithVariable() {
 //        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testJsonArrayWithVariable");
 //        Assert.assertTrue(returns[0] instanceof BJSON);
 //        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\",{\"name\":\"supun\"}]");
 //    }
-    
+
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "json-array-with-unsupported-types.bal:3: incompatible types: " +
-            "'message' cannot be converted to 'json'")
+                    "'message' cannot be converted to 'json'")
     public void testJsonArrayWithUnsupportedtypes() {
         BTestUtils.parseBalFile("lang/values/json-array-with-unsupported-types.bal");
     }
-    
+
     @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "json-init-with-unsupported-types.bal:3: incompatible types: " +
-            "'message' cannot be converted to 'json'")
+                    "'message' cannot be converted to 'json'")
     public void testJsonInitWithUnsupportedtypes() {
         BTestUtils.parseBalFile("lang/values/json-init-with-unsupported-types.bal");
     }
-    
+
     @Test
     public void testUpdateNestedElement() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testUpdateNestedElement");
@@ -400,7 +402,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"details\":{\"fname\":\"Supun\",\"lname\":\"Setunga\"}}");
     }
-    
+
     @Test
     public void testEmptyStringToJson() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testEmptyStringToJson");
@@ -408,7 +410,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertTrue(json.toString().isEmpty());
     }
-    
+
     @Test
     public void testJsonStringToJson() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonStringToJson");
@@ -416,7 +418,7 @@ public class BJSONValueTest   {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\"name\", \"supun\"}");
     }
-    
+
     @Test
     public void testStringWithEscapedCharsToJson() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testStringWithEscapedCharsToJson");
