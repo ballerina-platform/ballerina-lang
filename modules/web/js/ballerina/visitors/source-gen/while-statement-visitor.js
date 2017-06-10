@@ -28,7 +28,11 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     canVisitWhileStatement(whileStatement) {
-        return true;
+        if (_.isNil(this.node)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     beginVisitWhileStatement(whileStatement) {
