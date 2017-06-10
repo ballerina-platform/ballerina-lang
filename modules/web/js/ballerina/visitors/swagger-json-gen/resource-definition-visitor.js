@@ -59,10 +59,12 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         let existingAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
         // Removing http:Path and http:<Method> annotations
         existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation => {
-            return !(_.isEqual(existingAnnotation.getPackageName(), httpMethodAnnotation.getPackageName()) &&
-                _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier()) ||
-                _.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
-                _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier()));
+            return !(!_.isUndefined(httpMethodAnnotation) && 
+                        (_.isEqual(existingAnnotation.getPackageName(), httpMethodAnnotation.getPackageName()) &&
+                        _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier())) ||
+                    (!_.isUndefined(pathAnnotation) && 
+                        (_.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
+                        _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier()))));
         });
 
         // Creating default annotations

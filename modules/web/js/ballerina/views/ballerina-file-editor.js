@@ -337,7 +337,7 @@ class BallerinaFileEditor extends EventChannel {
         _.set(swaggerViewOpts, 'container', swaggerViewContainer);
         _.set(swaggerViewOpts, 'content', '');
         _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
-        _.set(swaggerViewOpts, 'swaggerEditorId', this.id + '-swagger-editor');
+        _.set(swaggerViewOpts, 'swaggerEditorId', this.getModel().getID() + '-swagger-editor');
         _.set(swaggerViewOpts, 'swaggerEditorTheme', this._file._storage.get('pref:sourceViewTheme') ||
             _.get(this.getViewOptions().source_view, 'theme'));
         _.set(swaggerViewOpts, 'swaggerEditorFontSize', this._file._storage.get('pref:sourceViewFontSize') ||
