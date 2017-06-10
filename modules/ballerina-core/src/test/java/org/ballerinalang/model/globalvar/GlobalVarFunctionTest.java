@@ -19,7 +19,6 @@
 package org.ballerinalang.model.globalvar;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -76,9 +75,10 @@ public class GlobalVarFunctionTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
 
 
-        BLangProgram bLangProgram1 = BTestUtils.parseBalFile("lang/globalvar/global-var-function.bal");
+        ProgramFile programFileGlobalVar = BTestUtils
+                .getProgramFile("lang/globalvar/global-var-function.bal");
 
-        BValue[] returnsChanged = BLangFunctions.invoke(bLangProgram1, "getGlobalFloatVar");
+        BValue[] returnsChanged = BLangFunctions.invokeNew(programFileGlobalVar, "getGlobalFloatVar");
 
         Assert.assertEquals(returnsChanged.length, 1);
         Assert.assertSame(returnsChanged[0].getClass(), BFloat.class);
