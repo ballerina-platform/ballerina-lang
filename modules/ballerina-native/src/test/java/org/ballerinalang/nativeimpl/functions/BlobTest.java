@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -35,19 +36,19 @@ import java.io.UnsupportedEncodingException;
 @SuppressWarnings("javadoc")
 public class BlobTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile bLangProgram;
     private static final String content = "This is a sample string";
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/blobTest.bal");
+        bLangProgram = BTestUtils.getProgramFile("samples/blobTest.bal");
     }
 
 
     @Test(description = "Get string representation of json")
     public void testToString() throws UnsupportedEncodingException {
         BValue[] args = {new BBlob(content.getBytes("UTF-8")), new BString("UTF-8")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toString", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "toString", args);
 
         final String expected = content;
         Assert.assertEquals(returns[0].stringValue(), expected);

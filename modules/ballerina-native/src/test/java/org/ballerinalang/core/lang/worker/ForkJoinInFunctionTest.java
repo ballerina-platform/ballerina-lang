@@ -33,12 +33,10 @@ import org.testng.annotations.Test;
  * Test cases for usages of fork-join in functions.
  */
 public class ForkJoinInFunctionTest {
-    //private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/fork-join-in-all.bal");
         bProgramFile = BTestUtils.getProgramFile("samples/fork-join-in-all.bal");
     }
 

@@ -42,7 +42,7 @@ public class EchoStringNativeFunction extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         // Accessing First Parameter Value.
-        String param = getArgument(ctx, 0).stringValue();
+        String param = getStringArgument(ctx, 0);
         // Return values.
         return getBValues(new BString(param));
     }

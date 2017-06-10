@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,11 +35,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class IdentifierLiteralServiceTest {
 
-    BLangProgram bLangProgram;
+    ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = EnvironmentInitializer.setup("lang/identifierliteral/identifier-literal-service.bal");
+        bLangProgram = EnvironmentInitializer.setupProgramFile("lang/identifierliteral/identifier-literal-service.bal");
     }
 
     @Test(description = "Test using identifier literals in service and resource names")
@@ -54,7 +55,7 @@ public class IdentifierLiteralServiceTest {
 
     @AfterClass
     public void tearDown() {
-//        EnvironmentInitializer.cleanup(bLangProgram);
+        // EnvironmentInitializer.cleanup(bLangProgram);
     }
 
 }

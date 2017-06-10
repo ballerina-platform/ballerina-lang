@@ -35,7 +35,6 @@ public class WorkerVMTest {
     @BeforeClass
     public void setup() {
         bProgramFile = BTestUtils.getProgramFile("samples/worker-vm.bal");
-        //bProgramFile = BTestUtils.getProgramFile("samples/multi-function-vm.bal");
     }
 
 

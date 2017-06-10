@@ -27,25 +27,25 @@ import org.testng.annotations.BeforeClass;
  */
 public class NativeActionTest {
 
-    private BLangProgram bLangProgram;
-    private SymScope globalScope;
-
-    @BeforeClass
-    public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/PassthroughService.bal");
-
-        globalScope = new SymScope(SymScope.Name.GLOBAL);
-
-        PrintlnAny printlnFunc = new PrintlnAny();
-
-        printlnFunc.getParameterDefs();
-
-
-    }
-
-
-
-    public void testNativeFuncInvocation() {
-
-    }
+//    private BLangProgram bLangProgram;
+//    private SymScope globalScope;
+//
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("samples/PassthroughService.bal");
+//
+//        globalScope = new SymScope(SymScope.Name.GLOBAL);
+//
+//        PrintlnAny printlnFunc = new PrintlnAny();
+//
+//        printlnFunc.getParameterDefs();
+//
+//
+//    }
+//
+//
+//
+//    public void testNativeFuncInvocation() {
+//
+//    }
 }

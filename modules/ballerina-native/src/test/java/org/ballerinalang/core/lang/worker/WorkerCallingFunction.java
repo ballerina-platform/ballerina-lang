@@ -30,12 +30,10 @@ import org.testng.annotations.Test;
  * Test cases for calling worker in functions.
  */
 public class WorkerCallingFunction {
-    //private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/worker-calling-function.bal");
         bProgramFile = BTestUtils.getProgramFile("samples/worker-calling-function.bal");
     }
 

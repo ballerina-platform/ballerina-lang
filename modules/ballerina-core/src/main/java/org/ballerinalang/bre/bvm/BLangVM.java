@@ -2158,6 +2158,10 @@ public class BLangVM {
                     callerSF.doubleRegs[callersRetRegIndex] = ((BFloat) returnValues[i]).floatValue();
                     break;
                 case TypeTags.STRING_TAG:
+                    if (returnValues[i] == null) {
+                        // TODO Null reference error properly
+                        throw new BallerinaException("returned null reference");
+                    }
                     callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
                     break;
                 case TypeTags.BOOLEAN_TAG:
