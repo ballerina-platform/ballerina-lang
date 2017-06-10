@@ -437,7 +437,6 @@ class BallerinaFileEditor extends EventChannel {
                 sourceViewBtn.show();
                 swaggerViewBtn.hide();
                 $(transformPopUp).remove();
-                self.toolPalette.hide();
                 self.setActiveView('swagger');
             } catch (err) {
                 log.error(err);
