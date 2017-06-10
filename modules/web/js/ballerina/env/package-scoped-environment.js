@@ -61,8 +61,12 @@ class PackageScopedEnvironment {
      */
     getFilteredPackages(excludes) {
         return this._packages.filter((item)=>{
-            let status = _.isNull(_.find(excludes, item.getName()));
-            return status;
+            for(let i = 0; i < excludes.length; i++){
+                if(excludes[i] == item.getName()){
+                    return false;
+                }
+            }
+            return true;
         });
     }    
 
