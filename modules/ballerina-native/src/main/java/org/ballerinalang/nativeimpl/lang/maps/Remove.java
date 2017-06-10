@@ -49,9 +49,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class Remove extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BMap map = (BMap) getArgument(ctx, 0);
-        BString key = (BString) getArgument(ctx, 1);
-        map.remove(key.stringValue());
+        BMap map = (BMap) getRefArgument(ctx, 0);
+        map.remove(getStringArgument(ctx, 0));
         return VOID_RETURN;
     }
 }

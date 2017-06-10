@@ -50,7 +50,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Length extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BMap map = (BMap) getArgument(ctx, 0);
+        BMap map = (BMap) getRefArgument(ctx, 0);
         return getBValues(new BInteger(map.size()));
     }
 }
