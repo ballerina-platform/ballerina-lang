@@ -435,7 +435,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     }
 
     /**
-     * Get worker interaction statements related to a callable unit
+     * Get worker interaction statements related to a callable unit.
      *
      * @return Queue of worker interactions
      */

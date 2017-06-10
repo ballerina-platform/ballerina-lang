@@ -54,6 +54,11 @@ public class PushText extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
+        }
+
         try {
             CarbonMessage carbonMessage = context.getCarbonMessage();
             Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);

@@ -47,7 +47,7 @@ public class Close extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        dataTable.close();
+        dataTable.close(ctx.isInTransaction());
         return VOID_RETURN;
     }
 }

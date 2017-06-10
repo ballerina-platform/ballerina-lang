@@ -18,7 +18,7 @@
 package org.ballerinalang.model;
 
 /**
- * {@code Identifier} represents a identifier used in {@code BLangSymbol}
+ * {@code Identifier} represents a identifier used in {@code BLangSymbol}.
  *
  * @since 0.87
  */
