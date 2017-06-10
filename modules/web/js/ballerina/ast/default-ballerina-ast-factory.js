@@ -226,7 +226,7 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
 DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
     let funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement();
     let funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression();
-    if (!_.isNil(args)) {
+    if (!_.isNil(args) && _.has(args, 'functionDef')) {
         let functionInvokeString = '';
         if (!_.isNil(args.packageName)) {
             functionInvokeString += args.packageName + ':';
