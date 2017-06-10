@@ -49,6 +49,10 @@ class PackageScopedEnvironment {
         this._currentPackage = new Package({ name: 'Current Package' });
     }
 
+    setCurrentPackage(pkg) {
+        this._currentPackage = pkg;
+    }    
+
     /**
      * @return {[Package]}
      */
