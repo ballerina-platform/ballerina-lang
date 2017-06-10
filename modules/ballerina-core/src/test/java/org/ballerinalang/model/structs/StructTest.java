@@ -250,7 +250,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "undeclared-attribute-init.bal:3: unknown field 'age' in struct" +
             " 'Department'")
     public void testUndeclareFieldInit() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-attribute-init.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-attribute-init.bal");
     }
     
     @Test(description = "Test initializing a struct with mismatching field type",
@@ -258,7 +258,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "invalid-type-attribute-init.bal:3: incompatible types: expected "
                     + "'string', found 'int'")
     public void testMismatchingTypeFieldInit() {
-        BTestUtils.parseBalFile("lang/structs/invalid-type-attribute-init.bal");
+        BTestUtils.getProgramFile("lang/structs/invalid-type-attribute-init.bal");
     }
     
     @Test(description = "Test initializing a struct with invalid field name",
@@ -266,6 +266,6 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "invalid-field-name-init.bal:3: invalid field name in struct " +
             "initializer")
     public void testInvalidFieldNameInit() {
-        BTestUtils.parseBalFile("lang/structs/invalid-field-name-init.bal");
+        BTestUtils.getProgramFile("lang/structs/invalid-field-name-init.bal");
     }
 }
