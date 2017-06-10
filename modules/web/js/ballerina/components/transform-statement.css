@@ -238,21 +238,18 @@ svg.plumbConnect path {
 /* The Close Button */
 .close-transform {
     color: #aaaaaa;
-    float: left;
-    font-size: 28px;
-    font-weight: bold;
-    padding-left: calc(100% - 300px);
+    font-size: 11px;
+    right: 290px;
+    top: 10px;
     position: absolute;
     z-index: 41;
+    cursor: pointer;
 }
 
 .close-transform:hover,
 .close-transform:focus {
     color: #f2f2f2;
-    text-decoration: none;
-    cursor: pointer;
     padding-right: 10px;
-    z-index:41;
 }
 
 .transform-header {
