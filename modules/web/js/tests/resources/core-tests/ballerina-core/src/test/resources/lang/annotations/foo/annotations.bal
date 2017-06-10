@@ -39,15 +39,6 @@ service PizzaService {
     }
 }
 
-@doc:Description{value:"Length to boolean type mapper"}
-typemapper customTypeMapper (int length) (boolean) {
-    if (length > 10) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 @doc:Description{value:"Test connector"}
 connector TestConnector (string url) {
     

@@ -22,12 +22,6 @@ function stringtojson(string value)(json) {
     return result;
 }
 
-function xmltostring(xml value)(string) {
-    string result;
-    result = (string)value;
-    return result;
-}
-
 function jsontostring(json value)(string) {
     string result;
     result = (string)value;

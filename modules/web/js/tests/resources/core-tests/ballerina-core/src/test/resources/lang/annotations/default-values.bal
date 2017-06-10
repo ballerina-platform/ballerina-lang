@@ -1,13 +1,13 @@
 import lang.annotations.doc;
 
-@doc:Description{paramValue:@doc:Param{},
+@doc:Description{
+                 args: @doc:Args{},
                  queryParamValue2:[@doc:QueryParam{}],
-                 code:[1,2,5],
-                 args: @doc:Args{}}
+                 code:[1,2,5],paramValue:@doc:Param{}}
 @Args{}
 @Bar{}
 @Status{}
-function foo (@Args{value:"args: input parameter : type string"} string args) {
+function foo ( @Args{value:"args: input parameter : type string"}  string args) {
     // do nothing
 }
 

@@ -1,13 +1,12 @@
 package lang.annotations.doc;
 
-@Description{value:"Self annotating an annotation",
-                 paramValue:@Param{value:"some parameter value"},
-                 queryParamValue:[@QueryParam{
-                    name:"first query param name", 
-                    value:"first query param value"}],
+@Description{args: @Args{},
                  queryParamValue2:[@QueryParam{}],
                  code:[7,8,9],
-                 args: @Args{}}
+                 queryParamValue:[@QueryParam{
+                    name:"first query param name",
+                    value:"first query param value"}],value:"Self annotating an annotation",
+                 paramValue:@Param{value:"some parameter value"}}
 annotation Description attach service, resource, function, parameter, annotation, connector, action, typemapper, struct, const {
     string value = "Description of the service/function";
     int[] code;

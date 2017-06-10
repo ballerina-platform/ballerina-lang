@@ -1,5 +1,4 @@
 import ballerina.lang.maps;
-import ballerina.lang.arrays;
 
 function testLength(map data)(int){
 string[] str;
@@ -41,7 +40,7 @@ function testDefinition()(boolean, string){
 
     keys = testGetKeys(dataMap);
 
-    if(arrays:length(keys) !=3){
+    if(keys.length !=3){
         success = false;
         msg = "keys operation failed.";
     }
@@ -50,7 +49,7 @@ function testDefinition()(boolean, string){
 
     keys = testGetKeys(dataMap);
 
-    if(arrays:length(keys) != 2){
+    if(keys.length != 2){
         success = false;
         msg = "remove operation failed.";
     }
