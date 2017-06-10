@@ -51,7 +51,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class HasNext extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
         return getBValues(new BBoolean(dataTable.next()));
     }
 }
