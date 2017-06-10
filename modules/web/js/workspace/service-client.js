@@ -113,6 +113,17 @@ class ServiceClient extends EventChannel {
             fileName = _.last(pathArray),
             folderPath = _.join(_.take(pathArray, pathArray.length -1), this.application.getPathSeperator());
 
+        const docUri = folderPath + '/' + fileName;
+        let documentOptions = {
+            textDocument: {
+                documentUri: docUri,
+                languageId: 'ballerina',
+                version: 1,
+                text: fileData.content
+            }
+        };
+        this.application.langseverClientController.documentDidOpenNotification(documentOptions);
+
         return new File({
             name: fileName,
             path: folderPath,
