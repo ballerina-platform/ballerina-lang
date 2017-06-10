@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.http.Constants;
