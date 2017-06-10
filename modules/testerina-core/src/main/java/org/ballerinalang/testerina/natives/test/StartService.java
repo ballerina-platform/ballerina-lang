@@ -92,7 +92,7 @@ public class StartService extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context ctx) {
         ctx.initFunction = true;
-        String serviceName = getArgument(ctx, 0).stringValue();
+        String serviceName = getStringArgument(ctx, 0);
 
         Optional<ServiceInfo> matchingService = Optional.empty();
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
