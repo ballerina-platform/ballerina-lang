@@ -33,7 +33,7 @@ let config = {
             { 
                 name: 'Service Chaining', isFile: false, folder: '/samples/serviceChaining/servicechaining/', 
                 path: '/samples/serviceChaining/servicechaining/samples/ATMLocatorService.bal',
-                image: 'preview_serviceChaining' 
+                image: 'preview_servicechaining'
             },
             { 
                 name: 'JMS', isFile: false, folder: '/samples/jms/', path: '/samples/jms/jmsReceiver.bal', 
