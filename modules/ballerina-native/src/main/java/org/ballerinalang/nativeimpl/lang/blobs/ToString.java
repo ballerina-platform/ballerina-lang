@@ -54,15 +54,14 @@ import java.io.UnsupportedEncodingException;
 public class ToString extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-//        try {
-//             getArgument(ctx, 0);
-//            String encoding = getStringArgument(ctx, 0);
-//            byte[] arr = getArgument(ctx, 0);;
-//            String s = new String(arr, encoding);
-//            return getBValues(new BString(s));
-//        } catch (UnsupportedEncodingException e) {
-//            throw new BallerinaException("Unsupported Encoding of Blob", e);
-//        }
-        return  null;
+        try {
+
+            String encoding = getStringArgument(ctx, 0);
+            byte[] arr = getBlobArgument(ctx, 0);
+            String s = new String(arr, encoding);
+            return getBValues(new BString(s));
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException("Unsupported Encoding of Blob", e);
+        }
     }
 }
