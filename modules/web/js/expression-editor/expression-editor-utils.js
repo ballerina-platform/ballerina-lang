@@ -110,7 +110,7 @@ class ExpressionEditor{
         // when enter is pressed we will commit the change.
         this._editor.commands.bindKey("Enter|Shift-Enter", (e)=>{
             let text = this._editor.getSession().getValue();
-            props.setterMethod.call(props.model, text);
+            //props.setterMethod.call(props.model, text);
             props.model.trigger('update-property-text', text , props.key);
             props.model.trigger('focus-out');
             this.distroy();
@@ -149,7 +149,6 @@ class ExpressionEditor{
                 let text = this._editor.getSession().getValue();
                 let textWithSemicolon = [text.slice(0, curser), ";" , text.slice(curser)].join('');
                 if(this.end_check.exec(textWithSemicolon)){
-                    props.setterMethod.call(props.model, text);
                     props.model.trigger('update-property-text', text , props.key);
                     props.model.trigger('focus-out');
                     this.distroy();
@@ -168,8 +167,8 @@ class ExpressionEditor{
         if(!this.removed){
             this.removed = true;
             //commit if there are any changes
-            let text = this._editor.getSession().getValue();
-            this.props.model.trigger('update-property-text', text , this.props.key);
+            //let text = this._editor.getSession().getValue();
+            //this.props.model.trigger('update-property-text', text , this.props.key);
             //distroy the editor
             //this._editor.distroy();
             this.expressionEditor.remove();
