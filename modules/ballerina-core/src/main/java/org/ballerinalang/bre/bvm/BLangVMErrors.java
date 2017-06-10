@@ -137,13 +137,14 @@ public class BLangVMErrors {
      * @param ip      current instruction pointer
      * @return created NullReferenceError
      */
-    public static BStruct createTypeConversionError(Context context, int ip, BType sourceType, BType targetType) {
+    public static BStruct createTypeConversionError(Context context, int ip,
+                                                    String sourceTypeName, String targetTypeName) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
         StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
 
-        String errorMsg = "'" + sourceType + "' cannot be converted to '" + targetType + "'";
+        String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         BStruct error = createBStruct(errorStructInfo, errorMsg, null,
-                sourceType.toString(), targetType.toString());
+                sourceTypeName, targetTypeName);
 
         // Set StackTrace.
         StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
