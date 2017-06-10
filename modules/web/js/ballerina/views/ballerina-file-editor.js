@@ -32,6 +32,7 @@ import UndoManager from './../undo-manager/undo-manager';
 import Backend from './backend';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
+import Package from './../env/package';
 import BallerinaEnvironment from './../env/environment';
 import ToolPaletteItemProvider from './../item-provider/tool-palette-item-provider';
 import alerts from 'alerts';
@@ -527,7 +528,14 @@ class BallerinaFileEditor extends EventChannel {
      * @returns {Object}
      */
     generateCurrentPackage() {
-        var currentPackage;
+        // get the latest symbols from this file.
+        let currentPackage = new Package()
+        currentPackage.setName('Current Package');            
+        var symbolTableGenVisitor = new SymbolTableGenVisitor(currentPackage, this._model);
+        this._model.accept(symbolTableGenVisitor);
+        currentPackage = symbolTableGenVisitor.getPackage();
+
+        //check if a similar package exists.
         var packages = this._environment.getPackages();
         var currentPackageArray = _.filter(packages, (pkg) => {
             return !_.isEmpty(this._model.children) && (pkg.getName() ===  this._model.children[0].getPackageName());
@@ -535,18 +543,11 @@ class BallerinaFileEditor extends EventChannel {
         // Check whether the program contains a package name or it is in the dafault package
         if(!_.isEmpty(currentPackageArray)){
             // Update Current package object after the package resolving
-            currentPackage = _.clone(currentPackageArray[0]);
-            currentPackage.setName('Current Package');
-            _.remove(packages, function (pkg) {
-                return _.isEqual(pkg.getName(), 'Current Package');
-            });
-            packages.push(currentPackage);
-        }else{
-            // If the program in the default package this will traverse through the model and update the Current package.
-            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
-            this._model.accept(symbolTableGenVisitor);
-            currentPackage = symbolTableGenVisitor.getPackage();
+            let currentPackageInEvn = _.clone(currentPackageArray[0]);
+            //todo merge the package with this.
+            currentPackage = _.merge(currentPackageInEvn,currentPackage);
         }
+
         return currentPackage;
     }
 
