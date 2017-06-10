@@ -36,11 +36,22 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConstantDefinition} constantDefinition - The constant definition to start visiting.
      */
     beginVisitConstantDefinition(constantDefinition) {
-        if (constantDefinition.whiteSpace.useDefault) {
+        const useDefaultWS = constantDefinition.whiteSpace.useDefault;
+        if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
-        var constructedSourceSegment = constantDefinition.getConstantDefinitionAsString();
+
+        // Adding annotations
+        let constructedSourceSegment = '';
+        for(const annotationNode of constantDefinition.getChildrenOfType(constantDefinition.getFactory().isAnnotation)) {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += annotationNode.toString()
+                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+            }
+        }
+
+        constructedSourceSegment += constantDefinition.getConstantDefinitionAsString();
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit ConstantDefinition');
     }
