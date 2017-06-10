@@ -215,24 +215,12 @@ class ToolsPanel extends React.Component {
 	}
 
 	render() {
-		let trigger = <div className="tool-palette-panel-header">
-						<a className="tool-palette-panel-header-title">{ this.props.name }</a>
-						<span className="collapse-icon fw fw-down"></span>
-					</div>;
-
-		let triggerWhenOpen = <div className="tool-palette-panel-header">
-						<a className="tool-palette-panel-header-title">{ this.props.name }</a>
-						<span className="collapse-icon fw fw-up"></span>
-					</div>;					
-
 		return (
 			<div className="tool-palette-panel">
-				{/*<Collapsible trigger={trigger}  open={this.props.open} triggerWhenOpen={triggerWhenOpen} >*/}
-					<a className="tool-palette-panel-header-title">{ this.props.name }</a>
+					<span className="tool-palette-panel-header-title">{ this.props.name }</span>
 					<div className="tool-palette-panel-body" >
 							{this.props.children}
 					</div>
-				{/*</Collapsible>*/}
 			</div>			
 		)
 	}
@@ -397,6 +385,7 @@ class ToolPaletteView extends React.Component {
 	}
 
 	render() {
+		let searching = this.state.search.length > 0;
 		//get the model
 		let model = this.props.editor.getModel();
 		//get the environment
@@ -404,13 +393,14 @@ class ToolPaletteView extends React.Component {
 		//get the current package
 		let currentPackage = this.props.editor.generateCurrentPackage();
 		let currentTools = this.provider.getCombinedToolGroup(currentPackage);
+		currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
+		if(currentTools != undefined){
+			currentTools.collapsed = searching;
+		}
 		//get the constructs
 		let constructs = _.cloneDeep(InitialTools[0]);
 		//get imported packages
 		let imports = model.getImportDeclarations();
-
-		let searching = this.state.search.length > 0;
-		currentTools.collapsed = searching;
 		//convert imports to tool groups
 		let connectors = [];
 		let library = [];
