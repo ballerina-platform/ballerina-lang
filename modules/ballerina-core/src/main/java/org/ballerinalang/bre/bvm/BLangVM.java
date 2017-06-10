@@ -110,7 +110,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * This class executes Ballerina instruction codes.
- * 
+ *
  * @since 0.88
  */
 public class BLangVM {
@@ -172,8 +172,18 @@ public class BLangVM {
             context.actionInfo = null;
         }
 
-        // TODO Try catch Throwable
-        exec();
+        try {
+            exec();
+        } catch (Throwable e) {
+            String message;
+            if (e.getMessage() == null) {
+                message = "unknown error occurred";
+            } else {
+                message = e.getMessage();
+            }
+            context.setError(BLangVMErrors.createError(context, ip, message));
+            handleError();
+        }
     }
 
     public void execWorker(Context context, int startIP, int endIP) {
@@ -192,8 +202,6 @@ public class BLangVM {
         int cpIndex; // Index of the constant pool
         int fieldIndex;
 
-        int[] fieldCount;
-
         BIntArray bIntArray;
         BFloatArray bFloatArray;
         BStringArray bStringArray;
@@ -203,7 +211,6 @@ public class BLangVM {
         StructureType structureType;
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
-        BStruct errorVal;
 
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
@@ -221,7 +228,6 @@ public class BLangVM {
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
 
-        // TODO use HALT Instruction in the while condition
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 
             Instruction instruction = code[ip];
@@ -347,7 +353,12 @@ public class BLangVM {
                         break;
                     }
 
-                    sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                    try {
+                        sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.FALOAD:
                     i = operands[0];
@@ -359,7 +370,12 @@ public class BLangVM {
                         break;
                     }
 
-                    sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
+                    try {
+                        sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.SALOAD:
                     i = operands[0];
@@ -371,7 +387,12 @@ public class BLangVM {
                         break;
                     }
 
-                    sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
+                    try {
+                        sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.BALOAD:
                     i = operands[0];
@@ -383,7 +404,12 @@ public class BLangVM {
                         break;
                     }
 
-                    sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
+                    try {
+                        sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.LALOAD:
                     i = operands[0];
@@ -395,7 +421,12 @@ public class BLangVM {
                         break;
                     }
 
-                    sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
+                    try {
+                        sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.RALOAD:
                     i = operands[0];
@@ -407,7 +438,12 @@ public class BLangVM {
                         break;
                     }
 
-                    sf.refRegs[k] = bArray.get(sf.longRegs[j]);
+                    try {
+                        sf.refRegs[k] = bArray.get(sf.longRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.JSONALOAD:
                     i = operands[0];
@@ -419,7 +455,12 @@ public class BLangVM {
                         break;
                     }
 
-                    sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
+                    try {
+                        sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.IGLOAD:
                     // Global variable index
@@ -494,7 +535,12 @@ public class BLangVM {
                         break;
                     }
 
-                    bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                    try {
+                        bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.FASTORE:
                     i = operands[0];
@@ -506,7 +552,12 @@ public class BLangVM {
                         break;
                     }
 
-                    bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
+                    try {
+                        bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.SASTORE:
                     i = operands[0];
@@ -518,7 +569,12 @@ public class BLangVM {
                         break;
                     }
 
-                    bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
+                    try {
+                        bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.BASTORE:
                     i = operands[0];
@@ -530,7 +586,12 @@ public class BLangVM {
                         break;
                     }
 
-                    bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
+                    try {
+                        bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.LASTORE:
                     i = operands[0];
@@ -542,7 +603,12 @@ public class BLangVM {
                         break;
                     }
 
-                    bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
+                    try {
+                        bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.RASTORE:
                     i = operands[0];
@@ -554,7 +620,12 @@ public class BLangVM {
                         break;
                     }
 
-                    bArray.add(sf.longRegs[j], sf.refRegs[k]);
+                    try {
+                        bArray.add(sf.longRegs[j], sf.refRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.JSONASTORE:
                     i = operands[0];
@@ -566,7 +637,12 @@ public class BLangVM {
                         break;
                     }
 
-                    JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
+                    try {
+                        JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
                     break;
                 case InstructionCodes.IGSTORE:
                     // Stack reg index
@@ -1326,7 +1402,8 @@ public class BLangVM {
                     handleReturn();
                     break;
                 default:
-                    throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
+//                    throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
+                    throw new UnsupportedOperationException();
             }
         }
     }
@@ -1474,7 +1551,8 @@ public class BLangVM {
                 sf.refRegs[j] = new BJSON("null");
                 break;
             default:
-                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
+                throw new UnsupportedOperationException();
+//                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
         }
     }
 
@@ -1621,7 +1699,8 @@ public class BLangVM {
                 sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
                 break;
             default:
-                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
+                throw new UnsupportedOperationException();
+//                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
         }
     }
 
@@ -2165,35 +2244,42 @@ public class BLangVM {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
+                    if (returnValues[i] == null) {
+                        callerSF.longRegs[callersRetRegIndex] = 0;
+                        break;
+                    }
                     callerSF.longRegs[callersRetRegIndex] = ((BInteger) returnValues[i]).intValue();
                     break;
                 case TypeTags.FLOAT_TAG:
+                    if (returnValues[i] == null) {
+                        callerSF.doubleRegs[callersRetRegIndex] = 0;
+                        break;
+                    }
                     callerSF.doubleRegs[callersRetRegIndex] = ((BFloat) returnValues[i]).floatValue();
                     break;
                 case TypeTags.STRING_TAG:
                     if (returnValues[i] == null) {
-                        // TODO Null reference error properly
-                        throw new BallerinaException("returned null reference");
+                        callerSF.stringRegs[callersRetRegIndex] = "";
+                        break;
                     }
                     callerSF.stringRegs[callersRetRegIndex] = returnValues[i].stringValue();
                     break;
                 case TypeTags.BOOLEAN_TAG:
+                    if (returnValues[i] == null) {
+                        callerSF.intRegs[callersRetRegIndex] = 0;
+                        break;
+                    }
                     callerSF.intRegs[callersRetRegIndex] = ((BBoolean) returnValues[i]).booleanValue() ? 1 : 0;
                     break;
                 case TypeTags.BLOB_TAG:
+                    if (returnValues[i] == null) {
+                        callerSF.byteRegs[callersRetRegIndex] = new byte[0];
+                        break;
+                    }
                     callerSF.byteRegs[callersRetRegIndex] = ((BBlob) returnValues[i]).blobValue();
                     break;
                 default:
                     callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
-            }
-        }
-    }
-
-    // TODO Remove this once all the native actions are refactored
-    public static void prepareStructureTypeFromNativeAction(BValue[] bValues) {
-        for (BValue bValue : bValues) {
-            if (bValue instanceof StructureType) {
-                prepareStructureTypeFromNativeAction((StructureType) bValue);
             }
         }
     }
