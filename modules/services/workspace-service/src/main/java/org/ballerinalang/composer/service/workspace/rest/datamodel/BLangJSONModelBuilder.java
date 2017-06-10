@@ -1504,6 +1504,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 .TYPE_CAST_EXPRESSION);
         typeCastEprObj.add(BLangJSONModelConstants.TARGET_TYPE,
                 simpleTypeNameToJson(typeCastExpression.getTypeName()));
+        typeCastEprObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE,
+                typeCastExpression.getTypeName().isArrayType());
+        typeCastEprObj.addProperty(BLangJSONModelConstants.DIMENSIONS,
+                typeCastExpression.getTypeName().getDimensions());
 
         tempJsonArrayRef.push(new JsonArray());
         typeCastExpression.getRExpr().accept(this);
