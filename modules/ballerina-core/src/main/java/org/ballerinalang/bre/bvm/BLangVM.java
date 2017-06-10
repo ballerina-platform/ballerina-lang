@@ -28,6 +28,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -108,7 +109,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * @since 0.87
+ * This class executes Ballerina instruction codes.
+ * 
+ * @since 0.88
  */
 public class BLangVM {
 
@@ -168,6 +171,8 @@ public class BLangVM {
             context.funcCallCPEntry = null;
             context.actionInfo = null;
         }
+
+        // TODO Try catch Throwable
         exec();
     }
 
@@ -197,12 +202,9 @@ public class BLangVM {
         BRefValueArray bArray;
         StructureType structureType;
         BMap<String, BRefType> bMap;
-        BRefType bRefType;
         BJSON jsonVal;
-        BXML xmlVal;
         BStruct errorVal;
 
-        StructureRefCPEntry structureRefCPEntry;
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
         TypeCPEntry typeCPEntry;
@@ -210,7 +212,6 @@ public class BLangVM {
 
         FunctionInfo functionInfo;
         ActionInfo actionInfo;
-        StructureTypeInfo structureTypeInfo;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
         WorkerInvokeCPEntry workerInvokeCPEntry;
         WorkerReplyCPEntry workerReplyCPEntry;
@@ -1469,7 +1470,6 @@ public class BLangVM {
                 }
                 break;
             case InstructionCodes.NULL2JSON:
-                i = operands[0];
                 j = operands[1];
                 sf.refRegs[j] = new BJSON("null");
                 break;
@@ -1482,11 +1482,7 @@ public class BLangVM {
         int i;
         int j;
         int k;
-        int cpIndex; // Index of the constant pool
-
         BRefType bRefType;
-        BStruct errorVal;
-        TypeCPEntry typeCPEntry;
 
         switch (opcode) {
             case InstructionCodes.I2F:
@@ -1537,9 +1533,7 @@ public class BLangVM {
                 try {
                     sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
                 } catch (NumberFormatException e) {
-                    errorVal = BLangVMErrors.createTypeConversionError(context, ip,
-                            BTypes.typeString, BTypes.typeInt);
-
+                    handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.INT_TNAME);
                 }
                 break;
             case InstructionCodes.S2F:
@@ -1550,8 +1544,7 @@ public class BLangVM {
                 try {
                     sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
                 } catch (NumberFormatException e) {
-                    // TODO
-                    throw new BallerinaException("incompatible types");
+                    handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.FLOAT_TNAME);
                 }
                 break;
             case InstructionCodes.S2B:
@@ -1562,8 +1555,7 @@ public class BLangVM {
                 try {
                     sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
                 } catch (NumberFormatException e) {
-                    // TODO
-                    throw new BallerinaException("incompatible types");
+                    handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.BOOLEAN_TNAME);
                 }
                 break;
             case InstructionCodes.S2JSON:
@@ -1607,13 +1599,25 @@ public class BLangVM {
             case InstructionCodes.DT2XML:
                 i = operands[0];
                 j = operands[1];
+
                 bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
                 sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
                 break;
             case InstructionCodes.DT2JSON:
                 i = operands[0];
                 j = operands[1];
+
                 bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
                 sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
                 break;
             default:
@@ -1639,6 +1643,19 @@ public class BLangVM {
     private void handleTypeCastError(StackFrame sf, int errorRegIndex, BType sourceType, BType targetType) {
         BStruct errorVal;
         errorVal = BLangVMErrors.createTypeCastError(context, ip, sourceType, targetType);
+        if (errorRegIndex == -1) {
+            context.setError(errorVal);
+            handleError();
+            return;
+        }
+
+        sf.refRegs[errorRegIndex] = errorVal;
+    }
+
+    private void handleTypeConversionError(StackFrame sf, int errorRegIndex,
+                                           String sourceTypeName, String targetTypeName) {
+        BStruct errorVal;
+        errorVal = BLangVMErrors.createTypeConversionError(context, ip, sourceTypeName, targetTypeName);
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -2347,19 +2364,16 @@ public class BLangVM {
         return true;
     }
 
-    // TODO Refactor these methods and move them to a proper util class
-    private static void convertJSONToInt(int[] operands, StackFrame sf) {
+    private void convertJSONToInt(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
 
         BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT, BTypes.typeInt);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
+        if (jsonValue == null) {
+            handleNullRefError();
+            return;
+        }
 
         JsonNode jsonNode;
         try {
@@ -2367,9 +2381,9 @@ public class BLangVM {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeInt, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+            context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+            handleError();
+            return;
         }
 
         if (jsonNode.isInt() || jsonNode.isLong()) {
@@ -2377,23 +2391,19 @@ public class BLangVM {
             return;
         }
 
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                BTypes.typeInt, JSONUtils.getTypeName(jsonNode));
+        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
-    private static void convertJSONToFloat(int[] operands, StackFrame sf) {
+    private void convertJSONToFloat(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
 
         BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
-// BTypes.typeFloat);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
+        if (jsonValue == null) {
+            handleNullRefError();
+            return;
+        }
 
         JsonNode jsonNode;
         try {
@@ -2401,9 +2411,9 @@ public class BLangVM {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeFloat, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+            context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+            handleError();
+            return;
         }
 
         if (jsonNode.isFloat() || jsonNode.isDouble()) {
@@ -2411,48 +2421,40 @@ public class BLangVM {
             return;
         }
 
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
+        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
-    private static void convertJSONToString(int[] operands, StackFrame sf) {
+    private void convertJSONToString(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
 
         BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
-// BTypes.typeString);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
+        if (jsonValue == null) {
+            handleNullRefError();
+            return;
+        }
 
         try {
             sf.stringRegs[j] = jsonValue.stringValue();
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+            context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+            handleError();
         }
     }
 
-    private static void convertJSONToBoolean(int[] operands, StackFrame sf) {
+    private void convertJSONToBoolean(int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
 
         BJSON jsonValue = (BJSON) sf.refRegs[i];
-        // TODO  Check for NULL
-//        if (bjson == null) {
-//            String errorMsg =
-//                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_ANY_TYPE_WITHOUT_INIT,
-// BTypes.typeBoolean);
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
-//        }
+        if (jsonValue == null) {
+            handleNullRefError();
+            return;
+        }
 
         JsonNode jsonNode;
         try {
@@ -2460,9 +2462,9 @@ public class BLangVM {
         } catch (BallerinaException e) {
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeBoolean, e.getMessage());
-            throw new BallerinaException(errorMsg);
-            // TODO
-//            return TypeMappingUtils.getError(returnErrors, errorMsg, BTypes.typeJSON, targetType);
+            context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+            handleError();
+            return;
         }
 
         if (jsonNode.isBoolean()) {
@@ -2470,8 +2472,7 @@ public class BLangVM {
             return;
         }
 
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                BTypes.typeFloat, JSONUtils.getTypeName(jsonNode));
+        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
     private void handleNullRefError() {
