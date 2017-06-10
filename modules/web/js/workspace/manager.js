@@ -103,20 +103,10 @@ class WorkspaceManager {
     }
 
     displayInitialTab() {
-        //TODO : remove this if else condition
-        // display first launch welcome page tab
-        if (!this.passedFirstLaunch()) {
-            // create a generic tab - without ballerina editor components
-            let tab = this.app.tabController.newTab({
-                tabModel: Tab,
-                tabOptions:{title: 'welcome-page'}
-            });
-            let opts = _.get(this.app.config, 'welcome');
-            _.set(opts, 'application', this.app);
-            _.set(opts, 'tab', tab);
-            _.set(opts, 'balHome', _.get(this.app.config, 'balHome'));
-            this.welcomePage = new WelcomePage(opts);
-            this.welcomePage.render();
+        let startupFile = _.get(this.app.config, 'startupFile');
+        if (!_.isNil(startupFile)){
+            // open provided startup file
+            this.app.commandManager.dispatch('open-file', startupFile);
         } else {
             // user has no active tabs from last session
             if (!this.app.tabController.hasFilesInWorkingSet()) {
@@ -134,10 +124,6 @@ class WorkspaceManager {
                 this.welcomePage.render();
             }
         }
-    }
-
-    passedFirstLaunch(){
-        return this.app.browserStorage.get('pref:passedFirstLaunch') || false;
     }
 
     /**

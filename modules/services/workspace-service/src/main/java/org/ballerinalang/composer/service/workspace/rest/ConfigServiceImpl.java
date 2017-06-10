@@ -52,6 +52,7 @@ public class ConfigServiceImpl {
     private String launcherPath;
     private String langserverPath;
     private String debuggerPath;
+    private String startupFile;
 
     @GET
     @Produces("application/json")
@@ -162,6 +163,10 @@ public class ConfigServiceImpl {
         if (null != balHome) {
             config.addProperty("balHome", balHome);
         }
+
+        if (getStartupFile() != null) {
+            config.addProperty("startupFile", getStartupFile());
+        }
                 
         return config;
     }
@@ -228,6 +233,14 @@ public class ConfigServiceImpl {
 
     public String getDebuggerPath() {
         return debuggerPath;
+    }
+
+    public String getStartupFile() {
+        return startupFile;
+    }
+
+    public void setStartupFile(String startupFile) {
+        this.startupFile = startupFile;
     }
 
     public String getHostName(Request request) {
