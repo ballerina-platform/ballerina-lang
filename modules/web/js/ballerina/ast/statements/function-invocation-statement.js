@@ -103,6 +103,7 @@ class FunctionInvocationStatement extends Statement {
      */
     initFromJson(jsonNode) {
         var self = this;
+        this.children = [];
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
