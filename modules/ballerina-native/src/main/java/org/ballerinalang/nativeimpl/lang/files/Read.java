@@ -33,6 +33,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Get the blob from a file.
@@ -75,6 +76,6 @@ public class Read extends AbstractNativeFunction {
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while reading stream");
         }
-        return getBValues(new BBlob(data), new BInteger(nRead));
+        return getBValues(new BBlob(Arrays.copyOf(data, nRead)), new BInteger(nRead));
     }
 }

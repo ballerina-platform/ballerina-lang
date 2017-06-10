@@ -59,12 +59,8 @@ public class Move extends AbstractNativeFunction {
         File sourceFile = new File(source.getValue(0).stringValue());
         File destinationFile = new File(destination.getValue(0).stringValue());
         File parent = destinationFile.getParentFile();
-        if (parent != null) {
-            if (!parent.exists()) {
-                if (!parent.mkdirs()) {
-                    throw new BallerinaException("Error in writing file");
-                }
-            }
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+            throw new BallerinaException("Error in writing file");
         }
         if (!sourceFile.renameTo(destinationFile)) {
             throw new BallerinaException("Error while moving file");

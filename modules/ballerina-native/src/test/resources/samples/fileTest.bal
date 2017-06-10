@@ -17,7 +17,6 @@ function testOpen(files:File source, string accessMode) {
 }
 
 function testWrite(blob content, files:File source) {
-    files:open(source, "w");
     files:write(content, source);
 }
 
