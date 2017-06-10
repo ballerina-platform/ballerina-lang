@@ -13,13 +13,16 @@ function testMain () {
 
     string myURL = test:startService("helloWorld");
     string mockURL = test:startService("mockService");
+
     mock:setValue("helloWorld.testConnector.param1", "new parameter2");
     mock:setValue("helloWorld.testConnector.terminalCon.param1", mockURL);
 
     http:ClientConnector varEP = create http:ClientConnector(myURL);
     messages:setStringPayload(request, mockURL);
     response = http:ClientConnector.get(varEP, "/", request);
+
     responseString = messages:getStringPayload(response);
     system:println("hello response: " + responseString);
-    test:assertEquals(responseString, "You invoked mockService!");
+
+    test:assertStringEquals(responseString, "You invoked mockService!", "");
 }

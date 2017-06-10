@@ -17,22 +17,12 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.bre.BLangExecutor;
-import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.RuntimeEnvironment;
-import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.Function;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FunctionInvocationExpr;
-import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.util.Arrays;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * TesterinaFunction entity class
@@ -41,12 +31,13 @@ public class TesterinaFunction {
 
     private String name;
     private Type type;
-    private Function bFunction;
-    private BLangProgram bLangProgram;
+    private FunctionInfo bFunction;
+    private ProgramFile programFile;
 
     public static final String PREFIX_TEST = "TEST";
     public static final String PREFIX_BEFORETEST = "BEFORETEST";
     public static final String PREFIX_AFTERTEST = "AFTERTEST";
+    public static final String INIT_SUFFIX = ".<INIT>";
 
     /**
      * Prefixes for the test function names
@@ -66,11 +57,11 @@ public class TesterinaFunction {
         }
     }
 
-    TesterinaFunction(BLangProgram bLangProgram, Function bFunction, Type type) {
+    TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type) {
         this.name = bFunction.getName();
         this.type = type;
         this.bFunction = bFunction;
-        this.bLangProgram = bLangProgram;
+        this.programFile = programFile;
     }
 
     public BValue[] invoke() throws BallerinaException {
@@ -89,64 +80,8 @@ public class TesterinaFunction {
      * @return return values from the function
      */
     public BValue[] invoke(BValue[] args, Context bContext) {
-
-        // 1) Check whether the given function is defined in the source file.
-        Function function = this.bFunction;
-        if (function == null) {
-            throw new RuntimeException("Function '" + name + "' is not defined");
-        }
-
-        if (function.getParameterDefs().length != args.length) {
-            throw new RuntimeException("Size of input argument array is not equal to size of function parameters");
-        }
-
-        // 2) Create variable reference expressions for each argument value;
-        Expression[] exprs = new Expression[args.length];
-        for (int i = 0; i < args.length; i++) {
-            VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(), null, 
-                    new SymbolName("arg" + i));
-
-            variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
-            StackVarLocation location = new StackVarLocation(i);
-            variableRefExpr.setMemoryLocation(location);
-            // TODO Set the type
-            //    variableRefExpr.setType();
-            exprs[i] = variableRefExpr;
-        }
-
-        // 3) Create a function invocation expression
-        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(function.getNodeLocation(), null, name, null,
-                bFunction.getPackagePath(), exprs);
-        funcIExpr.setOffset(args.length);
-        funcIExpr.setCallableUnit(function);
-
-        // 4) Prepare function arguments
-        BValue[] functionArgs = args;
-        if (function.getReturnParameters().length != 0) {
-            functionArgs = Arrays.copyOf(args, args.length + function.getReturnParameters().length);
-        }
-
-        // 5) Create the RuntimeEnvironment
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-
-        // 6) Create the control stack and the stack frame to invoke the functions
-        SymbolName functionSymbolName = function.getSymbolName();
-        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgPath(), function.getNodeLocation());
-
-        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
-        bContext.getControlStack().pushFrame(currentStackFrame);
-
-        // 7) Invoke the function
-        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-        executor.setParentScope(bLangProgram);
-        BValue[] values = funcIExpr.executeMultiReturn(executor);
-        if (executor.isErrorThrown && executor.thrownError != null) {
-            String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
-                    executor.thrownError.getValue(0).stringValue() + "}";
-            throw new BallerinaException(errorMsg);
-        }
-        return values;
+        return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(),
+                                        args);
     }
 
 
@@ -166,11 +101,11 @@ public class TesterinaFunction {
         this.type = type;
     }
 
-    public Function getbFunction() {
+    public FunctionInfo getbFunction() {
         return this.bFunction;
     }
 
-    public void setbFunction(Function bFunction) {
+    public void setbFunctionInfo(FunctionInfo bFunction) {
         this.bFunction = bFunction;
     }
 

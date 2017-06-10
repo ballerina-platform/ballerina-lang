@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,24 +25,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Keep a registry of {@code {@link BLangProgram}} instances.
+ * Keep a registry of {@code {@link ProgramFile}} instances.
  * This is required to modify the runtime behavior.
  */
 public class TesterinaRegistry {
-    private static List<BLangProgram> bLangPrograms = new ArrayList<>();
+    private static List<ProgramFile> programFiles = new ArrayList<>();
     private static final TesterinaRegistry instance = new TesterinaRegistry();
 
     public static TesterinaRegistry getInstance() {
         return instance;
     }
 
-    public Collection<BLangProgram> getBLangPrograms() {
-        return Collections.unmodifiableCollection(bLangPrograms);
+    public Collection<ProgramFile> getProgramFiles() {
+        return Collections.unmodifiableCollection(programFiles);
     }
 
-    public void addBLangProgram(BLangProgram bLangProgram) {
-        bLangPrograms.add(bLangProgram);
+    public void addProgramFile(ProgramFile programFile) {
+        programFiles.add(programFile);
     }
-
-
  }
