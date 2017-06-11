@@ -66,8 +66,8 @@ public class Copy extends AbstractNativeFunction {
         BStruct source = (BStruct) getRefArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
 
-        File sourceFile = new File(source.getValue(0).stringValue());
-        File destinationFile = new File(destination.getValue(0).stringValue());
+        File sourceFile = new File(source.getStringField(0));
+        File destinationFile = new File(destination.getStringField(0));
 
         if (!sourceFile.exists()) {
             throw new BallerinaException("failed to copy file: file not found: " + sourceFile.getPath());

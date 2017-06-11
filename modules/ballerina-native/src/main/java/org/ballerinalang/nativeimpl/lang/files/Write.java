@@ -58,7 +58,7 @@ public class Write extends AbstractNativeFunction {
             OutputStream outputStream = (BufferedOutputStream) destination.getNativeData("outStream");
             if (outputStream == null) {
                 throw new BallerinaException("file is not opened in write or append mode:" 
-                        + destination.getValue(0).stringValue());
+                        + destination.getStringField(0));
             }
             outputStream.write(content);
             outputStream.flush();

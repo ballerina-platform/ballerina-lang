@@ -50,7 +50,7 @@ public class Delete extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
 
         BStruct target = (BStruct) getRefArgument(context, 0);
-        File targetFile = new File(target.getValue(0).stringValue());
+        File targetFile = new File(target.getStringField(0));
         if (!targetFile.exists()) {
             throw new BallerinaException("failed to move file: file not found: " + targetFile.getPath());
         }

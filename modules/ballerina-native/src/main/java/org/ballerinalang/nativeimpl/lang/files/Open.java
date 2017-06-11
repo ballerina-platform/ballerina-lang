@@ -63,7 +63,7 @@ public class Open extends AbstractNativeFunction {
         BStruct struct = (BStruct) getRefArgument(context, 0);
         String accessMode = getStringArgument(context, 0);
         try {
-            File file = new File(struct.getValue(0).stringValue());
+            File file = new File(struct.getStringField(0));
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
             
             if (accessLC.contains("r")) {
@@ -90,8 +90,8 @@ public class Open extends AbstractNativeFunction {
             if (write && append) {
                 log.info("found both 'a' and 'w' in access mode string. opening file in append mode");
             }
-            
-            if (!file.canWrite()) {
+
+            if (file.exists() && !file.canWrite()) {
                 throw new BallerinaException("file is not writable: " + file.getPath());
             }
             createDirs(file);

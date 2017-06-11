@@ -68,7 +68,7 @@ public class Read extends AbstractNativeFunction {
         try {
             BufferedInputStream is = (BufferedInputStream) file.getNativeData("inStream");
             if (is == null) {
-                throw new BallerinaException("file is not opened in read mode:" + file.getValue(0).stringValue());
+                throw new BallerinaException("file is not opened in read mode: " + file.getStringField(0));
             }
             data = new byte[bytesToRead];
             nRead = is.read(data, 0, bytesToRead);
