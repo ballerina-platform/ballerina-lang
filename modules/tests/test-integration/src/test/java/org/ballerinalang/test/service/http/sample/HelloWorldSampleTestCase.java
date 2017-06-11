@@ -40,13 +40,4 @@ public class HelloWorldSampleTestCase extends IntegrationTestCase {
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello, World!", "Message content mismatched");
     }
-
-    @Test(description = "Test hello world sample test case")
-    public void testHelloWorldServiceByResourcePath() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("hello/resource"));
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "Hello, World!", "Message content mismatched");
-    }
 }
