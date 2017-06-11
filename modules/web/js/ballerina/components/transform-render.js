@@ -599,11 +599,11 @@ class TransformRender
  */
     addFunction(func, reference, onFunctionRemove) {
         func.meta.packageName  = func.meta.packageName.replace(' ','');
-        funcName = _.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + ' : ' + func.meta.functionName;
-        var funcText = func.meta.functionName;
+        funcName = _.isEmpty(func.meta.packageName) ? func.getName() : func.meta.packageName + ' : ' + func.getName();
+        var funcText = func.getName();
     //Allow multiple functions to drag and drop without conflicting
         var functionInvocationModelId = reference.getChildren()[1].getChildren()[0].getID();
-        func.name = (_.isEmpty(func.meta.packageName) ? func.meta.functionName : func.meta.packageName + '-' + func.meta.functionName) +
+        func.name = (_.isEmpty(func.meta.packageName) ? func.getName() : func.meta.packageName + '-' + func.getName()) +
                    functionInvocationModelId;
 
         var id = func.name + this.viewIdSeperator + this.viewId;

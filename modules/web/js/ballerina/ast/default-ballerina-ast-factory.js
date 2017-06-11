@@ -243,15 +243,22 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
                     functionInvokeString += ', ';
                 }
                 functionInvokeString += param.name;
-            })
+            });
         }
         functionInvokeString += ')';
         funcInvocationExpression.setExpressionFromString(functionInvokeString);
+
+        //fragment parser does not have access to full package name. Hence, setting it here.
+        funcInvocationExpression.setFullPackageName(_.get(args, 'fullPackageName'));
+
         if (!_.isEmpty(args.functionDef.getReturnParams())) {
-            // FIXME : Do a better solution to this by refactoring trasnform addChild and canDrop
+            // FIXME : Do a better solution to this by refactoring transform addChild and canDrop
             let assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            assignmentStmt.children.length = 2;
-            assignmentStmt.children[1] = funcInvocationExpression;
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+            rightOp.addChild(funcInvocationExpression);
+            assignmentStmt.addChild(leftOp);    
+            assignmentStmt.addChild(rightOp);
             return assignmentStmt;
         }
     }
