@@ -46,15 +46,16 @@ import java.io.File;
         value = "File that should be deleted") })
 public class Delete extends AbstractNativeFunction {
 
-    @Override public BValue[] execute(Context context) {
+    @Override 
+    public BValue[] execute(Context context) {
 
-        BStruct target = (BStruct) getArgument(context, 0);
+        BStruct target = (BStruct) getRefArgument(context, 0);
         File targetFile = new File(target.getValue(0).stringValue());
         if (!targetFile.exists()) {
-            throw new BallerinaException("File intended to delete does not exist");
+            throw new BallerinaException("failed to move file: file not found: " + targetFile.getPath());
         }
         if (!delete(targetFile)) {
-            throw new BallerinaException("Error while deleting file");
+            throw new BallerinaException("failed to move file: " + targetFile.getPath());
         }
         return VOID_RETURN;
     }

@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -62,19 +61,19 @@ public class Read extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStruct struct = (BStruct) getArgument(context, 0);
-        BInteger integer = (BInteger) getArgument(context, 1);
-        BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
-        if (is == null) {
-            throw new BallerinaException("The file isn't opened in read mode");
-        }
-
-        byte[] data = new byte[((int) integer.intValue())];
+        BStruct file = (BStruct) getRefArgument(context, 0);
+        int bytesToRead = getIntArgument(context, 0);
+        byte[] data;
         int nRead;
         try {
-            nRead = is.read(data, 0, ((int) integer.intValue()));
-        } catch (IOException e) {
-            throw new BallerinaException("Error occurred while reading stream");
+            BufferedInputStream is = (BufferedInputStream) file.getNativeData("inStream");
+            if (is == null) {
+                throw new BallerinaException("file is not opened in read mode:" + file.getValue(0).stringValue());
+            }
+            data = new byte[bytesToRead];
+            nRead = is.read(data, 0, bytesToRead);
+        } catch (Throwable e) {
+            throw new BallerinaException("failed to read from file: " + e.getMessage(), e);
         }
         return getBValues(new BBlob(Arrays.copyOf(data, nRead)), new BInteger(nRead));
     }

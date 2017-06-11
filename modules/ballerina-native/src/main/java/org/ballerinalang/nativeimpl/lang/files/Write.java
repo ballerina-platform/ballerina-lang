@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.lang.files;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -30,7 +29,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -54,18 +52,19 @@ public class Write extends AbstractNativeFunction {
 
     @Override public BValue[] execute(Context context) {
 
-        BBlob content = (BBlob) getArgument(context, 0);
-        BStruct destination = (BStruct) getArgument(context, 1);
+        byte[] content = getBlobArgument(context, 0);
+        BStruct destination = (BStruct) getRefArgument(context, 0);
         try {
             OutputStream outputStream = (BufferedOutputStream) destination.getNativeData("outStream");
             if (outputStream == null) {
-                throw new BallerinaException("The file isn't opened in write or append mode");
+                throw new BallerinaException("file is not opened in write or append mode:" 
+                        + destination.getValue(0).stringValue());
             }
-            outputStream.write(content.blobValue());
+            outputStream.write(content);
             outputStream.flush();
 
-        } catch (IOException e) {
-            throw new BallerinaException("Error while writing file", e);
+        } catch (Throwable e) {
+            throw new BallerinaException("failed to write to file: " + e.getMessage(), e);
         }
         return VOID_RETURN;
     }

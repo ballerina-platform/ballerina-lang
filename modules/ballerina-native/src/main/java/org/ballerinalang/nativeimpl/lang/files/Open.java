@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.lang.files;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -36,7 +35,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Locale;
 
@@ -59,31 +57,48 @@ import java.util.Locale;
 public class Open extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Open.class);
-    @Override public BValue[] execute(Context context) {
-        BStruct struct = (BStruct) getArgument(context, 0);
-        BString accessMode = (BString) getArgument(context, 1);
+    
+    @Override 
+    public BValue[] execute(Context context) {
+        BStruct struct = (BStruct) getRefArgument(context, 0);
+        String accessMode = getStringArgument(context, 0);
         try {
-            String path = struct.getValue(0).stringValue();
-            File file = new File(path);
-            String accessLC = accessMode.stringValue().toLowerCase(Locale.getDefault());
+            File file = new File(struct.getValue(0).stringValue());
+            String accessLC = accessMode.toLowerCase(Locale.getDefault());
+            
             if (accessLC.contains("r")) {
+                boolean fileExists = file.exists();
+                if (!fileExists) {
+                    throw new BallerinaException("file not found: " + file.getPath());
+                }
+                if (!file.canRead()) {
+                    throw new BallerinaException("file is not readable: " + file.getPath());
+                }
                 BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
                 struct.addNativeData("inStream", is);
             }
-            if (accessLC.contains("a") && accessLC.contains("w")) {
-                log.info("found both 'a' and 'w' in access mode string, opening file in append mode");
+            
+            boolean write = accessLC.contains("w");
+            boolean append = accessLC.contains("a");
+            
+            // if opened for read only, then return.
+            if (!write && !append) {
+                return VOID_RETURN;
             }
-            if (accessLC.contains("a")) {
-                createDirs(file);
-                BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file));
-                struct.addNativeData("outStream", os);
-            } else if (accessLC.contains("w")) {
-                createDirs(file);
-                BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file, true));
-                struct.addNativeData("outStream", os);
+            
+            // if opened for both write and append, then give priority to append
+            if (write && append) {
+                log.info("found both 'a' and 'w' in access mode string. opening file in append mode");
             }
-        } catch (FileNotFoundException e) {
-            throw new BallerinaException("Exception occurred since file does not exist or no permission", e);
+            
+            if (!file.canWrite()) {
+                throw new BallerinaException("file is not writable: " + file.getPath());
+            }
+            createDirs(file);
+            BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file, append));
+            struct.addNativeData("outStream", os);
+        } catch (Throwable e) {
+            throw new BallerinaException("failed to open file: " + e.getMessage(), e);
         }
         return VOID_RETURN;
     }
