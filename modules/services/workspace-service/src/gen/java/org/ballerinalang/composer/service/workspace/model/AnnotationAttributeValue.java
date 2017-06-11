@@ -60,7 +60,7 @@ public class AnnotationAttributeValue {
     }
     
     /**
-     * Adds a value to array type value
+     * Adds a value to array type value.
      * @param annotationAttributeValue The attribute to be added.
      */
     public void addToValueArray(AnnotationAttributeValue annotationAttributeValue) {
