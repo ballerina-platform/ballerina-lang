@@ -1836,6 +1836,9 @@ public class BLangVM {
                 } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
                     variableInfo.setBValue(new BBoolean(controlStack.currentFrame
                             .intLocalVars[localVarInfo.getVariableIndex()] == 1 ? true : false));
+                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BBlob(controlStack.currentFrame
+                            .byteLocalVars[localVarInfo.getVariableIndex()]));
                 } else {
                     variableInfo.setBValue(controlStack.currentFrame.refLocalVars[localVarInfo.getVariableIndex()]);
                 }
