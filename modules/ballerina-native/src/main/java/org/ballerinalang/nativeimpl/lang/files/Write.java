@@ -32,7 +32,7 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 
 /**
- * Write Blob to a file
+ * Writes a file using the given input stream.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",

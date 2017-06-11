@@ -32,7 +32,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.File;
 
 /**
- * Move Function
+ * Moves a file from a given location to another.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",

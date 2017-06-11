@@ -31,7 +31,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.File;
 
 /**
- * Delete Function
+ * Deletes a file from a given location.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",

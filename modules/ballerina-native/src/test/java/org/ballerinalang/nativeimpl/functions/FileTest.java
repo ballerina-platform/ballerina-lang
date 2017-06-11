@@ -84,8 +84,8 @@ public class FileTest {
     @Test
     public void testCopy() throws IOException {
 
-        String sourcePath = "temp/original.txt";
-        String destPath = "temp/duplicate.txt";
+        String sourcePath = "temp/copy-file.txt";
+        String destPath = "temp/coppied-file.txt";
         File sourceFile = new File(sourcePath);
         File destFile = new File(destPath);
         if (sourceFile.createNewFile()) {
@@ -101,10 +101,10 @@ public class FileTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class, 
           expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to copy file: file " +
-          "not found: temp/original.txt.*")
+          "not found: temp[\\\\/]copy-non-existing-file.txt.*")
     public void testCopyNonExistentFile() {
-        String sourcePath = "temp/original.txt";
-        String destPath = "temp/duplicate.txt";
+        String sourcePath = "temp/copy-non-existing-file.txt";
+        String destPath = "temp/duplicate-non-existing-file.txt";
         BValue[] args = { new BString(sourcePath), new BString(destPath) };
         BLangFunctions.invokeNew(programFile, "testCopy", args);
     }
@@ -112,8 +112,8 @@ public class FileTest {
     @Test
     public void testCopyDir() throws IOException {
 
-        String fileOne = "temp/fileOne.txt";
-        String fileTwo = "temp/fileTwo.txt";
+        String fileOne = "temp/copy-file-one.txt";
+        String fileTwo = "temp/copy-file-two.txt";
         File one = new File(fileOne);
         File two = new File(fileTwo);
         String sourcePath = "temp";
@@ -122,10 +122,10 @@ public class FileTest {
             BValue[] args = { new BString(sourcePath), new BString(destPath) };
 
             BLangFunctions.invokeNew(programFile, "testCopy", args);
-            Assert.assertTrue(new File("temp/fileOne.txt").exists(), "Source file does not exist");
-            Assert.assertTrue(new File("temp/fileTwo.txt").exists(), "Source file does not exist");
-            Assert.assertTrue(new File("tempDir/fileOne.txt").exists(), "File wasn't copied");
-            Assert.assertTrue(new File("tempDir/fileTwo.txt").exists(), "File wasn't copied");
+            Assert.assertTrue(new File("temp/copy-file-one.txt").exists(), "Source file does not exist");
+            Assert.assertTrue(new File("temp/copy-file-two.txt").exists(), "Source file does not exist");
+            Assert.assertTrue(new File("tempDir/copy-file-one.txt").exists(), "File wasn't copied");
+            Assert.assertTrue(new File("tempDir/copy-file-two.txt").exists(), "File wasn't copied");
 
         } else {
             Assert.fail("Error in file creation.");
@@ -134,8 +134,8 @@ public class FileTest {
 
     @Test
     public void testMove() throws IOException {
-        String sourcePath = "temp/original.txt";
-        String destPath = "temp/test/original.txt";
+        String sourcePath = "temp/move-file.txt";
+        String destPath = "temp/test/move-file.txt";
         File sourceFile = new File(sourcePath);
         File destFile = new File(destPath);
         if (sourceFile.createNewFile()) {
@@ -152,16 +152,16 @@ public class FileTest {
           expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to move file: file " +
           "not found: temp.*")
     public void testMoveNonExistentFile() throws IOException {
-        String sourcePath = "temp/original.txt";
-        String destPath = "temp/test/original.txt";
+        String sourcePath = "temp/move-non-existing-file.txt";
+        String destPath = "temp/test/move-non-existing-file.txt";
         BValue[] args = { new BString(sourcePath), new BString(destPath) };
         BLangFunctions.invokeNew(programFile, "testMove", args);
     }
 
     @Test
     public void testMoveDir() throws IOException {
-        String fileOne = "temp/fileOne.txt";
-        String fileTwo = "temp/fileTwo.txt";
+        String fileOne = "temp/move-file-one.txt";
+        String fileTwo = "temp/move-file-two.txt";
         File one = new File(fileOne);
         File two = new File(fileTwo);
         String sourcePath = "temp";
@@ -169,10 +169,10 @@ public class FileTest {
         if (one.createNewFile() && two.createNewFile()) {
             BValue[] args = { new BString(sourcePath), new BString(destPath) };
             BLangFunctions.invokeNew(programFile, "testMove", args);
-            Assert.assertFalse(new File("temp/fileOne.txt").exists(), "Source file exists");
-            Assert.assertFalse(new File("temp/fileTwo.txt").exists(), "Source file exists");
-            Assert.assertTrue(new File("tempDir/fileOne.txt").exists(), "File wasn't moved");
-            Assert.assertTrue(new File("tempDir/fileTwo.txt").exists(), "File wasn't moved");
+            Assert.assertFalse(new File("temp/move-file-one.txt").exists(), "Source file exists");
+            Assert.assertFalse(new File("temp/move-file-two.txt").exists(), "Source file exists");
+            Assert.assertTrue(new File("tempDir/move-file-one.txt").exists(), "File wasn't moved");
+            Assert.assertTrue(new File("tempDir/move-file-two.txt").exists(), "File wasn't moved");
         } else {
             Assert.fail("Error in file creation.");
         }
@@ -180,7 +180,7 @@ public class FileTest {
 
     @Test
     public void testDelete() throws IOException {
-        String targetPath = "temp/original.txt";
+        String targetPath = "temp/delete-file.txt";
         File targetFile = new File(targetPath);
         if (targetFile.createNewFile()) {
             BValue[] args = { new BString(targetPath)};
@@ -193,9 +193,9 @@ public class FileTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to move file: " +
-            "file not found: temp/original.txt.*")
+            "file not found: temp[\\\\/]delete-non-existing-file.txt.*")
     public void testDeleteNonExistentFile() {
-        String targetPath = "temp/original.txt";
+        String targetPath = "temp/delete-non-existing-file.txt";
         BValue[] args = { new BString(targetPath) };
 
         BLangFunctions.invokeNew(programFile, "testDelete", args);
@@ -203,8 +203,8 @@ public class FileTest {
 
     @Test
     public void testDeleteDir() throws IOException {
-        String fileOne = "temp/fileOne.txt";
-        String fileTwo = "temp/fileTwo.txt";
+        String fileOne = "temp/delete-file-one.txt";
+        String fileTwo = "temp/delete-file-two.txt";
         File one = new File(fileOne);
         File two = new File(fileTwo);
         String targetPath = "temp";
@@ -222,7 +222,7 @@ public class FileTest {
     @Test
     public void testOpen() throws IOException {
 
-        String sourcePath = "temp/original.txt";
+        String sourcePath = "temp/open-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
 
@@ -259,9 +259,9 @@ public class FileTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to open file: " +
-            "file not found: temp[\\/]original.txt.*")
+            "file not found: temp[\\\\/]open-non-existing-file.txt.*")
     public void testOpenNonExistentFile() {
-        String sourcePath = "temp/original.txt";
+        String sourcePath = "temp/open-non-existing-file.txt";
         BValue[] args = { new BString(sourcePath), new BString("rw") };
         BLangFunctions.invokeNew(programFile, "testOpen", args);
     }
@@ -269,7 +269,7 @@ public class FileTest {
     @Test(expectedExceptions = IOException.class)
     public void testClose() throws IOException {
 
-        String sourcePath = "temp/original.txt";
+        String sourcePath = "temp/close-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
 
@@ -289,7 +289,7 @@ public class FileTest {
     @Test
     public void testWrite() throws IOException {
 
-        String targetPath = "temp/text.txt";
+        String targetPath = "temp/write-file.txt";
         File targetFile = new File(targetPath);
         byte[] content = "Sample Text".getBytes();
         BBlob byteContent = new BBlob(content);
@@ -303,7 +303,7 @@ public class FileTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to write to " +
             "file: file is not opened in write or append mode.*")
     public void testWriteWithoutOpeningFile() {
-        String targetPath = "temp/text.txt";
+        String targetPath = "temp/write-non-opened.txt";
         byte[] content = "Sample Text".getBytes();
         BBlob byteContent = new BBlob(content);
         BValue[] args = { byteContent, new BString(targetPath)  };
@@ -313,7 +313,7 @@ public class FileTest {
     @Test
     public void testRead() throws IOException {
 
-        String targetPath = "temp/text.txt";
+        String targetPath = "temp/read-file.txt";
         File targetFile = new File(targetPath);
         OutputStream outputStream = new FileOutputStream(targetFile);
         byte[] content = "Sample Text".getBytes();
@@ -328,7 +328,7 @@ public class FileTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to read from " +
             "file: file is not opened in read mode.*")
     public void testReadWithoutOpeningFile() throws IOException {
-        String targetPath = "temp/text.txt";
+        String targetPath = "temp/read-non-opened-file.txt";
         File targetFile = new File(targetPath);
         OutputStream outputStream = new FileOutputStream(targetFile);
         byte[] content = "Sample Text".getBytes();

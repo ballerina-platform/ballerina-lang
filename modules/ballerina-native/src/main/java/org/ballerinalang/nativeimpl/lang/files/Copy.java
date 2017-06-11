@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Copy Function
+ * Copies a file from a given location to another.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.files",
