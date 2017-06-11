@@ -251,6 +251,7 @@ public class JSONUtils {
      * Convert {@link BDataTable} to {@link BJSON}.
      *
      * @param dataTable {@link BDataTable} to be converted to {@link BJSON}
+     * @param isInTransaction   Within a transaction or not
      * @return JSON representation of the provided datatable
      */
     public static BJSON toJSON(BDataTable dataTable, boolean isInTransaction) {
