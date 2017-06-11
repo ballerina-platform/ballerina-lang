@@ -74,9 +74,9 @@ public class WorkspaceUtils {
 
     /**
      * Get a resolved package map for a given package names array
-     * @param bLangProgram
-     * @param packagesArray
-     * @return
+     * @param bLangProgram to get package map
+     * @param packagesArray packages array
+     * @return packages map
      */
     public static Map<String, ModelPackage> getResolvedPackagesMap(BLangProgram bLangProgram, String[] packagesArray) {
         final Map<String, ModelPackage> packages = new HashMap<>();

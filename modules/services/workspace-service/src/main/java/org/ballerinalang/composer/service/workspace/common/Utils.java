@@ -38,7 +38,7 @@ public class Utils {
      *
      * @param filePath - file path to parent directory of the .bal file
      * @return BallerinaFile in the given path
-     * @throws IOException
+     * @throws IOException for IO errors
      */
     public static BallerinaFile getBFile(String filePath) throws IOException {
         InputStream stream = null;
@@ -58,7 +58,7 @@ public class Utils {
      *
      * @param bFile - BallerinaFile
      * @param filePath - file path to parent directory of the .bal file
-     * @return
+     * @return parent dir
      */
     public static java.nio.file.Path getProgramDirectory(BallerinaFile bFile, java.nio.file.Path filePath) {
         // find nested directory count using package name
@@ -78,7 +78,7 @@ public class Utils {
      * @param stream - The input stream.
      * @param filePath - file path to parent directory of the .bal file
      * @return BallerinaFile in the given path
-     * @throws IOException
+     * @throws IOException for IO errors
      */
     public static BallerinaFile getBFile(InputStream stream, java.nio.file.Path filePath) throws IOException {
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);

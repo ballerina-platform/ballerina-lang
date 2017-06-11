@@ -61,8 +61,9 @@ public class BallerinaProgramContentProvider {
     }
 
     /**
-     * Get All Native Packages
-     * @return {Map} <Package name, package functions and connectors>
+     * Get All Native Packages.
+     *
+     * @return {@link Map} Package name, package functions and connectors
      * */
     public Map<String, ModelPackage> getAllPackages() {
         return org.ballerinalang.composer.service.workspace.util.WorkspaceUtils.getAllPackages();
