@@ -12,5 +12,14 @@ service helloWorld {
         reply response;
     
     }
+
+    @http:GET{}
+    @http:Path {value:"/*"}
+    resource sayHelloTwo (message m) {
+        message response = {};
+        messages:setStringPayload(response, "Hello, World!");
+        reply response;
+
+    }
     
 }
