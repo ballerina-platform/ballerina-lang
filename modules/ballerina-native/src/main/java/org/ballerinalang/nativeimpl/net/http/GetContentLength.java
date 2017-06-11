@@ -53,7 +53,7 @@ public class GetContentLength extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         int contentLength = -1;
-        BMessage bMsg = (BMessage) getArgument(context, 0);
+        BMessage bMsg = (BMessage) getRefArgument(context, 0);
         String lengthStr = (String) bMsg.getHeader(Constants.HTTP_CONTENT_LENGTH);
 
         try {

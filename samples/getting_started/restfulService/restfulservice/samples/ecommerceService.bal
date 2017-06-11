@@ -28,7 +28,7 @@ service Ecommerce {
     @http:Path {value:"/orders"}
     resource ordersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.get(productsService, "/orderservice", m);
+        message response = http:ClientConnector.get(productsService, "/orderservice/orders", m);
         reply response;
         
     }
@@ -37,7 +37,7 @@ service Ecommerce {
     @http:Path {value:"/orders"}
     resource ordersMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.post(productsService, "/orderservice", m);
+        message response = http:ClientConnector.post(productsService, "/orderservice/orders", m);
         reply response;
         
     }
@@ -46,7 +46,7 @@ service Ecommerce {
     @http:Path {value:"/customers"}
     resource customersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.get(productsService, "/customerservice", m);
+        message response = http:ClientConnector.get(productsService, "/customerservice/customers", m);
         reply response;
         
     }
@@ -55,7 +55,7 @@ service Ecommerce {
     @http:Path {value:"/customers"}
     resource customerMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.post(productsService, "/customerservice", m);
+        message response = http:ClientConnector.post(productsService, "/customerservice/customers", m);
         reply response;
         
     }

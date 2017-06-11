@@ -20,8 +20,7 @@ package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BArray;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -53,14 +52,14 @@ public class Split extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String initialString = getArgument(context, 0).stringValue();
-        String regex = getArgument(context, 1).stringValue();
+        String initialString = getStringArgument(context, 0);
+        String regex = getStringArgument(context, 1);
 
         String[] splitArray = initialString.split(regex);
-
-        BArray<BString> bSplitArray = new BArray<>(BString.class);
+                        
+        BStringArray bSplitArray = new BStringArray();
         for (int i = 0; i < splitArray.length; i++) {
-            bSplitArray.add(i, new BString(splitArray[i]));
+            bSplitArray.add(i, splitArray[i]);
         }
 
         return getBValues(bSplitArray);

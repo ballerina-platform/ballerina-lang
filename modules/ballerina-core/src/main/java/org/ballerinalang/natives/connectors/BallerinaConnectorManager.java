@@ -83,6 +83,7 @@ public class BallerinaConnectorManager {
      *
      * @param protocol transport protocol used with finding the correct server connector provider.
      * @param id unique id to use when creating the server connector instance.
+     * @param parameters Required parameters to create a server connector
      * @return returns the newly created instance.
      */
     public ServerConnector createServerConnector(String protocol, String id, Map<String, String> parameters) {

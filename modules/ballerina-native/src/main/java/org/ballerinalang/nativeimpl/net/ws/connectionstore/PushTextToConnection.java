@@ -54,8 +54,13 @@ import javax.websocket.Session;
 public class PushTextToConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String connectionName = getArgument(context, 0).stringValue();
-        String text = getArgument(context, 1).stringValue();
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
+        }
+
+        String connectionName = getStringArgument(context, 0);
+        String text = getStringArgument(context, 1);
         Session session = WebSocketConnectionManager.getInstance().getStoredConnection(connectionName);
         if (session == null) {
             throw new BallerinaException("Cannot find a connection for the connection name: " + connectionName);

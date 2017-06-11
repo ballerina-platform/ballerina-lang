@@ -69,11 +69,6 @@ function testGetJson() (json) {
     return j.address;
 }
 
-function testGetFromNull() (string) {
-    json j2 = { age:43, name:null };
-    return (string)j2.name.fname;
-}
-
 function testGetNonExistingElement() (any) {
     json j2 = { age:43};
     return j2.name;
@@ -106,12 +101,6 @@ function testAddBoolean() (json) {
 function testAddJson() (json) {
     json j = {fname:"Supun"};
     j.address = {country:"SriLanka"};
-    return j;
-}
-
-function testAddToNull() (json) {
-    json j = {name:"Supun", address:null};
-    j.address.country = "SriLanka";
     return j;
 }
 
@@ -202,7 +191,7 @@ function testJsonExprAsIndex() (string) {
     string addressKey = "address";
     string cityKey = "city";
     
-    return (string)j.address[j.address.area];
+    return (string)j.address[(string)j.address.area];
 }
 
 function testSetArrayOutofBoundElement() (json) {
@@ -252,4 +241,19 @@ function testUpdateNestedElement() (json) {
     json j = {details: {fname:"Supun", lname:"Thilina"}};
     j.details.lname = "Setunga";
     return j;
+}
+
+function testEmptyStringToJson() (json) {
+    string s = "";
+    return <json> s;
+}
+
+function testJsonStringToJson() (json) {
+    string s = "{\"name\", \"supun\"}";
+    return <json> s;
+}
+
+function testStringWithEscapedCharsToJson() (json) {
+    string s = "{\\\"name\\\", \"supun\"}";
+    return <json> s;
 }

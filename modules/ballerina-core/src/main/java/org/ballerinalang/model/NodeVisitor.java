@@ -28,6 +28,7 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
@@ -56,6 +57,7 @@ import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
@@ -71,7 +73,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -160,7 +162,7 @@ public interface NodeVisitor {
 
     void visit(TransformStmt transformStmt);
 
-    void visit(TransactionRollbackStmt transactionRollbackStmt);
+    void visit(TransactionStmt transactionStmt);
 
     void visit(AbortStmt abortStmt);
 
@@ -203,8 +205,12 @@ public interface NodeVisitor {
     void visit(UnaryExpression unaryExpression);
 
     void visit(TypeCastExpression typeCastExpression);
+    
+    void visit(TypeConversionExpr typeConversionExpression);
 
     void visit(ArrayMapAccessExpr arrayMapAccessExpr);
+
+    void visit(ArrayLengthExpression arrayLengthExpression);
     
     void visit(FieldAccessExpr structAttributeAccessExpr);
     

@@ -118,15 +118,13 @@ public class ErrorHandler {
      * @param operation     Operation that executed
      * @param e             Throwable to handle
      */
-    public static void handleXPathException(String operation, Throwable e) {
+    public static void handleXMLException(String operation, Throwable e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged 
         // along with the error message.
         if (e.getCause() != null) {
-            throw new BallerinaException("Failed to " + operation + ". Error while executing xpath: " + 
-                    e.getCause().getMessage());
+            throw new BallerinaException("Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException("Failed to " + operation + ". Error while executing xpath: " + 
-                    e.getMessage());
+            throw new BallerinaException("Failed to " + operation + ": " + e.getMessage());
         }
     }
 

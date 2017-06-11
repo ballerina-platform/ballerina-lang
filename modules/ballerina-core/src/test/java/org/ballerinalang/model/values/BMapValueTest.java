@@ -18,7 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -34,7 +34,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class BMapValueTest   {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @Test
     public void testStandardJavaMap() {
@@ -81,12 +81,12 @@ public class BMapValueTest   {
 
     @Test
     void testGrammar() {
-        bLangProgram = BTestUtils.parseBalFile("lang/values/map-value.bal");
+        programFile = BTestUtils.getProgramFile("lang/values/map-value.bal");
     }
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAny() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMapWithAny", new BValue[0]);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapWithAny", new BValue[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
         Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
@@ -95,7 +95,7 @@ public class BMapValueTest   {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithMap() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMapWithMap", new BValue[0]);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapWithMap", new BValue[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
         Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
@@ -104,7 +104,7 @@ public class BMapValueTest   {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAnyValue() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMapWithAnyValue", new BValue[0]);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapWithAnyValue", new BValue[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
         Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
@@ -113,7 +113,7 @@ public class BMapValueTest   {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAnyDifferentValue() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMapWithAnyDifferentValue", new BValue[0]);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapWithAnyDifferentValue", new BValue[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
         Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
@@ -122,7 +122,7 @@ public class BMapValueTest   {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithBinaryExpression() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMapWithBinaryExpression", new BValue[0]);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapWithBinaryExpression", new BValue[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
         Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
@@ -131,7 +131,7 @@ public class BMapValueTest   {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithFunctionInvocations() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMapWithFunctionInvocations", new BValue[0]);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapWithFunctionInvocations", new BValue[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
         Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
@@ -140,7 +140,7 @@ public class BMapValueTest   {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAnyFunctionInvocations() {
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMapWithAnyFunctionInvocations", new BValue[0]);
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapWithAnyFunctionInvocations", new BValue[0]);
         Assert.assertNotNull(returnVals, "Return values can't be null.");
         Assert.assertEquals(returnVals.length, 1, "Return value size din't match.");
         Assert.assertNotNull(returnVals[0], "Return value can't be null.");
@@ -148,20 +148,21 @@ public class BMapValueTest   {
     }
 
     @Test(description = "Testing map value access in variableDefStmt", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be converted to 'string'")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be assigned to 'string'")
     void testInvalidGrammar1() {
-        BTestUtils.parseBalFile("lang/values/map-value-invalid1.bal");
+        BTestUtils.getProgramFile("lang/values/map-value-invalid1.bal");
     }
 
     @Test(description = "Testing map value access in assignStmt", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be converted to 'string'")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'any' cannot be assigned to 'string'")
     void testInvalidGrammar2() {
-        BTestUtils.parseBalFile("lang/values/map-value-invalid2.bal");
+        BTestUtils.getProgramFile("lang/values/map-value-invalid2.bal");
     }
 
     @Test(description = "Testing map value access in binary expression", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types 'any' and 'int'")
+            expectedExceptionsMessageRegExp = "map-value-invalid3.bal:3: invalid operation: " +
+                    "operator \\+ not defined on 'any'")
     void testInvalidGrammar3() {
-        BTestUtils.parseBalFile("lang/values/map-value-invalid3.bal");
+        BTestUtils.getProgramFile("lang/values/map-value-invalid3.bal");
     }
 }

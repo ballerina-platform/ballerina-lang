@@ -74,7 +74,7 @@ public enum SemanticErrors {
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
     ONLY_COUNT_1_ALLOWED_THIS_VERSION("only.count.1.allowed.this.version", "SEMANTIC_0051"),
-    ONLY_EXCEPTION_TYPE_HERE("only.exception.type.here", "SEMANTIC_0052"),
+    ONLY_ERROR_TYPE_ALLOWED_HERE("only.error.type.here", "SEMANTIC_0052"),
     BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053"),
     UNDEFINED_TYPE_MAPPER("undefined.type.mapper", "SEMANTIC_0054"),
     UNDEFINED_NATIVE_ACTION("undefined.native.action", "SEMANTIC_0055"),
@@ -93,12 +93,24 @@ public enum SemanticErrors {
     INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
     DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
     STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
+    CANNOT_ASSIGN_VALUE_ARRAY_LENGTH("cannot.assign.value.array.length", "SEMANTIC_0071"),
     MISSING_RETURN_STATEMENT("missing.return.statement", "SEMANTIC_0071"),
     TRANSFORM_STATEMENT_NO_BODY("transform.statement.no.body", "SEMANTIC_0072"),
     TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output", "SEMANTIC_0073"),
     ABORT_STMT_NOT_ALLOWED_HERE("abort.stmt.not.allowed.here", "SEMANTIC_0074"),
     RETURN_CANNOT_USED_IN_TRANSACTION("return.cannot.used.in.transaction",  "SEMANTIC_0075"),
-    WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076");
+    WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076"),
+    INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT("incompatible.types.in.multiple.assignment", "SEMANTIC_0077"),
+    CANNOT_RESOLVE_STRUCT("cannot.resolve.struct", "SEMANTIC_0078"),
+    
+    DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
+    RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
+    IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
+    REPLY_STMT_NOT_ALLOWED_HERE("reply.stmt.not.allowed.here", "SEMANTIC_0083"),
+    RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
+    UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt", "SEMANTIC_0090"),
+    UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt", "SEMANTIC_0091"),
+    ;
 
     private String errorMsgKey;
     private String errorCode;

@@ -256,8 +256,8 @@ public final class BMessage implements BRefType<CarbonMessage> {
     /**
      * Set properties of a message.
      *
-     * @param propertyName
-     * @param propertyValue
+     * @param propertyName name of the property
+     * @param propertyValue value of the property
      */
     public void setProperty(String propertyName, Object propertyValue) {
         value.setProperty(propertyName, propertyValue);
@@ -266,7 +266,7 @@ public final class BMessage implements BRefType<CarbonMessage> {
     /**
      * Retrieve a message property.
      *
-     * @param propertyName
+     * @param propertyName name of the property
      * @return The property value.
      */
     public Object getProperty(String propertyName) {
@@ -280,5 +280,10 @@ public final class BMessage implements BRefType<CarbonMessage> {
      */
     public Map<String, Object> getProperties() {
         return value.getProperties();
+    }
+    
+    @Override
+    public BValue copy() {
+        return clone();
     }
 }

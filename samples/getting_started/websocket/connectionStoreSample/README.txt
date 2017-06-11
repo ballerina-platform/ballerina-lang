@@ -15,7 +15,7 @@ connection or can remove them using a GET.
 
 How to run this sample
 ======================
-bin$ ./ballerina run service ../samples/websocket/connectionStoreSample/websocketEndpoint.bal ../samples/websocket/connection_store_sample/httpService.bal
+bin$ ./ballerina run service ../samples/websocket/connectionStoreSample/websocketEndpoint.bal ../samples/websocket/connectionStoreSample/httpService.bal
 
 Invoking the service
 ====================

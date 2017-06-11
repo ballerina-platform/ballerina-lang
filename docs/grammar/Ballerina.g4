@@ -56,7 +56,7 @@ functionDefinition
     ;
 
 callableUnitSignature
-    :   Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')?
+    :   Identifier '(' parameterList? ')' returnParameters?
     ;
 
 connectorDefinition
@@ -147,12 +147,12 @@ valueTypeName
     |   'int'
     |   'float'
     |   'string'
+    |   'blob'
     ;
 
 builtInReferenceTypeName
     :   'message'
     |   'map' ('<' typeName '>')?
-    |   'exception'
     |   'xml' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
@@ -222,6 +222,7 @@ transformStatementBody
     :   expressionAssignmentStatement
     |   expressionVariableDefinitionStatement
     |   transformStatement
+    |   commentStatement
     ;
 
 expressionAssignmentStatement
@@ -314,11 +315,20 @@ timeoutClause
     ;
 
 tryCatchStatement
-    :   'try' '{' statement* '}' catchClause
+    :   'try' '{' statement* '}' catchClauses
+    ;
+
+catchClauses
+    : catchClause+ finallyClause?
+    | finallyClause
     ;
 
 catchClause
-    :   'catch' '(' 'exception' Identifier ')' '{' statement* '}'
+    :  'catch' '(' typeName Identifier ')' '{' statement* '}'
+    ;
+
+finallyClause
+    : 'finally' '{' statement* '}'
     ;
 
 throwStatement
@@ -341,12 +351,13 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   expressionList '->' Identifier? ';'
+    :   expressionList '->' Identifier ';' #invokeWorker
+    |   expressionList '->' 'fork' ';'     #invokeFork
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   expressionList '<-' Identifier? ';'
+    :   expressionList '<-' Identifier ';'
     ;
 
 commentStatement
@@ -373,11 +384,19 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' rollbackClause
+    :   'transaction' '{' statement* '}' transactionHandlers
     ;
 
-rollbackClause
+transactionHandlers
+    : abortedClause? committedClause?
+    | committedClause? abortedClause?
+    ;
+abortedClause
     :   'aborted' '{' statement* '}'
+    ;
+
+committedClause
+    :   'committed' '{' statement* '}'
     ;
 
 abortStatement
@@ -402,6 +421,7 @@ expression
     |   backtickString                                  # templateExpression
     |   nameReference '(' expressionList? ')'           # functionInvocationExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
+    |   '<' typeName '>' expression                     # typeConversionExpression
     |   ('+' | '-' | '!') expression                    # unaryExpression
     |   '(' expression ')'                              # bracedExpression
     |   expression '^' expression                       # binaryPowExpression
@@ -440,8 +460,8 @@ fieldDefinition
     ;
 
 simpleLiteral
-    :   IntegerLiteral
-    |   FloatingPointLiteral
+    :   ('-')? IntegerLiteral
+    |   ('-')? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral

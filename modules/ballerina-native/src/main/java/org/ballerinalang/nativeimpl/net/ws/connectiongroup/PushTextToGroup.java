@@ -55,21 +55,27 @@ import javax.websocket.Session;
 public class PushTextToGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String connectionGroupName = getArgument(context, 0).stringValue();
-        String text = getArgument(context, 1).stringValue();
-        List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);
-        if (sessions != null) {
-            sessions.forEach(
-                    session -> {
-                        try {
-                            session.getBasicRemote().sendText(text);
-                        } catch (IOException e) {
-                            throw new BallerinaException("IO exception occurred during broadcasting text", e, context);
-                        }
-                    }
-            );
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
         }
-        // TODO: Throw exception if null
+
+        String connectionGroupName = getStringArgument(context, 0);
+        String text = getStringArgument(context, 1);
+        List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);
+        if (sessions == null) {
+            throw new BallerinaException("Connection group name " + connectionGroupName +
+                                                 " not exists. Cannot push text to group");
+        }
+        sessions.forEach(
+                session -> {
+                    try {
+                        session.getBasicRemote().sendText(text);
+                    } catch (IOException e) {
+                        throw new BallerinaException("IO exception occurred during broadcasting text", e, context);
+                    }
+                }
+        );
         return VOID_RETURN;
     }
 }

@@ -18,12 +18,11 @@
 package org.ballerinalang.model.structs;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -35,24 +34,24 @@ import org.testng.annotations.Test;
  */
 public class StructAccessWithIndexTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
     
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/structs/struct-with-indexed-access.bal");
+        programFile = BTestUtils.getProgramFile("lang/structs/struct-with-indexed-access.bal");
     }
     
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCreateStruct");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
 
         Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<BString, ?> adrsMap = ((BMap) returns[1]);
-        Assert.assertEquals(adrsMap.get(new BString("country")), new BString("USA"));
-        Assert.assertEquals(adrsMap.get(new BString("state")), new BString("CA"));
+        BMap<String, ?> adrsMap = ((BMap) returns[1]);
+        Assert.assertEquals(adrsMap.get("country"), new BString("USA"));
+        Assert.assertEquals(adrsMap.get("state"), new BString("CA"));
 
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 25);
@@ -60,14 +59,14 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jane");
     }
     
     @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructOfStruct");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructOfStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "USA");
@@ -75,7 +74,7 @@ public class StructAccessWithIndexTest {
     
     @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnStructAttributes");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testReturnStructAttributes");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
@@ -83,14 +82,14 @@ public class StructAccessWithIndexTest {
     
     @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStructExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
     
     @Test(description = "Test default value of a struct field")
     public void testDefaultValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDefaultVal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testDefaultVal");
         
         // Check default value of a field where the default value is set
         Assert.assertTrue(returns[0] instanceof BString);
@@ -106,7 +105,7 @@ public class StructAccessWithIndexTest {
     
     @Test(description = "Test default value of a nested struct field")
     public void testNestedFieldDefaultValue() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedFieldDefaultVal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testNestedFieldDefaultVal");
         
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "default first name");
@@ -121,47 +120,12 @@ public class StructAccessWithIndexTest {
     /*
      *  Negative tests
      */
-    
-    @Test(description = "Test accessing an field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees\\[0\\]' is null")
-    public void testGetNonInitField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitAttribute");
-    }
-    
-    @Test(description = "Test accessing an arrays field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees' is null")
-    public void testGetNonInitArrayField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
-    }
-    
-    @Test(description = "Test accessing the field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
-    public void testGetNonInitLastField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitLastAttribute");
-    }
-    
-    @Test(description = "Test setting an field of a noninitialized child struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'family' is null")
-    public void testSetNonInitField() {
-        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitChildStruct");
-    }
-    
-    @Test(description = "Test setting the field of a noninitialized root struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
-    public void testSetNonInitLastField() {
-        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitStruct");
-    }
 
     @Test(description = "Test accessing an undeclared struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-struct-access-with-index.bal:4: undefined symbol 'dpt1'")
     public void testUndeclaredStructAccess() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-struct-access-with-index.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-struct-access-with-index.bal");
     }
     
     @Test(description = "Test accessing an undeclared field of a struct",
@@ -169,7 +133,7 @@ public class StructAccessWithIndexTest {
             expectedExceptionsMessageRegExp = "undeclared-attribute-access-as-index.bal:5: unknown field 'id' in" +
                 " struct 'Department'")
     public void testUndeclaredFieldAccess() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-attribute-access-as-index.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-attribute-access-as-index.bal");
     }
     
     @Test(description = "Test accesing a struct with a dynamic index",
@@ -177,7 +141,7 @@ public class StructAccessWithIndexTest {
             expectedExceptionsMessageRegExp = "struct-access-with-dynamic-index.bal:15: only static keys are " +
             "supported for accessing struct fields")
     public void testExpressionAsStructIndex() {
-        BTestUtils.parseBalFile("lang/structs/struct-access-with-dynamic-index.bal");
+        BTestUtils.getProgramFile("lang/structs/struct-access-with-dynamic-index.bal");
     }
     
 }

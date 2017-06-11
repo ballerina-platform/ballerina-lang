@@ -5,12 +5,12 @@ function inttofloat(int value)(float) {
 }
 
 function booleanToIntImplicit(boolean b) (int) {
-    int i = b;
+    int i = <int>b;
     return i;
 }
 
 function booleanToFloatImplicit(boolean b) (float) {
-    float f = b;
+    float f = <float>b;
     return f;
 }
 

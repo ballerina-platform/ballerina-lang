@@ -24,7 +24,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.AnnotationAttachment;
@@ -43,6 +42,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.DebugManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -50,16 +50,14 @@ import java.util.Map;
 
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram.
- *
+ * @deprecated since 0.88
  * @since 0.8.0
  */
 public class BalProgramExecutor {
 
+    @Deprecated
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
-
-        balContext.setServiceInfo(
-                new CallableUnitInfo(service.getName(), service.getPackagePath(), service.getNodeLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameterDefs().length];
@@ -119,26 +117,27 @@ public class BalProgramExecutor {
             if (debugManager.isDebugSessionActive()) {
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
                 debugManager.setDebugger(debugger);
-                balContext.setExecutor(debugger);
                 debugger.execute(new ResourceInvocationExpr(resource, exprs));
             } else {
-                // repeated code to make sure debugger have no impact in none debug mode.
-                if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-                    balContext.setExecutor(executor);
-                    executor.execute(new ResourceInvocationExpr(resource, exprs));
-                } else {
-                    BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-                    new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+                executor.setParentScope(resource);
+                new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                if (executor.isErrorThrown && executor.thrownError != null) {
+                    String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                            executor.thrownError.getValue(0).stringValue() + "}";
+                    throw new BallerinaException(errorMsg);
                 }
+                balContext.getControlStack().popFrame();
             }
-        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-            balContext.setExecutor(executor);
-            executor.execute(new ResourceInvocationExpr(resource, exprs));
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+            executor.setParentScope(resource);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+            if (executor.isErrorThrown && executor.thrownError != null) {
+                String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
+                        executor.thrownError.getValue(0).stringValue() + "}";
+                throw new BallerinaException(errorMsg);
+            }
             balContext.getControlStack().popFrame();
         }
     }

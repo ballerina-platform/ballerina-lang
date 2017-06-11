@@ -36,9 +36,46 @@ Similar to languages such as Java, Go, etc, Ballerina supports the following exp
 * Action calls `(tweet(twitterActor, "hello"))`
 * Complex expressions `(foo(a,bar(c,d)))`
 
-## Reserved names
+## Names
+When naming your elements (services, resources, actions, functions, etc.), Ballerina's support for identifier literals allows you to use quotes, foreign characters, and more in your names. If the name has space, be sure to surround the name with vertical bars (|) when declaring and invoking the element. For example:
 
-When naming your Ballerina elements (services, resources, actions, etc.), Swagger files, program files, and packages, do not use the following terms for the name, as these terms are reserved in Ballerina:
+```
+int |this is a variable| = 5;
+function |this is a sample function| (){}
+```
+
+The following example shows a simple program using Sinhalese characters. Notice there are vertical bars around both the invocation and declaration of the Sinhalese function and string, whereas the `main` function does not need vertical bars because its name does not include spaces:
+
+```
+import ballerina.lang.system;
+
+function main (string[] args) {
+    system:println(|සිංහල වාක්යක් දෙන්න|());
+}
+
+function |සිංහල වාක්යක් දෙන්න|() (string) {
+    string |සිංහල වාක්යක්| = "සිංහල වාක්යක්";
+    return |සිංහල වාක්යක්|;
+}
+```
+
+Here's another example with names in Greek. Notice that there are no vertical bars around the names, because they don't have spaces:
+
+```
+import ballerina.lang.system;
+
+function main (string[] args) {
+    system:println(Λάβετετοόνομα());
+}
+
+function Λάβετετοόνομα() (string) {
+    return "sample";
+}
+```
+For more detailed information, see "IdentifierLiteral" in the [Ballerina grammar definition](https://github.com/ballerinalang/ballerina/blob/master/docs/grammar/Ballerina.g4).
+
+### Reserved names
+When naming Ballerina elements, Swagger files, program files, and packages, do **not** use the following terms for the name, as these terms are reserved in Ballerina:
 
 - action
 - all

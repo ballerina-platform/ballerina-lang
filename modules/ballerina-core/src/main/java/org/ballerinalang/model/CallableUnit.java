@@ -18,8 +18,11 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+
+import java.util.Queue;
 
 /**
  * {@code CallableUnit} represents Functions, Action or Resources.
@@ -128,4 +131,16 @@ public interface CallableUnit extends BLangSymbol, Node {
      * @param parameterTypes arrays of the input parameters
      */
     void setParameterTypes(BType[] parameterTypes);
+
+    /**
+     * Get worker interaction statements related to a callable unit.
+     * @return Queue of worker interactions
+     */
+    Queue<Statement> getWorkerInteractionStatements ();
+
+    /**
+     * Get the workers defined within a callable unit.
+     * @return Array of workers
+     */
+    Worker[] getWorkers();
 }

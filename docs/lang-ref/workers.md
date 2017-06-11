@@ -17,9 +17,9 @@ To add a worker in Design View in the Composer, drag the Worker icon from the to
 To add a worker when working directly with the source code of your program, a worker is defined and declared as follows:
 
 ```
-worker WorkerName (message m) {
-    Statement;+
-    [reply MessageName;]
+worker WorkerName {
+    Statement*
+    workerDeclaration*
 }
 ```
 
@@ -75,11 +75,13 @@ Workers are new actors that are running on separate threads that can be programm
 Here is a sample syntax of a worker that prints "hello world" in a new thread when this main function is executed.
 
 ```
-function main(string[] args) {
-  system:println("Hello from main");
-  worker W1 {
-    system:println("Hello from worker");
-  }
+import ballerina.lang.system;
+
+function main (string[] args) {
+    system:println("Hello from main");
+    worker W1 {
+        system:println("Hello from worker");
+    }
 }
 ```
 
@@ -124,7 +126,10 @@ In the above program, message m is sent to W2 and it will receive that message i
 Let’s write a simple meaningful worker interaction program.
 
 ```
-function main(string[] args) {
+import ballerina.lang.system;
+import ballerina.lang.messages;
+
+function main (string[] args) {
     message result;
     message msg = {};
     int x = 100;
@@ -137,18 +142,18 @@ function main(string[] args) {
     system:println("Float received from sampleWorker is " + y);
 
     worker sampleWorker {
-    message m;
-    int a;
-    float b = 12.34;
-    m, a <- default;
-    system:println("Passed in integer value is " + a);
-    json j;
-    j = {"name":"tom"};
-    messages:setJsonPayload(m, j);
-    m, b -> default;
+        message m;
+        int a;
+        float b = 12.34;
+        m, a <- default;
+        system:println("Passed in integer value is " + a);
+        json j;
+        j = {"name":"tom"};
+        messages:setJsonPayload(m, j);
+        m, b -> default;
+    }
 }
 
-}
 ```
 
 In this program, you can observe that there are four variables defined within the main function and two of them are used to share data with “sampleWorker” and the other two are for receiving data from the same.
@@ -183,11 +188,11 @@ Let’s write a sample program and see how this functionality works.
 ```
 import ballerina.lang.system;
 
-function main(string[] args) {
-  system:println("Variable access within the default worker " + args[0]);
-  worker W1 {
-    system:println("Variable access within the W1 worker " + args[0]);
-  }
+function main (string[] args) {
+    system:println("Variable access within the default worker " + args[0]);
+    worker W1 {
+        system:println("Variable access within the W1 worker " + args[0]);
+    }
 }
 ```
 
@@ -203,24 +208,25 @@ In the above program, we have only accessed the variable and printed the value o
 ```
 import ballerina.lang.system;
 
-function main(string[] args) {
-  map m = {"name":"Abhaya", "era":"Anuradhapura"};
-  system:println(m["name"]);
-  testWorker(m);
-  system:println("After the function call that invoked the workers");
-  system:println(m["name"]);
+function main (string[] args) {
+    map m = {"name":"Abhaya", "era":"Anuradhapura"};
+    system:println(m["name"]);
+    testWorker(m);
+    system:println("After the function call that invoked the workers");
+    system:println(m["name"]);
 }
 
 function testWorker (map x) {
-  worker W1 {
-    system:println(x["name"]);
-    x["name"] = "WSO2";
-  }
-  worker W2 {
-    system:println(x["name"]);
-    x["name"] = "Ballerina";
-  }
+    worker W1 {
+        system:println(x["name"]);
+        x["name"] = "WSO2";
+    }
+    worker W2 {
+        system:println(x["name"]);
+        x["name"] = "Ballerina";
+    }
 }
+
 ```
 
 In the above program, we are accessing the variable of type map (x) within different workers. Once you run the above program, you will see different results for different runs, due to the invariant nature of the worker execution. Here are few sample outputs.
@@ -253,27 +259,29 @@ These examples show how to define, invoke, and receive a reply from a worker.
 
 ```
 import ballerina.lang.system;
-import ballerina.lang.message;
-// Global constants are visible to worker
-const int index = 12;
+import ballerina.lang.messages;
 
-function main(string[] args) {
-  worker sampleWorker (message m)  {
-    json j;
-    j = `{"name":"chanaka"}`;
-    message:setJsonPayload(m, j);
-    system:println("constant value is " + index);
-    reply m;
-  }
+const int INDEX = 12;
 
-  message result;
-  message msg = {};
-  msg -> sampleWorker;
-  system:println("After worker");
-  result <- sampleWorker;
-  string s = message:getStringPayload(result);
-  system:println(s);
-
+function main (string[] args) {
+    message result;
+    message msg = {};
+    msg -> sampleWorker;
+    system:println("After worker");
+    result <- sampleWorker;
+    string s = messages:getStringPayload(result);
+    system:println(s);
+    
+    worker sampleWorker {
+        message m;
+        json j;
+        j = {"name":"chanaka"};
+        m <- default;
+        messages:setJsonPayload(m, j);
+        // Global constants are visible to worker
+        system:println("constant value is " + INDEX);
+        m -> default;
+    }
 }
 ```
 
@@ -288,31 +296,35 @@ constant value is 12
 ### Inside a resource
 
 ```
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
+import ballerina.net.http;
 
-// Global constants are visible to worker
-const int index = 12;
+const int INDEX = 12;
 
-@BasePath ("/passthrough")
+@http:BasePath {value:"/passthrough"}
 service passthrough {
 
-    @POST
+    @http:POST {}
     resource passthrough (message m) {
-      worker sampleWorker (message msg)  {
-	json j;
-	j = `{"name":"chanaka"}`;
-	message:setJsonPayload(msg, j);
-	system:println("constant value is " + index);
-	reply msg;
-      }
-	message result;
-	m -> sampleWorker;
-	system:println("After worker");
-	result <- sampleWorker;
-	string s = message:getStringPayload(result);
-	system:println(s);
-      	reply result;
+        message result;
+        m -> sampleWorker;
+        system:println("After worker");
+        result <- sampleWorker;
+        string s = messages:getStringPayload(result);
+        system:println(s);
+        reply result;
+
+        worker sampleWorker {
+            message msg;
+            json j;
+            msg <- default;
+            j = {"name":"chanaka"};
+            messages:setJsonPayload(msg, j);
+            // Global constants are visible to worker
+            system:println("constant value is " + INDEX);
+            msg -> default;
+        }
     }
 }
 ```
@@ -331,33 +343,35 @@ This example shows how a worker can call a function that's defined in the same p
 
 ```
 import ballerina.lang.system;
-import ballerina.lang.message;
-// Global constants are visible to worker
-const int index = 12;
+import ballerina.lang.messages;
 
-function main(string[] args) {
-  worker sampleWorker (message m)  {
-    json j;
-    j = `{"name":"chanaka"}`;
-    message:setJsonPayload(m, j);
-    system:println("constant value is " + index);
-    printHello("I'm worker");
-    reply m;
-  }
+const int INDEX = 12;
 
-  message result;
-  message msg = {};
-  msg -> sampleWorker;
-  system:println("After worker");
-  printHello("I'm main function");
-  result <- sampleWorker;
-  string s = message:getStringPayload(result);
-  system:println(s);
+function main (string[] args) {
+    message result;
+    message msg = {};
+    msg -> sampleWorker;
+    system:println("After worker");
+    printHello("I'm main function");
+    result <- sampleWorker;
+    string s = messages:getStringPayload(result);
+    system:println(s);
 
+    worker sampleWorker {
+        message m;
+        json j;
+        m <- default;
+        j = {"name":"chanaka"};
+        messages:setJsonPayload(m, j);
+        // Global constants are visible to worker
+        system:println("constant value is " + INDEX);
+        printHello("I'm worker");
+        m -> default;
+    }
 }
 
-function printHello(string str) {
-  system:println(str);
+function printHello (string str) {
+    system:println(str);
 }
 ```
 

@@ -3,7 +3,7 @@ import ballerina.lang.messages;
 import ballerina.net.ws;
 import ballerina.net.http;
 
-@http:BasePath {value:"/chat"}
+@http:BasePath {value:"/chat-group"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service oddEvenWebSocketConnector {
 

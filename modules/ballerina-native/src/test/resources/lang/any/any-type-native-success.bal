@@ -3,7 +3,7 @@ import ballerina.lang.system;
 function successfulXmlCasting()(xml) {
   any abc = jsonReturnFunction();
   json jsonVal = (json)abc;
-  xml xmlVal = (xml)jsonVal;
+  xml xmlVal = <xml>jsonVal;
   return xmlVal;
 }
 

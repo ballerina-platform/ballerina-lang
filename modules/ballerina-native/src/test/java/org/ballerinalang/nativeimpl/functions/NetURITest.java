@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.http.Constants;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,11 +38,11 @@ import java.util.Map;
  */
 public class NetURITest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/netUri.bal");
+        bLangProgram = BTestUtils.getProgramFile("samples/netUri.bal");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class NetURITest {
 
         for (BValue arg : args) {
             BValue[] inputArg = {arg};
-            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testEncode", inputArg);
+            BValue[] returnVals = BLangFunctions.invokeNew(bLangProgram, "testEncode", inputArg);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                     "Invalid Return Values for " + arg.stringValue());
             Assert.assertFalse(returnVals[0].stringValue().contains(" "), "Encoded valued can't contain space.");
@@ -71,10 +71,10 @@ public class NetURITest {
         }
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testEncodeNegative() {
         BValue[] inputArg = {new BString(null)};
-        BLangFunctions.invoke(bLangProgram, "testEncode", inputArg);
+        BLangFunctions.invokeNew(bLangProgram, "testEncode", inputArg);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class NetURITest {
 
         for (String qparam : paramsExpected.keySet()) {
             BValue[] inputArg = {msg, new BString(qparam)};
-            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetQueryParam", inputArg);
+            BValue[] returnVals = BLangFunctions.invokeNew(bLangProgram, "testGetQueryParam", inputArg);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                     "Invalid Return Values for " + qparam);
             Assert.assertEquals(returnVals[0].stringValue(), paramsExpected.get(qparam));
@@ -102,19 +102,19 @@ public class NetURITest {
         msg = new BMessage();
         msg.setValue(cMsg);
         BValue[] inputArg = {msg, new BString("param1")};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetQueryParam", inputArg);
+        BValue[] returnVals = BLangFunctions.invokeNew(bLangProgram, "testGetQueryParam", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
 
     }
 
-    @Test(expectedExceptions = BallerinaException.class)
+    @Test(expectedExceptions = BLangRuntimeException.class)
     public void testGetQueryParamNegative() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
         BMessage msg = new BMessage();
         cMsg.setProperty(Constants.TO, "https://localhost:9090/EchoService?a&b=test");
         msg.setValue(cMsg);
         BValue[] inputArg = {msg, new BString("a")};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetQueryParam", inputArg);
+        BValue[] returnVals = BLangFunctions.invokeNew(bLangProgram, "testGetQueryParam", inputArg);
     }
 }

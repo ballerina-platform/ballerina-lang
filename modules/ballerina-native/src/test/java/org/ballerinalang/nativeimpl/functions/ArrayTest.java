@@ -17,17 +17,18 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BArray;
-import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -40,21 +41,22 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
  */
 public class ArrayTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/arrayTest.bal");
+        programFile = BTestUtils.getProgramFile("samples/arrayTest.bal");
     }
 
     @Test
     public void testFloatArrayLength() {
-        BArray<BFloat> barray = new BArray<>(BFloat.class);
-        barray.add(0, new BFloat(10));
-        barray.add(1, new BFloat(11.1f));
-        barray.add(2, new BFloat(12.2f));
-        BValue[] args = {barray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testFloatArrayLength", args);
+        BFloatArray arrayValue = new BFloatArray();
+        arrayValue.add(0, 10);
+        arrayValue.add(1, 11.1f);
+        arrayValue.add(2, 12.2f);
+
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testFloatArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 3, "Length didn't match");
@@ -63,12 +65,12 @@ public class ArrayTest {
 
     @Test
     public void testIntArrayLength() {
-        BArray<BInteger> bArray = new BArray<>(BInteger.class);
-        bArray.add(0, new BInteger(10));
-        bArray.add(1, new BInteger(11));
-        bArray.add(2, new BInteger(12));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testIntArrayLength", args);
+        BIntArray arrayValue = new BIntArray();
+        arrayValue.add(0, 10);
+        arrayValue.add(1, 11);
+        arrayValue.add(2, 12);
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testIntArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 3, "Length didn't match");
@@ -77,11 +79,11 @@ public class ArrayTest {
 
     @Test
     public void testStringArrayLength() {
-        BArray<BString> bArray = new BArray<>(BString.class);
-        bArray.add(0, new BString("Hello"));
-        bArray.add(1, new BString("World"));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testStringArrayLength", args);
+        BStringArray arrayValue = new BStringArray();
+        arrayValue.add(0, "Hello");
+        arrayValue.add(1, "World");
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testStringArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
@@ -90,11 +92,11 @@ public class ArrayTest {
 
     @Test
     public void testXMLArrayLength() {
-        BArray<BXML> bArray = new BArray<>(BXML.class);
-        bArray.add(0, new BXML("<t>a</t>"));
-        bArray.add(1, new BXML("<t>b</t>"));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testXMLArrayLength", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BXMLItem("<t>a</t>"));
+        arrayValue.add(1, new BXMLItem("<t>b</t>"));
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testXMLArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
@@ -103,11 +105,11 @@ public class ArrayTest {
 
     @Test
     public void testJSONArrayLength() {
-        BArray<BJSON> bArray = new BArray<>(BJSON.class);
-        bArray.add(0, new BJSON("{ \"test\" : \"1\"}"));
-        bArray.add(1, new BJSON("{ \"test\" : \"1\"}"));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testJSONArrayLength", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BJSON("{ \"test\" : \"1\"}"));
+        arrayValue.add(1, new BJSON("{ \"test\" : \"1\"}"));
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testJSONArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
@@ -116,11 +118,11 @@ public class ArrayTest {
 
     @Test
     public void testMessageArrayLength() {
-        BArray<BMessage> bArray = new BArray<>(BMessage.class);
-        bArray.add(0, new BMessage(new DefaultCarbonMessage()));
-        bArray.add(1, new BMessage(new DefaultCarbonMessage()));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMessageArrayLength", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BMessage(new DefaultCarbonMessage()));
+        arrayValue.add(1, new BMessage(new DefaultCarbonMessage()));
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMessageArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
                 returnVals[1] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2, "Length didn't match");
@@ -131,94 +133,96 @@ public class ArrayTest {
     public void testFloatArrayCopyOf() {
         final float v1 = 10f;
         final float v2 = 11.1f;
-        BArray<BFloat> bArray = new BArray<>(BFloat.class);
-        bArray.add(0, new BFloat(v1));
-        bArray.add(1, new BFloat(v2));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testFloatArrayCopy", args);
+
+        BFloatArray arrayValue = new BFloatArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testFloatArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertNotEquals(((BFloat) ((BArray) returnVals[0]).get(0)).floatValue(), v1, "Found same value");
-        Assert.assertNotEquals(((BFloat) ((BArray) returnVals[0]).get(1)).floatValue(), v2, "Found same value");
+        Assert.assertNotEquals(((BFloatArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertNotEquals(((BFloatArray) returnVals[0]).get(0), v1, "Found same value");
+        Assert.assertNotEquals(((BFloatArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
     @Test
     public void testIntArrayCopyOf() {
         final int v1 = 10;
         final int v2 = 11;
-        BArray<BInteger> bArray = new BArray<>(BInteger.class);
-        bArray.add(0, new BInteger(v1));
-        bArray.add(1, new BInteger(v2));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testIntArrayCopy", args);
+        BIntArray arrayValue = new BIntArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testIntArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertNotEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), v1, "Found same value");
-        Assert.assertNotEquals(((BInteger) ((BArray) returnVals[0]).get(1)).intValue(), v2, "Found same value");
+        Assert.assertNotEquals(((BIntArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertNotEquals(((BIntArray) returnVals[0]).get(0), v1, "Found same value");
+        Assert.assertNotEquals(((BIntArray) returnVals[0]).get(0), v2, "Found same value");
     }
 
     @Test
     public void testStringArrayCopyOf() {
         final String v1 = "a";
         final String v2 = "b";
-        BArray<BString> bArray = new BArray<>(BString.class);
-        bArray.add(0, new BString(v1));
-        bArray.add(1, new BString(v2));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testStringArrayCopy", args);
+        BStringArray arrayValue = new BStringArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testStringArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
+        Assert.assertNotEquals(((BStringArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertNotEquals(((BStringArray) returnVals[0]).get(0), v1, "Found same value");
+        Assert.assertNotEquals(((BStringArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
     @Test
     public void testXMLArrayCopyOf() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
-        BArray<BXML> bArray = new BArray<>(BXML.class);
-        bArray.add(0, new BXML(v1));
-        bArray.add(1, new BXML(v2));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testXMLArrayCopy", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0,  new BXMLItem(v1));
+        arrayValue.add(1,  new BXMLItem(v2));
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testXMLArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(0), v1, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
     @Test
     public void testJSONArrayCopyOf() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
-        BArray<BJSON> bArray = new BArray<>(BJSON.class);
-        bArray.add(0, new BJSON(v1));
-        bArray.add(1, new BJSON(v2));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testJSONArrayCopy", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0,  new BJSON(v1));
+        arrayValue.add(1,  new BJSON(v2));
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testJSONArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(0), v1, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
     @Test
     public void testMessageArrayCopyOf() {
         final CarbonMessage v1 = new DefaultCarbonMessage();
         final CarbonMessage v2 = new DefaultCarbonMessage();
-        BArray<BMessage> bArray = new BArray<>(BMessage.class);
-        bArray.add(0, new BMessage(v1));
-        bArray.add(1, new BMessage(v2));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMessageArrayCopy", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0,  new BMessage(v1));
+        arrayValue.add(1,  new BMessage(v2));
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMessageArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
     }
 
     @Test
@@ -227,44 +231,47 @@ public class ArrayTest {
         final double v2 = 11.1d;
         final double v3 = 11.2d;
         final double v4 = 11.3d;
-        BArray<BFloat> bArray = new BArray<>(BFloat.class);
-        bArray.add(0, new BFloat(v1));
-        bArray.add(1, new BFloat(v2));
-        bArray.add(2, new BFloat(v3));
-        bArray.add(3, new BFloat(v4));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testFloatArrayCopyRange", args);
+
+        BFloatArray arrayValue = new BFloatArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        arrayValue.add(2, v3);
+        arrayValue.add(3, v4);
+
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testFloatArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
-        Assert.assertEquals(((BFloat) ((BArray) returnVals[0]).get(0)).floatValue(), v2, "Value didn't match");
-        Assert.assertEquals(((BFloat) ((BArray) returnVals[0]).get(1)).floatValue(), v3, "Value didn't match");
+        Assert.assertNotEquals(((BFloatArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertEquals(((BFloatArray) returnVals[0]).size(), 2, "Incorrect Array size.");
+        Assert.assertEquals(((BFloatArray) returnVals[0]).get(0), v2, "Value didn't match");
+        Assert.assertEquals(((BFloatArray) returnVals[0]).get(1), v3, "Value didn't match");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testFloatArrayCopyOfRangeNegative() {
         final double v1 = 10d;
         final double v2 = 11.1d;
-        BArray<BFloat> bArray = new BArray<>(BFloat.class);
-        bArray.add(0, new BFloat(v1));
-        bArray.add(1, new BFloat(v2));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testFloatArrayCopyRange", args);
+
+        BFloatArray arrayValue = new BFloatArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testFloatArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testFloatArrayCopyOfRangNegativeMinusArgs() {
         final double v1 = 10d;
         final double v2 = 11.1d;
-        BArray<BFloat> bArray = new BArray<>(BFloat.class);
-        bArray.add(0, new BFloat(v1));
-        bArray.add(1, new BFloat(v2));
-        BValue[] args = {bArray , new BInteger(-1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testFloatArrayCopyRange", args);
+        BFloatArray arrayValue = new BFloatArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testFloatArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -274,44 +281,44 @@ public class ArrayTest {
         final int v2 = 11;
         final int v3 = 12;
         final int v4 = 13;
-        BArray<BInteger> bArray = new BArray<>(BInteger.class);
-        bArray.add(0, new BInteger(v1));
-        bArray.add(1, new BInteger(v2));
-        bArray.add(2, new BInteger(v3));
-        bArray.add(3, new BInteger(v4));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testIntArrayCopyRange", args);
+        BIntArray arrayValue = new BIntArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        arrayValue.add(2, v3);
+        arrayValue.add(3, v4);
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testIntArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
-        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), v2, "Value didn't match");
-        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(1)).intValue(), v3, "Value didn't match");
+        Assert.assertNotEquals(((BIntArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertEquals(((BIntArray) returnVals[0]).size(), 2, "Incorrect Array size.");
+        Assert.assertEquals(((BIntArray) returnVals[0]).get(0), v2, "Value didn't match");
+        Assert.assertEquals(((BIntArray) returnVals[0]).get(1), v3, "Value didn't match");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testIntArrayCopyOfRangeNegative() {
         final int v1 = 10;
         final int v2 = 11;
-        BArray<BInteger> bArray = new BArray<>(BInteger.class);
-        bArray.add(0, new BInteger(v1));
-        bArray.add(1, new BInteger(v2));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testIntArrayCopyRange", args);
+        BIntArray arrayValue = new BIntArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testIntArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testIntArrayCopyOfRangNegativeMinusArgs() {
         final int v1 = 10;
         final int v2 = 11;
-        BArray<BInteger> bArray = new BArray<>(BInteger.class);
-        bArray.add(0, new BInteger(v1));
-        bArray.add(1, new BInteger(v2));
-        BValue[] args = {bArray , new BInteger(-1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testIntArrayCopyRange", args);
+        BIntArray arrayValue = new BIntArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testIntArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -321,44 +328,44 @@ public class ArrayTest {
         final String v2 = "b";
         final String v3 = "c";
         final String v4 = "d";
-        BArray<BString> bArray = new BArray<>(BString.class);
-        bArray.add(0, new BString(v1));
-        bArray.add(1, new BString(v2));
-        bArray.add(2, new BString(v3));
-        bArray.add(3, new BString(v4));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testStringArrayCopyRange", args);
+        BStringArray arrayValue = new BStringArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        arrayValue.add(2, v3);
+        arrayValue.add(3, v4);
+        BValue[] args = {arrayValue, new BInteger(1), new BInteger(3)};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testStringArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
-        Assert.assertEquals(((BArray) returnVals[0]).get(0).stringValue(), v2, "Value didn't match");
-        Assert.assertEquals(((BArray) returnVals[0]).get(1).stringValue(), v3, "Value didn't match");
+        Assert.assertNotEquals(((BStringArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertEquals(((BStringArray) returnVals[0]).size(), 2, "Incorrect Array size.");
+        Assert.assertEquals(((BStringArray) returnVals[0]).get(0), v2, "Value didn't match");
+        Assert.assertEquals(((BStringArray) returnVals[0]).get(1), v3, "Value didn't match");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testStringArrayCopyOfRangeNegative() {
         final String v1 = "a";
         final String v2 = "b";
-        BArray<BString> bArray = new BArray<>(BString.class);
-        bArray.add(0, new BString(v1));
-        bArray.add(1, new BString(v2));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testStringArrayCopyRange", args);
+        BStringArray arrayValue = new BStringArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testStringArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testStringArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "a";
         final String v2 = "b";
-        BArray<BString> bArray = new BArray<>(BString.class);
-        bArray.add(0, new BString(v1));
-        bArray.add(1, new BString(v2));
-        BValue[] args = {bArray , new BInteger(-1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testStringArrayCopyRange", args);
+        BStringArray arrayValue = new BStringArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testStringArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -368,44 +375,44 @@ public class ArrayTest {
         final String v2 = "<xml>b</xml>";
         final String v3 = "<xml>c</xml>";
         final String v4 = "<xml>d</xml>";
-        BArray<BXML> bArray = new BArray<>(BXML.class);
-        bArray.add(0, new BXML(v1));
-        bArray.add(1, new BXML(v2));
-        bArray.add(2, new BXML(v3));
-        bArray.add(3, new BXML(v4));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testXMLArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BXMLItem(v1));
+        arrayValue.add(1, new BXMLItem(v2));
+        arrayValue.add(2, new BXMLItem(v3));
+        arrayValue.add(3, new BXMLItem(v4));
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testXMLArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertEquals(((BRefValueArray) returnVals[0]).size(), 2, "Incorrect Array size.");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(0), v1, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testXMLArrayCopyOfRangeNegative() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
-        BArray<BXML> bArray = new BArray<>(BXML.class);
-        bArray.add(0, new BXML(v1));
-        bArray.add(1, new BXML(v2));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testXMLArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BXMLItem(v1));
+        arrayValue.add(1, new BXMLItem(v2));
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testXMLArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testXMLArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "<xml>a</xml>";
         final String v2 = "<xml>b</xml>";
-        BArray<BXML> bArray = new BArray<>(BXML.class);
-        bArray.add(0, new BXML(v1));
-        bArray.add(1, new BXML(v2));
-        BValue[] args = {bArray , new BInteger(-1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testXMLArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BXMLItem(v1));
+        arrayValue.add(1, new BXMLItem(v2));
+        BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testXMLArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -415,44 +422,44 @@ public class ArrayTest {
         final String v2 = "{ \"json\" : \"2\"}";
         final String v3 = "{ \"json\" : \"3\"}";
         final String v4 = "{ \"json\" : \"4\"}";
-        BArray<BJSON> bArray = new BArray<>(BJSON.class);
-        bArray.add(0, new BJSON(v1));
-        bArray.add(1, new BJSON(v2));
-        bArray.add(2, new BJSON(v3));
-        bArray.add(3, new BJSON(v4));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testJSONArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BJSON(v1));
+        arrayValue.add(1, new BJSON(v2));
+        arrayValue.add(2, new BJSON(v3));
+        arrayValue.add(3, new BJSON(v4));
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testJSONArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
-        Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertEquals(((BRefValueArray) returnVals[0]).size(), 2, "Incorrect Array size.");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(0), v1, "Found same value");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testJSONArrayCopyOfRangeNegative() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
-        BArray<BJSON> bArray = new BArray<>(BJSON.class);
-        bArray.add(0, new BJSON(v1));
-        bArray.add(1, new BJSON(v2));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testJSONArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BJSON(v1));
+        arrayValue.add(1, new BJSON(v2));
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testJSONArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testJSONArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
-        BArray<BJSON> bArray = new BArray<>(BJSON.class);
-        bArray.add(0, new BJSON(v1));
-        bArray.add(1, new BJSON(v2));
-        BValue[] args = {bArray , new BInteger(-1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testJSONArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BJSON(v1));
+        arrayValue.add(1, new BJSON(v2));
+        BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testJSONArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -462,42 +469,42 @@ public class ArrayTest {
         final CarbonMessage v2 = new DefaultCarbonMessage();
         final CarbonMessage v3 = new DefaultCarbonMessage();
         final CarbonMessage v4 = new DefaultCarbonMessage();
-        BArray<BMessage> bArray = new BArray<>(BMessage.class);
-        bArray.add(0, new BMessage(v1));
-        bArray.add(1, new BMessage(v2));
-        bArray.add(2, new BMessage(v3));
-        bArray.add(3, new BMessage(v4));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMessageArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BMessage(v1));
+        arrayValue.add(1, new BMessage(v2));
+        arrayValue.add(2, new BMessage(v3));
+        arrayValue.add(3, new BMessage(v4));
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMessageArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
-        Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
+        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
+        Assert.assertEquals(((BRefValueArray) returnVals[0]).size(), 2, "Incorrect Array size.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testMessageArrayCopyOfRangNegative() {
         final CarbonMessage v1 = new DefaultCarbonMessage();
         final CarbonMessage v2 = new DefaultCarbonMessage();
-        BArray<BMessage> bArray = new BArray<>(BMessage.class);
-        bArray.add(0, new BMessage(v1));
-        bArray.add(1, new BMessage(v2));
-        BValue[] args = {bArray , new BInteger(1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testMessageArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BMessage(v1));
+        arrayValue.add(1, new BMessage(v2));
+        BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testMessageArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
-    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "Array index out of range.*")
+    @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array index out of range.*")
     public void testMessageArrayCopyOfRangNegativeMinusArgs() {
         final CarbonMessage v1 = new DefaultCarbonMessage();
         final CarbonMessage v2 = new DefaultCarbonMessage();
-        BArray<BMessage> bArray = new BArray<>(BMessage.class);
-        bArray.add(0, new BMessage(v1));
-        bArray.add(1, new BMessage(v2));
-        BValue[] args = {bArray , new BInteger(-1), new BInteger(3)};
-        BLangFunctions.invoke(bLangProgram, "testMessageArrayCopyRange", args);
+        BRefValueArray arrayValue = new BRefValueArray();
+        arrayValue.add(0, new BMessage(v1));
+        arrayValue.add(1, new BMessage(v2));
+        BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
+        BLangFunctions.invokeNew(programFile, "testMessageArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
     }
 
@@ -506,14 +513,14 @@ public class ArrayTest {
         final String v1 = "currency";
         final String v2 = "states";
         final String v3 = "country";
-        BArray<BString> bArray = new BArray<>(BString.class);
-        bArray.add(0, new BString(v1));
-        bArray.add(1, new BString(v2));
-        bArray.add(2, new BString(v3));
-        BValue[] args = {bArray};
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testStringArraySort", args);
-        Assert.assertEquals((((BArray) returnVals[0]).get(0)).stringValue(), "country");
-        Assert.assertEquals((((BArray) returnVals[0]).get(1)).stringValue(), "currency");
-        Assert.assertEquals((((BArray) returnVals[0]).get(2)).stringValue(), "states");
+        BStringArray arrayValue = new BStringArray();
+        arrayValue.add(0, v1);
+        arrayValue.add(1, v2);
+        arrayValue.add(2, v3);
+        BValue[] args = {arrayValue};
+        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testStringArraySort", args);
+        Assert.assertEquals(((BStringArray) returnVals[0]).get(0), "country");
+        Assert.assertEquals(((BStringArray) returnVals[0]).get(1), "currency");
+        Assert.assertEquals(((BStringArray) returnVals[0]).get(2), "states");
     }
 }

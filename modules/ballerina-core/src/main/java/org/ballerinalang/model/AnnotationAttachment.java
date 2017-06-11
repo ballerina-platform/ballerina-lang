@@ -125,7 +125,7 @@ public class AnnotationAttachment implements Node {
     /**
      * Set the construct where this annotation is attached.
      * 
-     * @param attachedPoint 
+     * @param attachedPoint Where an annotation can be attached
      */
     public void setAttachedPoint(AttachmentPoint attachedPoint) {
         this.attachedPoint = attachedPoint;

@@ -36,6 +36,7 @@ public class JSONFieldAccessExpr extends FieldAccessExpr {
      * Creates a JSON field access expression.
      * 
      * @param location File name and the line number of the field access expression
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param varRefExpr Variable reference represented by the current field
      * @param fieldExpr Reference to the child field of the current field
      */

@@ -20,8 +20,7 @@ package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BArray;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -55,14 +55,14 @@ public class StringArraySort extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BArray array = (BArray) getArgument(context, 0);
+        BStringArray array = (BStringArray) getRefArgument(context, 0);
 
-        List<BString> list = new ArrayList<>();
+        List<String> list = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {
-            list.add(i, (BString) array.get(i));
+            list.add(i, array.get(i));
         }
-        Collections.sort(list, (bString1, bString2) -> bString1.stringValue().compareTo(bString2.stringValue()));
-        BArray<BString> sortedArray = new BArray<>(BString.class);
+        Collections.sort(list, Comparator.naturalOrder());
+        BStringArray sortedArray = new BStringArray();
         int i = 0;
         while (i < list.size()) {
             sortedArray.add(i, list.get(i));

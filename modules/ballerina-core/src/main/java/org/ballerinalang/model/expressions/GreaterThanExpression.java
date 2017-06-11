@@ -21,6 +21,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 
 import java.util.function.BiFunction;
@@ -34,11 +35,11 @@ import static org.ballerinalang.model.Operator.GREATER_THAN;
  */
 public class GreaterThanExpression extends BinaryCompareExpression {
 
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_THAN_INT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.intValue() > rVal.intValue());
+    public static final BiFunction<BValue, BValue, BValue> GREATER_THAN_INT_FUNC =
+            (lVal, rVal) -> new BBoolean(((BValueType) lVal).intValue() > ((BValueType) rVal).intValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_THAN_FLOAT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.floatValue() > rVal.floatValue());
+    public static final BiFunction<BValue, BValue, BValue> GREATER_THAN_FLOAT_FUNC =
+            (lVal, rVal) -> new BBoolean(((BValueType) lVal).floatValue() > ((BValueType) rVal).floatValue());
 
     public GreaterThanExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
                                  Expression rExpr) {

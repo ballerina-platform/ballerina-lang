@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.actions.http;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -34,7 +33,6 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.util.Locale;
 
@@ -97,11 +95,6 @@ public class Execute extends AbstractHTTPAction {
         try {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), connectorCallback);
-        } catch (ClientConnectorException | RuntimeException e) {
-            String msg = "Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
-                    + ". " + e.getMessage();
-            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-            context.getExecutor().handleBException(exception);
         } catch (Throwable t) {
             // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'execute' action in " + Constants.CONNECTOR_NAME
@@ -111,10 +104,10 @@ public class Execute extends AbstractHTTPAction {
 
     private CarbonMessage createCarbonMsg(Context context) {
         // Extract Argument values
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String httpVerb = getArgument(context, 1).stringValue();
-        String path = getArgument(context, 2).stringValue();
-        BMessage bMessage = (BMessage) getArgument(context, 3);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String httpVerb = getStringArgument(context, 0);
+        String path = getStringArgument(context, 1);
+        BMessage bMessage = (BMessage) getRefArgument(context, 1);
 
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();

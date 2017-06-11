@@ -772,6 +772,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCatchClauses(BallerinaParser.CatchClausesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCatchClause(BallerinaParser.CatchClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -779,6 +791,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCatchClause(BallerinaParser.CatchClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFinallyClause(BallerinaParser.FinallyClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -832,13 +856,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) { }
+	@Override public void enterInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) { }
+	@Override public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -952,13 +988,37 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) { }
+	@Override public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) { }
+	@Override public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1163,6 +1223,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -26,7 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @since 0.8.0
  */
-public final class BString extends BValueType {
+public final class BString extends BValueType implements BRefType<String> {
 
     private String value;
 
@@ -62,6 +62,11 @@ public final class BString extends BValueType {
     }
 
     @Override
+    public byte[] blobValue() {
+        return null;
+    }
+
+    @Override
     public String stringValue() {
         return this.value;
     }
@@ -74,5 +79,15 @@ public final class BString extends BValueType {
     @Override
     public boolean equals(Object obj) {
         return ((BString) obj).stringValue().equals(value);
+    }
+
+    @Override
+    public String value() {
+        return value;
+    }
+
+    @Override
+    public BValue copy() {
+        return new BString(value);
     }
 }

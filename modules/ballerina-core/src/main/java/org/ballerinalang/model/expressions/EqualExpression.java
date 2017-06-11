@@ -35,16 +35,16 @@ import static org.ballerinalang.model.Operator.EQUAL;
  */
 public class EqualExpression extends BinaryEqualityExpression {
     
-    public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_INT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.intValue() == rVal.intValue());
+    public static final BiFunction<BValue, BValue, BValue> EQUAL_INT_FUNC =
+            (lVal, rVal) -> new BBoolean(((BValueType) lVal).intValue() == ((BValueType) rVal).intValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_FLOAT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.floatValue() == rVal.floatValue());
+    public static final BiFunction<BValue, BValue, BValue> EQUAL_FLOAT_FUNC =
+            (lVal, rVal) -> new BBoolean(((BValueType) lVal).floatValue() == ((BValueType) rVal).floatValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_BOOLEAN_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.booleanValue() == rVal.booleanValue());
+    public static final BiFunction<BValue, BValue, BValue> EQUAL_BOOLEAN_FUNC =
+            (lVal, rVal) -> new BBoolean(((BValueType) lVal).booleanValue() == ((BValueType) rVal).booleanValue());
 
-    public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_STRING_FUNC =
+    public static final BiFunction<BValue, BValue, BValue> EQUAL_STRING_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.stringValue().equals(rVal.stringValue()));
             
     public static final BiFunction<BValue, BValue, BValueType> EQUAL_NULL_FUNC =

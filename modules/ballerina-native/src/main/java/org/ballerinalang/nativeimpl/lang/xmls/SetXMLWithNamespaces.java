@@ -23,6 +23,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -47,7 +48,7 @@ import java.util.List;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "set",
+        functionName = "setXmlWithNamespace",
         args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.XML),
@@ -76,15 +77,17 @@ public class SetXMLWithNamespaces extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
-            OMElement value = ((BXML) getArgument(ctx, 2)).value();
-            BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 3);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
+            OMElement value = (OMElement) ((BXML) getRefArgument(ctx, 1)).value();
+            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 2);
 
             if (value == null) {
                 return VOID_RETURN;
             }
 
+            xml = XMLUtils.getSingletonValue(xml);
+            
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             // set the namespaces
@@ -111,9 +114,9 @@ public class SetXMLWithNamespaces extends AbstractNativeFunction {
         } catch (XPathSyntaxException e) {
             ErrorHandler.handleInvalidXPath(OPERATION, e);
         } catch (JaxenException e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         } catch (Throwable e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         }
 
         return VOID_RETURN;

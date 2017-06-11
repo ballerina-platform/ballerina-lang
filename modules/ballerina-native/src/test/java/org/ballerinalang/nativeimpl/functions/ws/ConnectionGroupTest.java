@@ -18,11 +18,11 @@
 
 package org.ballerinalang.nativeimpl.functions.ws;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
 import org.ballerinalang.testutils.ws.MockWebSocketSession;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class ConnectionGroupTest {
 
-    private BLangProgram wsApp;
+    private ProgramFile wsApp;
 
     // Client are identified here by Sessions
     private MockWebSocketSession session1 = new MockWebSocketSession("session1");
@@ -45,11 +45,12 @@ public class ConnectionGroupTest {
     private MockWebSocketSession session4 = new MockWebSocketSession("session4");
 
     // paths
-    private final String wsEndpointPath = "/chat/ws";
+    private final String wsEndpointPath = "/chat-group/ws";
 
     @BeforeClass
     public void  setup() {
-        wsApp = EnvironmentInitializer.setup("samples/websocket/connection_group_sample/connectionGroupTest.bal");
+        wsApp = EnvironmentInitializer.setupProgramFile(
+                "samples/websocket/connection_group_sample/connectionGroupTest.bal");
     }
 
     @Test

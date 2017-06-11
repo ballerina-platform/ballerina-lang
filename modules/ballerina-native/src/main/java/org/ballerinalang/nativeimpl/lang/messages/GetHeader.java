@@ -36,8 +36,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetHeader extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BMessage msg = (BMessage) getArgument(ctx, 0);
-        String headerName = getArgument(ctx, 1).stringValue();
+        BMessage msg = (BMessage) getRefArgument(ctx, 0);
+        String headerName = getStringArgument(ctx, 0);
         String headerValue = msg.getHeader(headerName);
 
         if (headerValue == null) {

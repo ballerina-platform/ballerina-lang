@@ -78,9 +78,15 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     private boolean isStaticField = false;
 
     /**
+     * Flag indicating whether the expression is an array or not.
+     */
+    private boolean isArrayIndexExpr = false;
+
+    /**
      * Creates a field access expression.
      *
      * @param location location of the expression in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param symbolName Symbol Name of the current field
      * @param varRefExpr Variable reference represented by the current field
      */
@@ -96,6 +102,7 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * Creates a field access expression.
      * 
      * @param location Location of the expression in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param varRefExpr Variable reference represented by the current field
      */
     public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression varRefExpr) {
@@ -120,6 +127,7 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * Creates a field access expression.
      *
      * @param location File name and the line number of the field access expression
+     * @param whiteSpaceDescriptor Holds whitespace region data
      * @param varRefExpr Variable reference represented by the current field
      * @param fieldRefExpr Reference to the child field of the current field
      */
@@ -138,6 +146,15 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * Creates a field access expression.
      *
      * @param location File name and the line number of the field access expression
+     * @param varRefExpr Variable reference represented by the current field
+     * @param fieldRefExpr Reference to the child field of the current field
+     */
+    /**
+     *
+     * @param location File name and the line number of the field access expression
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param pkgName package name of the expression
+     * @param pkgPath package path the expression
      * @param varRefExpr Variable reference represented by the current field
      * @param fieldRefExpr Reference to the child field of the current field
      */
@@ -206,6 +223,11 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      */
     public void setLHSExpr(boolean isLhsExpr) {
         isLHSExpr = isLhsExpr;
+
+        // Set the property recursively
+        if (fieldRefExpr != null) {
+            fieldRefExpr.setLHSExpr(isLhsExpr);
+        }
     }
 
     /**
@@ -285,16 +307,6 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     }
     
     @Override
-    public void setTempOffset(int index) {
-        this.varRefExpr.setTempOffset(index);
-    }
-    
-    @Override
-    public int getTempOffset() {
-        return varRefExpr.getTempOffset();
-    }
-    
-    @Override
     public boolean hasTemporaryValues() {
         return varRefExpr.hasTemporaryValues();
     }
@@ -305,5 +317,13 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     
     public boolean isStaticField() {
         return isStaticField;
+    }
+
+    public boolean isArrayIndexExpr() {
+        return isArrayIndexExpr;
+    }
+
+    public void setIsArrayIndexExpr(boolean isArrayIndexExpr) {
+        this.isArrayIndexExpr = isArrayIndexExpr;
     }
 }

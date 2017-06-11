@@ -30,7 +30,9 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -41,6 +43,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * {@code {@link AbstractNativeTypeMapper }} represents a Abstract implementation of Native Ballerina TypeMapper.
@@ -297,5 +300,25 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     @Override
     public void setPackagePath(String packagePath) {
         this.pkgPath = packagePath;
+    }
+
+    /**
+     * Get worker interaction statements related to a callable unit.
+     *
+     * @return Queue of worker interactions
+     */
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return null;
+    }
+
+    /**
+     * Get the workers defined within a callable unit.
+     *
+     * @return Array of workers
+     */
+    @Override
+    public Worker[] getWorkers() {
+        return new Worker[0];
     }
 }

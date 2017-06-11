@@ -48,7 +48,7 @@ public class Commit extends AbstractNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(Commit.class);
 
     public BValue[] execute(Context ctx) {
-        BMessage msg = (BMessage) getArgument(ctx, 0);
+        BMessage msg = (BMessage) getRefArgument(ctx, 0);
         CarbonMessage carbonMessage = msg.value();
         Object jmsSessionAcknowledgementMode = carbonMessage
                 .getProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);

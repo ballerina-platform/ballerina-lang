@@ -51,35 +51,6 @@ function testReturnStructAttributes () (string) {
     return dpt.employees[0].family.children[0];
 }
 
-
-function testGetNonInitAttribute() (string) {
-	Person emp1;
-    Person emp2;
-    Person[] emps = [emp1, emp2];
-    Department dpt = {dptName : "HR" , employees : emps};
-    return dpt.employees[0].family.children[0];
-}
-
-function testGetNonInitArrayAttribute() (string) {
-    Department dpt = {dptName : "HR"};
-    return dpt.employees[0].family.children[0];
-}
-
-function testGetNonInitLastAttribute() (Person) {
-    Department dpt;
-    return dpt.employees[0];
-}
-
-function testSetFieldOfNonInitChildStruct() {
-    Person person = {name : "Jack"};
-    person.family.spouse = "Jane";
-}
-
-function testSetFieldOfNonInitStruct() {
-    Department dpt;
-    dpt.dptName = "HR";
-}
-
 function testExpressionAsIndex() (string) {
     Family family = {spouse:"Kate"};
     int a = 2;
@@ -122,4 +93,16 @@ function testNestedFieldDefaultVal() (string, string, int) {
 function testNestedStructInit() (Person) {
     Person p1 = {name:"aaa", age:25, parent:{name:"bbb", age:50}};
     return p1;
+}
+
+struct NegativeValTest {
+    int negativeInt = -9;
+    int negativeSpaceInt = -  8;
+    float negativeFloat = -88.234;
+    float negativeSpaceFloat = -   24.99;
+}
+
+function getStructNegativeValues()(int, int, float, float) {
+    NegativeValTest tmp = {};
+    return tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat;
 }
