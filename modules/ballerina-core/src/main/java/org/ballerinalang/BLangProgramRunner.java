@@ -27,6 +27,7 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.model.BLangPackage;
@@ -51,7 +52,9 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.DebugManager;
+import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -130,9 +133,10 @@ public class BLangProgramRunner {
         }
 
         if (ModeResolver.getInstance().isDebugEnabled()) {
-            DebugManager debugManager = DebugManager.getInstance();
+            VMDebugManager debugManager = VMDebugManager.getInstance();
             // This will start the websocket server.
-            debugManager.init();
+            debugManager.serviceInit();
+            debugManager.setDebugEnagled(true);
         }
     }
 
@@ -175,7 +179,18 @@ public class BLangProgramRunner {
 
         BLangVM bLangVM = new BLangVM(programFile);
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
-        bLangVM.run(bContext);
+        if (ModeResolver.getInstance().isDebugEnabled()) {
+            bContext.setDebugInfoHolder(new DebugInfoHolder());
+            DebuggerExecutor debuggerExecutor = new DebuggerExecutor(programFile, bContext);
+            bContext.setDebugEnabled(true);
+            VMDebugManager debugManager = VMDebugManager.getInstance();
+            // This will start the websocket server.
+            debugManager.mainInit(debuggerExecutor, bContext);
+            debugManager.waitTillClientConnect();
+            debugManager.holdON();
+        } else {
+            bLangVM.run(bContext);
+        }
 
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
