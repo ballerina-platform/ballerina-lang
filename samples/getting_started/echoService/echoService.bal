@@ -10,5 +10,13 @@ service echo {
         reply m;
     
     }
+
+    @http:POST{}
+    @http:Path {value:"/*"}
+    resource echoTwo (message m) {
+        http:convertToResponse(m);
+        reply m;
+
+    }
     
 }
