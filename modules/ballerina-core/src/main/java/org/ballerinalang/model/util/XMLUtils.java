@@ -174,7 +174,7 @@ public class XMLUtils {
      * 
      * @param xml {@link BXML} to convert
      * @return converted {@link BJSON} 
-     * @throws BallerinaException
+     * @throws BallerinaException for conversion errors
      */
     public static BJSON toJSON(BXML<?> xml) throws BallerinaException {
         InputStream input = new ByteArrayInputStream(xml.stringValue().getBytes(StandardCharsets.UTF_8));
@@ -283,6 +283,7 @@ public class XMLUtils {
      * Converts a {@link BDataTable} to {@link BXML}.
      *
      * @param dataTable {@link BDataTable} to convert
+     * @param isInTransaction   Within a transaction or not
      * @return converted {@link BXML}
      */
     public static BXML datatableToXML(BDataTable dataTable, boolean isInTransaction) {

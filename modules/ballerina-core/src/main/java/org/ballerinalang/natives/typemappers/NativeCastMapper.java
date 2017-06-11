@@ -165,7 +165,8 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to an integer.
-     * This function will return the {@link BInteger} representation, if the value stored in any variable 
+     * This function will return the {@link org.ballerinalang.model.values.BInteger} representation,
+     * if the value stored in any variable
      * is an integer. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_INT_FUNC = 
@@ -185,7 +186,8 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to a float.
-     * This function will return the {@link BFloat} representation, if the value stored in any variable
+     * This function will return the {@link org.ballerinalang.model.values.BFloat} representation,
+     * if the value stored in any variable
      * is a float. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_FLOAT_FUNC =
@@ -225,7 +227,8 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to a boolean.
-     * This function will return the {@link BBoolean} representation, if the value stored in variable
+     * This function will return the {@link org.ballerinalang.model.values.BBoolean} representation,
+     * if the value stored in variable
      * is a boolean. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_BOOLEAN_FUNC = 
@@ -245,7 +248,8 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to a blob.
-     * This function will return the {@link BBlob} representation, if the value stored in variable
+     * This function will return the {@link org.ballerinalang.model.values.BBlob} representation,
+     * if the value stored in variable
      * is a blob. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_BLOB_FUNC =
@@ -303,7 +307,8 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to a XML.
-     * This function will return the {@link BXML} representation, if the value stored in variable
+     * This function will return the {@link org.ballerinalang.model.values.BXML} representation,
+     * if the value stored in variable
      * is a XML. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_XML_FUNC = 
@@ -321,7 +326,8 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to a connector.
-     * This function will return the {@link BConnector} representation, if the value stored in variable
+     * This function will return the {@link org.ballerinalang.model.values.BConnector} representation,
+     * if the value stored in variable
      * is a connector. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_CONNECTOR_FUNC = 
@@ -339,7 +345,7 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to a map.
-     * This function will return the {@link BMAP} representation, if the value stored in variable
+     * This function will return the {@link BMap} representation, if the value stored in variable
      * is a map. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_MAP_FUNC = 
@@ -357,7 +363,8 @@ public class NativeCastMapper {
 
     /**
      * Function to cast a given 'any' type value to a message.
-     * This function will return the {@link BMessage} representation, if the value stored in variable
+     * This function will return the {@link org.ballerinalang.model.values.BMessage} representation,
+     * if the value stored in variable
      * is a map. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_MSG_FUNC =
@@ -375,7 +382,8 @@ public class NativeCastMapper {
     
     /**
      * Function to cast a given 'any' type value to a struct.
-     * This function will return the {@link BStruct} representation, if the value stored in variable
+     * This function will return the {@link org.ballerinalang.model.values.BStruct} representation,
+     * if the value stored in variable
      * is a struct. An error, otherwise.
      */
     public static final TriFunction<BValue, BType, Boolean, BValue[]> ANY_TO_STRUCT_FUNC =
