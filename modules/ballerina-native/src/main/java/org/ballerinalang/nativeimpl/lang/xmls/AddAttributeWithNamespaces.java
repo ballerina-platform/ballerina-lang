@@ -80,11 +80,11 @@ public class AddAttributeWithNamespaces extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
-            String name = getArgument(ctx, 2).stringValue();
-            String value = getArgument(ctx, 3).stringValue();
-            BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 4);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
+            String name = getStringArgument(ctx, 1);
+            String value = getStringArgument(ctx, 2);
+            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 1);
 
             if (value == null) {
                 return VOID_RETURN;

@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -67,30 +66,30 @@ public class SetAttribute extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            BString qname = (BString) getArgument(ctx, 1);
-            BString prefix = (BString) getArgument(ctx, 2);
-            BString value = (BString) getArgument(ctx, 3);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String qname = getStringArgument(ctx, 0);
+            String prefix = getStringArgument(ctx, 1);
+            String value = getStringArgument(ctx, 2);
             
             String namespace;
             String localName;
             
             // TODO: remove regex matching once qname type is implemented in ballerina
-            if (qname.stringValue().matches(namespacePattern.pattern())) {
-                namespace = qname.stringValue();
+            if (qname.matches(namespacePattern.pattern())) {
+                namespace = qname;
                 localName = "";
-            } else if (qname.stringValue().matches(qnamePattern.pattern())) {
-                Matcher matcher = qnamePattern.matcher(qname.stringValue());
+            } else if (qname.matches(qnamePattern.pattern())) {
+                Matcher matcher = qnamePattern.matcher(qname);
                 matcher.find();
                 namespace = matcher.group(1);
                 namespace = namespace.substring(1, namespace.length() - 1);
                 localName = matcher.group(2);
             } else {
                 namespace = "";
-                localName = qname.stringValue();
+                localName = qname;
             }
             
-            xml.setAttribute(namespace, prefix.stringValue(), localName, value.stringValue());
+            xml.setAttribute(namespace, prefix, localName, value);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }

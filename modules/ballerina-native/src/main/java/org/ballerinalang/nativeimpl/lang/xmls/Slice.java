@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.lang.xmls;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -65,9 +64,9 @@ public class Slice extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getArgument(ctx, 0);
-            long startIndex = ((BInteger) getArgument(ctx, 1)).intValue();
-            long endIndex = ((BInteger) getArgument(ctx, 2)).intValue();
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            long startIndex = getIntArgument(ctx, 0);
+            long endIndex = getIntArgument(ctx, 1);
             
             if (startIndex < -1) {
                 throw new BallerinaException("invalid start index: " + startIndex);

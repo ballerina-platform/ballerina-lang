@@ -64,10 +64,10 @@ public class Rename extends AbstractJSONFunction {
         String jsonPath = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) getArgument(ctx, 0);
-            jsonPath = getArgument(ctx, 1).stringValue();
-            String oldKey = getArgument(ctx, 2).stringValue();
-            String newKey = getArgument(ctx, 3).stringValue();
+            BJSON json = (BJSON) getRefArgument(ctx, 0);
+            jsonPath = getStringArgument(ctx, 0);
+            String oldKey = getStringArgument(ctx, 1);
+            String newKey = getStringArgument(ctx, 2);
             
             // Rename the element key
             WriteContext jsonCtx = JsonPath.parse(json.value());

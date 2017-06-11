@@ -30,6 +30,6 @@ public class BAnyTypeToIntImplicitCastError {
             expectedExceptionsMessageRegExp = "any-type-to-int-implicit-cast.bal:3: incompatible types: 'any' " +
                                               "cannot be assigned to 'int'")
     public void testAnyToIntImplicitCast() {
-        BTestUtils.parseBalFile("lang/any/any-type-to-int-implicit-cast.bal");
+        BTestUtils.getProgramFile("lang/any/any-type-to-int-implicit-cast.bal");
     }
 }

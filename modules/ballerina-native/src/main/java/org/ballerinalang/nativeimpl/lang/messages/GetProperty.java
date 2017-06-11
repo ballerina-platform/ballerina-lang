@@ -55,10 +55,10 @@ public class GetProperty extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
-        BString propertyName = (BString) getArgument(context, 1);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        String propertyName = getStringArgument(context, 0);
 
-        Object propertyValue = msg.getProperty(propertyName.stringValue());
+        Object propertyValue = msg.getProperty(propertyName);
 
         if (propertyValue == null) {
             return VOID_RETURN;

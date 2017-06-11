@@ -31,12 +31,10 @@ import org.testng.annotations.Test;
  * Test case for fork join.
  */
 public class ForkJoinReturnAnyTest {
-    //private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/fork-join-return-any.bal");
         bProgramFile = BTestUtils.getProgramFile("samples/fork-join-return-any.bal");
     }
 

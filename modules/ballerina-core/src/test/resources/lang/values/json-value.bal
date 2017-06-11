@@ -69,11 +69,6 @@ function testGetJson() (json) {
     return j.address;
 }
 
-function testGetFromNull() (string) {
-    json j2 = { age:43, name:null };
-    return (string)j2.name.fname;
-}
-
 function testGetNonExistingElement() (any) {
     json j2 = { age:43};
     return j2.name;
@@ -106,12 +101,6 @@ function testAddBoolean() (json) {
 function testAddJson() (json) {
     json j = {fname:"Supun"};
     j.address = {country:"SriLanka"};
-    return j;
-}
-
-function testAddToNull() (json) {
-    json j = {name:"Supun", address:null};
-    j.address.country = "SriLanka";
     return j;
 }
 

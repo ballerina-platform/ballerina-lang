@@ -58,7 +58,7 @@ public class GetItemType extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
             result = xml.getItemType();
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
