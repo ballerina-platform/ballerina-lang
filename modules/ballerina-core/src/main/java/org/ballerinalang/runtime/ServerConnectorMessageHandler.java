@@ -79,6 +79,7 @@ public class ServerConnectorMessageHandler {
             // Find the Service
             ServiceInfo service = dispatcher.findService(cMsg, callback);
             if (service == null) {
+                cMsg.setProperty(org.ballerinalang.services.dispatchers.http.Constants.HTTP_STATUS_CODE, 404);
                 throw new BallerinaException("no Service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
