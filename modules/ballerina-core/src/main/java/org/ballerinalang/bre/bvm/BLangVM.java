@@ -2787,7 +2787,7 @@ public class BLangVM {
                     optionalErrorHandler
                             .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
                             .handleError(new BallerinaException(
-                                            BLangVMErrors.getErrorMessage(context.getError())),
+                                            BLangVMErrors.getPrintableStackTrace(context.getError())),
                                     context.getCarbonMessage(), context.getBalCallback());
                 } catch (Exception e) {
                     logger.error("cannot handle error using the error handler for: " + protocol, e);
