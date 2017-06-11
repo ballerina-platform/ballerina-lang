@@ -57,7 +57,7 @@ public class ToString extends AbstractJSONFunction {
         String jsonStr = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) getArgument(ctx, 0);
+            BJSON json = (BJSON) getRefArgument(ctx, 0);
 
             jsonStr = json.stringValue();
             if (log.isDebugEnabled()) {

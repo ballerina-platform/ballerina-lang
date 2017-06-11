@@ -30,14 +30,14 @@ public class CustomFunctionTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-function.bal:5: redeclared symbol 'foo'")
     public void testDuplicateFunction() {
-        BTestUtils.parseBalFile("lang/functions/duplicate-function.bal");
+        BTestUtils.getProgramFile("lang/functions/duplicate-function.bal");
     }
-    
+
     @Test(description = "Test defining ballerina function with duplicate parameters",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-parameters.bal:1: redeclared symbol 'param'")
     public void testDuplicateParameters() {
-        BTestUtils.parseBalFile("lang/functions/duplicate-parameters.bal");
+        BTestUtils.getProgramFile("lang/functions/duplicate-parameters.bal");
     }
 
 }

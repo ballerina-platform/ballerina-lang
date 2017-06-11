@@ -44,7 +44,7 @@ function testConnectorNull() (TestConnector, TestConnector, int) {
 
 connector TestConnector() {
     string name;
-    
+
     action testAction(TestConnector testConnector) (string) {
         return name;
     }
@@ -82,7 +82,7 @@ function testNullMapAccess() (string) {
 
 function testCastingNull(any j) (xml) {
     xml x = (xml) j;
-    
+
     return x;
 }
 
@@ -110,10 +110,10 @@ function testReturnNullLiteral() (any) {
 function testNullInWorker() (any) {
     message request;
     request -> worker1;
-    
+
     message result;
     result <- worker1;
-    
+
     return result;
 
     worker worker1 {
@@ -137,7 +137,7 @@ function testNullInForkJoin() (message, message) {
         }
     } join (all) (map allReplies) {
         any[] temp;
-        temp,_ = (any[])allReplies["foo"];
+        temp, _ = (any[])allReplies["foo"];
         message m1 = (message) temp[0];
         temp,_ = (any[])allReplies["bar"];
         message m2 = (message) temp[0];

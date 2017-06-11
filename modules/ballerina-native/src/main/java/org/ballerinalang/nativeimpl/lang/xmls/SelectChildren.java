@@ -63,8 +63,8 @@ public class SelectChildren extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML value = (BXML) getArgument(ctx, 0);
-            BString qname = (BString) getArgument(ctx, 1);
+            BXML value = (BXML) getRefArgument(ctx, 0);
+            BString qname = new BString(getStringArgument(ctx, 0));
             result = value.children(qname);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);

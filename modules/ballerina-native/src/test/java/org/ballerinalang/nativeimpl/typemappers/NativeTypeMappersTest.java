@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
  * Test cases for native type mappers.
  */
 public class NativeTypeMappersTest {
+    //TODO : Refactor according to new VM impl
     private BLangProgram bLangProgram;
 
     @BeforeClass
@@ -84,7 +85,7 @@ public class NativeTypeMappersTest {
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
-    
+
     @Test
     public void testMultiRootedJSONToXML() {
         BValue[] args = { new BJSON("{\"name\":\"chanaka\", \"company\":\"wso2\"}") };

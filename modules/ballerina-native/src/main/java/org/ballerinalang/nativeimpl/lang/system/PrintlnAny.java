@@ -48,7 +48,7 @@ public class PrintlnAny extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
         PrintStream out = System.out;
-        out.println(getArgument(ctx, 0).stringValue());
+        out.println(getRefArgument(ctx, 0).stringValue());
         return VOID_RETURN;
     }
 }

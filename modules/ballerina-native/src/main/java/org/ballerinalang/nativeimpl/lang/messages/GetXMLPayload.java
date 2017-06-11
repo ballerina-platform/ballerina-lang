@@ -56,7 +56,7 @@ public class GetXMLPayload extends AbstractNativeFunction {
         BXML result = null;
         try {
             // Accessing First Parameter Value.
-            BMessage msg = (BMessage) getArgument(context, 0);
+            BMessage msg = (BMessage) getRefArgument(context, 0);
             
             if (msg.isAlreadyRead()) {
                 MessageDataSource payload = msg.getMessageDataSource();

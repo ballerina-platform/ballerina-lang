@@ -59,7 +59,7 @@ public class Encode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String url = getArgument(context, 0).stringValue();
+        String url = getStringArgument(context, 0);
         String encodeURL = "";
         try {
             encodeURL = encode(url); //supporting percentage encoding

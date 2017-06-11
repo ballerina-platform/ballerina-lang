@@ -15,11 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.statements;
+package org.ballerinalang.statements;
 
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
