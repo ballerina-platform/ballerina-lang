@@ -310,6 +310,7 @@ public class NativeConversionMapper {
             if (rVal == null) {
                 return new BValue[] { null, null };
             }
+
             StructDef structDef = (StructDef) targetType;
             BValue[] structMemoryBlock = new BValue[structDef.getStructMemorySize()];
             BMap<BString, ?> map = (BMap<BString, ?>) rVal;

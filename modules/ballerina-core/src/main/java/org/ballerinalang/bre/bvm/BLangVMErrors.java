@@ -157,6 +157,31 @@ public class BLangVMErrors {
         return error;
     }
 
+    /**
+     * Create TypeConversionError.
+     *
+     * @param context   current Context
+     * @param ip        current instruction pointer
+     * @param errorMessage  error message
+     * @param sourceTypeName source type name
+     * @param targetTypeName target type name
+     * @return  created TypeConversionError
+     */
+    public static BStruct createTypeConversionError(Context context, int ip, String errorMessage,
+                                                    String sourceTypeName, String targetTypeName) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
+
+        BStruct error = createBStruct(errorStructInfo, errorMessage, null,
+                sourceTypeName, targetTypeName);
+
+        // Set StackTrace.
+        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
+        error.setStackTrace(bStackTrace);
+        return error;
+    }
+
 
     /**
      * Create Error struct from given Struct type.

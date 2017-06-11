@@ -38,8 +38,8 @@ public class TypeConstants {
     public static final String STRUCT_TNAME = "struct";
     static final String ITERATOR_TNAME = "iterator";
     static final String NATIVE_PACKAGE = "ballerina.model.typemappers";
-    static final String DATATABLE_TNAME = "datatable";
-    static final String ANY_TNAME = "any";
+    public static final String DATATABLE_TNAME = "datatable";
+    public static final String ANY_TNAME = "any";
     public static final String NULL_TNAME = "null";
     public static final String VOID_TNAME = "void";
     public static final String XML_ATTRIBUTES_TNAME = "xmlAttributes";

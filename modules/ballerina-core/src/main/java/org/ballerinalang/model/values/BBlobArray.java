@@ -32,6 +32,10 @@ public class BBlobArray extends BNewArray {
 
     private byte[][] values;
 
+    private BBlobArray(byte[][] values) {
+        this.values = values;
+    }
+
     public BBlobArray() {
         values = (byte[][]) newArrayInstance(byte[].class);
     }
@@ -54,5 +58,12 @@ public class BBlobArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BBlobArray blobArray = new BBlobArray(Arrays.copyOf(values, values.length));
+        blobArray.size = this.size;
+        return blobArray;
     }
 }
