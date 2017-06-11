@@ -127,6 +127,7 @@ class LaunchManager extends EventChannel {
         this.debugEndpoint = _.get(options, 'application.config.services.debugger.endpoint');
         this.enable = true;
         this.application = options.application;
+        Console.setApplication(this.application);
     }
 
     stopProgram() {

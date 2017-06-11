@@ -28,16 +28,22 @@ class Console extends EventChannel {
         this.container.on('click', '.closeConsole', () => { this.hide(); });
     }
 
+    setApplication(app){
+        this.application = app;
+    }
+
     show() {
         this.container.show();
         $('#service-tabs-wrapper').css('height','70%');
         this.container.removeClass('hide');
         this.container.css('height','30%');
+        this.application.reRender();
     }
 
     hide() {
         this.container.hide();
         $('#service-tabs-wrapper').css('height','100%');
+        this.application.reRender();
     }
 
     clear() {

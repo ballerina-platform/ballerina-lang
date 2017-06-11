@@ -256,6 +256,7 @@ class ToolsPane extends React.Component {
 					<a className="tool-palette-add-button"  onClick={() => this.changePane("library")} >				
 						<i className="fw fw-add fw-helper fw-helper-circle-outline icon"></i> More
 					</a>
+					<br />
 				</ToolsPanel>
 			</div>	
 		)
@@ -456,7 +457,8 @@ class ToolPaletteView extends React.Component {
 
 		// calculate the height of the tool.
 		// this is a hack need to find a better approch.
-		let scrollHeight = window.innerHeight - 176;
+		//let scrollHeight = window.innerHeight - 176;
+		let scrollHeight = $(this.props.container).height() -50;
 		
 		constructs.collapsed = true;
 		constructs = this.searchTools(this.state.search, constructs);
