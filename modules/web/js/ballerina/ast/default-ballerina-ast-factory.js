@@ -245,6 +245,13 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
         }
         functionInvokeString += ')';
         funcInvocationExpression.setExpressionFromString(functionInvokeString);
+        if (!_.isEmpty(args.functionDef.getReturnParams())) {
+            // FIXME : Do a better solution to this by refactoring trasnform addChild and canDrop
+            let assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+            assignmentStmt.children.length = 2;
+            assignmentStmt.children[1] = funcInvocationExpression;
+            return assignmentStmt;
+        }
     }
     funcInvocationStatement.addChild(funcInvocationExpression);
     return funcInvocationStatement;
