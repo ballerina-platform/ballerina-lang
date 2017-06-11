@@ -40,10 +40,10 @@ class KeyValueExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.children = [];
+        this.getChildren().length = 0;
         _.each(jsonNode.children, (childNode) => {
             let child = this.getFactory().createFromJson(childNode);
-            this.addChild(child);
+            this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }
