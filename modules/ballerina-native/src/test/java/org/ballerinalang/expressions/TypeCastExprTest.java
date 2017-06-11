@@ -18,7 +18,6 @@
 package org.ballerinalang.expressions;
 
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -32,7 +31,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -45,12 +43,10 @@ import org.testng.annotations.Test;
 public class TypeCastExprTest {
     private static final double DELTA = 0.01;
     private ProgramFile bLangProgram;
-    private BLangProgram bProgram;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.getProgramFile("lang/expressions/type/cast/type-casting.bal");
-        bProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/type-casting.bal");
     }
 
 //    @Test
@@ -552,11 +548,10 @@ public class TypeCastExprTest {
     }
 
     @Test(description = "Test casting any to struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'map' to type 'Person'")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map' cannot be cast to 'Person'.*")
     public void testAnyToStruct() {
-        //TODO : FIX me after fixing map to struct conversion issues
-        BValue[] returns = BLangFunctions.invoke(bProgram, "testAnyToStruct");
+        BLangFunctions.invokeNew(bLangProgram, "testAnyToStruct");
     }
 
     @Test(description = "Test casting a null stored as any to struct")

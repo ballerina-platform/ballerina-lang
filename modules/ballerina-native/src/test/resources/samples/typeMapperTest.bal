@@ -10,12 +10,6 @@ function jsontoxml(json input)(xml) {
     return result;
 }
 
-function stringtoxml(string value)(xml) {
-    xml result;
-    result = <xml>value;
-    return result;
-}
-
 function stringtojson(string value)(json) {
     json result;
     result = <json> value;
