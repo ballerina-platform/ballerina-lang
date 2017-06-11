@@ -67,8 +67,7 @@ public class Open extends AbstractNativeFunction {
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
             
             if (accessLC.contains("r")) {
-                boolean fileExists = file.exists();
-                if (!fileExists) {
+                if (!file.exists()) {
                     throw new BallerinaException("file not found: " + file.getPath());
                 }
                 if (!file.canRead()) {

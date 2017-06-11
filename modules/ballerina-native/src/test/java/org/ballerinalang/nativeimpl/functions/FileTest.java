@@ -80,17 +80,14 @@ public class FileTest {
         }
     }
 
-
     @Test
     public void testCopy() throws IOException {
-
         String sourcePath = "temp/copy-file.txt";
         String destPath = "temp/coppied-file.txt";
         File sourceFile = new File(sourcePath);
         File destFile = new File(destPath);
         if (sourceFile.createNewFile()) {
             BValue[] args = { new BString(sourcePath), new BString(destPath) };
-
             BLangFunctions.invokeNew(programFile, "testCopy", args);
             Assert.assertTrue(sourceFile.exists(), "Source file does not exist");
             Assert.assertTrue(destFile.exists(), "File wasn't copied");
@@ -111,7 +108,6 @@ public class FileTest {
 
     @Test
     public void testCopyDir() throws IOException {
-
         String fileOne = "temp/copy-file-one.txt";
         String fileTwo = "temp/copy-file-two.txt";
         File one = new File(fileOne);
@@ -192,12 +188,11 @@ public class FileTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to move file: " +
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to delete file: " +
             "file not found: temp[\\\\/]delete-non-existing-file.txt.*")
     public void testDeleteNonExistentFile() {
         String targetPath = "temp/delete-non-existing-file.txt";
         BValue[] args = { new BString(targetPath) };
-
         BLangFunctions.invokeNew(programFile, "testDelete", args);
     }
 
@@ -221,7 +216,6 @@ public class FileTest {
 
     @Test
     public void testOpen() throws IOException {
-
         String sourcePath = "temp/open-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
@@ -254,7 +248,6 @@ public class FileTest {
         } else {
             Assert.fail("Error in file creation.");
         }
-
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -268,27 +261,22 @@ public class FileTest {
 
     @Test(expectedExceptions = IOException.class)
     public void testClose() throws IOException {
-
         String sourcePath = "temp/close-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
-
             BValue[] args = { new BString(sourcePath) };
             BStruct sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testClose", args)[0];
             InputStream inputStream = (BufferedInputStream) sourceStruct.getNativeData("inStream");
             OutputStream outputStream = (BufferedOutputStream) sourceStruct.getNativeData("outStream");
             inputStream.read();
             outputStream.write(1);
-
         } else {
             Assert.fail("Error in file creation.");
         }
-
     }
 
     @Test
     public void testWrite() throws IOException {
-
         String targetPath = "temp/write-file.txt";
         File targetFile = new File(targetPath);
         byte[] content = "Sample Text".getBytes();
@@ -312,7 +300,6 @@ public class FileTest {
 
     @Test
     public void testRead() throws IOException {
-
         String targetPath = "temp/read-file.txt";
         File targetFile = new File(targetPath);
         OutputStream outputStream = new FileOutputStream(targetFile);
@@ -339,7 +326,6 @@ public class FileTest {
     }
 
     private void deleteDir(File dir) {
-
         String[] entries = dir.list();
         if (entries != null && entries.length != 0) {
             for (String s : entries) {
@@ -354,7 +340,6 @@ public class FileTest {
     }
 
     private byte[] getBytesFromFile(File file) throws IOException {
-
         long length = file.length();
         if (length > Integer.MAX_VALUE) {
             throw new IOException("File is too large!");
@@ -388,5 +373,4 @@ public class FileTest {
             logger.error("Exception during Resource.close()", e);
         }
     }
-
 }

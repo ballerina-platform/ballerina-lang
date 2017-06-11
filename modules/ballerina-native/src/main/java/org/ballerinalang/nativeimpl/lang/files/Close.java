@@ -54,19 +54,11 @@ public class Close extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
         BStruct struct = (BStruct) getRefArgument(context, 0);
         BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
         BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
-        if (is == null && os == null) {
-            log.error("Cannot close file because it is not open");
-        }
-        if (is != null) {
-            closeQuietly(is);
-        }
-        if (os != null) {
-            closeQuietly(os);
-        }
+        closeQuietly(is);
+        closeQuietly(os);
         return VOID_RETURN;
     }
 

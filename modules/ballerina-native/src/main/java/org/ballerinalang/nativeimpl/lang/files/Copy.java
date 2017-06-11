@@ -116,7 +116,7 @@ public class Copy extends AbstractNativeFunction {
             }
             return true;
         } catch (IOException e) {
-            throw new BallerinaException("Error while copying file");
+            throw new BallerinaException("failed to copy file: " + e.getMessage(), e);
         } finally {
             if (in != null) {
                 closeQuietly(in);
@@ -129,9 +129,7 @@ public class Copy extends AbstractNativeFunction {
 
     private void closeQuietly(Closeable resource) {
         try {
-            if (resource != null) {
-                resource.close();
-            }
+            resource.close();
         } catch (IOException e) {
             logger.error("Exception during Resource.close()", e);
         }
