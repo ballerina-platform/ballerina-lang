@@ -52,7 +52,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
-                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
 

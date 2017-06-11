@@ -47,7 +47,7 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
         for(const annotationNode of constantDefinition.getChildrenOfType(constantDefinition.getFactory().isAnnotation)) {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
-                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         }
 
