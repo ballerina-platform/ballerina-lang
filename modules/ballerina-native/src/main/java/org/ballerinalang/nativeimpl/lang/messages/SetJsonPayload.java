@@ -53,8 +53,8 @@ public class SetJsonPayload extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context ctx) {
         // Accessing First Parameter Value.
-        BMessage msg = (BMessage) getArgument(ctx, 0);
-        BJSON payload = (BJSON) getArgument(ctx, 1);
+        BMessage msg = (BMessage) getRefArgument(ctx, 0);
+        BJSON payload = (BJSON) getRefArgument(ctx, 1);
         // Clone the message without content
         CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
         msg.setValue(cmsg);

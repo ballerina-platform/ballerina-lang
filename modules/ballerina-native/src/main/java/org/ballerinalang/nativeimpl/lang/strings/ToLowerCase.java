@@ -53,7 +53,7 @@ public class ToLowerCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).stringValue();
+        String param1 = getStringArgument(context, 0);
         BString lowerCaseString = new BString(param1.toLowerCase(Locale.getDefault()));
         return getBValues(lowerCaseString);
     }

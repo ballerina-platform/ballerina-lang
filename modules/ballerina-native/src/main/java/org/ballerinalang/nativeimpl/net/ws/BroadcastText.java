@@ -58,7 +58,7 @@ public class BroadcastText extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with services");
         }
 
-        String text = getArgument(context, 0).stringValue();
+        String text = getStringArgument(context, 0);
         String serviceName = context.getServiceInfo().getName();
         List<Session> sessions = WebSocketConnectionManager.getInstance().getBroadcastConnectionList(serviceName);
         if (sessions == null) {

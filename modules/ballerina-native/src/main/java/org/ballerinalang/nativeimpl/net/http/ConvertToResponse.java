@@ -46,7 +46,7 @@ import org.wso2.carbon.messaging.Headers;
 public class ConvertToResponse extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
 
-        CarbonMessage carbonMessage = ((BMessage) getArgument(ctx, 0)).value();
+        CarbonMessage carbonMessage = ((BMessage) getRefArgument(ctx, 0)).value();
 
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
                 equals(carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {

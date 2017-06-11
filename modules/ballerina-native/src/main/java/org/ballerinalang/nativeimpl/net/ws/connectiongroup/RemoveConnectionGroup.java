@@ -52,7 +52,7 @@ public class RemoveConnectionGroup extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with services");
         }
 
-        String connectionGroupName = getArgument(context, 0).stringValue();
+        String connectionGroupName = getStringArgument(context, 0);
         boolean connectionGroupRemoved = WebSocketConnectionManager.getInstance().
                 removeConnectionGroup(connectionGroupName);
         if (!connectionGroupRemoved) {

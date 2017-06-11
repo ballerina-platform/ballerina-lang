@@ -55,7 +55,7 @@ public class StringArraySort extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BStringArray array = (BStringArray) getArgument(context, 0);
+        BStringArray array = (BStringArray) getRefArgument(context, 0);
 
         List<String> list = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {

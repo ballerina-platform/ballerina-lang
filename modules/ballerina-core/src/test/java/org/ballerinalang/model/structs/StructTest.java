@@ -18,7 +18,6 @@
 package org.ballerinalang.model.structs;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -39,12 +38,10 @@ import org.testng.annotations.Test;
  */
 public class StructTest {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/structs/struct.bal");
         programFile = BTestUtils.getProgramFile("lang/structs/struct.bal");
     }
     
@@ -165,42 +162,7 @@ public class StructTest {
     /*
      *  Negative tests
      */
-    
-    @Test(description = "Test accessing an field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees\\[0\\]' is null")
-    public void testGetNonInitField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitAttribute");
-    }
-    
-    @Test(description = "Test accessing an arrays field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees' is null")
-    public void testGetNonInitArrayField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
-    }
-    
-    @Test(description = "Test accessing the field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
-    public void testGetNonInitLastField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitLastAttribute");
-    }
-    
-    @Test(description = "Test setting an field of a noninitialized child struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'family' is null")
-    public void testSetNonInitField() {
-        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitChildStruct");
-    }
-    
-    @Test(description = "Test setting the field of a noninitialized root struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
-    public void testSetNonInitLastField() {
-        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitStruct");
-    }
-    
+
     @Test(description = "Test defining structs with duplicate name",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "duplicate-structs.bal:7: redeclared symbol 'Department'")
@@ -250,7 +212,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "undeclared-attribute-init.bal:3: unknown field 'age' in struct" +
             " 'Department'")
     public void testUndeclareFieldInit() {
-        BTestUtils.parseBalFile("lang/structs/undeclared-attribute-init.bal");
+        BTestUtils.getProgramFile("lang/structs/undeclared-attribute-init.bal");
     }
     
     @Test(description = "Test initializing a struct with mismatching field type",
@@ -258,7 +220,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "invalid-type-attribute-init.bal:3: incompatible types: expected "
                     + "'string', found 'int'")
     public void testMismatchingTypeFieldInit() {
-        BTestUtils.parseBalFile("lang/structs/invalid-type-attribute-init.bal");
+        BTestUtils.getProgramFile("lang/structs/invalid-type-attribute-init.bal");
     }
     
     @Test(description = "Test initializing a struct with invalid field name",
@@ -266,6 +228,6 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "invalid-field-name-init.bal:3: invalid field name in struct " +
             "initializer")
     public void testInvalidFieldNameInit() {
-        BTestUtils.parseBalFile("lang/structs/invalid-field-name-init.bal");
+        BTestUtils.getProgramFile("lang/structs/invalid-field-name-init.bal");
     }
 }

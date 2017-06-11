@@ -52,7 +52,7 @@ import static org.ballerinalang.nativeimpl.actions.http.Constants.HTTP_METHOD;
 public class GetMethod extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         String httpMethod = null;
-        CarbonMessage carbonMessage = ((BMessage) getArgument(ctx, 0)).value();
+        CarbonMessage carbonMessage = ((BMessage) getRefArgument(ctx, 0)).value();
         if (carbonMessage.getProperty(HTTP_METHOD) != null) {
             httpMethod = carbonMessage.getProperty(HTTP_METHOD).toString();
         }

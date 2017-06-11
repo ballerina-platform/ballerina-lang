@@ -61,9 +61,9 @@ import java.util.Locale;
 public class GetIntWithType extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        BValue index = getArgument(ctx, 1);
-        String type = (getArgument(ctx, 2)).stringValue();
+        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
+        BValue index = getRefArgument(ctx, 1);
+        String type = getStringArgument(ctx, 0);
 
         BValue[] result = null;
         if (index instanceof BInteger) {

@@ -54,8 +54,8 @@ public class HasSuffix extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).stringValue();
-        String suffix = getArgument(context, 1).stringValue();
+        String param1 = getStringArgument(context, 0);
+        String suffix = getStringArgument(context, 1);
 
         BBoolean booleanValue = new BBoolean(param1.endsWith(suffix));
         return getBValues(booleanValue);

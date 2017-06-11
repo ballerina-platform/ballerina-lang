@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -64,7 +63,7 @@ public class LogAny extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         //here we cast second parameter to int as anyway it only has few log levels
-        LogUtil.log(logger, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
+        LogUtil.log(logger, getIntArgument(ctx, 0), getStringArgument(ctx, 0));
         return VOID_RETURN;
     }
 }

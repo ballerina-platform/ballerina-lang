@@ -57,7 +57,7 @@ public class GetJsonPayload extends AbstractNativeFunction {
         BJSON result = null;
         try {
             // Accessing First Parameter Value.
-            BMessage msg = (BMessage) getArgument(ctx, 0);
+            BMessage msg = (BMessage) getRefArgument(ctx, 0);
 
             if (msg.isAlreadyRead()) {
                 MessageDataSource payload = msg.getMessageDataSource();

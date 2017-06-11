@@ -49,8 +49,8 @@ public class SetReasonPhrase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage bMsg = (BMessage) getArgument(context, 0);
-        String reasonPhrase = getArgument(context, 1).stringValue();
+        BMessage bMsg = (BMessage) getRefArgument(context, 0);
+        String reasonPhrase = getStringArgument(context, 0);
         bMsg.value().setProperty(Constants.HTTP_REASON_PHRASE, reasonPhrase);
         return VOID_RETURN;
     }

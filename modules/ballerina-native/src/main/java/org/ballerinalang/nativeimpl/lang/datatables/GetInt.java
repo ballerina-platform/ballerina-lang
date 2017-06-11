@@ -55,8 +55,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetInt extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        BValue index = getArgument(ctx, 1);
+        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
+        BValue index = getRefArgument(ctx, 1);
 
         BValue[] result = null;
         if (index instanceof BInteger) {

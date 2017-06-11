@@ -15,12 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.values;
+package org.ballerinalang.values;
 
-import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -32,12 +39,10 @@ import org.testng.annotations.Test;
  */
 public class BNullValueTest   {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/values/null/null-value.bal");
         programFile = BTestUtils.getProgramFile("lang/values/null/null-value.bal");
     }
 
@@ -91,7 +96,7 @@ public class BNullValueTest   {
         
     @Test(description = "Test casting a nullified value")
     void testCastingNullValue() {
-        BValue[] vals = BLangFunctions.invoke(bLangProgram, "testCastingNull", new BValue[] { null });
+        BValue[] vals = BLangFunctions.invokeNew(programFile, "testCastingNull", new BValue[] { null });
         Assert.assertEquals(vals[0], null);
 
 //        vals = BLangFunctions.invoke(bLangProgram, "testCastingNull", new BValue[] { new BJSON("{}") });
@@ -120,13 +125,13 @@ public class BNullValueTest   {
     
     //@Test(description = "Test null in worker")
     public void testNullInWorker() {
-        BValue[] vals = BLangFunctions.invoke(bLangProgram, "testNullInWorker", new BValue[]{});
+        BValue[] vals = BLangFunctions.invokeNew(programFile, "testNullInWorker", new BValue[]{});
         Assert.assertEquals(vals[0], null);
     }
     
     //@Test(description = "Test null in fork-join")
     public void testNullInForkJoin() {
-        BValue[] vals = BLangFunctions.invoke(bLangProgram, "testNullInForkJoin", new BValue[]{});
+        BValue[] vals = BLangFunctions.invokeNew(programFile, "testNullInForkJoin", new BValue[]{});
         Assert.assertEquals(vals[0], null);
         Assert.assertTrue(vals[1] instanceof BMessage);
         Assert.assertEquals(((BMessage) vals[1]).stringValue(), "");
@@ -146,8 +151,7 @@ public class BNullValueTest   {
     @Test(description = "Test map of null values")
     public void testMapOfNulls() {
         BValue[] vals = BLangFunctions.invokeNew(programFile, "testMapOfNulls", new BValue[] {});
-        BMap<String, ?> nullMap = (BMap<String, ?>) vals[0];
-        Assert.assertTrue(nullMap.get("x1") instanceof BString);
+        BMap<String, BValue> nullMap = (BMap<String, BValue>) vals[0];
         Assert.assertEquals(nullMap.get("x2"), null);
         Assert.assertEquals(nullMap.get("x3"), null);
         Assert.assertTrue(nullMap.get("x4") instanceof BString);
@@ -157,17 +161,17 @@ public class BNullValueTest   {
     // Negative Tests
     
     @Test(description = "Test accessing an element in a null array",
-            expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "variable 'fruits' is null")
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     void testNullArrayAccess() {
-        BLangFunctions.invoke(bLangProgram, "testNullArrayAccess", new BValue[]{});
+        BLangFunctions.invokeNew(programFile, "testNullArrayAccess", new BValue[]{});
     }
     
     @Test(description = "Test accessing an element in a null map",
-            expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "variable 'marks' is null")
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     void testNullMapAccess() {
-        BLangFunctions.invoke(bLangProgram, "testNullMapAccess", new BValue[] {});
+        BLangFunctions.invokeNew(programFile, "testNullMapAccess", new BValue[] {});
     }
 
     @Test(description = "Test comparison of null values of two types",
@@ -210,10 +214,10 @@ public class BNullValueTest   {
     }
     
     @Test(description = "Test accessing an element in a null array",
-            expectedExceptions = BallerinaException.class, 
-            expectedExceptionsMessageRegExp = "connector argument value is null")
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:NullReferenceError.*")
     void testActionInNullConenctor() {
-        BLangFunctions.invoke(bLangProgram, "testActionInNullConenctor", new BValue[]{});
+        BLangFunctions.invokeNew(programFile, "testActionInNullConenctor", new BValue[]{});
     }
     
     @Test(description = "Test logical operations on null", 
@@ -230,12 +234,5 @@ public class BNullValueTest   {
             "not defined on 'null'")
     void testArithmaticOperationOnNull() {
         BTestUtils.getProgramFile("lang/values/null/arithmatic-operation-on-null.bal");
-    }
-    
-//    @Test(description = "Test creating a variable of type null",
-//            expectedExceptions = ParserException.class,
-//            expectedExceptionsMessageRegExp = "null-type-var.bal:2:4: unwanted token 'null'")
-    void testCreateNullTypeVar() {
-        BTestUtils.parseBalFile("lang/values/null/null-type-var.bal");
     }
 }

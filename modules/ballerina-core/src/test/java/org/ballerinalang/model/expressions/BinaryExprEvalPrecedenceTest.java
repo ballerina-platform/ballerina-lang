@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -62,8 +62,7 @@ public class BinaryExprEvalPrecedenceTest {
     //TODO this expected NullPointerException should be properly handled at ballerina layer when
     //TODO accessing non existing JSON elements.
     @Test(description = "Test binary OR expression with " +
-            "left most expr evaluated to false expression.", expectedExceptions = {NullPointerException.class,
-            BallerinaException.class})
+            "left most expr evaluated to false expression.", expectedExceptions = {BLangRuntimeException.class})
     public void testBinaryOrExprWithLeftMostExprFalseNegativeCase() {
         boolean one = false;
         boolean two = false;
@@ -93,8 +92,7 @@ public class BinaryExprEvalPrecedenceTest {
     //TODO this expected NullPointerException should be properly handled at ballerina layer when
     //TODO accessing non existing JSON elements.
     @Test(description = "Test binary AND expression with " +
-            "left most expr evaluated to true expression.", expectedExceptions = {NullPointerException.class,
-            BallerinaException.class})
+            "left most expr evaluated to true expression.", expectedExceptions = {BLangRuntimeException.class})
     public void testBinaryAndExprWithLeftMostExprFalseNegativeCase() {
         boolean one = true;
         boolean two = false;

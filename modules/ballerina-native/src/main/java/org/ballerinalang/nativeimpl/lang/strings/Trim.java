@@ -51,7 +51,7 @@ public class Trim extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).stringValue();
+        String param1 = getStringArgument(context, 0);
         BString trimmedString = new BString(param1.trim());
         return getBValues(trimmedString);
     }
