@@ -242,6 +242,11 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
         }
         functionInvokeString += ')';
         funcInvocationExpression.setExpressionFromString(functionInvokeString);
+        if (!_.isEmpty(args.functionDef.getReturnParams())) {
+            let assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+            assignmentStmt.setRightExpression(funcInvocationExpression);
+            return assignmentStmt;
+        }
     }
     funcInvocationStatement.addChild(funcInvocationExpression);
     return funcInvocationStatement;
