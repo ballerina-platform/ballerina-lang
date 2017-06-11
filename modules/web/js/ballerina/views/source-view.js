@@ -271,6 +271,10 @@ class SourceView extends EventChannel {
         });
         return sourceViewBreakPoints;
     }
+
+    resize(){
+        this._editor.resize();
+    }
 }
 
 export default SourceView;

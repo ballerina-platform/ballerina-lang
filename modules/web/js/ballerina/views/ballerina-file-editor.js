@@ -697,6 +697,7 @@ class BallerinaFileEditor extends EventChannel {
      */
     reRender(){
         this.trigger("update-diagram");
+        this._sourceView.resize();
     }
 
     /**
