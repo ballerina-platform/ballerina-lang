@@ -56,12 +56,13 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        return (!_.isNil(this.getChildren()[0].getExpressionString())
+        return ((!_.isNil(this.getChildren()[0])
                 ? this.getChildren()[0].getExpressionString() : '')
                 //default tailing whitespace of expressions is emtpy - hence we need to
                 // append a sapce here
-                + ((this.getChildren()[0].whiteSpace.useDefault) ? ' ' : '') + '=' +
-            (!_.isNil(this.getChildren()[1].getExpressionString())
+                + ((!_.isNil(this.getChildren()[0])
+                      && this.getChildren()[0].whiteSpace.useDefault) ? ' ' : '')) + '=' +
+            (!_.isNil(this.getChildren()[1])
                 // we are getting following whitespace of = from assignment statement
                 ? this.getWSRegion(2) + this.getChildren()[1].getExpressionString() : '');
     }
