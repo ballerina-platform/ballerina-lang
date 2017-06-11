@@ -56,7 +56,7 @@ public class WorkspaceUtils {
 
     /**
      * Get All Native Packages
-     * @return {Map} <Package name, package functions and connectors>
+     * @return {@link Map} Package name, package functions and connectors
      */
     public static Map<String, ModelPackage> getAllPackages() {
         // Getting full list of builtin package names
