@@ -199,11 +199,11 @@ public class XMLUtils {
             results = new ByteArrayInputStream(outputByteArray);
 
         } catch (TransformerConfigurationException e) {
-            throw new BallerinaException("Error in parsing the JSON Stream. Transformer Configuration issue", e);
+            throw new BallerinaException("error in parsing the JSON Stream. transformer configuration issue", e);
         } catch (TransformerException e) {
-            throw new BallerinaException("Error in parsing the JSON Stream", e);
+            throw new BallerinaException("error in parsing the JSON Stream", e);
         } catch (XMLStreamException e) {
-            throw new BallerinaException("Error in parsing the XML Stream", e);
+            throw new BallerinaException("error in parsing the XML Stream", e);
         } finally {
             //As per StAX specification, XMLStreamReader/Writer.close() doesn't close the underlying stream.
             try {
