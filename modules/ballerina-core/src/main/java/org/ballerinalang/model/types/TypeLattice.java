@@ -534,10 +534,14 @@ public class TypeLattice {
 
         conversionLattice.addVertex(structV, false);
 
-        conversionLattice.addEdge(structV, mapV, NativeConversionMapper.STRUCT_TO_MAP_FUNC);
-        conversionLattice.addEdge(structV, jsonV, NativeConversionMapper.STRUCT_TO_JSON_FUNC);
-        conversionLattice.addEdge(jsonV, structV, NativeConversionMapper.JSON_TO_STRUCT_FUNC);
-        conversionLattice.addEdge(mapV, structV, NativeConversionMapper.MAP_TO_STRUCT_FUNC);
+        conversionLattice.addEdge(structV, mapV, NativeConversionMapper.STRUCT_TO_MAP_FUNC,
+                SAFE, InstructionCodes.T2MAP);
+        conversionLattice.addEdge(structV, jsonV, NativeConversionMapper.STRUCT_TO_JSON_FUNC,
+                SAFE, InstructionCodes.T2JSON);
+        conversionLattice.addEdge(jsonV, structV, NativeConversionMapper.JSON_TO_STRUCT_FUNC,
+                UNSAFE, InstructionCodes.JSON2T);
+        conversionLattice.addEdge(mapV, structV, NativeConversionMapper.MAP_TO_STRUCT_FUNC,
+                UNSAFE, InstructionCodes.MAP2T);
     }
 
     public static boolean isAssignCompatible(StructDef targetStructDef, StructDef sourceStructDef) {

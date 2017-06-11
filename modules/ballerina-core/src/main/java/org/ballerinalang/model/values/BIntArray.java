@@ -32,6 +32,10 @@ public class BIntArray extends BNewArray {
 
     private long[] values;
 
+    private BIntArray(long[] values) {
+        this.values = values;
+    }
+    
     public BIntArray() {
         values = (long[]) newArrayInstance(Long.TYPE);
     }
@@ -54,5 +58,12 @@ public class BIntArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BIntArray intArray = new BIntArray(Arrays.copyOf(values, values.length));
+        intArray.size = this.size;
+        return intArray;
     }
 }

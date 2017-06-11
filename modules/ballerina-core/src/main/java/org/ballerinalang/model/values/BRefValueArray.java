@@ -30,6 +30,10 @@ public class BRefValueArray extends BNewArray {
 
     private BRefType[] values;
 
+    private BRefValueArray(BRefType[] values) {
+        this.values = values;
+    }
+
     public BRefValueArray(BType type) {
         this.arrayType = type;
         values = (BRefType[]) newArrayInstance(BRefType.class);
@@ -57,5 +61,12 @@ public class BRefValueArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BRefValueArray refValueArray = new BRefValueArray(Arrays.copyOf(values, values.length));
+        refValueArray.size = this.size;
+        return refValueArray;
     }
 }

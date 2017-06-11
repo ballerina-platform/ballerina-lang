@@ -123,6 +123,7 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
     @Override
     public void setOffsets(int[] offsets) {
         this.offsets = offsets;
+        setTempOffset(offsets[0]);
     }
 
     /**

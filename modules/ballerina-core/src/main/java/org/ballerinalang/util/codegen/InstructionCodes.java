@@ -185,6 +185,10 @@ public interface InstructionCodes {
     int JSON2B = 149;
     int DT2JSON = 150;
     int DT2XML = 151;
+    int T2MAP = 152;
+    int T2JSON = 153;
+    int MAP2T = 154;
+    int JSON2T = 155;
 
     // Type cast
     int I2ANY = 160;
