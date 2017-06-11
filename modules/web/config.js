@@ -41,7 +41,7 @@ let config = {
             }, 
             { 
                 name: 'Restful Service', isFile: false, folder: '/samples/restfulService/restfulService/', 
-                path: '/samples/restfulService/restfulService/samples/productsService.bal', 
+                path: '/samples/restfulService/restfulservice/samples/productsService.bal', 
                 image: 'preview_restfulService' 
             },
             { 
