@@ -337,14 +337,14 @@ class TransformStatementDecorator extends React.Component {
                 // Source could be a function node.
                 let assignmentStmtSource = self.findExistingAssignmentStatement(connection.targetReference.id);
                 _.remove (assignmentStmtSource.getChildren()[1].getChildren()[0].getChildren(), function (child) {
-                    return (child.getExpression() === targetExpression.getExpression());
+                    return (child.getExpressionString() === targetExpression.getExpressionString());
                 });
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                 // Connection target is not a struct and source is a struct.
                 // Target could be a function node.
                 let assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceReference.id);
                 _.remove (assignmentStmtTarget.getChildren()[0].getChildren(), function (child) {
-                    return (child.getExpression() === sourceExpression.getExpression());
+                    return (child.getExpressionString() === sourceExpression.getExpressionString());
                 });
             } else {
                 // Connection source and target are not structs
