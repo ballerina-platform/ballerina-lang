@@ -23,7 +23,7 @@ package org.ballerinalang.util.codegen;
  * @since 0.87
  */
 public interface InstructionCodes {
-    
+
     int NOP = 0;
     int ICONST = 2;
     int FCONST = 3;
@@ -189,6 +189,8 @@ public interface InstructionCodes {
     int T2JSON = 153;
     int MAP2T = 154;
     int JSON2T = 155;
+    int XML2JSON = 156;
+    int JSON2XML = 157;
 
     // Type cast
     int I2ANY = 160;
@@ -205,7 +207,7 @@ public interface InstructionCodes {
     int ANY2XML = 171;
     int ANY2MAP = 172;
     int ANY2MSG = 173;
-    int ANY2DT  = 174;
+    int ANY2DT = 174;
 
     int ANY2T = 178;
     int ANY2C = 179;

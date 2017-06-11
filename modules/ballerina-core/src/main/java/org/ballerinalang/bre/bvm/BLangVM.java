@@ -1279,6 +1279,8 @@ public class BLangVM {
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
+                case InstructionCodes.XML2JSON:
+                case InstructionCodes.JSON2XML:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -1407,7 +1409,6 @@ public class BLangVM {
                     handleReturn();
                     break;
                 default:
-//                    throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
                     throw new UnsupportedOperationException();
             }
         }
@@ -1568,7 +1569,6 @@ public class BLangVM {
                 break;
             default:
                 throw new UnsupportedOperationException();
-//                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
         }
     }
 
@@ -1735,9 +1735,44 @@ public class BLangVM {
             case InstructionCodes.JSON2T:
                 convertJSONToStruct(operands, sf);
                 break;
+            case InstructionCodes.XML2JSON:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.refRegs[j] = null;
+                    break;
+                }
+
+                try {
+                    sf.refRegs[j] = XMLUtils.toJSON((BXML) sf.refRegs[i]);
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, TypeConstants.XML_TNAME, TypeConstants.JSON_TNAME);
+                }
+                break;
+            case InstructionCodes.JSON2XML:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.refRegs[j] = null;
+                    break;
+                }
+
+                try {
+                    sf.refRegs[j] = XMLUtils.jsonToXML((BJSON) sf.refRegs[i]);
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, TypeConstants.JSON_TNAME, TypeConstants.XML_TNAME);
+                }
+                break;
             default:
                 throw new UnsupportedOperationException();
-//                throw new UnsupportedOperationException("Opcode " + opcode + " is not supported yet");
         }
     }
 
@@ -2382,7 +2417,7 @@ public class BLangVM {
             return checkArrayCast(sourceType, targetType);
         }
 
-        return true;
+        return false;
     }
 
     private boolean checkArrayCast(BType sourceType, BType targetType) {
@@ -2644,7 +2679,7 @@ public class BLangVM {
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
                 }
 
-                if (mapVal != null && !checkCast(fieldType, mapVal.getType())) {
+                if (mapVal != null && !checkCast(mapVal.getType(), fieldType)) {
                     throw BLangExceptionHelper.getRuntimeException(
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
                 }
