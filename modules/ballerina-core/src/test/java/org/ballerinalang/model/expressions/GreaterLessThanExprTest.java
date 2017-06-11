@@ -19,11 +19,11 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -35,17 +35,17 @@ import org.testng.annotations.Test;
  */
 public class GreaterLessThanExprTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/greater-less-than-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/greater-less-than-expr.bal");
     }
 
     @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
         BValue[] args = {new BInteger(0)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntRanges", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -55,14 +55,14 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(50)};
-        returns = BLangFunctions.invoke(bLangProgram, "testIntRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(200)};
-        returns = BLangFunctions.invoke(bLangProgram, "testIntRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -72,7 +72,7 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
         BValue[] args = {new BFloat(-123.8f)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFloatRanges", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFloatRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -82,14 +82,14 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(75.4f)};
-        returns = BLangFunctions.invoke(bLangProgram, "testFloatRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(321.45f)};
-        returns = BLangFunctions.invoke(bLangProgram, "testFloatRanges", args);
+        returns = BLangFunctions.invokeNew(programFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -104,7 +104,7 @@ public class GreaterLessThanExprTest {
         boolean expectedResult = a > b;
 
         BValue[] args = {new BInteger(a), new BFloat(b)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntAndFloatCompare", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testIntAndFloatCompare", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -123,7 +123,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gt[/\\\\]"
                     + "incompatible-type-greater-than.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleGreaterThan() {
-        BTestUtils.parseBalFile("lang/expressions/type/incompatible/gt");
+        BTestUtils.getProgramFile("lang/expressions/type/incompatible/gt");
     }
 
     @Test(description = "Test greater-than-equal check for two different types",
@@ -132,7 +132,7 @@ public class GreaterLessThanExprTest {
                     + "incompatible-type-greater-than-equal.bal:6: invalid operation: "
                     + "incompatible types 'int' and 'string'")
     public void testIncompatibleGreaterThanEqual() {
-        BTestUtils.parseBalFile("lang/expressions/type/incompatible/gte");
+        BTestUtils.getProgramFile("lang/expressions/type/incompatible/gte");
     }
 
     @Test(description = "Test less-than check for two different types",
@@ -142,7 +142,7 @@ public class GreaterLessThanExprTest {
                           + "incompatible-type-less-than.bal:6: invalid operation: "
                           + "incompatible types 'int' and 'string'")
     public void testIncompatibleLessThan() {
-        BTestUtils.parseBalFile("lang/expressions/type/incompatible/lt");
+        BTestUtils.getProgramFile("lang/expressions/type/incompatible/lt");
     }
 
     @Test(description = "Test less-than-equal check for two different types",
@@ -151,7 +151,7 @@ public class GreaterLessThanExprTest {
                     + "incompatible-type-less-than-equal.bal:6: "
                     + "invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleLessThanEqual() {
-        BTestUtils.parseBalFile("lang/expressions/type/incompatible/lte");
+        BTestUtils.getProgramFile("lang/expressions/type/incompatible/lte");
     }
     
     @Test(description = "Test less-than check for unsupported types (json)",
@@ -160,7 +160,7 @@ public class GreaterLessThanExprTest {
                   "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]lt[/\\\\]" +
                   "unsupported-type-less-than.bal:9: invalid operation: operator < not defined on 'json'")
     public void testUnsupportedTypeLessThan() {
-        BTestUtils.parseBalFile("lang/expressions/type/unsupported/lt");
+        BTestUtils.getProgramFile("lang/expressions/type/unsupported/lt");
     }
     
     @Test(description = "Test greater-than check for unsupported types (json)",
@@ -169,7 +169,7 @@ public class GreaterLessThanExprTest {
                   "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]gt[/\\\\]" +
                   "unsupported-type-greater-than.bal:9: invalid operation: operator > not defined on 'json'")
     public void testUnsupportedTypeGreaterThan() {
-        BTestUtils.parseBalFile("lang/expressions/type/unsupported/gt");
+        BTestUtils.getProgramFile("lang/expressions/type/unsupported/gt");
     }
     
     @Test(description = "Test greater-than-equal check for unsupported types (json)",
@@ -178,7 +178,7 @@ public class GreaterLessThanExprTest {
                     "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]gte[/\\\\]" +
                     "unsupported-type-greater-than-equal.bal:9: invalid operation: operator >= not defined on 'json'")
     public void testUnsupportedTypeGreaterThanEqual() {
-        BTestUtils.parseBalFile("lang/expressions/type/unsupported/gte");
+        BTestUtils.getProgramFile("lang/expressions/type/unsupported/gte");
     }
     
     @Test(description = "Test less-than-equal check for unsupported types (json)",
@@ -187,6 +187,6 @@ public class GreaterLessThanExprTest {
                   "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]lte[/\\\\]" + 
                   "unsupported-type-less-than-equal.bal:9: invalid operation: operator <= not defined on 'json'")
     public void testUnsupportedTypeLessThanEqual() {
-        BTestUtils.parseBalFile("lang/expressions/type/unsupported/lte");
+        BTestUtils.getProgramFile("lang/expressions/type/unsupported/lte");
     }
 }

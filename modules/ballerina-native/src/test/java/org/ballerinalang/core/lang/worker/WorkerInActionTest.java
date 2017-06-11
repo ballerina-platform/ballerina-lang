@@ -44,7 +44,7 @@ public class WorkerInActionTest {
         Assert.assertTrue(returns[0] instanceof BMessage);
     }
 
-    //@Test(description = "Test TestConnector action2")
+    @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testAction2");
         Assert.assertEquals(returns.length, 1);

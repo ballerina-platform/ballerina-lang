@@ -1496,10 +1496,12 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
+                    sf.stringRegs[j] = "";
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeString);
                 } else if (bRefType.getType() == BTypes.typeString) {
                     sf.stringRegs[j] = bRefType.stringValue();
                 } else {
+                    sf.stringRegs[j] = "";
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeString);
                 }
                 break;

@@ -67,4 +67,8 @@ public class LocalVariableInfo {
     public BType getVariableType() {
         return varType;
     }
+    
+    public String getVariableName() {
+        return varName;
+    }
 }

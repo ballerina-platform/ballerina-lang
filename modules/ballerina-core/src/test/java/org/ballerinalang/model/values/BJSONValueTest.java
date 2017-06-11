@@ -18,7 +18,6 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -32,13 +31,11 @@ import org.testng.annotations.Test;
  */
 public class BJSONValueTest {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
     private static final double DELTA = 0.01;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/values/json-value.bal");
         programFile = BTestUtils.getProgramFile("lang/values/json-value.bal");
     }
 
@@ -280,21 +277,6 @@ public class BJSONValueTest {
         Assert.assertTrue(returns[0] instanceof BJSON);
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "[\"a\",[1,2,3],\"c\"]");
-    }
-
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot get 'fname' from null")
-    public void testGetFromNull() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetFromNull");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        BJSON json = ((BJSON) returns[0]);
-        Assert.assertEquals(json.toString(), "[\"a\",[1,2,3],\"c\"]");
-    }
-
-    @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot set 'country' of null")
-    public void testAddToNull() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAddToNull");
     }
 
     @Test
