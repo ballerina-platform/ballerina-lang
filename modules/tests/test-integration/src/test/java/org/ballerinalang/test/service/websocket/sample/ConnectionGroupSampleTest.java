@@ -79,14 +79,19 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
     @Test(priority = 3)
     public void testRemoveGroup() throws InterruptedException, IOException {
         HttpClientRequest.doGet(getServiceURLHttp("groupInfo/rm-odd"));
+
+        String evenString = "hi even";
+        String oddString = "hi odd";
+        Map<String, String> headers = new HashMap<>();
+        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/even"), evenString, headers);
+        HttpClientRequest.doPost(getServiceURLHttp("groupInfo/odd"), oddString, headers);
+
         Thread.sleep(threadSleepTime);
-        String sentText = "test only received by even";
-        clients[2].sendText(sentText);
-        Thread.sleep(threadSleepTime);
+
         Assert.assertEquals(clients[0].getTextReceived(), null);
         for (int i = 1; i < clientCount; i++) {
             if (i % 2 == 0) {
-                Assert.assertEquals(clients[i].getTextReceived(), "evenGroup: " + sentText);
+                Assert.assertEquals(clients[i].getTextReceived(), evenString);
             } else {
                 Assert.assertEquals(clients[i].getTextReceived(), null);
             }
