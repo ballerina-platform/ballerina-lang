@@ -45,7 +45,7 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
         _.forEach(structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
-                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
 

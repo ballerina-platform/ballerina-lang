@@ -64,7 +64,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         _.forEach(connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
-                  + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+                  + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
 

@@ -58,7 +58,7 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
-                  + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+                  + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
         constructedSourceSegment += ((functionDefinition.isNative() ? 'native' + functionDefinition.getWSRegion(0) : ''));

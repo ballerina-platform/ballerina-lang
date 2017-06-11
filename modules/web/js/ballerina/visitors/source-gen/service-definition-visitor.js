@@ -49,7 +49,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
         _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
             annotationNode => {
                 constructedSourceSegment += annotationNode.toString()
-                      + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+                      + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             });
         constructedSourceSegment += 'service' + serviceDefinition.getWSRegion(0)
               + serviceDefinition.getServiceName()

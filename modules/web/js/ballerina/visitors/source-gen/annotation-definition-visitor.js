@@ -40,10 +40,10 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
         _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation), annotationNode => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
-                    + ((useDefaultWS) ? '\n' + this.getIndentation() : '');
+                  + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
-        
+
         constructedSourceSegment += 'annotation' + annotationDefinition.getWSRegion(0)
             + annotationDefinition.getAnnotationName() + annotationDefinition.getWSRegion(1);
         if (annotationDefinition.getAttachmentPoints().length > 0) {
