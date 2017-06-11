@@ -270,7 +270,8 @@ class BallerinaFileEditor extends EventChannel {
         let toolPalette = React.createElement(ToolPaletteView, {
             editor: this,
             provider: this.toolPaletteItemProvider,
-            dragDropManager: this.dragDropManager
+            dragDropManager: this.dragDropManager,
+            container: this.toolPaletteContainer
         }, null);
         ReactDOM.render(
             toolPalette,
