@@ -225,9 +225,11 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
  */
 DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
     let funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement();
-    let opts = !_.isNil(_.get(args, 'functionDef')) ? {
-        functionName: _.get(args, 'functionDef')._name,
-    } : undefined;
+    let opts = {
+        functionName: _.get(args, 'functionDef._name'),
+        packageName: _.get(args, 'packageName'),
+        fullPackageName: _.get(args, 'fullPackageName')
+    };
     let funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(opts);
     if (!_.isNil(args) && _.has(args, 'functionDef')) {
         let functionInvokeString = '';
