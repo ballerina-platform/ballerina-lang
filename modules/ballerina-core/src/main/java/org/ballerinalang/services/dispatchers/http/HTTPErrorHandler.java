@@ -42,20 +42,11 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
     private static final Logger log = LoggerFactory.getLogger(HTTPErrorHandler.class);
 
     @Override
-    public void handleError(Exception error, CarbonMessage carbonMessage, CarbonCallback callback) {
+    public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback callback) {
+        ErrorHandlerUtils.printError(e);
         Object carbonStatusCode = carbonMessage.getProperty(Constants.HTTP_STATUS_CODE);
-        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
-
-        String errorMsg = error.getMessage();
-        log.error(errorMsg);
-        ErrorHandlerUtils.printError(error);
-        if (statusCode == 404) {
-            // TODO Temporary solution. Fix Me!!!
-            callback.done(createErrorMessage(errorMsg, statusCode));
-        } else {
-            callback.done(createErrorMessage("", statusCode));
-        }
-
+        callback.done(createErrorMessage(ErrorHandlerUtils.getErrorMessage(e), (carbonStatusCode == null) ? 500 :
+                Integer.parseInt(carbonStatusCode.toString())));
     }
 
     @Override
