@@ -100,6 +100,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -1274,6 +1275,10 @@ public class BLangVM {
                 case InstructionCodes.JSON2B:
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
+                case InstructionCodes.T2MAP:
+                case InstructionCodes.T2JSON:
+                case InstructionCodes.MAP2T:
+                case InstructionCodes.JSON2T:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -1450,10 +1455,12 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
+                    sf.longRegs[j] = 0;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeInt);
                 } else if (bRefType.getType() == BTypes.typeInt) {
                     sf.longRegs[j] = ((BInteger) bRefType).intValue();
                 } else {
+                    sf.longRegs[j] = 0;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeInt);
                 }
                 break;
@@ -1464,10 +1471,12 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
+                    sf.doubleRegs[j] = 0;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeFloat);
                 } else if (bRefType.getType() == BTypes.typeFloat) {
                     sf.doubleRegs[j] = ((BFloat) bRefType).floatValue();
                 } else {
+                    sf.doubleRegs[j] = 0;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeFloat);
                 }
                 break;
@@ -1494,10 +1503,12 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
+                    sf.intRegs[j] = 0;
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeBoolean);
                 } else if (bRefType.getType() == BTypes.typeBoolean) {
                     sf.intRegs[j] = ((BBoolean) bRefType).booleanValue() ? 1 : 0;
                 } else {
+                    sf.intRegs[j] = 0;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeBoolean);
                 }
                 break;
@@ -1508,10 +1519,12 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
+                    sf.byteRegs[j] = new byte[0];
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeBlob);
                 } else if (bRefType.getType() == BTypes.typeBlob) {
                     sf.byteRegs[j] = ((BBlob) bRefType).blobValue();
                 } else {
+                    sf.byteRegs[j] = new byte[0];
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeBlob);
                 }
                 break;
@@ -1545,6 +1558,7 @@ public class BLangVM {
                 } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
+                    sf.refRegs[j] = null;
                     handleTypeCastError(sf, k, bRefType.getType(), typeCPEntry.getType());
                 }
                 break;
@@ -1613,6 +1627,7 @@ public class BLangVM {
                 try {
                     sf.longRegs[j] = Long.parseLong(sf.stringRegs[i]);
                 } catch (NumberFormatException e) {
+                    sf.longRegs[j] = 0;
                     handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.INT_TNAME);
                 }
                 break;
@@ -1624,6 +1639,7 @@ public class BLangVM {
                 try {
                     sf.doubleRegs[j] = Double.parseDouble(sf.stringRegs[i]);
                 } catch (NumberFormatException e) {
+                    sf.doubleRegs[j] = 0;
                     handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.FLOAT_TNAME);
                 }
                 break;
@@ -1631,12 +1647,7 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-
-                try {
-                    sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
-                } catch (NumberFormatException e) {
-                    handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.BOOLEAN_TNAME);
-                }
+                sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
                 break;
             case InstructionCodes.S2JSON:
                 i = operands[0];
@@ -1679,6 +1690,7 @@ public class BLangVM {
             case InstructionCodes.DT2XML:
                 i = operands[0];
                 j = operands[1];
+                k = operands[2];
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
@@ -1686,11 +1698,17 @@ public class BLangVM {
                     break;
                 }
 
-                sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
+                try {
+                    sf.refRegs[j] = XMLUtils.datatableToXML((BDataTable) bRefType, context.isInTransaction());
+                } catch (Exception e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
+                }
                 break;
             case InstructionCodes.DT2JSON:
                 i = operands[0];
                 j = operands[1];
+                k = operands[2];
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
@@ -1698,7 +1716,24 @@ public class BLangVM {
                     break;
                 }
 
-                sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
+                try {
+                    sf.refRegs[j] = JSONUtils.toJSON((BDataTable) bRefType, context.isInTransaction());
+                } catch (Exception e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, TypeConstants.DATATABLE_TNAME, TypeConstants.XML_TNAME);
+                }
+                break;
+            case InstructionCodes.T2MAP:
+                convertStructToMap(operands, sf);
+                break;
+            case InstructionCodes.T2JSON:
+                convertStructToJSON(operands, sf);
+                break;
+            case InstructionCodes.MAP2T:
+                convertMapToStruct(operands, sf);
+                break;
+            case InstructionCodes.JSON2T:
+                convertJSONToStruct(operands, sf);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -1717,6 +1752,7 @@ public class BLangVM {
         } else if (bRefType.getType() == targetType) {
             sf.refRegs[j] = bRefType;
         } else {
+            sf.refRegs[j] = null;
             handleTypeCastError(sf, k, bRefType.getType(), targetType);
         }
     }
@@ -1735,8 +1771,14 @@ public class BLangVM {
 
     private void handleTypeConversionError(StackFrame sf, int errorRegIndex,
                                            String sourceTypeName, String targetTypeName) {
+        String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
+        handleTypeConversionError(sf, errorRegIndex, errorMsg, sourceTypeName, targetTypeName);
+    }
+
+    private void handleTypeConversionError(StackFrame sf, int errorRegIndex, String errorMessage,
+                                           String sourceTypeName, String targetTypeName) {
         BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeConversionError(context, ip, sourceTypeName, targetTypeName);
+        errorVal = BLangVMErrors.createTypeConversionError(context, ip, errorMessage, sourceTypeName, targetTypeName);
         if (errorRegIndex == -1) {
             context.setError(errorVal);
             handleError();
@@ -2406,6 +2448,7 @@ public class BLangVM {
             return;
         }
 
+        sf.longRegs[j] = 0;
         handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
@@ -2436,6 +2479,7 @@ public class BLangVM {
             return;
         }
 
+        sf.doubleRegs[j] = 0;
         handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
@@ -2453,6 +2497,7 @@ public class BLangVM {
         try {
             sf.stringRegs[j] = jsonValue.stringValue();
         } catch (BallerinaException e) {
+            sf.stringRegs[j] = "";
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
             context.setError(BLangVMErrors.createError(context, ip, errorMsg));
@@ -2487,7 +2532,187 @@ public class BLangVM {
             return;
         }
 
+        // Reset the value in the case of an error;
+        sf.intRegs[j] = 0;
         handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
+    }
+
+    private void convertStructToMap(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int j = operands[1];
+
+        BStruct bStruct = (BStruct) sf.refRegs[i];
+        if (bStruct == null) {
+            sf.refRegs[j] = null;
+            return;
+        }
+
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int blobRegIndex = -1;
+        int refRegIndex = -1;
+
+        BStructType.StructField[] structFields = ((BStructType) bStruct.getType()).getStructFields();
+        BMap<String, BValue> map = BTypes.typeMap.getEmptyValue();
+        for (BStructType.StructField structField : structFields) {
+            String key = structField.getFieldName();
+            BType fieldType = structField.getFieldType();
+            switch (fieldType.getTag()) {
+                case TypeTags.INT_TAG:
+                    map.put(key, new BInteger(bStruct.getIntField(++longRegIndex)));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    map.put(key, new BFloat(bStruct.getFloatField(++doubleRegIndex)));
+                    break;
+                case TypeTags.STRING_TAG:
+                    map.put(key, new BString(bStruct.getStringField(++stringRegIndex)));
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    map.put(key, new BBoolean(bStruct.getBooleanField(++booleanRegIndex) == 1));
+                    break;
+                case TypeTags.BLOB_TAG:
+                    map.put(key, new BBlob(bStruct.getBlobField(++blobRegIndex)));
+                    break;
+                default:
+                    BValue value = bStruct.getRefField(++refRegIndex);
+                    map.put(key, value == null ? null : value.copy());
+            }
+        }
+
+        sf.refRegs[j] = map;
+    }
+
+    private void convertStructToJSON(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+
+        BStruct bStruct = (BStruct) sf.refRegs[i];
+        if (bStruct == null) {
+            sf.refRegs[j] = null;
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct);
+        } catch (Exception e) {
+            sf.refRegs[j] = null;
+            String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + BTypes.typeJSON + "': " +
+                    e.getMessage();
+            handleTypeConversionError(sf, k, errorMsg, bStruct.getType().toString(), TypeConstants.JSON_TNAME);
+        }
+    }
+
+    private void convertMapToStruct(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        int k = operands[3];
+
+        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
+        if (bMap == null) {
+            sf.refRegs[j] = null;
+            return;
+        }
+
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int blobRegIndex = -1;
+        int refRegIndex = -1;
+        BStructType structType = (BStructType) typeCPEntry.getType();
+        BStruct bStruct = new BStruct(structType);
+        bStruct.init(structType.getFieldCount());
+
+        Set<String> keys = bMap.keySet();
+        for (BStructType.StructField structField : structType.getStructFields()) {
+            String key = structField.getFieldName();
+            BType fieldType = structField.getFieldType();
+            BValue mapVal;
+            try {
+                if (!keys.contains(key)) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD, key);
+                }
+
+                mapVal = bMap.get(key);
+                if (mapVal == null && BTypes.isValueType(fieldType)) {
+                    throw BLangExceptionHelper.getRuntimeException(
+                            RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
+                }
+
+                if (mapVal != null && !checkCast(fieldType, mapVal.getType())) {
+                    throw BLangExceptionHelper.getRuntimeException(
+                            RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
+                }
+
+                switch (fieldType.getTag()) {
+                    case TypeTags.INT_TAG:
+                        if (mapVal != null) {
+                            bStruct.setIntField(++longRegIndex, ((BInteger) mapVal).intValue());
+                        }
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        if (mapVal != null) {
+                            bStruct.setFloatField(++doubleRegIndex, ((BFloat) mapVal).floatValue());
+                        }
+                        break;
+                    case TypeTags.STRING_TAG:
+                        if (mapVal != null) {
+                            bStruct.setStringField(++stringRegIndex, ((BString) mapVal).stringValue());
+                        } else {
+                            bStruct.setStringField(++stringRegIndex, "");
+                        }
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        if (mapVal != null) {
+                            bStruct.setBooleanField(++booleanRegIndex, ((BBoolean) mapVal).booleanValue() ? 1 : 0);
+                        }
+                        break;
+                    case TypeTags.BLOB_TAG:
+                        if (mapVal != null) {
+                            bStruct.setBlobField(++blobRegIndex, ((BBlob) mapVal).blobValue());
+                        }
+                        break;
+                    default:
+                        bStruct.setRefField(++refRegIndex, (BRefType) mapVal);
+                }
+            } catch (BallerinaException e) {
+                sf.refRegs[j] = null;
+                String errorMsg = "cannot convert '" + bMap.getType() + "' to type '" + structType + ": " +
+                        e.getMessage();
+                handleTypeConversionError(sf, k, errorMsg, TypeConstants.MAP_TNAME, structType.toString());
+                return;
+            }
+        }
+
+        sf.refRegs[j] = bStruct;
+    }
+
+    private void convertJSONToStruct(int[] operands, StackFrame sf) {
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        int k = operands[3];
+
+        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        BJSON bjson = (BJSON) sf.refRegs[i];
+        if (bjson == null) {
+            sf.refRegs[j] = null;
+            return;
+        }
+
+        try {
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeCPEntry.getType());
+        } catch (Exception e) {
+            sf.refRegs[j] = null;
+            String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
+                    typeCPEntry.getType() + "': " + e.getMessage();
+            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeCPEntry.getType().toString());
+        }
     }
 
     private void handleNullRefError() {

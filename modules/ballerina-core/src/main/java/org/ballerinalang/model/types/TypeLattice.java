@@ -359,6 +359,8 @@ public class TypeLattice {
      * @param one             The first TypeVertex of the TypeEdge
      * @param two             The second TypeVertex of the TypeEdge
      * @param mappingFunction The weight of the TypeEdge
+     * @param safe            There will be runtime errors or not
+     * @param instructionCode Instruction code to be used in VM
      * @return true iff no TypeEdge already exists in the Graph
      */
     public boolean addEdge(TypeVertex one, TypeVertex two, TriFunction mappingFunction,
@@ -534,10 +536,14 @@ public class TypeLattice {
 
         conversionLattice.addVertex(structV, false);
 
-        conversionLattice.addEdge(structV, mapV, NativeConversionMapper.STRUCT_TO_MAP_FUNC);
-        conversionLattice.addEdge(structV, jsonV, NativeConversionMapper.STRUCT_TO_JSON_FUNC);
-        conversionLattice.addEdge(jsonV, structV, NativeConversionMapper.JSON_TO_STRUCT_FUNC);
-        conversionLattice.addEdge(mapV, structV, NativeConversionMapper.MAP_TO_STRUCT_FUNC);
+        conversionLattice.addEdge(structV, mapV, NativeConversionMapper.STRUCT_TO_MAP_FUNC,
+                SAFE, InstructionCodes.T2MAP);
+        conversionLattice.addEdge(structV, jsonV, NativeConversionMapper.STRUCT_TO_JSON_FUNC,
+                SAFE, InstructionCodes.T2JSON);
+        conversionLattice.addEdge(jsonV, structV, NativeConversionMapper.JSON_TO_STRUCT_FUNC,
+                UNSAFE, InstructionCodes.JSON2T);
+        conversionLattice.addEdge(mapV, structV, NativeConversionMapper.MAP_TO_STRUCT_FUNC,
+                UNSAFE, InstructionCodes.MAP2T);
     }
 
     public static boolean isAssignCompatible(StructDef targetStructDef, StructDef sourceStructDef) {

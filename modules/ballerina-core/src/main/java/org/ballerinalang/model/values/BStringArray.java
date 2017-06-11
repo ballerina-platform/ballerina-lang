@@ -32,6 +32,10 @@ public class BStringArray extends BNewArray {
 
     private String[] values;
 
+    private BStringArray(String[] values) {
+        this.values = values;
+    }
+
     public BStringArray() {
         values = (String[]) newArrayInstance(String.class);
     }
@@ -54,5 +58,12 @@ public class BStringArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BStringArray stringArray = new BStringArray(Arrays.copyOf(values, values.length));
+        stringArray.size = this.size;
+        return stringArray;
     }
 }

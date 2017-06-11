@@ -32,6 +32,10 @@ public class BFloatArray extends BNewArray {
 
     private double[] values;
 
+    private BFloatArray(double[] values) {
+        this.values = values;
+    }
+
     public BFloatArray() {
         values = (double[]) newArrayInstance(Double.TYPE);
     }
@@ -54,5 +58,12 @@ public class BFloatArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BFloatArray floatArray = new BFloatArray(Arrays.copyOf(values, values.length));
+        floatArray.size = size;
+        return floatArray;
     }
 }

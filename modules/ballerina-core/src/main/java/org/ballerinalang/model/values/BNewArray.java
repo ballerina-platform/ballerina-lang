@@ -54,11 +54,6 @@ public abstract class BNewArray implements BRefType {
     }
 
     @Override
-    public BValue copy() {
-        throw new IllegalStateException("This method is not implemented yet");
-    }
-
-    @Override
     public BRefType value() {
         return null;
     }
