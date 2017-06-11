@@ -47,17 +47,4 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         //request should be returned as response
         Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
     }
-
-    @Test(description = "Test echo service sample test case")
-    public void testEchoServiceByResourcePath() throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("echo/resource"), requestMessage
-                , headers);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        //request should be returned as response
-        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
-    }
 }
