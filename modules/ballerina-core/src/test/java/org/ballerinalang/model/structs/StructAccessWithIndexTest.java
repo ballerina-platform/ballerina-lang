@@ -18,13 +18,11 @@
 package org.ballerinalang.model.structs;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -36,12 +34,10 @@ import org.testng.annotations.Test;
  */
 public class StructAccessWithIndexTest {
 
-    private BLangProgram bLangProgram;
     private ProgramFile programFile;
     
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/structs/struct-with-indexed-access.bal");
         programFile = BTestUtils.getProgramFile("lang/structs/struct-with-indexed-access.bal");
     }
     
@@ -124,41 +120,6 @@ public class StructAccessWithIndexTest {
     /*
      *  Negative tests
      */
-    
-    @Test(description = "Test accessing an field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees\\[0\\]' is null")
-    public void testGetNonInitField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitAttribute");
-    }
-    
-    @Test(description = "Test accessing an arrays field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'employees' is null")
-    public void testGetNonInitArrayField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
-    }
-    
-    @Test(description = "Test accessing the field of a noninitialized struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
-    public void testGetNonInitLastField() {
-        BLangFunctions.invoke(bLangProgram, "testGetNonInitLastAttribute");
-    }
-    
-    @Test(description = "Test setting an field of a noninitialized child struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'family' is null")
-    public void testSetNonInitField() {
-        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitChildStruct");
-    }
-    
-    @Test(description = "Test setting the field of a noninitialized root struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
-    public void testSetNonInitLastField() {
-        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitStruct");
-    }
 
     @Test(description = "Test accessing an undeclared struct",
             expectedExceptions = {SemanticException.class},

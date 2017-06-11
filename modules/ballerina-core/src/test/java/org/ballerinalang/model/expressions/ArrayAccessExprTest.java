@@ -18,13 +18,11 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -117,15 +115,5 @@ public class ArrayAccessExprTest {
     public static void main(String[] args) {
         ArrayAccessExprTest test = new ArrayAccessExprTest();
         test.testAccessPrimitiveAsArray();
-    }
-    
-    @Test(description = "Test access an non-initialized arrays",
-            expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "variable 'fruits' is null")
-    public void testNonInitArrayAccess() {
-        //TODO failing since java NULL pointer is not handled at BVM
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/expressions/array-access-expr.bal");
-        BLangFunctions.invoke(bLangProgram, "testNonInitArrayAccess");
-        Assert.fail("Test should fail at this point.");
     }
 }

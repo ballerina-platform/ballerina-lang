@@ -359,6 +359,8 @@ public class TypeLattice {
      * @param one             The first TypeVertex of the TypeEdge
      * @param two             The second TypeVertex of the TypeEdge
      * @param mappingFunction The weight of the TypeEdge
+     * @param safe            There will be runtime errors or not
+     * @param instructionCode Instruction code to be used in VM
      * @return true iff no TypeEdge already exists in the Graph
      */
     public boolean addEdge(TypeVertex one, TypeVertex two, TriFunction mappingFunction,

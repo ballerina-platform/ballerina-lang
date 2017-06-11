@@ -18,7 +18,6 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
@@ -35,13 +34,11 @@ import org.testng.annotations.Test;
  */
 public class TemplateExpressionTest {
     private ProgramFile programFile;
-    private BLangProgram bLangProgram;
     
     @BeforeClass
     public void setup() {
         // Add Native functions.
         programFile = BTestUtils.getProgramFile("lang/expressions/template-expr.bal");
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/template-expr.bal");
     }
 
     @Test(description = "Test JSON backtick expression definition")

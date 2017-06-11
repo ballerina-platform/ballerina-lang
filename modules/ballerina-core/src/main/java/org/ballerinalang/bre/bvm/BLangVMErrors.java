@@ -113,6 +113,8 @@ public class BLangVMErrors {
      *
      * @param context current Context
      * @param ip      current instruction pointer
+     * @param sourceType    For which error happened
+     * @param targetType    For which error happened
      * @return created NullReferenceError
      */
     public static BStruct createTypeCastError(Context context, int ip, BType sourceType, BType targetType) {
@@ -135,6 +137,8 @@ public class BLangVMErrors {
      *
      * @param context current Context
      * @param ip      current instruction pointer
+     * @param sourceTypeName    For which error happened
+     * @param targetTypeName    For which error happened
      * @return created NullReferenceError
      */
     public static BStruct createTypeConversionError(Context context, int ip,

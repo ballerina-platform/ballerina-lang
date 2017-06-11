@@ -313,6 +313,8 @@ public class CodeGenerator implements NodeVisitor {
             ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex);
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
+            List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();
+            
             // Assign field indexes for Connector variables
             for (VariableDefStmt varDefStmt : service.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
@@ -321,8 +323,18 @@ public class CodeGenerator implements NodeVisitor {
                 int fieldIndex = getNextIndex(fieldType.getTag(), gvIndexes);
                 GlobalVarLocation globalVarLocation = new GlobalVarLocation(fieldIndex);
                 varDef.setMemoryLocation(globalVarLocation);
+                
+                localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
+            // Add local variables
+            UTF8CPEntry localVarAttribUTF8CPEntry = new UTF8CPEntry(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+            int localVarAttribNameIndex = currentPkgInfo.addCPEntry(localVarAttribUTF8CPEntry);
+            LocalVariableAttributeInfo localVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+            localVarAttribInfo.setLocalVariables(localVarInfo);
+            serviceInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
+            
+            
             // Create the init function info
             createFunctionInfoEntries(new Function[]{service.getInitFunction()});
             serviceInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(service.getInitFunction().getName()));
@@ -429,6 +441,8 @@ public class CodeGenerator implements NodeVisitor {
                 parameterDef.setMemoryLocation(connectorVarLocation);
             }
 
+            List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();
+            
             // Assign field indexes for Connector variables
             for (VariableDefStmt varDefStmt : connectorDef.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
@@ -438,8 +452,17 @@ public class CodeGenerator implements NodeVisitor {
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
                 ConnectorVarLocation connectorVarLocation = new ConnectorVarLocation(fieldIndex);
                 varDef.setMemoryLocation(connectorVarLocation);
+                
+                localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
+            // Add local variables
+            UTF8CPEntry localVarAttribUTF8CPEntry = new UTF8CPEntry(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+            int localVarAttribNameIndex = currentPkgInfo.addCPEntry(localVarAttribUTF8CPEntry);
+            LocalVariableAttributeInfo localVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
+            localVarAttribInfo.setLocalVariables(localVarInfo);
+            connectorInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
+            
             connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
             connectorInfo.setFieldTypes(connectorFieldTypes);
             resetIndexes(fieldIndexes);
@@ -548,7 +571,7 @@ public class CodeGenerator implements NodeVisitor {
             AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
             currentServiceInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
         }
-
+        
         for (Resource resource : service.getResources()) {
             resource.accept(this);
         }
@@ -2650,8 +2673,19 @@ public class CodeGenerator implements NodeVisitor {
         int varNameCPIndex = currentPkgInfo.addCPEntry(annotationNameCPEntry);
 
         // TODO Support other variable memory locations
-        int stackFrameOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
-        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, stackFrameOffset, variableDef.getType());
+        MemoryLocation memLocation = variableDef.getMemoryLocation();
+        int memLocationOffset;
+        if (memLocation instanceof GlobalVarLocation) {
+            memLocationOffset = ((GlobalVarLocation) variableDef.getMemoryLocation()).getStaticMemAddrOffset();
+        } else if (memLocation instanceof ServiceVarLocation) {
+            memLocationOffset = ((ServiceVarLocation) variableDef.getMemoryLocation()).getStaticMemAddrOffset();
+        } else if (memLocation instanceof ConnectorVarLocation) {
+            memLocationOffset = ((ConnectorVarLocation) variableDef.getMemoryLocation()).getConnectorMemAddrOffset();
+        } else {
+            memLocationOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
+        }
+        
+        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, variableDef.getType());
     }
 
     /**

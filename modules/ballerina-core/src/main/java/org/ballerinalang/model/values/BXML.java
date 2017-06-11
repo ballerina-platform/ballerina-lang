@@ -34,7 +34,7 @@ import java.io.OutputStream;
  * <li>sequence of above</li>
  * </ul>
  * 
- * @param <T>
+ * @param <T> Type of the BXML
  *
  * @since 0.8.0
  */
@@ -110,7 +110,7 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * Get the value of a single attribute as a string.
      * 
      * @param namespace Namespace of the attribute
-     * @param prefix
+     * @param prefix    Prefix of the namespace
      * @param localName Local name of the attribute
      * @return Value of the attribute
      */
@@ -128,9 +128,9 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
 
     
     /**
-     * Get attributes as a {@link BMAP}.
+     * Get attributes as a {@link BMap}.
      * 
-     * @return Attributes as a {@link BMAP}
+     * @return Attributes as a {@link BMap}
      */
     public abstract BMap<?, ?> getAttributes();
 
@@ -182,6 +182,8 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     
     /**
      * Strips any text items from the XML that are all whitespace.
+     *
+     * @return striped xml
      */
     public abstract BXML<?> strip();
     
@@ -252,6 +254,8 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     /**
      * Slice and return a subsequence of the given XML sequence.
      * 
+     * @param startIndex    To slice
+     * @param endIndex      To slice
      * @return sliced sequence
      */
     public abstract BValue slice(long startIndex, long endIndex);
