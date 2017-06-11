@@ -59,24 +59,25 @@ import java.io.OutputStream;
 public class Copy extends AbstractNativeFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(Copy.class);
+    
     @Override
     public BValue[] execute(Context context) {
 
-        BStruct source = (BStruct) getArgument(context, 0);
-        BStruct destination = (BStruct) getArgument(context, 1);
+        BStruct source = (BStruct) getRefArgument(context, 0);
+        BStruct destination = (BStruct) getRefArgument(context, 1);
 
-        File sourceFile = new File(source.getValue(0).stringValue());
-        File destinationFile = new File(destination.getValue(0).stringValue());
+        File sourceFile = new File(source.getStringField(0));
+        File destinationFile = new File(destination.getStringField(0));
 
         if (!sourceFile.exists()) {
-            throw new BallerinaException("The file that should be copied does not exist");
+            throw new BallerinaException("failed to copy file: file not found: " + sourceFile.getPath());
         }
         File parent = destinationFile.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new BallerinaException("Error in writing file");
+            throw new BallerinaException("failed to copy file: cannot create directory: " + parent.getPath());
         }
         if (!copy(sourceFile, destinationFile)) {
-            throw new BallerinaException("Error while copying file");
+            throw new BallerinaException("failed to copy file: " + sourceFile.getPath());
         }
 
         return VOID_RETURN;

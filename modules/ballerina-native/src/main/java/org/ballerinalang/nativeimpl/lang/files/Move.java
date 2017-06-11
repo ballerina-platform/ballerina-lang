@@ -51,22 +51,23 @@ import java.io.File;
         value = "The location where the File should moved to") })
 public class Move extends AbstractNativeFunction {
 
-    @Override public BValue[] execute(Context context) {
+    @Override 
+    public BValue[] execute(Context context) {
 
-        BStruct source = (BStruct) getArgument(context, 0);
-        BStruct destination = (BStruct) getArgument(context, 1);
+        BStruct source = (BStruct) getRefArgument(context, 0);
+        BStruct destination = (BStruct) getRefArgument(context, 1);
 
-        File sourceFile = new File(source.getValue(0).stringValue());
+        File sourceFile = new File(source.getStringField(0));
         if (!sourceFile.exists()) {
-            throw new BallerinaException("The file that should be moved does not exist");
+            throw new BallerinaException("failed to move file: file not found: " + sourceFile.getPath());
         }
-        File destinationFile = new File(destination.getValue(0).stringValue());
+        File destinationFile = new File(destination.getStringField(0));
         File parent = destinationFile.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new BallerinaException("Error in writing file");
+            throw new BallerinaException("failed to move file: cannot create directory: " + parent.getPath());
         }
         if (!sourceFile.renameTo(destinationFile)) {
-            throw new BallerinaException("Error while moving file");
+            throw new BallerinaException("failed to move file: " + sourceFile.getPath());
         }
         return VOID_RETURN;
     }

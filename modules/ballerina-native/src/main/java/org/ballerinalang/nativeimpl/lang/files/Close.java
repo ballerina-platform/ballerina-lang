@@ -55,7 +55,7 @@ public class Close extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
 
-        BStruct struct = (BStruct) getArgument(context, 0);
+        BStruct struct = (BStruct) getRefArgument(context, 0);
         BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
         BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
         if (is == null && os == null) {
