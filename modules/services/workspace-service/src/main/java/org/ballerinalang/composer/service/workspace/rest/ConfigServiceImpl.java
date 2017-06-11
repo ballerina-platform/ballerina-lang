@@ -71,7 +71,7 @@ public class ConfigServiceImpl {
 
     /**
      * Generates an error message for the given exception
-     * @param ex
+     * @param ex throwable error
      * @return Response
      */
     private Response getErrorResponse(Throwable ex) {
@@ -88,8 +88,8 @@ public class ConfigServiceImpl {
     /**
      * function to get the configuration for composer
      *
-     * @param request
-     * @return
+     * @param request to get host name
+     * @return config json object
      */
     public JsonObject getComposerConfig(Request request) {
         String host = getHostName(request);

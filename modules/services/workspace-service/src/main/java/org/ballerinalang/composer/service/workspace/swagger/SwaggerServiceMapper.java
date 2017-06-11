@@ -57,7 +57,7 @@ public class SwaggerServiceMapper {
      * Object mapper can be used to generate swagger definition in JSON and YAML formats on demand. If user is willing
      * to generate output in specific format he can set mapper accordingly. Default mapper will be JSON mapper.
      *
-     * @param objectMapper
+     * @param objectMapper to set to this instance
      */
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
