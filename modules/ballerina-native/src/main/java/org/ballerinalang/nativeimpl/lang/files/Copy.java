@@ -65,16 +65,19 @@ public class Copy extends AbstractNativeFunction {
         BStruct source = (BStruct) getArgument(context, 0);
         BStruct destination = (BStruct) getArgument(context, 1);
 
-            File file = new File(source.getValue(0).stringValue());
-            File destinationFile = new File(destination.getValue(0).stringValue());
+        File sourceFile = new File(source.getValue(0).stringValue());
+        File destinationFile = new File(destination.getValue(0).stringValue());
 
-            File parent = destinationFile.getParentFile();
-            if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                        throw new BallerinaException("Error in writing file");
-            }
-            if (!copy(file, destinationFile)) {
-                throw new BallerinaException("Error while copying file");
-            }
+        if (!sourceFile.exists()) {
+            throw new BallerinaException("The file that should be copied does not exist");
+        }
+        File parent = destinationFile.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+            throw new BallerinaException("Error in writing file");
+        }
+        if (!copy(sourceFile, destinationFile)) {
+            throw new BallerinaException("Error while copying file");
+        }
 
         return VOID_RETURN;
     }

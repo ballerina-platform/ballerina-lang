@@ -83,7 +83,7 @@ public class Open extends AbstractNativeFunction {
                 struct.addNativeData("outStream", os);
             }
         } catch (FileNotFoundException e) {
-            throw new BallerinaException("Exception occurred since file does not exist", e);
+            throw new BallerinaException("Exception occurred since file does not exist or no permission", e);
         }
         return VOID_RETURN;
     }
