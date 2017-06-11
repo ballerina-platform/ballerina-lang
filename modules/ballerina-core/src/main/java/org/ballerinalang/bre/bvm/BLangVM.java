@@ -22,6 +22,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
+import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
+import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BArrayType;
@@ -64,11 +68,15 @@ import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
+import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.LocalVariableAttributeInfo;
+import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -87,6 +95,8 @@ import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -175,6 +185,9 @@ public class BLangVM {
 
         try {
             exec();
+            if (context.isDebugEnabled()) {
+                VMDebugManager.getInstance().setDone(true);
+            }
         } catch (Throwable e) {
             String message;
             if (e.getMessage() == null) {
@@ -225,6 +238,8 @@ public class BLangVM {
         WorkerReplyCPEntry workerReplyCPEntry;
         WorkerDataChannel workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
+
+        boolean isDebugging = context.isDebugEnabled();
 
         StackFrame currentSF, callersSF;
         int callersRetRegIndex;
@@ -1411,6 +1426,9 @@ public class BLangVM {
                 default:
                     throw new UnsupportedOperationException();
             }
+            if (isDebugging) {
+                debugging(ip);
+            }
         }
     }
 
@@ -1774,6 +1792,131 @@ public class BLangVM {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    public void debugging(int cp) {
+        if (cp < 0) {
+            return;
+        }
+        String lineNum;
+        NodeLocation location;
+        LineNumberInfo currentExecLine = controlStack.currentFrame.packageInfo.getLineNumberInfo(cp);
+
+        DebugInfoHolder holder = context.getDebugInfoHolder();
+        if (code[cp].getOpcode() == InstructionCodes.CALL && holder.getCurrentCommand() != DebugInfoHolder
+                .DebugCommand.STEP_OUT) {
+            holder.pushFunctionCallNextIp(cp + 1);
+        } else if (code[cp].getOpcode() == InstructionCodes.RET && holder.getCurrentCommand() != DebugInfoHolder
+                .DebugCommand.STEP_OUT) {
+            holder.popFunctionCallNextIp();
+        }
+        switch (holder.getCurrentCommand()) {
+            case RESUME:
+                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
+                        .equals(holder.getCurrentLineStack().peek())) {
+                    return;
+                }
+                lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber(); //todo add package
+                location = holder.getDebugPoint(lineNum);
+                if (location == null) {
+                    return;
+                }
+                if (!holder.getCurrentLineStack().isEmpty()) {
+                    holder.getCurrentLineStack().pop();
+                    if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
+                            .equals(holder.getCurrentLineStack().peek())) {
+                        return;
+                    }
+                }
+                holder.setPreviousIp(cp);
+                holder.getCurrentLineStack().push(currentExecLine);
+                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
+                holder.waitTillDebuggeeResponds();
+                break;
+            case STEP_IN:
+                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
+                        .equals(holder.getCurrentLineStack().peek())) {
+                    return;
+                }
+
+                holder.setPreviousIp(cp);
+                holder.getCurrentLineStack().push(currentExecLine);
+                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
+                holder.waitTillDebuggeeResponds();
+                break;
+            case STEP_OVER:
+                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
+                    holder.setNextIp(holder.getPreviousIp() + 1);
+                    if (cp == holder.getNextIp()) {
+                        holder.setNextIp(-1);
+                        holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                        return;
+                    }
+                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.NEXT_LINE);
+                } else {
+                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                }
+                break;
+            case STEP_OUT:
+                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
+                    holder.setPreviousIp(cp);
+                    holder.popFunctionCallNextIp();
+                }
+                if (holder.peekFunctionCallNextIp() != cp) {
+                    return;
+                }
+                holder.popFunctionCallNextIp();
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                break;
+            case NEXT_LINE:
+                if (cp == holder.getNextIp()) {
+                    holder.setNextIp(-1);
+                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                    return;
+                }
+                break;
+        }
+
+    }
+
+    public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
+
+        NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
+                current.getFileName(), current.getLineNumber());
+        BreakPointInfo breakPointInfo = new BreakPointInfo(location);
+
+        String pck = controlStack.currentFrame.packageInfo.getPkgPath();
+        String functionName = controlStack.currentFrame.callableUnitInfo.getName();
+        //todo below line number is a dummy line number - remove later
+        FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
+        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) controlStack.currentFrame
+                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+        if (localVarAttrInfo != null) {
+            for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
+                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
+                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BInteger(controlStack.currentFrame
+                            .longLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BFloat(controlStack.currentFrame
+                            .doubleLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BString(controlStack.currentFrame
+                            .stringLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BBoolean(controlStack.currentFrame
+                            .intLocalVars[localVarInfo.getVariableIndex()] == 1 ? true : false));
+                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BBlob(controlStack.currentFrame
+                            .byteLocalVars[localVarInfo.getVariableIndex()]));
+                } else {
+                    variableInfo.setBValue(controlStack.currentFrame.refLocalVars[localVarInfo.getVariableIndex()]);
+                }
+                frameInfo.addVariableInfo(variableInfo);
+            }
+        }
+        breakPointInfo.addFrameInfo(frameInfo);
+        return breakPointInfo;
     }
 
     private void handleAnyToRefTypeCast(StackFrame sf, int[] operands, BType targetType) {

@@ -60,6 +60,10 @@ public class LocalVariableInfo {
         return varIndex;
     }
 
+    public String getVarName() {
+        return varName;
+    }
+
     public BType getVariableType() {
         return varType;
     }
