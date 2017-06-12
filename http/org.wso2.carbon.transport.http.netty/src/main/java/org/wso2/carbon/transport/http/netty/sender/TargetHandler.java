@@ -17,11 +17,11 @@ package org.wso2.carbon.transport.http.netty.sender;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -48,7 +48,7 @@ import java.util.Map;
  * causes timeout issues when TargetHandler is re-used from the ConnectionManager.
  *
  */
-public class TargetHandler extends ReadTimeoutHandler {
+public class TargetHandler extends ChannelInboundHandlerAdapter {
     protected static final Logger LOG = LoggerFactory.getLogger(TargetHandler.class);
 
     protected CarbonCallback callback;
@@ -57,8 +57,7 @@ public class TargetHandler extends ReadTimeoutHandler {
     protected TargetChannel targetChannel;
     protected CarbonMessage incomingMsg;
 
-    public TargetHandler(int timeoutSeconds) {
-        super(timeoutSeconds);
+    public TargetHandler() {
     }
 
     @Override
@@ -139,7 +138,7 @@ public class TargetHandler extends ReadTimeoutHandler {
         this.targetChannel = targetChannel;
     }
 
-    @Override
+    // TODO: This cannot be done as long as we use apache pooling.
     protected void readTimedOut(ChannelHandlerContext ctx) {
 
         ctx.channel().close();

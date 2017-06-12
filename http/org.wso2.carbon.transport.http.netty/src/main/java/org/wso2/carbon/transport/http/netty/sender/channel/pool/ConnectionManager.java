@@ -33,6 +33,8 @@ import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.ClientRequestWorker;
+import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
+import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
 import java.util.ArrayList;
@@ -75,9 +77,11 @@ public class ConnectionManager {
         this.executorService = Executors.newFixedThreadPool(poolConfiguration.getExecutorServiceThreads());
         localConnectionMap = new ConcurrentHashMap<>();
         if (poolConfiguration.getNumberOfPools() == 0) {
-            this.poolManagementPolicy = PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING;
-        } else {
+            this.poolManagementPolicy = PoolManagementPolicy.DEFAULT_POOLING;
+        } else if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING;
+        } else if (poolConfiguration.getNumberOfPools() == 2) {
+            this.poolManagementPolicy = PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING;
         }
 
         poolList = new ArrayList<>();
@@ -133,10 +137,9 @@ public class ConnectionManager {
      * @param httpRequest         http request
      * @param carbonMessage       carbon message
      * @param carbonCallback      carbon call back
-     * @return TargetChannel
      * @throws Exception to notify any errors occur during retrieving the target channel
      */
-    public TargetChannel getTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
+    public void executeTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
             SenderConfiguration senderConfiguration, HttpRequest httpRequest, CarbonMessage carbonMessage,
             CarbonCallback carbonCallback) throws Exception {
         TargetChannel targetChannel = null;
@@ -156,7 +159,6 @@ public class ConnectionManager {
 
         // Take connections from Global connection pool
         if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
-            // TODO: re-verify the functionality
             Map<String, GenericObjectPool> objectPoolMap = sourceHandler.getTargetChannelPool();
             GenericObjectPool pool = objectPoolMap.get(httpRoute.toString());
             if (pool == null) {
@@ -174,8 +176,9 @@ public class ConnectionManager {
                 carbonMessage.setMessagingException(messagingException);
                 carbonCallback.done(carbonMessage);
             }
-        } else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
+            return;
             // TODO: re-verify the functionality
+        } else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
             // manage connections according to per inbound channel caching method
             if (!sourceHandler.isChannelFutureExists(httpRoute)) {
                 acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
@@ -185,10 +188,9 @@ public class ConnectionManager {
             } else {
                 synchronized (sourceHandler) {
                     if (sourceHandler.isChannelFutureExists(httpRoute)) {
-                        targetChannel = sourceHandler.getChannelFuture(httpRoute);
+                        targetChannel = sourceHandler.removeChannelFuture(httpRoute);
                         Channel channel = targetChannel.getChannel();
                         if (!channel.isActive()) {
-                            targetChannel = null;
                             acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
                                                      carbonMessage, carbonCallback,
                                                      PoolManagementPolicy.
@@ -205,23 +207,51 @@ public class ConnectionManager {
                 }
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
-            GenericObjectPool pool = localConnectionMap.get(httpRoute.toString());
-            if (pool == null) {
-                pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
-                localConnectionMap.put(httpRoute.toString(), pool);
+            try {
+                Map<String, GenericObjectPool> connPool = sourceHandler.getTargetChannelPool();
+                GenericObjectPool pool = connPool.get(httpRoute.toString());
+                if (pool == null) {
+                    pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                    connPool.put(httpRoute.toString(), pool);
+                }
+                targetChannel = (TargetChannel) pool.borrowObject();
+
+                if (targetChannel.getChannel() != null) {
+                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
+                    targetChannel.setCorrelatedSource(sourceHandler);
+                    targetChannel.setHttpRoute(httpRoute);
+                    TargetHandler targetHandler = targetChannel.getTargetHandler();
+                    targetHandler.setCallback(carbonCallback);
+                    targetHandler.setIncomingMsg(carbonMessage);
+                    targetHandler.setConnectionManager(connectionManager);
+                    targetHandler.setTargetChannel(targetChannel);
+                    if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage)) {
+                        targetChannel.setRequestWritten(true); // If request written
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Failed to send the request through the default pooling", e);
             }
-            acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                     carbonMessage, carbonCallback, PoolManagementPolicy.
-                                             DEFAULT_POOLING, pool, group, cl);
+            return;
         }
 
+        // TODO: Talk to other authors and remove this in the next release!
+//        else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
+//            GenericObjectPool pool = localConnectionMap.get(httpRoute.toString());
+//            if (pool == null) {
+//                pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+//                localConnectionMap.put(httpRoute.toString(), pool);
+//            }
+//            acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+//                                     carbonMessage, carbonCallback, PoolManagementPolicy.
+//                                             DEFAULT_POOLING, pool, group, cl);
+//        }
+
+        // TODO: Remove this from the next release!!
         if (targetChannel != null) {
             targetChannel.setHttpRoute(httpRoute);
-            if (sourceHandler != null) {
-                targetChannel.setCorrelatedSource(sourceHandler);
-            }
+            targetChannel.setCorrelatedSource(sourceHandler);
         }
-        return targetChannel;
     }
 
     private void acquireChannelAndDeliver(HttpRoute httpRoute, SourceHandler sourceHandler,
@@ -248,8 +278,8 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
-            GenericObjectPool pool = localConnectionMap.get(targetChannel.getHttpRoute().toString());
-            releaseChannelToPool(targetChannel, pool);
+            Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
+            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
         }
     }
 
@@ -286,9 +316,9 @@ public class ConnectionManager {
      * Connection pool management policies for  target channels.
      */
     public enum PoolManagementPolicy {
-        PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+        DEFAULT_POOLING,
         GLOBAL_ENDPOINT_CONNECTION_CACHING,
-        DEFAULT_POOLING
+        PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING
     }
 
 }

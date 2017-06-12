@@ -184,6 +184,7 @@ public class TestUtil {
 
     public static void writeContent(HttpURLConnection urlConn, String content) throws IOException {
         urlConn.getOutputStream().write(content.getBytes(Charsets.UTF_8));
+        urlConn.getOutputStream().flush();
     }
 
     public static HttpURLConnection request(URI baseURI, String path, String method, boolean keepAlive)

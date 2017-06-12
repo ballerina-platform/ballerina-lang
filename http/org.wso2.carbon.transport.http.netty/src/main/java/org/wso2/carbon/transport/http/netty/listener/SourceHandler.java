@@ -59,6 +59,7 @@ import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -70,10 +71,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected HTTPCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
-    protected Map<String, GenericObjectPool> targetChannelPool;
+    protected Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     protected ListenerConfiguration listenerConfiguration;
     private WebSocketServerHandshaker handshaker;
-
 
     public ListenerConfiguration getListenerConfiguration() {
         return listenerConfiguration;
@@ -89,7 +89,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
         this.ctx = ctx;
-        this.targetChannelPool = connectionManager.getTargetChannelPool();
+        this.targetChannelPool = connectionManager.getTargetChannelPool() == null ? this.targetChannelPool
+                : connectionManager.getTargetChannelPool();
     }
 
     @Override
@@ -100,9 +101,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
         this.ctx = ctx;
-        if (this.targetChannelPool == null) {
-            this.targetChannelPool = connectionManager.getTargetChannelPool();
-        }
+        this.targetChannelPool = connectionManager.getTargetChannelPool() == null ? this.targetChannelPool
+                : connectionManager.getTargetChannelPool();
     }
 
     @SuppressWarnings("unchecked")
@@ -262,6 +262,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
+        targetChannelPool.forEach((k, genericObjectPool) -> {
+            try {
+                genericObjectPool.close();
+            } catch (Exception e) {
+                log.error("Couldn't close target channel socket connections", e);
+            }
+        });
         connectionManager.notifyChannelInactive();
     }
 
@@ -269,7 +276,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         channelFutureMap.put(route.toString(), targetChannel);
     }
 
-    public TargetChannel getChannelFuture(HttpRoute route) {
+    public TargetChannel removeChannelFuture(HttpRoute route) {
         return channelFutureMap.remove(route.toString());
     }
 

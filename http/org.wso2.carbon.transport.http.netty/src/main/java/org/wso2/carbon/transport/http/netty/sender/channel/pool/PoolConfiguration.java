@@ -46,7 +46,7 @@ public class PoolConfiguration {
 
     private long minEvictableIdleTime = 5 * 60 * 1000L;
 
-    private byte exhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_GROW;
+    private byte exhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
 
     private int numberOfPools = 0;
 
@@ -67,8 +67,8 @@ public class PoolConfiguration {
         maxIdlePerPool = Util.getIntProperty(
                 transportProperties, Constants.MAX_IDLE_CONNECTIONS_PER_POOL, 100);
 
-        minEvictableIdleTime = Util.getLongProperty(
-                transportProperties, Constants.MIN_EVICTION_IDLE_TIME, 5 * 60 * 1000L);
+        minEvictableIdleTime = Util.getIntProperty(
+                transportProperties, Constants.MIN_EVICTION_IDLE_TIME, 5 * 60 * 1000);
 
         executorServiceThreads = Util.getIntProperty(
                 transportProperties, Constants.NO_THREADS_IN_EXECUTOR_SERVICE, 20);

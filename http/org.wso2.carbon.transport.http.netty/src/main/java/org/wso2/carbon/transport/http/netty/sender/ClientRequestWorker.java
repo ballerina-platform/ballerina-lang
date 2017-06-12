@@ -135,6 +135,10 @@ public class ClientRequestWorker implements Runnable {
             if (obj != null) {
                 TargetChannel targetChannel = (TargetChannel) obj;
                 targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
+                targetChannel.setHttpRoute(httpRoute);
+                if (sourceHandler != null) {
+                    targetChannel.setCorrelatedSource(sourceHandler);
+                }
                 return targetChannel;
             }
         } catch (Exception e) {
