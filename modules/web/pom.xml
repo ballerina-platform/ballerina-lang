@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-composer-parent</artifactId>
-        <version>0.88-SNAPSHOT</version>
+        <version>0.88</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -179,8 +179,8 @@
                             <value>Ballerina Composer v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion} |</value>
                         </replacement> 
                         <replacement>
-                            <token>id="aboutModalLabel">v(.*?)&lt;</token>
-                            <value>id="aboutModalLabel">v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}&lt;</value>
+                            <token>id="aboutModalLabel"&gt;v(.*?)&lt;</token>
+                            <value>id="aboutModalLabel"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}&lt;</value>
                         </replacement>
                     </replacements>
                 </configuration>
