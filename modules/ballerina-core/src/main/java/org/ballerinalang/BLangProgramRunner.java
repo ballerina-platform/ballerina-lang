@@ -115,11 +115,19 @@ public class BLangProgramRunner {
 
             // Invoke package init function
             BLangFunctions.invokeFunction(programFile, packageInfo, packageInfo.getInitFunctionInfo(), bContext);
+            if (bContext.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                throw new BLangRuntimeException("error: " + stackTraceStr);
+            }
 
             for (ServiceInfo serviceInfo : packageInfo.getServiceInfoList()) {
                 // Invoke service init function
                 BLangFunctions.invokeFunction(programFile, packageInfo,
                         serviceInfo.getInitFunctionInfo(), bContext);
+                if (bContext.getError() != null) {
+                    String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                    throw new BLangRuntimeException("error: " + stackTraceStr);
+                }
 
                 // Deploy service
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
@@ -144,7 +152,7 @@ public class BLangProgramRunner {
         Context bContext = new Context(programFile);
         // Non blocking is not support in the main program flow..
         bContext.initFunction = true;
-        
+
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         String mainPkgName = programFile.getMainPackageName();
 
@@ -156,6 +164,10 @@ public class BLangProgramRunner {
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         BLangFunctions.invokeFunction(programFile, mainPkgInfo, mainPkgInfo.getInitFunctionInfo(), bContext);
+        if (bContext.getError() != null) {
+            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+            throw new BLangRuntimeException("error: " + stackTraceStr);
+        }
 
         // Prepare main function arguments
         BStringArray arrayArgs = new BStringArray();
