@@ -230,7 +230,11 @@ public class ConnectionManager {
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to send the request through the default pooling", e);
+                String msg = "Failed to send the request through the default pooling";
+                log.error(msg, e);
+                MessagingException messagingException = new MessagingException(msg, e, 101500);
+                carbonMessage.setMessagingException(messagingException);
+                carbonCallback.done(carbonMessage);
             }
             return;
         }
