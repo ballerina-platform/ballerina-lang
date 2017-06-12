@@ -581,7 +581,7 @@ class TransformRender
         if(type == 'source' ) {
             subPlaceHolder = 'leftType';
             $('#' + this.placeHolderName).find('.leftType').append(newVar);
-            this.addSource(property, this, true);
+            this.addSource(property, this, false);
         } else {
             subPlaceHolder = 'rightType';
             $('#' + this.placeHolderName).find('.rightType').append(newVar);
