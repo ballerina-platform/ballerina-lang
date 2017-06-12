@@ -27,7 +27,7 @@ public class BallerinaRootPresentation implements ItemPresentation {
 
     protected final PsiFile element;
 
-    protected BallerinaRootPresentation(PsiFile element) {
+    BallerinaRootPresentation(PsiFile element) {
         this.element = element;
     }
 

@@ -16,9 +16,9 @@
 
 package org.ballerinalang.plugins.idea.structureview;
 
-import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
@@ -27,6 +27,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -42,20 +43,22 @@ public class BallerinaItemPresentation implements ItemPresentation {
     @Nullable
     @Override
     public Icon getIcon(boolean unused) {
-        if (element.getParent() instanceof FunctionDefinitionNode) {
+        if (element instanceof FunctionDefinitionNode) {
             return BallerinaIcons.FUNCTION;
-        } else if (element.getParent() instanceof ConnectorDefinitionNode || element instanceof ConnectorDefinitionNode) {
+        } else if (element instanceof ConnectorDefinitionNode) {
             return BallerinaIcons.CONNECTOR;
-        } else if (element.getParent() instanceof ServiceDefinitionNode || element instanceof ServiceDefinitionNode) {
+        } else if (element instanceof ServiceDefinitionNode) {
             return BallerinaIcons.SERVICE;
-        } else if (element.getParent() instanceof AnnotationDefinitionNode) {
+        } else if (element instanceof AnnotationDefinitionNode) {
             return BallerinaIcons.ANNOTATION;
-        } else if (element.getParent() instanceof ActionDefinitionNode) {
+        } else if (element instanceof ActionDefinitionNode) {
             return BallerinaIcons.ACTION;
-        } else if (element.getParent() instanceof StructDefinitionNode) {
+        } else if (element instanceof StructDefinitionNode) {
             return BallerinaIcons.STRUCT;
-        } else if (element.getParent() instanceof ResourceDefinitionNode) {
+        } else if (element instanceof ResourceDefinitionNode) {
             return BallerinaIcons.RESOURCE;
+        } else if (element instanceof WorkerDeclarationNode) {
+            return BallerinaIcons.WORKER;
         }
         return BallerinaIcons.ICON;
     }
@@ -64,19 +67,14 @@ public class BallerinaItemPresentation implements ItemPresentation {
     @Override
     public String getPresentableText() {
         // Todo - Add parameters, return types
-        ASTNode node = element.getNode();
-        if (element instanceof ConnectorDefinitionNode) {
-            PsiElement nameIdentifier = ((ConnectorDefinitionNode) element).getNameIdentifier();
-            if (nameIdentifier != null) {
-                return nameIdentifier.getText();
-            }
-        } else if (element instanceof ServiceDefinitionNode) {
-            PsiElement nameIdentifier = ((ServiceDefinitionNode) element).getNameIdentifier();
+        //        ASTNode node = element.getNode();
+        if (element instanceof IdentifierDefSubtree) {
+            PsiElement nameIdentifier = ((IdentifierDefSubtree) element).getNameIdentifier();
             if (nameIdentifier != null) {
                 return nameIdentifier.getText();
             }
         }
-        return node.getText();
+        return element.getText();
     }
 
     @Nullable
