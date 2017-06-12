@@ -147,7 +147,7 @@ public class LaunchManager {
             String line = "";
             while ((line = reader.readLine()) != null) {
                 // improve "server connector started" log message to have the service URL in it.
-                if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.matches(line)
+                if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.equals(line)
                         && startedServiceURL != null) {
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
                 }
