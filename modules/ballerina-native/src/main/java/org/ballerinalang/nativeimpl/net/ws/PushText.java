@@ -75,7 +75,7 @@ public class PushText extends AbstractNativeFunction {
             } else {
                 session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
             }
-            String text = getArgument(context, 0).stringValue();
+            String text = getStringArgument(context, 0);
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {
             throw new BallerinaException("Cannot send the message. Error occurred.");

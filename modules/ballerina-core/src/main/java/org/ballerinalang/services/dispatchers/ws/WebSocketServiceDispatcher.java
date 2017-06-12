@@ -25,7 +25,8 @@ import org.ballerinalang.services.dispatchers.http.HTTPServicesRegistry;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -35,7 +36,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
  *
  * @since 0.8.0
  */
-public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
+public class WebSocketServiceDispatcher implements ServiceDispatcher {
+
+    private static final Logger log = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
 
     @Override
     public String getProtocol() {
@@ -45,38 +48,26 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
     @Override
     public String getProtocolPackage() {
         return Constants.PROTOCOL_PACKAGE_WEBSOCKET;
+    public void serviceRegistered(ServiceInfo service) {
+        WebSocketServicesRegistry.getInstance().registerService(service);
     }
 
 
     @Override
-    public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
-        String interfaceId = getInterface(cMsg);
-        String serviceUri = (String) cMsg.getProperty(Constants.TO);
-        serviceUri = refactorUri(serviceUri);
-        if (serviceUri == null) {
-            throw new BallerinaException("No service found to dispatch");
-        }
-        String basePath = "";
-        ServiceInfo service = null;
-        String[] basePathSegments = URIUtil.getPathSegments(serviceUri);
-        for (String pathSegments: basePathSegments) {
-            basePath = basePath + Constants.DEFAULT_BASE_PATH + pathSegments;
-            service = HTTPServicesRegistry.getInstance().getServiceInfo(interfaceId, basePath);
-            if (service != null) {
-                break;
+    public void serviceUnregistered(ServiceInfo service) {
+        WebSocketServicesRegistry.getInstance().unregisterService(service);
+    }
+
+    protected String getListenerInterface(CarbonMessage cMsg) {
+        String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
+        if (interfaceId == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Interface id not found on the message, hence using the default interface");
             }
+            interfaceId = org.ballerinalang.services.dispatchers.http.Constants.DEFAULT_INTERFACE;
         }
-        if (service == null) {
-            return null;
-        }
-        String webSocketUpgradePath = findWebSocketUpgradePath(service);
-        if (webSocketUpgradePath == null) {
-            return null;
-        }
-        if (webSocketUpgradePath.equals(serviceUri)) {
-            return service;
-        }
-        return null;
+
+        return interfaceId;
     }
 
     private String findWebSocketUpgradePath(ServiceInfo service) {

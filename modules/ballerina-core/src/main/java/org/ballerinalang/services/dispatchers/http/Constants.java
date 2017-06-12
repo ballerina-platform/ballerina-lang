@@ -52,7 +52,6 @@ public class Constants {
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
-    public static final String WS_PACKAGE_PATH = "ballerina.net.ws";
 
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
