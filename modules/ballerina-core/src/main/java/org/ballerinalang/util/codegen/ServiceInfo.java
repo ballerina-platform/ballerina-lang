@@ -22,6 +22,8 @@ import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.parser.Literal;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -110,6 +112,16 @@ public class ServiceInfo extends StructureTypeInfo {
             }
         }
         return null;
+    }
+
+    public List<AnnotationAttachmentInfo> getAnnotationAttachmentInfoList() {
+        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
+                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
+        if (attributeInfo == null) {
+            List<AnnotationAttachmentInfo> emptyAnnotationInfoList = new LinkedList<>();
+            return emptyAnnotationInfoList;
+        }
+        return attributeInfo.getAnnotationAttachmentInfo();
     }
 
     public URITemplate getUriTemplate() throws URITemplateException {

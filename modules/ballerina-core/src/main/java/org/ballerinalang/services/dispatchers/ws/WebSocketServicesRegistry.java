@@ -18,8 +18,8 @@
 
 package org.ballerinalang.services.dispatchers.ws;
 
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.Service;
+import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Map;
@@ -33,9 +33,9 @@ public class WebSocketServicesRegistry {
     private static final WebSocketServicesRegistry REGISTRY = new WebSocketServicesRegistry();
 
     // Map<interface, Map<uri, service>>
-    private final Map<String, Map<String, Service>> serviceEndpoints = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, ServiceInfo>> serviceEndpoints = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
-    private final Map<String, Service> clientServices = new ConcurrentHashMap<>();
+    private final Map<String, ServiceInfo> clientServices = new ConcurrentHashMap<>();
 
     private WebSocketServicesRegistry() {
     }
@@ -49,7 +49,7 @@ public class WebSocketServicesRegistry {
      *
      * @param service service to register.
      */
-    public void registerService(Service service) {
+    public void registerService(ServiceInfo service) {
         String upgradePath = findFullWebSocketUpgradePath(service);
         String listenerInterface = getListenerInterface(service);
         boolean isClientService = isWebSocketClientService(service);
@@ -57,12 +57,12 @@ public class WebSocketServicesRegistry {
             if (serviceEndpoints.containsKey(listenerInterface)) {
                 serviceEndpoints.get(listenerInterface).put(upgradePath, service);
             } else {
-                Map<String, Service> servicesOnInterface = new ConcurrentHashMap<>();
+                Map<String, ServiceInfo> servicesOnInterface = new ConcurrentHashMap<>();
                 servicesOnInterface.put(upgradePath, service);
                 serviceEndpoints.put(listenerInterface, servicesOnInterface);
             }
         } else if (isClientService) {
-            if (service.getAnnotations().length > 1) {
+            if (service.getAnnotationAttachmentInfoList().size() > 1) {
                 throw new BallerinaException(
                         "Cannot define any other service annotation with WebSocket Client service");
             } else {
@@ -76,7 +76,7 @@ public class WebSocketServicesRegistry {
      *
      * @param service service to unregister.
      */
-    public void unregisterService(Service service) {
+    public void unregisterService(ServiceInfo service) {
         String upgradePath = findFullWebSocketUpgradePath(service);
         String listenerInterface = getListenerInterface(service);
         if (serviceEndpoints.containsKey(listenerInterface)) {
@@ -91,7 +91,7 @@ public class WebSocketServicesRegistry {
      * @param uri uri of the service.
      * @return the service which matches.
      */
-    public Service getServiceEndpoint(String listenerInterface, String uri) {
+    public ServiceInfo getServiceEndpoint(String listenerInterface, String uri) {
         return serviceEndpoints.get(listenerInterface).get(uri);
     }
 
@@ -101,7 +101,7 @@ public class WebSocketServicesRegistry {
      * @param serviceName name of the service.
      * @return the service by service name if exists. Else return null.
      */
-    public Service getClientService(String serviceName) {
+    public ServiceInfo getClientService(String serviceName) {
         return clientServices.get(serviceName);
     }
 
@@ -122,7 +122,7 @@ public class WebSocketServicesRegistry {
      * @return true if the service given by service name is a client service. Else return false.
      */
     public boolean isWebSocketServerEndpoint(String serviceName) {
-        for (Map.Entry<String, Map<String, Service>> endpoints: serviceEndpoints.entrySet()) {
+        for (Map.Entry<String, Map<String, ServiceInfo>> endpoints: serviceEndpoints.entrySet()) {
             if (endpoints.getValue().containsKey(serviceName)) {
                 return true;
             }
@@ -151,59 +151,46 @@ public class WebSocketServicesRegistry {
         return uri;
     }
 
-    private String findFullWebSocketUpgradePath(Service service) {
-        AnnotationAttachment websocketUpgradePathAnnotation = null;
-        AnnotationAttachment basePathAnnotation = null;
-        AnnotationAttachment[] annotations = service.getAnnotations();
-        for (AnnotationAttachment annotation: annotations) {
-            if (annotation.getPkgName().equals(org.ballerinalang.services.dispatchers.http.Constants.PROTOCOL_HTTP) &&
-                    annotation.getName().equals(
-                            org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_NAME_BASE_PATH)) {
-                basePathAnnotation = annotation;
-            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_WEBSOCKET) &&
-                    annotation.getName().equals(Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
-                websocketUpgradePathAnnotation = annotation;
-            }
-        }
-        if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null &&
-                !websocketUpgradePathAnnotation.getValue().trim().isEmpty()) {
-            if (basePathAnnotation == null || basePathAnnotation.getValue() == null ||
-                    basePathAnnotation.getValue().trim().isEmpty()) {
-                throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
-            }
+    private String findFullWebSocketUpgradePath(ServiceInfo service) {
+        AnnotationAttachmentInfo websocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
+                Constants.WS_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
+        AnnotationAttachmentInfo basePathAnnotation = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANNOTATION_NAME_BASE_PATH);
 
-            String basePath = refactorUri(basePathAnnotation.getValue());
-            String websocketUpgradePath = refactorUri(websocketUpgradePathAnnotation.getValue());
+        if (websocketUpgradePathAnnotation != null &&
+                websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
+            String value = websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).
+                    getStringValue();
+            if (value != null && !value.trim().isEmpty()) {
 
-            return refactorUri(basePath.concat(websocketUpgradePath));
+                if (basePathAnnotation == null ||
+                        basePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) == null ||
+                        basePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue()
+                                .trim().isEmpty()) {
+                    throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
+                }
+                String basePath = refactorUri(basePathAnnotation.
+                        getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue());
+                String websocketUpgradePath = refactorUri(value);
+                return refactorUri(basePath.concat(websocketUpgradePath));
+            }
         }
         return null;
     }
 
-    private boolean isWebSocketClientService(Service service) {
-        AnnotationAttachment[] annotations = service.getAnnotations();
-        for (AnnotationAttachment annotation: annotations) {
-            if (annotation.getPkgName().equals(Constants.PROTOCOL_WEBSOCKET) &&
-                    annotation.getName().equals(Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE)) {
-                return true;
-            }
+    private boolean isWebSocketClientService(ServiceInfo service) {
+        AnnotationAttachmentInfo annotation = service.
+                getAnnotationAttachmentInfo(Constants.WS_PACKAGE_PATH,
+                                            Constants.ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE);
+        if (annotation == null) {
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private String getListenerInterface(Service service) {
+    private String getListenerInterface(ServiceInfo service) {
+        // TODO : Handle correct interface addition to default interface.
         String listenerInterface = org.ballerinalang.services.dispatchers.http.Constants.DEFAULT_INTERFACE;
-        for (AnnotationAttachment annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(
-                    org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_NAME_SOURCE)) {
-                String sourceInterfaceVal = annotation.getAttribute(
-                        org.ballerinalang.services.dispatchers.http.Constants.ANNOTATION_SOURCE_KEY_INTERFACE).
-                        toString();
-                if (sourceInterfaceVal != null) {
-                    listenerInterface = sourceInterfaceVal;
-                }
-            }
-        }
         return listenerInterface;
     }
 

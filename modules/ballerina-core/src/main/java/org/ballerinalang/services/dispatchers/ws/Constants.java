@@ -21,7 +21,7 @@ package org.ballerinalang.services.dispatchers.ws;
 /**
  * Constants of WebSocket.
  */
-public class Constants {
+public class Constants extends org.ballerinalang.services.dispatchers.http.Constants {
 
     // Common constants
     public static final String CONNECTOR_NAME = "ClientConnector";
@@ -30,6 +30,8 @@ public class Constants {
     // WebSocket constants
     public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
     public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
+
+    public static final String WS_PACKAGE_PATH = "ballerina.net.ws";
 
     public static final String PROTOCOL_WEBSOCKET = "ws";
     public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";

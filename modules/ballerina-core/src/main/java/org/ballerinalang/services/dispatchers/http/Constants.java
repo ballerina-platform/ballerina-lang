@@ -48,7 +48,6 @@ public class Constants {
     public static final String TO = "TO";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
-    public static final String WS_PACKAGE_PATH = "ballerina.net.ws";
 
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
