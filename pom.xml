@@ -145,14 +145,14 @@
     </modules>
 
     <properties>
-        <ballerina.runtime.version>0.88</ballerina.runtime.version>
-        <ballerina.composer.version>0.88</ballerina.composer.version>
-        <testerina.version>0.88</testerina.version>
-        <tool.swagger.version>0.88</tool.swagger.version>
-        <ballerina.container.version>0.88</ballerina.container.version>
-        <docerina.version>0.88</docerina.version>
+        <ballerina.runtime.version>0.89-SNAPSHOT</ballerina.runtime.version>
+        <ballerina.composer.version>0.89-SNAPSHOT</ballerina.composer.version>
+        <testerina.version>0.89-SNAPSHOT</testerina.version>
+        <tool.swagger.version>0.89-SNAPSHOT</tool.swagger.version>
+        <ballerina.container.version>0.89-SNAPSHOT</ballerina.container.version>
+        <docerina.version>0.89-SNAPSHOT</docerina.version>
         <docerina.maven.plugin.version>${ballerina.runtime.version}</docerina.maven.plugin.version>
-        <ballerina.connectors.version>0.88</ballerina.connectors.version>
+        <ballerina.connectors.version>0.89-SNAPSHOT</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
     </properties>
 </project>
