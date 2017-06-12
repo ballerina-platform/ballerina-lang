@@ -170,7 +170,7 @@
     </build>
 
     <properties>
-        <ballerina.version>${project.version}</ballerina.version>
+        <ballerina.version>0.88</ballerina.version>
 
         <!-- Maven plugins -->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
