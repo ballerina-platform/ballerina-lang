@@ -72,12 +72,11 @@ function testGeneratedKeyWithColumn() (string) {
     return generatedID[0];
 }
 
-function testSelectData() (string) {
+function testSelectData() (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    string firstName;
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
         parameters);
@@ -86,18 +85,13 @@ function testSelectData() (string) {
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return firstName;
+    return;
 }
 
-function testSelectIntFloatData() (int, int, float, float) {
+function testSelectIntFloatData() (int int_type, int long_type, float float_type, float double_type) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-
-    int int_type;
-    int long_type;
-    float float_type;
-    float double_type;
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  int_type, long_type, float_type, double_type from DataTypeTable where row_id = 1",
@@ -110,16 +104,15 @@ function testSelectIntFloatData() (int, int, float, float) {
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return int_type, long_type, float_type, double_type;
+    return;
 }
 
-function testCallProcedure() (string) {
+function testCallProcedure() (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    string firstName;
     sql:ClientConnector.call(testDB, "{call InsertPersonData(100,'James')}", parameters);
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100",
         parameters);
@@ -128,32 +121,30 @@ function testCallProcedure() (string) {
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return firstName;
+    return;
 }
 
-function testCallProcedureWithResultSet() (string) {
+function testCallProcedureWithResultSet() (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    string firstName;
     datatable dt = sql:ClientConnector.call(testDB, "{call SelectPersonData()}", parameters);
     while (datatables:hasNext(dt)) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return firstName;
+    return;
 }
 
-function testConnectorWithDataSource() (string) {
+function testConnectorWithDataSource() (string firstName) {
     map propertiesMap = {"dataSourceClassName":"org.hsqldb.jdbc.JDBCDataSource",
         "dataSource.user":"SA", "dataSource.password":"", "dataSource.loginTimeout":0,
         "dataSource.url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    string firstName;
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
         parameters);
@@ -162,10 +153,10 @@ function testConnectorWithDataSource() (string) {
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return firstName;
+    return;
 }
 
-function testConnectionPoolProperties() (string) {
+function testConnectionPoolProperties() (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "driverClassName":"org.hsqldb.jdbcDriver", "username":"SA", "password":"", "maximumPoolSize":1,
         "idleTimeout":600000, "connectionTimeout":30000, "autoCommit":"true", "maxLifetime":1800000,
@@ -177,7 +168,6 @@ function testConnectionPoolProperties() (string) {
         "connectionTestQuery":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    string firstName;
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
         parameters);
@@ -186,15 +176,14 @@ function testConnectionPoolProperties() (string) {
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return firstName;
+    return;
 }
 
-function testQueryParameters() (string) {
+function testQueryParameters() (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    string firstName;
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter[] parameters = [para1];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = ?",
@@ -204,7 +193,7 @@ function testQueryParameters() (string) {
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return firstName;
+    return;
 }
 
 function testInsertTableDataWithParameters() (int) {
@@ -420,12 +409,11 @@ function testEmptySQLType() (int) {
     return insertCount;
 }
 
-function testCloseConnectionPool () (int) {
+function testCloseConnectionPool () (int count) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    int count;
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS",
                                               parameters);
@@ -434,7 +422,7 @@ function testCloseConnectionPool () (int) {
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return count;
+    return;
 }
 
 function testArrayInParameters() (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
