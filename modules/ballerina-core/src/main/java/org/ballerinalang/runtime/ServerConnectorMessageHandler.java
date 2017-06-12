@@ -38,6 +38,8 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,6 +178,13 @@ public class ServerConnectorMessageHandler {
         BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, calleeSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
+        if (VMDebugManager.getInstance().isDebugEnagled()) {
+            VMDebugManager debugManager = VMDebugManager.getInstance();
+            context.setDebugInfoHolder(new DebugInfoHolder());
+            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+            context.setDebugEnabled(true);
+            debugManager.setDebuggerContext("main", context); //todo fix
+        }
         bLangVM.run(context);
     }
 

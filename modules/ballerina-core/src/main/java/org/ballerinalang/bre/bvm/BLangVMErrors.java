@@ -113,6 +113,8 @@ public class BLangVMErrors {
      *
      * @param context current Context
      * @param ip      current instruction pointer
+     * @param sourceType    For which error happened
+     * @param targetType    For which error happened
      * @return created NullReferenceError
      */
     public static BStruct createTypeCastError(Context context, int ip, BType sourceType, BType targetType) {
@@ -135,6 +137,8 @@ public class BLangVMErrors {
      *
      * @param context current Context
      * @param ip      current instruction pointer
+     * @param sourceTypeName    For which error happened
+     * @param targetTypeName    For which error happened
      * @return created NullReferenceError
      */
     public static BStruct createTypeConversionError(Context context, int ip,
@@ -144,6 +148,31 @@ public class BLangVMErrors {
 
         String errorMsg = "'" + sourceTypeName + "' cannot be converted to '" + targetTypeName + "'";
         BStruct error = createBStruct(errorStructInfo, errorMsg, null,
+                sourceTypeName, targetTypeName);
+
+        // Set StackTrace.
+        StructInfo stackTrace = errorPackageInfo.getStructInfo(STRUCT_STACKTRACE);
+        BStruct bStackTrace = createBStruct(stackTrace, generateStackTraceItems(context, ip - 1));
+        error.setStackTrace(bStackTrace);
+        return error;
+    }
+
+    /**
+     * Create TypeConversionError.
+     *
+     * @param context   current Context
+     * @param ip        current instruction pointer
+     * @param errorMessage  error message
+     * @param sourceTypeName source type name
+     * @param targetTypeName target type name
+     * @return  created TypeConversionError
+     */
+    public static BStruct createTypeConversionError(Context context, int ip, String errorMessage,
+                                                    String sourceTypeName, String targetTypeName) {
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(ERROR_PACKAGE);
+        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_TYPE_CONVERSION_ERROR);
+
+        BStruct error = createBStruct(errorStructInfo, errorMessage, null,
                 sourceTypeName, targetTypeName);
 
         // Set StackTrace.

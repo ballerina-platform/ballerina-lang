@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BValue;
 public class BStructType extends BType {
 
     private StructField[] structFields;
+    private int[] fieldCount;
 
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
@@ -45,6 +46,14 @@ public class BStructType extends BType {
 
     public void setStructFields(StructField[] structFields) {
         this.structFields = structFields;
+    }
+
+    public int[] getFieldCount() {
+        return fieldCount;
+    }
+
+    public void setFieldCount(int[] fieldCount) {
+        this.fieldCount = fieldCount;
     }
 
     @Override

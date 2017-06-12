@@ -77,11 +77,6 @@ public class BLangFunctions {
      * @param functionName name of the function to be invoked
      * @return return values from the function
      */
-    public static BValue[] invoke(BLangProgram bLangProgram, String functionName) {
-        BValue[] args = {};
-        return invoke(bLangProgram, functionName, args, new Context());
-    }
-
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName) {
         BValue[] args = {};
         return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram));
@@ -104,10 +99,6 @@ public class BLangFunctions {
      * @param args         arguments for the function
      * @return return values from the function
      */
-    public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args) {
-        return invoke(bLangProgram, functionName, args, new Context());
-    }
-
     public static BValue[] invokeNew(ProgramFile bLangProgram, String functionName, BValue[] args) {
         return invokeNew(bLangProgram, ".", functionName, args, new Context(bLangProgram));
     }

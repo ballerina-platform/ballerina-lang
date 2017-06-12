@@ -404,9 +404,11 @@ public class CodeGenerator implements NodeVisitor {
                 structFields[i] = structField;
             }
 
-            structInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
+            int[] fieldCount = Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length);
+            structInfo.setFieldCount(fieldCount);
             // TODO Remove
             structInfo.setFieldTypes(structFieldTypes);
+            ((BStructType) structInfo.getType()).setFieldCount(fieldCount);
             ((BStructType) structInfo.getType()).setStructFields(structFields);
             resetIndexes(fieldIndexes);
         }
@@ -850,13 +852,11 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(ReturnStmt returnStmt) {
         int[] regIndexes;
         if (returnStmt.getExprs().length == 1 &&
-                returnStmt.getExprs()[0] instanceof ExecutableMultiReturnExpr &&
-                !(returnStmt.getExprs()[0] instanceof TypeCastExpression
-                        || returnStmt.getExprs()[0] instanceof TypeConversionExpr)) {
-            ExecutableMultiReturnExpr multiReturnExpr = (ExecutableMultiReturnExpr) returnStmt.getExprs()[0];
+                returnStmt.getExprs()[0] instanceof FunctionInvocationExpr) {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) returnStmt.getExprs()[0];
             returnStmt.getExprs()[0].accept(this);
-            regIndexes = multiReturnExpr.getOffsets();
-            BType[] retTypes = multiReturnExpr.getTypes();
+            regIndexes = funcIExpr.getOffsets();
+            BType[] retTypes = funcIExpr.getTypes();
             for (int i = 0; i < regIndexes.length; i++) {
                 // 1: return value position; 2:callee's value index;
                 emit(new Instruction(getOpcode(retTypes[i].getTag(), InstructionCodes.IRET), i, regIndexes[i]));
@@ -870,6 +870,7 @@ public class CodeGenerator implements NodeVisitor {
                 emit(new Instruction(getOpcode(expr.getType().getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         }
+
         if (finallyBlocks.size() > 0) {
             resetIndexes(this.regIndexes);
             Stack<TryCatchStmt.FinallyBlock> original = (Stack<TryCatchStmt.FinallyBlock>) finallyBlocks.clone();
@@ -880,6 +881,7 @@ public class CodeGenerator implements NodeVisitor {
             // restore.
             finallyBlocks = original;
         }
+        
         emit(InstructionCodes.RET);
     }
 
@@ -1511,23 +1513,40 @@ public class CodeGenerator implements NodeVisitor {
         Expression rExpr = typeConversionExpr.getRExpr();
         rExpr.accept(this);
 
-        // TODO Handle multi-return support
-
         int opCode = typeConversionExpr.getOpcode();
-//        if (opCode < 0) {
-//            throw new IllegalStateException("Instruction not supported");
-//        }
 
         // Ignore  NOP opcode
-        if (opCode != 0) {
+        if (opCode == InstructionCodes.MAP2T || opCode == InstructionCodes.JSON2T) {
+            TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(typeConversionExpr.getType().getSig()));
+            int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
             int targetRegIndex = getNextIndex(typeConversionExpr.getType().getTag(), regIndexes);
-            typeConversionExpr.setTempOffset(targetRegIndex);
-            typeConversionExpr.setOffsets(new int[]{targetRegIndex});
-            emit(opCode, rExpr.getTempOffset(), targetRegIndex, -1);
+
+            int errorRegIndex = -1;
+            if (typeConversionExpr.isMultiReturnExpr()) {
+                errorRegIndex = ++regIndexes[REF_OFFSET];
+                typeConversionExpr.setOffsets(new int[]{targetRegIndex, errorRegIndex});
+            } else {
+                typeConversionExpr.setOffsets(new int[]{targetRegIndex});
+            }
+            emit(opCode, rExpr.getTempOffset(), typeCPindex, targetRegIndex, errorRegIndex);
+
+        } else if (opCode != 0) {
+            int targetRegIndex = getNextIndex(typeConversionExpr.getType().getTag(), regIndexes);
+
+            int errorRegIndex = -1;
+            if (typeConversionExpr.isMultiReturnExpr()) {
+                errorRegIndex = ++regIndexes[REF_OFFSET];
+                typeConversionExpr.setOffsets(new int[]{targetRegIndex, errorRegIndex});
+            } else {
+                typeConversionExpr.setOffsets(new int[]{targetRegIndex});
+            }
+            emit(opCode, rExpr.getTempOffset(), targetRegIndex, errorRegIndex);
         } else {
-            // TODO improve
-            typeConversionExpr.setTempOffset(rExpr.getTempOffset());
-            typeConversionExpr.setOffsets(new int[]{rExpr.getTempOffset()});
+            if (typeConversionExpr.isMultiReturnExpr()) {
+                typeConversionExpr.setOffsets(new int[]{rExpr.getTempOffset(), -1});
+            } else {
+                typeConversionExpr.setOffsets(new int[]{rExpr.getTempOffset()});
+            }
         }
     }
 
