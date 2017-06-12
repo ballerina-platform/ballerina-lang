@@ -257,7 +257,7 @@ var SaveToFileDialog = Backbone.View.extend(
                 var ballerinaFileEditor= activeTab.getBallerinaFileEditor();
                 var config = ballerinaFileEditor.getContent();
                 var payload = "location=" + btoa(options.location) + "&configName=" + btoa(options.configName)
-                        + "&config=" + (btoa(config));
+                        + "&config=" + (encodeURIComponent(config));
 
                 $.ajax({
                     url: saveServiceURL,
