@@ -874,10 +874,6 @@ input#package-name-input {
     padding-left: 5px;
 }
 
-.annotation-container table {
-    display: inline
-}
-
 .annotation-container table td:last-child {
     width: 100%;
 }
@@ -892,8 +888,8 @@ input#package-name-input {
 }
 
 .annotation-table td{
-    height: 18px;
-    line-height: 25px;
+    height: 20px;
+    line-height: 20px;
     vertical-align: top;
 }
 
