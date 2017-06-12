@@ -40,7 +40,7 @@ let config = {
                 image: 'preview_jms'
             }, 
             { 
-                name: 'Restful Service', isFile: false, folder: '/samples/restfulService/restfulService/', 
+                name: 'Restful Service', isFile: false, folder: '/samples/restfulService/restfulservice/', 
                 path: '/samples/restfulService/restfulservice/samples/productsService.bal', 
                 image: 'preview_restfulService' 
             },
