@@ -929,7 +929,9 @@ input#package-name-input {
 }
 
 table.annotation-array-entry tr:hover > td.annotation-attribute-value > .annotation-attribute-remove,
-table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotation-remove {
+tr.annotation-attribute-row > td table tr:hover > td > .annotation-attribute-remove,
+table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotation-remove,
+table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotation-attribute-remove {
     display: inline-block;
 }
 
