@@ -44,7 +44,7 @@ class AnnotationEntry extends ASTNode {
          * @type {string|Annotation|AnnotationEntryArray}
          */
         this._rightValue = _.get(args, 'rightValue');
-        if (!_.isUndefined(this._rightValue) && _.isPlainObject(this._rightValue)) {
+        if (!_.isUndefined(this._rightValue) && _.isObject(this._rightValue)) {
             this._rightValue.on('tree-modified', (event) => {
                 this.trigger('tree-modified', event);
             });
@@ -68,7 +68,7 @@ class AnnotationEntry extends ASTNode {
 
     setRightValue(rightValue, options) {
         this.setAttribute('_rightValue', rightValue, options);
-        if (_.isPlainObject(rightValue)) {
+        if (_.isObject(rightValue)) {
             rightValue.on('tree-modified', (event) => {
                 this.trigger('tree-modified', event);
             });
