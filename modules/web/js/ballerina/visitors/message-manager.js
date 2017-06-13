@@ -23,7 +23,7 @@ import EventChannel from 'event_channel';
  * Handle Message drawing by Message manager
  * @class MessageManager
  */
-class MessageManager extends EventChannel{
+class MessageManager extends EventChannel {
     /**
      * Constructor for MessageManager
      * @param {args} args for constructor
@@ -39,11 +39,11 @@ class MessageManager extends EventChannel{
         this._destination = undefined;
         this._messageEnd = {
             x: 0,
-            y: 0
+            y: 0,
         };
         this._messageStart = {
             x: 0,
-            y: 0
+            y: 0,
         };
         this._arrowDecorator = undefined;
         this._backwardArrowDecorator = undefined;
@@ -144,37 +144,35 @@ class MessageManager extends EventChannel{
          */
         this.setSource(undefined);
         this.setDestination(undefined);
-        this.getArrowDecorator().setState({drawOnMouseMoveFlag: -1});
-        this.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: -1});
+        this.getArrowDecorator().setState({ drawOnMouseMoveFlag: -1 });
+        this.getBackwardArrowDecorator().setState({ drawOnMouseMoveFlag: -1 });
         this.setIsOnDrag(false);
     }
 
     startDrawMessage(mouseUpCallback, targetValidationCallback) {
-
-        var self = this,
+        let self = this,
             container = d3.select(self._fileEditor._$canvasContainer.find('.svg-container').get(0));
 
         container.on('mousemove', function (e) {
             self.trigger('message-draw-start');
-            var m = d3.mouse(this);
+            const m = d3.mouse(this);
             self.setMessageEnd(m[0] - 5, self.getMessageStart().y);
             if (self.getMessageEnd().x > self.getMessageStart().x) {
                 const currentDrawOnMouseMoveFlag = self.getArrowDecorator().state.drawOnMouseMoveFlag;
-                self.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: -1});
-                self.getArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
+                self.getBackwardArrowDecorator().setState({ drawOnMouseMoveFlag: -1 });
+                self.getArrowDecorator().setState({ drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1) });
             } else {
                 const currentDrawOnMouseMoveFlag = self.getBackwardArrowDecorator().state.drawOnMouseMoveFlag;
-                self.getArrowDecorator().setState({drawOnMouseMoveFlag: -1});
-                self.getBackwardArrowDecorator().setState({drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1)});
+                self.getArrowDecorator().setState({ drawOnMouseMoveFlag: -1 });
+                self.getBackwardArrowDecorator().setState({ drawOnMouseMoveFlag: (currentDrawOnMouseMoveFlag + 1) });
             }
-
         });
 
-        container.on('mouseup', function () {
+        container.on('mouseup', () => {
             // unbind current listeners
             container.on('mousemove', null);
             container.on('mouseup', null);
-            const messageSource= self.getSource();
+            const messageSource = self.getSource();
             const messageDestination = self.getDestination();
             const validDestination = self.isAtValidDestination();
             self.reset();

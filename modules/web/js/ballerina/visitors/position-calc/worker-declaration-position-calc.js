@@ -31,16 +31,15 @@ class WorkerDeclarationPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('begin visit WorkerDeclarationPositionCalcVisitor');
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
-        let parent = node.getParent();
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
+        const parent = node.getParent();
         const isInFork = ASTFactory.isForkJoinStatement(parent);
-        let parentViewState = parent.getViewState();
-        let workers = _.filter(parent.getChildren(), function (child) {
-            return child instanceof WorkerDeclaration;
-        });
-        let workerIndex = _.findIndex(workers, node);
-        let x, y;
+        const parentViewState = parent.getViewState();
+        const workers = _.filter(parent.getChildren(), child => child instanceof WorkerDeclaration);
+        const workerIndex = _.findIndex(workers, node);
+        let x,
+            y;
 
         if (workerIndex === 0) {
             /**
@@ -55,13 +54,11 @@ class WorkerDeclarationPositionCalcVisitor {
                  */
                 x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +
                     parentViewState.components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h;
-            } else {
-                if (isInFork) {
-                    x = parentViewState.components.body.getLeft() + DesignerDefaults.fork.lifeLineGutterH +
+            } else if (isInFork) {
+                x = parentViewState.components.body.getLeft() + DesignerDefaults.fork.lifeLineGutterH +
                         (parentViewState.bBox.w - parentViewState.components.workers.w) / 2;
-                } else {
-                    x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
-                }
+            } else {
+                x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
             }
         } else if (workerIndex > 0) {
             const previousWorker = workers[workerIndex - 1];

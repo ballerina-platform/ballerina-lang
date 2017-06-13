@@ -26,22 +26,22 @@ class SuggestionsText extends React.Component {
         super(props);
         this.state = {
             value: '',
-            suggestions: []
+            suggestions: [],
         };
 
-        this.onSuggestionsFetchRequested = ({value}) => {
-            this.setState({suggestions: this.getSuggestions(value)});
+        this.onSuggestionsFetchRequested = ({ value }) => {
+            this.setState({ suggestions: this.getSuggestions(value) });
         };
 
         this.onSuggestionsClearRequested = () => {
-            this.setState({suggestions: []});
+            this.setState({ suggestions: [] });
         };
 
         this.renderSuggestionsContainer = this.renderSuggestionsContainer.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.renderSuggestion = this.renderSuggestion.bind(this);
-        this.storeInputReference = autosuggest => {
+        this.storeInputReference = (autosuggest) => {
             if (autosuggest !== null) {
                 this.input = autosuggest.input;
             }
@@ -49,22 +49,22 @@ class SuggestionsText extends React.Component {
     }
 
     renderSuggestion(suggestion) {
-        const {value} = this.state;
+        const { value } = this.state;
         const sugName = suggestion.name;
         const parts = sugName.split(value);
         const highlightedString = [];
 
         parts.forEach((p, i) => {
             highlightedString.push(<span key={i}>{p}</span>);
-            if(i < parts.length - 1) {
+            if (i < parts.length - 1) {
                 // if not last
-                highlightedString.push(<span key={i+100}><b>{value}</b></span>);
+                highlightedString.push(<span key={i + 100}><b>{value}</b></span>);
             }
         });
 
         return (
-            <div>
-                {highlightedString}
+          <div>
+              {highlightedString}
             </div>
         );
     }
@@ -74,11 +74,11 @@ class SuggestionsText extends React.Component {
     }
 
     getSuggestions(query) {
-        let matches = [];
+        const matches = [];
 
-        let substrRegex = new RegExp(query, 'i');
+        const substrRegex = new RegExp(query, 'i');
 
-        this.props.suggestionsPool.forEach(sug => {
+        this.props.suggestionsPool.forEach((sug) => {
             if (substrRegex.test(sug.name)) {
                 matches.push(sug);
             }
@@ -91,54 +91,54 @@ class SuggestionsText extends React.Component {
         if (e.keyCode === 13) {
             this.props.onEnter(this.state.value);
             this.setState({
-                value: ''
+                value: '',
             });
         }
     }
 
-    onChange(event, {newValue, method}) {
-        this.setState({value: newValue});
+    onChange(event, { newValue, method }) {
+        this.setState({ value: newValue });
     }
 
     componentWillUnmount() {
-        ReactDOM.render(<noscript/>, this.context.overlay);
+        ReactDOM.render(<noscript />, this.context.overlay);
     }
 
-    renderSuggestionsContainer({containerProps, children, query}) {
-        const {x, y, onClick, height = 25, width = 100} = this.props;
+    renderSuggestionsContainer({ containerProps, children, query }) {
+        const { x, y, onClick, height = 25, width = 100 } = this.props;
         const allProps = {
             style: {
                 position: 'absolute',
                 top: y + height,
                 left: x,
-                width
-            }
+                width,
+            },
         };
 
         Object.assign(allProps, containerProps);
 
         return (
-            <div {...allProps}>
-                {children}
+          <div {...allProps}>
+              {children}
             </div>
         );
     }
 
     renderSuggestionsText() {
         if (!this.props.show) {
-            ReactDOM.render(<noscript/>, this.context.overlay);
+            ReactDOM.render(<noscript />, this.context.overlay);
             return;
         }
 
-        const {x, y, onClick, height = 25, width = 100} = this.props;
-        const textProps = {x, y, onClick};
+        const { x, y, onClick, height = 25, width = 100 } = this.props;
+        const textProps = { x, y, onClick };
 
         const inputStyle = {
             position: 'absolute',
             top: y,
             left: x,
             width,
-            height
+            height,
         };
 
         const inputProps = {
@@ -146,21 +146,21 @@ class SuggestionsText extends React.Component {
             onChange: this.onChange,
             onKeyDown: this.onKeyDown,
             onBlur: this.props.onBlur,
-            style: inputStyle
+            style: inputStyle,
         };
 
         ReactDOM.render(
-            <Autosuggest
-                suggestions={this.state.suggestions}
-                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-                getSuggestionValue={this.getSuggestionValue}
-                renderSuggestion={this.renderSuggestion}
-                renderSuggestionsContainer={this.renderSuggestionsContainer}
-                inputProps={inputProps}
-                ref={this.storeInputReference}
-                shouldRenderSuggestions={() => true}
-            />, this.context.overlay
+          <Autosuggest
+              suggestions={this.state.suggestions}
+              onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+              onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+              getSuggestionValue={this.getSuggestionValue}
+              renderSuggestion={this.renderSuggestion}
+              renderSuggestionsContainer={this.renderSuggestionsContainer}
+              inputProps={inputProps}
+              ref={this.storeInputReference}
+              shouldRenderSuggestions={() => true}
+            />, this.context.overlay,
         );
     }
 
@@ -179,17 +179,17 @@ class SuggestionsText extends React.Component {
     }
 
     render() {
-        const {x, y, height, width} = this.props;
+        const { x, y, height, width } = this.props;
 
         const style = {
-            fill: '#eee'
+            fill: '#eee',
         };
 
         if (!this.props.show) {
             style.display = 'none';
         }
 
-        return <rect x={x} y={y} height={height} width={width} style={style}/>;
+        return <rect x={x} y={y} height={height} width={width} style={style} />;
     }
 }
 

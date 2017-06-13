@@ -36,7 +36,7 @@ class Argument extends ASTNode {
 
         // Validating the argument.
         if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
-            var exceptionString = 'Invalid identifier: \'' + this.identifier + '\'. An identifier must match the regex ' +
+            const exceptionString = `Invalid identifier: '${this.identifier}'. An identifier must match the regex ` +
                 '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
@@ -54,9 +54,9 @@ class Argument extends ASTNode {
     }
 
     getArgumentAsString() {
-        var argAsString = '';
+        let argAsString = '';
         argAsString += this.bType;
-        argAsString += !_.isUndefined(this.identifier) ? ' ' + this.identifier : '';
+        argAsString += !_.isUndefined(this.identifier) ? ` ${this.identifier}` : '';
         return argAsString.trim();
     }
 
@@ -64,7 +64,7 @@ class Argument extends ASTNode {
         if (_.isNil(identifier) || ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('identifier', identifier, options);
         } else {
-            var exceptionString = 'Invalid identifier: \'' + identifier + '\'. An identifier must match the regex ' +
+            const exceptionString = `Invalid identifier: '${identifier}'. An identifier must match the regex ` +
                 '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
@@ -73,8 +73,8 @@ class Argument extends ASTNode {
 
     // TODO: This function is to temporary fix the issue of function drag and drop until the model refactor
     getParameterAsString() {
-        var paramAsString = "";
-        paramAsString += "" + this.getBType() + " ";
+        let paramAsString = '';
+        paramAsString += `${this.getBType()} `;
         paramAsString += this.getIdentifier();
 
         return paramAsString.trim();
@@ -91,8 +91,8 @@ class Argument extends ASTNode {
      * @param {string} jsonNode.parameter_name - Identifier of the argument
      */
     initFromJson(jsonNode) {
-        this.setBType(jsonNode.parameter_type, {doSilently: true});
-        this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
+        this.setBType(jsonNode.parameter_type, { doSilently: true });
+        this.setIdentifier(jsonNode.parameter_name, { doSilently: true });
     }
 
     toString() {

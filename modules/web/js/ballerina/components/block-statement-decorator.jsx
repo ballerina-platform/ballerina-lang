@@ -19,11 +19,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {blockStatement, statement, actionBox} from '../configs/designer-defaults.js';
+import { blockStatement, statement, actionBox } from '../configs/designer-defaults.js';
 import StatementContainer from './statement-container';
 import ASTNode from '../ast/node';
 import SimpleBBox from '../ast/simple-bounding-box';
-import './block-statement-decorator.css'
+import './block-statement-decorator.css';
 import ExpressionEditor from 'expression_editor_utils';
 import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
@@ -35,7 +35,7 @@ class BlockStatementDecorator extends React.Component {
     constructor() {
         super();
         this.state = {
-            active: 'hidden'
+            active: 'hidden',
         };
         this.onDelete = this.onDelete.bind(this);
         this.onBreakpointClick = this.onBreakpointClick.bind(this);
@@ -46,8 +46,8 @@ class BlockStatementDecorator extends React.Component {
         if (!this.context.dragDropManager.isOnDrag()) {
             const myRoot = ReactDOM.findDOMNode(this);
             if (show) {
-                let isInChildStatement = this.isInStatementWithinMe(e.target);
-                let isFromChildStatement = this.isInStatementWithinMe(e.relatedTarget);
+                const isInChildStatement = this.isInStatementWithinMe(e.target);
+                const isFromChildStatement = this.isInStatementWithinMe(e.relatedTarget);
 
                 if (!isInChildStatement) {
                     if (isFromChildStatement) {
@@ -94,7 +94,7 @@ class BlockStatementDecorator extends React.Component {
     onBreakpointClick() {
         const { model } = this.props;
         const { isBreakpoint = false } = model;
-        if(model.isBreakpoint) {
+        if (model.isBreakpoint) {
             model.removeBreakpoint();
         } else {
             model.addBreakpoint();
@@ -102,7 +102,7 @@ class BlockStatementDecorator extends React.Component {
     }
 
     onJumptoCodeLine() {
-        const {renderingContext: {ballerinaFileEditor}} = this.context;
+        const { renderingContext: { ballerinaFileEditor } } = this.context;
 
         const container = ballerinaFileEditor._container;
         $(container).find('.view-source-btn').trigger('click');
@@ -111,24 +111,24 @@ class BlockStatementDecorator extends React.Component {
     renderBreakpointIndicator() {
         const breakpointSize = 14;
         const { bBox } = this.props;
-        const pointX = bBox.x + bBox.w - breakpointSize/2;
-        const pointY = bBox.y - breakpointSize/2 + statement.gutter.v;
+        const pointX = bBox.x + bBox.w - breakpointSize / 2;
+        const pointY = bBox.y - breakpointSize / 2 + statement.gutter.v;
         return (
-            <Breakpoint
-                x={pointX}
-                y={pointY}
-                size={breakpointSize}
-                isBreakpoint={this.props.model.isBreakpoint}
-                onClick = { () => this.onBreakpointClick() }
-            />
+          <Breakpoint
+            x={pointX}
+            y={pointY}
+            size={breakpointSize}
+            isBreakpoint={this.props.model.isBreakpoint}
+            onClick={() => this.onBreakpointClick()}
+          />
         );
     }
 
     render() {
-        const {bBox, title, dropTarget, expression} = this.props;
+        const { bBox, title, dropTarget, expression } = this.props;
         const model = this.props.model || dropTarget;
 
-        let title_h = blockStatement.heading.height;
+        const title_h = blockStatement.heading.height;
         let title_w = blockStatement.heading.width;
 
         // If Available get the title width from given props.
@@ -136,20 +136,20 @@ class BlockStatementDecorator extends React.Component {
             title_w = this.props.titleWidth;
         }
 
-        let p1_x = bBox.x;
-        let p1_y = bBox.y + title_h;
-        let p2_x = bBox.x + title_w;
-        let p2_y = bBox.y + title_h;
-        let p3_x = bBox.x + title_w + 10;
-        let p3_y = bBox.y;
+        const p1_x = bBox.x;
+        const p1_y = bBox.y + title_h;
+        const p2_x = bBox.x + title_w;
+        const p2_y = bBox.y + title_h;
+        const p3_x = bBox.x + title_w + 10;
+        const p3_y = bBox.y;
 
-        let stc_y = bBox.y + title_h;
-        let stc_h = bBox.h - title_h;
+        const stc_y = bBox.y + title_h;
+        const stc_h = bBox.h - title_h;
 
-        let title_x = bBox.x + title_w / 2;
-        let title_y = bBox.y + title_h / 2;
+        const title_x = bBox.x + title_w / 2;
+        const title_y = bBox.y + title_h / 2;
 
-        let statementContainerBBox = new SimpleBBox(bBox.x, stc_y, bBox.w, stc_h);
+        const statementContainerBBox = new SimpleBBox(bBox.x, stc_y, bBox.w, stc_h);
 
         let expression_x = 0;
         if (expression) {
@@ -165,68 +165,77 @@ class BlockStatementDecorator extends React.Component {
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, title_h);
 
         const actionBoxBbox = {
-            x: bBox.x + ( bBox.w - actionBox.width) / 2,
+            x: bBox.x + (bBox.w - actionBox.width) / 2,
             y: bBox.y + title_h + actionBox.padding.top,
             w: actionBox.width,
             h: actionBox.height,
         };
 
-        const utilClassName = this.state.active=== 'hidden' ? 'hide-action' :
-            ( this.state.active=== 'visible' ? 'show-action' : 'delayed-hide-action');
+        const utilClassName = this.state.active === 'hidden' ? 'hide-action' :
+            (this.state.active === 'visible' ? 'show-action' : 'delayed-hide-action');
 
         const expressionEditor = this.openExpressionEditor.bind(this, this.props.expression, this.props.editorOptions);
         const paramEditor = this.openExpressionEditor.bind(this, parameterText, this.props.parameterEditorOptions);
-        return (<g onMouseOut={ this.setActionVisibility.bind(this, false) }
-                   onMouseOver={ this.setActionVisibility.bind(this, true) }>
-            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect"/>
-            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"
-                  onClick={!parameterText && expressionEditor}/>
-            <text x={title_x} y={title_y} className="statement-text">{title}</text>
+        return (<g
+          onMouseOut={this.setActionVisibility.bind(this, false)}
+          onMouseOver={this.setActionVisibility.bind(this, true)}
+        >
+          <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect" />
+          <rect
+            x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"
+            onClick={!parameterText && expressionEditor}
+          />
+          <text x={title_x} y={title_y} className="statement-text">{title}</text>
 
-            {(expression) &&
-            <text x={expression_x} y={title_y} className="condition-text"
-                  onClick={expressionEditor}>
+          {(expression) &&
+            <text
+              x={expression_x} y={title_y} className="condition-text"
+              onClick={expressionEditor}
+            >
                 {expression.text}
             </text>}
 
-            {parameterText &&
+          {parameterText &&
             <g>
-                <line x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
-                      x2={paramSeparator_x}
-                      className="parameter-separator"/>
-                <text x={paramSeparator_x + blockStatement.heading.paramPaddingX} y={title_y} className="condition-text"
-                      onClick={paramEditor}>
+              <line
+                x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
+                x2={paramSeparator_x}
+                className="parameter-separator"
+              />
+              <text
+                x={paramSeparator_x + blockStatement.heading.paramPaddingX} y={title_y} className="condition-text"
+                onClick={paramEditor}
+              >
                     ( {parameterText} )
                 </text>
             </g>}
 
-            <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline"/>
-            <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
-                {this.props.children}
-            </StatementContainer>
-            {this.props.undeletable ||
+          <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline" />
+          <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
+            {this.props.children}
+          </StatementContainer>
+          {this.props.undeletable ||
             <ActionBox
-                bBox={ actionBoxBbox }
-                show={ this.state.active }
-                isBreakpoint={ model.isBreakpoint }
-                onDelete={ this.onDelete }
-                onJumptoCodeLine={ this.onJumptoCodeLine }
-                onBreakpointClick={ this.onBreakpointClick }
+              bBox={actionBoxBbox}
+              show={this.state.active}
+              isBreakpoint={model.isBreakpoint}
+              onDelete={this.onDelete}
+              onJumptoCodeLine={this.onJumptoCodeLine}
+              onBreakpointClick={this.onBreakpointClick}
             />}
-            {
-                <g className={utilClassName}>
-                    {this.props.utilities || null}
-                </g>
+          {
+            <g className={utilClassName}>
+              {this.props.utilities || null}
+            </g>
             }
-            { model.isBreakpoint && this.renderBreakpointIndicator() }
+          { model.isBreakpoint && this.renderBreakpointIndicator() }
         </g>);
-
     }
 
     openExpressionEditor(value, options, e) {
-        let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
         if (value && options) {
-            new ExpressionEditor(this.conditionBox, this.context.container, (text) => this.onUpdate(text), options, packageScope);
+            new ExpressionEditor(this.conditionBox, this.context.container, text => this.onUpdate(text), options, packageScope);
         }
     }
 

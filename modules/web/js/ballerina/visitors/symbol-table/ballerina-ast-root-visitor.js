@@ -31,7 +31,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
      * init function
      */
     init() {
-        //Registering event listeners
+        // Registering event listeners
         this._model.on('child-added', function (child) {
             this.visit(child);
         }, this);
@@ -62,33 +62,33 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
      * @param {Object} functionDefinition - function definition model
      */
     visitFunctionDefinition(functionDefinition) {
-        var functionDef = BallerinaEnvFactory.createFunction();
+        const functionDef = BallerinaEnvFactory.createFunction();
         functionDef.setName(functionDefinition.getFunctionName());
         functionDef.setId(functionDefinition.getFunctionName());
 
         // Adding arguments
-        var args = [];
-        _.forEach(functionDefinition.getArguments(), function (argument) {
+        const args = [];
+        _.forEach(functionDefinition.getArguments(), (argument) => {
             args.push({
                 name: argument.getName(),
-                type: argument.getTypeName()
+                type: argument.getTypeName(),
             });
         });
         functionDef.setParameters(args);
 
         // Adding return types
-        var returnTypes = [];
-        _.forEach(functionDefinition.getReturnTypes(), function (returnType) {
+        const returnTypes = [];
+        _.forEach(functionDefinition.getReturnTypes(), (returnType) => {
             // Return type contains an Argument child.
-            if(_.isNull(returnType.getName())) {
-                //some return types only have a type
+            if (_.isNull(returnType.getName())) {
+                // some return types only have a type
                 returnTypes.push({
-                    type: returnType.getTypeName()
+                    type: returnType.getTypeName(),
                 });
             } else {
                 returnTypes.push({
                     name: returnType.getName(),
-                    type: returnType.getTypeName()
+                    type: returnType.getTypeName(),
                 });
             }
         });
@@ -96,20 +96,20 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 
         this.getPackage().addFunctionDefinitions(functionDef);
 
-        var self = this;
-        functionDefinition.on('tree-modified', function (modifiedData) {
+        const self = this;
+        functionDefinition.on('tree-modified', (modifiedData) => {
             if (_.isNil(modifiedData.data)) {
                 return;
             }
-            var attributeName = modifiedData.data.attributeName;
-            var oldValue = modifiedData.data.oldValue;
-            var newValue = modifiedData.data.newValue;
+            const attributeName = modifiedData.data.attributeName;
+            const oldValue = modifiedData.data.oldValue;
+            let newValue = modifiedData.data.newValue;
             if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin)) {
                 if (!_.isEqual(attributeName, '_functionName')) {
                     newValue = undefined;
                 }
                 self.updateFunctionDefinition(modifiedData.origin, oldValue, newValue, modifiedData.data.child);
-            } else if (BallerinaASTFactory.isReturnType(modifiedData.origin)){
+            } else if (BallerinaASTFactory.isReturnType(modifiedData.origin)) {
                 self.updateFunctionDefinition(modifiedData.origin.getParent(), oldValue, newValue, modifiedData.origin);
             }
         });
@@ -120,7 +120,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
     }
 
     visitTypeMapperDefinition(typeMapperDefinition) {
-        //todo need to refactored
+        // todo need to refactored
 //            var typeMapperDef = BallerinaEnvFactory.createTypeMapper();
 //            typeMapperDef.setName(typeMapperDefinition.getTypeMapperName());
 //            typeMapperDef.setTitle(typeMapperDefinition.getTypeMapperName());
@@ -135,51 +135,50 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
      * @param {Object} connectorDefinition - connector definition model
      */
     visitConnectorDefinition(connectorDefinition) {
-        var connector = BallerinaEnvFactory.createConnector();
+        const connector = BallerinaEnvFactory.createConnector();
         connector.setName(connectorDefinition.getConnectorName());
         connector.setId(connectorDefinition.getConnectorName());
         this.getPackage().addConnectors(connector);
 
-        var self = this;
-        connectorDefinition.on('tree-modified', function (modifiedData) {
-            var attributeName = modifiedData.data.attributeName;
-            var newValue = modifiedData.data.newValue;
-            var oldValue = modifiedData.data.oldValue;
+        const self = this;
+        connectorDefinition.on('tree-modified', (modifiedData) => {
+            const attributeName = modifiedData.data.attributeName;
+            const newValue = modifiedData.data.newValue;
+            const oldValue = modifiedData.data.oldValue;
             if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin)) {
                 self.updateConnectorDefinition(connector, modifiedData);
             }
         });
 
-        //TODO : move this to the visit method
-        _.each(connectorDefinition.getChildren(), function (child) {
+        // TODO : move this to the visit method
+        _.each(connectorDefinition.getChildren(), (child) => {
             if (BallerinaASTFactory.isConnectorAction(child)) {
-                var connectorAction = BallerinaEnvFactory.createConnectorAction();
+                const connectorAction = BallerinaEnvFactory.createConnectorAction();
                 connectorAction.initFromASTModel(child);
                 connector.addAction(connectorAction);
 
-                child.on('tree-modified', function (modifiedData) {
-                    var attributeName = modifiedData.data.attributeName;
-                    var newValue = modifiedData.data.newValue;
-                    var oldValue = modifiedData.data.oldValue;
+                child.on('tree-modified', (modifiedData) => {
+                    const attributeName = modifiedData.data.attributeName;
+                    const newValue = modifiedData.data.newValue;
+                    const oldValue = modifiedData.data.oldValue;
                     if (BallerinaASTFactory.isConnectorAction(modifiedData.origin) && _.isEqual(attributeName, 'action_name')) {
                         self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
                     }
                 });
-
-            } else if (BallerinaASTFactory.isResourceParameter(child)){
+            } else if (BallerinaASTFactory.isResourceParameter(child)) {
                 connector.addParam(child);
             }
         });
-        connectorDefinition.on('child-added', function (child) {
+        connectorDefinition.on('child-added', (child) => {
             if (BallerinaASTFactory.isConnectorAction(child)) {
-                var connectorAction = BallerinaEnvFactory.createConnectorAction();
+                const connectorAction = BallerinaEnvFactory.createConnectorAction();
                 connectorAction.initFromASTModel(child);
                 connector.addAction(connectorAction);
 
-                child.on('tree-modified', function (modifiedData) {
-                    var attributeName = modifiedData.data.attributeName;
-                    var newValue = modifiedData.data.newValue;
-                    var oldValue = modifiedData.data.oldValue;
+                child.on('tree-modified', (modifiedData) => {
+                    const attributeName = modifiedData.data.attributeName;
+                    const newValue = modifiedData.data.newValue;
+                    const oldValue = modifiedData.data.oldValue;
                     if (BallerinaASTFactory.isConnectorAction(modifiedData.origin) && _.isEqual(attributeName, 'action_name')) {
                         self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
                     }
@@ -187,12 +186,11 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             }
         }, this);
 
-        connectorDefinition.on('child-removed', function (child) {
+        connectorDefinition.on('child-removed', (child) => {
             if (BallerinaASTFactory.isConnectorAction(child)) {
                 self.removeConnectorActionDefinition(connectorDefinition, child);
             }
         }, this);
-
     }
 
     /**
@@ -227,8 +225,8 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
      * @param {Object} child - child which is getting modified
      */
     updateFunctionDefinition(functionDefinition, oldValue, newValue, child) {
-        var funcName = functionDefinition.getFunctionName();
-        var functionDef = this.getPackage().getFunctionDefinitionByName(funcName);
+        const funcName = functionDefinition.getFunctionName();
+        let functionDef = this.getPackage().getFunctionDefinitionByName(funcName);
         if (newValue) {
             functionDef = this.getPackage().getFunctionDefinitionByName(oldValue);
             functionDef.setName(newValue);
@@ -236,20 +234,20 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         }
         if (child) {
             if (BallerinaASTFactory.isReturnType(child)) {
-                var returnTypes = [];
-                _.forEach(functionDefinition.getReturnTypes(), function (returnType) {
+                const returnTypes = [];
+                _.forEach(functionDefinition.getReturnTypes(), (returnType) => {
                     returnTypes.push({
                         name: returnType.getName(),
-                        type: returnType.getTypeName()
+                        type: returnType.getTypeName(),
                     });
                 });
                 functionDef.setReturnParams(returnTypes);
             } else if (BallerinaASTFactory.isArgument(child)) {
-                var args = [];
-                _.forEach(functionDefinition.getArguments(), function (argument) {
+                const args = [];
+                _.forEach(functionDefinition.getArguments(), (argument) => {
                     args.push({
                         name: argument.getName(),
-                        type: argument.getTypeName()
+                        type: argument.getTypeName(),
                     });
                 });
                 functionDef.setParameters(args);
@@ -271,9 +269,9 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             }
         }
 
-        var attributeName = modifiedData.data.attributeName;
-        var newValue = modifiedData.data.newValue;
-        var oldValue = modifiedData.data.oldValue;
+        const attributeName = modifiedData.data.attributeName;
+        const newValue = modifiedData.data.newValue;
+        const oldValue = modifiedData.data.oldValue;
         switch (attributeName) {
         case 'connector_name':
             connectorDefinition.setName(newValue);
@@ -290,7 +288,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
      * @param {Object} newValue - new value
      */
     updateConnectorActionDefinition(connector, oldValue, newValue) {
-        var connectorActionDefinition = this.getPackage().getConnectorByName(connector).getActionByName(oldValue);
+        const connectorActionDefinition = this.getPackage().getConnectorByName(connector).getActionByName(oldValue);
         connectorActionDefinition.setName(newValue);
         connectorActionDefinition.setId(newValue);
     }

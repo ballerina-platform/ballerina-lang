@@ -28,7 +28,7 @@ import 'jquery-contextmenu';
          * @param args {Object}
          * @constructor
          */
-var ContextMenu = function (args) {
+const ContextMenu = function (args) {
     _.assign(this, args);
     this.init();
 };
@@ -41,18 +41,17 @@ ContextMenu.prototype.init = function () {
         this.container.contextMenu({
             selector: this.selector,
             build: this.provider,
-            zIndex: 4
+            zIndex: 4,
         });
     } else {
         this.container.contextMenu({
             selector: this.selector,
             callback: this.callback,
             items: this.items,
-            zIndex: 4
+            zIndex: 4,
         });
     }
 };
 
 export default ContextMenu;
 
-    

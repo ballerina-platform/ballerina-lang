@@ -20,7 +20,7 @@ import $ from 'jquery';
 import log from 'log';
 import Backbone from 'backbone';
 import './dialog.css';
-var SettingsDialog = Backbone.View.extend(
+const SettingsDialog = Backbone.View.extend(
     /** @lends SettingsDialog.prototype */
     {
         /**
@@ -29,49 +29,49 @@ var SettingsDialog = Backbone.View.extend(
          * @class SettingsDialog
          * @param {Object} options configuration options
          */
-        initialize: function (options) {
+        initialize(options) {
             this._options = options;
-            this.application = _.get(options, "application");
-            this._dialogContainer =  $(_.get(options, "application.config.dialog.container"));
+            this.application = _.get(options, 'application');
+            this._dialogContainer = $(_.get(options, 'application.config.dialog.container'));
         },
 
-        show: function () {
+        show() {
             this._modalContainer.modal('show');
         },
 
-        setSelectedFolder: function (path) {
+        setSelectedFolder(path) {
             this._fileBrowser.select(path);
         },
 
-        render: function () {
-            var app = this.application,
+        render() {
+            let app = this.application,
                 options = this._options;
 
-            if(!_.isNil(this._modalContainer)){
+            if (!_.isNil(this._modalContainer)) {
                 this._modalContainer.remove();
             }
 
-            var settingsModal = $(_.get(options, 'selector')).clone();
+            let settingsModal = $(_.get(options, 'selector')).clone();
 
-            settingsModal.find("select").filter("#sourceViewFontSize").change(function(){
-                var fontSize = $(this).val();
+            settingsModal.find('select').filter('#sourceViewFontSize').change(function () {
+                let fontSize = $(this).val();
                 app.tabController.getActiveTab().getBallerinaFileEditor().getSourceView()._editor.setFontSize(fontSize);
-                app.browserStorage.put("pref:sourceViewFontSize", fontSize);
+                app.browserStorage.put('pref:sourceViewFontSize', fontSize);
             }).val(
-                    app.browserStorage.get("pref:sourceViewFontSize")
+                    app.browserStorage.get('pref:sourceViewFontSize'),
                 );
 
-            settingsModal.find("select").filter("#sourceViewTheme").change(function(){
-                var selectedTheme = $(this).val();
+            settingsModal.find('select').filter('#sourceViewTheme').change(function () {
+                let selectedTheme = $(this).val();
                 app.tabController.getActiveTab().getBallerinaFileEditor().getSourceView()._editor.setTheme(selectedTheme);
-                app.browserStorage.put("pref:sourceViewTheme", selectedTheme);
+                app.browserStorage.put('pref:sourceViewTheme', selectedTheme);
             }).val(
-                    app.browserStorage.get("pref:sourceViewTheme")
+                    app.browserStorage.get('pref:sourceViewTheme'),
                 );
 
             this._dialogContainer.append(settingsModal);
             this._modalContainer = settingsModal;
-        }
+        },
     });
 
 export default SettingsDialog;

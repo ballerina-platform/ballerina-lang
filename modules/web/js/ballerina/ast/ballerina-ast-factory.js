@@ -108,7 +108,7 @@ import simpleTypeName from './simple-type-name';
  * @class BallerinaASTFactory
  * @lends BallerinaASTFactory
  */
-var BallerinaASTFactory = {};
+const BallerinaASTFactory = {};
 
 /**
  * creates BallerinaASTRoot
@@ -669,7 +669,7 @@ BallerinaASTFactory.createUnaryExpression = function (args) {
  * @param {Object} args - Arguments for the creating new expression creation
  * @return {ConnectorInitExpression}
  * */
-BallerinaASTFactory.createConnectorInitExpression= function (args) {
+BallerinaASTFactory.createConnectorInitExpression = function (args) {
     return new connectorInitExpression(args);
 };
 
@@ -1548,8 +1548,8 @@ BallerinaASTFactory.isCommittedStatement = function (child) {
 };
 
 BallerinaASTFactory.createFromJson = function (jsonNode) {
-    var node;
-    var nodeType = jsonNode.type;
+    let node;
+    const nodeType = jsonNode.type;
 
     switch (nodeType) {
     case 'simple_type_name':
@@ -1670,46 +1670,46 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         node = BallerinaASTFactory.createThenBody();
         break;
     case 'equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "=="});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '==' });
         break;
     case 'greater_than_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": ">"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '>' });
         break;
     case 'add_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "+"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '+' });
         break;
     case 'multiplication_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "*"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '*' });
         break;
     case 'division_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "/"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '/' });
         break;
     case 'mod_expression' :
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "%"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '%' });
         break;
     case 'and_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "&&"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '&&' });
         break;
     case 'subtract_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "-"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '-' });
         break;
     case 'or_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "||"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '||' });
         break;
     case 'greater_equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": ">="});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '>=' });
         break;
     case 'less_than_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "<"});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '<' });
         break;
     case 'less_equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "<="});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '<=' });
         break;
     case 'not_equal_expression':
-        node = BallerinaASTFactory.createBinaryExpression({"operator": "!="});
+        node = BallerinaASTFactory.createBinaryExpression({ operator: '!=' });
         break;
     case 'unary_expression':
-        node = BallerinaASTFactory.createUnaryExpression({"operator": jsonNode.operator});
+        node = BallerinaASTFactory.createUnaryExpression({ operator: jsonNode.operator });
         break;
     case 'connector_init_expr':
         node = BallerinaASTFactory.createConnectorInitExpression();
@@ -1820,12 +1820,12 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         node = BallerinaASTFactory.createCommittedStatement();
         break;
     default:
-        throw new Error('Unknown node definition for ' + jsonNode.type);
+        throw new Error(`Unknown node definition for ${jsonNode.type}`);
     }
 
-    node.setLineNumber(jsonNode.line_number, {doSilently: true});
-    if(jsonNode.is_identifier_literal) {
-        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, {doSilently: true});
+    node.setLineNumber(jsonNode.line_number, { doSilently: true });
+    if (jsonNode.is_identifier_literal) {
+        node.setIsIdentifierLiteral(jsonNode.is_identifier_literal, { doSilently: true });
     }
 
     if (!_.isNil(jsonNode.whitespace_descriptor)) {

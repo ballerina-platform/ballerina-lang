@@ -27,10 +27,10 @@ import ConditionalStatement from './conditional-statement';
 class CatchStatement extends ConditionalStatement {
     constructor(args) {
         super();
-        this._parameter = _.get(args, "parameter");
-        this.type = "CatchStatement";
+        this._parameter = _.get(args, 'parameter');
+        this.type = 'CatchStatement';
         this._parameterDefString = _.get(args, 'parameterDefString', 'exception e');
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
             2: '',
@@ -38,8 +38,8 @@ class CatchStatement extends ConditionalStatement {
             4: '',
             5: ' ',
             6: '\n',
-            7: '\n'
-        }
+            7: '\n',
+        };
     }
 
     setParameter(parameter, options) {
@@ -61,15 +61,15 @@ class CatchStatement extends ConditionalStatement {
     }
 
     initFromJson(jsonNode) {
-        let self = this;
+        const self = this;
         const parameterDef = jsonNode.parameter_definition;
         const paramDefNode = self.getFactory().createFromJson(parameterDef[0]);
         paramDefNode.initFromJson(parameterDef[0]);
-        this.setParameter(paramDefNode, {doSilently: true});
-        this.setParameterDefString(paramDefNode.getParameterDefinitionAsString(), {doSilently: true});
+        this.setParameter(paramDefNode, { doSilently: true });
+        this.setParameterDefString(paramDefNode.getParameterDefinitionAsString(), { doSilently: true });
 
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

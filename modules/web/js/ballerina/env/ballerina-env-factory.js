@@ -29,14 +29,14 @@ import AnnotationAttributeDefinition from './annotation-attribute-definition';
 /**
  * @class BallerinaEnvFactory
  */
-var BallerinaEnvFactory = {};
+const BallerinaEnvFactory = {};
 
 /**
  * creates Package
  * @param args
  */
 BallerinaEnvFactory.createPackage = function (args) {
-    var pckg = new Package(args);
+    const pckg = new Package(args);
     return pckg;
 };
 
@@ -45,7 +45,7 @@ BallerinaEnvFactory.createPackage = function (args) {
  * @param args
  */
 BallerinaEnvFactory.createConnector = function (args) {
-    var connector = new Connector(args);
+    const connector = new Connector(args);
     return connector;
 };
 
@@ -54,7 +54,7 @@ BallerinaEnvFactory.createConnector = function (args) {
  * @param args
  */
 BallerinaEnvFactory.createConnectorAction = function (args) {
-    var action = new ConnectorAction(args);
+    const action = new ConnectorAction(args);
     return action;
 };
 
@@ -63,7 +63,7 @@ BallerinaEnvFactory.createConnectorAction = function (args) {
  * @param jsonNode
  */
 BallerinaEnvFactory.createFunction = function (args) {
-    var functionDef = new Function(args);
+    const functionDef = new Function(args);
     return functionDef;
 };
 
@@ -72,7 +72,7 @@ BallerinaEnvFactory.createFunction = function (args) {
  * @param jsonNode
  */
 BallerinaEnvFactory.createAnnotationDefinition = function (args) {
-    var annotationDef = new AnnotationDefinition(args);
+    const annotationDef = new AnnotationDefinition(args);
     return annotationDef;
 };
 
@@ -81,7 +81,7 @@ BallerinaEnvFactory.createAnnotationDefinition = function (args) {
  * @param args
  */
 BallerinaEnvFactory.createAnnotationAttributeDefinition = function (args) {
-    let annotationAttributeDefinition = new AnnotationAttributeDefinition(args);
+    const annotationAttributeDefinition = new AnnotationAttributeDefinition(args);
     return annotationAttributeDefinition;
 };
 

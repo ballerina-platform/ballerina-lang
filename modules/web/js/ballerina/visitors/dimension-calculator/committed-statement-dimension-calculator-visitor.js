@@ -16,7 +16,7 @@
  * under the License.
  */
 import log from 'log';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class CommittedStatementDimensionCalculatorVisitor {
     canVisit(node) {
@@ -33,8 +33,8 @@ class CommittedStatementDimensionCalculatorVisitor {
         util.populateCompoundStatementChild(node);
 
         // Calculate the title width.
-        let viewState = node.getViewState();
-        viewState.titleWidth = util.getTextWidth("Committed").w;
+        const viewState = node.getViewState();
+        viewState.titleWidth = util.getTextWidth('Committed').w;
     }
 }
 

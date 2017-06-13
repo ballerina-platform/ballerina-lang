@@ -35,65 +35,65 @@ class DebugManager extends EventChannel {
     }
 
     stepIn() {
-        const message = { 'command': 'STEP_IN' };
+        const message = { command: 'STEP_IN' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
 
     stepOut() {
-        const message = { 'command': 'STEP_OUT' };
+        const message = { command: 'STEP_OUT' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
 
     stop() {
-        const message = { 'command': 'STOP' };
-        if(this.launchManager.active){
+        const message = { command: 'STOP' };
+        if (this.launchManager.active) {
             this.launchManager.stopProgram();
             this.trigger('resume-execution');
             this.trigger('session-ended');
-        }else{
+        } else {
             this.channel.sendMessage(message);
             this.trigger('resume-execution');
         }
     }
 
     stepOver() {
-        const message = { 'command': 'STEP_OVER' };
+        const message = { command: 'STEP_OVER' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
 
     resume() {
-        const message = { 'command': 'RESUME' };
+        const message = { command: 'RESUME' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
 
     startDebug() {
-        const message = { 'command': 'START' };
+        const message = { command: 'START' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
 
     processMesssage(message) {
-        if(message.code === 'DEBUG_HIT'){
+        if (message.code === 'DEBUG_HIT') {
             this.active = true;
             this.trigger('debug-hit', message);
         }
-        if(message.code === 'EXIT'){
+        if (message.code === 'EXIT') {
             this.active = false;
             this.trigger('session-ended');
         }
-        if(message.code === 'COMPLETE') {
+        if (message.code === 'COMPLETE') {
             this.active = false;
             this.trigger('session-completed');
         }
     }
 
     connect(url) {
-        if(url !== undefined || url !== ''){
-            this.channel = new Channel({ endpoint: url , debugger: this});
+        if (url !== undefined || url !== '') {
+            this.channel = new Channel({ endpoint: url, debugger: this });
             this.channel.connect();
         }
     }
@@ -105,40 +105,36 @@ class DebugManager extends EventChannel {
     init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
-        this.launchManager.on('debug-active', url => {
+        this.launchManager.on('debug-active', (url) => {
             this.startDebugger(url);
         });
     }
 
     addBreakPoint(lineNumber, fileName) {
         log.debug('debug point added', lineNumber, fileName);
-        const point = new DebugPoint({ 'fileName': fileName , 'lineNumber': lineNumber});
+        const point = new DebugPoint({ fileName, lineNumber });
         this.debugPoints.push(point);
         this.trigger('breakpoint-added', fileName);
     }
 
     removeBreakPoint(lineNumber, fileName) {
         log.debug('debug point removed', lineNumber, fileName);
-        const point = new DebugPoint({ 'fileName': fileName , 'lineNumber': lineNumber});
-        _.remove(this.debugPoints, item => {
-            return item.fileName === point.fileName && item.lineNumber === point.lineNumber ;
-        });
+        const point = new DebugPoint({ fileName, lineNumber });
+        _.remove(this.debugPoints, item => item.fileName === point.fileName && item.lineNumber === point.lineNumber);
         this.trigger('breakpoint-removed', fileName);
     }
 
     publishBreakpoints() {
-        try{
-            const message = { 'command': 'SET_POINTS', points: this.debugPoints };
+        try {
+            const message = { command: 'SET_POINTS', points: this.debugPoints };
             this.channel.sendMessage(message);
-        }catch(e){
-            //@todo log
+        } catch (e) {
+            // @todo log
         }
     }
 
     hasBreakPoint(lineNumber, fileName) {
-        return !!this.debugPoints.find( point => {
-            return point.lineNumber === lineNumber && point.fileName === fileName;
-        });
+        return !!this.debugPoints.find(point => point.lineNumber === lineNumber && point.fileName === fileName);
     }
 
     isEnabled() {
@@ -146,26 +142,20 @@ class DebugManager extends EventChannel {
     }
 
     getDebugPoints(fileName) {
-        const breakpoints = this.debugPoints.filter(breakpoint => {
-            return breakpoint.fileName === fileName;
-        });
+        const breakpoints = this.debugPoints.filter(breakpoint => breakpoint.fileName === fileName);
 
-        const breakpointsLineNumbers = breakpoints.map(breakpoint => {
-            return breakpoint.lineNumber;
-        });
+        const breakpointsLineNumbers = breakpoints.map(breakpoint => breakpoint.lineNumber);
         return breakpointsLineNumbers;
     }
 
     removeAllBreakpoints(fileName) {
-        _.remove(this.debugPoints, item => {
-            return item.fileName === fileName;
-        });
+        _.remove(this.debugPoints, item => item.fileName === fileName);
         log.debug('removed all debugpoints for fileName', fileName);
         this.publishBreakpoints();
     }
 
     createDebugPoint(lineNumber, fileName) {
-        return new DebugPoint({ 'fileName': fileName , 'lineNumber': lineNumber});
+        return new DebugPoint({ fileName, lineNumber });
     }
 }
 

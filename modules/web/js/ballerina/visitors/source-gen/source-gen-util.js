@@ -21,12 +21,10 @@ class SourceGenUtil {
 
     static getTailingIndentation(content) {
         // get the array of chars from content
-        let charArray = content.split('');
+        const charArray = content.split('');
         // capture all chars from end, upto the last non-ws char (excluding it)
-        let charsTillLastNonWSChar = _.takeRightWhile(charArray,
-          (charAtIndex) => {
-              return !(/\S/g.test(charAtIndex));
-          });
+        const charsTillLastNonWSChar = _.takeRightWhile(charArray,
+          charAtIndex => !(/\S/g.test(charAtIndex)));
         // out of found tailing whiteSpace, find whiteSpace upto last new line char
         // or if there is no new line chars, get upto last non WS
         // or empty if there is no any tailing whiteSpace at all
@@ -36,8 +34,8 @@ class SourceGenUtil {
     static replaceTailingIndentation(content, newIndentation) {
         let newContent = '';
         // get the array of chars from content
-        let charArray = content.split('');
-        let lastNonWSCharIndex =  -1;
+        const charArray = content.split('');
+        let lastNonWSCharIndex = -1;
         let lastNewLineCharIndex = -1;
         // iterate through current chars from end of the array
         for (let index = charArray.length - 1; index >= 0; index--) {

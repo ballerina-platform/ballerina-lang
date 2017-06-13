@@ -34,7 +34,7 @@ class ArrayMapAccessExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode), {doSilently: true});
+        this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode), { doSilently: true });
     }
 
     /**
@@ -44,20 +44,18 @@ class ArrayMapAccessExpression extends Expression {
      * @private
      */
     generateArrayMapAccessExpressionString(jsonNode) {
-        var self = this;
-        var indexString = "";
+        const self = this;
+        let indexString = '';
 
-        for (var itr = jsonNode.children.length - 1; itr >= 0; itr--) {
-            var childJsonNode = jsonNode.children[itr];
-            var child = self.getFactory().createFromJson(childJsonNode);
+        for (let itr = jsonNode.children.length - 1; itr >= 0; itr--) {
+            const childJsonNode = jsonNode.children[itr];
+            const child = self.getFactory().createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
-            indexString = indexString + "[" +child.getExpression() + "]";
-
+            indexString = `${indexString}[${child.getExpression()}]`;
         }
         return jsonNode.array_map_access_expression_name + indexString;
     }
 }
 
 export default ArrayMapAccessExpression;
-
 

@@ -38,7 +38,7 @@ class ConnectorAction extends ASTNode {
             3: ' ',
             4: ' ',
             5: '\n',
-            6: '\n'
+            6: '\n',
         };
     }
 
@@ -94,10 +94,10 @@ class ConnectorAction extends ASTNode {
      * @return {VariableDeclaration[]} variableDeclarations
      */
     getVariableDefinitionStatements() {
-        let variableDefinitionStatements = [];
-        let self = this;
+        const variableDefinitionStatements = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isVariableDefinitionStatement(child)) {
                 variableDefinitionStatements.push(child);
             }
@@ -109,12 +109,10 @@ class ConnectorAction extends ASTNode {
      * Remove variable declaration.
      */
     removeVariableDeclaration(variableDeclarationIdentifier) {
-        let self = this;
+        const self = this;
         // Removing the variable from the children.
-        let variableDeclarationChild = _.find(this.getChildren(), function (child) {
-            return self.getFactory().isVariableDeclaration(child)
-                && child.getIdentifier() === variableDeclarationIdentifier;
-        });
+        const variableDeclarationChild = _.find(this.getChildren(), child => self.getFactory().isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier);
         this.removeChild(variableDeclarationChild);
     }
 
@@ -122,32 +120,28 @@ class ConnectorAction extends ASTNode {
      * Adds new variable declaration.
      */
     addVariableDeclaration(newVariableDeclaration) {
-        let self = this;
+        const self = this;
         // Get the index of the last variable declaration.
-        let index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.getFactory().isVariableDeclaration(child);
-        });
+        let index = _.findLastIndex(this.getChildren(), child => self.getFactory().isVariableDeclaration(child));
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index === -1) {
-            index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.getFactory().isConnectorDeclaration(child);
-            });
+            index = _.findLastIndex(this.getChildren(), child => self.getFactory().isConnectorDeclaration(child));
         }
 
         this.addChild(newVariableDeclaration, index + 1);
     }
 
-    //// Start of return type functions.
+    // // Start of return type functions.
 
     /**
      * Gets the return type as a string separated by commas.
      * @return {string} - Return types.
      */
     getReturnTypesAsString() {
-        let returnTypes = [];
-        _.forEach(this.getReturnTypes(), function (returnTypeChild, index) {
+        const returnTypes = [];
+        _.forEach(this.getReturnTypes(), (returnTypeChild, index) => {
             let returnTypeTxt = (index !== 0 && returnTypeChild.whiteSpace.useDefault) ? ' ' : '';
             returnTypeTxt += returnTypeChild.getParameterDefinitionAsString();
             returnTypes.push(returnTypeTxt);
@@ -179,7 +173,7 @@ class ConnectorAction extends ASTNode {
      * @param {string} identifier - The identifier of the argument.
      */
     addReturnType(type, identifier) {
-        let returnParamDefHolder = this.getReturnParameterDefinitionHolder();
+        const returnParamDefHolder = this.getReturnParameterDefinitionHolder();
 
         // Adding return type mode if it doesn't exists.
         if (_.isUndefined(this.getReturnTypeModel())) {
@@ -188,9 +182,9 @@ class ConnectorAction extends ASTNode {
 
         // Check if there is already a return type with the same identifier.
         if (!_.isUndefined(identifier)) {
-            let child = returnParamDefHolder.findChildByIdentifier(true, identifier);
+            const child = returnParamDefHolder.findChildByIdentifier(true, identifier);
             if (_.isUndefined(child)) {
-                let errorString = "An return argument with identifier '" + identifier + "' already exists.";
+                const errorString = `An return argument with identifier '${identifier}' already exists.`;
                 log.error(errorString);
                 throw errorString;
             }
@@ -199,36 +193,31 @@ class ConnectorAction extends ASTNode {
         // Validating whether return type can be added based on identifiers of other return types.
         if (!_.isUndefined(identifier)) {
             if (!this.hasNamedReturnTypes() && this.hasReturnTypes()) {
-                let errorStringWithoutIdentifiers = "Return types without identifiers already exists. Remove them to " +
-                    "add return types with identifiers.";
+                const errorStringWithoutIdentifiers = 'Return types without identifiers already exists. Remove them to ' +
+                    'add return types with identifiers.';
                 log.error(errorStringWithoutIdentifiers);
                 throw errorStringWithoutIdentifiers;
             }
-        } else {
-            if (this.hasNamedReturnTypes() && this.hasReturnTypes()) {
-                let errorStringWithIdentifiers = "Return types with identifiers already exists. Remove them to add " +
-                    "return types without identifiers.";
-                log.error(errorStringWithIdentifiers);
-                throw errorStringWithIdentifiers;
-            }
+        } else if (this.hasNamedReturnTypes() && this.hasReturnTypes()) {
+            const errorStringWithIdentifiers = 'Return types with identifiers already exists. Remove them to add ' +
+                    'return types without identifiers.';
+            log.error(errorStringWithIdentifiers);
+            throw errorStringWithIdentifiers;
         }
 
-        let paramDef = this.getFactory().createParameterDefinition({typeName: type, name: identifier});
+        const paramDef = this.getFactory().createParameterDefinition({ typeName: type, name: identifier });
         returnParamDefHolder.addChild(paramDef, 0);
     }
 
     hasNamedReturnTypes() {
         if (this.getReturnParameterDefinitionHolder().getChildren().length === 0) {
-            //if there are no return types in the return type model
+            // if there are no return types in the return type model
             return false;
-        } else {
-            //check if any of the return types have identifiers
-            let indexWithoutIdentifiers = _.findIndex(this.getReturnParameterDefinitionHolder().getChildren(), function (child) {
-                return _.isUndefined(child.getName());
-            });
-
-            return indexWithoutIdentifiers === -1;
         }
+            // check if any of the return types have identifiers
+        const indexWithoutIdentifiers = _.findIndex(this.getReturnParameterDefinitionHolder().getChildren(), child => _.isUndefined(child.getName()));
+
+        return indexWithoutIdentifiers === -1;
     }
 
     hasReturnTypes() {
@@ -240,30 +229,30 @@ class ConnectorAction extends ASTNode {
      * @param {string} modelID - The id of an {Argument} which resides in the return type model.
      */
     removeReturnType(modelID) {
-        let removeChild = this.getReturnParameterDefinitionHolder().removeChildById(this.getFactory().isParameterDefinition, modelID);
+        const removeChild = this.getReturnParameterDefinitionHolder().removeChildById(this.getFactory().isParameterDefinition, modelID);
 
         // Deleting the argument from the AST.
         if (_.isUndefined(removeChild)) {
-            let exceptionString = "Could not find a return type with id : " + modelID;
+            const exceptionString = `Could not find a return type with id : ${modelID}`;
             log.error(exceptionString);
             throw exceptionString;
         }
     }
 
-    //// End of return type functions.
+    // // End of return type functions.
 
     /**
      * Returns the list of arguments as a string separated by commas.
      * @return {string} - Arguments as string.
      */
     getArgumentsAsString() {
-        let argsAsString = "";
-        let args = this.getArguments();
-        _.forEach(args, function (argument, index) {
-            argsAsString += argument.getTypeName() + " ";
+        let argsAsString = '';
+        const args = this.getArguments();
+        _.forEach(args, (argument, index) => {
+            argsAsString += `${argument.getTypeName()} `;
             argsAsString += argument.getName();
             if (args.length - 1 !== index) {
-                argsAsString += " , ";
+                argsAsString += ' , ';
             }
         });
         return argsAsString;
@@ -275,13 +264,13 @@ class ConnectorAction extends ASTNode {
      * @param identifier - The identifier of the argument.
      */
     addArgument(type, identifier) {
-        //creating argument
-        let newArgumentParamDef = this.getFactory().createParameterDefinition();
+        // creating argument
+        const newArgumentParamDef = this.getFactory().createParameterDefinition();
         newArgumentParamDef.setTypeName(type);
         newArgumentParamDef.setName(identifier);
 
-        let argParamDefHolder = this.getArgumentParameterDefinitionHolder();
-        let index = argParamDefHolder.getChildren().length;
+        const argParamDefHolder = this.getArgumentParameterDefinitionHolder();
+        const index = argParamDefHolder.getChildren().length;
 
         argParamDefHolder.addChild(newArgumentParamDef, index + 1);
     }
@@ -292,15 +281,15 @@ class ConnectorAction extends ASTNode {
      * @return {Array} - The removed argument.
      */
     removeArgument(identifier) {
-        let argParamDefHolder = this.getArgumentParameterDefinitionHolder();
+        const argParamDefHolder = this.getArgumentParameterDefinitionHolder();
         argParamDefHolder.removeChildByName(this.getFactory().isParameterDefinition, identifier);
     }
 
     getConnectionDeclarations() {
-        let connectorDeclaration = [];
-        let self = this;
+        const connectorDeclaration = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
             }
@@ -311,10 +300,10 @@ class ConnectorAction extends ASTNode {
     }
 
     getWorkerDeclarations() {
-        let workerDeclarations = [];
-        let self = this;
+        const workerDeclarations = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
@@ -330,13 +319,13 @@ class ConnectorAction extends ASTNode {
      * @param {string} [jsonNode.resource_name] - Name of the resource definition
      */
     initFromJson(jsonNode) {
-        let self = this;
-        this.setActionName(jsonNode.action_name, {doSilently: true});
+        const self = this;
+        this.setActionName(jsonNode.action_name, { doSilently: true });
 
-        _.each(jsonNode.children, function (childNode) {
-            let child = undefined;
-            let childNodeTemp = undefined;
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+        _.each(jsonNode.children, (childNode) => {
+            let child;
+            let childNodeTemp;
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -367,14 +356,12 @@ class ConnectorAction extends ASTNode {
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId)  {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype)
               .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
-            const firstWorkerIndex = _.findIndex(this.getChildren(), function (child) {
-                return BallerinaASTFactory.isWorkerDeclaration(child);
-            });
+            const firstWorkerIndex = _.findIndex(this.getChildren(), child => BallerinaASTFactory.isWorkerDeclaration(child));
 
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
@@ -399,9 +386,9 @@ class ConnectorAction extends ASTNode {
                     // ballerina-ast-node
                     node: this.parent,
                     getChildrenFunc: this.parent.getConnectorActionDefinitions,
-                    getter: this.getActionName
-                }]
-            }]
+                    getter: this.getActionName,
+                }],
+            }],
         });
     }
 
@@ -411,10 +398,8 @@ class ConnectorAction extends ASTNode {
      * @return {ConnectorDeclaration}
      */
     getConnectorByName(connectorName) {
-        let self = this;
-        let connectorReference = _.find(this.getChildren(), function (child) {
-            return (self.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
-        });
+        const self = this;
+        const connectorReference = _.find(this.getChildren(), child => (self.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName)));
 
         return !_.isNil(connectorReference) ? connectorReference : this.getParent().getConnectorByName(connectorName);
     }
@@ -424,10 +409,8 @@ class ConnectorAction extends ASTNode {
      * @return {Array} connectorReferences
      */
     getConnectorsInImmediateScope() {
-        let factory = this.getFactory();
-        let connectorReferences = _.filter(this.getChildren(), function (child) {
-            return factory.isConnectorDeclaration(child);
-        });
+        const factory = this.getFactory();
+        const connectorReferences = _.filter(this.getChildren(), child => factory.isConnectorDeclaration(child));
 
         return !_.isEmpty(connectorReferences) ? connectorReferences : this.getParent().getConnectorsInImmediateScope();
     }

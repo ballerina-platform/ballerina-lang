@@ -28,7 +28,7 @@ class SimpleTypeName extends ASTNode {
             0: ' ',
             1: '',
             2: '',
-            3: ''
+            3: '',
         };
     }
 
@@ -67,15 +67,15 @@ class SimpleTypeName extends ASTNode {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        this.setTypeName(jsonNode.type_name, {doSilently: true});
-        this.setPackageName(jsonNode.package_name, {doSilently: true});
-        this.setFullPackageName(jsonNode.full_package_name, {doSilently: true});
+        this.setTypeName(jsonNode.type_name, { doSilently: true });
+        this.setPackageName(jsonNode.package_name, { doSilently: true });
+        this.setFullPackageName(jsonNode.full_package_name, { doSilently: true });
     }
 
     toString() {
         let typeNameString = '';
-        typeNameString += ((!_.isEmpty(this.getPackageName())) ?  this.getPackageName()
-                  + this.getWSRegion(1) + ':' + this.getWSRegion(2) : '');
+        typeNameString += ((!_.isEmpty(this.getPackageName())) ? `${this.getPackageName()
+                  + this.getWSRegion(1)}:${this.getWSRegion(2)}` : '');
         typeNameString += this.getTypeName() + this.getWSRegion(3);
         return typeNameString;
     }

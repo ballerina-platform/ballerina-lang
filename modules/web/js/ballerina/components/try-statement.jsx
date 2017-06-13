@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import BlockStatementDecorator from "./block-statement-decorator";
+import React from 'react';
+import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 class TryStatement extends React.Component {
 
@@ -30,8 +30,8 @@ class TryStatement extends React.Component {
         let model = this.props.model,
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={"Try"} model={model.parent}>
-            {children}
+        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Try'} model={model.parent}>
+          {children}
         </BlockStatementDecorator>);
     }
 }
@@ -42,7 +42,7 @@ TryStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
 };
 
 

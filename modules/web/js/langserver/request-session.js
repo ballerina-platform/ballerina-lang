@@ -52,14 +52,14 @@ class RequestSession {
 }
 
 // Auto generated Id for the session
-var uuid =  function (){
+var uuid = function () {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
             .toString(16)
             .substring(1);
     }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();
+    return `${s4() + s4()}-${s4()}-${s4()}-${
+        s4()}-${s4()}${s4()}${s4()}`;
 };
 
-export default  RequestSession;
+export default RequestSession;

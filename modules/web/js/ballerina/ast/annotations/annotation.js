@@ -69,7 +69,7 @@ class Annotation extends ASTNode {
             0: '',
             1: ' ',
             2: '',
-            3: '\n'
+            3: '\n',
         };
     }
 
@@ -120,17 +120,17 @@ class Annotation extends ASTNode {
     toString() {
         let annotationString;
         if (_.isUndefined(this._packageName) || _.isEmpty(this._packageName)) {
-            annotationString = '@' + this.getWSRegion(0) + this._identifier;
+            annotationString = `@${this.getWSRegion(0)}${this._identifier}`;
         } else {
-            annotationString = '@' + this._packageName + ':' + this._identifier + this.getWSRegion(1);
+            annotationString = `@${this._packageName}:${this._identifier}${this.getWSRegion(1)}`;
         }
 
-        let childrenAsString = [];
-        _.forEach(this.getChildren(), function (child) {
+        const childrenAsString = [];
+        _.forEach(this.getChildren(), (child) => {
             childrenAsString.push(child.toString());
         });
 
-        annotationString = annotationString + '{' + _.join(childrenAsString, ',') + '}' + this.getWSRegion(3);
+        annotationString = `${annotationString}{${_.join(childrenAsString, ',')}}${this.getWSRegion(3)}`;
         return annotationString;
     }
 
@@ -142,18 +142,16 @@ class Annotation extends ASTNode {
      * @param {string} jsonNode.annotation_name The identifier of the annotation.
      */
     initFromJson(jsonNode) {
-        this.setFullPackageName(jsonNode.annotation_package_path, {doSilently: true});
-        this.setPackageName(jsonNode.annotation_package_name, {doSilently: true});
-        this.setIdentifier(jsonNode.annotation_name, {doSilently: true});
+        this.setFullPackageName(jsonNode.annotation_package_path, { doSilently: true });
+        this.setPackageName(jsonNode.annotation_package_name, { doSilently: true });
+        this.setIdentifier(jsonNode.annotation_name, { doSilently: true });
         if (_.includes(
-                _.map(supportedHttpMethodAnnotations, (e) => {
-                    return e.toLowerCase();
-                }), this.getIdentifier().toLowerCase())) {
+                _.map(supportedHttpMethodAnnotations, e => e.toLowerCase()), this.getIdentifier().toLowerCase())) {
             this.setUniqueIdentifier('httpMethod');
         }
 
-        _.each(jsonNode.children, childNode => {
-            let child = this.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = this.getFactory().createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

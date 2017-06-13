@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-class SimpleBBox  {
+class SimpleBBox {
 
     /**
      * @param x
@@ -38,7 +38,7 @@ class SimpleBBox  {
      * @param h
      */
     fromTopCenter(topCenter, w, h) {
-        this.x(topCenter.x() - w/2);
+        this.x(topCenter.x() - w / 2);
         this.y(topCenter.y());
         this.w(w);
         this.h(h);
@@ -74,7 +74,7 @@ class SimpleBBox  {
     }
 
     getTopCenterX() {
-        return this.getLeft() + this.w()/2;
+        return this.getLeft() + this.w() / 2;
     }
 
     /**
@@ -82,7 +82,7 @@ class SimpleBBox  {
      * @return {{x: number, y: number}} center poin
      */
     getCenter() {
-        return {x: this.getCenterX(), y: this.getCenterY()};
+        return { x: this.getCenterX(), y: this.getCenterY() };
     }
 
     /**

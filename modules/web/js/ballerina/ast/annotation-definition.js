@@ -28,88 +28,88 @@ class AnnotationDefinition extends ASTNode {
         super('AnnotationDefinition');
         this._annotationName = _.get(args, 'annotationName');
         this._attachmentPoints = _.get(args, 'attachmentPoints', []);
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
             2: ' ',
             3: '\n',
-            4: '\n'
-        }
+            4: '\n',
+        };
         this.whiteSpace.defaultDescriptor.children = {
-            'attachmentPoints': {
+            attachmentPoints: {
                 children: {
-                    'service': {
+                    service: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'resource': {
+                    resource: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'connector': {
+                    connector: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'action': {
+                    action: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'function': {
+                    function: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'typemapper': {
+                    typemapper: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'struct': {
+                    struct: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'const': {
+                    const: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'parameter': {
+                    parameter: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
+                            1: '',
+                        },
                     },
-                    'annotation': {
+                    annotation: {
                         regions: {
                             0: ' ',
-                            1: ''
-                        }
-                    }
-                }
-            }
-        }
+                            1: '',
+                        },
+                    },
+                },
+            },
+        };
     }
 
     setAnnotationName(annotationName, options) {
         if (!_.isNil(annotationName) && ASTNode.isValidIdentifier(annotationName)) {
             this.setAttribute('_annotationName', annotationName, options);
         } else {
-            let error = 'Invalid name for the annotation name: ' + annotationName;
+            const error = `Invalid name for the annotation name: ${annotationName}`;
             log.error(error);
-            throw  error;
+            throw error;
         }
     }
 
@@ -136,31 +136,29 @@ class AnnotationDefinition extends ASTNode {
     addAnnotationAttributeDefinition(type, identifier, defaultValue) {
         // if identifier is empty
         if (_.isEmpty(identifier)) {
-            let errorString = 'Identifier cannot be empty';
+            const errorString = 'Identifier cannot be empty';
             log.error(errorString);
             throw errorString;
         }
 
         // Check if already variable definition exists with same identifier.
-        let identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), function (attDef) {
-            return attDef.getAttributeName() === identifier;
-        }) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), attDef => attDef.getAttributeName() === identifier) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
         if (identifierAlreadyExists) {
-            let errorString = 'An attribute with identifier \'' + identifier + '\' already exists.';
+            const errorString = `An attribute with identifier '${identifier}' already exists.`;
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new annotation attribute definition.
-            let newAnnotationAttributeDefinition = this.getFactory().createAnnotationAttributeDefinition();
+            const newAnnotationAttributeDefinition = this.getFactory().createAnnotationAttributeDefinition();
             newAnnotationAttributeDefinition.setAttributeName(identifier);
             newAnnotationAttributeDefinition.setAttributeType(type);
             newAnnotationAttributeDefinition.setAttributeValue(defaultValue);
 
             // Get the index of the last definition.
-            let index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
+            const index = this.findLastIndexOfChild(this.getFactory().isVariableDefinitionStatement);
 
             this.addChild(newAnnotationAttributeDefinition, index + 1);
         }
@@ -172,17 +170,15 @@ class AnnotationDefinition extends ASTNode {
      * */
     addAnnotationAttachmentPoint(identifier) {
         if (_.isEmpty(identifier)) {
-            let errorString = 'Identifier cannot be empty';
+            const errorString = 'Identifier cannot be empty';
             log.error(errorString);
             throw errorString;
         }
 
-        let identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), function (attachmentPoint) {
-            return _.isEqual(identifier, attachmentPoint);
-        }) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), attachmentPoint => _.isEqual(identifier, attachmentPoint)) !== -1;
 
         if (identifierAlreadyExists) {
-            let errorString = 'An attribute with identifier "' + identifier + '" already exists.';
+            const errorString = `An attribute with identifier "${identifier}" already exists.`;
             log.error(errorString);
             throw errorString;
         } else {
@@ -215,13 +211,13 @@ class AnnotationDefinition extends ASTNode {
      * @override
      * */
     initFromJson(jsonNode) {
-        let self = this;
-        this.setAnnotationName(jsonNode.annotation_name, {doSilently: true});
+        const self = this;
+        this.setAnnotationName(jsonNode.annotation_name, { doSilently: true });
         if (!_.isNil(jsonNode.annotation_attachment_points)) {
-            this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), {doSilently: true});
+            this.setAttachmentPoints(_.split(jsonNode.annotation_attachment_points, ','), { doSilently: true });
         }
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
@@ -241,9 +237,9 @@ class AnnotationDefinition extends ASTNode {
                 parents: [{
                     node: this.parent,
                     getChildrenFunc: this.parent.getAnnotationDefinitions,
-                    getter: this.getAnnotationName
-                }]
-            }]
+                    getter: this.getAnnotationName,
+                }],
+            }],
         });
     }
 }

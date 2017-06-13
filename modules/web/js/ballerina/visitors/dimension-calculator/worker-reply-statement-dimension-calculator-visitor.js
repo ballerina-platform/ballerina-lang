@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 import _ from 'lodash';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
@@ -35,15 +35,15 @@ class WorkerReplyStatementDimensionCalculatorVisitor {
 
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
-        let workerDeclaration = node.getDestination();
+        const workerDeclaration = node.getDestination();
         if (!_.isUndefined(workerDeclaration)) {
-            let heightFromTop = util.getStatementHeightBefore(node);
-            let workerReplyStatement = workerDeclaration.findChild(BallerinaASTFactory.isReplyStatement);
+            const heightFromTop = util.getStatementHeightBefore(node);
+            const workerReplyStatement = workerDeclaration.findChild(BallerinaASTFactory.isReplyStatement);
             if (!_.isUndefined(workerReplyStatement)) {
-                let workerHeightFromTop = util.getStatementHeightBefore(workerReplyStatement);
-                let heightDiff = heightFromTop - workerHeightFromTop;
+                const workerHeightFromTop = util.getStatementHeightBefore(workerReplyStatement);
+                const heightDiff = heightFromTop - workerHeightFromTop;
                 if (heightDiff > 0) {
-                    //default worker height is larger than the workers' statements height
+                    // default worker height is larger than the workers' statements height
                     workerReplyStatement.getViewState().components['drop-zone'].h += heightDiff;
                     workerReplyStatement.getViewState().bBox.h += heightDiff;
                 } else {

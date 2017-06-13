@@ -25,8 +25,8 @@ import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-v
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
-var ace = global.ace;
-var Range = ace.acequire('ace/range').Range;
+let ace = global.ace;
+let Range = ace.acequire('ace/range').Range;
 
 // require possible themes
 function requireAll(requireContext) {
@@ -35,7 +35,7 @@ function requireAll(requireContext) {
 requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
-var mode = ace.acequire('ace/mode/ballerina');
+let mode = ace.acequire('ace/mode/ballerina');
 
 /**
  * @class SourceView
@@ -50,7 +50,7 @@ class SourceView extends EventChannel {
     constructor(args) {
         super();
         this._options = args;
-        if(!_.has(args, 'container')){
+        if (!_.has(args, 'container')) {
             log.error('container is not specified for rendering source view.');
         }
         this._container = _.get(args, 'container');
@@ -63,50 +63,50 @@ class SourceView extends EventChannel {
     }
 
     render() {
-        var self = this;
+        let self = this;
         this._editor = ace.edit(this._container);
-        var mode = ace.acequire(_.get(this._options, 'mode')).Mode;
+        let mode = ace.acequire(_.get(this._options, 'mode')).Mode;
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
-        //Avoiding ace warning
+        // Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
-        var editorThemeName = (this._storage.get('pref:sourceViewTheme') !== null) ? this._storage.get('pref:sourceViewTheme')
+        let editorThemeName = (this._storage.get('pref:sourceViewTheme') !== null) ? this._storage.get('pref:sourceViewTheme')
             : _.get(this._options, 'theme');
-        var editorFontSize = (this._storage.get('pref:sourceViewFontSize') !== null) ? this._storage.get('pref:sourceViewFontSize')
+        let editorFontSize = (this._storage.get('pref:sourceViewFontSize') !== null) ? this._storage.get('pref:sourceViewFontSize')
             : _.get(this._options, 'font_size');
 
-        var editorTheme = ace.acequire(editorThemeName);
+        let editorTheme = ace.acequire(editorThemeName);
 
         this._editor.setTheme(editorTheme);
         this._editor.setFontSize(editorFontSize);
         this._editor.setOptions({
-            enableBasicAutocompletion:true
+            enableBasicAutocompletion: true,
         });
         this._editor.setBehavioursEnabled(true);
-        //bind auto complete to key press
-        this._editor.commands.on('afterExec', function(e){
-            if (e.command.name === 'insertstring'&&/^[\w.]$/.test(e.args)) {
+        // bind auto complete to key press
+        this._editor.commands.on('afterExec', (e) => {
+            if (e.command.name === 'insertstring' && /^[\w.]$/.test(e.args)) {
                 self._editor.execCommand('startAutocomplete');
             }
         });
 
         this._editor.getSession().setValue(this._content);
         this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
-        this._editor.on('change', function(event) {
-            if(!self._inSilentMode){
-                var changeEvent = {
+        this._editor.on('change', (event) => {
+            if (!self._inSilentMode) {
+                let changeEvent = {
                     type: 'source-modified',
                     title: 'Modify source',
                     data: {
                         type: event.action,
-                        lines: event.lines
-                    }
+                        lines: event.lines,
+                    },
                 };
                 self.trigger('modified', changeEvent);
             }
         });
 
-        //register actions
-        if(this._debugger !== undefined && this._debugger.isEnabled()){
+        // register actions
+        if (this._debugger !== undefined && this._debugger.isEnabled()) {
             this._editor.on('guttermousedown', _.bind(this.toggleDebugPoints, this));
         }
     }
@@ -145,16 +145,16 @@ class SourceView extends EventChannel {
      * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
      */
     bindCommand(command) {
-        var id = command.id,
+        let id = command.id,
             hasShortcut = _.has(command, 'shortcuts'),
             self = this;
-        if(hasShortcut){
-            var macShortcut = _.replace(command.shortcuts.mac.key, '+', '-'),
+        if (hasShortcut) {
+            let macShortcut = _.replace(command.shortcuts.mac.key, '+', '-'),
                 winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
             this.getEditor().commands.addCommand({
                 name: id,
-                bindKey: {win: winShortcut, mac: macShortcut},
-                exec: function() {
+                bindKey: { win: winShortcut, mac: macShortcut },
+                exec() {
                     self.trigger('dispatch-command', id);
                 }
             });
@@ -170,48 +170,48 @@ class SourceView extends EventChannel {
     }
 
     isVisible() {
-        return  $(this._container).is(':visible');
+        return $(this._container).is(':visible');
     }
 
     format(doSilently) {
-        let  parserRes = this._fileEditor.parserBackend.parse(
+        const  parserRes = this._fileEditor.parserBackend.parse(
             {
                 name: this._fileEditor.getFile().getName(),
                 path: this._fileEditor.getFile().getPath(),
                 content: this._editor.getSession().getValue(),
-                package: 'Current Package'
-            }
+                package: 'Current Package',
+            },
         );
         if (parserRes.error && !_.isEmpty(parserRes.message)) {
-            alerts.error('Cannot format due to syntax errors : ' + parserRes.message);
+            alerts.error(`Cannot format due to syntax errors : ${  parserRes.message}`);
             return;
         }
-        let ast = this._fileEditor.deserializer.getASTModel(parserRes);
-        let enableDefaultWSVisitor = new EnableDefaultWSVisitor();
+        const ast = this._fileEditor.deserializer.getASTModel(parserRes);
+        const enableDefaultWSVisitor = new EnableDefaultWSVisitor();
         ast.accept(enableDefaultWSVisitor);
-        let sourceGenVisitor = new SourceGenVisitor();
+        const sourceGenVisitor = new SourceGenVisitor();
         ast.accept(sourceGenVisitor);
-        let formattedContent =  sourceGenVisitor.getGeneratedSource();
-        let session = this._editor.getSession();
-        let contentRange = new Range(0, 0, session.getLength(), session.getRowLength(session.getLength()));
+        const formattedContent = sourceGenVisitor.getGeneratedSource();
+        const session = this._editor.getSession();
+        const contentRange = new Range(0, 0, session.getLength(), session.getRowLength(session.getLength()));
         session.replace(contentRange, formattedContent);
     }
 
-    //dbeugger related functions.
+    // dbeugger related functions.
 
     toggleDebugPoints(e) {
-        var target = e.domEvent.target;
+        let target = e.domEvent.target;
         if (target.className.indexOf('ace_gutter-cell') === -1)
-            return;
+            {return;}
         if (!this._editor.isFocused())
-            return;
+            {return;}
         if (e.clientX > this._gutter + target.getBoundingClientRect().left)
-            return;
+            {return;}
 
 
-        var breakpoints = e.editor.session.getBreakpoints(row, 0);
+        let breakpoints = e.editor.session.getBreakpoints(row, 0);
         var row = e.getDocumentPosition().row;
-        if(_.isUndefined(breakpoints[row])){
+        if (_.isUndefined(breakpoints[row])) {
             e.editor.session.setBreakpoint(row);
         } else {
             this._editor.getSession().removeMarker(this._markers[row]);
@@ -226,7 +226,7 @@ class SourceView extends EventChannel {
     }
 
     clearExistingDebugHit() {
-        if(this.debugPointMarker !== undefined){
+        if (this.debugPointMarker !== undefined) {
             this._editor.getSession().removeMarker(this.debugPointMarker);
         }
     }
@@ -252,27 +252,23 @@ class SourceView extends EventChannel {
             regExp:false,
         });
         if(!range) {
-            return;
+            
         }
     }
 
     setBreakpoints(breakpoints = []) {
         // ace editor breakpoints counts from 0;
-        var sourceViewBreakPoints = breakpoints.map( breakpoint => {
-            return breakpoint - 1;
-        });
+        let sourceViewBreakPoints = breakpoints.map(breakpoint => breakpoint - 1);
         this._editor.getSession().setBreakpoints(sourceViewBreakPoints);
     }
 
     getBreakpoints() {
         const sourceViewBreakPointRows = this._editor.getSession().getBreakpoints() || [];
-        const sourceViewBreakPoints = sourceViewBreakPointRows.map( (value, row) => {
-            return row + 1;
-        });
+        const sourceViewBreakPoints = sourceViewBreakPointRows.map((value, row) => row + 1);
         return sourceViewBreakPoints;
     }
 
-    resize(){
+    resize() {
         this._editor.resize();
     }
 }

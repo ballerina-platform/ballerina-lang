@@ -4,26 +4,26 @@ class FragmentUtils {
     static createExpressionFragment(sourceString) {
         return {
             expectedNodeType: 'expression',
-            source: sourceString
+            source: sourceString,
         };
     }
 
     static createStatementFragment(sourceString) {
         return {
             expectedNodeType: 'statement',
-            source: sourceString
+            source: sourceString,
         };
     }
 
     static createJoinCondition(sourceString) {
         return {
             expectedNodeType: 'join-condition',
-            source: sourceString
+            source: sourceString,
         };
     }
 
     static parseFragment(fragment) {
-        var data = {};
+        let data = {};
         $.ajax({
             type: 'POST',
             context: this,
@@ -32,12 +32,12 @@ class FragmentUtils {
             contentType: 'application/json; charset=utf-8',
             async: false,
             dataType: 'json',
-            success: function (response) {
+            success(response) {
                 data = response;
             },
-            error: function(){
-                data = {'error': 'Unable to call fragment parser Backend.'};
-            }
+            error() {
+                data = { error: 'Unable to call fragment parser Backend.' };
+            },
         });
         return data;
     }

@@ -22,11 +22,11 @@ class StructType extends ASTNode {
     constructor(args) {
         super('StructType');
         this._typeName = _.get(args, 'typeName', 'TypeName');
-        //TODO : Inherit from BType
+        // TODO : Inherit from BType
     }
 
     /**
-     * 
+     *
      * @param typeName
      * @param options
      */
@@ -34,8 +34,8 @@ class StructType extends ASTNode {
         if (!_.isNil(typeName)) {
             this.setAttribute('_typeName', typeName, options);
         } else {
-            log.error('Invalid Type Name [' + typeName + '] Provided');
-            throw 'Invalid Type Name [' + typeName + '] Provided';
+            log.error(`Invalid Type Name [${typeName}] Provided`);
+            throw `Invalid Type Name [${typeName}] Provided`;
         }
     }
 

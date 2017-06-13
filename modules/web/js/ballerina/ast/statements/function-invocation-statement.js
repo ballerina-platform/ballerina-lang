@@ -30,25 +30,25 @@ import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-w
 class FunctionInvocationStatement extends Statement {
     constructor(args) {
         super('FunctionInvocationStatement');
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
             2: '',
             3: ' ',
-            4: '\n'
-        }
-        this.whiteSpace.defaultDescriptor.children =  {
+            4: '\n',
+        };
+        this.whiteSpace.defaultDescriptor.children = {
             nameRef: {
                 0: '',
                 1: '',
                 2: '',
-                3: ''
-            }
-        }
+                3: '',
+            },
+        };
     }
 
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const fragment = FragmentUtils.createStatementFragment(`${stmtString};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
@@ -57,23 +57,23 @@ class FunctionInvocationStatement extends Statement {
                 this.initFromJson(parsedJson);
             } else if (_.has(parsedJson, 'type')) {
                 // user may want to change the statement type
-                let newNode = this.getFactory().createFromJson(parsedJson);
+                const newNode = this.getFactory().createFromJson(parsedJson);
                 if (this.getFactory().isStatement(newNode)) {
                     // somebody changed the type of statement to an assignment
                     // to capture retun value of function Invocation
-                    let parent = this.getParent();
-                    let index = parent.getIndexOfChild(this);
+                    const parent = this.getParent();
+                    const index = parent.getIndexOfChild(this);
                     parent.removeChild(this, true);
                     parent.addChild(newNode, index, true, true);
                     newNode.initFromJson(parsedJson);
                     nodeToFireEvent = newNode;
                 }
             } else {
-                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+                log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
             }
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
             nodeToFireEvent.accept(new EnableDefaultWSVisitor());
             // Manually firing the tree-modified event here.
@@ -85,9 +85,9 @@ class FunctionInvocationStatement extends Statement {
                 context: nodeToFireEvent,
             });
         } else {
-            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
             if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }
@@ -102,10 +102,10 @@ class FunctionInvocationStatement extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        var self = this;
+        const self = this;
         this.children = [];
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

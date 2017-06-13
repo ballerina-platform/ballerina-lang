@@ -30,7 +30,7 @@ class RefTypeInitExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     }
 
     beginVisitReferenceTypeInitExpression(expression) {
-        this.appendSource("{}");
+        this.appendSource('{}');
         log.debug('Begin Visit Ref Type Init Expression');
     }
 

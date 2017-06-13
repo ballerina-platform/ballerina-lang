@@ -23,7 +23,7 @@ class EditableText extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            editing: false
+            editing: false,
         };
 
         const textBoxPadding = 3;
@@ -32,35 +32,35 @@ class EditableText extends React.Component {
         this.inputStyles = {
             position: 'absolute',
             paddingLeft: textBoxPadding,
-            borderWidth: textBoxBorderSz
-        }
+            borderWidth: textBoxBorderSz,
+        };
 
         this.renderTextBox = this.renderTextBox.bind(this);
     }
 
     renderTextBox() {
         const {
-            x, y, width, height = 25, onChange, onBlur, onKeyDown, children = "",
-            inputClass='editable-text-input', placeholder
+            x, y, width, height = 25, onChange, onBlur, onKeyDown, children = '',
+            inputClass = 'editable-text-input', placeholder,
         } = this.props;
 
         const inputPositionStyles = {
             top: y - height / 2,
             left: x,
-            width: width,
-            height: height,
+            width,
+            height,
         };
 
-        const styles = {}
+        const styles = {};
 
         if (!this.props.editing) {
             styles.display = 'none';
         }
 
-        Object.assign(styles, this.inputStyles, inputPositionStyles)
+        Object.assign(styles, this.inputStyles, inputPositionStyles);
 
         const inputProps = {
-            ref: input => {
+            ref: (input) => {
                 if (input !== null) {
                     input.focus();
                 }
@@ -70,16 +70,16 @@ class EditableText extends React.Component {
             onKeyDown,
             onBlur,
             placeholder,
-            value: children
-        }
+            value: children,
+        };
 
-        const inputElement = (<input {...inputProps} className={inputClass}/>);
+        const inputElement = (<input {...inputProps} className={inputClass} />);
 
         ReactDOM.render(inputElement, this.context.overlay);
     }
 
     componentDidUpdate(prevProps) {
-        const editingJustFinished = prevProps.editing && !this.props.editing
+        const editingJustFinished = prevProps.editing && !this.props.editing;
         if (this.props.editing || editingJustFinished) {
             this.renderTextBox();
         }
@@ -90,25 +90,25 @@ class EditableText extends React.Component {
     }
 
     componentWillUnmount() {
-        ReactDOM.render(<noscript/>, this.context.overlay);
+        ReactDOM.render(<noscript />, this.context.overlay);
     }
 
     render() {
         let {
-            x, y, onClick, labelClass='editable-text-label', displayText, children
+            x, y, onClick, labelClass = 'editable-text-label', displayText, children,
         } = this.props;
 
         // This takes the label to left so that when the textInput is rendered over it
         // it does not make it look like the text just jumped to the right
         x += this.inputStyles.borderWidth + this.inputStyles.paddingLeft;
 
-        const textProps = {x, y, onClick};
+        const textProps = { x, y, onClick };
         textProps.style = {
-            dominantBaseline: 'central'
+            dominantBaseline: 'central',
         };
 
         return (
-            <text {...textProps} className={labelClass}>{ displayText || children }</text>
+          <text {...textProps} className={labelClass}>{ displayText || children }</text>
         );
     }
 }

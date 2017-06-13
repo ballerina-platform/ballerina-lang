@@ -21,53 +21,53 @@ export const panel = {
     wrapper: {
         gutter: {
             v: 50,
-            h: 50
-        }
+            h: 50,
+        },
     },
     heading: {
         padding: {
             top: 0,
             right: 0,
             bottom: 0,
-            left: 0
+            left: 0,
         },
         height: 30,
         title: {
             margin: {
-                right: 15
-            }
-        }
+                right: 15,
+            },
+        },
     },
     body: {
         padding: {
             top: 50,
             right: 50,
             bottom: 50,
-            left: 50
+            left: 50,
         },
-        height: 200
+        height: 200,
     },
     annotation: {
         body: {
-            height: 25
-        }
-    }
+            height: 25,
+        },
+    },
 };
 
 export const innerPanel = {
     wrapper: {
         gutter: {
             v: 50,
-            h: 50
-        }
+            h: 50,
+        },
     },
     heading: {
         padding: {
             top: 0,
             right: 0,
             bottom: 0,
-            left: 0
-        }
+            left: 0,
+        },
     },
     body: {
         height: 300,
@@ -75,35 +75,35 @@ export const innerPanel = {
             top: 50,
             right: 50,
             bottom: 50,
-            left: 50
-        }
-    }
+            left: 50,
+        },
+    },
 };
 
 export const lifeLine = {
     width: 120,
     head: {
-        height: 30
+        height: 30,
     },
     footer: {
-        height: 30
+        height: 30,
     },
     line: {
         // set the default line height as two time of a statement
-        height: 135
+        height: 135,
     },
     gutter: {
         v: 50,
-        h: 50
-    }
+        h: 50,
+    },
 };
 
 export const actionBox = {
     width: 66,
     height: 21,
     padding: {
-        top: 2
-    }
+        top: 2,
+    },
 };
 
 export const statement = {
@@ -111,15 +111,15 @@ export const statement = {
     height: 30,
     gutter: {
         v: 25,
-        h: 0
+        h: 0,
     },
     padding: {
         top: 5,
         right: 5,
         bottom: 5,
-        left: 5
+        left: 5,
     },
-    maxWidth: 300
+    maxWidth: 300,
 };
 
 export const blockStatement = {
@@ -128,18 +128,18 @@ export const blockStatement = {
         width: 50,
         height: statement.height,
         paramPaddingX: 5,
-        paramSeparatorOffsetX: 20, //blockStatement.heading.width - 40
-        paramEndOffsetX: 6
+        paramSeparatorOffsetX: 20, // blockStatement.heading.width - 40
+        paramEndOffsetX: 6,
     },
     body: {
         padding: {
             top: 25,
             right: 25,
             bottom: 25,
-            left: 25
+            left: 25,
         },
-        height: 100
-    }
+        height: 100,
+    },
 };
 
 export const fork = {
@@ -147,7 +147,7 @@ export const fork = {
         top: statement.gutter.v,
         bottom: statement.gutter.v,
     },
-    lifeLineGutterH: 6
+    lifeLineGutterH: 6,
 };
 
 export const canvas = {
@@ -155,8 +155,8 @@ export const canvas = {
         top: 50,
         right: 50,
         bottom: 50,
-        left: 50
-    }
+        left: 50,
+    },
 };
 
 export const statementContainer = {
@@ -167,8 +167,8 @@ export const statementContainer = {
         top: 0,
         right: 20,
         bottom: 0,
-        left: 20
-    }
+        left: 20,
+    },
 };
 
 export const packageDefinition = {
@@ -178,43 +178,43 @@ export const packageDefinition = {
             top: 0,
             right: 5,
             bottom: 0,
-            left: 5
-        }
+            left: 5,
+        },
     },
 
     labelWidth: 60,
     textWidth: 245,
 
     importDeclaration: {
-        itemHeight: 30
-    }
+        itemHeight: 30,
+    },
 };
 
 export const structDefinition = {
     body: {
         height: 100,
-    }
+    },
 };
 
 export const annotationAttributeDefinition = {
     heading: {
         height: 30,
-        width: 330
+        width: 330,
     },
     text: {
         padding: {
-            top: 15
+            top: 15,
         },
         width: 331,
-        height: 31
+        height: 31,
     },
     body: {
         width: 300,
         height: 30,
         padding: {
-            bottom: 10
-        }
-    }
+            bottom: 10,
+        },
+    },
 };
 
 export const contentOperations = {
@@ -226,10 +226,10 @@ export const structDefinitionStatement = {
     width: 600,
     height: 30,
     margin: {
-        bottom: 2
+        bottom: 2,
     },
     padding: {
-        left: 10
+        left: 10,
     },
     deleteButtonOffset: 30,
 };
@@ -238,37 +238,37 @@ export const panelHeading = {
     wrapper: {
         gutter: {
             v: 50,
-            h: 50
-        }
+            h: 50,
+        },
     },
     heading: {
         padding: {
             top: 0,
             right: 0,
             bottom: 0,
-            left: 0
+            left: 0,
         },
-        height: 25
+        height: 25,
     },
     body: {
         padding: {
             top: 50,
             right: 50,
             bottom: 50,
-            left: 50
+            left: 50,
         },
-        height: 200
+        height: 200,
     },
     iconSize: {
         width: 14,
         heading: 14,
-        padding: 3
-    }
+        padding: 3,
+    },
 };
 
 export const timeout = {
     title: {
         w: 75,
         paramSeparatorOffsetX: 35, //timeout.title.w - 40
-    }
+    },
 };

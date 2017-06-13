@@ -25,21 +25,21 @@ import ReactDOM from 'react-dom';
 import WelcomeView from './welcome.jsx';
 import ServicePreviewView from './service-preview.jsx';
 
-var FirstLaunchWelcomePage = Backbone.View.extend({
-    initialize: function (options) {
-        var errMsg;
+const FirstLaunchWelcomePage = Backbone.View.extend({
+    initialize(options) {
+        let errMsg;
         if (!_.has(options, 'tab')) {
             errMsg = 'unable to find a reference for editor tab';
             log.error(errMsg);
             throw errMsg;
         }
         this._tab = _.get(options, 'tab');
-        var container = $(this._tab.getContentContainer());
+        let container = $(this._tab.getContentContainer());
         // make sure default tab content are cleared
         container.empty();
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for welcome screen with selector: ' + _.get(options, 'container');
+            errMsg = `unable to find container for welcome screen with selector: ${  _.get(options, 'container')}`;
             log.error(errMsg);
             throw errMsg;
         }
@@ -47,34 +47,33 @@ var FirstLaunchWelcomePage = Backbone.View.extend({
         this._options = options;
     },
 
-    hide: function () {
-        //Hiding menu bar
+    hide() {
+        // Hiding menu bar
         this._options.application.menuBar.show();
         this.$el.hide();
     },
 
-    show: function () {
-        //Hiding menu bar
+    show() {
+        // Hiding menu bar
         this._options.application.menuBar.hide();
         this.$el.show();
     },
 
-    render: function () {
-        let view = React.createElement(WelcomeView, {}, null);
+    render() {
+        const view = React.createElement(WelcomeView, {}, null);
         ReactDOM.render(
             view,
-            this._$parent_el[0]
+            this._$parent_el[0],
         );
 
-        var commandManager = this._options.application.commandManager;
-        var browserStorage = this._options.application.browserStorage;
-        let workspaceExplorer = this._options.application.workspaceExplorer;
+        let commandManager = this._options.application.commandManager;
+        let browserStorage = this._options.application.browserStorage;
+        const workspaceExplorer = this._options.application.workspaceExplorer;
 
         const ballerinaHome = _.get(this._options, 'balHome');
         const samples = _.get(this._options, 'samples', []);
         let sampleConfigs = [];
-        sampleConfigs = samples.map(sample => {
-            return {
+        sampleConfigs = samples.map((sample) => ({
                 sampleName: sample.name,
                 isFile: sample.isFile,
                 clickEventCallback: () => {
@@ -89,32 +88,31 @@ var FirstLaunchWelcomePage = Backbone.View.extend({
                     }
                 },
                 image: sample.image
-            };
-        });
+            }));
 
-        let previews = React.createElement(ServicePreviewView, { sampleConfigs }, null);
+        const previews = React.createElement(ServicePreviewView, { sampleConfigs }, null);
         ReactDOM.render(
             previews,
-            $('#inner-samples')[0]
+            $('#inner-samples')[0],
         );
 
         // When "new" is clicked, open up an empty workspace.
-        $('#btn-welcome-new').on('click', function () {
+        $('#btn-welcome-new').on('click', () => {
             commandManager.dispatch('create-new-tab');
             browserStorage.put('pref:passedFirstLaunch', true);
         });
 
         // Show the open file dialog when "open" is clicked.
-        $('#btn-welcome-open').on('click', function () {
+        $('#btn-welcome-open').on('click', () => {
             commandManager.dispatch('open-file-open-dialog');
             browserStorage.put('pref:passedFirstLaunch', true);
         });
 
         // upon welcome tab remove, set flag to indicate first launch pass
-        this._tab.on('removed', function () {
+        this._tab.on('removed', () => {
             browserStorage.put('pref:passedFirstLaunch', true);
         });
-    }
+    },
 });
 
 export default FirstLaunchWelcomePage;

@@ -16,7 +16,7 @@
  * under the License.
  */
 import log from 'log';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class IfStatementDimensionCalculatorVisitor {
 
@@ -31,7 +31,7 @@ class IfStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateCompoundStatementChild(node,node.getConditionString());
+        util.populateCompoundStatementChild(node, node.getConditionString());
     }
 }
 

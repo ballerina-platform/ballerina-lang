@@ -28,22 +28,22 @@ class StatementContainer extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        const {dragDropManager, messageManager} = context;
+        const { dragDropManager, messageManager } = context;
         this.startDropZones = this.startDropZones.bind(this);
         this.stopDragZones = this.stopDragZones.bind(this);
         this.state = {
             dropZoneExist: false,
             statementDropZoneActivated: false,
-            dropZoneDropNotAllowed: false
-        }
+            dropZoneDropNotAllowed: false,
+        };
     }
 
     componentDidMount() {
         const { dragDropManager, messageManager } = this.context;
         dragDropManager.on('drag-start', this.startDropZones);
         dragDropManager.on('drag-stop', this.stopDragZones);
-		messageManager.on('message-draw-start', this.stopDragZones);
-		messageManager.on('message-draw-stop', this.stopDragZones);
+        messageManager.on('message-draw-start', this.stopDragZones);
+        messageManager.on('message-draw-stop', this.stopDragZones);
     }
 
     componentWillUnmount() {
@@ -55,40 +55,41 @@ class StatementContainer extends React.Component {
     }
 
     startDropZones() {
-        this.setState({dropZoneExist: true});
+        this.setState({ dropZoneExist: true });
     }
 
     stopDragZones() {
-        this.setState({dropZoneExist: false});
+        this.setState({ dropZoneExist: false });
     }
 
     render() {
         const bBox = this.props.bBox;
         const dropZoneActivated = this.state.statementDropZoneActivated;
         const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
-        const dropZoneClassName = ((!dropZoneActivated) ? "drop-zone" : "drop-zone active")
-              + ((dropZoneDropNotAllowed) ? " block" : "");
-        const containerClassName = ((dropZoneActivated) ? "statement-container drop-zone active" : "statement-container");
+        const dropZoneClassName = ((!dropZoneActivated) ? 'drop-zone' : 'drop-zone active')
+              + ((dropZoneDropNotAllowed) ? ' block' : '');
+        const containerClassName = ((dropZoneActivated) ? 'statement-container drop-zone active' : 'statement-container');
 
-        const fill = this.state.dropZoneExist ? {} : {fill: 'none'};
+        const fill = this.state.dropZoneExist ? {} : { fill: 'none' };
 
         return (<g className={containerClassName}>
-            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
-                                  {...fill}
-				  className={dropZoneClassName}
-				  onMouseOver={(e) => this.onDropZoneActivate(e)}
-				  onMouseOut={(e) => this.onDropZoneDeactivate(e)}
-				  onMouseUp={(e) => this.onDropZoneMouseUp(e)}/>
-            {this.props.children}
+          <rect
+x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h}
+              {...fill}
+              className={dropZoneClassName}
+              onMouseOver={e => this.onDropZoneActivate(e)}
+              onMouseOut={e => this.onDropZoneDeactivate(e)}
+              onMouseUp={e => this.onDropZoneMouseUp(e)} />
+          {this.props.children}
         </g>);
     }
 
-    onDropZoneActivate (e) {
+    onDropZoneActivate(e) {
   			const dragDropManager = this.context.dragDropManager,
-				dropTarget = this.props.dropTarget,
-				messageManager = this.context.messageManager;
-  			if(dragDropManager.isOnDrag()) {
-  					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+      dropTarget = this.props.dropTarget,
+      messageManager = this.context.messageManager;
+  			if (dragDropManager.isOnDrag()) {
+  					if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
   							return;
   					}
   					dragDropManager.setActivatedDropTarget(dropTarget,
@@ -96,64 +97,64 @@ class StatementContainer extends React.Component {
   									// IMPORTANT: override node's default validation logic
   									// This drop zone is for statements only.
                                     // Unless it's in a Fork, in that case only Worker are allowed.
-                                const factory = dropTarget.getFactory();
-                                const callback = this.props.draggable;
-                                return callback ? callback(dropTarget, nodeBeingDragged) : factory.isStatement(nodeBeingDragged);
-  							}
+      const factory = dropTarget.getFactory();
+      const callback = this.props.draggable;
+      return callback ? callback(dropTarget, nodeBeingDragged) : factory.isStatement(nodeBeingDragged);
+  							},
             );
-  					this.setState({statementDropZoneActivated: true,
-                  dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget()});
+  					this.setState({ statementDropZoneActivated: true,
+      dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget() });
   					dragDropManager.once('drop-target-changed', () => {
-  							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
+  							this.setState({ statementDropZoneActivated: false, dropZoneDropNotAllowed: false });
   					});
-                e.stopPropagation();
+      e.stopPropagation();
   			} else if (messageManager.isOnDrag()) {
 				/**
 				 * Hover on a worker declaration while drawing an arrow starting from a worker invocation
 				 */
-				messageManager.setDestination(dropTarget);
-				this.setState({statementDropZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination()});
-                e.stopPropagation();
-			}
+      messageManager.setDestination(dropTarget);
+      this.setState({ statementDropZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination() });
+      e.stopPropagation();
+  }
   	}
 
-  	onDropZoneDeactivate (e) {
+  	onDropZoneDeactivate(e) {
   			const dragDropManager = this.context.dragDropManager,
-				dropTarget = this.props.dropTarget,
-				messageManager = this.context.messageManager;
-  			if(dragDropManager.isOnDrag()){
-  					if(_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)){
+      dropTarget = this.props.dropTarget,
+      messageManager = this.context.messageManager;
+  			if (dragDropManager.isOnDrag()) {
+  					if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
   							dragDropManager.clearActivatedDropTarget();
-  							this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
+  							this.setState({ statementDropZoneActivated: false, dropZoneDropNotAllowed: false });
   					}
-                e.stopPropagation();
+      e.stopPropagation();
   			} else if (messageManager.isOnDrag()) {
-				this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
-				messageManager.setDestination(undefined);
-                e.stopPropagation();
-			}
+      this.setState({ statementDropZoneActivated: false, dropZoneDropNotAllowed: false });
+      messageManager.setDestination(undefined);
+      e.stopPropagation();
+  }
   	}
 
-  	onDropZoneMouseUp (e) {
-		this.setState({statementDropZoneActivated: false, dropZoneDropNotAllowed: false});
-		e.stopPropagation();
-	}
+  	onDropZoneMouseUp(e) {
+      this.setState({ statementDropZoneActivated: false, dropZoneDropNotAllowed: false });
+      e.stopPropagation();
+  }
 }
 
 
 StatementContainer.propTypes = {
-	bBox: PropTypes.shape({
-		x: PropTypes.number.isRequired,
-		y: PropTypes.number.isRequired,
-		w: PropTypes.number.isRequired,
-		h: PropTypes.number.isRequired,
-	}),
-	dropTarget: PropTypes.instanceOf(ASTNode).isRequired
+    bBox: PropTypes.shape({
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    w: PropTypes.number.isRequired,
+    h: PropTypes.number.isRequired,
+}),
+    dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
 };
 
 StatementContainer.contextTypes = {
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-	 messageManager: PropTypes.instanceOf(MessageManager).isRequired
+	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 };
 
 export default StatementContainer;

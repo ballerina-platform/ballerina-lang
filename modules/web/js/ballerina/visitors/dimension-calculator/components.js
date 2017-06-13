@@ -18,9 +18,9 @@
 
 // require all dimension calculator visitors
 function requireAll(requireContext) {
-    let components = {};
+    const components = {};
     requireContext.keys().map((item) => {
-        var module = requireContext(item);
+        const module = requireContext(item);
         if (module.default) {
             components[module.default.name] = module.default;
         }

@@ -31,8 +31,8 @@ class ImportSearchAdapter {
     }
 
     setExcludes(excludes) {
-        var self = this;
-        _.forEach(excludes,function(exclude){
+        const self = this;
+        _.forEach(excludes, (exclude) => {
             self._excludes.push(exclude.getName());
         });
     }

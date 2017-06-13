@@ -21,14 +21,14 @@ import ASTNode from './node';
 
 class VariableDeclaration extends ASTNode {
     constructor(args) {
-        super(_.get(args, "type", "VariableDeclaration"));
-        this._bType = _.get(args, "bType");
-        this._identifier = _.get(args, "identifier");
+        super(_.get(args, 'type', 'VariableDeclaration'));
+        this._bType = _.get(args, 'bType');
+        this._identifier = _.get(args, 'identifier');
 
         // Validating the identifier.
         if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
-            var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the " +
-                "regex ^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            const exceptionString = `Invalid identifier: \'${this.identifier}\'. An identifier must match the ` +
+                'regex ^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
         }
@@ -38,7 +38,7 @@ class VariableDeclaration extends ASTNode {
         if (!_.isUndefined(type)) {
             this.setAttribute('_bType', type, options);
         } else {
-            var exceptionString = "A variable requires a type.";
+            const exceptionString = 'A variable requires a type.';
             log.error(exceptionString);
             throw exceptionString;
         }
@@ -52,8 +52,8 @@ class VariableDeclaration extends ASTNode {
         if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('_identifier', identifier, options);
         } else {
-            var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
-                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            const exceptionString = `Invalid identifier: \'${identifier}\'. An identifier must match the regex ` +
+                '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
         }
@@ -68,7 +68,7 @@ class VariableDeclaration extends ASTNode {
      * @return {string} - Variable declaration as string.
      */
     getVariableDeclarationAsString() {
-        return this._bType + " " + this._identifier + ";";
+        return `${this._bType} ${this._identifier};`;
     }
 
     /**
@@ -78,8 +78,8 @@ class VariableDeclaration extends ASTNode {
      * @param {string} jsonNode.variable_name - The identifier of the variable.
      */
     initFromJson(jsonNode) {
-        this.setBType(jsonNode.variable_type, {doSilently: true});
-        this.setIdentifier(jsonNode.variable_name, {doSilently: true});
+        this.setBType(jsonNode.variable_type, { doSilently: true });
+        this.setIdentifier(jsonNode.variable_name, { doSilently: true });
     }
 }
 

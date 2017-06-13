@@ -20,7 +20,7 @@ import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
-import {panel} from './../../configs/designer-defaults';
+import { panel } from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
 
 class ServiceDefinitionPositionCalcVisitor {

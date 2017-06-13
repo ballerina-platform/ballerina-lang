@@ -16,7 +16,7 @@
  * under the License.
  */
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class ResourceParameterDimensionCalculatorVisitor {
 
@@ -31,7 +31,7 @@ class ResourceParameterDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
+        const viewState = node.getViewState();
 
         // Creating component for text.
         viewState.w = util.getTextWidth(node.getParameterAsString(), 0).w;

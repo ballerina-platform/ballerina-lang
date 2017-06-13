@@ -16,53 +16,53 @@
  * under the License.
  */
 
-import React from "react";
+import React from 'react';
 import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
 
 class Breakpoint extends React.Component {
 
-  constructor() {
-      super();
-      this.state = {
-          canShowRemove: false
-      }
-  }
+    constructor() {
+        super();
+        this.state = {
+            canShowRemove: false,
+        };
+    }
 
-  showRemoveBreakpointIcon(isMouseOver) {
-      let canShowRemove;
-      if(this.props.isBreakpoint && isMouseOver) {
-          canShowRemove = true;
-      } else {
-          canShowRemove = false;
-      }
-      this.setState({
-          canShowRemove
-      });
-  }
-  render() {
-      let icon;
+    showRemoveBreakpointIcon(isMouseOver) {
+        let canShowRemove;
+        if (this.props.isBreakpoint && isMouseOver) {
+            canShowRemove = true;
+        } else {
+            canShowRemove = false;
+        }
+        this.setState({
+            canShowRemove,
+        });
+    }
+    render() {
+        let icon;
 
-      if(this.state.canShowRemove) {
-          icon = ImageUtil.getSVGIconString("debug-point-remove");
-      } else {
-          icon = ImageUtil.getSVGIconString("debug-point");
-      }
+        if (this.state.canShowRemove) {
+            icon = ImageUtil.getSVGIconString('debug-point-remove');
+        } else {
+            icon = ImageUtil.getSVGIconString('debug-point');
+        }
 
-      return (
+        return (
           <image
-              xlinkHref={icon}
-              className="property-pane-action-button-breakpoint"
-              onMouseOver={ () => { this.showRemoveBreakpointIcon(true) }}
-              onMouseOut={ () => { this.showRemoveBreakpointIcon(false) } }
-              height={this.props.size}
-              width={this.props.size}
-              x={this.props.x}
-              y={this.props.y}
-              onClick={ this.props.onClick }
+            xlinkHref={icon}
+            className="property-pane-action-button-breakpoint"
+            onMouseOver={() => { this.showRemoveBreakpointIcon(true); }}
+            onMouseOut={() => { this.showRemoveBreakpointIcon(false); }}
+            height={this.props.size}
+            width={this.props.size}
+            x={this.props.x}
+            y={this.props.y}
+            onClick={this.props.onClick}
           />
-      );
-  }
+        );
+    }
 }
 
 
@@ -71,7 +71,7 @@ Breakpoint.propTypes = {
     y: PropTypes.number.isRequired,
     size: PropTypes.number.isRequired,
     isBreakpoint: PropTypes.bool,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
 };
 
 export default Breakpoint;

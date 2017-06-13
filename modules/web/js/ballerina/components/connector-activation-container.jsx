@@ -26,7 +26,7 @@ class ConnectorActivationContainer extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {activationZoneActivated: false, dropZoneDropNotAllowed: false}
+        this.state = { activationZoneActivated: false, dropZoneDropNotAllowed: false };
     }
 
     render() {
@@ -35,36 +35,38 @@ class ConnectorActivationContainer extends React.Component {
         const dropZoneNotAllowed = this.state.dropZoneDropNotAllowed;
         const dropZoneClassName = (dropZoneActivated ? 'activation-zone active' : 'activation-zone') + (dropZoneNotAllowed ? ' block' : '');
         return (<g className="connector-activation-container">
-            <rect x={ bBox.x } y={ bBox.y } width={ bBox.w } height={ bBox.h }
-                  className={dropZoneClassName}
-                  onMouseOver={(e) => this.onOverActivationZone(e)}
-                  onMouseOut={(e) => this.onOutActivationZone(e)}
-                  onMouseUp={(e) => this.onMouseUp(e)}/>
-            {this.props.children}
+          <rect
+            x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h}
+            className={dropZoneClassName}
+            onMouseOver={e => this.onOverActivationZone(e)}
+            onMouseOut={e => this.onOutActivationZone(e)}
+            onMouseUp={e => this.onMouseUp(e)}
+          />
+          {this.props.children}
         </g>);
     }
 
-    onOverActivationZone (e) {
-            let messageManager = this.context.messageManager;
-            let activationTarget = this.props.activationTarget;
-        if(messageManager.isOnDrag()) {
+    onOverActivationZone(e) {
+        const messageManager = this.context.messageManager;
+        const activationTarget = this.props.activationTarget;
+        if (messageManager.isOnDrag()) {
             messageManager.setDestination(activationTarget);
-            this.setState({activationZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination()});
+            this.setState({ activationZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination() });
         }
         e.stopPropagation();
     }
 
-    onOutActivationZone (e) {
+    onOutActivationZone(e) {
         const messageManager = this.context.messageManager;
         if (messageManager.isOnDrag()) {
             messageManager.setDestination(undefined);
-            this.setState({activationZoneActivated: false});
+            this.setState({ activationZoneActivated: false });
         }
         e.stopPropagation();
     }
 
-    onMouseUp (e) {
-        this.setState({activationZoneActivated: false});
+    onMouseUp(e) {
+        this.setState({ activationZoneActivated: false });
     }
 }
 
@@ -76,11 +78,11 @@ ConnectorActivationContainer.propTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }),
-    activationTarget: PropTypes.instanceOf(ASTNode).isRequired
+    activationTarget: PropTypes.instanceOf(ASTNode).isRequired,
 };
 
 ConnectorActivationContainer.contextTypes = {
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 };
 
 export default ConnectorActivationContainer;

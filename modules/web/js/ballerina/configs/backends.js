@@ -16,24 +16,23 @@
  * under the License.
  */
 
-        export default  {
-            services:   {
-                workspace:  {
-                    endpoint: "http://localhost:8289/service/workspace"
+        export default {
+            services: {
+                workspace: {
+                    endpoint: 'http://localhost:8289/service/workspace',
                 },
-                packages:  {
-                    endpoint: "http://localhost:8289/ballerina/editor/packages"
+                packages: {
+                    endpoint: 'http://localhost:8289/ballerina/editor/packages',
                 },
-                swagger:  {
-                    endpoint: "http://localhost:8289/service/swagger/"
+                swagger: {
+                    endpoint: 'http://localhost:8289/service/swagger/',
                 },
-                parser:  {
-                    endpoint: "http://localhost:8289/ballerina/model/content"
+                parser: {
+                    endpoint: 'http://localhost:8289/ballerina/model/content',
                 },
-                validator:  {
-                    endpoint: "http://localhost:8289/ballerina/validate"
-                }
-            }
+                validator: {
+                    endpoint: 'http://localhost:8289/ballerina/validate',
+                },
+            },
         };
-    
 

@@ -45,7 +45,7 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     endVisitActionInvocationStatement(actionInvocationStatement) {
-        this.appendSource(';' + actionInvocationStatement.getWSRegion(1));
+        this.appendSource(`;${actionInvocationStatement.getWSRegion(1)}`);
         this.appendSource((actionInvocationStatement.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

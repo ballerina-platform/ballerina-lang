@@ -27,11 +27,11 @@ import Statement from './statement';
 class CommentStatement extends Statement {
     constructor(args) {
         super();
-        this.type = "CommentStatement";
-        this._commentString = _.get(args, 'commentString', "");
+        this.type = 'CommentStatement';
+        this._commentString = _.get(args, 'commentString', '');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
-            1: '\n'
+            1: '\n',
         };
     }
 

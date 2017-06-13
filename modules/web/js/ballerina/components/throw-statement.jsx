@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import StatementDecorator from "./statement-decorator";
+import React from 'react';
+import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 
 /**
@@ -24,14 +24,14 @@ import PropTypes from 'prop-types';
  * */
 class ThrowStatement extends React.Component {
 
-    constructor(props){
+    constructor(props) {
         super(props);
         this.editorOptions = {
             propertyType: 'text',
             key: 'ThrowStatement',
             model: props.model,
             getterMethod: props.model.getStatementString,
-            setterMethod: props.model.setStatementFromString
+            setterMethod: props.model.setStatementFromString,
         };
     }
 
@@ -41,7 +41,7 @@ class ThrowStatement extends React.Component {
     render() {
         let model = this.props.model,
             expression = model.getStatementString();
-        return (<StatementDecorator model={model} viewState={model.viewState} editorOptions={this.editorOptions}  expression={expression}/>);
+        return (<StatementDecorator model={model} viewState={model.viewState} editorOptions={this.editorOptions} expression={expression} />);
     }
 }
 
@@ -50,11 +50,11 @@ ThrowStatement.propTypes = {
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired
+        h: PropTypes.number.isRequired,
     }),
     expression: PropTypes.shape({
-        expression: PropTypes.string
-    })
+        expression: PropTypes.string,
+    }),
 };
 
 export default ThrowStatement;

@@ -36,8 +36,8 @@ class ServiceClient extends EventChannel {
      * @param ServiceClient
      */
     parse(source) {
-        var content = { 'content': source };
-        var data = {};
+        const content = { content: source };
+        let data = {};
         $.ajax({
             type: 'POST',
             context: this,
@@ -46,13 +46,13 @@ class ServiceClient extends EventChannel {
             contentType: 'application/json; charset=utf-8',
             async: false,
             dataType: 'json',
-            success: function (response) {
+            success(response) {
                 data = response;
             },
-            error: function(xhr, textStatus, errorThrown){
+            error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
                 log.error(data.message);
-            }
+            },
         });
         return data;
     }
@@ -62,8 +62,8 @@ class ServiceClient extends EventChannel {
      * @param String source
      */
     validate(source) {
-        var content = { 'content': source };
-        var data = {};
+        const content = { content: source };
+        let data = {};
         $.ajax({
             type: 'POST',
             context: this,
@@ -72,13 +72,13 @@ class ServiceClient extends EventChannel {
             contentType: 'application/json; charset=utf-8',
             async: false,
             dataType: 'json',
-            success: function (response) {
+            success(response) {
                 data = response;
             },
-            error: function(xhr, textStatus, errorThrown){
+            error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
                 log.error(data.message);
-            }
+            },
         });
         return data;
     }
@@ -88,39 +88,39 @@ class ServiceClient extends EventChannel {
      * @param {String} filePath file path
      */
     readFileContent(filePath) {
-        var data = {};
+        let data = {};
         $.ajax({
             type: 'POST',
             context: this,
-            url: _.get(this.application, 'config.services.workspace.endpoint') + '/read',
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/read`,
             data: filePath,
             contentType: 'text/plain; charset=utf-8',
             async: false,
-            success: function (response) {
+            success(response) {
                 data = response;
             },
-            error: function(xhr, textStatus, errorThrown){
+            error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
                 log.error(data.message);
-            }
+            },
         });
         return data;
     }
 
     readFile(filePath) {
-        var fileData = this.readFileContent(filePath),
+        let fileData = this.readFileContent(filePath),
             pathArray = _.split(filePath, this.application.getPathSeperator()),
             fileName = _.last(pathArray),
-            folderPath = _.join(_.take(pathArray, pathArray.length -1), this.application.getPathSeperator());
+            folderPath = _.join(_.take(pathArray, pathArray.length - 1), this.application.getPathSeperator());
 
-        const docUri = folderPath + '/' + fileName;
-        let documentOptions = {
+        const docUri = `${folderPath}/${fileName}`;
+        const documentOptions = {
             textDocument: {
                 documentUri: docUri,
                 languageId: 'ballerina',
                 version: 1,
-                text: fileData.content
-            }
+                text: fileData.content,
+            },
         };
         this.application.langseverClientController.documentDidOpenNotification(documentOptions);
 
@@ -129,110 +129,110 @@ class ServiceClient extends EventChannel {
             path: folderPath,
             content: fileData.content,
             isPersisted: true,
-            isDirty: false
+            isDirty: false,
         });
     }
 
     exists(path) {
-        var data = {};
+        let data = {};
         $.ajax({
             type: 'GET',
             context: this,
-            url: _.get(this.application, 'config.services.workspace.endpoint') + '/exists?' + 'path=' + btoa(path),
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/exists?` + `path=${btoa(path)}`,
             contentType: 'text/plain; charset=utf-8',
             async: false,
-            success: function (response) {
+            success(response) {
                 data = response;
             },
-            error: function(xhr, textStatus, errorThrown){
+            error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
                 log.error(data.message);
-            }
+            },
         });
         return data;
     }
 
     create(path, type) {
-        var data = {};
+        let data = {};
         $.ajax({
             type: 'GET',
             context: this,
-            url: _.get(this.application, 'config.services.workspace.endpoint') + '/create?' + 'path=' + btoa(path)
-                + '&type=' + btoa(type),
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/create?` + `path=${btoa(path)
+                 }&type=${btoa(type)}`,
             contentType: 'text/plain; charset=utf-8',
             async: false,
-            success: function (response) {
+            success(response) {
                 data = response;
             },
-            error: function(xhr, textStatus, errorThrown){
+            error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
                 log.error(data.message);
-            }
+            },
         });
         return data;
     }
 
     delete(path, type) {
-        var data = {};
+        let data = {};
         $.ajax({
             type: 'GET',
             context: this,
-            url: _.get(this.application, 'config.services.workspace.endpoint') + '/delete?' + 'path=' + btoa(path)
-                + '&type=' + btoa(type),
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/delete?` + `path=${btoa(path)
+                 }&type=${btoa(type)}`,
             contentType: 'text/plain; charset=utf-8',
             async: false,
-            success: function (response) {
+            success(response) {
                 data = response;
             },
-            error: function(xhr, textStatus, errorThrown){
+            error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
                 log.error(data.message);
-            }
+            },
         });
         return data;
     }
 
     writeFile(file) {
-        var data = {};
+        let data = {};
         $.ajax({
             type: 'POST',
             context: this,
-            url: _.get(this.application, 'config.services.workspace.endpoint') + '/write',
-            data: 'location=' + btoa(file.getPath()) + '&configName=' + btoa(file.getName()) +
-                                                    '&config=' + (encodeURIComponent(file.getContent())),
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/write`,
+            data: `location=${btoa(file.getPath())}&configName=${btoa(file.getName())
+                                                    }&config=${encodeURIComponent(file.getContent())}`,
             contentType: 'text/plain; charset=utf-8',
             async: false,
-            success: function (response) {
+            success(response) {
                 data = response;
                 file.setDirty(false)
                     .setPersisted(true)
                     .setLastPersisted(_.now())
                     .save();
-                log.debug('File ' + file.getName() + ' saved successfully at '+ file.getPath());
+                log.debug(`File ${file.getName()} saved successfully at ${file.getPath()}`);
             },
-            error: function(xhr, textStatus, errorThrown){
+            error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
                 log.error(data.message);
-            }
+            },
         });
         return data;
     }
 }
 
-var getErrorFromResponse = function(xhr, textStatus, errorThrown) {
-    var msg = _.isString(errorThrown) ? errorThrown : xhr.statusText,
+var getErrorFromResponse = function (xhr, textStatus, errorThrown) {
+    let msg = _.isString(errorThrown) ? errorThrown : xhr.statusText,
         responseObj;
     try {
         responseObj = JSON.parse(xhr.responseText);
     } catch (e) {
         // ignore
     }
-    if(!_.isNil(responseObj)){
-        if(_.has(responseObj, 'Error')){
+    if (!_.isNil(responseObj)) {
+        if (_.has(responseObj, 'Error')) {
             msg = _.get(responseObj, 'Error');
         }
     }
-    return {'error': true, 'message': msg};
+    return { error: true, message: msg };
 };
 
 export default ServiceClient;

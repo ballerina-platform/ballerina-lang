@@ -25,7 +25,7 @@ class BallerinaASTDeserializer {
      * @returns {{}|*}
      */
     static getASTModel(data) {
-        var astRoot = deserializeNode(data.root);
+        const astRoot = deserializeNode(data.root);
         if (!_.isNil(data.whitespace_descriptor)) {
             astRoot.setWhiteSpaceDescriptor(data.whitespace_descriptor);
             astRoot.whiteSpace.useDefault = false;
@@ -35,10 +35,10 @@ class BallerinaASTDeserializer {
 }
 
 function deserializeNode(node) {
-    var astRoot = BallerinaASTFactory.createBallerinaAstRoot();
+    const astRoot = BallerinaASTFactory.createBallerinaAstRoot();
 
-    _.each(node, function (childNode) {
-        var child = BallerinaASTFactory.createFromJson(childNode);
+    _.each(node, (childNode) => {
+        const child = BallerinaASTFactory.createFromJson(childNode);
         astRoot.addChild(child);
         child.initFromJson(childNode);
     });

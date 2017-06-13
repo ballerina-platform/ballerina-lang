@@ -19,7 +19,7 @@ import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
 
-var AlertsManager = {};
+const AlertsManager = {};
 
 /**
  * Shows success alert.
@@ -32,36 +32,36 @@ var AlertsManager = {};
  * @static
  */
 AlertsManager.success = function (args) {
-    var message = typeof args === "string" ? args : _.get(args, "message");
-    var timeout = _.get(args, "timeout", 5000);
-    var boldMessage = _.get(args, "boldMessage", "Success!");
+    const message = typeof args === 'string' ? args : _.get(args, 'message');
+    const timeout = _.get(args, 'timeout', 5000);
+    const boldMessage = _.get(args, 'boldMessage', 'Success!');
 
-    var notificationContainer = $("#notification-container");
-    var successAlertWrapper = $("#alert-manager-success").finish();
+    const notificationContainer = $('#notification-container');
+    let successAlertWrapper = $('#alert-manager-success').finish();
     if (successAlertWrapper.length > 0) {
-        $("#alert-manager-success-bold-message").text(boldMessage);
-        $("#alert-manager-success-message").text(message);
+        $('#alert-manager-success-bold-message').text(boldMessage);
+        $('#alert-manager-success-message').text(message);
     } else {
         // Creating main alert wrapper
-        successAlertWrapper = $("<div/>", {
-            id: "alert-manager-success",
-            class: 'alert-manager-wrapper alert alert-success'
+        successAlertWrapper = $('<div/>', {
+            id: 'alert-manager-success',
+            class: 'alert-manager-wrapper alert alert-success',
         }).appendTo(notificationContainer);
 
         // Adding icon.
-        $("<i/>", {
-            class: "icon fw fw-success"
+        $('<i/>', {
+            class: 'icon fw fw-success',
         }).appendTo(successAlertWrapper);
 
-        $("<strong/>", {
-            id: "alert-manager-success-bold-message",
-            text: boldMessage
+        $('<strong/>', {
+            id: 'alert-manager-success-bold-message',
+            text: boldMessage,
         }).appendTo(successAlertWrapper);
 
-        $("<span/>", {
-            id: "alert-manager-success-message",
-            class: "alert-manager-message",
-            text: message
+        $('<span/>', {
+            id: 'alert-manager-success-message',
+            class: 'alert-manager-message',
+            text: message,
         }).appendTo(successAlertWrapper);
     }
 
@@ -79,36 +79,36 @@ AlertsManager.success = function (args) {
  * @static
  */
 AlertsManager.info = function (args) {
-    var message = typeof args === "string" ? args : _.get(args, "message");
-    var timeout = _.get(args, "timeout", 5000);
-    var boldMessage = _.get(args, "boldMessage", "Info!");
+    const message = typeof args === 'string' ? args : _.get(args, 'message');
+    const timeout = _.get(args, 'timeout', 5000);
+    const boldMessage = _.get(args, 'boldMessage', 'Info!');
 
-    var notificationContainer = $("#notification-container");
-    var infoAlertWrapper = $("#alert-manager-info").finish();
+    const notificationContainer = $('#notification-container');
+    let infoAlertWrapper = $('#alert-manager-info').finish();
     if (infoAlertWrapper.length > 0) {
-        $("#alert-manager-info-bold-message").text(boldMessage);
-        $("#alert-manager-info-message").text(message);
+        $('#alert-manager-info-bold-message').text(boldMessage);
+        $('#alert-manager-info-message').text(message);
     } else {
             // Creating main alert wrapper
-        infoAlertWrapper = $("<div/>", {
-            id: "alert-manager-info",
-            class: 'alert-manager-wrapper alert alert-info'
+        infoAlertWrapper = $('<div/>', {
+            id: 'alert-manager-info',
+            class: 'alert-manager-wrapper alert alert-info',
         }).appendTo(notificationContainer);
 
             // Adding icon.
-        $("<i/>", {
-            class: "icon fw fw-warning"
+        $('<i/>', {
+            class: 'icon fw fw-warning',
         }).appendTo(infoAlertWrapper);
 
-        $("<strong/>", {
-            id: "alert-manager-info-bold-message",
-            text: boldMessage
+        $('<strong/>', {
+            id: 'alert-manager-info-bold-message',
+            text: boldMessage,
         }).appendTo(infoAlertWrapper);
 
-        $("<span/>", {
-            id: "alert-manager-info-message",
-            class: "alert-manager-message",
-            text: message
+        $('<span/>', {
+            id: 'alert-manager-info-message',
+            class: 'alert-manager-message',
+            text: message,
         }).appendTo(infoAlertWrapper);
     }
 
@@ -126,36 +126,36 @@ AlertsManager.info = function (args) {
  * @static
  */
 AlertsManager.warn = function (args) {
-    var message = typeof args === "string" ? args : _.get(args, "message");
-    var timeout = _.get(args, "timeout", 5000);
-    var boldMessage = _.get(args, "boldMessage", "Warning!");
+    const message = typeof args === 'string' ? args : _.get(args, 'message');
+    const timeout = _.get(args, 'timeout', 5000);
+    const boldMessage = _.get(args, 'boldMessage', 'Warning!');
 
-    var notificationContainer = $("#notification-container");
-    var warningAlertWrapper = $("#alert-manager-warning").finish();
+    const notificationContainer = $('#notification-container');
+    let warningAlertWrapper = $('#alert-manager-warning').finish();
     if (warningAlertWrapper.length > 0) {
-        $("#alert-manager-warning-bold-message").text(boldMessage);
-        $("#alert-manager-warning-message").text(message);
+        $('#alert-manager-warning-bold-message').text(boldMessage);
+        $('#alert-manager-warning-message').text(message);
     } else {
         // Creating main alert wrapper
-        warningAlertWrapper = $("<div/>", {
-            id: "alert-manager-warning",
-            class: 'alert-manager-wrapper alert alert-warning'
+        warningAlertWrapper = $('<div/>', {
+            id: 'alert-manager-warning',
+            class: 'alert-manager-wrapper alert alert-warning',
         }).appendTo(notificationContainer);
 
         // Adding icon.
-        $("<i/>", {
-            class: "icon fw fw-warning"
+        $('<i/>', {
+            class: 'icon fw fw-warning',
         }).appendTo(warningAlertWrapper);
 
-        $("<strong/>", {
-            id: "alert-manager-warning-bold-message",
-            text: boldMessage
+        $('<strong/>', {
+            id: 'alert-manager-warning-bold-message',
+            text: boldMessage,
         }).appendTo(warningAlertWrapper);
 
-        $("<span/>", {
-            id: "alert-manager-warning-message",
-            class: "alert-manager-message",
-            text: message
+        $('<span/>', {
+            id: 'alert-manager-warning-message',
+            class: 'alert-manager-message',
+            text: message,
         }).appendTo(warningAlertWrapper);
     }
 
@@ -173,36 +173,36 @@ AlertsManager.warn = function (args) {
  * @static
  */
 AlertsManager.error = function (args) {
-    var message = typeof args === "string" ? args : _.get(args, "message");
-    var timeout = _.get(args, "timeout", 5000);
-    var boldMessage = _.get(args, "boldMessage", "Error!");
+    const message = typeof args === 'string' ? args : _.get(args, 'message');
+    const timeout = _.get(args, 'timeout', 5000);
+    const boldMessage = _.get(args, 'boldMessage', 'Error!');
 
-    var notificationContainer = $("#notification-container");
-    var errorAlertWrapper = $("#alert-manager-error").finish();
+    const notificationContainer = $('#notification-container');
+    let errorAlertWrapper = $('#alert-manager-error').finish();
     if (errorAlertWrapper.length > 0) {
-        $("#alert-manager-error-bold-message").text(boldMessage);
-        $("#alert-manager-error-message").text(message);
+        $('#alert-manager-error-bold-message').text(boldMessage);
+        $('#alert-manager-error-message').text(message);
     } else {
         // Creating main alert wrapper
-        errorAlertWrapper = $("<div/>", {
-            id: "alert-manager-error",
-            class: 'alert-manager-wrapper alert alert-danger'
+        errorAlertWrapper = $('<div/>', {
+            id: 'alert-manager-error',
+            class: 'alert-manager-wrapper alert alert-danger',
         }).appendTo(notificationContainer);
 
         // Adding icon.
-        $("<i/>", {
-            class: "icon fw fw-error"
+        $('<i/>', {
+            class: 'icon fw fw-error',
         }).appendTo(errorAlertWrapper);
 
-        $("<strong/>", {
-            id: "alert-manager-error-bold-message",
-            text: boldMessage
+        $('<strong/>', {
+            id: 'alert-manager-error-bold-message',
+            text: boldMessage,
         }).appendTo(errorAlertWrapper);
 
-        $("<span/>", {
-            id: "alert-manager-error-message",
-            class: "alert-manager-message",
-            text: message
+        $('<span/>', {
+            id: 'alert-manager-error-message',
+            class: 'alert-manager-message',
+            text: message,
         }).appendTo(errorAlertWrapper);
     }
 

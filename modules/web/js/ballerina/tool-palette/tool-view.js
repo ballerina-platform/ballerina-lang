@@ -23,30 +23,30 @@ import Backbone from 'backbone';
 import _ from 'lodash';
 import D3Utils from 'd3utils';
 
-var toolView = Backbone.View.extend({
+const toolView = Backbone.View.extend({
 
-    toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-block tool-container <%=classNames%>\"  " +
+    toolTemplate: _.template('<div id="<%=id%>" class="tool-block tool-container <%=classNames%>"  ' +
             "data-placement=\"bottom\" data-container=\"body\" data-template=\"<div class='tooltip tool-palette' role='tooltip'><div class='tooltip-arrow'></div><div class='tooltip-inner'></div></div>\" data-toggle=\"tooltip\" title='<%=title%>'> <i class=\"<%=cssClass%>\"></i> " +
-            "<span class=\"tool-title-wrap\" ><p class=\"tool-title\"><%=name%></p></span></div>"),
-    toolTemplateVertical: _.template("<div id=\"<%=id%>-tool\" class=\"tool-block tool-container-vertical " +
-            "<%=classNames%>\"> <div class=\"tool-container-vertical-icon\" data-placement=\"bottom\" " +
+            '<span class="tool-title-wrap" ><p class="tool-title"><%=name%></p></span></div>'),
+    toolTemplateVertical: _.template('<div id="<%=id%>-tool" class="tool-block tool-container-vertical ' +
+            '<%=classNames%>"> <div class="tool-container-vertical-icon" data-placement="bottom" ' +
             "data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon.getAttribute(\"src\")%>\" class=\"tool-image\"  />" +
-            "</div><div class=\"tool-container-vertical-title\" data-placement=\"bottom\" data-toggle=\"tooltip\" " +
+            '</div><div class="tool-container-vertical-title" data-placement="bottom" data-toggle="tooltip" ' +
             "title='<%=title%>'><%=title%></div><p class=\"tool-title\"><%=title%></p></div>"),
 
-    initialize: function (options) {
-        _.extend(this, _.pick(options, ["toolPalette"]));
+    initialize(options) {
+        _.extend(this, _.pick(options, ['toolPalette']));
         this._options = options;
         _.set(this, 'options.dragIcon.box.size', '60px');
     },
 
-    createHandleDragStopEvent: function(){
-        var toolView = this;
+    createHandleDragStopEvent() {
+        const toolView = this;
         return function (event, ui) {
-            if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
-                var indexForNewNode = toolView.toolPalette.dragDropManager.getDroppedNodeIndex();
-                let nodeBeingDragged = toolView.toolPalette.dragDropManager.getNodeBeingDragged();
-                if(indexForNewNode >= 0){
+            if (toolView.toolPalette.dragDropManager.isAtValidDropTarget()) {
+                const indexForNewNode = toolView.toolPalette.dragDropManager.getDroppedNodeIndex();
+                const nodeBeingDragged = toolView.toolPalette.dragDropManager.getNodeBeingDragged();
+                if (indexForNewNode >= 0) {
                     toolView.toolPalette.dragDropManager.getActivatedDropTarget()
                             .addChild(nodeBeingDragged, indexForNewNode, false, false, true);
                 } else {
@@ -60,10 +60,10 @@ var toolView = Backbone.View.extend({
         };
     },
 
-    createHandleOnDragEvent : function(){
-        var toolView = this;
+    createHandleOnDragEvent() {
+        const toolView = this;
         return function (event, ui) {
-            if(!toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
+            if (!toolView.toolPalette.dragDropManager.isAtValidDropTarget()) {
                 toolView._$disabledIcon.show();
                 toolView._$draggedToolIcon.css('opacity', 0.1);
             } else {
@@ -73,21 +73,21 @@ var toolView = Backbone.View.extend({
         };
     },
 
-    createHandleDragStartEvent : function(){
-        var toolView = this;
-        return function(event,ui){
+    createHandleDragStartEvent() {
+        const toolView = this;
+        return function (event, ui) {
             // Get the meta information/ arguments to create the particular tool
-            var meta = toolView.model.get('meta') || {};
+            const meta = toolView.model.get('meta') || {};
             toolView.toolPalette.dragDropManager.setNodeBeingDragged(toolView.model.nodeFactoryMethod(meta, true));
         };
     },
 
-    render: function (parent, orderVertical) {
-        var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
+    render(parent, orderVertical) {
+        const dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ? { left: 30, top: -10 } : this.model.dragCursorOffset;
         this._dragCursorOffset = dragCursorOffset;
-        var self = this;
+        const self = this;
 
-        if(!_.isNil(this.model.attributes.seperator) && this.model.attributes.seperator ){
+        if (!_.isNil(this.model.attributes.seperator) && this.model.attributes.seperator) {
             parent.append("<div class='clear-fix '/><div class='tool-separator' />");
             return;
         }
@@ -99,8 +99,8 @@ var toolView = Backbone.View.extend({
             this.$el.html(this.toolTemplate(this.model.attributes));
         }
 
-        if(!_.isNil(this.model.parent)){
-            parent.find('#'+this.model.parent).after(this.$el);
+        if (!_.isNil(this.model.parent)) {
+            parent.find(`#${this.model.parent}`).after(this.$el);
         } else {
             parent.append(this.$el);
         }
@@ -114,8 +114,8 @@ var toolView = Backbone.View.extend({
             containment: _.get(self._options, 'containment_element'),
             zIndex: 10001,
             stop: this.createHandleDragStopEvent(),
-            start : this.createHandleDragStartEvent(),
-            drag:this.createHandleOnDragEvent()
+            start: this.createHandleDragStartEvent(),
+            drag: this.createHandleOnDragEvent(),
         });
 
         // registering id-modified event
@@ -123,13 +123,13 @@ var toolView = Backbone.View.extend({
         return this;
     },
 
-    createContainerForDraggable: function(){
-        var body = d3.select("body");
-        var div = body.append("div").attr("id", "draggingToolClone")
+    createContainerForDraggable() {
+        const body = d3.select('body');
+        const div = body.append('div').attr('id', 'draggingToolClone')
                         .classed(_.get(this._options, 'cssClass.dragContainer'), true);
 
-        //For validation feedback
-        var disabledIconDiv = div.append('div').classed(_.get(this._options, 'cssClass.disabledIconContainer'), true);
+        // For validation feedback
+        const disabledIconDiv = div.append('div').classed(_.get(this._options, 'cssClass.disabledIconContainer'), true);
         disabledIconDiv.append('i').classed(_.get(this._options, 'cssClass.disabledIcon'), true);
         this._$disabledIcon = $(disabledIconDiv.node());
         this._$disabledIcon.css('top', this._dragCursorOffset.top + 20);
@@ -137,14 +137,14 @@ var toolView = Backbone.View.extend({
         return div;
     },
 
-    createCloneCallback: function (view) {
+    createCloneCallback(view) {
         var icon = this.model.icon,
             self = this,
             iconSize = _.get(this, 'options.dragIcon.box.size');
         var self = this;
-        d3.select(icon).attr("width", iconSize).attr("height", iconSize);
+        d3.select(icon).attr('width', iconSize).attr('height', iconSize);
         function cloneCallBack() {
-            var div = view.createContainerForDraggable();
+            const div = view.createContainerForDraggable();
             div.node().appendChild(icon);
             self._$draggedToolIcon = $(icon);
             return div.node();
@@ -157,10 +157,10 @@ var toolView = Backbone.View.extend({
      * updates tool id and change view attributes of the tool item
      * @param {string} id - id of the tool
      */
-    updateToolId: function (id) {
+    updateToolId(id) {
         this.$el.find('.tool-container-vertical-title').text(id);
         this.$el.attr('id', id);
-    }
+    },
 });
 
 export default toolView;

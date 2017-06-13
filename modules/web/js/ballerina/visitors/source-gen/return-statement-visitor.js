@@ -44,7 +44,7 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitReturnStatement(returnStatement) {
-        this.appendSource(';' + returnStatement.getWSRegion(3));
+        this.appendSource(`;${returnStatement.getWSRegion(3)}`);
         this.appendSource((returnStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
@@ -52,8 +52,8 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitExpression(expression) {
-        var expressionVisitorFactory = new ExpressionVisitorFactory();
-        var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
+        const expressionVisitorFactory = new ExpressionVisitorFactory();
+        const expressionVisitor = expressionVisitorFactory.getExpressionView({ model: expression, parent: this });
         expression.accept(expressionVisitor);
         log.debug('Visit Expression');
     }

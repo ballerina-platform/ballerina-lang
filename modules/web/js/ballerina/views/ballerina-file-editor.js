@@ -74,22 +74,22 @@ class BallerinaFileEditor extends EventChannel {
         this._container = _.get(args, 'container');
         this._backendEndpointsOptions = _.get(args, 'backendEndpointsOptions', {});
         this.toolPalette = _.get(args, 'toolPalette');
-        this.messageManager =  _.get(args, 'messageManager');
+        this.messageManager = _.get(args, 'messageManager');
         this.diagramRenderingContext = _.get(args, 'diagramRenderContext');
 
         this.setModel(_.get(args, 'model'));
 
         if (!this._parseFailed && (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot))) {
-            log.error('Ballerina AST Root is undefined or is of different type.' + this._model);
-            throw 'Ballerina AST Root is undefined or is of different type.' + this._model;
+            log.error(`Ballerina AST Root is undefined or is of different type.${  this._model}`);
+            throw `Ballerina AST Root is undefined or is of different type.${  this._model}`;
         }
 
-        if (!_.has(args, 'backendEndpointsOptions')){
+        if (!_.has(args, 'backendEndpointsOptions')) {
             log.error('Backend endpoints options not defined.');
            // not throwing an exception for now since we need to work without a backend.
         }
-        this.parserBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.parser.endpoint', {})});
-        this.validatorBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.validator.endpoint', {})});
+        this.parserBackend = new Backend({ url: _.get(args, 'backendEndpointsOptions.parser.endpoint', {}) });
+        this.validatorBackend = new Backend({ url: _.get(args, 'backendEndpointsOptions.validator.endpoint', {}) });
         this._isInSourceView = false;
         this._isInSwaggerView = false;
         this.deserializer = BallerinaASTDeserializer;
@@ -99,11 +99,11 @@ class BallerinaFileEditor extends EventChannel {
     getContent() {
         if (this.isInSourceView()) {
             return this._sourceView.getContent();
-        } else {
+        } 
             let generatedSource = this.generateSource();
             this._sourceView.setContent(generatedSource);
             return this._sourceView.getContent();
-        }
+        
     }
 
     isInSourceView() {
@@ -120,7 +120,7 @@ class BallerinaFileEditor extends EventChannel {
 
     setActiveView(activeView) {
         this._activeView = activeView;
-        switch (activeView){
+        switch (activeView) {
         case 'source': this.trigger('source-view-activated'); break;
         case 'design': this.trigger('design-view-activated'); break;
         case 'swagger': this.trigger('swagger-view-activated'); break;
@@ -129,24 +129,24 @@ class BallerinaFileEditor extends EventChannel {
 
     setModel(model) {
         if (_.isUndefined(model)) {
-            //set an empty ast root if the model is undefined
+            // set an empty ast root if the model is undefined
             model = BallerinaASTFactory.createBallerinaAstRoot();
         }
         this._model = model;
-        var self = this;
+        let self = this;
         // make undo-manager capture all tree modifications after initial rendering
-        this._model.on('tree-modified', function(event){
-            if(this.getUndoManager().hasUndo()){
+        this._model.on('tree-modified', function (event) {
+            if (this.getUndoManager().hasUndo()) {
                 // clear undo stack from source view
-                if(this.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(this.getUndoManager().undoStackTop())){
+                if (this.getUndoManager().getOperationFactory()
+                        .isSourceModifiedOperation(this.getUndoManager().undoStackTop())) {
                     this.getUndoManager().reset();
                 }
             }
-            if(this.getUndoManager().hasRedo()){
+            if (this.getUndoManager().hasRedo()) {
                 // clear redo stack from source view
-                if(this.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(this.getUndoManager().redoStackTop())){
+                if (this.getUndoManager().getOperationFactory()
+                        .isSourceModifiedOperation(this.getUndoManager().redoStackTop())) {
                     this.getUndoManager().reset();
                 }
             }
@@ -156,7 +156,7 @@ class BallerinaFileEditor extends EventChannel {
             this.trigger('content-modified');
         }, this);
 
-        this._model.on('import-new-package', function(packageString) {
+        this._model.on('import-new-package', (packageString) => {
             self.trigger('update-tool-patette');
         });
     }
@@ -185,19 +185,19 @@ class BallerinaFileEditor extends EventChannel {
      *
      */
     init() {
-        var viewOptions = this._viewOptions;
-        var errMsg;
+        let viewOptions = this._viewOptions;
+        let errMsg;
         if (!_.has(viewOptions, 'design_view.container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
             throw errMsg;
         }
         // this._viewOptions.container is the root div for tab content
-        var container = $(this._container).find(_.get(viewOptions, 'design_view.container'));
+        let container = $(this._container).find(_.get(viewOptions, 'design_view.container'));
         this._$designViewContainer = container;
-        var canvasContainer = $('<div></div>');
+        let canvasContainer = $('<div></div>');
         canvasContainer.addClass(_.get(viewOptions, 'cssClass.canvas_container'));
-        var canvasTopControlsContainer = $('<div></div>')
+        let canvasTopControlsContainer = $('<div></div>')
             .addClass(_.get(viewOptions, 'cssClass.canvas_top_controls_container'));
         canvasContainer.append(canvasTopControlsContainer);
 
@@ -205,23 +205,23 @@ class BallerinaFileEditor extends EventChannel {
         this._$canvasContainer = canvasContainer;
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for file composer with selector: ' + _.get(viewOptions, 'design_view.container');
+            errMsg = `unable to find container for file composer with selector: ${  _.get(viewOptions, 'design_view.container')}`;
             log.error(errMsg);
             throw errMsg;
         }
 
-        this._environment =  new PackageScopedEnvironment();
-        this._environment.addPackages(this._programPackages); 
+        this._environment = new PackageScopedEnvironment();
+        this._environment.addPackages(this._programPackages);
         this._package = this._environment.getCurrentPackage();
 
         this.dragDropManager = new DragDropManager();
 
-        this.toolPaletteItemProvider = new ToolPaletteItemProvider({editor: this});
+        this.toolPaletteItemProvider = new ToolPaletteItemProvider({ editor: this });
         this.toolPaletteContainer = $(this._container)
                                     .find(_.get(viewOptions, 'design_view.tool_palette.container'))
                                     .get(0);
 
-        this.messageManager = new MessageManager({fileEditor: this});
+        this.messageManager = new MessageManager({ fileEditor: this });
 
         // init undo manager
         this._undoManager = new UndoManager();
@@ -232,25 +232,25 @@ class BallerinaFileEditor extends EventChannel {
      * @param diagramRenderingContext
      */
     render(diagramRenderingContext) {
-        var self = this;
+        let self = this;
         this.diagramRenderingContext = diagramRenderingContext;
-        //TODO remove this for adding filecontext to the map
+        // TODO remove this for adding filecontext to the map
         this.diagramRenderingContext.ballerinaFileEditor = this;
         this.diagramRenderingContext.packagedScopedEnvironemnt = this._environment;
 
-        var importDeclarations = [];
+        let importDeclarations = [];
 
         // attach a wrapper to the react diagram so we can attach expression editor to the container.
-        let diagramRoot = $('<div class="diagram root" ></div>');
-        let overlay = $('<div class="html-overlay" ></div>');
-        var renderer = new Renderer(overlay[0]);
-        let structOperationsOverlay = $('<div class="struct-operations-html-overlay" ></div>');
+        const diagramRoot = $('<div class="diagram root" ></div>');
+        const overlay = $('<div class="html-overlay" ></div>');
+        let renderer = new Renderer(overlay[0]);
+        const structOperationsOverlay = $('<div class="struct-operations-html-overlay" ></div>');
         const structOperationsRenderer = new StructOperationsRenderer(structOperationsOverlay[0]);
         this._$canvasContainer.append(diagramRoot);
         this._$canvasContainer.append(overlay);
         this._$canvasContainer.append(structOperationsOverlay);
-        //create Rect component for diagram
-        let root = React.createElement(BallerinaDiagram, {
+        // create Rect component for diagram
+        const root = React.createElement(BallerinaDiagram, {
             editor: this,
             dragDropManager: this.dragDropManager,
             messageManager: this.messageManager,
@@ -258,32 +258,32 @@ class BallerinaFileEditor extends EventChannel {
             renderingContext: this.diagramRenderingContext,
             renderer,
             overlay: overlay[0],
-            structOperationsRenderer
+            structOperationsRenderer,
         }, null);
         ReactDOM.render(
             root,
-            diagramRoot[0]
+            diagramRoot[0],
         );
 
         // render tool palette
-        //this.toolPalette.render();
-        let toolPalette = React.createElement(ToolPaletteView, {
+        // this.toolPalette.render();
+        const toolPalette = React.createElement(ToolPaletteView, {
             editor: this,
             provider: this.toolPaletteItemProvider,
             dragDropManager: this.dragDropManager,
-            container: this.toolPaletteContainer
+            container: this.toolPaletteContainer,
         }, null);
         ReactDOM.render(
             toolPalette,
-            this.toolPaletteContainer
+            this.toolPaletteContainer,
         );
 
         // container for per-tab source view TODO improve source view to wrap this logic
-        var sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
-        var aceEditorContainer = $('<div></div>');
+        let sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
+        let aceEditorContainer = $('<div></div>');
         aceEditorContainer.addClass(_.get(this._viewOptions, 'cssClass.text_editor_class'));
         sourceViewContainer.append(aceEditorContainer);
-        var sourceViewOpts = _.clone(_.get(this._viewOptions, 'source_view'));
+        let sourceViewOpts = _.clone(_.get(this._viewOptions, 'source_view'));
         _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
         _.set(sourceViewOpts, 'content', '');
         _.set(sourceViewOpts, 'debugger', this._debugger);
@@ -291,19 +291,19 @@ class BallerinaFileEditor extends EventChannel {
         _.set(sourceViewOpts, 'fileEditor', this);
         this._sourceView = new SourceView(sourceViewOpts);
 
-        this._sourceView.on('modified', function (changeEvent) {
-            if(self.getUndoManager().hasUndo()){
+        this._sourceView.on('modified', (changeEvent) => {
+            if (self.getUndoManager().hasUndo()) {
                 // clear undo stack from design view
-                if(!self.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(self.getUndoManager().undoStackTop())){
+                if (!self.getUndoManager().getOperationFactory()
+                        .isSourceModifiedOperation(self.getUndoManager().undoStackTop())) {
                     self.getUndoManager().reset();
                 }
             }
 
-            if(self.getUndoManager().hasRedo()){
+            if (self.getUndoManager().hasRedo()) {
                 // clear redo stack from design view
-                if(!self.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(self.getUndoManager().redoStackTop())){
+                if (!self.getUndoManager().getOperationFactory()
+                        .isSourceModifiedOperation(self.getUndoManager().redoStackTop())) {
                     self.getUndoManager().reset();
                 }
             }
@@ -320,7 +320,7 @@ class BallerinaFileEditor extends EventChannel {
             this.publishBreakpoints();
         });
 
-        this._sourceView.on('dispatch-command', function (id) {
+        this._sourceView.on('dispatch-command', (id) => {
             self.trigger('dispatch-command', id);
         });
 
@@ -329,32 +329,32 @@ class BallerinaFileEditor extends EventChannel {
 
         this._sourceView.render();
 
-        var lastRenderedTimestamp = this._file.getLastPersisted();
-        var transformPopUp = '#transformOverlay';
+        let lastRenderedTimestamp = this._file.getLastPersisted();
+        let transformPopUp = '#transformOverlay';
 
         // container for per-tab swagger view TODO improve swagger view to wrap this logic
-        var swaggerViewContainer = $(this._container).find(_.get(this._viewOptions, 'swagger_view.container'));
-        var swaggerViewOpts = _.clone(_.get(this._viewOptions, 'swagger_view'));
+        let swaggerViewContainer = $(this._container).find(_.get(this._viewOptions, 'swagger_view.container'));
+        let swaggerViewOpts = _.clone(_.get(this._viewOptions, 'swagger_view'));
         _.set(swaggerViewOpts, 'container', swaggerViewContainer);
         _.set(swaggerViewOpts, 'content', '');
-        _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
-        _.set(swaggerViewOpts, 'swaggerEditorId', this.getModel().getID() + '-swagger-editor');
+        _.set(swaggerViewOpts, 'backend', new Backend({ url: _.get(this._backendEndpointsOptions, 'swagger.endpoint') }));
+        _.set(swaggerViewOpts, 'swaggerEditorId', `${this.getModel().getID()  }-swagger-editor`);
         _.set(swaggerViewOpts, 'swaggerEditorTheme', this._file._storage.get('pref:sourceViewTheme') ||
             _.get(this.getViewOptions().source_view, 'theme'));
         _.set(swaggerViewOpts, 'swaggerEditorFontSize', this._file._storage.get('pref:sourceViewFontSize') ||
             _.get(this.getViewOptions().source_view, 'font_size'));
         this._swaggerView = new SwaggerView(swaggerViewOpts);
 
-        var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
+        let sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
         sourceViewBtn.click(() => {
             if (self.isInSwaggerView()) {
                 if (self._swaggerView.hasSwaggerErrors()) {
                     alerts.error('Cannot switch to Source view due to syntax errors.');
                     log.error('Cannot switch to Source view due to syntax errors.');
                     return false;
-                } else {
+                } 
                     self._swaggerView.updateServices();
-                }
+                
             }
 
             lastRenderedTimestamp = this._file.getLastPersisted();
@@ -378,15 +378,15 @@ class BallerinaFileEditor extends EventChannel {
         });
 
         var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
-        swaggerViewBtn.click(function () {
+        swaggerViewBtn.click(() => {
             try {
-                var isSourceChanged = !self._sourceView.isClean(),
+                let isSourceChanged = !self._sourceView.isClean(),
                     savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
-                    var source = self._sourceView.getContent();
-                    if(!_.isEmpty(source.trim())){
-                        var validateResponse = self.validatorBackend.parse({content:source.trim()});
-                        //TODO : error messages from backend come as error or errors. Make this consistent.
+                    let source = self._sourceView.getContent();
+                    if (!_.isEmpty(source.trim())) {
+                        let validateResponse = self.validatorBackend.parse({ content: source.trim() });
+                        // TODO : error messages from backend come as error or errors. Make this consistent.
                         if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
                             // syntax errors found
                             // no need to show error as annotations are already displayed for each line
@@ -394,29 +394,29 @@ class BallerinaFileEditor extends EventChannel {
                             return;
                         } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
                             // end point error
-                            alerts.error('Cannot switch to Swagger view due to syntax errors : ' + validateResponse.message);
+                            alerts.error(`Cannot switch to Swagger view due to syntax errors : ${  validateResponse.message}`);
                             return;
                         }
                     }
                     self._parseFailed = false;
-                    //if no errors display the design.
-                    var response = self.parserBackend.parse({content:source});
+                    // if no errors display the design.
+                    let response = self.parserBackend.parse({ content: source });
                     if (response.error && !_.isEmpty(response.message)) {
-                        alerts.error('Cannot switch to Swagger view due to syntax errors : ' + response.message);
+                        alerts.error(`Cannot switch to Swagger view due to syntax errors : ${  response.message}`);
                         return;
                     }
-                    var root = self.deserializer.getASTModel(response);
+                    let root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     self._sourceView.markClean();
                 }
 
-                var treeModel = self.generateNodeTree();
+                let treeModel = self.generateNodeTree();
                 if (_.isUndefined(treeModel)) {
                     alerts.error('Cannot switch to Swagger due to parser error');
                     return;
                 }
 
-                var serviceDef = _.find(treeModel.getChildren(), function (child) {
+                let serviceDef = _.find(treeModel.getChildren(), (child) => {
                     return BallerinaASTFactory.isServiceDefinition(child);
                 });
 
@@ -429,7 +429,7 @@ class BallerinaFileEditor extends EventChannel {
                 }
 
                 // Get the generated swagger and append it to the swagger view container's content
-                self._swaggerView.render(self.generateSwaggerSources());//setting fallback node tree
+                self._swaggerView.render(self.generateSwaggerSources());// setting fallback node tree
 
                 swaggerViewContainer.show();
                 sourceViewContainer.hide();
@@ -446,7 +446,7 @@ class BallerinaFileEditor extends EventChannel {
         });
 
         var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
-        designViewBtn.click(function () {
+        designViewBtn.click(() => {
             if (self.isInSwaggerView() && self._swaggerView.hasSwaggerErrors()) {
                 alerts.error('Cannot switch to Design view due to syntax errors.');
                 log.error('Cannot switch to Design view due to syntax errors.');
@@ -454,14 +454,14 @@ class BallerinaFileEditor extends EventChannel {
             }
 
             // re-parse if there are modifications to source
-            var isSourceChanged = !self._sourceView.isClean(),
+            let isSourceChanged = !self._sourceView.isClean(),
                 savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
-            var isSwaggerChanged = self.isInSwaggerView();
+            let isSwaggerChanged = self.isInSwaggerView();
             if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
-                var source = self._sourceView.getContent();
-                if(!_.isEmpty(source.trim())){
-                    var validateResponse = self.validatorBackend.parse({content: source.trim()});
-                    //TODO : error messages from backend come as error or errors. Make this consistent.
+                let source = self._sourceView.getContent();
+                if (!_.isEmpty(source.trim())) {
+                    let validateResponse = self.validatorBackend.parse({ content: source.trim() });
+                    // TODO : error messages from backend come as error or errors. Make this consistent.
                     if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
                         // syntax errors found
                         // no need to show error as annotations are already displayed for each line
@@ -469,18 +469,18 @@ class BallerinaFileEditor extends EventChannel {
                         return;
                     } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
                         // end point error
-                        alerts.error('Cannot switch to Design view due to syntax errors : ' + validateResponse.message);
+                        alerts.error(`Cannot switch to Design view due to syntax errors : ${  validateResponse.message}`);
                         return;
                     }
                 }
                 self._parseFailed = false;
-                //if no errors display the design.
-                var response = self.parserBackend.parse({name: self._file.getName(), path: self._file.getPath(), package: self._astRoot, content: source});
+                // if no errors display the design.
+                let response = self.parserBackend.parse({ name: self._file.getName(), path: self._file.getPath(), package: self._astRoot, content: source });
                 if (response.error && !_.isEmpty(response.message)) {
-                    alerts.error('Cannot switch to design view due to syntax errors : ' + response.message);
+                    alerts.error(`Cannot switch to design view due to syntax errors : ${  response.message}`);
                     return;
                 }
-                var root = self.deserializer.getASTModel(response);
+                let root = self.deserializer.getASTModel(response);
                 self.setModel(root);
                 // reset source editor delta stack
                 self._sourceView.markClean();
@@ -493,8 +493,8 @@ class BallerinaFileEditor extends EventChannel {
                     self._swaggerView.updateServices();
                 }
             }
-            //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
-            //self.toolPalette.show();
+            // canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
+            // self.toolPalette.show();
             sourceViewContainer.hide();
             swaggerViewContainer.hide();
             self._$designViewContainer.show();
@@ -502,13 +502,13 @@ class BallerinaFileEditor extends EventChannel {
             swaggerViewBtn.show();
             designViewBtn.hide();
             self.setActiveView('design');
-            self.trigger("update-diagram");
-            if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
-                //trigger contet drawing
+            self.trigger('update-diagram');
+            if (isSourceChanged || isSwaggerChanged || savedWhileInSourceView) {
+                // trigger contet drawing
             }
         });
 
-        if(this._parseFailed) {
+        if (this._parseFailed) {
             this._swaggerView.hide();
             this._$designViewContainer.hide();
             this._sourceView.show();
@@ -529,23 +529,21 @@ class BallerinaFileEditor extends EventChannel {
      */
     generateCurrentPackage() {
         // get the latest symbols from this file.
-        let currentPackage = new Package()
-        currentPackage.setName('Current Package');            
-        var symbolTableGenVisitor = new SymbolTableGenVisitor(currentPackage, this._model);
+        let currentPackage = new Package();
+        currentPackage.setName('Current Package');
+        let symbolTableGenVisitor = new SymbolTableGenVisitor(currentPackage, this._model);
         this._model.accept(symbolTableGenVisitor);
         currentPackage = symbolTableGenVisitor.getPackage();
 
-        //check if a similar package exists.
-        var packages = this._environment.getPackages();
-        var currentPackageArray = _.filter(packages, (pkg) => {
-            return !_.isEmpty(this._model.children) && (pkg.getName() ===  this._model.children[0].getPackageName());
-        });
+        // check if a similar package exists.
+        let packages = this._environment.getPackages();
+        let currentPackageArray = _.filter(packages, (pkg) => !_.isEmpty(this._model.children) && (pkg.getName() ===  this._model.children[0].getPackageName()));
         // Check whether the program contains a package name or it is in the dafault package
-        if(!_.isEmpty(currentPackageArray)){
+        if (!_.isEmpty(currentPackageArray)) {
             // Update Current package object after the package resolving
-            let currentPackageInEvn = _.clone(currentPackageArray[0]);
-            //todo merge the package with this.
-            currentPackage = _.merge(currentPackageInEvn,currentPackage);
+            const currentPackageInEvn = _.clone(currentPackageArray[0]);
+            // todo merge the package with this.
+            currentPackage = _.merge(currentPackageInEvn, currentPackage);
         }
         // update the package scoped environment with current package
         this._environment.setCurrentPackage(currentPackage);
@@ -568,21 +566,21 @@ class BallerinaFileEditor extends EventChannel {
      */
     generateSource() {
         // Visit the ast model and generate the source
-        var sourceGenVisitor = new SourceGenVisitor();
+        let sourceGenVisitor = new SourceGenVisitor();
         this._model.accept(sourceGenVisitor);
         return sourceGenVisitor.getGeneratedSource();
     }
 
     generateSwaggerSources() {
         // Visit the ast model and generate the source
-        let swaggerSources = [];
+        const swaggerSources = [];
         for (let i = 0; i < _.size(this.getModel().getServiceDefinitions()); i++) {
-            let swaggerJsonVisitor = new SwaggerJsonVisitor();
+            const swaggerJsonVisitor = new SwaggerJsonVisitor();
             this.getModel().getServiceDefinitions()[i].accept(swaggerJsonVisitor);
             swaggerSources.push({
                 serviceDefinitionAST: this.getModel().getServiceDefinitions()[i],
                 swagger: swaggerJsonVisitor.getSwaggerJson(),
-                hasModified: true
+                hasModified: true,
             });
         }
 
@@ -594,26 +592,26 @@ class BallerinaFileEditor extends EventChannel {
      * @returns {BallerinaASTRoot} generated node tree
      */
     generateNodeTree() {
-        var root;
-        var source = this._sourceView.getContent();
+        let root;
+        let source = this._sourceView.getContent();
         if (!_.isEmpty(source.trim())) {
-            var response = this.parserBackend.parse({content:source});
-           //if there are errors display the error.
-           //@todo: proper error handling need to get the service specs
+            let response = this.parserBackend.parse({ content: source });
+           // if there are errors display the error.
+           // @todo: proper error handling need to get the service specs
             if (response.error !== undefined && response.error) {
                 alerts.error('cannot switch to design view due to parse errors');
                 return;
             } else if (!_.isUndefined(response.errorMessage)) {
-               //TODO : error messages from backend come as message or errorMessage. Make this consistent.
-                alerts.error('Unable to parse the source: ' + response.errorMessage);
+               // TODO : error messages from backend come as message or errorMessage. Make this consistent.
+                alerts.error(`Unable to parse the source: ${  response.errorMessage}`);
                 return;
             }
             this._parseFailed = false;
-           //if no errors display the design.
-           //@todo
+           // if no errors display the design.
+           // @todo
             root = this.deserializer.getASTModel(response);
         } else {
-            //if source is empty get the current model. i.e. when in design view. TODO : refactor this behaviour
+            // if source is empty get the current model. i.e. when in design view. TODO : refactor this behaviour
             root = this.getModel();
         }
         return root;
@@ -664,7 +662,7 @@ class BallerinaFileEditor extends EventChannel {
     }
 
     getModelFromSource(source) {
-        var response = this.parserBackend.parse({content:source});
+        let response = this.parserBackend.parse({ content: source });
         if (response.error && !_.isEmpty(response.message)) {
             return response.message;
         }
@@ -677,7 +675,7 @@ class BallerinaFileEditor extends EventChannel {
     */
     getBreakpoints() {
         // handle if failed to build model
-        if(!this._model) {
+        if (!this._model) {
             return;
         }
 
@@ -695,8 +693,8 @@ class BallerinaFileEditor extends EventChannel {
      * This function will rerender the diagram and tool palette.
      * Will be used to re adjest diagram when browser window resized.
      */
-    reRender(){
-        this.trigger("update-diagram");
+    reRender() {
+        this.trigger('update-diagram');
         this._sourceView.resize();
     }
 
@@ -706,13 +704,13 @@ class BallerinaFileEditor extends EventChannel {
     publishBreakpoints() {
         const fileName = this._file.getName();
         let breakpoints = [];
-        if(this.isInSourceView()) {
+        if (this.isInSourceView()) {
             breakpoints = this._sourceView.getBreakpoints();
-        } else if(this.isInDesignView()) {
+        } else if (this.isInDesignView()) {
             breakpoints = this.getBreakpoints();
         }
         DebugManager.removeAllBreakpoints(fileName);
-        breakpoints.forEach( lineNumber => {
+        breakpoints.forEach(lineNumber => {
             DebugManager.addBreakPoint(lineNumber, fileName);
         });
     }
@@ -723,7 +721,7 @@ class BallerinaFileEditor extends EventChannel {
      */
     addNewImportPackage(packageString) {
         const toolPaletteItemProvider = this.toolPalette.getItemProvider();
-        let returnStatus = toolPaletteItemProvider
+        const returnStatus = toolPaletteItemProvider
             .addImport(toolPaletteItemProvider.getPackageToImport(packageString)[0]);
 
         if (returnStatus !== -1) {
@@ -731,12 +729,11 @@ class BallerinaFileEditor extends EventChannel {
         }
     }
 
-    getEnvironment(){
+    getEnvironment() {
         return this._environment || new PackageScopedEnvironment();
     }
-   
-}
 
+}
 
 
 export default BallerinaFileEditor;

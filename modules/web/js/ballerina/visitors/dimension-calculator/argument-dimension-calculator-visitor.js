@@ -34,7 +34,7 @@ class ArgumentDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
+        const viewState = node.getViewState();
 
         // Creating component for text.
         viewState.w = util.getTextWidth(node.getArgumentAsString(), 0).w;

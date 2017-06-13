@@ -34,8 +34,8 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
     beginVisitResourceDefinition(resourceDefinition) {
         // Creating path element that maps to the path annotation of the source.
-        let pathAnnotation = resourceDefinition.getPathAnnotation();
-        let pathValue = '/' + resourceDefinition.getResourceName(); // default path
+        const pathAnnotation = resourceDefinition.getPathAnnotation();
+        let pathValue = `/${resourceDefinition.getResourceName()}`; // default path
         if (!_.isUndefined(pathAnnotation)) {
             pathValue = pathAnnotation.getChildren()[0].getRightValue().replace(/"/g, '');
         }
@@ -45,34 +45,32 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             _.set(this.getSwaggerJson(), pathValue, {});
         }
 
-        let pathJson = _.get(this.getSwaggerJson(), pathValue);
+        const pathJson = _.get(this.getSwaggerJson(), pathValue);
 
         // Creating http method element that maps to the http:<Method> annotation.
-        let httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-        let httpMethodValue = !_.isUndefined(httpMethodAnnotation) ?
+        const httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
+        const httpMethodValue = !_.isUndefined(httpMethodAnnotation) ?
             httpMethodAnnotation.getIdentifier().toLowerCase() : 'get';
         _.set(pathJson, httpMethodValue, {});
 
-        let httpMethodJson = _.get(pathJson, httpMethodValue);
+        const httpMethodJson = _.get(pathJson, httpMethodValue);
 
         // Creating annotations
         let existingAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
         // Removing http:Path and http:<Method> annotations
-        existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation => {
-            return !(!_.isUndefined(httpMethodAnnotation) &&
+        existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation => !(!_.isUndefined(httpMethodAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), httpMethodAnnotation.getPackageName()) &&
                         _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier())) ||
                     (!_.isUndefined(pathAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
-                        _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier()))));
-        });
+                        _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier())))));
 
         // Creating default annotations
         _.set(httpMethodJson, 'operationId', resourceDefinition.getResourceName());
         _.set(httpMethodJson, 'responses.default.description', 'Default Response');
 
         // Creating the annotation
-        _.forEach(existingAnnotations, existingAnnotation => {
+        _.forEach(existingAnnotations, (existingAnnotation) => {
             if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceConfig')) {
                 this.parseResourceConfigAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceInfo')) {
@@ -82,16 +80,16 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'Responses')) {
                 this.parseResponsesAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Consumes')) {
-                let consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
-                let consumes = [];
-                _.forEach(consumesAnnotationEntryArray.getChildren(), consumesAnnotationEntry => {
+                const consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
+                const consumes = [];
+                _.forEach(consumesAnnotationEntryArray.getChildren(), (consumesAnnotationEntry) => {
                     consumes.push(this.removeDoubleQuotes(consumesAnnotationEntry.getRightValue()));
                 });
                 _.set(httpMethodJson, 'consumes', consumes);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Produces')) {
-                let producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
-                let produces = [];
-                _.forEach(producesAnnotationEntryArray.getChildren(), producesAnnotationEntry => {
+                const producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
+                const produces = [];
+                _.forEach(producesAnnotationEntryArray.getChildren(), (producesAnnotationEntry) => {
                     produces.push(this.removeDoubleQuotes(producesAnnotationEntry.getRightValue()));
                 });
                 _.set(httpMethodJson, 'produces', produces);
@@ -100,7 +98,6 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
         // Updating json with related to non-annotation models.
         this.addParametersAsAnnotations(resourceDefinition, httpMethodJson);
-
     }
 
     visitResourceDefinition(resourceDefinition) {
@@ -116,11 +113,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
      */
     parseResourceConfigAnnotation(existingAnnotation, httpMethodJson) {
         // Setting values.
-        _.forEach(existingAnnotation.getChildren(), annotationEntry => {
+        _.forEach(existingAnnotation.getChildren(), (annotationEntry) => {
             if (_.isEqual(annotationEntry.getLeftValue(), 'schemes')) {
-                let schemesAnnotationEntryArray = annotationEntry.getRightValue();
-                let schemes = [];
-                _.forEach(schemesAnnotationEntryArray.getChildren(), schemesAnnotationEntry => {
+                const schemesAnnotationEntryArray = annotationEntry.getRightValue();
+                const schemes = [];
+                _.forEach(schemesAnnotationEntryArray.getChildren(), (schemesAnnotationEntry) => {
                     schemes.push(schemesAnnotationEntry.getRightValue());
                 });
                 _.set(httpMethodJson, 'schemes', schemes);
@@ -137,11 +134,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
      */
     parseResourceInfoAnnotation(resourceInfoAnnotation, httpMethodJson) {
         // Setting values.
-        _.forEach(resourceInfoAnnotation.getChildren(), annotationEntry => {
+        _.forEach(resourceInfoAnnotation.getChildren(), (annotationEntry) => {
             if (_.isEqual(annotationEntry.getLeftValue(), 'tags')) {
-                let tagsAnnotationEntryArray = annotationEntry.getRightValue();
-                let tags = [];
-                _.forEach(tagsAnnotationEntryArray.getChildren(), tagsAnnotationEntry => {
+                const tagsAnnotationEntryArray = annotationEntry.getRightValue();
+                const tags = [];
+                _.forEach(tagsAnnotationEntryArray.getChildren(), (tagsAnnotationEntry) => {
                     tags.push(tagsAnnotationEntry.getRightValue());
                 });
                 _.set(httpMethodJson, 'tags', tags);
@@ -164,11 +161,11 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
      * @param {ResourceDefinition} resourceDefinition The resource definition which is being visited
      */
     parseParameterInfoAnnotation(parametersAnnotation, httpMethodJson) {
-        let parametersAnnotationArray = parametersAnnotation.getChildren()[0].getRightValue();
-        let parameters = [];
-        _.forEach(parametersAnnotationArray.getChildren(), parametersAnnotationArrayEntry => {
-            let tempParameterObj = {};
-            _.forEach(parametersAnnotationArrayEntry.getRightValue().getChildren(), responseAnnotationEntry => {
+        const parametersAnnotationArray = parametersAnnotation.getChildren()[0].getRightValue();
+        const parameters = [];
+        _.forEach(parametersAnnotationArray.getChildren(), (parametersAnnotationArrayEntry) => {
+            const tempParameterObj = {};
+            _.forEach(parametersAnnotationArrayEntry.getRightValue().getChildren(), (responseAnnotationEntry) => {
                 if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'in')) {
                     _.set(tempParameterObj, 'in', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'name')) {
@@ -194,7 +191,6 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'items')) {
                     // TODO : Implement items annotation.
                 }
-
             });
 
             parameters.push(tempParameterObj);
@@ -213,12 +209,12 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         _.unset(httpMethodJson, 'responses');
 
         // Creating the responses according the responses annotation.
-        let responsesAnnotationArray = responsesAnnotation.getChildren()[0].getRightValue();
-        let responses = {};
-        _.forEach(responsesAnnotationArray.getChildren(), responseAnnotationArrayEntry => {
-            let tempCodesObj = {};
-            let codesObjects = [];
-            _.forEach(responseAnnotationArrayEntry.getRightValue().getChildren(), responseAnnotationEntry => {
+        const responsesAnnotationArray = responsesAnnotation.getChildren()[0].getRightValue();
+        const responses = {};
+        _.forEach(responsesAnnotationArray.getChildren(), (responseAnnotationArrayEntry) => {
+            const tempCodesObj = {};
+            const codesObjects = [];
+            _.forEach(responseAnnotationArrayEntry.getRightValue().getChildren(), (responseAnnotationEntry) => {
                 if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'code')) {
                     _.set(tempCodesObj, 'code', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
@@ -234,8 +230,8 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
             codesObjects.push(tempCodesObj);
 
-            _.forEach(codesObjects, codeObj => {
-                let responseCode = codeObj.code;
+            _.forEach(codesObjects, (codeObj) => {
+                const responseCode = codeObj.code;
                 _.unset(codeObj, 'code');
                 _.set(responses, responseCode, codeObj);
             });
@@ -277,7 +273,6 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
                     // Add if parameter does not exist
                     if (!paramAlreadyExists) {
-
                         // Setting values by the type of the parameter.
                         const annotation = param.getChildren()[0];
                         if (resourceDefinition.getFactory().isAnnotation(annotation)) {

@@ -23,19 +23,19 @@ import log from 'log';
 import 'jstree';
 import 'jstree/dist/themes/default/style.css';
 
-var FileBrowser = Backbone.View.extend({
+const FileBrowser = Backbone.View.extend({
 
-    initialize: function (config) {
-        var errMsg;
+    initialize(config) {
+        let errMsg;
         if (!_.has(config, 'container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
             throw errMsg;
         }
-        var container = $(_.get(config, 'container'));
+        const container = $(_.get(config, 'container'));
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for file browser with selector: ' + _.get(config, 'container');
+            errMsg = `unable to find container for file browser with selector: ${_.get(config, 'container')}`;
             log.error(errMsg);
             throw errMsg;
         }
@@ -53,41 +53,41 @@ var FileBrowser = Backbone.View.extend({
         this._root = _.get(config, 'root');
 
         this._treeConfig = {
-            'core': {
-                'data': {
-                    'url': this.getURLProvider(),
-                    'dataType': "json",
-                    'data': function (node) {
-                        return {'id': node.id};
-                    }
+            core: {
+                data: {
+                    url: this.getURLProvider(),
+                    dataType: 'json',
+                    data(node) {
+                        return { id: node.id };
+                    },
                 },
-                'multiple': false,
-                'check_callback': false,
-                'force_text': true,
-                'expand_selected_onload': true,
-                'themes': {
-                    'responsive': false,
-                    'variant': 'small',
-                    'stripes': false,
-                    'dots': false
-                }
+                multiple: false,
+                check_callback: false,
+                force_text: true,
+                expand_selected_onload: true,
+                themes: {
+                    responsive: false,
+                    variant: 'small',
+                    stripes: false,
+                    dots: false,
+                },
             },
-            'types': {
-                'default': {
-                    'icon': 'fw fw-folder'
+            types: {
+                default: {
+                    icon: 'fw fw-folder',
                 },
-                'folder': {
-                    'icon': 'fw fw-folder'
+                folder: {
+                    icon: 'fw fw-folder',
                 },
-                'file': {
-                    'icon': 'fw-document'
-                }
-            }
+                file: {
+                    icon: 'fw-document',
+                },
+            },
         };
 
         this._plugins = ['types', 'wholerow'];
         this._contextMenuProvider = _.get(config, 'contextMenuProvider');
-        if(!_.isNil(this._contextMenuProvider)){
+        if (!_.isNil(this._contextMenuProvider)) {
             this._plugins.push('contextmenu');
             _.set(this._treeConfig, 'contextmenu.items', this._contextMenuProvider);
             _.set(this._treeConfig, 'contextmenu.show_at_node', false);
@@ -95,39 +95,36 @@ var FileBrowser = Backbone.View.extend({
         _.set(this._treeConfig, 'plugins', this._plugins);
     },
 
-    getURLProvider: function(){
-        var self = this;
+    getURLProvider() {
+        const self = this;
         return function (node) {
             if (node.id === '#') {
-                if(!_.isNil(self._root)){
+                if (!_.isNil(self._root)) {
                     if (self._fetchFiles) {
-                        return self._workspaceServiceURL + "/listFiles?path=" + btoa(self._root);
-                    } else {
-                        return self._workspaceServiceURL + "/list?path=" + btoa(self._root);
+                        return `${self._workspaceServiceURL}/listFiles?path=${btoa(self._root)}`;
                     }
+                    return `${self._workspaceServiceURL}/list?path=${btoa(self._root)}`;
                 }
-                return self._workspaceServiceURL + "/root";
+                return `${self._workspaceServiceURL}/root`;
             }
-            else {
-                if (self._fetchFiles) {
-                    return self._workspaceServiceURL + "/listFiles?path=" + btoa(node.id);
-                } else {
-                    return self._workspaceServiceURL + "/list?path=" + btoa(node.id);
-                }
+
+            if (self._fetchFiles) {
+                return `${self._workspaceServiceURL}/listFiles?path=${btoa(node.id)}`;
             }
+            return `${self._workspaceServiceURL}/list?path=${btoa(node.id)}`;
         };
     },
 
     /**
      * @param path a single path or an array of folder paths to select
      */
-    select: function(path){
+    select(path) {
         this._$parent_el.jstree(true).deselect_all();
-        var pathSeparator = this.application.getPathSeperator(),
+        let pathSeparator = this.application.getPathSeperator(),
             pathParts = _.split(path, pathSeparator),
-            currentPart = "/",
+            currentPart = '/',
             self = this;
-        pathParts.forEach(function(part){
+        pathParts.forEach((part) => {
             currentPart += part;
             self._$parent_el.jstree(true).open_node(currentPart);
             currentPart += pathSeparator;
@@ -136,39 +133,38 @@ var FileBrowser = Backbone.View.extend({
         this._$parent_el.jstree(true).select_node(path);
     },
 
-    refresh: function(node){
+    refresh(node) {
         this._$parent_el.jstree(true).load_node(node);
     },
 
-    getNode: function(id){
+    getNode(id) {
         return this._$parent_el.jstree(true).get_node(id);
     },
 
-    render: function () {
-        var self = this;
+    render() {
+        const self = this;
         this._$parent_el
-                .jstree(self._treeConfig).on('changed.jstree', function (e, data) {
+                .jstree(self._treeConfig).on('changed.jstree', (e, data) => {
                     if (data && data.selected && data.selected.length) {
                         self.selected = data.selected[0];
-                        self.trigger("selected", data.selected[0]);
-                    }
-                    else {
+                        self.trigger('selected', data.selected[0]);
+                    } else {
                         self.selected = false;
-                        self.trigger("selected", null);
+                        self.trigger('selected', null);
                     }
-                }).on('open_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "fw fw-folder");
-                }).on('close_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "fw fw-folder");
-                }).on('ready', function(){
-                    self.trigger("ready");
-                }).on("dblclick.jstree", function (event) {
-                    var item = $(event.target).closest("li");
-                    var node = self._$parent_el.jstree(true).get_node(item[0].id);
-                    self.trigger("double-click-node", node);
+                }).on('open_node.jstree', (e, data) => {
+                    data.instance.set_icon(data.node, 'fw fw-folder');
+                }).on('close_node.jstree', (e, data) => {
+                    data.instance.set_icon(data.node, 'fw fw-folder');
+                }).on('ready', () => {
+                    self.trigger('ready');
+                }).on('dblclick.jstree', (event) => {
+                    const item = $(event.target).closest('li');
+                    const node = self._$parent_el.jstree(true).get_node(item[0].id);
+                    self.trigger('double-click-node', node);
                 });
         return this;
-    }
+    },
 });
 
 export default FileBrowser;

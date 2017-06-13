@@ -31,7 +31,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
+        const viewState = node.getViewState();
         const topGutter = 10;
         const topBarHeight = 25;
         const importInputHeight = 40;
@@ -39,17 +39,17 @@ class PackageDefinitionDimensionCalculatorVisitor {
         let height = 0;
         const astRoot = node.parent;
 
-        if(viewState.importsExpanded) {
+        if (viewState.importsExpanded) {
             const imports = astRoot.children.filter(
-                c => {return ASTFactory.isImportDeclaration(c);});
+                c => ASTFactory.isImportDeclaration(c));
 
             height += topGutter + topBarHeight + importInputHeight +
                       imports.length * packageDefinition.importDeclaration.itemHeight;
         }
 
-        if(viewState.globalsExpanded) {
+        if (viewState.globalsExpanded) {
             const globals = astRoot.children.filter(
-                c => {return ASTFactory.isConstantDefinition(c);});
+                c => ASTFactory.isConstantDefinition(c));
 
             height += topGutter + topBarHeight + importInputHeight +
                       globals.length * packageDefinition.importDeclaration.itemHeight;

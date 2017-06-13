@@ -29,11 +29,11 @@ class Backend {
      */
     constructor(args) {
         this._options = args;
-        if(!_.has(args, 'url')){
+        if (!_.has(args, 'url')) {
             log.error('url is not given for backend.');
-        }else{
+        } else {
             this._url = _.get(args, 'url');
-        }        
+        }
     }
 
     /**
@@ -41,8 +41,8 @@ class Backend {
      * @param source - Source content
      */
     parse(opts) {
-        var content = { 'fileName': opts.name, 'filePath': opts.path, 'packageName': opts.package, 'content': opts.content };  
-        var data = {};
+        const content = { fileName: opts.name, filePath: opts.path, packageName: opts.package, content: opts.content };
+        let data = {};
         $.ajax({
             type: 'POST',
             context: this,
@@ -51,15 +51,15 @@ class Backend {
             contentType: 'application/json; charset=utf-8',
             async: false,
             dataType: 'json',
-            success: function (response) {
+            success(response) {
                 data = response;
                 if (data.errorMessage) {
-                    data = {'error':true, 'message':data.errorMessage};
+                    data = { error: true, message: data.errorMessage };
                 }
             },
-            error: function(){
-                data = {'error':true, 'message':'Unable to render design view due to parser errors.'};
-            }
+            error() {
+                data = { error: true, message: 'Unable to render design view due to parser errors.' };
+            },
         });
         return data;
     }
@@ -72,27 +72,27 @@ class Backend {
      * @param queryParams query parameters in [{name: "foo", value: "bar"}, ...]
      */
     call(opts) {
-        let uri = _.get(opts, 'uri', '');
-        let method = _.get(opts, 'method', 'GET');
-        let content = _.get(opts, 'content', undefined);
-        let queryParams = _.get(opts, 'queryParams', undefined);
-        let async = _.get(opts, 'async', false);
-        let handleResponse = _.get(opts, 'callback');
-        let callbackObj = _.get(opts, 'callbackObj');
+        const uri = _.get(opts, 'uri', '');
+        const method = _.get(opts, 'method', 'GET');
+        const content = _.get(opts, 'content', undefined);
+        const queryParams = _.get(opts, 'queryParams', undefined);
+        const async = _.get(opts, 'async', false);
+        const handleResponse = _.get(opts, 'callback');
+        const callbackObj = _.get(opts, 'callbackObj');
 
-        var response = {};
-        var queryParamsStr = '';
+        let response = {};
+        let queryParamsStr = '';
         if (queryParams) {
             try {
-                queryParamsStr = '?' + (queryParams.map(
-                        function (elem) {
+                queryParamsStr = `?${queryParams.map(
+                        (elem) => {
                             if (!elem.name || !elem.value) {
                                 throw new Error('Invalid query params!');
                             }
-                            return encodeURIComponent(elem.name) + '=' + encodeURIComponent(elem.value);
-                        }).join('&'));
+                            return `${encodeURIComponent(elem.name)}=${encodeURIComponent(elem.value)}`;
+                        }).join('&')}`;
             } catch (err) {
-                //do nothing
+                // do nothing
             }
         }
 
@@ -102,23 +102,22 @@ class Backend {
             url: this._url + uri + queryParamsStr,
             data: JSON.stringify(content),
             contentType: 'application/json; charset=utf-8',
-            async: async,
+            async,
             dataType: 'json',
-            success: function (data) {
-                if(data.errorMessage){
-                    response = {'error': true, 'message': 'Unable to parse source:' + data.errorMessage + '.'};
+            success(data) {
+                if (data.errorMessage) {
+                    response = { error: true, message: `Unable to parse source:${data.errorMessage}.` };
                 } else {
                     response = data;
                 }
                 handleResponse.call(this, callbackObj, response);
             },
-            error: function () {
-                response = {'error': true, 'message': 'Unable to render design view due to parser errors.'};
-            }
+            error() {
+                response = { error: true, message: 'Unable to render design view due to parser errors.' };
+            },
         });
         return response;
     }
 }
 
 export default Backend;
-   

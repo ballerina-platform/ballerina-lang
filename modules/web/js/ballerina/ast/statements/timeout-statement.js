@@ -27,7 +27,7 @@ import Statement from './statement';
 class TimeoutStatement extends Statement {
     constructor(args) {
         super('TimeoutStatement');
-        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'map', name: 'm'});
+        const parameterDefinition = this.getFactory().createParameterDefinition({ typeName: 'map', name: 'm' });
         this._timeoutParameter = _.get(args, 'timeoutParameter', parameterDefinition);
         this._expression = _.get(args, 'expression', '60');
     }
@@ -36,7 +36,7 @@ class TimeoutStatement extends Statement {
         const workerDeclarations = [];
         const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
@@ -63,7 +63,7 @@ class TimeoutStatement extends Statement {
             const factory = this.getFactory();
             const typeName = match[1];
             const name = match[2];
-            const parameterDefinition = factory.createParameterDefinition({typeName, name});
+            const parameterDefinition = factory.createParameterDefinition({ typeName, name });
             this.setParameter(parameterDefinition);
         }
     }
@@ -83,19 +83,19 @@ class TimeoutStatement extends Statement {
     }
 
     initFromJson(jsonNode) {
-        let self = this;
-        const expressionChildNode = jsonNode['expression'];
+        const self = this;
+        const expressionChildNode = jsonNode.expression;
         const expressionChild = self.getFactory().createFromJson(expressionChildNode);
         expressionChild.initFromJson(expressionChildNode);
         self.setExpression(expressionChild.getExpressionString());
 
-        const paramJsonNode = jsonNode['timeout_parameter'];
+        const paramJsonNode = jsonNode.timeout_parameter;
         const paramChild = self.getFactory().createFromJson(paramJsonNode);
         paramChild.initFromJson(paramJsonNode);
         self.setParameter(paramChild);
 
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

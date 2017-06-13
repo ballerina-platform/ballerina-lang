@@ -23,7 +23,7 @@ import Backbone from 'backbone';
 import FileBrowser from 'file_browser';
 import 'bootstrap';
 import './dialog.css';
-var SaveToFileDialog = Backbone.View.extend(
+const SaveToFileDialog = Backbone.View.extend(
     /** @lends SaveToFileDialog.prototype */
     {
         /**
@@ -32,51 +32,51 @@ var SaveToFileDialog = Backbone.View.extend(
          * @class SaveToFileDialog
          * @param {Object} config configuration options for the SaveToFileDialog
          */
-        initialize: function (options) {
+        initialize(options) {
             this.app = options;
             this.dialog_container = $(_.get(options.config.dialog, 'container'));
             this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
         },
 
-        show: function(){
-            var self = this;
-            this._fileSaveModal.modal('show').on('shown.bs.modal', function(){
+        show() {
+            const self = this;
+            this._fileSaveModal.modal('show').on('shown.bs.modal', () => {
                 self.trigger('loaded');
             });
-            this._fileSaveModal.on('hidden.bs.modal', function(){
+            this._fileSaveModal.on('hidden.bs.modal', () => {
                 self.trigger('unloaded');
             });
         },
 
-        setSelectedFile: function(path, fileName){
+        setSelectedFile(path, fileName) {
             this._fileBrowser.select(path);
-            if(!_.isNil(this._configNameInput)){
+            if (!_.isNil(this._configNameInput)) {
                 this._configNameInput.val(fileName);
             }
         },
 
-        render: function () {
-            //TODO : this render method should be rewritten with improved UI
-            var self = this;
-            var fileBrowser;
-            var app = this.app;
-            var notification_container = this.notification_container;
+        render() {
+            // TODO : this render method should be rewritten with improved UI
+            const self = this;
+            let fileBrowser;
+            const app = this.app;
+            const notification_container = this.notification_container;
 
-            if(!_.isNil(this._fileSaveModal)){
+            if (!_.isNil(this._fileSaveModal)) {
                 this._fileSaveModal.remove();
             }
 
-            var fileSave = $(
+            const fileSave = $(
                     "<div class='modal fade' id='saveConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
                     "<div class='modal-dialog file-dialog' role='document'>" +
                     "<div class='modal-content'>" +
                     "<div class='modal-header'>" +
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
-                    "</button>" +
+                    '</button>' +
                     "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Save File</h4>" +
-                    "<hr class='style1'>"+
-                    "</div>" +
+                    "<hr class='style1'>" +
+                    '</div>' +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal' onsubmit='return false'>" +
@@ -84,135 +84,135 @@ var SaveToFileDialog = Backbone.View.extend(
                     "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
                     "<input class='file-dialog-form-control' id='configName' placeholder='eg: sample.bal'>" +
-                    "</div>" +
-                    "</div>" +
+                    '</div>' +
+                    '</div>' +
                     "<div class='form-group'>" +
                     "<label for='location' class='col-sm-2 file-dialog-label'>Location :</label>" +
                     "<div class='col-sm-9'>" +
                     "<input type='text' class='file-dialog-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
-                    "</div>" +
-                    "</div>" +
+                    '</div>' +
+                    '</div>' +
                     "<div class='form-group'>" +
                     "<div class='file-dialog-form-scrollable-block'>" +
                     "<div id='fileTree'>" +
-                    "</div>" +
+                    '</div>' +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
                     "<div class='form-group'>" +
                     "<div class='file-dialog-form-btn'>" +
                     "<button id='saveButton' type='button' class='btn btn-primary'>Save" +
-                    "</button>" +
+                    '</button>' +
                     "<div class='divider'/>" +
                     "<button type='cancelButton' class='btn btn-default' data-dismiss='modal'>Cancel</button>" +
-                    "</div>" +
-                    "</div>" +
-                    "</form>" +
+                    '</div>' +
+                    '</div>' +
+                    '</form>' +
                     "<div id='newWizardError' class='alert alert-danger'>" +
-                    "<strong>Error!</strong> Something went wrong." +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>"
+                    '<strong>Error!</strong> Something went wrong.' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>',
                 );
 
-            var successNotification = $(
-                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-success' id='success-alert'>"+
-                    "<span class='notification'>"+
-                    "Configuration saved successfully !"+
-                    "</span>"+
-                    "</div>");
+            const successNotification = $(
+                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-success' id='success-alert'>" +
+                    "<span class='notification'>" +
+                    'Configuration saved successfully !' +
+                    '</span>' +
+                    '</div>');
 
             function getErrorNotification(detailedErrorMsg) {
-                var errorMsg = "Error while saving configuration";
-                if (!_.isEmpty(detailedErrorMsg)){
-                    errorMsg += (" : " + detailedErrorMsg);
+                let errorMsg = 'Error while saving configuration';
+                if (!_.isEmpty(detailedErrorMsg)) {
+                    errorMsg += (` : ${  detailedErrorMsg}`);
                 }
                 return $(
-                        "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
-                        "<span class='notification'>" +
-                        errorMsg +
-                        "</span>" +
-                        "</div>");
+                        `${"<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
+                        "<span class='notification'>"}${
+                        errorMsg
+                        }</span>` +
+                        '</div>');
             }
 
-            var saveConfigModal = fileSave.filter("#saveConfigModal");
-            var newWizardError = fileSave.find("#newWizardError");
-            var location = fileSave.find("input").filter("#location");
-            var configName = fileSave.find("input").filter("#configName");
+            const saveConfigModal = fileSave.filter('#saveConfigModal');
+            const newWizardError = fileSave.find('#newWizardError');
+            const location = fileSave.find('input').filter('#location');
+            const configName = fileSave.find('input').filter('#configName');
 
-            var treeContainer  = fileSave.find("div").filter("#fileTree");
-            fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:false});
+            const treeContainer = fileSave.find('div').filter('#fileTree');
+            fileBrowser = new FileBrowser({ container: treeContainer, application: app, fetchFiles: false });
 
             fileBrowser.render();
             this._fileBrowser = fileBrowser;
             this._configNameInput = configName;
 
-                //Gets the selected location from tree and sets the value as location
-            this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
-                if(selectedLocation){
+                // Gets the selected location from tree and sets the value as location
+            this.listenTo(fileBrowser, 'selected', (selectedLocation) => {
+                if (selectedLocation) {
                     location.val(selectedLocation);
                 }
             });
 
             function handleSave() {
-                var _location = location.val();
-                var _configName = configName.val();
+                const _location = location.val();
+                let _configName = configName.val();
                 if (_.isEmpty(_location)) {
-                    newWizardError.text("Please enter a valid file location");
+                    newWizardError.text('Please enter a valid file location');
                     newWizardError.show();
                     return;
                 }
                 if (_.isEmpty(_configName)) {
-                    newWizardError.text("Please enter a valid file name");
+                    newWizardError.text('Please enter a valid file name');
                     newWizardError.show();
                     return;
                 }
-                if(!_configName.endsWith(".bal")){
-                    _configName = _configName + ".bal";
+                if (!_configName.endsWith('.bal')) {
+                    _configName += '.bal';
                 }
 
-                var callback = function(isSaved) {
+                const callback = function (isSaved) {
                     self.trigger('save-completed', isSaved);
                     if (isSaved) {
                         saveConfigModal.modal('hide');
                     }
                 };
 
-                var client = self.app.workspaceManager.getServiceClient();
-                var path = _location + '/' + _configName;
-                var existsResponse = client.exists(path);
+                const client = self.app.workspaceManager.getServiceClient();
+                const path = `${_location}/${_configName}`;
+                const existsResponse = client.exists(path);
 
-                if(existsResponse.exists) {
+                if (existsResponse.exists) {
                         // File with this name already exists. Need confirmation from user to replace
-                    var replaceConfirmCb = function(confirmed) {
-                        if(confirmed) {
-                            saveConfiguration({location: _location, configName: _configName}, callback);
+                    const replaceConfirmCb = function (confirmed) {
+                        if (confirmed) {
+                            saveConfiguration({ location: _location, configName: _configName }, callback);
                         } else {
                             callback(false);
                         }
                     };
 
-                    var options = {
-                        path: path,
-                        handleConfirm: replaceConfirmCb
+                    const options = {
+                        path,
+                        handleConfirm: replaceConfirmCb,
                     };
 
                     self.app.commandManager.dispatch('open-replace-file-confirm-dialog', options);
                 } else {
-                    saveConfiguration({location: _location, configName: _configName}, callback);
+                    saveConfiguration({ location: _location, configName: _configName }, callback);
                 }
             }
 
-            fileSave.find("button").filter("#saveButton").click(function() {
+            fileSave.find('button').filter('#saveButton').click(() => {
                 handleSave();
             });
 
             function handleKeyPress(e) {
-                if(e.keyCode === 13 || e.which === 13){
+                if (e.keyCode === 13 || e.which === 13) {
                     e.stopPropagation();
                     e.preventDefault();
                     handleSave();
@@ -226,17 +226,17 @@ var SaveToFileDialog = Backbone.View.extend(
             newWizardError.hide();
             this._fileSaveModal = fileSave;
 
-            function alertSuccess(){
+            function alertSuccess() {
                 $(notification_container).append(successNotification);
-                successNotification.fadeTo(2000, 200).slideUp(1000, function(){
+                successNotification.fadeTo(2000, 200).slideUp(1000, () => {
                     successNotification.slideUp(1000);
                 });
             }
 
             function alertError(errorMessage) {
-                var errorNotification = getErrorNotification(errorMessage);
+                const errorNotification = getErrorNotification(errorMessage);
                 $(notification_container).append(errorNotification);
-                errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
+                errorNotification.fadeTo(2000, 200).slideUp(1000, () => {
                     errorNotification.slideUp(1000);
                 });
             }
@@ -251,21 +251,21 @@ var SaveToFileDialog = Backbone.View.extend(
             }
 
             function saveConfiguration(options, callback) {
-                var workspaceServiceURL = app.config.services.workspace.endpoint;
-                var saveServiceURL = workspaceServiceURL + "/write";
-                var activeTab = app.tabController.activeTab;
-                var ballerinaFileEditor= activeTab.getBallerinaFileEditor();
-                var config = ballerinaFileEditor.getContent();
-                var payload = "location=" + btoa(options.location) + "&configName=" + btoa(options.configName)
-                        + "&config=" + (encodeURIComponent(config));
+                const workspaceServiceURL = app.config.services.workspace.endpoint;
+                const saveServiceURL = `${workspaceServiceURL }/write`;
+                const activeTab = app.tabController.activeTab;
+                const ballerinaFileEditor = activeTab.getBallerinaFileEditor();
+                const config = ballerinaFileEditor.getContent();
+                const payload = `location=${  btoa(options.location)  }&configName=${  btoa(options.configName)
+                         }&config=${  encodeURIComponent(config)}`;
 
                 $.ajax({
                     url: saveServiceURL,
-                    type: "POST",
+                    type: 'POST',
                     data: payload,
-                    contentType: "text/plain; charset=utf-8",
+                    contentType: 'text/plain; charset=utf-8',
                     async: false,
-                    success: function (data, textStatus, xhr) {
+                    success(data, textStatus, xhr) {
                         if (xhr.status == 200) {
                             activeTab.setTitle(options.configName);
                             activeTab.getFile()
@@ -276,10 +276,10 @@ var SaveToFileDialog = Backbone.View.extend(
                                             .setLastPersisted(_.now())
                                             .setDirty(false)
                                             .save();
-                            if(app.workspaceExplorer.isEmpty()){
-                                app.commandManager.dispatch("open-folder", options.location);
-                                if(!app.workspaceExplorer.isActive()){
-                                    app.commandManager.dispatch("toggle-file-explorer");
+                            if (app.workspaceExplorer.isEmpty()) {
+                                app.commandManager.dispatch('open-folder', options.location);
+                                if (!app.workspaceExplorer.isActive()) {
+                                    app.commandManager.dispatch('toggle-file-explorer');
                                 }
                             }
                             app.breadcrumbController.setPath(options.location, options.configName);
@@ -292,21 +292,21 @@ var SaveToFileDialog = Backbone.View.extend(
                             callback(false);
                         }
                     },
-                    error: function(res, errorCode, error){
-                        var msg = _.isString(error) ? error : res.statusText;
-                        if(isJsonString(res.responseText)){
-                            var resObj = JSON.parse(res.responseText);
-                            if(_.has(resObj, 'Error')){
+                    error(res, errorCode, error) {
+                        let msg = _.isString(error) ? error : res.statusText;
+                        if (isJsonString(res.responseText)) {
+                            let resObj = JSON.parse(res.responseText);
+                            if (_.has(resObj, 'Error')) {
                                 msg = _.get(resObj, 'Error');
                             }
                         }
                         newWizardError.text(msg);
                         newWizardError.show();
                         callback(false);
-                    }
+                    },
                 });
             }
-        }
+        },
     });
 
 export default SaveToFileDialog;

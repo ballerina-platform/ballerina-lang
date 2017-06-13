@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
 import ImageUtil from './image-util';
 
@@ -26,14 +26,16 @@ class ParameterView extends React.Component {
     }
 
     render() {
-        let model = this.props.model;
-        let viewState = model.viewState;
-        return (<g><rect x={viewState.bBox.x} y={viewState.bBox.y + 3} width={viewState.w} height={viewState.h} rx="0" ry="0" className="parameter-wrapper"></rect>
-            <text x={viewState.bBox.x + 5} y={viewState.bBox.y + 3} className="parameter-text">{model.getParameterDefinitionAsString()}</text>
-            <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 3} width={viewState.components.deleteIcon.w} height={viewState.components.deleteIcon.h} rx="0" ry="0" className="parameter-delete-icon-wrapper"></rect>
-            <image x={viewState.components.deleteIcon.x + 2} y={viewState.components.deleteIcon.y + 5} width="14" height="14" className="parameter-delete-icon"
-                                    xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}/>
-                </g>)
+        const model = this.props.model;
+        const viewState = model.viewState;
+        return (<g><rect x={viewState.bBox.x} y={viewState.bBox.y + 3} width={viewState.w} height={viewState.h} rx="0" ry="0" className="parameter-wrapper" />
+          <text x={viewState.bBox.x + 5} y={viewState.bBox.y + 3} className="parameter-text">{model.getParameterDefinitionAsString()}</text>
+          <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 3} width={viewState.components.deleteIcon.w} height={viewState.components.deleteIcon.h} rx="0" ry="0" className="parameter-delete-icon-wrapper" />
+          <image
+            x={viewState.components.deleteIcon.x + 2} y={viewState.components.deleteIcon.y + 5} width="14" height="14" className="parameter-delete-icon"
+            xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}
+          />
+        </g>);
     }
 }
 

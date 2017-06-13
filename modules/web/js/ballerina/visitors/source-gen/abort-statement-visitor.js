@@ -60,7 +60,7 @@ class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
      * @param {AbortStatement} abortStatement
      * */
     endVisitAbortStatement(abortStatement) {
-        this.appendSource(abortStatement.getWSRegion(1) + ";" + abortStatement.getWSRegion(2));
+        this.appendSource(`${abortStatement.getWSRegion(1)};${abortStatement.getWSRegion(2)}`);
         this.appendSource((abortStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

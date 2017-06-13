@@ -34,9 +34,9 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     }
 
     beginVisitServiceDefinition(serviceDefinition) {
-        let existingAnnotations = serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation);
+        const existingAnnotations = serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation);
 
-        _.forEach(existingAnnotations, existingAnnotation => {
+        _.forEach(existingAnnotations, (existingAnnotation) => {
             if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ServiceInfo')) {
                 this.parseServiceInfoAnnotation(existingAnnotation, this.getSwaggerJson());
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'BasePath')) {
@@ -47,35 +47,35 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ServiceConfig')) {
                 this.parseServiceConfigAnnotation(existingAnnotation, this.getSwaggerJson());
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Consumes')) {
-                let consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
-                let consumes = [];
-                _.forEach(consumesAnnotationEntryArray.getChildren(), consumesAnnotationEntry => {
+                const consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
+                const consumes = [];
+                _.forEach(consumesAnnotationEntryArray.getChildren(), (consumesAnnotationEntry) => {
                     consumes.push(this.removeDoubleQuotes(consumesAnnotationEntry.getRightValue()));
                 });
                 _.set(this.getSwaggerJson(), 'consumes', consumes);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Produces')) {
-                let producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
-                let produces = [];
-                _.forEach(producesAnnotationEntryArray.getChildren(), producesAnnotationEntry => {
+                const producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
+                const produces = [];
+                _.forEach(producesAnnotationEntryArray.getChildren(), (producesAnnotationEntry) => {
                     produces.push(this.removeDoubleQuotes(producesAnnotationEntry.getRightValue()));
                 });
                 _.set(this.getSwaggerJson(), 'produces', produces);
             }
         });
 
-        //if base path is not defined set base path as service name.
-        let basePath = _.find(existingAnnotations, (annotation) => {
-            if (_.isEqual(annotation.getPackageName(), 'http') && _.isEqual(annotation.getIdentifier(), 'BasePath')){
+        // if base path is not defined set base path as service name.
+        const basePath = _.find(existingAnnotations, (annotation) => {
+            if (_.isEqual(annotation.getPackageName(), 'http') && _.isEqual(annotation.getIdentifier(), 'BasePath')) {
                 return true;
             }
         });
-        if(_.isUndefined(basePath)){
-            _.set(this.getSwaggerJson(), 'basePath', "/" + serviceDefinition.getServiceName());
+        if (_.isUndefined(basePath)) {
+            _.set(this.getSwaggerJson(), 'basePath', `/${serviceDefinition.getServiceName()}`);
         }
 
         // Setting required 'info' annotation
         if (_.isUndefined(this.getSwaggerJson().info)) {
-            this.getSwaggerJson().info = {version: '1.0.0', title: 'Sample Service'};
+            this.getSwaggerJson().info = { version: '1.0.0', title: 'Sample Service' };
         } else {
             if (_.isUndefined(this.getSwaggerJson().info.version)) {
                 this.getSwaggerJson().info.version = '1.0.0';
@@ -84,7 +84,6 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 this.getSwaggerJson().info.title = 'Sample Service';
             }
         }
-
     }
 
     visitServiceDefinition(serviceDefinition) {
@@ -111,7 +110,7 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         _.set(swaggerJson, 'info.version', '1.0.0');
 
         // Setting values.
-        _.forEach(existingAnnotation.getChildren(), annotationEntry => {
+        _.forEach(existingAnnotation.getChildren(), (annotationEntry) => {
             if (_.isEqual(annotationEntry.getLeftValue(), 'title')) {
                 _.set(swaggerJson, 'info.title', this.removeDoubleQuotes(annotationEntry.getRightValue()));
             } else if (_.isEqual(annotationEntry.getLeftValue(), 'version')) {
@@ -121,8 +120,8 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             } else if (_.isEqual(annotationEntry.getLeftValue(), 'termsOfService')) {
                 _.set(swaggerJson, 'info.termsOfService', this.removeDoubleQuotes(annotationEntry.getRightValue()));
             } else if (_.isEqual(annotationEntry.getLeftValue(), 'contact')) {
-                let contactAnnotation = annotationEntry.getRightValue();
-                _.forEach(contactAnnotation.getChildren(), contactAnnotationEntry => {
+                const contactAnnotation = annotationEntry.getRightValue();
+                _.forEach(contactAnnotation.getChildren(), (contactAnnotationEntry) => {
                     if (_.isEqual(contactAnnotationEntry.getLeftValue(), 'name')) {
                         _.set(swaggerJson, 'info.contact.name', this.removeDoubleQuotes(contactAnnotationEntry.getRightValue()));
                     } else if (_.isEqual(contactAnnotationEntry.getLeftValue(), 'email')) {
@@ -132,8 +131,8 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                     }
                 });
             } else if (_.isEqual(annotationEntry.getLeftValue(), 'license')) {
-                let licenseAnnotation = annotationEntry.getRightValue();
-                _.forEach(licenseAnnotation.getChildren(), licenseAnnotationEntry => {
+                const licenseAnnotation = annotationEntry.getRightValue();
+                _.forEach(licenseAnnotation.getChildren(), (licenseAnnotationEntry) => {
                     if (_.isEqual(licenseAnnotationEntry.getLeftValue(), 'name')) {
                         _.set(swaggerJson, 'info.license.name', this.removeDoubleQuotes(licenseAnnotationEntry.getRightValue()));
                     } else if (_.isEqual(licenseAnnotationEntry.getLeftValue(), 'url')) {
@@ -159,13 +158,13 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
      */
     parseServiceConfigAnnotation(existingAnnotation, swaggerJson) {
         // Setting values.
-        _.forEach(existingAnnotation.getChildren(), annotationEntry => {
+        _.forEach(existingAnnotation.getChildren(), (annotationEntry) => {
             if (_.isEqual(annotationEntry.getLeftValue(), 'host')) {
                 _.set(swaggerJson, 'host', this.removeDoubleQuotes(annotationEntry.getRightValue()));
             } else if (_.isEqual(annotationEntry.getLeftValue(), 'schemes')) {
-                let schemesAnnotationEntryArray = annotationEntry.getRightValue();
-                let schemes = [];
-                _.forEach(schemesAnnotationEntryArray.getChildren(), schemesAnnotationEntry => {
+                const schemesAnnotationEntryArray = annotationEntry.getRightValue();
+                const schemes = [];
+                _.forEach(schemesAnnotationEntryArray.getChildren(), (schemesAnnotationEntry) => {
                     schemes.push(schemesAnnotationEntry.getRightValue());
                 });
                 _.set(swaggerJson, 'schemes', schemes);

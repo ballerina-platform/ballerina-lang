@@ -35,9 +35,9 @@ class ThenBody extends ASTNode {
      * @param {Array} [jsonNode.children] - array which contains the statements of 'then block'
      */
     initFromJson(jsonNode) {
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

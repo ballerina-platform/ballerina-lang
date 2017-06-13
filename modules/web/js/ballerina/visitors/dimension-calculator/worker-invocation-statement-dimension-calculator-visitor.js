@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 import _ from 'lodash';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
@@ -34,7 +34,7 @@ class WorkerInvocationStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox(node.getStatementString() , node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }
 

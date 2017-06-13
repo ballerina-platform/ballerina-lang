@@ -24,7 +24,7 @@ import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-w
 class TransactionAbortedStatement extends Statement {
     constructor(args) {
         super();
-        this.type = "TransactionAbortedStatement";
+        this.type = 'TransactionAbortedStatement';
     }
 
     /**
@@ -49,7 +49,7 @@ class TransactionAbortedStatement extends Statement {
      * @return {AbortedStatement}
      * */
     createAbortedStatement(args) {
-        let abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
+        const abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
         this.addChild(abortedStatement);
         return abortedStatement;
     }
@@ -60,7 +60,7 @@ class TransactionAbortedStatement extends Statement {
      * @return {CommittedStatement}
      * */
     createCommittedStatement(args) {
-        let committedStatement = BallerinaASTFactory.createCommittedStatement(args);
+        const committedStatement = BallerinaASTFactory.createCommittedStatement(args);
         this.addChild(committedStatement);
         return committedStatement;
     }
@@ -70,9 +70,9 @@ class TransactionAbortedStatement extends Statement {
      * @param {object} jsonNode - json object for the node.
      * */
     initFromJson(jsonNode) {
-        let self = this;
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
@@ -90,7 +90,7 @@ class TransactionAbortedStatement extends Statement {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'transaction_aborted_statement')) {
-            let nodeToFireEvent = this;
+            const nodeToFireEvent = this;
             this.initFromJson(parsedJson);
             nodeToFireEvent.accept(new EnableDefaultWSVisitor());
             // Manually firing the tree-modified event here.
@@ -103,12 +103,10 @@ class TransactionAbortedStatement extends Statement {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 }

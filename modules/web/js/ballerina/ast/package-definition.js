@@ -25,7 +25,7 @@ import ASTNode from './node';
  */
 class PackageDefinition extends ASTNode {
     constructor(args) {
-        super("PackageDefinition");
+        super('PackageDefinition');
         this._packageName = _.get(args, 'packageName');
     }
 
@@ -34,9 +34,9 @@ class PackageDefinition extends ASTNode {
      * @param name
      */
     setPackageName(packageName, options) {
-        if(!_.isNil(packageName)){
-            var self = this,
-                changeCallBack = function() {
+        if (!_.isNil(packageName)) {
+            let self = this,
+                changeCallBack = function () {
                     self.trigger('package-name-changed');
                 };
 
@@ -61,14 +61,12 @@ class PackageDefinition extends ASTNode {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        //TODO : avoid check for . (current package)
+        // TODO : avoid check for . (current package)
         if (!_.isEqual(jsonNode.package_name, '.')) {
-            this.setPackageName(jsonNode.package_name, {doSilently: true});
+            this.setPackageName(jsonNode.package_name, { doSilently: true });
         }
-
     }
 }
 
 export default PackageDefinition;
-
 

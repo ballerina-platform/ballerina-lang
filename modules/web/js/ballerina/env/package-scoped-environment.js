@@ -35,7 +35,7 @@ class PackageScopedEnvironment {
 
     /**
      * Add given package array to the existing package array
-     * @param {Package[]} packages - package array to be added 
+     * @param {Package[]} packages - package array to be added
      */
     addPackages(packages) {
         this._packages = _.union(this._packages, packages);
@@ -43,7 +43,7 @@ class PackageScopedEnvironment {
 
     getCurrentPackage() {
         return this._currentPackage;
-    }  
+    }
 
     resetCurrentPackage() {
         this._currentPackage = new Package({ name: 'Current Package' });
@@ -51,7 +51,7 @@ class PackageScopedEnvironment {
 
     setCurrentPackage(pkg) {
         this._currentPackage = pkg;
-    }    
+    }
 
     /**
      * @return {[Package]}
@@ -64,33 +64,28 @@ class PackageScopedEnvironment {
      * @return {[Package]}
      */
     getFilteredPackages(excludes) {
-        return this._packages.filter((item)=>{
-            for(let i = 0; i < excludes.length; i++){
-                if(excludes[i] == item.getName()){
+        return this._packages.filter((item) => {
+            for (let i = 0; i < excludes.length; i++) {
+                if (excludes[i] == item.getName()) {
                     return false;
                 }
             }
             return true;
         });
-    }    
+    }
 
     getPackageByName(packageName) {
         if (_.isEqual(packageName, 'Current Package')) {
             return this._currentPackage;
-        } else {
-            return _.find(this._packages, function (pckg) {
-                return pckg.getName() === packageName;
-            });
         }
+        return _.find(this._packages, pckg => pckg.getName() === packageName);
     }
 
     searchPackage(query, exclude) {
-        var search_text = query;
-        var exclude_packages = exclude;
-        var result = _.filter(this._packages, function (pckg) {
-            var existing = _.filter(exclude_packages, function (ex) {
-                return pckg.getName() == ex;
-            });
+        const search_text = query;
+        const exclude_packages = exclude;
+        const result = _.filter(this._packages, (pckg) => {
+            const existing = _.filter(exclude_packages, ex => pckg.getName() == ex);
             return (existing.length == 0) && new RegExp(search_text.toUpperCase()).exec(pckg.getName().toUpperCase());
         });
         return result;
@@ -101,9 +96,7 @@ class PackageScopedEnvironment {
      * @returns {String[]}
      */
     getTypes() {
-        let structs = this.getCurrentPackage().getStructDefinitions().map(function(struct){
-            return struct.getStructName();
-        });
+        const structs = this.getCurrentPackage().getStructDefinitions().map(struct => struct.getStructName());
         return _.union(this._types, structs);
     }
 }

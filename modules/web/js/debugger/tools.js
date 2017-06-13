@@ -54,9 +54,9 @@ class Tools extends EventChannel {
         $('.debug-connect-button').on('click', () => { this.connect(); });
         DebugManager.on('session-terminated', () => { this.connectionError(); });
         DebugManager.on('session-started', () => { this.connectionStarted(); });
-        DebugManager.on('session-ended',() => { this.render(); });
-        DebugManager.on('debug-hit',() => { this.enableNavigation(); });
-        DebugManager.on('resume-execution',() => { this.disableNavigation(); });
+        DebugManager.on('session-ended', () => { this.render(); });
+        DebugManager.on('debug-hit', () => { this.enableNavigation(); });
+        DebugManager.on('resume-execution', () => { this.disableNavigation(); });
     }
 
     setArgs(args) {
@@ -70,35 +70,33 @@ class Tools extends EventChannel {
         this.container.on('click', '#debug_application', (event) => { this.debugApplication(event); });
         this.container.on('click', '#debug_service', (event) => { this.debugService(event); });
 
-        this.container.on('click', '.btn-config', e => {
+        this.container.on('click', '.btn-config', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.appArgsDialog.modal('show');
         });
 
         const self = this;
-        $('#form-run-application-with-args').submit(function(e) {
+        $('#form-run-application-with-args').submit(function (e) {
             e.preventDefault();
-            const args = $(this).serializeArray().map( input => {
-                return input.value;
-            }).join(' ').trim();
+            const args = $(this).serializeArray().map(input => input.value).join(' ').trim();
             const activeTab = self.application.tabController.getActiveTab();
-            if(activeTab && activeTab.getFile()) {
+            if (activeTab && activeTab.getFile()) {
                 const id = activeTab.getFile().id;
-                self.application.browserStorage.put('launcher-app-configs-' + id, args);
+                self.application.browserStorage.put(`launcher-app-configs-${id}`, args);
             }
             self.appArgsDialog.modal('hide');
         });
 
         const wrapper = $('#form-run-application-with-args .input_fields_wrap');
-        $('#form-run-application-with-args .add_field_button').on('click', function() {
+        $('#form-run-application-with-args .add_field_button').on('click', () => {
             $(wrapper).append(`<div class="removable">
                 <input type="text" name="applicationArgs[]" class="form-control"/>
                 <button class="remove_field btn-file-dialog">Remove</button>
             </div>`);
         });
 
-        $(wrapper).on('click','.remove_field', function(e){
+        $(wrapper).on('click', '.remove_field', function (e) {
             e.preventDefault();
             $(this).parent('div').remove();
         });
@@ -106,11 +104,11 @@ class Tools extends EventChannel {
         this.appArgsDialog.on('shown.bs.modal', () => {
             $('#form-run-application-with-args .removable').remove();
             const activeTab = this.application.tabController.getActiveTab();
-            if(activeTab && activeTab.getFile()) {
+            if (activeTab && activeTab.getFile()) {
                 const { id } = activeTab.getFile();
                 const args = (this.application.browserStorage.get(`launcher-app-configs-${id}`) || '').split(' ');
-                _.each(args, function(arg, i) {
-                    if(i === 0) {
+                _.each(args, (arg, i) => {
+                    if (i === 0) {
                         $('#form-run-application-with-args input[type=\'text\']').get(0).value = arg;
                     } else {
                         $(wrapper).append(`<div class="removable">
@@ -122,7 +120,7 @@ class Tools extends EventChannel {
             }
         });
 
-        this.container.on('click', '#remote_debug', function () {
+        this.container.on('click', '#remote_debug', () => {
             $('.debug-connection-group').removeClass('has-error');
             $('.debug-connection-error').addClass('hide');
             self.connectionDialog.modal('show');
@@ -144,7 +142,7 @@ class Tools extends EventChannel {
 
     handleAction(actionName) {
         let action = () => {};
-        switch(actionName){
+        switch (actionName) {
         case 'Resume':
             action = DebugManager.resume.bind(DebugManager);
             break;
@@ -162,15 +160,14 @@ class Tools extends EventChannel {
             break;
         }
 
-        return function() {
-            if(this.navigation) {
+        return function () {
+            if (this.navigation) {
                 action();
             }
-            if(!this.navigation && actionName === 'Stop') {
+            if (!this.navigation && actionName === 'Stop') {
                 action();
             }
         };
-
     }
 
     connect() {
@@ -189,8 +186,8 @@ class Tools extends EventChannel {
     connectionStarted() {
         this.render();
 
-        _.each(this.toolbarShortcuts, commandInfo => {
-            this.application.commandManager.registerCommand(commandInfo.id, {shortcuts: commandInfo.shortcuts});
+        _.each(this.toolbarShortcuts, (commandInfo) => {
+            this.application.commandManager.registerCommand(commandInfo.id, { shortcuts: commandInfo.shortcuts });
             this.application.commandManager.registerHandler(commandInfo.id, this.handleAction(commandInfo.id), this);
         });
 
@@ -201,7 +198,7 @@ class Tools extends EventChannel {
 
     debugApplication() {
         const activeTab = this.application.tabController.getActiveTab();
-        if(this.isReadyToRun(activeTab)) {
+        if (this.isReadyToRun(activeTab)) {
             const file = activeTab.getFile();
             activeTab._fileEditor.publishBreakpoints();
             this.launchManager.debugApplication(file);
@@ -212,7 +209,7 @@ class Tools extends EventChannel {
 
     debugService() {
         const activeTab = this.application.tabController.getActiveTab();
-        if(this.isReadyToRun(activeTab)) {
+        if (this.isReadyToRun(activeTab)) {
             const file = activeTab.getFile();
             activeTab._fileEditor.publishBreakpoints();
             this.launchManager.debugService(file);
@@ -228,12 +225,11 @@ class Tools extends EventChannel {
 
         const file = tab.getFile();
        // file is not saved give an error and avoid running
-        if(file.isDirty()) {
+        if (file.isDirty()) {
             return false;
         }
 
         return true;
-
     }
 
     enableNavigation() {

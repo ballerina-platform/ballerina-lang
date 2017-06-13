@@ -27,7 +27,7 @@ const WS_SSL_CODE = 1015;
 class Channel extends EventChannel {
     constructor(args) {
         super();
-        if(_.isNil(args.endpoint)){
+        if (_.isNil(args.endpoint)) {
             throw 'Invalid Endpoint';
         }
         _.assign(this, args);
@@ -55,17 +55,15 @@ class Channel extends EventChannel {
         this.debugger.active = false;
         this.debugger.trigger('session-terminated');
         let reason;
-        if (event.code === WS_NORMAL_CODE){
+        if (event.code === WS_NORMAL_CODE) {
             reason = 'Normal closure';
             this.trigger('session-ended');
             this.debugger.active = false;
             return;
-        }
-        else if(event.code === WS_SSL_CODE){
+        } else if (event.code === WS_SSL_CODE) {
             reason = 'Certificate Issue';
-        }
-        else{
-            reason = 'Unknown reason :' + event.code;
+        } else {
+            reason = `Unknown reason :${event.code}`;
         }
         log.error(reason);
     }

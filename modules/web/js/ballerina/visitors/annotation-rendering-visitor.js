@@ -40,16 +40,15 @@ class AnnotationRenderingVisitor {
             ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
             ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
                 ASTFactory.isStructDefinition(node)) {
-
-            let annotations = node.filterChildren(function (child) {
+            const annotations = node.filterChildren((child) => {
                 return ASTFactory.isAnnotation(child);
             });
 
             if (node.viewState.showAnnotationContainer && !node.getParent().getViewState().collapsed) {
-                let bBox = Object.assign({}, node.viewState.bBox);
+                const bBox = Object.assign({}, node.viewState.bBox);
                 bBox.h = node.viewState.components.annotation.h;
                 this.annotations.push(
-                    new AnnotationContainer(bBox, annotations, node)
+                    new AnnotationContainer(bBox, annotations, node),
                 );
             }
         }

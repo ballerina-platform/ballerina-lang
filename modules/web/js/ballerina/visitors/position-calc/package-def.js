@@ -28,8 +28,8 @@ class PackageDefinitionPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('begin visit FunctionInvocationStatementPositionCalc');
-        let viewSate = node.getViewState();
-        let bBox = viewSate.bBox;
+        const viewSate = node.getViewState();
+        const bBox = viewSate.bBox;
 
         bBox.x = 50;
         bBox.y = 20;

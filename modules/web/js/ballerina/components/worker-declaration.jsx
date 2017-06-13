@@ -18,7 +18,7 @@
 
 import React from 'react';
 import LifeLine from './lifeline.jsx';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 import StatementContainer from './statement-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 
@@ -33,7 +33,7 @@ class WorkerDeclaration extends React.Component {
             model: props.model,
             getterMethod: props.model.getWorkerDeclarationStatement,
             setterMethod: props.model.setWorkerDeclarationStatement,
-        };          
+        };
     }
 
     onDelete() {
@@ -42,25 +42,27 @@ class WorkerDeclaration extends React.Component {
 
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
-        let workerBBox = {};
-        let children = getComponentForNodeArray(this.props.model.getChildren());
-        workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width)/2;
+        const workerBBox = {};
+        const children = getComponentForNodeArray(this.props.model.getChildren());
+        workerBBox.x = statementContainerBBox.x + (statementContainerBBox.w - DesignerDefaults.lifeLine.width) / 2;
         workerBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         workerBBox.w = DesignerDefaults.lifeLine.width;
         workerBBox.h = statementContainerBBox.h + DesignerDefaults.lifeLine.head.height * 2;
 
-        let classes = {
-            lineClass: "worker-life-line",
-            polygonClass: "worker-life-line-polygon"
+        const classes = {
+            lineClass: 'worker-life-line',
+            polygonClass: 'worker-life-line-polygon',
         };
 
         return (<g>
-                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}/>
-                <LifeLine title={this.props.model.getWorkerName()} bBox={workerBBox}
-                          editorOptions={this.editorOptions} model={this.props.model}
-                          onDelete={this.onDelete.bind(this)} classes={classes}/>
-                {children}
-            </g>
+          <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox} />
+          <LifeLine
+            title={this.props.model.getWorkerName()} bBox={workerBBox}
+            editorOptions={this.editorOptions} model={this.props.model}
+            onDelete={this.onDelete.bind(this)} classes={classes}
+          />
+          {children}
+        </g>
         );
     }
 }

@@ -26,18 +26,18 @@ import ASTNode from './node';
  */
 class ImportDeclaration extends ASTNode {
     constructor(args) {
-        super("ImportDeclaration");
+        super('ImportDeclaration');
         this._packageName = _.get(args, 'packageName');
         this._importVersionNumber = _.get(args, 'importVersionName');
         this._identifier = _.get(args, 'identifier');
         this._asName = _.get(args, 'asName');
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
             2: ' ',
             3: ' ',
-            4: '\n'
-        }
+            4: '\n',
+        };
     }
 
     /**
@@ -45,7 +45,7 @@ class ImportDeclaration extends ASTNode {
      * @param packageName
      */
     setPackageName(packageName, options) {
-        if(!_.isNil(packageName)){
+        if (!_.isNil(packageName)) {
             this.setAttribute('_packageName', packageName, options);
         }
     }
@@ -55,7 +55,7 @@ class ImportDeclaration extends ASTNode {
      * @param importVersionNumber
      */
     setImportVersionNumber(importVersionNumber, options) {
-        if(!_.isNil(importVersionNumber)){
+        if (!_.isNil(importVersionNumber)) {
             this.setAttribute('_importVersionNumber', importVersionNumber, options);
         }
     }
@@ -65,7 +65,7 @@ class ImportDeclaration extends ASTNode {
      * @param identifier
      */
     setIdentifier(identifier, options) {
-        if(!_.isNil(identifier)){
+        if (!_.isNil(identifier)) {
             this.setAttribute('_identifier', identifier, options);
         }
     }
@@ -75,7 +75,7 @@ class ImportDeclaration extends ASTNode {
      * @param as name
      */
     setAsName(asName, options) {
-        if(!_.isNil(asName)){
+        if (!_.isNil(asName)) {
             this.setAttribute('_asName', asName, options);
         }
     }
@@ -117,9 +117,9 @@ class ImportDeclaration extends ASTNode {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        this.setPackageName(jsonNode.import_package_path, {doSilently: true});
-        this.setIdentifier(jsonNode.import_package_name, {doSilently: true});
-        this.setAsName(jsonNode.import_as_name, {doSilently: true});
+        this.setPackageName(jsonNode.import_package_path, { doSilently: true });
+        this.setIdentifier(jsonNode.import_package_name, { doSilently: true });
+        this.setAsName(jsonNode.import_as_name, { doSilently: true });
     }
 }
 

@@ -41,11 +41,11 @@ class EnableDefaultWSVisitor {
         } else if (node.getFactory().isActionInvocationExpression(node)) {
             node.getArguments().forEach((arg) => {
                 arg.accept(this);
-            })
+            });
         } else if (node.getFactory().isConnectorInitExpression(node)) {
             node.getArgs().forEach((arg) => {
                 arg.accept(this);
-            })
+            });
             node.getConnectorName().accept(this);
         } else if (node.getFactory().isCatchStatement(node)) {
             node.getParameter().accept(this);

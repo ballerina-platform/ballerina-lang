@@ -29,9 +29,9 @@ import log from 'log';
  * @param parent
  * @throws error message
  */
-var logParentUndefined = function (parent) {
+const logParentUndefined = function (parent) {
     if (_.isUndefined(parent)) {
-        var errMsg = 'Parent Undefined';
+        const errMsg = 'Parent Undefined';
         log.warn(errMsg);
         throw errMsg;
     }
@@ -48,17 +48,17 @@ var logParentUndefined = function (parent) {
  * @param parent
  * @returns basic svg rectangle
  */
-var rect = function (x, y, width, height, rx, ry, parent) {
+const rect = function (x, y, width, height, rx, ry, parent) {
     logParentUndefined(parent);
     rx = rx || 0;
     ry = ry || 0;
-    return parent.append("rect")
-            .attr("x", x)
-            .attr("y", y)
-            .attr("width", width)
-            .attr("height", height)
-            .attr("rx", rx)
-            .attr("ry", ry);
+    return parent.append('rect')
+            .attr('x', x)
+            .attr('y', y)
+            .attr('width', width)
+            .attr('height', height)
+            .attr('rx', rx)
+            .attr('ry', ry);
 };
 
 /**
@@ -69,12 +69,12 @@ var rect = function (x, y, width, height, rx, ry, parent) {
  * @param parent
  * @returns basic svg circle
  */
-var circle = function (x, y, radius, parent) {
+const circle = function (x, y, radius, parent) {
     logParentUndefined(parent);
-    var circle = parent.append("circle")
-            .attr("cx", x )
-            .attr("cy", y )
-            .attr("r", radius);
+    const circle = parent.append('circle')
+            .attr('cx', x)
+            .attr('cy', y)
+            .attr('r', radius);
     return circle;
 };
 
@@ -88,7 +88,7 @@ var circle = function (x, y, radius, parent) {
  * @param parent
  * @returns centered rectangle
  */
-var centeredRect = function (center, width, height, rx, ry, parent) {
+const centeredRect = function (center, width, height, rx, ry, parent) {
     logParentUndefined(parent);
     rx = rx || 0;
     ry = ry || 0;
@@ -104,13 +104,13 @@ var centeredRect = function (center, width, height, rx, ry, parent) {
  * @param parent
  * @returns Generic svg line
  */
-var line = function (x1, y1, x2, y2, parent) {
+const line = function (x1, y1, x2, y2, parent) {
     logParentUndefined(parent);
-    return parent.append("line")
-            .attr("x1", x1)
-            .attr("y1", y1)
-            .attr("x2", x2)
-            .attr("y2", y2);
+    return parent.append('line')
+            .attr('x1', x1)
+            .attr('y1', y1)
+            .attr('x2', x2)
+            .attr('y2', y2);
 };
 
 /**
@@ -120,13 +120,13 @@ var line = function (x1, y1, x2, y2, parent) {
  * @param parent
  * @returns Generic svg line
  */
-var lineFromPoints = function (start, end, parent) {
+const lineFromPoints = function (start, end, parent) {
     logParentUndefined(parent);
-    return parent.append("line")
-            .attr("x1", start.x())
-            .attr("y1", start.y())
-            .attr("x2", end.x())
-            .attr("y2", end.y());
+    return parent.append('line')
+            .attr('x1', start.x())
+            .attr('y1', start.y())
+            .attr('x2', end.x())
+            .attr('y2', end.y());
 };
 
 /**
@@ -137,14 +137,12 @@ var lineFromPoints = function (start, end, parent) {
  * @param parent
  * @returns svg text element
  */
-var textElement = function (x, y, textContent, parent) {
+const textElement = function (x, y, textContent, parent) {
     logParentUndefined(parent);
-    return parent.append("text")
-            .attr("x", x)
-            .attr("y", y)
-            .text(function () {
-                return textContent;
-            });
+    return parent.append('text')
+            .attr('x', x)
+            .attr('y', y)
+            .text(() => textContent);
 };
 
 /**
@@ -155,14 +153,12 @@ var textElement = function (x, y, textContent, parent) {
 * @param parent
 * @returns svg text element
 */
-var inputElement = function (x, y, textContent, parent) {
+const inputElement = function (x, y, textContent, parent) {
     logParentUndefined(parent);
-    return parent.append("input")
-            .attr("x", x)
-            .attr("y", y)
-            .text(function () {
-                return textContent;
-            });
+    return parent.append('input')
+            .attr('x', x)
+            .attr('y', y)
+            .text(() => textContent);
 };
 
 /**
@@ -173,17 +169,15 @@ var inputElement = function (x, y, textContent, parent) {
  * @param parent {SVGElement}
  * @returns svg text element
  */
-var centeredText = function (center, text, parent) {
+const centeredText = function (center, text, parent) {
     logParentUndefined(parent);
-    return parent.append("text")
-            .attr("x", center.x())
-            .attr("y", center.y())
-            .attr('text-anchor', "middle")
-            .attr('alignment-baseline', "central")
-            .attr('dominant-baseline', "central") // alignment-baseline doesn't work in firefox https://goo.gl/jJ6RAB
-            .text(function () {
-                return text;
-            });
+    return parent.append('text')
+            .attr('x', center.x())
+            .attr('y', center.y())
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'central')
+            .attr('dominant-baseline', 'central') // alignment-baseline doesn't work in firefox https://goo.gl/jJ6RAB
+            .text(() => text);
 };
 
 /**
@@ -191,9 +185,9 @@ var centeredText = function (center, text, parent) {
  * @param parent
  * @returns svg group
  */
-var group = function (parent) {
+const group = function (parent) {
     logParentUndefined(parent);
-    return parent.append("g");
+    return parent.append('g');
 };
 
 /**
@@ -202,12 +196,12 @@ var group = function (parent) {
  * @param parent
  * @returns svg
  */
-var svg = function (opts, parent) {
+const svg = function (opts, parent) {
     logParentUndefined(parent);
-    return parent.append("svg")
-            .attr("height", opts.height)
-            .attr("width", opts.width)
-            .attr("class", opts.class);
+    return parent.append('svg')
+            .attr('height', opts.height)
+            .attr('width', opts.width)
+            .attr('class', opts.class);
 };
 
 /**
@@ -217,11 +211,11 @@ var svg = function (opts, parent) {
  * @param parent
  * @returns polyline generating an arrow head
  */
-var inputTriangle = function (x, y, parent) {
+const inputTriangle = function (x, y, parent) {
     logParentUndefined(parent);
-    var points = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
-    return parent.append("polyline")
-            .attr("points", points);
+    const points = `${x},${y - 5} ${x + 5},${y} ${x},${y + 5}`;
+    return parent.append('polyline')
+            .attr('points', points);
 };
 
 /**
@@ -231,11 +225,11 @@ var inputTriangle = function (x, y, parent) {
  * @param parent
  * @returns polyline generating an arrow head
  */
-var outputTriangle = function (x, y, parent) {
+const outputTriangle = function (x, y, parent) {
     logParentUndefined(parent);
-    var points = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
-    return parent.append("polyline")
-            .attr("points", points);
+    const points = `${x},${y} ${x + 5},${y - 5} ${x + 5},${y + 5}`;
+    return parent.append('polyline')
+            .attr('points', points);
 };
 
 /**
@@ -248,14 +242,14 @@ var outputTriangle = function (x, y, parent) {
  * @param parent
  * @returns generic line which is dashed
  */
-var dashedLine = function (x1,y1, x2, y2, color, parent) {
+const dashedLine = function (x1, y1, x2, y2, color, parent) {
     logParentUndefined(parent);
-    return parent.append("line")
-            .attr("x1", x1)
-            .attr("y1", y1)
-            .attr("x2", x2)
-            .attr("y2", y2)
-            .attr("stroke-dasharray", "4, 3");
+    return parent.append('line')
+            .attr('x1', x1)
+            .attr('y1', y1)
+            .attr('x2', x2)
+            .attr('y2', y2)
+            .attr('stroke-dasharray', '4, 3');
 };
 
 /**
@@ -264,7 +258,7 @@ var dashedLine = function (x1,y1, x2, y2, color, parent) {
  * @param parent
  * @returns polygon generated by the given points
  */
-var polygon = function (points, parent) {
+const polygon = function (points, parent) {
     logParentUndefined(parent);
     return parent.append('polygon')
             .attr('points', points);
@@ -276,13 +270,13 @@ var polygon = function (points, parent) {
  * @param parent
  * @returns polyline generated by the given points
  */
-var polyline = function (points, parent) {
+const polyline = function (points, parent) {
     logParentUndefined(parent);
     return parent.append('polyline')
             .attr('points', points);
 };
 
-var draw = {};
+const draw = {};
 draw.centeredRect = centeredRect;
 draw.rect = rect;
 draw.line = line;

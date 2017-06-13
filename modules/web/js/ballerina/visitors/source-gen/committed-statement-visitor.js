@@ -31,31 +31,31 @@ class CommittedStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitCommittedStatement(committedStatement) {
         this.node = committedStatement;
-        this.appendSource('committed' + committedStatement.getWSRegion(1) + '{' + committedStatement.getWSRegion(2));
+        this.appendSource(`committed${committedStatement.getWSRegion(1)}{${committedStatement.getWSRegion(2)}`);
         this.appendSource((committedStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
 
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
-            let statementVisitorFactory = new StatementVisitorFactory();
-            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }
 
     endVisitCommittedStatement(committedStatement) {
         this.outdent();
-        /*if using default ws, add a new line to end unless there are any
+        /* if using default ws, add a new line to end unless there are any
          aborted statement available*/
-        let parent = committedStatement.getParent();
+        const parent = committedStatement.getParent();
         let tailingWS = committedStatement.getWSRegion(3);
         if (committedStatement.whiteSpace.useDefault
             && (_.isEmpty(parent.getAbortedStatement()))) {
             tailingWS = '\n';
         } else {
-            let abortedIndex = parent.children.indexOf(parent.getAbortedStatement());
-            let committedIndex = parent.children.indexOf(committedStatement);
+            const abortedIndex = parent.children.indexOf(parent.getAbortedStatement());
+            const committedIndex = parent.children.indexOf(committedStatement);
             if (abortedIndex < committedIndex) {
                 tailingWS = '\n';
             } else {
@@ -63,7 +63,7 @@ class CommittedStatementVisitor extends AbstractStatementSourceGenVisitor {
             }
         }
 
-        this.appendSource("}" + tailingWS);
+        this.appendSource(`}${tailingWS}`);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

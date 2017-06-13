@@ -15,19 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import CompoundStatementDecorator from "./compound-statement-decorator";
+import React from 'react';
+import CompoundStatementDecorator from './compound-statement-decorator';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 class TryCatchStatement extends React.Component {
 
     render() {
         let model = this.props.model,
             bBox = model.viewState.bBox;
-        var children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren());
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            {children}
+          {children}
         </CompoundStatementDecorator>);
     }
 }
@@ -38,7 +38,7 @@ TryCatchStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
 };
 
 

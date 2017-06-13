@@ -32,19 +32,18 @@ class WhileStatement extends ConditionalStatement {
     constructor(args) {
         super();
         this.type = 'WhileStatement';
-        if (!_.isNil(_.get(args, "condition"))) {
-            this.setCondition(_.get(args, "condition"));
-        }
-        else {
+        if (!_.isNil(_.get(args, 'condition'))) {
+            this.setCondition(_.get(args, 'condition'));
+        }        else {
             // create default condition
             this.setCondition(this.getFactory().createBasicLiteralExpression(
                 {
                     basicLiteralType: 'boolean',
-                    basicLiteralValue: true
-                }
-            ))
+                    basicLiteralValue: true,
+                },
+            ));
         }
-        this._statements = _.get(args, "statements", []);
+        this._statements = _.get(args, 'statements', []);
     }
 
     getConditionString() {
@@ -52,10 +51,10 @@ class WhileStatement extends ConditionalStatement {
     }
 
     setConditionFromString(conditionString) {
-        if(!_.isNil(conditionString) || !_.isEmpty(conditionString)){
-            let fragment = FragmentUtils.createExpressionFragment(conditionString);
-            let parsedJson = FragmentUtils.parseFragment(fragment);
-            let condition = this.getFactory().createFromJson(parsedJson);
+        if (!_.isNil(conditionString) || !_.isEmpty(conditionString)) {
+            const fragment = FragmentUtils.createExpressionFragment(conditionString);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            const condition = this.getFactory().createFromJson(parsedJson);
             condition.initFromJson(parsedJson);
             this.setCondition(condition);
             condition.setParent(this);
@@ -63,7 +62,7 @@ class WhileStatement extends ConditionalStatement {
     }
 
     setCondition(condition, options) {
-        if(!_.isNil(condition)){
+        if (!_.isNil(condition)) {
             this.setAttribute('_condition', condition, options);
         }
     }
@@ -77,18 +76,18 @@ class WhileStatement extends ConditionalStatement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        var self = this;
+        let self = this;
         if (!_.isNil(jsonNode.condition)) {
-            let condition = self.getFactory().createFromJson(jsonNode.condition);
+            const condition = self.getFactory().createFromJson(jsonNode.condition);
             condition.initFromJson(jsonNode.condition);
-            self.setCondition(condition, {doSilently: true});
+            self.setCondition(condition, { doSilently: true });
             condition.setParent(this);
         }
-        _.each(jsonNode.children, function (childNode) {
-            var child = undefined;
-            var childNodeTemp = undefined;
-            //TODO : generalize this logic
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+        _.each(jsonNode.children, (childNode) => {
+            let child;
+            let childNodeTemp;
+            // TODO : generalize this logic
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {

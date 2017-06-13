@@ -21,13 +21,13 @@ import Statement from './statement';
 class AbortedStatement extends Statement {
     constructor() {
         super();
-        this.type = "AbortedStatement";
+        this.type = 'AbortedStatement';
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
             2: '\n',
-            3: ' '
-        }
+            3: ' ',
+        };
     }
 
     /**
@@ -35,9 +35,9 @@ class AbortedStatement extends Statement {
      * @param {object} jsonNode - Json model for the node.
      * */
     initFromJson(jsonNode) {
-        let self = this;
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

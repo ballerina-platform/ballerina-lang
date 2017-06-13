@@ -35,18 +35,17 @@ class ForkJoinStatement extends Statement {
     hasTimeout() {
         if (this.children.length === 0) {
             return false;
-        } else {
-            const child = this.children[this.children.length - 1];
-            const factory = this.getFactory();
-            return factory.isTimeoutStatement(child);
         }
+        const child = this.children[this.children.length - 1];
+        const factory = this.getFactory();
+        return factory.isTimeoutStatement(child);
     }
 
     getWorkerDeclarations() {
         const workerDeclarations = [];
         const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
@@ -67,9 +66,9 @@ class ForkJoinStatement extends Statement {
     }
 
     initFromJson(jsonNode) {
-        let self = this;
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
@@ -88,7 +87,7 @@ class ForkJoinStatement extends Statement {
                     index--;
                 }
             } else if (!factory.isTimeoutStatement(child)) {
-                throw "Illegal child type in join";
+                throw 'Illegal child type in join';
             }
             super.addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {

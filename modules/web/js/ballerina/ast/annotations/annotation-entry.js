@@ -54,7 +54,7 @@ class AnnotationEntry extends ASTNode {
             1: '',
             2: ' ',
             3: ' ',
-            4: ''
+            4: '',
         };
     }
 
@@ -88,21 +88,18 @@ class AnnotationEntry extends ASTNode {
         if (_.isString(this._rightValue)) {
             annotationEntryAsString = this.getWSRegion(3) + this._rightValue
                     + this.getWSRegion(4);
-        } else {
-            if (this.getFactory().isAnnotationEntryArray(this._rightValue)) {
-                annotationEntryAsString = this.getWSRegion(3) + this._rightValue.toString()
+        } else if (this.getFactory().isAnnotationEntryArray(this._rightValue)) {
+            annotationEntryAsString = this.getWSRegion(3) + this._rightValue.toString()
                   + this.getWSRegion(4);
-            } else {
-                annotationEntryAsString = this.getWSRegion(3) + this._rightValue.toString();
-            }
+        } else {
+            annotationEntryAsString = this.getWSRegion(3) + this._rightValue.toString();
         }
 
         if (!_.isUndefined(this._leftValue) && !_.isEmpty(this._leftValue)) {
-            return this.getWSRegion(0) + this._leftValue +  this.getWSRegion(1)
-                    +  ':' + annotationEntryAsString;
-        } else {
-            return annotationEntryAsString;
+            return `${this.getWSRegion(0) + this._leftValue + this.getWSRegion(1)
+                      }:${annotationEntryAsString}`;
         }
+        return annotationEntryAsString;
     }
 
     /**
@@ -110,17 +107,17 @@ class AnnotationEntry extends ASTNode {
      * @param {object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.setLeftValue(jsonNode.annotation_entry_key, {doSilently: true});
+        this.setLeftValue(jsonNode.annotation_entry_key, { doSilently: true });
         if (!_.isString(jsonNode.annotation_entry_value)) {
-            let child = this.getFactory().createFromJson(jsonNode.annotation_entry_value);
+            const child = this.getFactory().createFromJson(jsonNode.annotation_entry_value);
             if (this.getFactory().isAnnotation(child) || this.getFactory().isAnnotationEntryArray(child)) {
                 child.initFromJson(jsonNode.annotation_entry_value);
-                this.setRightValue(child, {doSilently: true});
+                this.setRightValue(child, { doSilently: true });
             } else {
                 log.error('Unknown object found when parsing an annotation');
             }
         } else {
-            this.setRightValue(jsonNode.annotation_entry_value, {doSilently: true});
+            this.setRightValue(jsonNode.annotation_entry_value, { doSilently: true });
         }
     }
 }

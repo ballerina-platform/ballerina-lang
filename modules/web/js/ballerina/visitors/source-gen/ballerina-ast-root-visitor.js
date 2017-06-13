@@ -40,42 +40,42 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     }
 
     visitServiceDefinition(serviceDefinition) {
-        var serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
+        const serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
         serviceDefinition.accept(serviceDefinitionVisitor);
     }
 
     visitAnnotationDefinition(annotationDefinition) {
-        var annotationDefinitionVisitor = new AnnotationDefinitionVisitor(this);
+        const annotationDefinitionVisitor = new AnnotationDefinitionVisitor(this);
         annotationDefinition.accept(annotationDefinitionVisitor);
     }
 
     visitConnectorDefinition(connectorDefinition) {
-        var connectorDefinitionVisitor = new ConnectorDefinitionVisitor(this);
+        const connectorDefinitionVisitor = new ConnectorDefinitionVisitor(this);
         connectorDefinition.accept(connectorDefinitionVisitor);
     }
 
     visitFunctionDefinition(functionDefinition) {
-        var functionDefinitionVisitor = new FunctionDefinitionVisitor(this);
+        const functionDefinitionVisitor = new FunctionDefinitionVisitor(this);
         functionDefinition.accept(functionDefinitionVisitor);
     }
 
     visitStructDefinition(structDefinition) {
-        var structDefinitionVisitor = new StructDefinitionVisitor(this);
+        const structDefinitionVisitor = new StructDefinitionVisitor(this);
         structDefinition.accept(structDefinitionVisitor);
     }
 
     visitPackageDefinition(packageDefinition) {
-        var packageDefinitionVisitor = new PackageDefinitionVisitor(this);
+        const packageDefinitionVisitor = new PackageDefinitionVisitor(this);
         packageDefinition.accept(packageDefinitionVisitor);
     }
 
     visitImportDeclaration(importDeclaration) {
-        var importDeclarationVisitor = new ImportDeclarationVisitor(this);
+        const importDeclarationVisitor = new ImportDeclarationVisitor(this);
         importDeclaration.accept(importDeclarationVisitor);
     }
 
     visitConstantDefinition(constantDefinition) {
-        var constantDefinitionVisitor = new ConstantDefinitionVisitor(this);
+        const constantDefinitionVisitor = new ConstantDefinitionVisitor(this);
         constantDefinition.accept(constantDefinitionVisitor);
     }
 }

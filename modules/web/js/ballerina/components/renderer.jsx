@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {getCanvasOverlay} from '../configs/app-context';
+import { getCanvasOverlay } from '../configs/app-context';
 import './text-input.css';
 import CreateStruct from './create-struct';
 
@@ -26,7 +26,7 @@ class TextBox extends React.Component {
         super(props);
         this.state = {
             value: this.props.initialValue,
-            display: true
+            display: true,
         };
         this.onChange = this.onChange.bind(this);
         this.onBlur = this.onBlur.bind(this);
@@ -43,20 +43,20 @@ class TextBox extends React.Component {
     componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.initialValue,
-            display: nextProps.display
+            display: nextProps.display,
         });
     }
 
     onChange(e) {
         this.setState({
-            value: this.textInput.value
+            value: this.textInput.value,
         });
         this.props.onChange(e.target.value);
     }
 
     onBlur(e) {
         this.setState({
-            display: false
+            display: false,
         });
     }
 
@@ -66,7 +66,7 @@ class TextBox extends React.Component {
             top: this.props.bBox.y,
             left: this.props.bBox.x,
             width: this.props.bBox.w,
-            height: this.props.bBox.h
+            height: this.props.bBox.h,
         };
 
         if (this.state.display === false) {
@@ -76,17 +76,17 @@ class TextBox extends React.Component {
         Object.assign(inputStyle, this.props.styles);
 
         return (
-            <input
-                className='text-input'
-                ref={i => {
-                    this.textInput = i
-                }}
-                style={inputStyle}
-                onChange={this.onChange}
-                onBlur={this.onBlur}
-                value={this.state.value}
-            />
-        )
+          <input
+            className="text-input"
+            ref={(i) => {
+                this.textInput = i;
+            }}
+            style={inputStyle}
+            onChange={this.onChange}
+            onBlur={this.onBlur}
+            value={this.state.value}
+          />
+        );
     }
 }
 
@@ -96,7 +96,7 @@ class Dropdown extends React.Component {
         super(props);
         this.state = {
             value: this.props.initialValue,
-            display: true
+            display: true,
         };
         this.onChange = this.onChange.bind(this);
         this.onBlur = this.onBlur.bind(this);
@@ -113,20 +113,20 @@ class Dropdown extends React.Component {
     componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.initialValue,
-            display: nextProps.display
+            display: nextProps.display,
         });
     }
 
     onChange(e) {
         this.setState({
-            value: this.dropDown.value
+            value: this.dropDown.value,
         });
         this.props.onChange(e.target.value);
     }
 
     onBlur(e) {
         this.setState({
-            display: false
+            display: false,
         });
     }
 
@@ -136,7 +136,7 @@ class Dropdown extends React.Component {
             top: this.props.bBox.y,
             left: this.props.bBox.x,
             width: this.props.bBox.w,
-            height: this.props.bBox.h
+            height: this.props.bBox.h,
         };
 
         if (this.state.display === false) {
@@ -146,23 +146,21 @@ class Dropdown extends React.Component {
         const { options = [] } = this.props;
 
         return (
-            <select
-                style={inputStyle}
-                className='text-input'
-                ref={i => {
-                    this.dropDown = i
-                }}
-                onChange={this.onChange}
-                onBlur={this.onBlur}
-                value={this.state.value}
-                >
-                {
-                    options.map( option =>{
-                        return <option key={option} value={option}>{option}</option>;
-                    })
+          <select
+            style={inputStyle}
+            className="text-input"
+            ref={(i) => {
+                this.dropDown = i;
+            }}
+            onChange={this.onChange}
+            onBlur={this.onBlur}
+            value={this.state.value}
+          >
+            {
+                    options.map(option => <option key={option} value={option}>{option}</option>)
                 }
-            </select>
-        )
+          </select>
+        );
     }
 }
 
@@ -173,17 +171,17 @@ export default class Renderer {
 
     renderTextBox(options) {
         ReactDOM.render(
-            <TextBox {...options}/>,
+          <TextBox {...options} />,
             this.overlay);
     }
     renderDropdown(options) {
         ReactDOM.render(
-            <Dropdown {...options}/>,
+          <Dropdown {...options} />,
             this.overlay);
     }
     renderStructOperations(options) {
         ReactDOM.render(
-            <CreateStruct {...options}/>,
+          <CreateStruct {...options} />,
             this.overlay);
     }
 }

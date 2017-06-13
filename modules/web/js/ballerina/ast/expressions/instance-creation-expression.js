@@ -45,12 +45,12 @@ class InstanceCreationExpression extends Expression {
      * @param {string} [jsonNode.instance_type] - instance type
      */
     initFromJson(jsonNode) {
-        this.setTypeName(jsonNode.instance_type, {doSilently: true});
-        this.setExpression(this.generateExpression(), {doSilently: true});
+        this.setTypeName(jsonNode.instance_type, { doSilently: true });
+        this.setExpression(this.generateExpression(), { doSilently: true });
     }
 
     generateExpression() {
-        this._expression = 'new ' + this.getTypeName();
+        this._expression = `new ${this.getTypeName()}`;
     }
 }
 

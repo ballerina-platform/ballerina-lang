@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {canvas, panel} from './../../configs/designer-defaults';
+import { canvas, panel } from './../../configs/designer-defaults';
 
 class BallerinaASTRootDimensionCalculatorVisitor {
 
@@ -31,21 +31,21 @@ class BallerinaASTRootDimensionCalculatorVisitor {
 
     endVisit(node) {
         // get the visit state to set ast root dimentions.
-        let viewState = node.getViewState();
+        const viewState = node.getViewState();
         // set the state to 0 since we re-calculate
         viewState.bBox.h = 0;
         viewState.bBox.w = 0;
 
         // get the children of ast root
-        let children = node.getChildren();
+        const children = node.getChildren();
 
-        //now lets iterate and calculate height and width.
+        // now lets iterate and calculate height and width.
         // height = sum of all the children height ( this is only for now it might change if we
         // have same level items in the future )
         // width = maximum with of the containing children.
-        //@todo filter out children
-        children.forEach(function (element, index) {
-            let childViewState = element.getViewState();
+        // @todo filter out children
+        children.forEach((element, index) => {
+            const childViewState = element.getViewState();
             viewState.bBox.h = viewState.bBox.h + childViewState.bBox.h;
 
             // add an extra gutter if there are more than one child.

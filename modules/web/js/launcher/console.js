@@ -28,21 +28,21 @@ class Console extends EventChannel {
         this.container.on('click', '.closeConsole', () => { this.hide(); });
     }
 
-    setApplication(app){
+    setApplication(app) {
         this.application = app;
     }
 
     show() {
         this.container.show();
-        $('#service-tabs-wrapper').css('height','70%');
+        $('#service-tabs-wrapper').css('height', '70%');
         this.container.removeClass('hide');
-        this.container.css('height','30%');
+        this.container.css('height', '30%');
         this.application.reRender();
     }
 
     hide() {
         this.container.hide();
-        $('#service-tabs-wrapper').css('height','100%');
+        $('#service-tabs-wrapper').css('height', '100%');
         this.application.reRender();
     }
 
@@ -51,10 +51,10 @@ class Console extends EventChannel {
     }
 
     println(message) {
-        var specialCharsEscapedStr = _.escape(message.message);
+        const specialCharsEscapedStr = _.escape(message.message);
         this.console.append(`<span class="${message.type}">${specialCharsEscapedStr}<span>`);
         this.console.append('<br />');
-        //todo need a proper fix
+        // todo need a proper fix
         this.console.scrollTop(100000);
     }
 }

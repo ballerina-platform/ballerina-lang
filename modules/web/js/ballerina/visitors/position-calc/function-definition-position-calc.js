@@ -34,8 +34,8 @@ class FunctionDefinitionPositionCalcVisitor {
 
         // populate panel BBox positions.
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
-        let viewState = node.getViewState();
-        let statementContainer = viewState.components.statementContainer;
+        const viewState = node.getViewState();
+        const statementContainer = viewState.components.statementContainer;
         statementContainer.x = viewState.components.body.x + DesignerDefaults.innerPanel.body.padding.left;
         statementContainer.y = viewState.components.body.y + DesignerDefaults.innerPanel.body.padding.top
             + DesignerDefaults.lifeLine.head.height;
@@ -63,7 +63,7 @@ class FunctionDefinitionPositionCalcVisitor {
      * @memberof FunctionDefinitionPositionCalc
      */
     createPositionForTitleNode(parameter, x, y) {
-        let viewState = parameter.getViewState();
+        const viewState = parameter.getViewState();
         // Positioning the parameter
         viewState.bBox.x = x;
         viewState.bBox.y = y;

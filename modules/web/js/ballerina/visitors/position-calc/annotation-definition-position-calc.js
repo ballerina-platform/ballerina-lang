@@ -18,7 +18,7 @@
 
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 import * as PositioningUtils from './utils';
 
 class AnnotationDefinitionPositionCalcVisitor {
@@ -28,12 +28,12 @@ class AnnotationDefinitionPositionCalcVisitor {
      * @return {boolean}
      * */
     canVisit(node) {
-        log.debug("can visit AnnotationPositionCalc");
+        log.debug('can visit AnnotationPositionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.debug("begin visit AnnotationPositionCalc");
+        log.debug('begin visit AnnotationPositionCalc');
 
         // populate outer panel BBox position.
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
@@ -61,27 +61,27 @@ class AnnotationDefinitionPositionCalcVisitor {
      * @memberof AnnotationDefinitionPositionCalc
      */
     createPositionForTitleNode(attachment, x, y) {
-        let viewState = attachment.model.getViewState();
+        const viewState = attachment.model.getViewState();
 
-        let childViewState = {
+        const childViewState = {
             viewState: {
                 bBox: {
-                    x: x,
-                    y: y,
+                    x,
+                    y,
                     w: util.getTextWidth(attachment.attachment, 0).w,
-                    h: DesignerDefaults.panelHeading.heading.height - 7
+                    h: DesignerDefaults.panelHeading.heading.height - 7,
                 },
                 components: {
                     deleteIcon: {
                         x: x + util.getTextWidth(attachment.attachment, 0).w,
-                        y: y,
+                        y,
                         w: DesignerDefaults.panelHeading.heading.height - 7,
-                        h: DesignerDefaults.panelHeading.heading.height - 7
-                    }
+                        h: DesignerDefaults.panelHeading.heading.height - 7,
+                    },
                 },
                 w: util.getTextWidth(attachment.attachment, 0).w,
-                h: DesignerDefaults.panelHeading.heading.height - 7
-            }
+                h: DesignerDefaults.panelHeading.heading.height - 7,
+            },
         };
         viewState.attachments[attachment.attachment] = childViewState;
 

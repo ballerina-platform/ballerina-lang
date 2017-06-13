@@ -46,13 +46,13 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let useDefaultWS = connectorDefinition.whiteSpace.useDefault;
+        const useDefaultWS = connectorDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
         }
         let constructedSourceSegment = '';
-        _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), annotationNode => {
+        _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), (annotationNode) => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
                   + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
@@ -60,7 +60,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         });
 
         let argumentsSrc = '';
-        _.forEach(connectorDefinition.getArguments(), function (argument, index) {
+        _.forEach(connectorDefinition.getArguments(), (argument, index) => {
             argumentsSrc += (index !== 0 && argument.whiteSpace.useDefault) ? ' ' : '';
             argumentsSrc += argument.getWSRegion(0) + argument.getTypeName();
             argumentsSrc += argument.getWSRegion(1) + argument.getName();
@@ -70,10 +70,10 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += 'connector'
-          + connectorDefinition.getWSRegion(0) + connectorDefinition.getConnectorName()
-          + connectorDefinition.getWSRegion(1) + '(' + argumentsSrc + ')'
-          + connectorDefinition.getWSRegion(2) + '{' + connectorDefinition.getWSRegion(3);
+        constructedSourceSegment += `connector${
+           connectorDefinition.getWSRegion(0)}${connectorDefinition.getConnectorName()
+           }${connectorDefinition.getWSRegion(1)}(${argumentsSrc})${
+           connectorDefinition.getWSRegion(2)}{${connectorDefinition.getWSRegion(3)}`;
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -90,7 +90,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorDefinition(connectorDefinition) {
         this.outdent();
-        this.appendSource('}' + connectorDefinition.getWSRegion(4));
+        this.appendSource(`}${connectorDefinition.getWSRegion(4)}`);
         this.appendSource((connectorDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
@@ -102,7 +102,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorAction} connectorAction
      */
     visitConnectorAction(connectorAction) {
-        let connectorActionVisitor = new ConnectorActionVisitor(this);
+        const connectorActionVisitor = new ConnectorActionVisitor(this);
         connectorAction.accept(connectorActionVisitor);
     }
 
@@ -111,7 +111,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorDeclaration} connectorDeclaration
      */
     visitConnectorDeclaration(connectorDeclaration) {
-        let connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 
@@ -120,7 +120,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {VariableDeclaration} variableDeclaration
      */
     visitVariableDeclaration(variableDeclaration) {
-        let variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
     }
 
@@ -129,8 +129,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {Statement} statement
      */
     visitStatement(statement) {
-        let statementVisitorFactory = new StatementVisitorFactory();
-        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 }

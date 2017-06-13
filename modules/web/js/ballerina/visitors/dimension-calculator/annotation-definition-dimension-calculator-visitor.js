@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 class AnnotationDefinitionDimensionCalculatorVisitor {
@@ -35,10 +35,10 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
 
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node, node.getAnnotationName());
-        let viewState = node.getViewState();
+        const viewState = node.getViewState();
         this.annotationAttributeDefinitionDimension(node);
-        viewState.bBox.h = viewState.components['heading'].h + viewState.components['body'].h
-            + viewState.components['annotation'].h;
+        viewState.bBox.h = viewState.components.heading.h + viewState.components.body.h
+            + viewState.components.annotation.h;
     }
 
     /**
@@ -48,7 +48,7 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
      * */
     getMaxWidthOfChildren(node) {
         let maxWidthAmongChildren = 0;
-        node.children.forEach(child => {
+        node.children.forEach((child) => {
             if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
                 if (maxWidthAmongChildren < child.viewState.textLength.w) {
                     maxWidthAmongChildren = child.viewState.textLength.w;
@@ -63,10 +63,10 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
      * @param {object} node - annotation definition node.
      * */
     annotationAttributeDefinitionDimension(node) {
-        let bodyHeight = node.viewState.components['body'].h;
-        let bodyWidth = node.viewState.components['body'].w;
-        let maxWidthAmongChildren = this.getMaxWidthOfChildren(node);
-        node.children.forEach(child => {
+        let bodyHeight = node.viewState.components.body.h;
+        let bodyWidth = node.viewState.components.body.w;
+        const maxWidthAmongChildren = this.getMaxWidthOfChildren(node);
+        node.children.forEach((child) => {
             if (BallerinaASTFactory.isAnnotationAttributeDefinition(child)) {
                 bodyHeight += child.viewState.bBox.h
                     + DesignerDefaults.annotationAttributeDefinition.body.padding.bottom;
@@ -83,9 +83,9 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
         });
 
         if (node.viewState.collapsed) {
-            node.viewState.components['body'].h = 0;
+            node.viewState.components.body.h = 0;
         } else {
-            node.viewState.components['body'].h = bodyHeight;
+            node.viewState.components.body.h = bodyHeight;
         }
     }
 }

@@ -36,20 +36,20 @@ class IfElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitIfStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
     visitElseIfStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
     visitElseStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 

@@ -15,45 +15,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
-import {statement} from './../configs/designer-defaults';
-import {lifeLine} from './../configs/designer-defaults';
+import { statement } from './../configs/designer-defaults';
+import { lifeLine } from './../configs/designer-defaults';
 import ArrowDecorator from './arrow-decorator';
 
 const text_offset = 50;
 
 class StartArrowConnection extends React.Component {
 
-	render() {
-		const { start, end} = this.props;
+    render() {
+        const { start, end } = this.props;
 
-		let arrowStart = {x : 0, y : 0};
-		let arrowEnd = {x : 0, y : 0};
+        const arrowStart = { x: 0, y: 0 };
+        const arrowEnd = { x: 0, y: 0 };
 
-		if (start.bBox.x < end.bBox.x){
-			//start statement is on the right
-			arrowStart.x = start.bBox.x + start.bBox.w;
-			arrowStart.y = start.bBox.y + start.components['drop-zone'].h + (start.bBox.h - start.components['drop-zone'].h)/2;
+        if (start.bBox.x < end.bBox.x) {
+			// start statement is on the right
+            arrowStart.x = start.bBox.x + start.bBox.w;
+            arrowStart.y = start.bBox.y + start.components['drop-zone'].h + (start.bBox.h - start.components['drop-zone'].h) / 2;
 
-			arrowEnd.x = (end.bBox.x + end.bBox.w/2) - statement.width/2;
-			arrowEnd.y = arrowStart.y;
-		} else { 
-			//start statement is on the left
+            arrowEnd.x = (end.bBox.x + end.bBox.w / 2) - statement.width / 2;
+            arrowEnd.y = arrowStart.y;
+        } else {
+			// start statement is on the left
 
-			arrowStart.x = start.bBox.x;
-			arrowStart.y = start.bBox.y + start.components['drop-zone'].h + (start.bBox.h - start.components['drop-zone'].h)/2;
+            arrowStart.x = start.bBox.x;
+            arrowStart.y = start.bBox.y + start.components['drop-zone'].h + (start.bBox.h - start.components['drop-zone'].h) / 2;
 
-			arrowEnd.x = (end.bBox.x + end.bBox.w/2) + statement.width/2;
-			arrowEnd.y = arrowStart.y;
-		}
+            arrowEnd.x = (end.bBox.x + end.bBox.w / 2) + statement.width / 2;
+            arrowEnd.y = arrowStart.y;
+        }
 
-		return (<g>
-		           <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>
-				   <rect x={arrowEnd.x} y={arrowEnd.y - statement.height/2} width={statement.width} height={statement.height} className="statement-rect" />
-		           <text x={end.bBox.x + end.bBox.w/2} y={arrowStart.y} textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
-				</g>);
-	}
+        return (<g>
+          <ArrowDecorator start={arrowStart} end={arrowEnd} enable />
+          <rect x={arrowEnd.x} y={arrowEnd.y - statement.height / 2} width={statement.width} height={statement.height} className="statement-rect" />
+          <text x={end.bBox.x + end.bBox.w / 2} y={arrowStart.y} textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
+        </g>);
+    }
 }
 
 export default StartArrowConnection;

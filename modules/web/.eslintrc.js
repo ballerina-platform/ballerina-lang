@@ -21,7 +21,8 @@ module.exports = {
                 "ClassDeclaration": true
             }
         }],
-        "valid-jsdoc": "error"
+        "valid-jsdoc": "error",
+        "indent": ["error", 4]
     },
     "plugins": [
         "react"

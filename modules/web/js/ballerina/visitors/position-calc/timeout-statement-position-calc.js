@@ -17,8 +17,8 @@
  */
 
 import log from 'log';
-import {blockStatement, timeout} from '../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { blockStatement, timeout } from '../../configs/designer-defaults';
+import { util } from './../sizing-utils';
 
 class TimeoutStatementPositionCalcVisitor {
 
@@ -27,8 +27,8 @@ class TimeoutStatementPositionCalcVisitor {
     }
 
     beginVisit(node) {
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
         const parent = node.getParent();
         const parentViewState = parent.getViewState();
         const forkBBox = parentViewState.components.body;
@@ -38,7 +38,7 @@ class TimeoutStatementPositionCalcVisitor {
         viewState.components.statementContainer.x = bBox.x;
         viewState.components.statementContainer.y = bBox.y + blockStatement.heading.height;
 
-        let title_w = blockStatement.heading.width;
+        const title_w = blockStatement.heading.width;
         const typeWidth = util.getTextWidth(node.getExpression(), 3);
         components.param.x = bBox.x + title_w + timeout.title.paramSeparatorOffsetX + typeWidth.w;
         components.param.y = bBox.y;

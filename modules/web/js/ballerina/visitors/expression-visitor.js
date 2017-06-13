@@ -61,7 +61,7 @@ class ExpressionVisitor extends ASTVisitor {
 
     endVisitVariableReferenceExpression(expression) {
     }
-    
+
     canVisitTypeCastExpression(expression) {
         return false;
     }
@@ -100,7 +100,7 @@ class ExpressionVisitor extends ASTVisitor {
             return this.visitTypeConversionExpression(node);
         } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.visitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.visitRightOperandExpression(node);
         }
     }
@@ -117,7 +117,7 @@ class ExpressionVisitor extends ASTVisitor {
             return this.canVisitTypeConversionExpression(node);
         } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.canVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.canVisitRightOperandExpression(node);
         }
     }
@@ -134,7 +134,7 @@ class ExpressionVisitor extends ASTVisitor {
             this.beginVisitTypeConversionExpression(node);
         } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.beginVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.beginVisitRightOperandExpression(node);
         }
     }
@@ -151,7 +151,7 @@ class ExpressionVisitor extends ASTVisitor {
             return this.endVisitTypeConversionExpression(node);
         } else if (ASTFactory.isLeftOperandExpression(node)) {
             return this.endVisitLeftOperandExpression(node);
-        }  else if (ASTFactory.isRightOperandExpression(node)) {
+        } else if (ASTFactory.isRightOperandExpression(node)) {
             return this.endVisitRightOperandExpression(node);
         }
     }

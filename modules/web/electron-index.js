@@ -1,7 +1,7 @@
-import {ipcRenderer} from 'electron';
+import { ipcRenderer } from 'electron';
 
 // provide global jquery object because wso2 theme expects it
-window.$ = window.jQuery = require("jquery");
+window.$ = window.jQuery = require('jquery');
 
 const Application = require('./js/main').default;
 const config = require('./config').default;
@@ -18,7 +18,7 @@ ipcRenderer.on('menu-item-clicked', (e, commandId) => {
 
 function _prepareMenuTemplate(menus, webContents) {
     const template = [];
-    Object.keys(menus).forEach(menuId => {
+    Object.keys(menus).forEach((menuId) => {
         const menu = menus[menuId];
         template.push(_prepareMenuItem(menu, webContents));
     });
@@ -30,13 +30,11 @@ function _prepareMenuItem(menu, webContents) {
     const menuItem = {};
     menuItem.label = menu.definition.label;
 
-    if(menu.definition.items){
-        menuItem.submenu = menu.definition.items.map(subItem => {
-            return _prepareMenuItem(menu[subItem.id], webContents);
-        });
+    if (menu.definition.items) {
+        menuItem.submenu = menu.definition.items.map(subItem => _prepareMenuItem(menu[subItem.id], webContents));
     }
 
-    if(menu.definition.command){
+    if (menu.definition.command) {
         menuItem.commandId = menu.definition.command.id;
     }
 

@@ -29,16 +29,16 @@ import Expression from './../expressions/expression';
 class ConditionalStatement extends Statement {
     constructor(condition, statements) {
         super();
-        this._condition = condition || "true";
+        this._condition = condition || 'true';
         this._statments = statements || [];
-        this.type = "ConditionalStatement";
+        this.type = 'ConditionalStatement';
     }
 
     setCondition(condition, options) {
         if (!_.isNil(condition) && condition instanceof Expression) {
             this.setAttribute('_condition', condition, options);
         } else {
-            log.error("Invalid value for condition received: " + condition);
+            log.error(`Invalid value for condition received: ${condition}`);
         }
     }
 
@@ -51,7 +51,7 @@ class ConditionalStatement extends Statement {
         if (!_.isNil(statements)) {
             this.setAttribute('_statments', statements, options);
         } else {
-            log.error("Cannot set undefined array of statements.");
+            log.error('Cannot set undefined array of statements.');
         }
     }
 
@@ -61,5 +61,4 @@ class ConditionalStatement extends Statement {
 }
 
 export default ConditionalStatement;
-
 

@@ -34,12 +34,12 @@ import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-w
 class VariableDefinitionStatement extends Statement {
     constructor(args) {
         super('VariableDefinitionStatement');
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
             2: ' ',
             3: '',
-            4: '\n'
+            4: '\n',
         };
     }
 
@@ -48,18 +48,18 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - Variable definition expression string
      */
     getStatementString() {
-        var variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
-            (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
+        let variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
+            (`${((this.getChildren()[0]).getChildren()[0]).getPkgName()}:`) : '';
         variableDefinitionStatementString += this.getBType();
         if (((this.getChildren()[0]).getChildren()[0])._isArray) {
-            for (var itr = 0; itr < ((this.getChildren()[0]).getChildren()[0])._dimensions; itr ++) {
+            for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0])._dimensions; itr++) {
                 variableDefinitionStatementString += '[]';
             }
         }
         variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
         if (!_.isNil(this.children[1])) {
             variableDefinitionStatementString +=
-              this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.children[1].getExpressionString();
+              `${this.getWSRegion(1)}=${this.getWSRegion(2)}${this.children[1].getExpressionString()}`;
         } else {
             variableDefinitionStatementString += this.getWSRegion(3);
         }
@@ -100,11 +100,11 @@ class VariableDefinitionStatement extends Statement {
     }
 
     setValue(value) {
-        let fragment = FragmentUtils.createExpressionFragment(value);
-        let parsedJson = FragmentUtils.parseFragment(fragment);
+        const fragment = FragmentUtils.createExpressionFragment(value);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
         if ((!_.has(parsedJson, 'error')
                || !_.has(parsedJson, 'syntax_errors'))) {
-            let child = this.getFactory().createFromJson(parsedJson);
+            const child = this.getFactory().createFromJson(parsedJson);
             this.initFromJson(child);
             this.children[1] = child;
             this.trigger('tree-modified', {
@@ -121,7 +121,7 @@ class VariableDefinitionStatement extends Statement {
      * @param {string} variableDefinitionStatementString - variable definition statement string
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const fragment = FragmentUtils.createStatementFragment(`${stmtString};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
@@ -130,23 +130,23 @@ class VariableDefinitionStatement extends Statement {
                 this.initFromJson(parsedJson);
             } else if (_.has(parsedJson, 'type')) {
                 // user may want to change the statement type
-                let newNode = this.getFactory().createFromJson(parsedJson);
+                const newNode = this.getFactory().createFromJson(parsedJson);
                 if (this.getFactory().isStatement(newNode)) {
                     // somebody changed the type of statement to an assignment
                     // to capture retun value of function Invocation
-                    let parent = this.getParent();
-                    let index = parent.getIndexOfChild(this);
+                    const parent = this.getParent();
+                    const index = parent.getIndexOfChild(this);
                     parent.removeChild(this, true);
                     parent.addChild(newNode, index, true, true);
                     newNode.initFromJson(parsedJson);
                     nodeToFireEvent = newNode;
                 }
             } else {
-                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+                log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
             }
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
             nodeToFireEvent.accept(new EnableDefaultWSVisitor());
             // Manually firing the tree-modified event here.
@@ -158,9 +158,9 @@ class VariableDefinitionStatement extends Statement {
                 context: nodeToFireEvent,
             });
         } else {
-            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
             if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }
@@ -175,26 +175,26 @@ class VariableDefinitionStatement extends Statement {
                 node: this,
                 attributes: [{
                     checkEvenIfDefined: true,
-                    defaultValue: "i",
+                    defaultValue: 'i',
                     setter: this.setIdentifier,
                     getter: this.getIdentifier,
                     parents: [{
                         // resource/connector action definition
                         node: this.parent,
                         getChildrenFunc: this.parent.getVariableDefinitionStatements,
-                        getter: this.getIdentifier
+                        getter: this.getIdentifier,
                     }, {
                         // service/connector definition
                         node: this.parent.parent,
                         getChildrenFunc: this.parent.parent.getVariableDefinitionStatements,
-                        getter: this.getIdentifier
+                        getter: this.getIdentifier,
                     }, {
                         // ballerina-ast-root definition
                         node: this.parent.parent.parent,
                         getChildrenFunc: this.parent.parent.parent.getConstantDefinitions,
-                        getter: VariableDeclaration.prototype.getIdentifier
-                    }]
-                }]
+                        getter: VariableDeclaration.prototype.getIdentifier,
+                    }],
+                }],
             });
         }
     }
@@ -202,7 +202,7 @@ class VariableDefinitionStatement extends Statement {
     initFromJson(jsonNode) {
         this.children = [];
         _.each(jsonNode.children, (childNode) => {
-            var child = this.getFactory().createFromJson(childNode);
+            const child = this.getFactory().createFromJson(childNode);
             this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });

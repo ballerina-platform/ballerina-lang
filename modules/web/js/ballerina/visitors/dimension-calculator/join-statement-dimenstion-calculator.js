@@ -16,8 +16,8 @@
  * under the License.
  */
 import log from 'log';
-import {util} from './../sizing-utils';
-import {blockStatement} from '../../configs/designer-defaults';
+import { util } from './../sizing-utils';
+import { blockStatement } from '../../configs/designer-defaults';
 
 class JoinStatementDimensionCalculatorVisitor {
 

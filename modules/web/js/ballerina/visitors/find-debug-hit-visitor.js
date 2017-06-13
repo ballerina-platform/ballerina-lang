@@ -27,10 +27,10 @@ class FindDebugHitVisitor extends ASTVisitor {
         this._position = position;
     }
     beginVisit(node) {
-        if(node.getLineNumber() === this._position.lineNumber){
+        if (node.getLineNumber() === this._position.lineNumber) {
             node.addDebugHit();
         }
-        if(node.isDebugHit && node.getLineNumber() !== this._position.lineNumber){
+        if (node.isDebugHit && node.getLineNumber() !== this._position.lineNumber) {
             // debughit has removed but model is not updated
             node.removeDebugHit();
         }

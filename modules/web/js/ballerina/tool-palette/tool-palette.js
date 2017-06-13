@@ -28,9 +28,9 @@ import Mousetrap from 'mousetrap';
 import mcustomScroller from 'mcustom_scroller';
 import './tool-palette.css';
 
-var ToolPalette = Backbone.View.extend({
-    initialize: function (options) {
-        var errMsg;
+const ToolPalette = Backbone.View.extend({
+    initialize(options) {
+        let errMsg;
         if (!_.has(options, 'container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
@@ -41,16 +41,16 @@ var ToolPalette = Backbone.View.extend({
             log.error(errMsg);
             throw errMsg;
         }
-        var container = $(_.get(options, 'container'));
+        const container = $(_.get(options, 'container'));
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for tool palette with selector: ' + _.get(options, 'container');
+            errMsg = `unable to find container for tool palette with selector: ${_.get(options, 'container')}`;
             log.error(errMsg);
             throw errMsg;
         }
 
         this._$parent_el = $("<div class='tool_palette_wrapper'></div>");
-        //container.append(this._$parent_el);
+        // container.append(this._$parent_el);
         this._options = options;
         this.ballerinaFileEditor = options.ballerinaFileEditor;
         this._imports = [];
@@ -61,17 +61,17 @@ var ToolPalette = Backbone.View.extend({
         this.search = Search(new ImportSearchAdapter());
         this.search.on('select', _.bindKey(this, 'addImport'));
         // bind event handlers
-        this._$parent_el.on("click", "#addImportSearch", _.bindKey(this, 'showSearchImport'));
+        this._$parent_el.on('click', '#addImportSearch', _.bindKey(this, 'showSearchImport'));
         Mousetrap.bind('ctrl+i', _.bindKey(this, 'showSearchImport'));
 
-        /*$(container).mCustomScrollbar({
+        /* $(container).mCustomScrollbar({
             theme: "minimal-dark",
             scrollInertia: 0
         });*/
     },
 
-    render: function () {
-        var self = this;/*
+    render() {
+        const self = this;/*
         this._$parent_el.empty();
         var toolPaletteDiv = $('<div></div>');
         // Adding search bar to tool-palette
@@ -118,8 +118,8 @@ var ToolPalette = Backbone.View.extend({
     },
 
 
-    showSearchImport : function(){
-        var adapter = new ImportSearchAdapter();
+    showSearchImport() {
+        const adapter = new ImportSearchAdapter();
         adapter.setExcludes(this._imports);
         this.search.setAdapter(adapter);
         this.search.show();
@@ -136,17 +136,15 @@ var ToolPalette = Backbone.View.extend({
      * @param toolDef.nodeFactoryMethod {Function} Factory method to create new node upon drag.
      *
      */
-    addNewToolToGroup: function(groupID, toolDef){
-        var error,
-            toolGroup = _.find(this._itemProvider.getToolGroups(), function(group){
-                return _.isEqual(group.get('toolGroupID'), groupID);
-            });
-        if(_.isNil(toolGroup)){
-            error = 'cannot find a tool group with id ' + groupID;
+    addNewToolToGroup(groupID, toolDef) {
+        let error,
+            toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), groupID));
+        if (_.isNil(toolGroup)) {
+            error = `cannot find a tool group with id ${groupID}`;
             log.error(error);
             return;
         }
-        if(!_.isNil(toolDef)){
+        if (!_.isNil(toolDef)) {
             toolGroup.addTool(toolDef);
         }
     },
@@ -156,17 +154,15 @@ var ToolPalette = Backbone.View.extend({
      * @param {string} groupID - group ID of the tool group which the tool should be removed from
      * @param {string} toolId - tool ID of the tool to be removed
      */
-    removeToolFromGroup: function (groupID, toolId) {
-        var error,
-            toolGroup = _.find(this._itemProvider.getToolGroups(), function(group){
-                return _.isEqual(group.get('toolGroupID'), groupID);
-            });
-        if(_.isNil(toolGroup)){
-            error = 'cannot find a tool group with id ' + groupID;
+    removeToolFromGroup(groupID, toolId) {
+        let error,
+            toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), groupID));
+        if (_.isNil(toolGroup)) {
+            error = `cannot find a tool group with id ${groupID}`;
             log.error(error);
             return;
         }
-        if(!_.isNil(toolId)){
+        if (!_.isNil(toolId)) {
             toolGroup.removeToolByToolId(toolId);
         }
     },
@@ -175,8 +171,8 @@ var ToolPalette = Backbone.View.extend({
      * Adding given package
      * @param {Object} pckg - package to add
      */
-    //TODO: this method needs to be removed from tool palette class
-    addImport: function (pckgs) {
+    // TODO: this method needs to be removed from tool palette class
+    addImport(pckgs) {
         this._itemProvider.addImportToolGroup(pckg);
     },
 
@@ -185,23 +181,23 @@ var ToolPalette = Backbone.View.extend({
      * @param {Object} args - data to draw the tool group
      * @param {Object} args.model - tool group model
      */
-    addVerticallyFormattedToolGroup: function (args) {
-        var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
+    addVerticallyFormattedToolGroup(args) {
+        const toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
         _.set(toolGroupOptions, 'toolPalette', this);
         _.set(toolGroupOptions, 'model', args.group);
-        var groupView = new ToolGroupView(toolGroupOptions);
+        const groupView = new ToolGroupView(toolGroupOptions);
 
-        var parent = this.$el.find('.tool-import-wrapper');
-        var isVertical = _.isEqual('vertical', args.group.get('toolOrder'));
+        const parent = this.$el.find('.tool-import-wrapper');
+        const isVertical = _.isEqual('vertical', args.group.get('toolOrder'));
 
-        var addToTop = false;
-        var collapsed = true; // collapse by default
-        if(!_.isNil(args.options)){
+        let addToTop = false;
+        let collapsed = true; // collapse by default
+        if (!_.isNil(args.options)) {
             addToTop = _.isNil(args.options.addToTop) ? false : args.options.addToTop;
             collapsed = _.isNil(args.options.collapsed) ? true : args.options.collapsed;
         }
 
-        var group = groupView.render(parent, isVertical, addToTop, collapsed);
+        const group = groupView.render(parent, isVertical, addToTop, collapsed);
         this.$el.addClass('non-user-selectable');
         return groupView;
     },
@@ -211,24 +207,24 @@ var ToolPalette = Backbone.View.extend({
      * @param {Object} args - data to draw the tool group
      * @param {Object} args.model - tool group model
      */
-    addHorizontallyFormattedToolGroup: function (args) {
-        var toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
+    addHorizontallyFormattedToolGroup(args) {
+        const toolGroupOptions = _.clone(_.get(this._options, 'toolGroup'));
         _.set(toolGroupOptions, 'toolPalette', this);
         _.set(toolGroupOptions, 'model', args.group);
-        var groupView = new ToolGroupView(toolGroupOptions);
+        const groupView = new ToolGroupView(toolGroupOptions);
         groupView.render(this.$el, false);
         this.$el.addClass('non-user-selectable');
     },
 
-    addConnectorTool: function(toolDef){
+    addConnectorTool(toolDef) {
         this.addNewToolToGroup('connectors-tool-group', toolDef);
     },
 
-    hide: function () {
+    hide() {
         this._$parent_el.hide();
     },
 
-    show: function () {
+    show() {
         this._$parent_el.show();
     },
 
@@ -236,7 +232,7 @@ var ToolPalette = Backbone.View.extend({
      * Returns the item provider associated with this tool palette
      * @returns {ToolPaletteItemProvider}
      */
-    getItemProvider: function () {
+    getItemProvider() {
         return this._itemProvider;
     },
 
@@ -246,20 +242,18 @@ var ToolPalette = Backbone.View.extend({
      * @param {Object} toolItem - tool object
      * @param {Object} newValue - new value for the tool
      */
-    updateToolPaletteItem: function (toolGroupID, toolItem, attribute, newValue, metaAttr) {
-        var error,
-            toolGroup = _.find(this._itemProvider.getToolGroups(), function (group) {
-                return _.isEqual(group.get('toolGroupID'), toolGroupID);
-            });
+    updateToolPaletteItem(toolGroupID, toolItem, attribute, newValue, metaAttr) {
+        let error,
+            toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), toolGroupID));
         if (_.isNil(toolGroup)) {
-            error = 'cannot find a tool group with id ' + toolGroupID;
+            error = `cannot find a tool group with id ${toolGroupID}`;
             log.error(error);
             return;
         }
         if (!_.isNil(toolItem)) {
             toolGroup.updateTool(toolItem, attribute, newValue, metaAttr);
         }
-    }
+    },
 });
 
 export default ToolPalette;

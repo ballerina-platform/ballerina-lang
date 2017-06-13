@@ -27,14 +27,14 @@ class VariableDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitVariableDeclaration(variableDeclaration) {
-        this.appendSource(variableDeclaration.getType() + " " +variableDeclaration.getIdentifier());
+        this.appendSource(`${variableDeclaration.getType()} ${variableDeclaration.getIdentifier()}`);
     }
 
     visitVariableDeclaration(variableDeclaration) {
     }
 
     endVisitVariableDeclaration(variableDeclaration) {
-        this.appendSource(";\n");
+        this.appendSource(';\n');
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
     }
 }

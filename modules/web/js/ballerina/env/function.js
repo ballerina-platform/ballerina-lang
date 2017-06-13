@@ -41,9 +41,9 @@ class Function extends EventChannel {
     * @param {string} name
     */
     setName(name) {
-        var oldName = this._name;
+        const oldName = this._name;
         this._name = name;
-        this.trigger("name-modified", name, oldName);
+        this.trigger('name-modified', name, oldName);
     }
 
    /**

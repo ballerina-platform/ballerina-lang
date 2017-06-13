@@ -15,26 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import StatementDecorator from "./statement-decorator";
+import React from 'react';
+import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import MessageManager from './../visitors/message-manager';
-import {util} from './../visitors/sizing-utils';
+import { util } from './../visitors/sizing-utils';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import ArrowDecorator from './arrow-decorator';
 
 class WorkerInvocationStatement extends React.Component {
 
-    constructor(props){
+    constructor(props) {
         super(props);
         this.editorOptions = {
             propertyType: 'text',
             key: 'WorkerInvocationStatement',
             model: props.model,
             getterMethod: props.model.getStatementString,
-            setterMethod: props.model.setStatementFromString
+            setterMethod: props.model.setStatementFromString,
         };
     }
 
@@ -42,30 +42,30 @@ class WorkerInvocationStatement extends React.Component {
         let model = this.props.model,
             expression = model.viewState.expression;
         const bBox = model.getViewState().bBox;
-        let arrowEnd = {
+        const arrowEnd = {
             x: 0,
-            y: 0
+            y: 0,
         };
-        let arrowStart = {
+        const arrowStart = {
             x: 0,
-            y: 0
+            y: 0,
         };
         const statementY = bBox.y + model.getViewState().components['drop-zone'].h;
         const statementHeight = bBox.h - model.getViewState().components['drop-zone'].h;
         const statementWidth = bBox.w;
         const statementX = bBox.getLeft();
 
-        arrowStart.y = statementY + statementHeight/2;
-        arrowEnd. y = arrowStart.y;
+        arrowStart.y = statementY + statementHeight / 2;
+        arrowEnd.y = arrowStart.y;
 
-        let destinationWorkerName = model.getWorkerName();
-        let topLevelParent = model.getTopLevelParent();
+        const destinationWorkerName = model.getWorkerName();
+        const topLevelParent = model.getTopLevelParent();
         const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ? topLevelParent.getParent() : topLevelParent;
         let workerDeclaration;
         if (destinationWorkerName === 'default') {
             workerDeclaration = workersParent;
         } else {
-            workerDeclaration = _.find(workersParent.getChildren(), function (child) {
+            workerDeclaration = _.find(workersParent.getChildren(), (child) => {
                 if (BallerinaASTFactory.isWorkerDeclaration(child)) {
                     return child.getWorkerName() === destinationWorkerName;
                 }
@@ -85,72 +85,74 @@ class WorkerInvocationStatement extends React.Component {
              */
             if (workerReplyStatement.getViewState().bBox.getRight() > bBox.getRight()) {
                 arrowStart.x = bBox.getRight();
-                arrowEnd.x = workerReplyStatement.getViewState().bBox.getLeft()
+                arrowEnd.x = workerReplyStatement.getViewState().bBox.getLeft();
             } else {
                 arrowStart.x = bBox.getLeft();
-                arrowEnd.x = workerReplyStatement.getViewState().bBox.getRight()
+                arrowEnd.x = workerReplyStatement.getViewState().bBox.getRight();
             }
         } else {
             arrowStart.x = bBox.getRight();
         }
 
         return (<g>
-            <StatementDecorator model={model} viewState={model.viewState}
-                                expression={expression} editorOptions={this.editorOptions} />
-            <g>
-                <circle cx={statementX}
-                        cy={arrowStart.y}
-                        r={10}
-                        fill="#444"
-                        fillOpacity={0}
-                        onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
-                        onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
-                        onMouseDown={(e) => this.onMouseDown(e)}
-                        onMouseUp={(e) => this.onMouseUp(e)}
-                />
-            </g>
-            <g>
-                <circle cx={statementX + statementWidth}
-                        cy={arrowStart.y}
-                        r={10}
-                        fill="#444"
-                        fillOpacity={0}
-                        onMouseOver={(e) => this.onArrowStartPointMouseOver(e)}
-                        onMouseOut={(e) => this.onArrowStartPointMouseOut(e)}
-                        onMouseDown={(e) => this.onMouseDown(e)}
-                        onMouseUp={(e) => this.onMouseUp(e)}
-                />
-            </g>
-            {!_.isNil(workerReplyStatement) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable={true}/>}
+          <StatementDecorator
+            model={model} viewState={model.viewState}
+            expression={expression} editorOptions={this.editorOptions}
+          />
+          <g>
+            <circle
+              cx={statementX}
+              cy={arrowStart.y}
+              r={10}
+              fill="#444"
+              fillOpacity={0}
+              onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+              onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+              onMouseDown={e => this.onMouseDown(e)}
+              onMouseUp={e => this.onMouseUp(e)}
+            />
+          </g>
+          <g>
+            <circle
+              cx={statementX + statementWidth}
+              cy={arrowStart.y}
+              r={10}
+              fill="#444"
+              fillOpacity={0}
+              onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+              onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+              onMouseDown={e => this.onMouseDown(e)}
+              onMouseUp={e => this.onMouseUp(e)}
+            />
+          </g>
+          {!_.isNil(workerReplyStatement) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
         </g>);
     }
 
-    onArrowStartPointMouseOver (e) {
+    onArrowStartPointMouseOver(e) {
         e.target.style.fill = '#444';
         e.target.style.fillOpacity = 0.5;
         e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
     }
 
-    onArrowStartPointMouseOut (e) {
+    onArrowStartPointMouseOut(e) {
         e.target.style.fill = '#444';
         e.target.style.fillOpacity = 0;
     }
 
-    onMouseDown (e) {
+    onMouseDown(e) {
         const messageManager = this.context.messageManager;
         const model = this.props.model;
         const bBox = model.getViewState().bBox;
         const messageStartX = bBox.getRight();
-        const messageStartY = bBox.getTop() + (bBox.h + DesignerDefaults.statement.gutter.v)/2;
+        const messageStartY = bBox.getTop() + (bBox.h + DesignerDefaults.statement.gutter.v) / 2;
         messageManager.setSource(model);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
 
-        messageManager.setTargetValidationCallback(function (destination) {
-            return model.messageDrawTargetAllowed(destination);
-        });
+        messageManager.setTargetValidationCallback(destination => model.messageDrawTargetAllowed(destination));
 
-        messageManager.startDrawMessage(function (source, destination) {
+        messageManager.startDrawMessage((source, destination) => {
             const expressionsList = ((source.getInvocationStatement().split('->')[0]).trim()).split(',');
             let expressionString = '';
             let workerName = '';
@@ -167,20 +169,20 @@ class WorkerInvocationStatement extends React.Component {
             }
             source.setWorkerName(workerName);
             expressionString = _.join(expressionsList, ',');
-            expressionString += '->' + workerName;
+            expressionString += `->${workerName}`;
             source.setInvocationStatement(expressionString);
             source.setDestination(destination);
         });
     }
 
-    onMouseUp (e) {
+    onMouseUp(e) {
         const messageManager = this.context.messageManager;
         messageManager.reset();
     }
 }
 
 WorkerInvocationStatement.contextTypes = {
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 };
 
 WorkerInvocationStatement.propTypes = {
@@ -189,7 +191,7 @@ WorkerInvocationStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
 };
 
 export default WorkerInvocationStatement;

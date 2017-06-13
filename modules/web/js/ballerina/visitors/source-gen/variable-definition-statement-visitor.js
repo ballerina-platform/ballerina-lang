@@ -32,12 +32,12 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        var constructedSource = variableDefinitionStatement.getStatementString();
+        const constructedSource = variableDefinitionStatement.getStatementString();
         this.appendSource(constructedSource);
     }
 
     endVisitVariableDefinitionStatement(variableDefinitionStatement) {
-        this.appendSource(';' + variableDefinitionStatement.getWSRegion(4));
+        this.appendSource(`;${variableDefinitionStatement.getWSRegion(4)}`);
         this.appendSource((variableDefinitionStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

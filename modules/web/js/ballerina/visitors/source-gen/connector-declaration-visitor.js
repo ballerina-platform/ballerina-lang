@@ -42,8 +42,8 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitConnectorDeclaration(connectorDeclaration) {
-        this.appendSource(connectorDeclaration.getWSRegion(3) + ';'
-                + connectorDeclaration.getWSRegion(4));
+        this.appendSource(`${connectorDeclaration.getWSRegion(3)};${
+                 connectorDeclaration.getWSRegion(4)}`);
         this.appendSource((connectorDeclaration.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

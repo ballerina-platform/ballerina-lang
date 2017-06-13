@@ -40,46 +40,46 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let useDefaultWS = serviceDefinition.whiteSpace.useDefault;
+        const useDefaultWS = serviceDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
         }
         let constructedSourceSegment = '';
         _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
-            annotationNode => {
+            (annotationNode) => {
                 constructedSourceSegment += annotationNode.toString()
                       + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             });
-        constructedSourceSegment += 'service' + serviceDefinition.getWSRegion(0)
-              + serviceDefinition.getServiceName()
-              + serviceDefinition.getWSRegion(1) + '{'
-              + serviceDefinition.getWSRegion(2);
+        constructedSourceSegment += `service${serviceDefinition.getWSRegion(0)
+               }${serviceDefinition.getServiceName()
+               }${serviceDefinition.getWSRegion(1)}{${
+               serviceDefinition.getWSRegion(2)}`;
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
     endVisitServiceDefinition(serviceDefinition) {
         this.outdent();
-        this.appendSource('}' + serviceDefinition.getWSRegion(3));
+        this.appendSource(`}${serviceDefinition.getWSRegion(3)}`);
         this.appendSource((serviceDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
     visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
     visitResourceDefinition(resourceDefinition) {
-        var resourceDefinitionVisitor = new ResourceDefinitionVisitor(this);
+        const resourceDefinitionVisitor = new ResourceDefinitionVisitor(this);
         resourceDefinition.accept(resourceDefinitionVisitor);
     }
 
     visitConnectorDeclaration(connectorDeclaration) {
-        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 }

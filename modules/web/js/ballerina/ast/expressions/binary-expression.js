@@ -35,7 +35,7 @@ class BinaryExpression extends Expression {
             0: '',
             1: ' ',
             2: ' ',
-            3: ' '
+            3: ' ',
         };
     }
 
@@ -44,14 +44,14 @@ class BinaryExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        if(!_.isNil(jsonNode.children[0])){
-            var leftExpression = this.getFactory().createFromJson(jsonNode.children[0]);
+        if (!_.isNil(jsonNode.children[0])) {
+            const leftExpression = this.getFactory().createFromJson(jsonNode.children[0]);
             leftExpression.setParent(this);
             leftExpression.initFromJson(jsonNode.children[0]);
             this._leftExpression = leftExpression;
         }
-        if(!_.isNil(jsonNode.children[1])){
-            var rightExpression = this.getFactory().createFromJson(jsonNode.children[1]);
+        if (!_.isNil(jsonNode.children[1])) {
+            const rightExpression = this.getFactory().createFromJson(jsonNode.children[1]);
             rightExpression.setParent(this);
             rightExpression.initFromJson(jsonNode.children[1]);
             this._rightExpression = rightExpression;
@@ -59,19 +59,17 @@ class BinaryExpression extends Expression {
     }
 
     setExpressionFromString(expression, callback) {
-        if(!_.isNil(expression)){
-            let fragment = FragmentUtils.createExpressionFragment(expression);
-            let parsedJson = FragmentUtils.parseFragment(fragment);
+        if (!_.isNil(expression)) {
+            const fragment = FragmentUtils.createExpressionFragment(expression);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                     || !_.has(parsedJson, 'syntax_errors'))) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({isValid: true});
+                    callback({ isValid: true });
                 }
-            } else {
-                if (_.isFunction(callback)) {
-                    callback({isValid: false, response: parsedJson});
-                }
+            } else if (_.isFunction(callback)) {
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }

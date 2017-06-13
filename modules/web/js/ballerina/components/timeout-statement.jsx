@@ -18,9 +18,9 @@
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import {timeout} from './../configs/designer-defaults';
+import { timeout } from './../configs/designer-defaults';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 class TimeoutStatement extends React.Component {
 
@@ -36,7 +36,7 @@ class TimeoutStatement extends React.Component {
             key: 'Timeout interval',
             model: props.model,
             getterMethod: props.model.getExpression,
-            setterMethod: props.model.setExpression
+            setterMethod: props.model.setExpression,
         };
         const parameterEditorOptions = {
             propertyType: 'text',
@@ -44,7 +44,7 @@ class TimeoutStatement extends React.Component {
             value: parameterBbox.text,
             model: props.model,
             getterMethod: props.model.getParameterAsString,
-            setterMethod: props.model.setParameterAsString
+            setterMethod: props.model.setParameterAsString,
         };
 
         let lifeLineY1;
@@ -56,14 +56,18 @@ class TimeoutStatement extends React.Component {
             lifeLineY2 = lastChild.bBox.y + lastChild.components['drop-zone'].h;
         }
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-            <BlockStatementDecorator model={model} dropTarget={model} bBox={bBox} title={'Timeout'} titleWidth={timeout.title.w}
-                                     parameterBbox={parameterBbox} parameterEditorOptions={parameterEditorOptions}
-                                     expression={{text: model.getExpression()}} editorOptions={this.editorOptions}>
-                {model.children.length > 0 &&
-                <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
-                      className="join-lifeline"/> }
-                {children}
-            </BlockStatementDecorator>
+          <BlockStatementDecorator
+            model={model} dropTarget={model} bBox={bBox} title={'Timeout'} titleWidth={timeout.title.w}
+            parameterBbox={parameterBbox} parameterEditorOptions={parameterEditorOptions}
+            expression={{ text: model.getExpression() }} editorOptions={this.editorOptions}
+          >
+            {model.children.length > 0 &&
+            <line
+              x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
+              className="join-lifeline"
+            /> }
+            {children}
+          </BlockStatementDecorator>
         </CompoundStatementDecorator>);
     }
 }
@@ -74,7 +78,7 @@ TimeoutStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
 };
 
 

@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import TagController from './utils/tag-component';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -38,16 +38,16 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * @return {boolean} true|false
      * */
     addArgumentParameter(input) {
-        let model = this.props.model;
-        let splitedExpression = input.split(" ");
+        const model = this.props.model;
+        const splitedExpression = input.split(' ');
 
         if (!this.checkWhetherIdentifierAlreadyExist(splitedExpression[1])) {
-            let parameterDef = model.getFactory().createParameterDefinition();
-            let bType = splitedExpression[0];
+            const parameterDef = model.getFactory().createParameterDefinition();
+            const bType = splitedExpression[0];
             if (this.validateType(bType)) {
                 parameterDef.setTypeName(bType);
             } else {
-                let errorString = "Incorrect Variable Type: " + bType;
+                const errorString = `Incorrect Variable Type: ${bType}`;
                 Alerts.error(errorString);
                 return false;
             }
@@ -55,17 +55,16 @@ class ArgumentParameterDefinitionHolder extends React.Component {
             if (splitedExpression[1]) {
                 parameterDef.setName(splitedExpression[1]);
             } else {
-                let errorString = "Invalid Variable Name.";
+                const errorString = 'Invalid Variable Name.';
                 Alerts.error(errorString);
                 return false;
             }
             this.props.model.addChild(parameterDef);
             return true;
-        } else {
-            let errorString = "Variable Already exists: " + splitedExpression[1];
-            Alerts.error(errorString);
-            return false;
         }
+        const errorString = `Variable Already exists: ${splitedExpression[1]}`;
+        Alerts.error(errorString);
+        return false;
     }
 
     /**
@@ -90,16 +89,16 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const {renderingContext} = this.context;
-        let dropdownData = [];
-        let bTypes = renderingContext.environment.getTypes();
-        _.forEach(bTypes, function (bType) {
-            dropdownData.push({id: bType, text: bType});
+        const { renderingContext } = this.context;
+        const dropdownData = [];
+        const bTypes = renderingContext.environment.getTypes();
+        _.forEach(bTypes, (bType) => {
+            dropdownData.push({ id: bType, text: bType });
         });
 
-        let structTypes = [];
-        _.forEach(structTypes, function (sType) {
-            dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
+        const structTypes = [];
+        _.forEach(structTypes, (sType) => {
+            dropdownData.push({ id: sType.getAnnotationName(), text: sType.getAnnotationName() });
         });
 
         return dropdownData;
@@ -110,10 +109,8 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * */
     validateType(bType) {
         let isValid = false;
-        let typeList = this.getTypeDropdownValues();
-        let filteredTypeList = _.filter(typeList, function (type) {
-            return type.id === bType;
-        });
+        const typeList = this.getTypeDropdownValues();
+        const filteredTypeList = _.filter(typeList, type => type.id === bType);
         if (filteredTypeList.length > 0) {
             isValid = true;
         }
@@ -126,35 +123,37 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * @return {boolean} true - change the state, false - don't change the state
      * */
     validateInput(input) {
-        let splitedExpression = input.split(" ");
+        const splitedExpression = input.split(' ');
         return splitedExpression.length > 1;
     }
 
     render() {
-        let model = this.props.model;
-        let componentData = {
+        const model = this.props.model;
+        const componentData = {
             title: 'Parameters: ',
             components: {
                 openingBracket: this.props.model.parent.getViewState().components.openingParameter,
-                closingBracket: this.props.model.parent.getViewState().components.closingParameter
+                closingBracket: this.props.model.parent.getViewState().components.closingParameter,
             },
             prefixView: this.props.model.parent.getViewState().components.parametersPrefixContainer,
             openingBracketClassName: 'parameter-bracket-text',
             closingBracketClassName: 'parameter-bracket-text',
             prefixTextClassName: 'parameter-prefix-text',
-            defaultText: "+ Add Param"
+            defaultText: '+ Add Param',
         };
-        let children = getComponentForNodeArray(model.getChildren());
+        const children = getComponentForNodeArray(model.getChildren());
         return (
-            <TagController key={model.getID()} model={model} setter={this.addArgumentParameter}
-                           validateInput={this.validateInput} modelComponents={children}
-                           componentData={componentData} groupClass="argument-parameter-group"/>
+          <TagController
+            key={model.getID()} model={model} setter={this.addArgumentParameter}
+            validateInput={this.validateInput} modelComponents={children}
+            componentData={componentData} groupClass="argument-parameter-group"
+          />
         );
     }
 }
 
 ArgumentParameterDefinitionHolder.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ArgumentParameterDefinitionHolder;

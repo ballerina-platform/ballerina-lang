@@ -39,12 +39,12 @@ import 'bootstrap';
  */
 class WorkspaceManager {
 
-    constructor (application) {
+    constructor(application) {
         this.app = application;
-        this._serviceClient = new ServiceClient({application: this.app});
+        this._serviceClient = new ServiceClient({ application: this.app });
 
         if (_.isUndefined(this.app.commandManager)) {
-            var error = 'CommandManager is not initialized.';
+            const error = 'CommandManager is not initialized.';
             log.error(error);
             throw error;
         }
@@ -86,15 +86,15 @@ class WorkspaceManager {
         this.app.commandManager.registerHandler('go-to-user-guide', this.showUserGuide, this);
     }
 
-    getServiceClient(){
+    getServiceClient() {
         return this._serviceClient;
     }
 
-    listenToTabController (){
+    listenToTabController() {
         this.app.tabController.on('active-tab-changed', this.onTabChange, this);
     }
 
-    onTabChange(){
+    onTabChange() {
         this.updateMenuItems();
     }
 
@@ -103,20 +103,20 @@ class WorkspaceManager {
     }
 
     displayInitialTab() {
-        let startupFile = _.get(this.app.config, 'startupFile');
-        if (!_.isNil(startupFile)){
+        const startupFile = _.get(this.app.config, 'startupFile');
+        if (!_.isNil(startupFile)) {
             // open provided startup file
             this.app.commandManager.dispatch('open-file', startupFile);
         } else {
             // user has no active tabs from last session
             if (!this.app.tabController.hasFilesInWorkingSet()) {
                 // create a generic tab - without ballerina editor components
-                let tab = this.app.tabController.newTab({
+                const tab = this.app.tabController.newTab({
                     tabModel: Tab,
-                    tabOptions:{title: 'welcome-page'}
+                    tabOptions: { title: 'welcome-page' },
                 });
                 // Showing FirstLaunchWelcomePage instead of regularWelcomePage
-                let opts = _.get(this.app.config, 'welcome');
+                const opts = _.get(this.app.config, 'welcome');
                 _.set(opts, 'application', this.app);
                 _.set(opts, 'tab', tab);
                 _.set(opts, 'balHome', _.get(this.app.config, 'balHome'));
@@ -132,18 +132,16 @@ class WorkspaceManager {
      * @param workspaceManager - The workspace manager.
      */
     showWelcomePage(workspaceManager) {
-        var existingWelcomeTab = _.find(this.app.tabController.getTabList(), function (tab) {
-            return tab._title === 'welcome-page';
-        });
+        const existingWelcomeTab = _.find(this.app.tabController.getTabList(), tab => tab._title === 'welcome-page');
 
         if (_.isUndefined(existingWelcomeTab)) {
             // Creating a new welcome tab.
-            var tab = this.app.tabController.newTab({
+            const tab = this.app.tabController.newTab({
                 tabModel: Tab,
-                tabOptions:{title: 'welcome-page'}
+                tabOptions: { title: 'welcome-page' },
             });
             // Showing FirstLaunchWelcomePage instead of regularWelcomePage
-            var opts = _.get(this.app.config, 'welcome');
+            const opts = _.get(this.app.config, 'welcome');
             _.set(opts, 'application', this.app);
             _.set(opts, 'tab', tab);
             _.set(opts, 'balHome', _.get(this.app.config, 'balHome'));
@@ -155,31 +153,31 @@ class WorkspaceManager {
         }
     }
 
-    openFileSaveDialog (options) {
-        if(this.app.isElectronMode()) {
+    openFileSaveDialog(options) {
+        if (this.app.isElectronMode()) {
             this.openNativeFileSaveDialog(options);
         } else {
-            if(_.isNil(this._saveFileDialog)){
+            if (_.isNil(this._saveFileDialog)) {
                 this._saveFileDialog = new SaveFileDialog(this.app);
             }
             this._saveFileDialog.render();
 
-            if(!_.isNil(options) && _.isFunction(options.callback)){
-                var isSaved = false;
-                this._saveFileDialog.once('save-completed', function(success){
+            if (!_.isNil(options) && _.isFunction(options.callback)) {
+                let isSaved = false;
+                this._saveFileDialog.once('save-completed', (success) => {
                     isSaved = success;
                 }, this);
-                this._saveFileDialog.once('unloaded', function(){
+                this._saveFileDialog.once('unloaded', () => {
                     options.callback(isSaved);
                 }, this);
             }
 
             this._saveFileDialog.show();
-            var activeTab = this.app.tabController.getActiveTab();
-            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
-                var activeFile = activeTab.getFile();
-                if(activeFile.isPersisted()){
-                    this._saveFileDialog.once('loaded', function(){
+            const activeTab = this.app.tabController.getActiveTab();
+            if (!_.isNil(activeTab) && _.isFunction(activeTab.getFile)) {
+                const activeFile = activeTab.getFile();
+                if (activeFile.isPersisted()) {
+                    this._saveFileDialog.once('loaded', function () {
                         this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
                     }, this);
                 }
@@ -187,13 +185,13 @@ class WorkspaceManager {
         }
     }
 
-    openNativeFileSaveDialog (options) {
+    openNativeFileSaveDialog(options) {
         let renderer = this.app.getNativeRenderProcess(),
             fileSavedCallback = (!_.isNil(options)) ? options.callback : undefined;
         renderer.send('show-file-save-dialog');
         renderer.once('file-save-path-selected', (event, path) => {
-            let activeTab = this.app.tabController.getActiveTab();
-            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)) {
+            const activeTab = this.app.tabController.getActiveTab();
+            if (!_.isNil(activeTab) && _.isFunction(activeTab.getFile)) {
                 let activeFile = activeTab.getFile(),
                     folderPath = path.substring(0, path.lastIndexOf(this.app.getPathSeperator())),
                     fileName = path.substring(path.lastIndexOf(this.app.getPathSeperator()) + 1),
@@ -203,11 +201,11 @@ class WorkspaceManager {
                           .setName(fileName)
                           .setContent(config);
 
-                let result = this._serviceClient.writeFile(activeFile);
-                if(!_.isNil(fileSavedCallback) && _.isFunction(fileSavedCallback)) {
+                const result = this._serviceClient.writeFile(activeFile);
+                if (!_.isNil(fileSavedCallback) && _.isFunction(fileSavedCallback)) {
                     if (_.isNil(result) || result.error) {
                         fileSavedCallback(false);
-                        if(!_.isNil(result.message)) {
+                        if (!_.isNil(result.message)) {
                             alerts.error(result.message);
                         }
                     } else {
@@ -218,11 +216,11 @@ class WorkspaceManager {
         });
     }
 
-    openSettingsDialog(){
-        /*var settingsModal = $(_.get(app, 'config.settings_dialog.selector'));
+    openSettingsDialog() {
+        /* var settingsModal = $(_.get(app, 'config.settings_dialog.selector'));
         settingsModal.modal('show');*/
-        if(_.isNil(this._openFileDialog)){
-            var opts = _.cloneDeep(_.get(this.app.config, 'settings_dialog'));
+        if (_.isNil(this._openFileDialog)) {
+            const opts = _.cloneDeep(_.get(this.app.config, 'settings_dialog'));
             _.set(opts, 'application', this.app);
             this._openSettingsDialog = new SettingsDialog(opts);
         }
@@ -230,12 +228,12 @@ class WorkspaceManager {
         this._openSettingsDialog.show();
     }
 
-    showFolderOpenDialog () {
-        if(this.app.isElectronMode()) {
+    showFolderOpenDialog() {
+        if (this.app.isElectronMode()) {
             this.openNativeFolderOpenDialog();
         } else {
-            if(_.isNil(this._folderOpenDialog)){
-                var opts = _.cloneDeep(_.get(this.app.config, 'open_folder_dialog'));
+            if (_.isNil(this._folderOpenDialog)) {
+                const opts = _.cloneDeep(_.get(this.app.config, 'open_folder_dialog'));
                 _.set(opts, 'application', this.app);
                 this._folderOpenDialog = new FolderOpenDialog(opts);
             }
@@ -244,19 +242,19 @@ class WorkspaceManager {
         }
     }
 
-    openNativeFolderOpenDialog () {
-        let renderer = this.app.getNativeRenderProcess();
+    openNativeFolderOpenDialog() {
+        const renderer = this.app.getNativeRenderProcess();
         renderer.send('show-folder-open-dialog');
         renderer.once('folder-opened', (event, path) => {
             this.app.commandManager.dispatch('open-folder', path);
         });
     }
 
-    openFileOpenDialog () {
-        if(this.app.isElectronMode()) {
+    openFileOpenDialog() {
+        if (this.app.isElectronMode()) {
             this.openNativeFileOpenDialog();
         } else {
-            if(_.isNil(this._openFileDialog)){
+            if (_.isNil(this._openFileDialog)) {
                 this._openFileDialog = new FileOpenDialog(this.app);
             }
             this._openFileDialog.render();
@@ -264,16 +262,16 @@ class WorkspaceManager {
         }
     }
 
-    openNativeFileOpenDialog () {
-        let renderer = this.app.getNativeRenderProcess();
+    openNativeFileOpenDialog() {
+        const renderer = this.app.getNativeRenderProcess();
         renderer.send('show-file-open-dialog');
         renderer.once('file-opened', (event, path) => {
             this.app.commandManager.dispatch('open-file', path);
         });
     }
 
-    openCloseFileConfirmDialog (options) {
-        if(_.isNil(this._closeFileConfirmDialog)){
+    openCloseFileConfirmDialog(options) {
+        if (_.isNil(this._closeFileConfirmDialog)) {
             this._closeFileConfirmDialog = new CloseConfirmDialog();
             this._closeFileConfirmDialog.render();
         }
@@ -281,7 +279,7 @@ class WorkspaceManager {
     }
 
     openReplaceFileConfirmDialog(options) {
-        if(_.isNil(this._replaceFileConfirmDialog)){
+        if (_.isNil(this._replaceFileConfirmDialog)) {
             this._replaceFileConfirmDialog = new ReplaceConfirmDialog();
         }
         // This dialog need to be re-rendered so that it comes on top of save file dialog.
@@ -290,20 +288,20 @@ class WorkspaceManager {
         this._replaceFileConfirmDialog.askConfirmation(options);
     }
 
-    goToWelcomePage () {
+    goToWelcomePage() {
         this.workspaceManager.showWelcomePage(this.workspaceManager);
     }
 
-    updateUndoRedoMenus (){
+    updateUndoRedoMenus() {
         // undo manager for current tab
-        var activeTab = this.app.tabController.getActiveTab(),
+        let activeTab = this.app.tabController.getActiveTab(),
             undoMenuItem = this.app.menuBar.getMenuItemByID('edit.undo'),
             redoMenuItem = this.app.menuBar.getMenuItemByID('edit.redo');
 
-        if(activeTab instanceof FileTab){
-            var fileEditor = activeTab.getBallerinaFileEditor();
-            if(!_.isUndefined(fileEditor)){
-                var undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
+        if (activeTab instanceof FileTab) {
+            const fileEditor = activeTab.getBallerinaFileEditor();
+            if (!_.isUndefined(fileEditor)) {
+                const undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
                 if (undoManager.hasUndo() && undoManager.undoStackTop().canUndo()) {
                     undoMenuItem.enable();
                     // undoMenuItem.addLabelSuffix(
@@ -329,19 +327,19 @@ class WorkspaceManager {
         }
     }
 
-    updateMenuItems(){
+    updateMenuItems() {
         this.updateUndoRedoMenus();
         this.updateSaveMenuItem();
         this.updateCodeFormatMenu();
     }
 
-    updateSaveMenuItem (){
-        var activeTab = this.app.tabController.getActiveTab(),
+    updateSaveMenuItem() {
+        let activeTab = this.app.tabController.getActiveTab(),
             saveMenuItem = this.app.menuBar.getMenuItemByID('file.save'),
             saveAsMenuItem = this.app.menuBar.getMenuItemByID('file.saveAs');
-        if(activeTab instanceof FileTab){
-            var file = activeTab.getFile();
-            if(file.isDirty()){
+        if (activeTab instanceof FileTab) {
+            const file = activeTab.getFile();
+            if (file.isDirty()) {
                 saveMenuItem.enable();
                 saveAsMenuItem.enable();
             } else {
@@ -353,12 +351,12 @@ class WorkspaceManager {
         }
     }
 
-    updateCodeFormatMenu(){
-        var activeTab = this.app.tabController.getActiveTab(),
+    updateCodeFormatMenu() {
+        let activeTab = this.app.tabController.getActiveTab(),
             codeFormatMenuItem = this.app.menuBar.getMenuItemByID('code.format');
-        if(activeTab instanceof FileTab){
-            var fileEditor = activeTab.getBallerinaFileEditor();
-            if(!_.isNil(fileEditor) && fileEditor.isInSourceView()){
+        if (activeTab instanceof FileTab) {
+            const fileEditor = activeTab.getBallerinaFileEditor();
+            if (!_.isNil(fileEditor) && fileEditor.isInSourceView()) {
                 codeFormatMenuItem.enable();
             } else {
                 codeFormatMenuItem.disable();
@@ -370,7 +368,7 @@ class WorkspaceManager {
 
     handleUndo() {
         // undo manager for current tab
-        var undoManager = this.app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
+        const undoManager = this.app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
         if (undoManager.hasUndo()) {
             undoManager.undo();
         }
@@ -379,7 +377,7 @@ class WorkspaceManager {
 
     handleRedo() {
         // undo manager for current tab
-        var undoManager = this.app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
+        const undoManager = this.app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
         if (undoManager.hasRedo()) {
             undoManager.redo();
         }
@@ -387,21 +385,21 @@ class WorkspaceManager {
     }
 
     handleSave(options) {
-        var activeTab = this.app.tabController.getActiveTab();
-        if(activeTab instanceof FileTab){
-            var file = activeTab.getFile();
-            if(file.isPersisted()){
-                if(file.isDirty()){
-                    var response = this._serviceClient.writeFile(file);
-                    if(response.error){
+        const activeTab = this.app.tabController.getActiveTab();
+        if (activeTab instanceof FileTab) {
+            const file = activeTab.getFile();
+            if (file.isPersisted()) {
+                if (file.isDirty()) {
+                    const response = this._serviceClient.writeFile(file);
+                    if (response.error) {
                         alerts.error(response.message);
                         return;
                     }
-                    if(activeTab.getBallerinaFileEditor().isInSourceView()){
+                    if (activeTab.getBallerinaFileEditor().isInSourceView()) {
                         activeTab.getBallerinaFileEditor().getSourceView().markClean();
                     }
                 }
-                if(!_.isNil(options) && _.isFunction(options.callback)){
+                if (!_.isNil(options) && _.isFunction(options.callback)) {
                     options.callback(true);
                 }
             } else {
@@ -411,13 +409,13 @@ class WorkspaceManager {
     }
 
     handleFormat() {
-        if(this.app.tabController.getActiveTab() instanceof FileTab){
+        if (this.app.tabController.getActiveTab() instanceof FileTab) {
             this.app.tabController.getActiveTab().getBallerinaFileEditor().getSourceView().format();
         }
     }
 
-    showAboutDialog(){
-        var aboutDialog = $(_.get(this, 'config.about_dialog.selector'));
+    showAboutDialog() {
+        const aboutDialog = $(_.get(this, 'config.about_dialog.selector'));
         aboutDialog.modal('show');
     }
 
@@ -425,17 +423,17 @@ class WorkspaceManager {
         window.open(this.app.config.menu_bar.help_urls.user_guide_url);
     }
 
-    handleCreateNewItemAtPath(data){
-        if(_.isNil(this._newItemDialog)){
-            this._newItemDialog = new NewItemDialog({application: this.app});
+    handleCreateNewItemAtPath(data) {
+        if (_.isNil(this._newItemDialog)) {
+            this._newItemDialog = new NewItemDialog({ application: this.app });
             this._newItemDialog.render();
         }
         this._newItemDialog.displayWizard(data);
     }
 
-    handleRemoveFromDisk(data){
-        if(_.isNil(this._deleteItemWizard)){
-            this._deleteItemWizard = new DeleteItemDialog({application: this.app});
+    handleRemoveFromDisk(data) {
+        if (_.isNil(this._deleteItemWizard)) {
+            this._deleteItemWizard = new DeleteItemDialog({ application: this.app });
             this._deleteItemWizard.render();
         }
         this._deleteItemWizard.displayWizard(data);

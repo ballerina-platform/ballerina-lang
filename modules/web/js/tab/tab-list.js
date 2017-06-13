@@ -22,7 +22,7 @@ import Backbone from 'backbone';
 import Tab from './tab';
 import 'bootstrap';
 
-var TabList = Backbone.View.extend(
+const TabList = Backbone.View.extend(
     /** @lends TabList.prototype */
     {
         /**
@@ -30,14 +30,14 @@ var TabList = Backbone.View.extend(
          * @constructs
          * @class TabList represents a list of tabs.
          */
-        initialize: function (options) {
-            var errMsg;
+        initialize(options) {
+            let errMsg;
             // check whether a custom Tab type is set
             if (_.has(options, 'tabModel')) {
                 this.TabModel = _.get(options, 'tabModel');
                 // check whether the custom type is of type Tab
                 if (!(this.TabModel.prototype instanceof Tab)) {
-                    errMsg = 'custom tab model is not a sub type of Tab: ' + Tab;
+                    errMsg = `custom tab model is not a sub type of Tab: ${Tab}`;
                     log.error(errMsg);
                     throw errMsg;
                 }
@@ -51,10 +51,10 @@ var TabList = Backbone.View.extend(
                 log.error(errMsg);
                 throw errMsg;
             }
-            var container = $(_.get(options, 'container'));
+            const container = $(_.get(options, 'container'));
             // check whether container element exists in dom
             if (!container.length > 0) {
-                errMsg = 'unable to find container for tab list with selector: ' + _.get(options, 'container');
+                errMsg = `unable to find container for tab list with selector: ${_.get(options, 'container')}`;
                 log.error(errMsg);
                 throw errMsg;
             }
@@ -64,90 +64,90 @@ var TabList = Backbone.View.extend(
                 log.error(errMsg);
                 throw errMsg;
             }
-            var tabContainer = this._$parent_el.find(_.get(options, 'tabs.container'));
+            const tabContainer = this._$parent_el.find(_.get(options, 'tabs.container'));
             // check whether container element exists in dom
             if (!tabContainer.length > 0) {
-                errMsg = 'unable to find container for tab list with selector: ' + _.get(options, 'tabs.container');
+                errMsg = `unable to find container for tab list with selector: ${_.get(options, 'tabs.container')}`;
                 log.error(errMsg);
                 throw errMsg;
             }
             this._$tab_container = tabContainer;
             this.options = options;
         },
-        getBrowserStorage: function(){
+        getBrowserStorage() {
             return _.get(this, 'options.application.browserStorage');
         },
-        render: function () {
-            var tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
-            var tabList = $('<ul></ul>');
+        render() {
+            const tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
+            const tabList = $('<ul></ul>');
             tabHeaderContainer.append(tabList);
 
-            var tabListClass = _.get(this.options, 'headers.cssClass.list');
+            const tabListClass = _.get(this.options, 'headers.cssClass.list');
             tabList.addClass(tabListClass);
             this._$tabList = tabList;
             this.el = tabList.get();
 
-            if(_.has(this.options, 'toolPalette')){
+            if (_.has(this.options, 'toolPalette')) {
                 _.get(this.options, 'toolPalette').render();
             }
         },
 
-        hideTabComponents: function () {
-            var tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
+        hideTabComponents() {
+            const tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
             tabHeaderContainer.hide();
             // Hide the tool palette
             _.get(this.options, 'toolPalette').hideToolPalette();
         },
 
-        showTabComponents: function () {
-            var tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
+        showTabComponents() {
+            const tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
             tabHeaderContainer.show();
             // Show the tool palette
             _.get(this.options, 'toolPalette').showToolPalette();
         },
 
-        createHeaderForTab: function(tab){
-            var tabHeader = $('<li></li>');
+        createHeaderForTab(tab) {
+            const tabHeader = $('<li></li>');
             this._$tabList.append(tabHeader);
 
-            var tabHeaderClass = _.get(this.options, 'headers.cssClass.item');
+            const tabHeaderClass = _.get(this.options, 'headers.cssClass.item');
             tabHeader.addClass(tabHeaderClass);
 
-            var tabHeaderLink = $('<a></a>');
+            const tabHeaderLink = $('<a></a>');
             tabHeader.append(tabHeaderLink);
             tabHeader.link = tabHeaderLink;
-            tabHeaderLink.attr('href', '#' + tab.cid);
+            tabHeaderLink.attr('href', `#${tab.cid}`);
             tabHeaderLink.text(tab.getTitle());
 
-            tabHeader.setText = function(text){
+            tabHeader.setText = function (text) {
                 tabHeaderLink.text(text);
             };
 
-            var self = this;
-            tabHeaderLink.click(function(e){
+            const self = this;
+            tabHeaderLink.click((e) => {
                 tabHeaderLink.tab('show');
                 self.setActiveTab(tab);
                 e.preventDefault();
                 e.stopPropagation();
             });
 
-            var tabCloseBtn = $('<button type="button" >×</button>');
+            const tabCloseBtn = $('<button type="button" >×</button>');
             tabHeader.append(tabCloseBtn);
-            tabCloseBtn.addClass( _.get(this.options, 'tabs.tab.cssClass.tab_close_btn'));
-            tabCloseBtn.click(function(e){
+            tabCloseBtn.addClass(_.get(this.options, 'tabs.tab.cssClass.tab_close_btn'));
+            tabCloseBtn.click((e) => {
                 self.removeTab(tab);
                 e.preventDefault();
                 e.stopPropagation();
             });
 
-            tab.on('title-changed', function(title){
+            tab.on('title-changed', (title) => {
                 tabHeaderLink.text(title);
             });
 
             tab.setHeader(tabHeader);
         },
 
-        getTabContainer: function(){
+        getTabContainer() {
             return this._$tab_container;
         },
         /**
@@ -156,7 +156,7 @@ var TabList = Backbone.View.extend(
          * @param {Tab} tab an object of tab
          * @fires TabList#tab-added
          */
-        addTab: function (tab) {
+        addTab(tab) {
             tab.setParent(this);
             this.createHeaderForTab(tab);
             this._tabs.push(tab);
@@ -165,17 +165,17 @@ var TabList = Backbone.View.extend(
              * @event TabList#tab-added
              * @type {Tab}
              */
-            this.trigger("tab-added", tab);
+            this.trigger('tab-added', tab);
         },
         /**
          * gets tab
          * @param {string} tab id
          * @returns {*}
          */
-        getTab: function (tabId) {
+        getTab(tabId) {
             return _.find(this._tabs, ['id', tabId]);
         },
-        getTabList: function() {
+        getTabList() {
             return this._tabs;
         },
         /**
@@ -183,13 +183,13 @@ var TabList = Backbone.View.extend(
          * @param {Tab} tab the tab instance
          * @fires TabList#tab-removed
          */
-        removeTab: function (tab) {
+        removeTab(tab) {
             if (!_.includes(this._tabs, tab)) {
-                var errMsg = 'tab : ' + tab.id + 'is not part of this tab list.';
+                const errMsg = `tab : ${tab.id}is not part of this tab list.`;
                 log.error(errMsg);
                 throw errMsg;
             }
-            var tabIndex = _.findIndex(this._tabs, tab);
+            const tabIndex = _.findIndex(this._tabs, tab);
 
             _.remove(this._tabs, tab);
             tab.getHeader().remove();
@@ -199,22 +199,22 @@ var TabList = Backbone.View.extend(
              * @event TabList#tab-removed
              * @type {Tab}
              */
-            this.trigger("tab-removed", tab);
-            if(_.isEmpty(this._tabs)){
-                this.trigger("last-tab-removed", tab);
+            this.trigger('tab-removed', tab);
+            if (_.isEmpty(this._tabs)) {
+                this.trigger('last-tab-removed', tab);
             }
 
             // switch to tab at last or next index
             // make sure there are remaining tabs
-            if(this._tabs.length > 0 && !_.isEqual(tabIndex, -1)){
+            if (this._tabs.length > 0 && !_.isEqual(tabIndex, -1)) {
                 // if removing tab is 0th tab, next tab is also the 0th
-                var nextTabIndex = 0;
-                if(!_.isEqual(tabIndex, 0)){
+                let nextTabIndex = 0;
+                if (!_.isEqual(tabIndex, 0)) {
                     nextTabIndex = tabIndex - 1;
                 }
-                var nextTab = this._tabs[nextTabIndex];
+                const nextTab = this._tabs[nextTabIndex];
                 // if closed tab was the active tab, change active tab to next
-                if(_.isEqual(this.getActiveTab(), tab)){
+                if (_.isEqual(this.getActiveTab(), tab)) {
                     this.setActiveTab(nextTab);
                 }
             }
@@ -224,31 +224,31 @@ var TabList = Backbone.View.extend(
          * @param {Tab} tab the tab instance
          * @fires TabList#active-tab-changed
          */
-        setActiveTab: function (tab) {
+        setActiveTab(tab) {
             if (!_.isEqual(this.activeTab, tab)) {
-                if(!_.includes(this._tabs, tab)) {
-                    var errMsg = 'tab : ' + tab.cid + 'is not part of this tab list.';
+                if (!_.includes(this._tabs, tab)) {
+                    const errMsg = `tab : ${tab.cid}is not part of this tab list.`;
                     log.error(errMsg);
                     throw errMsg;
                 }
-                var lastActiveTab = this.activeTab;
+                const lastActiveTab = this.activeTab;
                 this.activeTab = tab;
-                var activeTabHeaderClass = _.get(this.options, 'headers.cssClass.active');
+                const activeTabHeaderClass = _.get(this.options, 'headers.cssClass.active');
 
-                if(!_.isUndefined(lastActiveTab)){
+                if (!_.isUndefined(lastActiveTab)) {
                     lastActiveTab.getHeader().removeClass(activeTabHeaderClass);
                     lastActiveTab.setActive(false);
                 }
                 this.activeTab.getHeader().addClass(activeTabHeaderClass);
                 this.activeTab.setActive(true);
-                if (typeof this.activeTab.reRender === "function") {
+                if (typeof this.activeTab.reRender === 'function') {
                     tab.reRender();
-                }                
+                }
 
-                var storage = this.getBrowserStorage();
+                const storage = this.getBrowserStorage();
                 storage.put('activeTab', tab.cid);
 
-                //this.activeTab.getHeader().tab('show');
+                // this.activeTab.getHeader().tab('show');
                 /**
                  * Active tab changed event.
                  * @event TabList#active-tab-changed
@@ -256,15 +256,15 @@ var TabList = Backbone.View.extend(
                  * @property {Tab} lastActiveTab - last active tab.
                  * @property {Tab} newActiveTab - new active tab.
                  */
-                var evt = {lastActiveTab: lastActiveTab, newActiveTab: tab};
-                this.trigger("active-tab-changed", evt);
+                const evt = { lastActiveTab, newActiveTab: tab };
+                this.trigger('active-tab-changed', evt);
             }
         },
         /**
          * active tab
          * @returns {Tab}
          */
-        getActiveTab: function () {
+        getActiveTab() {
             return this.activeTab;
         },
         /**
@@ -276,17 +276,17 @@ var TabList = Backbone.View.extend(
          * @event TabList#tab-added
          * @fires TabList#active-tab-changed
          */
-        newTab: function (opts) {
-            var tabOptions = _.get(opts, 'tabOptions') || {};
+        newTab(opts) {
+            const tabOptions = _.get(opts, 'tabOptions') || {};
             _.set(tabOptions, 'application', this.options.application);
             // merge view options from app config
             _.assign(tabOptions, _.get(this.options, 'tabs.tab'));
-            _.set(tabOptions, 'tabs_container',_.get(this.options, 'tabs.container'));
+            _.set(tabOptions, 'tabs_container', _.get(this.options, 'tabs.container'));
             _.set(tabOptions, 'parent', this);
-            var newTab;
+            let newTab;
             // user provided a custom tab type
             if (_.has(opts, 'tabModel')) {
-                var TabModel = _.get(opts, 'tabModel');
+                const TabModel = _.get(opts, 'tabModel');
                 newTab = new TabModel(tabOptions);
             } else {
                 newTab = new this.TabModel(tabOptions);
@@ -305,9 +305,9 @@ var TabList = Backbone.View.extend(
             return newTab;
         },
 
-        forEach: function(callback){
+        forEach(callback) {
             this._tabs.forEach(callback);
-        }
+        },
     });
 
 export default TabList;

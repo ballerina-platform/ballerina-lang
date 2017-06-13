@@ -26,7 +26,7 @@ import _ from 'lodash';
 
 /**
  * React component for the annotation container.
- * 
+ *
  * @class AnnotationContainer
  * @extends {React.Component}
  */
@@ -56,7 +56,7 @@ class AnnotationContainer extends React.Component {
         this.onAnnotationIdentifierSuggestionsClearRequested = this.onAnnotationIdentifierSuggestionsClearRequested.bind(this);
         this.onAnnotationIdentifierSelected = this.onAnnotationIdentifierSelected.bind(this);
 
-        this.storeCurrentInputReference = autosuggest => {
+        this.storeCurrentInputReference = (autosuggest) => {
             if (autosuggest !== null) {
                 this.currentInput = autosuggest.input;
             }
@@ -65,9 +65,9 @@ class AnnotationContainer extends React.Component {
 
     /**
      * Rendering the annotation editor view.
-     * 
+     *
      * @returns annotation editor view jsx
-     * 
+     *
      * @memberof AnnotationContainer
      */
     render() {
@@ -110,7 +110,7 @@ class AnnotationContainer extends React.Component {
                         inputProps={inputProps} />
                 </div>
             </div>;
-        } else {
+        } 
             // Input properties for the package name
             const inputProps = {
                 placeholder: 'Add Annotation',
@@ -134,18 +134,18 @@ class AnnotationContainer extends React.Component {
                         inputProps={inputProps} />
                 </div>
             </div>;
-        }
+        
     }
 
     /**
      * Gets the supported annotation depending on the type of node
-     * 
+     *
      * @returns Supported annotations.
-     * 
+     *
      * @memberof AnnotationContainer
      */
     getSupportedAnnotation() {
-        let supportedAnnotations = [];
+        const supportedAnnotations = [];
         let attachmentType = '';
         if (ASTFactory.isServiceDefinition(this.props.model.parentNode)) {
             attachmentType = 'service';
@@ -161,16 +161,16 @@ class AnnotationContainer extends React.Component {
             attachmentType = 'annotation';
         } else if (ASTFactory.isStructDefinition(this.props.model.parentNode)) {
             attachmentType = 'struct';
-        } 
+        }
         // TODO : Add the rest of the attatchment points.
 
-        for (let packageDefintion of BallerinaEnvironment.getPackages()) {
-            for (let annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
+        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+            for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                 if (_.includes(annotationDefinition.getAttachmentPoints(), attachmentType)) {
                     // Filtering by ignoring already added annotations.
-                    let parentNodeAnnotations = this.props.model.parentNode.getChildrenOfType(ASTFactory.isAnnotation);
+                    const parentNodeAnnotations = this.props.model.parentNode.getChildrenOfType(ASTFactory.isAnnotation);
                     let annotationAlreadyExists = false;
-                    for (let annotation of parentNodeAnnotations) {
+                    for (const annotation of parentNodeAnnotations) {
                         if (annotation.getFullPackageName() === packageDefintion.getName() &&
                             annotation.getIdentifier() === annotationDefinition.getName()) {
                             annotationAlreadyExists = true;
@@ -190,53 +190,49 @@ class AnnotationContainer extends React.Component {
 
     /**
      * Gets the list of package names for suggestions
-     * 
+     *
      * @returns Package names
-     * 
+     *
      * @memberof AnnotationContainer
      */
     getPackageNameSuggestions(supportedAnnotations) {
-        let tempPackageNameSuggestions = supportedAnnotations.map((supportedAnnotation) => {
-            return {
+        const tempPackageNameSuggestions = supportedAnnotations.map((supportedAnnotation) => ({
                 name: supportedAnnotation.packageName
-            };
-        });
+            }));
 
-        return tempPackageNameSuggestions.filter((obj, pos, arr) => {
-            return arr.map(mapObj => mapObj['name']).indexOf(obj['name']) === pos;
-        });
+        return tempPackageNameSuggestions.filter((obj, pos, arr) => arr.map(mapObj => mapObj['name']).indexOf(obj['name']) === pos);
     }
 
-    //// Start of package name autosuggest dropdown funcs.
+    // // Start of package name autosuggest dropdown funcs.
 
     onAnnotationPackageNameChange(event, { newValue }) {
         this.setState({
             selectedPackageNameValue: newValue,
-            hasPackageNameSelected: false
+            hasPackageNameSelected: false,
         });
     }
 
     onAnnotationPackageNameBlur() {
         this.setState({
-            hasPackageNameSelected: false
+            hasPackageNameSelected: false,
         });
     }
 
     onAnnotationPackageNameSuggestionsFetchRequested({ value }) {
         this.setState({
-            shownPackageNameSuggestions: this.getAnnotationPackageNameSuggestions(value)
+            shownPackageNameSuggestions: this.getAnnotationPackageNameSuggestions(value),
         });
     }
 
     onAnnotationPackageNameSuggestionsClearRequested() {
         this.setState({
-            shownPackageNameSuggestions: []
+            shownPackageNameSuggestions: [],
         });
     }
 
     onAnnotationPackageNameSelected() {
         this.setState({
-            hasPackageNameSelected: true
+            hasPackageNameSelected: true,
         });
     }
 
@@ -248,9 +244,9 @@ class AnnotationContainer extends React.Component {
     getAnnotationPackageNameSuggestions(value) {
         const escapedValue = this.escapeRegexCharacters(value.trim());
 
-        const regex = new RegExp('^' + escapedValue, 'i');
-        let supportedAnnotations = this.getSupportedAnnotation();
-        let packageNameSuggestions = this.getPackageNameSuggestions(supportedAnnotations);
+        const regex = new RegExp(`^${  escapedValue}`, 'i');
+        const supportedAnnotations = this.getSupportedAnnotation();
+        const packageNameSuggestions = this.getPackageNameSuggestions(supportedAnnotations);
 
         return packageNameSuggestions.filter(packageName => regex.test(packageName.name));
     }
@@ -261,17 +257,17 @@ class AnnotationContainer extends React.Component {
 
     renderAnnotationPackageNameSuggestion(suggestion) {
         return (
-            <span>{suggestion.name}</span>
+          <span>{suggestion.name}</span>
         );
     }
 
-    //// End of package name autosuggest dropdown funcs.
+    // // End of package name autosuggest dropdown funcs.
 
-    //// Start of identifier autosuggest dropdown funcs.
+    // // Start of identifier autosuggest dropdown funcs.
 
     onAnnotationIdentifierChange(event, { newValue }) {
         this.setState({
-            selectedIdentifierValue: newValue
+            selectedIdentifierValue: newValue,
         });
     }
 
@@ -279,7 +275,7 @@ class AnnotationContainer extends React.Component {
         if (e.keyCode === 8 && this.state.selectedIdentifierValue === '') {
             this.setState({
                 hasPackageNameSelected: false,
-                selectedIdentifierValue: ''
+                selectedIdentifierValue: '',
             });
             e.preventDefault();
         }
@@ -287,23 +283,23 @@ class AnnotationContainer extends React.Component {
 
     onAnnotationIdentifierSuggestionsFetchRequested({ value }) {
         this.setState({
-            shownIdentifierSuggestions: this.getAnnotationIdentifierSuggestions(value)
+            shownIdentifierSuggestions: this.getAnnotationIdentifierSuggestions(value),
         });
     }
 
     onAnnotationIdentifierSuggestionsClearRequested() {
         this.setState({
-            shownIdentifierSuggestions: []
+            shownIdentifierSuggestions: [],
         });
     }
 
     onAnnotationIdentifierSelected(event, { suggestionValue }) {
         // Add annotation to the node(serviceDefinition, resourceDefinition, etc)
         // http://jsbin.com/orokep/edit?html,css,js,output
-        var match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue),
+        let match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue),
             packagePrefix = match && match[1];
 
-        let newAnnotation = ASTFactory.createAnnotation({
+        const newAnnotation = ASTFactory.createAnnotation({
             fullPackageName: this.state.selectedPackageNameValue,
             packageName: packagePrefix,
             identifier: suggestionValue,
@@ -312,8 +308,8 @@ class AnnotationContainer extends React.Component {
         this.props.model.parentNode.addChild(newAnnotation);
 
         // Add import if not imported to AST-Root.
-        let importToBeAdded = ASTFactory.createImportDeclaration({
-            packageName: this.state.selectedPackageNameValue
+        const importToBeAdded = ASTFactory.createImportDeclaration({
+            packageName: this.state.selectedPackageNameValue,
         });
         this.context.renderingContext.ballerinaFileEditor.getModel().addImport(importToBeAdded);
 
@@ -321,25 +317,23 @@ class AnnotationContainer extends React.Component {
         this.setState({
             selectedPackageNameValue: '',
             hasPackageNameSelected: false,
-            selectedIdentifierValue: ''
+            selectedIdentifierValue: '',
         });
     }
 
     getAnnotationIdentifierSuggestions(value) {
         const escapedValue = this.escapeRegexCharacters(value.trim());
-        const regex = new RegExp('^' + escapedValue, 'i');
+        const regex = new RegExp(`^${  escapedValue}`, 'i');
 
         // Get the list of annotations that belongs to the selected package. this.supportedAnnotations is already filtered by attatchment points.
-        let selectedAnnotations = this.getSupportedAnnotation().filter(
-            annotationObj => annotationObj.packageName === this.state.selectedPackageNameValue
+        const selectedAnnotations = this.getSupportedAnnotation().filter(
+            annotationObj => annotationObj.packageName === this.state.selectedPackageNameValue,
         );
 
         // Get an object array of the supported annotations with the name/identifier of an annotation.
-        let annotationNames = selectedAnnotations.map(supportedAnnotation => {
-            return {
+        const annotationNames = selectedAnnotations.map((supportedAnnotation) => ({
                 name: supportedAnnotation.annotationDefinition.getName()
-            };
-        });
+            }));
 
         // Filtering the annotations with the typed in value.
         return annotationNames.filter(annotationName => regex.test(annotationName.name));
@@ -351,11 +345,11 @@ class AnnotationContainer extends React.Component {
 
     renderAnnotationIdentifierSuggestion(suggestion) {
         return (
-            <span>{suggestion.name}</span>
+          <span>{suggestion.name}</span>
         );
     }
 
-    //// End of package name autosuggest dropdown funcs.
+    // // End of package name autosuggest dropdown funcs.
 
     componentDidUpdate() {
         this.currentInput && this.currentInput.focus();
@@ -364,7 +358,7 @@ class AnnotationContainer extends React.Component {
 
 AnnotationContainer.contextTypes = {
     // Used for accessing ast-root to add imports
-    renderingContext: PropTypes.instanceOf(Object).isRequired
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationContainer;

@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class ResourceDefinitionPositionCalcVisitor {
 
@@ -55,7 +55,7 @@ class ResourceDefinitionPositionCalcVisitor {
      * @memberof ResourceDefinitionPositionCalcVisitor
      */
     createPositioningForParameter(parameter, x, y) {
-        let viewState = parameter.getViewState();
+        const viewState = parameter.getViewState();
         // Positioning the parameter
         viewState.bBox.x = x;
         viewState.bBox.y = y;

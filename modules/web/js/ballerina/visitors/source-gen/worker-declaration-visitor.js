@@ -34,8 +34,8 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitWorkerDeclaration(workerDeclaration) {
-        var constructedSourceSegment =  this.getIndentation() + 'worker '
-                  + workerDeclaration.getWorkerDeclarationStatement() + ' {\n';
+        const constructedSourceSegment = `${this.getIndentation()}worker ${
+                   workerDeclaration.getWorkerDeclarationStatement()} {\n`;
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
@@ -45,18 +45,18 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
 
     endVisitWorkerDeclaration(workerDeclaration) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}\n");
+        this.appendSource(`${this.getIndentation()}}\n`);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
     visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
     visitVariableDeclaration(variableDeclaration) {
-        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
     }
 }

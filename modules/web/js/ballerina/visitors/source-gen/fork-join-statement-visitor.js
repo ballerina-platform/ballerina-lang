@@ -56,8 +56,8 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
                 this.appendSource('}\n');
                 this.closed = true;
             }
-            let statementVisitorFactory = new StatementVisitorFactory();
-            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }

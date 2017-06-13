@@ -15,39 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
-import StatementDecorator from "./statement-decorator";
+import React from 'react';
+import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 
 class FunctionInvocationStatement extends React.Component {
 
-	constructor(props){
-		super(props);
-		this.editorOptions = {
+    constructor(props) {
+        super(props);
+        this.editorOptions = {
             propertyType: 'text',
             key: 'Function',
             model: props.model,
             getterMethod: props.model.getStatementString,
-            setterMethod: props.model.setStatementFromString
+            setterMethod: props.model.setStatementFromString,
         };
-	}
+    }
 
-	render() {
-		let model = this.props.model,
+    render() {
+        let model = this.props.model,
 		    expression = model.viewState.expression;
-		return (<StatementDecorator viewState={model.viewState} expression={expression}
-					editorOptions={this.editorOptions} model={model} />);
+        return (<StatementDecorator
+          viewState={model.viewState} expression={expression}
+          editorOptions={this.editorOptions} model={model}
+        />);
     }
 }
 
 FunctionInvocationStatement.propTypes = {
-	bBox: PropTypes.shape({
-		x: PropTypes.number.isRequired,
-		y: PropTypes.number.isRequired,
-		w: PropTypes.number.isRequired,
-		h: PropTypes.number.isRequired,
-	})
-}
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }),
+};
 
 
 export default FunctionInvocationStatement;

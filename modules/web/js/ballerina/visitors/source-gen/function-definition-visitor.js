@@ -43,31 +43,31 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        let useDefaultWS = functionDefinition.whiteSpace.useDefault;
+        const useDefaultWS = functionDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
         }
-        let functionReturnTypes = functionDefinition.getReturnTypesAsString();
+        const functionReturnTypes = functionDefinition.getReturnTypesAsString();
         let functionReturnTypesSource;
         if (!_.isEmpty(functionReturnTypes)) {
-            functionReturnTypesSource = '(' + functionDefinition.getWSRegion(5) + functionDefinition.getReturnTypesAsString() + ')';
+            functionReturnTypesSource = `(${functionDefinition.getWSRegion(5)}${functionDefinition.getReturnTypesAsString()})`;
         }
 
         let constructedSourceSegment = '';
-        _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation), annotationNode => {
+        _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation), (annotationNode) => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
                   + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
-        constructedSourceSegment += ((functionDefinition.isNative() ? 'native' + functionDefinition.getWSRegion(0) : ''));
-        constructedSourceSegment += 'function' + functionDefinition.getWSRegion(1)
-            + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2) + '(' + functionDefinition.getWSRegion(3)
-            + functionDefinition.getArgumentsAsString() + ')';
+        constructedSourceSegment += ((functionDefinition.isNative() ? `native${functionDefinition.getWSRegion(0)}` : ''));
+        constructedSourceSegment += `function${functionDefinition.getWSRegion(1)
+             }${functionDefinition.getFunctionName()}${functionDefinition.getWSRegion(2)}(${functionDefinition.getWSRegion(3)
+             }${functionDefinition.getArgumentsAsString()})`;
         constructedSourceSegment += (!_.isNil(functionReturnTypesSource)
             ? (functionDefinition.getWSRegion(4) + functionReturnTypesSource) : '');
-        constructedSourceSegment +=  functionDefinition.getWSRegion(6) +
+        constructedSourceSegment += functionDefinition.getWSRegion(6) +
             (functionDefinition.isNative() ? '' : '{') + functionDefinition.getWSRegion(7);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
@@ -89,8 +89,8 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
@@ -99,23 +99,23 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
      * @param {Object} statement - comment statement
      */
     visitCommentStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
     visitConnectorDeclaration(connectorDeclaration) {
-        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 
     visitVariableDeclaration(variableDeclaration) {
-        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
     }
 
     visitWorkerDeclaration(workerDeclaration) {
-        var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
+        const workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
         workerDeclaration.accept(workerDeclarationVisitor);
     }
 }

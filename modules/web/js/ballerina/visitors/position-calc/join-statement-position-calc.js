@@ -17,8 +17,8 @@
  */
 
 import log from 'log';
-import {blockStatement} from '../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { blockStatement } from '../../configs/designer-defaults';
+import { util } from './../sizing-utils';
 
 class JoinStatementPositionCalcVisitor {
 
@@ -29,8 +29,8 @@ class JoinStatementPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('visit JoinStatementPositionCalcVisitor');
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
         const parent = node.getParent();
         const parentViewState = parent.getViewState();
         const forkBBox = parentViewState.components.body;
@@ -40,7 +40,7 @@ class JoinStatementPositionCalcVisitor {
         components.statementContainer.x = bBox.x;
         components.statementContainer.y = bBox.y + blockStatement.heading.height;
 
-        let title_w = blockStatement.heading.width;
+        const title_w = blockStatement.heading.width;
         const typeWidth = util.getTextWidth(node.getJoinConditionString(), 3);
         components.param.x = bBox.x + title_w + blockStatement.heading.paramSeparatorOffsetX + typeWidth.w;
         components.param.y = bBox.y;

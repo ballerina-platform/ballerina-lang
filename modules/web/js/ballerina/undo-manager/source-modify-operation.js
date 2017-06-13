@@ -31,19 +31,19 @@ class SourceModifyOperation extends UndoableOperation {
     }
 
     undo() {
-        if(this.canUndo()){
+        if (this.canUndo()) {
             this.getEditor().getSourceView().undo();
         }
     }
 
     redo() {
-        if(this.canRedo()){
+        if (this.canRedo()) {
             this.getEditor().getSourceView().redo();
         }
     }
 
     canUndo() {
-        return  this.getEditor().isInSourceView();
+        return this.getEditor().isInSourceView();
     }
 
     canRedo() {

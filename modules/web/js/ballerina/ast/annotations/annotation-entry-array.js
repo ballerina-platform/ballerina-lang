@@ -33,8 +33,8 @@ class AnnotationEntryArray extends ASTNode {
      */
     toString() {
         let stringVal = '[';
-        let annotationEntries = [];
-        _.forEach(this.getChildren(), function(annotationEntry){
+        const annotationEntries = [];
+        _.forEach(this.getChildren(), (annotationEntry) => {
             annotationEntries.push(annotationEntry.toString());
         });
         stringVal += _.join(annotationEntries, ',');
@@ -46,8 +46,8 @@ class AnnotationEntryArray extends ASTNode {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        _.each(jsonNode.children, childNode => {
-            let child = this.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = this.getFactory().createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

@@ -46,7 +46,7 @@ class ImportDeclarationDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
+        const viewState = node.getViewState();
         viewState.bBox.h = 0;
         viewState.bBox.w = 0;
     }

@@ -29,8 +29,8 @@ import UndoableOperation from './undoable-operation';
 class ASTManipulationOperation extends UndoableOperation {
     constructor(args) {
         super(args);
-        if(!_.has(args, 'origin')){
-            log.error('Origin node is not provided. Event: ' +  JSON.stringify(args));
+        if (!_.has(args, 'origin')) {
+            log.error(`Origin node is not provided. Event: ${JSON.stringify(args)}`);
         }
         this._originNode = _.get(args, 'origin');
         this._data = _.get(args, 'data');

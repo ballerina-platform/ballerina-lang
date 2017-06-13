@@ -21,8 +21,8 @@ import LifeLineDecorator from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import ParameterDefinition from './parameter-definition';
-import {getComponentForNodeArray} from './utils';
-import {lifeLine} from './../configs/designer-defaults';
+import { getComponentForNodeArray } from './utils';
+import { lifeLine } from './../configs/designer-defaults';
 
 class ResourceDefinition extends React.Component {
 
@@ -31,42 +31,44 @@ class ResourceDefinition extends React.Component {
         const name = this.props.model.getResourceName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
-        //lets calculate function worker lifeline bounding box.
-        let resource_worker_bBox = {};
+        // lets calculate function worker lifeline bounding box.
+        const resource_worker_bBox = {};
         resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
         resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
         resource_worker_bBox.w = lifeLine.width;
         resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
-        let classes = {
-            lineClass: "default-worker-life-line",
-            polygonClass: "default-worker-life-line-polygon"
+        const classes = {
+            lineClass: 'default-worker-life-line',
+            polygonClass: 'default-worker-life-line-polygon',
         };
 
 
-        let children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren());
 
-        let titleComponentData = [{
+        const titleComponentData = [{
             isNode: true,
-            model: this.props.model.getArgumentParameterDefinitionHolder()
+            model: this.props.model.getArgumentParameterDefinitionHolder(),
         }];
 
-        return (<PanelDecorator icon="tool-icons/resource" title={name} bBox={bBox}
-                                model={this.props.model}
-                                dropTarget={this.props.model}
-                                dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
-                                titleComponentData={titleComponentData}>
-            <g>
-                <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes}/>
-                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
-                    {children}
-                </StatementContainer>
-            </g>
+        return (<PanelDecorator
+          icon="tool-icons/resource" title={name} bBox={bBox}
+          model={this.props.model}
+          dropTarget={this.props.model}
+          dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+          titleComponentData={titleComponentData}
+        >
+          <g>
+            <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes} />
+            <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
+              {children}
+            </StatementContainer>
+          </g>
         </PanelDecorator>);
     }
 
     canDropToPanelBody(nodeBeingDragged) {
-        let nodeFactory = this.props.model.getFactory();
+        const nodeFactory = this.props.model.getFactory();
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for worker and connector declarations only.
         // Statements should only be allowed on top of resource worker's dropzone.

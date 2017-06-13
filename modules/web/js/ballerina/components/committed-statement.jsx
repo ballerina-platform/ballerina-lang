@@ -18,7 +18,7 @@
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 class CommittedStatement extends React.Component {
     constructor(props) {
@@ -26,14 +26,16 @@ class CommittedStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model;
-        let bBox = model.viewState.bBox;
-        let titleWidth = model.viewState.titleWidth;
-        let children = getComponentForNodeArray(model.getChildren());
-        return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-                                         title={"Committed"}>
-            {children}
-        </BlockStatementDecorator>)
+        const model = this.props.model;
+        const bBox = model.viewState.bBox;
+        const titleWidth = model.viewState.titleWidth;
+        const children = getComponentForNodeArray(model.getChildren());
+        return (<BlockStatementDecorator
+          dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+          title={'Committed'}
+        >
+          {children}
+        </BlockStatementDecorator>);
     }
 }
 
@@ -42,8 +44,8 @@ CommittedStatement.propTypes = {
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired
-    })
+        h: PropTypes.number.isRequired,
+    }),
 };
 
 export default CommittedStatement;

@@ -20,7 +20,7 @@ import EventChannel from 'event_channel';
 import BallerinaEnvFactory from './ballerina-env-factory';
 import EnvironmentContent from 'environment_content';
 
-var instance;
+let instance;
 
 /**
  * @class BallerinaEnvironment
@@ -54,9 +54,7 @@ class BallerinaEnvironment extends EventChannel {
      * @return {Package}
      */
     findPackage(packageName) {
-        return _.find(this._packages, function (packageInstance) {
-            return _.isEqual(packageInstance.getName(), packageName);
-        });
+        return _.find(this._packages, packageInstance => _.isEqual(packageInstance.getName(), packageName));
     }
 
     /**
@@ -66,7 +64,7 @@ class BallerinaEnvironment extends EventChannel {
      */
     addPackage(packageInstance) {
         if (!(packageInstance instanceof Package)) {
-            let err = packageInstance + " is not an instance of Package.";
+            const err = `${packageInstance} is not an instance of Package.`;
             log.error(err);
             throw err;
         }
@@ -74,7 +72,7 @@ class BallerinaEnvironment extends EventChannel {
         /**
          * @Event BallerinaEnvironment#new-package-added
          */
-        this.trigger("new-package-added", packageInstance);
+        this.trigger('new-package-added', packageInstance);
     }
 
     /**
@@ -104,12 +102,11 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize packages from BALLERINA_HOME and/or Ballerina Repo
      */
     initializePackages(app) {
+        const self = this;
+        const packagesJson = EnvironmentContent.getPackages(app);
 
-        let self = this;
-        let packagesJson = EnvironmentContent.getPackages(app);
-
-        _.each(packagesJson, function (packageNode) {
-            let pckg = BallerinaEnvFactory.createPackage();
+        _.each(packagesJson, (packageNode) => {
+            const pckg = BallerinaEnvFactory.createPackage();
             pckg.initFromJson(packageNode);
             self._packages.push(pckg);
         });
@@ -119,8 +116,8 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize builtin types from Ballerina Program
      */
     initializeBuiltinTypes(builtinTypes) {
-        let self = this;
-        _.each(builtinTypes, function (builtinType) {
+        const self = this;
+        _.each(builtinTypes, (builtinType) => {
             if (!_.isNil(builtinType)) {
                 self._types.push(builtinType.name);
             }
@@ -134,7 +131,7 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize annotation attachment points for Ballerina Program
      * */
     initializeAnnotationAttachmentPoints(app) {
-        let self = this;
+        const self = this;
         self._annotationAttachmentTypes = _.sortBy(['service', 'resource', 'connector', 'action', 'function',
             'typemapper', 'struct', 'const', 'parameter', 'annotation'], [function (type) {
                 return type;
@@ -142,12 +139,10 @@ class BallerinaEnvironment extends EventChannel {
     }
 
     searchPackage(query, exclude) {
-        let search_text = query;
-        let exclude_packages = exclude;
-        return _.filter(this._packages, function (pckg) {
-            let existing = _.filter(exclude_packages, function (ex) {
-                return pckg.getName() === ex;
-            });
+        const search_text = query;
+        const exclude_packages = exclude;
+        return _.filter(this._packages, (pckg) => {
+            const existing = _.filter(exclude_packages, ex => pckg.getName() === ex);
             return (existing.length === 0) && new RegExp(query.toUpperCase()).test(pckg.getName().toUpperCase());
         });
     }

@@ -28,8 +28,8 @@ import ASTManipulationOperation from './ast-manipulation-operation';
 class ASTNodeModifyOperation extends ASTManipulationOperation {
     constructor(args) {
         super(args);
-        if(_.isNil(this.getTitle())){
-            this.setTitle('Modify ' + this._data.child.getType());
+        if (_.isNil(this.getTitle())) {
+            this.setTitle(`Modify ${this._data.child.getType()}`);
         }
         this._clonedOriginNode = _.cloneDeep(this._originNode);
         this._parentOfOriginNode = this._originNode.getParent();
@@ -37,7 +37,7 @@ class ASTNodeModifyOperation extends ASTManipulationOperation {
     }
 
     redo() {
-        if(this.canRedo()) {
+        if (this.canRedo()) {
             this._parentOfOriginNode.addChild(this._clonedOriginNode, this._originNodeIndex, true);
             this.getEditor().trigger('content-modified');
             this.getEditor().trigger('update-diagram');
@@ -45,8 +45,8 @@ class ASTNodeModifyOperation extends ASTManipulationOperation {
     }
 
     undo() {
-        if(this.canUndo()) {
-            this._originNode.remove({ignoreTreeModifiedEvent: true});
+        if (this.canUndo()) {
+            this._originNode.remove({ ignoreTreeModifiedEvent: true });
             this.getEditor().trigger('content-modified');
             this.getEditor().trigger('update-diagram');
         }

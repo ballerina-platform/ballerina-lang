@@ -30,7 +30,7 @@ class ActionInvocationStatement extends Statement {
         super('ActionInvocationStatement');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
-            1: '\n'
+            1: '\n',
         };
     }
 
@@ -40,9 +40,9 @@ class ActionInvocationStatement extends Statement {
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
@@ -65,7 +65,7 @@ class ActionInvocationStatement extends Statement {
      * @param {function} callback
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const fragment = FragmentUtils.createStatementFragment(`${stmtString};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
@@ -74,23 +74,23 @@ class ActionInvocationStatement extends Statement {
                 this.initFromJson(parsedJson);
             } else if (_.has(parsedJson, 'type')) {
                 // user may want to change the statement type
-                let newNode = this.getFactory().createFromJson(parsedJson);
+                const newNode = this.getFactory().createFromJson(parsedJson);
                 if (this.getFactory().isStatement(newNode)) {
                     // somebody changed the type of statement to an assignment
                     // to capture retun value of function Invocation
-                    let parent = this.getParent();
-                    let index = parent.getIndexOfChild(this);
+                    const parent = this.getParent();
+                    const index = parent.getIndexOfChild(this);
                     parent.removeChild(this, true);
                     parent.addChild(newNode, index, true, true);
                     newNode.initFromJson(parsedJson);
                     nodeToFireEvent = newNode;
                 }
             } else {
-                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+                log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
             }
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
             nodeToFireEvent.accept(new EnableDefaultWSVisitor());
             // Manually firing the tree-modified event here.
@@ -102,9 +102,9 @@ class ActionInvocationStatement extends Statement {
                 context: nodeToFireEvent,
             });
         } else {
-            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
             if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }

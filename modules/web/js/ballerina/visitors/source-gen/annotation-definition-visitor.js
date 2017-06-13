@@ -30,41 +30,41 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitAnnotationDefinition(annotationDefinition) {
-        let useDefaultWS = annotationDefinition.whiteSpace.useDefault;
+        const useDefaultWS = annotationDefinition.whiteSpace.useDefault;
 
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
         }
         let constructedSourceSegment = '';
-        _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation), annotationNode => {
+        _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation), (annotationNode) => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
                   + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
 
-        constructedSourceSegment += 'annotation' + annotationDefinition.getWSRegion(0)
-            + annotationDefinition.getAnnotationName() + annotationDefinition.getWSRegion(1);
+        constructedSourceSegment += `annotation${annotationDefinition.getWSRegion(0)
+             }${annotationDefinition.getAnnotationName()}${annotationDefinition.getWSRegion(1)}`;
         if (annotationDefinition.getAttachmentPoints().length > 0) {
             constructedSourceSegment += 'attach';
             annotationDefinition.getAttachmentPoints().forEach((attachmentPoint, index) => {
-                constructedSourceSegment += annotationDefinition.getChildWSRegion('attachmentPoints.children.' + attachmentPoint, 0)
+                constructedSourceSegment += annotationDefinition.getChildWSRegion(`attachmentPoints.children.${attachmentPoint}`, 0)
                     + attachmentPoint
-                    + annotationDefinition.getChildWSRegion('attachmentPoints.children.' + attachmentPoint, 1);
-                if (index  + 1 < annotationDefinition.getAttachmentPoints().length) {
+                    + annotationDefinition.getChildWSRegion(`attachmentPoints.children.${attachmentPoint}`, 1);
+                if (index + 1 < annotationDefinition.getAttachmentPoints().length) {
                     constructedSourceSegment += ',';
                 }
             });
         }
-        constructedSourceSegment += '{' + annotationDefinition.getWSRegion(3);
+        constructedSourceSegment += `{${annotationDefinition.getWSRegion(3)}`;
         if (useDefaultWS) {
             constructedSourceSegment += this.getIndentation();
         }
         this.indent();
-        let self = this;
-        _.each(annotationDefinition.getAnnotationAttributeDefinitions(), function (attrDefinition) {
-            let currentPrecedingIndentation = SourceGenUtil.getTailingIndentation(constructedSourceSegment);
+        const self = this;
+        _.each(annotationDefinition.getAnnotationAttributeDefinitions(), (attrDefinition) => {
+            const currentPrecedingIndentation = SourceGenUtil.getTailingIndentation(constructedSourceSegment);
             if (attrDefinition.whiteSpace.useDefault) {
                 constructedSourceSegment = SourceGenUtil.replaceTailingIndentation(constructedSourceSegment, self.getIndentation());
             }
@@ -84,7 +84,7 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitAnnotationDefinition(annotationDefinition) {
         this.outdent();
-        this.appendSource('}' + annotationDefinition.getWSRegion(4));
+        this.appendSource(`}${annotationDefinition.getWSRegion(4)}`);
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Annotation Definition');
     }

@@ -19,7 +19,7 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 
 class StatementDimensionCalculatorVisitor {
@@ -35,9 +35,9 @@ class StatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
+        const viewState = node.getViewState();
         viewState.bBox.w = DesignerDefaults.statement.width;
-        viewState.bBox.h = DesignerDefaults.statement.height;     
+        viewState.bBox.h = DesignerDefaults.statement.height;
     }
 }
 

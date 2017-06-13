@@ -24,12 +24,11 @@ class FindBreakpointLinesVisitor extends ASTVisitor {
         super();
         this._breakpoints = [];
     }
-    getBreakpoints(){
+    getBreakpoints() {
         return _.sortedUniq(this._breakpoints);
     }
     beginVisit(node) {
-
-        if(node.isBreakpoint) {
+        if (node.isBreakpoint) {
             const lineNumber = node.getLineNumber();
             this._breakpoints.push(lineNumber);
         }

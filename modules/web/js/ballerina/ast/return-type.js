@@ -22,9 +22,9 @@ import Argument from './argument';
 class ReturnType extends Argument {
     constructor(args) {
         super(args);
-        this.annotationType = _.get(args, "annotationType");
-        this.annotationText = _.get(args, "annotationText");
-        this.type = "ReturnType";
+        this.annotationType = _.get(args, 'annotationType');
+        this.annotationText = _.get(args, 'annotationText');
+        this.type = 'ReturnType';
     }
 
     /**
@@ -39,11 +39,11 @@ class ReturnType extends Argument {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        var self = this;
-        var BallerinaASTFactory = this.getFactory();
+        const self = this;
+        const BallerinaASTFactory = this.getFactory();
 
-        _.each(jsonNode.children, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

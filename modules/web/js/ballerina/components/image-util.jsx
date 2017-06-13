@@ -18,9 +18,9 @@
 
 // require all react images
 function requireAll(requireContext) {
-    let components = {};
+    const components = {};
     requireContext.keys().map((item) => {
-        var module = requireContext(item);
+        const module = requireContext(item);
         if (module) {
             components[_getBasename(item, '.svg')] = module;
         }
@@ -35,7 +35,7 @@ function _getBasename(filename, ext) {
 const images = requireAll(require.context('images', true, /\.svg$/));
 
 class ImageUtils {
-    static getSVGIconString (iconName) {
+    static getSVGIconString(iconName) {
         return images[iconName];
     }
 }

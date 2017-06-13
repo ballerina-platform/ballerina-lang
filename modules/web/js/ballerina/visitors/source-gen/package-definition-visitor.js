@@ -38,10 +38,10 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
-            var constructedSourceSegment = 'package'
-                + packageDefinition.getParent().getWSRegion(1)
-                + packageDefinition.getPackageName();
+        if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== '') {
+            const constructedSourceSegment = `package${
+                 packageDefinition.getParent().getWSRegion(1)
+                 }${packageDefinition.getPackageName()}`;
             this.appendSource(constructedSourceSegment);
         }
     }
@@ -50,11 +50,11 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitPackageDefinition(packageDefinition) {
-        if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
+        if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== '') {
             this.appendSource(
-              packageDefinition.getParent().getWSRegion(2)
-              + ';'
-              + packageDefinition.getParent().getWSRegion(3)
+              `${packageDefinition.getParent().getWSRegion(2)
+               };${
+               packageDefinition.getParent().getWSRegion(3)}`,
             );
             this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         }

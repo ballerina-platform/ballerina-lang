@@ -29,16 +29,15 @@ class ForkJoinStatementPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('visit ForkJoinStatementPositionCalcVisitor');
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
         const parent = node.getParent();
         const parentViewState = parent.getViewState();
         const parentStatementContainer = parentViewState.components.statementContainer;
-        let parentStatements = parent.filterChildren(function (child) {
-            return ASTFactory.isStatement(child) || ASTFactory.isExpression(child);
-        });
+        const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
         const currentIndex = _.findIndex(parentStatements, node);
-        let x, y;
+        let x,
+            y;
 
         /**
          * Here we center the statement based on the parent's statement container's dimensions
@@ -54,16 +53,15 @@ class ForkJoinStatementPositionCalcVisitor {
         } else if (currentIndex > 0) {
             y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom();
         } else {
-            throw 'Invalid Index found for ' + node.getType();
+            throw `Invalid Index found for ${node.getType()}`;
         }
 
         bBox.x = x;
         bBox.y = y;
 
-        let body = viewState.components.body;
+        const body = viewState.components.body;
         body.x = x;
         body.y = y + DesignerDefaults.statement.gutter.v + DesignerDefaults.blockStatement.heading.height;
-
     }
 
     visit(node) {

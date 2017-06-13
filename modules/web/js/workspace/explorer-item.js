@@ -29,21 +29,21 @@ class ExplorerItem extends EventChannel {
         _.assign(this, args);
     }
 
-    getFolderName (folderPath) {
-        var splitArr = _.split(folderPath, this.application.getPathSeperator());
+    getFolderName(folderPath) {
+        const splitArr = _.split(folderPath, this.application.getPathSeperator());
         return _.gt(_.last(splitArr).length, 0) ? _.last(splitArr) :
                 _.nth(splitArr, splitArr.length - 2);
     }
 
-    render(){
-        var item = $('<div class="folder-tree"><div>'),
-            folderName = $('<span>' + this.getFolderName(this.path) +  '</span>'),
-            id = 'folder-tree_' + this.index,
-            header = $('<div class="folder-tree-header" role="button" href="#' + id +
-                '"+ data-toggle="collapse" aria-expanded="true" aria-controls="' +
-                id + '"></div>'),
-            body = $('<div class="collapse folder-tree-body" id="' + id +
-                '"></div>'),
+    render() {
+        let item = $('<div class="folder-tree"><div>'),
+            folderName = $(`<span>${this.getFolderName(this.path)}</span>`),
+            id = `folder-tree_${this.index}`,
+            header = $(`<div class="folder-tree-header" role="button" href="#${id
+                }"+ data-toggle="collapse" aria-expanded="true" aria-controls="${
+                id}"></div>`),
+            body = $(`<div class="collapse folder-tree-body" id="${id
+                }"></div>`),
             folderIcon = $('<i class="fw fw-folder item-icon"></i>'),
             arrowHeadIcon = $('<i class="fw fw-right expand-icon"></i>');
 
@@ -53,32 +53,33 @@ class ExplorerItem extends EventChannel {
         header.append(folderName);
         item.append(header);
         item.append(body);
-        this.container.find('.mCSB_container').append(item); //add to mscroller container
+        this.container.find('.mCSB_container').append(item); // add to mscroller container
         this._itemElement = item;
 
         header.attr('title', this.path);
         header.tooltip({
-            'delay': { show: 1000, hide: 0 },
-            'placement': 'bottom',
-            'container': 'body'
+            delay: { show: 1000, hide: 0 },
+            placement: 'bottom',
+            container: 'body',
         });
 
-        body.on('show.bs.collapse', function(){
+        body.on('show.bs.collapse', () => {
             arrowHeadIcon.addClass('fw-rotate-90');
         });
 
-        body.on('hide.bs.collapse', function(){
+        body.on('hide.bs.collapse', () => {
             arrowHeadIcon.removeClass('fw-rotate-90');
         });
 
-        var fileBrowser = new FileBrowser({
+        const fileBrowser = new FileBrowser({
             container: body,
-            application: this.application, root: this.path,
-            fetchFiles: true
+            application: this.application,
+            root: this.path,
+            fetchFiles: true,
         });
         fileBrowser.render();
-        fileBrowser.on('double-click-node', function(node){
-            if(_.isEqual('file', node.type)){
+        fileBrowser.on('double-click-node', function (node) {
+            if (_.isEqual('file', node.type)) {
                 this.application.commandManager.dispatch('open-file', node.id);
             }
         }, this);
@@ -86,103 +87,102 @@ class ExplorerItem extends EventChannel {
         this._contextMenu = new ContextMenu({
             container: item,
             selector: '.folder-tree-header, li',
-            provider: this.createContextMenuProvider()
+            provider: this.createContextMenuProvider(),
         });
         this._fileBrowser = fileBrowser;
     }
 
-    remove(){
+    remove() {
         this._itemElement.remove();
     }
 
-    createContextMenuProvider(){
-        var self = this;
-        return function($trigger) {
-            var items = {},
-                menu = {items: items},
+    createContextMenuProvider() {
+        const self = this;
+        return function ($trigger) {
+            let items = {},
+                menu = { items },
                 isRoot = $trigger.hasClass('folder-tree-header'),
                 path = $trigger.attr('id'),
                 node = isRoot ? self._fileBrowser.getNode('#') : self._fileBrowser.getNode(path);
 
-            if(isRoot || _.isEqual('folder', node.type)){
+            if (isRoot || _.isEqual('folder', node.type)) {
                 items.createNewFile = {
                     name: 'new file',
                     icon: '',
-                    callback: function () {
+                    callback() {
                         self.application.commandManager.dispatch('create-new-item-at-path',
                             {
-                                path: path,
+                                path,
                                 type: 'ballerina-file',
-                                onSuccess: function(){
+                                onSuccess() {
                                     self._fileBrowser.refresh(node);
-                                }
+                                },
                             });
-                    }
+                    },
                 };
                 items.createNewFolder = {
                     name: 'new folder',
                     icon: '',
-                    callback: function () {
+                    callback() {
                         self.application.commandManager.dispatch('create-new-item-at-path',
                             {
-                                path: path,
+                                path,
                                 type: 'folder',
-                                onSuccess: function(){
+                                onSuccess() {
                                     self._fileBrowser.refresh(node);
-                                }
+                                },
                             });
-                    }
+                    },
                 };
                 items.refreshBtn = {
                     name: 'refresh',
                     icon: '',
-                    callback: function () {
+                    callback() {
                         self._fileBrowser.refresh(node);
-                    }
+                    },
                 };
                 items.deleteFolder = {
                     name: 'delete',
                     icon: '',
-                    callback: function () {
+                    callback() {
                         self.application.commandManager.dispatch('remove-from-disk',
                             {
                                 type: 'folder',
-                                path: path,
-                                onSuccess: function(){
-                                    if(isRoot){
+                                path,
+                                onSuccess() {
+                                    if (isRoot) {
                                         self.application.commandManager.dispatch('remove-explorer-item', self);
                                     } else {
                                         self._fileBrowser.refresh(node.parent);
                                     }
-                                }
+                                },
                             });
-                    }
+                    },
                 };
-            }
-            else if(_.isEqual('file', node.type)){
+            } else if (_.isEqual('file', node.type)) {
                 items.deleteFile = {
                     name: 'delete',
                     icon: '',
-                    callback: function () {
+                    callback() {
                         self.application.commandManager.dispatch('remove-from-disk',
                             {
                                 type: 'file',
                                 path: node.id,
-                                onSuccess: function(){
+                                onSuccess() {
                                     self._fileBrowser.refresh(node.parent);
-                                }
+                                },
                             });
-                    }
+                    },
                 };
             }
 
-            if(isRoot){
+            if (isRoot) {
                 items.removeFolderFromExplorer = {
                     name: 'remove folder',
                     icon: '',
-                    callback: function () {
+                    callback() {
                         self.application.commandManager.dispatch('remove-explorer-item', self);
-                    }
+                    },
                 };
             }
             return menu;

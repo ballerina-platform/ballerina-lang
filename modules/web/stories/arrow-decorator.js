@@ -24,29 +24,23 @@ import components from '../js/ballerina/components/components';
 import '../css/diagram/diagram.css';
 
 const canvasBbox = {
-  w: 500,
-  h: 500
+    w: 500,
+    h: 500,
 };
 
 storiesOf('ArrowDecorator', module)
-  .add('default view', () => {
-    return (
-      <CanvasDecorator bBox={canvasBbox}>
-          <ArrowDecorator start={{x: 10, y: 10}} end={{x: 300, y: 10}}/>
-      </CanvasDecorator>
-    );
-  })
-  .add('angled arrow', () => {
-    return (
-      <CanvasDecorator bBox={canvasBbox}>
-          <ArrowDecorator start={{x: 0, y: 0}} end={{x: 320, y: 100}}/>
-      </CanvasDecorator>
-    );
-  })
-  .add('dashed arrow', () => {
-    return (
-      <CanvasDecorator bBox={canvasBbox}>
-          <ArrowDecorator start={{x: 10, y: 10}} end={{x: 300, y: 10}} dashed />
-      </CanvasDecorator>
-    );
-  });
+  .add('default view', () => (
+    <CanvasDecorator bBox={canvasBbox}>
+      <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} />
+    </CanvasDecorator>
+    ))
+  .add('angled arrow', () => (
+    <CanvasDecorator bBox={canvasBbox}>
+      <ArrowDecorator start={{ x: 0, y: 0 }} end={{ x: 320, y: 100 }} />
+    </CanvasDecorator>
+    ))
+  .add('dashed arrow', () => (
+    <CanvasDecorator bBox={canvasBbox}>
+      <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} dashed />
+    </CanvasDecorator>
+    ));
