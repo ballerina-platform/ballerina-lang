@@ -11,33 +11,17 @@ module.exports = {
         "commonjs": true,
         "es6": true
     },
-    "extends": "eslint:recommended",
+    "extends": "airbnb",
     "rules": {
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "no-unused-vars": "error",
-        "no-undef": "error",
-        "no-mixed-spaces-and-tabs": "error",
-        "no-redeclare": "error",
-        "indent": [
-            "error",
-            4
-        ],
-        "react/jsx-uses-vars": 1,
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "eqeqeq": [
-            "error",
-            "always"
-        ]
+        "max-len": ["error", 120],
+        "require-jsdoc": ["error", {
+            "require": {
+                "FunctionDeclaration": true,
+                "MethodDefinition": true,
+                "ClassDeclaration": true
+            }
+        }],
+        "valid-jsdoc": "error"
     },
     "plugins": [
         "react"
