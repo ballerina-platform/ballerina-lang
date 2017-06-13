@@ -15,32 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
-import _ from 'lodash';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import ASTFactory from './../../ast/ballerina-ast-factory';
 import {util} from './../sizing-utils';
 
 class ServiceDefinitionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ServiceDefinitionDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
 
-        log.debug('begin visit ServiceDefinitionDimensionCalc');
     }
 
     visit(node) {
-        log.debug('visit ServiceDefinitionDimensionCalc');
     }
 
     endVisit(node) {
-        log.debug('end visit ServiceDefinitionDimensionCalc');
         util.populateOuterPanelDecoratorBBox(node);
     }
 }

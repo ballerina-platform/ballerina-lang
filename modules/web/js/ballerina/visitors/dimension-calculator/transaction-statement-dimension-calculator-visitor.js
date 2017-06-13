@@ -15,25 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import {util} from './../sizing-utils';
-import {blockStatement} from './../../configs/designer-defaults.js';
 class TransactionStatementDimensionCalculatorVisitor {
     canVisit(node) {
-        log.debug('can visit TransactionStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit TransactionStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit TransactionStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit TransactionStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
 
         /// Calculate the title width and height as to the keyword width.

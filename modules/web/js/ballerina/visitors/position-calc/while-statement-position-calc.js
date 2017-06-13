@@ -15,20 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import * as Utils from './utils';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
 class WhileStatementPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit WhileStatementPositionCalcVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('visit WhileStatementPositionCalcVisitor');
         Utils.getSimpleStatementPosition(node);
         node.getViewState().components.statementContainer.x = node.getViewState().bBox.x;
         node.getViewState().components.statementContainer.y = node.getViewState().bBox.y +
@@ -36,11 +32,9 @@ class WhileStatementPositionCalcVisitor {
     }
 
     visit(node) {
-        log.debug('visit WhileStatementPositionCalcVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit WhileStatementPositionCalcVisitor');
     }
 }
 

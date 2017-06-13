@@ -22,20 +22,16 @@ import {util} from './../sizing-utils';
 class ConnectorDefinitionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug("can visit ConnectorDefinitionDimensionCalculatorVisitor");
         return true;
     }
 
     beginVisit(node) {
-        log.debug("begin visit ConnectorDefinitionDimensionCalculatorVisitor");
     }
 
     visit(node) {
-        log.debug("visit ConnectorDefinitionDimensionCalculatorVisitor");
     }
 
     endVisit(node) {
-        log.debug("end visit ConnectorDefinitionDimensionCalculatorVisitor");
         util.populateOuterPanelDecoratorBBox(node, node.getConnectorName());
     }
 }

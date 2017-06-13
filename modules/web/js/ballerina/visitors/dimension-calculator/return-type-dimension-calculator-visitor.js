@@ -16,27 +16,19 @@
  * under the License.
  */
 
-import log from 'log';
-import _ from 'lodash';
-import { util } from './../sizing-utils';
-
 class ReturnTypeDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ArgumentDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit ArgumentDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit ArgumentDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit ArgumentDimensionCalculatorVisitor');
     }
 
 }

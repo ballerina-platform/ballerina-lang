@@ -21,20 +21,16 @@ import {util} from './../sizing-utils';
 class IfStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit IfStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit IfStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit IfStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit IfStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node,node.getConditionString());
     }
 }

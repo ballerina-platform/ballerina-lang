@@ -20,20 +20,16 @@ import {util} from './../sizing-utils';
 
 class CommittedStatementDimensionCalculatorVisitor {
     canVisit(node) {
-        log.debug('can visit CommittedStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit CommittedStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit CommittedStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit CommittedStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
 
         // Calculate the title width.
@@ -43,4 +39,3 @@ class CommittedStatementDimensionCalculatorVisitor {
 }
 
 export default CommittedStatementDimensionCalculatorVisitor;
-

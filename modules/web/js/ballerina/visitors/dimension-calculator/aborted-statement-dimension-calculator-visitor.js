@@ -21,20 +21,16 @@ import {blockStatement} from './../../configs/designer-defaults.js';
 
 class AbortedStatementDimensionCalculatorVisitor {
     canVisit(node) {
-        log.debug('can visit AbortedStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit AbortedStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit AbortedStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit AbortedStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
 
         /// Calculate the title width as to the keyword width.

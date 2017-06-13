@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -36,7 +35,6 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
                             + ')' + elseIfStatement.getWSRegion(4) + '{' + elseIfStatement.getWSRegion(5));
         this.appendSource((elseIfStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
-        log.debug('Begin Visit Else If Statement Definition');
     }
 
     endVisitElseIfStatement(elseIfStatement) {
@@ -49,7 +47,6 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
                         ? '\n' : elseIfStatement.getWSRegion(6);
         this.appendSource('}' + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Else If Statement Definition');
     }
 
     visitStatement(statement) {

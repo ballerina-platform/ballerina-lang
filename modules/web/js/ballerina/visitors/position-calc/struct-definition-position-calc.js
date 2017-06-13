@@ -22,21 +22,17 @@ import * as PositioningUtils from './utils';
 class StructDefinitionPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit StructDefinitionPositionCalc');
         return true;
     }
 
     beginVisit(node) {
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
-        log.debug('begin visit StructDefinitionPositionCalc');
     }
 
     visit(node) {
-        log.debug('visit StructDefinitionPositionCalc');
     }
 
     endVisit(node) {
-        log.debug('end visit StructDefinitionPositionCalc');
     }
 }
 

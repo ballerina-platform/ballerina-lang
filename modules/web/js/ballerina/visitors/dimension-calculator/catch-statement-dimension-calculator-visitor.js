@@ -21,20 +21,16 @@ import {util} from './../sizing-utils';
 class CatchStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit CatchStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit CatchStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit CatchStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit CatchStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node, node.getParameterDefString());
     }
 }

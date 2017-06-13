@@ -23,20 +23,16 @@ import SimpleBBox from './../../ast/simple-bounding-box';
 class IfElseStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit IfElseStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit IfElseStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit IfElseStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit IfElseStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
         let components = {};
         let statementWidth = 0;

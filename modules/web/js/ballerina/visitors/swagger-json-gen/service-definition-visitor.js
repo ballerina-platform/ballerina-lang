@@ -63,7 +63,7 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             }
         });
 
-        //if base path is not defined set base path as service name. 
+        //if base path is not defined set base path as service name.
         let basePath = _.find(existingAnnotations, (annotation) => {
             if (_.isEqual(annotation.getPackageName(), 'http') && _.isEqual(annotation.getIdentifier(), 'BasePath')){
                 return true;
@@ -85,15 +85,12 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             }
         }
 
-        log.debug('Begin Visit Service Definition');
     }
 
     visitServiceDefinition(serviceDefinition) {
-        log.debug('Visit Service Definition');
     }
 
     endVisitServiceDefinition(serviceDefinition) {
-        log.debug('End Visit Service Definition');
     }
 
     visitResourceDefinition(resourceDefinition) {

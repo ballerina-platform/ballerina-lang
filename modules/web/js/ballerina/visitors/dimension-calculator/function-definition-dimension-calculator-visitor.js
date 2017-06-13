@@ -15,26 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import {util} from './../sizing-utils';
 
 class FunctionDefinitionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.info('can visit FunctionDefinitionDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.info('begin visit FunctionDefinitionDimensionCalc');
     }
 
     visit(node) {
-        log.info('visit FunctionDefinitionDimensionCalc');
     }
 
     endVisit(node) {
-        log.info('end visit FunctionDefinitionDimensionCalc');
         util.populatePanelDecoratorBBox(node, node.getFunctionName());
     }
 }

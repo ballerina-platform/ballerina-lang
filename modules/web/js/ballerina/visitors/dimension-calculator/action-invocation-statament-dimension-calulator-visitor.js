@@ -23,7 +23,6 @@ import {util} from './../sizing-utils';
 class ActionInvocationStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Begin visit ActionInvocationStatementDimensionCalculatorVisitor');
         return true;
     }
 
@@ -34,7 +33,6 @@ class ActionInvocationStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        log.debug('End visit ActionInvocationStatementDimensionCalculatorVisitor');
         util.populateSimpleStatementBBox( node.getStatementString() , node.getViewState());
     }
 }

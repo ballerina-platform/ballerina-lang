@@ -21,20 +21,16 @@ import {util} from './../sizing-utils';
 class ElseIfStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit ElseIfStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit ElseIfStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit ElseIfStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit ElseIfStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node, node.getConditionString());
     }
 }

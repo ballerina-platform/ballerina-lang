@@ -15,8 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
@@ -24,16 +22,13 @@ import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 class WorkerDeclarationDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit WorkerDeclarationDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit WorkerDeclarationDimensionCalc');
     }
 
     visit(node) {
-        log.debug('visit WorkerDeclarationDimensionCalc');
     }
 
     endVisit(node) {

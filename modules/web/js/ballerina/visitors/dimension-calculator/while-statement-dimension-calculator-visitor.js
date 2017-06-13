@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
@@ -24,20 +23,16 @@ import {util} from './../sizing-utils';
 class WhileStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit WhileStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit WhileStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit WhileStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit WhileStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
         let expression = node.getConditionString();
         let bBox = viewState.bBox;

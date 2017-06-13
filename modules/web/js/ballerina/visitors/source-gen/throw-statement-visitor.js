@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
 class ThrowStatementVisitor extends AbstractStatementSourceGenVisitor {
@@ -31,17 +29,14 @@ class ThrowStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitThrowStatement(throwStatement) {
         this.appendSource('throw ');
-        log.debug('Begin Visit Throw Statement Definition');
     }
 
     visitThrowStatement(throwStatement) {
-        log.debug('Visit Throw Statement Definition');
     }
 
     endVisitThrowStatement(throwStatement) {
         this.appendSource(throwStatement.getChildren()[0].getExpressionString() + ";\n");
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-        log.debug('End Visit Throw Statement Definition');
     }
 }
 

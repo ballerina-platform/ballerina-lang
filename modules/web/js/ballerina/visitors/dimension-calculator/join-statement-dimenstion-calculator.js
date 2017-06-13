@@ -22,20 +22,16 @@ import {blockStatement} from '../../configs/designer-defaults';
 class JoinStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit JoinStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit JoinStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit JoinStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit JoinStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
         util.addParamDimenstion(node.getViewState(), node.getJoinConditionString(), node.getParameterAsString(),
             blockStatement.heading.width);

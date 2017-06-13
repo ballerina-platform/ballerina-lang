@@ -16,29 +16,24 @@
  * under the License.
  */
 
-import log from 'log';
 import * as PositioningUtils from './utils';
 import {util} from './../sizing-utils';
 
 class WorkerReplyStatementPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit WorkerReplyStatementPositionCalcVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('visit WorkerReplyStatementPositionCalcVisitor');
         util.syncWorkerReplyDimension(node);
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
     visit(node) {
-        log.debug('visit WorkerReplyStatementPositionCalcVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit WorkerReplyStatementPositionCalcVisitor');
     }
 }
 

@@ -17,9 +17,7 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import WhileStatement from '../../ast/statements/while-statement';
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
@@ -39,11 +37,9 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.node = whileStatement;
         this.appendSource('\n' + this.getIndentation() + 'while (' + whileStatement.getConditionString() + ') {\n');
         this.indent();
-        log.debug('Begin Visit If Statement Definition');
     }
 
     visitWhileStatement(whileStatement) {
-        log.debug('Visit If Statement Definition');
     }
 
     visitStatement(statement) {
@@ -58,7 +54,6 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.outdent();
         this.appendSource(this.getIndentation() + "}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit If Statement Definition');
     }
 }
 

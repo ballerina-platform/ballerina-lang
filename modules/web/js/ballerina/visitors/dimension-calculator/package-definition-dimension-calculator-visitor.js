@@ -15,28 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import { packageDefinition } from '../../configs/designer-defaults';
 import ASTFactory from '../../ast/ballerina-ast-factory';
 
 class PackageDefinitionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.info('can visit PackageDefinitionDimensionCalcVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.info('begin visit PackageDefinitionDimensionCalcVisitor');
     }
 
     visit(node) {
-        log.info('visit PackageDefinitionDimensionCalcVisitor');
     }
 
     endVisit(node) {
-        log.info('end visit PackageDefinitionDimensionCalcVisitor');
         let viewState = node.getViewState();
         const topGutter = 10;
         const topBarHeight = 25;

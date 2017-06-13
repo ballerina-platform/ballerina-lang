@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 class VariableDeclarationVisitor extends AbstractSourceGenVisitor {
@@ -29,17 +28,14 @@ class VariableDeclarationVisitor extends AbstractSourceGenVisitor {
 
     beginVisitVariableDeclaration(variableDeclaration) {
         this.appendSource(variableDeclaration.getType() + " " +variableDeclaration.getIdentifier());
-        log.debug('Begin Visit Variable Declaration');
     }
 
     visitVariableDeclaration(variableDeclaration) {
-        log.debug('Visit Variable Declaration');
     }
 
     endVisitVariableDeclaration(variableDeclaration) {
         this.appendSource(";\n");
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-        log.debug('End Visit Variable Declaration');
     }
 }
 

@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import FunctionInvocationExpression from '../../ast/expressions/function-invocation-expression';
 
@@ -38,16 +37,13 @@ class FunctionInvocationExpressionVisitor extends AbstractStatementSourceGenVisi
     beginVisitFuncInvocationExpression(functionInvocation) {
         var source = functionInvocation.getFunctionalExpression();
         this.appendSource(source);
-        log.debug('Begin Visit Function Invocation expression');
     }
 
     visitFuncInvocationExpression(functionInvocation) {
-        log.debug('Visit Function Invocation expression');
     }
 
     endVisitFuncInvocationExpression(functionInvocation) {
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Function Invocation expression');
     }
 }
 

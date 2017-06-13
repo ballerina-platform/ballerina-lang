@@ -22,21 +22,17 @@ import * as PositioningUtils from './utils';
 class TransformStatementPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit AssignmentStatementPositionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('visit AssignmentStatementPositionCalc');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
     visit(node) {
-        log.debug('visit AssignmentStatementPositionCalc');
     }
 
     endVisit(node) {
-        log.debug('end visit AssignmentStatementPositionCalc');
     }
 }
 

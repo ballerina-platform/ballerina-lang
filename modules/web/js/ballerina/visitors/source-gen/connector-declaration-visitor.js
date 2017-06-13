@@ -15,8 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
@@ -38,11 +36,9 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
         this.appendSource(connectorDeclaration.generateExpression());
-        log.debug('Begin Visit Connector Declaration');
     }
 
     visitConnectorDeclaration(connectorDeclaration) {
-        log.debug('Visit Connector Declaration');
     }
 
     endVisitConnectorDeclaration(connectorDeclaration) {
@@ -51,7 +47,6 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
         this.appendSource((connectorDeclaration.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Connector Declaration');
     }
 }
 

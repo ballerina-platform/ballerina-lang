@@ -15,25 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import ASTFactory from './../../ast/ballerina-ast-factory';
 import { util } from './../sizing-utils';
 
 class StructDefinitionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.info('can visit StructDefinitionDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.info('begin visit StructDefinitionDimensionCalc');
     }
 
     visit(node) {
-        log.info('visit StructDefinitionDimensionCalc');
     }
 
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {

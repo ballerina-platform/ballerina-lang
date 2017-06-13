@@ -24,16 +24,13 @@ import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
 class AnnotationDefinitionDimensionCalculatorVisitor {
     canVisit(node) {
-        log.debug("can visit AnnotationDefinitionDimensionCalc");
         return true;
     }
 
     beginVisit(node) {
-        log.debug("beign visit AnnotationDefinitionDimensionCalc");
     }
 
     visit(node) {
-        log.debug("visit AnnotationDefinitionDimensionCalc");
     }
 
     endVisit(node) {
