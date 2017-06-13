@@ -11,11 +11,15 @@
 
     <change-notes><![CDATA[
       <ul>
+        <li>Support Ballerina v0.88 grammar.</li>
         <li>Merge two run configurations into a single configuration.</li>
-        <li>Update worker grammar.</li>
+        <li>Add exit points highlighting support.</li>
+        <li>Add resource path query/path param highlighting support.</li>
+        <li>Add package validation support.</li>
+        <li>Add array.length support.</li>
+        <li>Add new hidden templates.</li>
         <li>Improve code completion.</li>
         <li>Update live templates.</li>
-        <li>Add new hidden templates.</li>
       </ul>
       <a href="https://github.com/ballerinalang/plugin-intellij/milestone/7?closed=1">View all changes and bug fixes.</a>
     ]]>
@@ -136,6 +140,7 @@
 
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.ballerinalang.plugins.idea.configuration.BallerinaModuleEditorsProvider" order="first"/>
 
         <!-- run application -->
         <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunner"/>
@@ -145,6 +150,9 @@
 
         <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
         <console.folding implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFolding"/>
+
+        <!-- debugger -->
+        <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
 
         <!--project-->
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
@@ -159,10 +167,14 @@
         <!--documentation-->
         <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
 
-        <!-- debugger -->
-        <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
+        <!--inspections-->
+        <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement" bundle="messages.InspectionsBundle" key="wrong.package.statement" groupKey="group.names.probable.bugs"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection" />
 
-    </extensions>
+        <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeinsight.highlighting.HighlightExitPointsHandlerFactory"/>
+
+   </extensions>
 
     <actions>
         <!-- Add your actions here -->

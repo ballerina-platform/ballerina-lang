@@ -16,9 +16,12 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -53,7 +56,9 @@ import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -75,6 +80,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BallerinaPsiImplUtil {
 
@@ -90,7 +97,6 @@ public class BallerinaPsiImplUtil {
     private static final String ACTION_DEFINITION = "//actionDefinition/Identifier";
     private static final String STRUCT_DEFINITION = "//structDefinition/Identifier";
     private static final String PARAMETER_DEFINITION = "//parameter/Identifier";
-    private static final String PACKAGE_PATH = "//packagePath";
     private static final String PLACEHOLDER_STRING = "IntellijIdeaRulezzz";
 
     private BallerinaPsiImplUtil() {
@@ -160,7 +166,7 @@ public class BallerinaPsiImplUtil {
         // Add matching directories from content roots.
         addMatchingDirectoriesFromContentRoots(packages, project, results);
         // Add matching directories from SDK sources.
-        addMatchingDirectoriesFromSDK(project, packages, results);
+        addMatchingDirectoriesFromSDK(project, packages, results, identifierElement);
         // Return the results.
         return results.toArray(new PsiDirectory[results.size()]);
     }
@@ -180,8 +186,24 @@ public class BallerinaPsiImplUtil {
     }
 
     private static void addMatchingDirectoriesFromSDK(Project project, List<PsiElement> packages,
-                                                      List<PsiDirectory> results) {
-        // Get all project source roots and find matching directories.
+                                                      List<PsiDirectory> results, PsiElement identifier) {
+        // First we check the sources of module sdk.
+        Module module = ModuleUtilCore.findModuleForPsiElement(identifier);
+        if (module != null) {
+            Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+            if (moduleSdk != null) {
+                VirtualFile[] roots = moduleSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+                for (VirtualFile root : roots) {
+                    VirtualFile match = getMatchingDirectory(root, packages);
+                    if (match != null) {
+                        results.add(PsiManager.getInstance(project).findDirectory(match));
+                    }
+                }
+            }
+            return;
+        }
+
+        // Then we check the sources of project sdk.
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
@@ -288,7 +310,23 @@ public class BallerinaPsiImplUtil {
             }
         }
 
-        // Get all project source roots and find matching directories.
+        // First we check the sources of module sdk.
+        Module module = ModuleUtilCore.findModuleForPsiElement(element);
+        if (module != null) {
+            Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+            if (moduleSdk != null) {
+                VirtualFile[] roots = moduleSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
+                for (VirtualFile root : roots) {
+                    VirtualFile match = getMatchingDirectory(root, packages);
+                    if (match != null) {
+                        results.add(PsiManager.getInstance(project).findDirectory(match));
+                    }
+                }
+            }
+            return results.toArray(new PsiDirectory[results.size()]);
+        }
+
+        // Then we check the sources of project sdk.
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
         if (projectSdk != null) {
             VirtualFile[] roots = projectSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
@@ -412,37 +450,79 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllImportedPackagesInCurrentFile(@NotNull PsiElement element) {
+    public static List<PsiElement> getAllImportedPackagesInCurrentFile(@NotNull PsiFile file) {
+        ArrayList<PsiElement> filteredPackages = new ArrayList<>();
+        filteredPackages.addAll(getImportedPackagesInCurrentFile(file));
+        filteredPackages.addAll(getPackagesImportedAsAliasInCurrentFile(file));
+        return filteredPackages;
+    }
 
-        PsiFile file = element.getContainingFile();
-
+    @NotNull
+    public static List<PsiElement> getImportedPackagesInCurrentFile(@NotNull PsiFile file) {
         Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
         ArrayList<PsiElement> filteredPackages = new ArrayList<>();
-
         for (ImportDeclarationNode importDeclaration : allImports) {
-
-            Collection<? extends PsiElement> aliasNodes = XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration,
-                    "//alias");
-
-            if (aliasNodes.isEmpty()) {
-                Collection<? extends PsiElement> packagePathNodes =
-                        XPath.findAll(BallerinaLanguage.INSTANCE, importDeclaration, PACKAGE_PATH);
-
-                PsiElement packagePathNode = packagePathNodes.iterator().next();
-                PsiElement lastChild = packagePathNode.getLastChild();
-                if (lastChild != null) {
-                    filteredPackages.add(lastChild);
-                }
-            } else {
-                PsiElement aliasNode = aliasNodes.iterator().next();
-                PsiElement firstChild = aliasNode.getFirstChild();
-                if (firstChild != null) {
-                    filteredPackages.add(firstChild);
-                }
+            Collection<AliasNode> aliasNodes = PsiTreeUtil.findChildrenOfType(importDeclaration, AliasNode.class);
+            if (!aliasNodes.isEmpty()) {
+                continue;
+            }
+            Collection<PsiElement> packagePathNodes = PsiTreeUtil.findChildrenOfType(importDeclaration,
+                    PackagePathNode.class);
+            PsiElement packagePathNode = packagePathNodes.iterator().next();
+            PsiElement lastChild = packagePathNode.getLastChild();
+            if (lastChild != null) {
+                filteredPackages.add(lastChild);
             }
         }
         return filteredPackages;
+    }
+
+    @NotNull
+    public static List<PsiElement> getPackagesImportedAsAliasInCurrentFile(@NotNull PsiFile file) {
+        Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
+                ImportDeclarationNode.class);
+        ArrayList<PsiElement> filteredPackages = new ArrayList<>();
+        for (ImportDeclarationNode importDeclaration : allImports) {
+            Collection<AliasNode> aliasNodes = PsiTreeUtil.findChildrenOfType(importDeclaration, AliasNode.class);
+            if (aliasNodes.isEmpty()) {
+                continue;
+            }
+            PsiElement aliasNode = aliasNodes.iterator().next();
+            PsiElement firstChild = aliasNode.getFirstChild();
+            if (firstChild != null) {
+                filteredPackages.add(firstChild);
+            }
+        }
+        return filteredPackages;
+    }
+
+    @Nullable
+    public static IdentifierPSINode resolveAlias(@NotNull PsiElement element) {
+        ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element,
+                ImportDeclarationNode.class);
+        if (importDeclarationNode == null) {
+            return null;
+        }
+        PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(importDeclarationNode,
+                PackagePathNode.class);
+        if (packagePathNode == null) {
+            return null;
+        }
+        PackageNameNode[] packageNameNodes = PsiTreeUtil.getChildrenOfType(packagePathNode,
+                PackageNameNode.class);
+        if (packageNameNodes == null || packageNameNodes.length == 0) {
+            return null;
+        }
+        PackageNameNode lastPackageName = packageNameNodes[packageNameNodes.length - 1];
+        if (lastPackageName == null) {
+            return null;
+        }
+        PsiElement nameIdentifier = lastPackageName.getNameIdentifier();
+        if (nameIdentifier == null || !(nameIdentifier instanceof IdentifierPSINode)) {
+            return null;
+        }
+        return (IdentifierPSINode) nameIdentifier;
     }
 
     /**
@@ -649,21 +729,23 @@ public class BallerinaPsiImplUtil {
             return results;
         }
         // Get all variables from the context.
-        Collection<? extends PsiElement> variableDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
+        Collection<VariableDefinitionNode> variableDefinitions = PsiTreeUtil.findChildrenOfType(context,
+                VariableDefinitionNode.class);
         // Iterate through each definition.
-        for (PsiElement variableDefinition : variableDefinitions) {
+        for (VariableDefinitionNode variableDefinition : variableDefinitions) {
             if (variableDefinition == null) {
                 continue;
             }
             // If the variable definition or parent contains the PLACEHOLDER_STRING, then continue because that is
             // the node which we are currently editing.
-            if (variableDefinition.getText().contains(PLACEHOLDER_STRING) ||
-                    variableDefinition.getParent().getText().contains(PLACEHOLDER_STRING)) {
+            if (variableDefinition.getText().contains(PLACEHOLDER_STRING)) {
                 continue;
             }
             // Add variables.
-            checkAndAddVariable(element, results, variableDefinition);
+            PsiElement nameIdentifier = variableDefinition.getNameIdentifier();
+            if (nameIdentifier != null) {
+                checkAndAddVariable(element, results, nameIdentifier);
+            }
         }
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
@@ -720,15 +802,24 @@ public class BallerinaPsiImplUtil {
         if (variableDefinitionNode == null) {
             handleVariableDefinition(element, results, variableDefinition);
         } else {
-            StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
-            if (statementNode != null) {
-                PsiElement prevSibling = statementNode.getPrevSibling();
-                if (prevSibling == null) {
-                    return;
+            if (variableDefinition.getParent() instanceof ExpressionVariableDefinitionStatementNode) {
+                if (variableDefinition.getParent().getTextOffset() < variableDefinitionNode.getTextOffset()) {
+                    results.add(variableDefinition);
                 }
-                if (!prevSibling.getText().equals(variableDefinition.getParent().getText())) {
-                    if (statementNode.getTextOffset() > variableDefinition.getParent().getTextOffset()) {
-                        results.add(variableDefinition);
+            } else {
+                StatementNode statementNode = PsiTreeUtil.getParentOfType(element, StatementNode.class);
+                if (statementNode != null) {
+                    PsiElement prevSibling = statementNode.getPrevSibling();
+                    if (prevSibling == null) {
+                        if (variableDefinition.getTextOffset() < statementNode.getTextOffset()) {
+                            results.add(variableDefinition);
+                        }
+                        return;
+                    }
+                    if (!prevSibling.getText().equals(variableDefinition.getParent().getText())) {
+                        if (statementNode.getTextOffset() > variableDefinition.getParent().getTextOffset()) {
+                            results.add(variableDefinition);
+                        }
                     }
                 }
             }
@@ -1222,6 +1313,13 @@ public class BallerinaPsiImplUtil {
         PsiElement[] children = expressionNode.getChildren();
         if (children.length > 0) {
             if (children[0] instanceof VariableReferenceNode) {
+                IdentifierPSINode identifierNode = PsiTreeUtil.findChildOfType(children[0],
+                        IdentifierPSINode.class);
+                // If the element is equal to the  child in 0th index, we don't consider it as a struct field since
+                // it is the struct variable reference name.
+                if (element.equals(identifierNode)) {
+                    return false;
+                }
                 PsiElement[] superChildren = children[0].getChildren();
                 if (superChildren.length == 3) {
                     return ".".equals(superChildren[1].getText());
@@ -1267,5 +1365,47 @@ public class BallerinaPsiImplUtil {
         List<FieldDefinitionNode> results = new LinkedList<>();
         results.addAll(PsiTreeUtil.findChildrenOfType(node, FieldDefinitionNode.class));
         return results;
+    }
+
+    public static boolean canSuggestArrayLength(@NotNull PsiElement definition,
+                                                @NotNull PsiElement reference) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definition, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return false;
+        }
+
+        String definitionText = typeNameNode.getText();
+        String definitionRegex = "\\[\\s*]";
+        int definitionDimension = getArrayDimension(definitionText, definitionRegex);
+        if (definitionDimension == 0) {
+            return false;
+        }
+
+        String referenceText = reference.getText();
+        String referenceRegex = "\\[\\s*\\d+\\s*]";
+        int referenceDimension = getArrayDimension(referenceText, referenceRegex);
+
+        return definitionDimension - 1 >= referenceDimension;
+    }
+
+    private static int getArrayDimension(String definitionText, String definitionRegex) {
+        final Pattern definitionPattern = Pattern.compile(definitionRegex);
+        final Matcher definitionMatcher = definitionPattern.matcher(definitionText);
+        int definitionDimension = 0;
+        while (definitionMatcher.find()) {
+            definitionDimension++;
+        }
+        return definitionDimension;
+    }
+
+    public static boolean isArrayDefinition(@NotNull PsiElement definitionNode) {
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(definitionNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+            return false;
+        }
+        String definitionText = typeNameNode.getText();
+        String definitionRegex = "\\[\\s*]";
+        int definitionDimension = getArrayDimension(definitionText, definitionRegex);
+        return definitionDimension != 0;
     }
 }

@@ -16,4 +16,13 @@ function test () {
 
      throw           exception         ;
 
+          map    properties           =        {
+                            "a"       :      "b"       ,
+                            "c"       :      "d"
+                          }     ;
+
+          string         s       =      <   int    >   a  ;
+
+     string         s       =      (   int    )   a  ;
+
 }

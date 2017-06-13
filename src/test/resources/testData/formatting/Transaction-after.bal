@@ -1,6 +1,6 @@
 function test () {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR", "username":"SA",
-                        "password":"", "maximumPoolSize":1};
+                            "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters = [];
     transaction {
@@ -13,6 +13,8 @@ function test () {
         }
     } aborted {
         system.println("The transaction is aborted");
+    } committed {
+        system.println("The transaction is committed");
     }
     sql:ClientConnector.close(testDB);
 }

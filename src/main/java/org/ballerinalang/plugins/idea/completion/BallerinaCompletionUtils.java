@@ -60,18 +60,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BallerinaCompletionUtils {
 
     private static final int VARIABLE_PRIORITY = 20;
+    private static final int FUNCTION_PRIORITY = VARIABLE_PRIORITY - 1;
     private static final int VALUE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
     private static final int REFERENCE_TYPES_PRIORITY = VARIABLE_PRIORITY - 1;
-    private static final int FUNCTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int PACKAGE_PRIORITY = VALUE_TYPES_PRIORITY - 1;
+    private static final int UNIMPORTED_PACKAGE_PRIORITY = PACKAGE_PRIORITY - 1;
     private static final int STRUCT_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int CONNECTOR_PRIORITY = VALUE_TYPES_PRIORITY - 1;
     private static final int ACTION_PRIORITY = VALUE_TYPES_PRIORITY - 1;
@@ -83,14 +82,14 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder IMPORT;
     private static final LookupElementBuilder CONST;
     private static final LookupElementBuilder SERVICE;
-    static final LookupElementBuilder RESOURCE;
+    private static final LookupElementBuilder RESOURCE;
     private static final LookupElementBuilder FUNCTION;
     private static final LookupElementBuilder CONNECTOR;
     private static final LookupElementBuilder ACTION;
     private static final LookupElementBuilder STRUCT;
     private static final LookupElementBuilder TYPEMAPPER;
     private static final LookupElementBuilder ANNOTATION;
-    static final LookupElementBuilder ATTACH;
+    private static final LookupElementBuilder ATTACH;
     private static final LookupElementBuilder PARAMETER;
 
     // Any type
@@ -101,6 +100,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder INT;
     private static final LookupElementBuilder FLOAT;
     private static final LookupElementBuilder STRING;
+    private static final LookupElementBuilder BLOB;
 
     // Reference types
     private static final LookupElementBuilder MESSAGE;
@@ -126,6 +126,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder TRANSACTION;
     private static final LookupElementBuilder ABORT;
     private static final LookupElementBuilder ABORTED;
+    private static final LookupElementBuilder COMMITTED;
     private static final LookupElementBuilder TRY;
     private static final LookupElementBuilder CATCH;
     private static final LookupElementBuilder FINALLY;
@@ -161,6 +162,7 @@ public class BallerinaCompletionUtils {
         INT = createTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
         FLOAT = createTypeLookupElement("float", AddSpaceInsertHandler.INSTANCE);
         STRING = createTypeLookupElement("string", AddSpaceInsertHandler.INSTANCE);
+        BLOB = createTypeLookupElement("blob", AddSpaceInsertHandler.INSTANCE);
 
         MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
@@ -184,6 +186,7 @@ public class BallerinaCompletionUtils {
         TRANSACTION = createKeywordLookupElement("transaction");
         ABORT = createKeywordLookupElement("abort");
         ABORTED = createKeywordLookupElement("aborted");
+        COMMITTED = createKeywordLookupElement("committed");
         TRY = createKeywordLookupElement("try");
         CATCH = createKeywordLookupElement("catch");
         FINALLY = createKeywordLookupElement("finally");
@@ -227,8 +230,8 @@ public class BallerinaCompletionUtils {
     }
 
 
-    @Nullable
-    public static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId) {
+    @NotNull
+    private static InsertHandler<LookupElement> createTemplateBasedInsertHandler(@NotNull String templateId) {
         return (context, item) -> {
             Template template = TemplateSettings.getInstance().getTemplateById(templateId);
             Editor editor = context.getEditor();
@@ -290,6 +293,7 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(INT, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, VALUE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BLOB, VALUE_TYPES_PRIORITY));
     }
 
     /**
@@ -374,6 +378,7 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, TRANSACTION);
         addKeywordAsLookup(resultSet, ABORT);
         addKeywordAsLookup(resultSet, ABORTED);
+        addKeywordAsLookup(resultSet, COMMITTED);
         addKeywordAsLookup(resultSet, TRY);
         addKeywordAsLookup(resultSet, CATCH);
         addKeywordAsLookup(resultSet, FINALLY);
@@ -402,6 +407,10 @@ public class BallerinaCompletionUtils {
 
     static void addCreateKeyword(@NotNull CompletionResultSet resultSet) {
         addKeywordAsLookup(resultSet, CREATE);
+    }
+
+    static void addAttachKeyword(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, ATTACH);
     }
 
     /**
@@ -451,6 +460,14 @@ public class BallerinaCompletionUtils {
         if (resourceDefinitionNode != null) {
             addKeywordAsLookup(resultSet, REPLY);
         }
+    }
+
+    static void addServiceSpecificKeywords(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, RESOURCE);
+    }
+
+    static void addConnectorSpecificKeywords(@NotNull CompletionResultSet resultSet) {
+        addKeywordAsLookup(resultSet, ACTION);
     }
 
     /**
@@ -534,7 +551,8 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which will be used to get imported packages
      */
-    static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+        String typeText = "package";
         Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
         for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
@@ -559,20 +577,21 @@ public class BallerinaCompletionUtils {
             if (aliasNode != null) {
                 LookupElementBuilder builder = LookupElementBuilder.create(aliasNode.getText())
                         .withTailText("(" + packagePath + ")", true)
-                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
                         .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             } else {
                 LookupElementBuilder builder = LookupElementBuilder.create(packageNameNode.getText())
                         .withTailText("(" + packagePath + ")", true)
-                        .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
                         .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             }
         }
     }
 
-    static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet,
+                                                          @NotNull PsiFile file) {
         // Get all imported packages in the current file.
         Map<String, String> importsMap = BallerinaPsiImplUtil.getAllImportsInAFile(file);
         // Get all packages in the resolvable scopes (project and libraries).
@@ -633,7 +652,7 @@ public class BallerinaCompletionUtils {
                     .withTailText("(" + suggestedImportPath + ")", true)
                     .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
                     .withInsertHandler(insertHandler);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, UNIMPORTED_PACKAGE_PRIORITY));
         }
     }
 
@@ -643,7 +662,7 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which is currently being edited
      */
-    static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
         List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(file.getContainingDirectory());
         addFunctionsAsLookups(resultSet, functions);
     }
@@ -712,7 +731,7 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which will be used to get structs
      */
-    static void addStructsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addStructsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
         List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(file);
         addStructsAsLookups(resultSet, structs);
     }
@@ -875,6 +894,11 @@ public class BallerinaCompletionUtils {
                 builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE);
             }
         }
+        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+    }
+
+    static void addArrayLengthAsLookup(@NotNull CompletionResultSet resultSet) {
+        LookupElementBuilder builder = LookupElementBuilder.create("length");
         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
     }
 

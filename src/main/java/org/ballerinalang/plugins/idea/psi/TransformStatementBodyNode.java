@@ -14,34 +14,25 @@
  *  limitations under the License.
  */
 
-package psi.vars;
+package org.ballerinalang.plugins.idea.psi;
 
-import psi.BallerinaResolveTestBase;
+import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class BallerinaResolveLocalVariableTest extends BallerinaResolveTestBase {
+public class TransformStatementBodyNode extends ANTLRPsiNode  implements ScopeNode {
 
+    public TransformStatementBodyNode(@NotNull ASTNode node) {
+        super(node);
+    }
+
+    @Nullable
     @Override
-    protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/vars/local";
-    }
-
-    public void testLocalVariableInAction() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInConnector() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInFunction() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInResource() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInService() {
-        doFileTest();
+    public PsiElement resolve(PsiNamedElement element) {
+        return null;
     }
 }

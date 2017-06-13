@@ -21,6 +21,7 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -32,18 +33,21 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -59,7 +63,7 @@ public class BallerinaAnnotator implements Annotator {
 
     private static final String QUERY_PARAMETERS = "\\w+=(\\{([^&]+)})";
     private static final Pattern QUERY_PARAMETERS_PATTERN = Pattern.compile(QUERY_PARAMETERS);
-    private static final String PATH_PARAMETERS = "/(\\{(\\w+?)})";
+    private static final String PATH_PARAMETERS = "(?<!=)(\\{(\\w+?)})";
     private static final Pattern PATH_PARAMETERS_PATTERN = Pattern.compile(PATH_PARAMETERS);
 
     @Override
@@ -150,7 +154,7 @@ public class BallerinaAnnotator implements Annotator {
                     TextRange range = new TextRange(startOffset + matcher.start(1),
                             startOffset + matcher.start(1) + value.length() + 2);
                     // Check whether a matching resource parameter is available.
-                    boolean isMatchAvailable = isMatchingQueryParamAvailable(annotationAttributeNode, value,
+                    boolean isMatchAvailable = isMatchingParamAvailable(annotationAttributeNode, value,
                             "QueryParam");
                     // Create the annotation.
                     if (isMatchAvailable) {
@@ -182,7 +186,7 @@ public class BallerinaAnnotator implements Annotator {
                     TextRange range = new TextRange(startOffset + matcher.start(1),
                             startOffset + matcher.start(1) + value.length() + 2);
                     // Check whether a matching resource parameter is available.
-                    boolean isMatchAvailable = isMatchingQueryParamAvailable(annotationAttributeNode, value,
+                    boolean isMatchAvailable = isMatchingParamAvailable(annotationAttributeNode, value,
                             "PathParam");
                     // Create the annotation.
                     if (isMatchAvailable) {
@@ -212,8 +216,8 @@ public class BallerinaAnnotator implements Annotator {
         }
     }
 
-    private boolean isMatchingQueryParamAvailable(@NotNull AnnotationAttributeNode annotationAttributeNode,
-                                                  @NotNull String value, @NotNull String type) {
+    private boolean isMatchingParamAvailable(@NotNull AnnotationAttributeNode annotationAttributeNode,
+                                             @NotNull String value, @NotNull String typeText) {
         ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(annotationAttributeNode,
                 ResourceDefinitionNode.class);
         if (resourceDefinitionNode == null) {
@@ -243,7 +247,7 @@ public class BallerinaAnnotator implements Annotator {
             if (paramType == null) {
                 continue;
             }
-            if (!type.equals(paramType.getText())) {
+            if (!typeText.equals(paramType.getText())) {
                 continue;
             }
             Collection<AnnotationAttributeValueNode> annotationAttributeValueNodes =
@@ -268,6 +272,23 @@ public class BallerinaAnnotator implements Annotator {
                 }
             }
         }
+        // At this point, match might not be found for query params since the annotation attachment for the parameter
+        // is optional. So we need to go through all the parameters and check the identifiers of parameters which
+        // does not have an annotation attachments.
+        for (ParameterNode parameterNode : parameterNodes) {
+            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getChildOfType(parameterNode,
+                    AnnotationAttachmentNode.class);
+            if (annotationAttachmentNode != null) {
+                continue;
+            }
+            PsiElement nameIdentifier = parameterNode.getNameIdentifier();
+            if (nameIdentifier == null) {
+                continue;
+            }
+            if (value.equals(nameIdentifier.getText())) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -288,8 +309,10 @@ public class BallerinaAnnotator implements Annotator {
                                                 @NotNull AnnotationHolder holder) {
         PsiElement nameIdentifier = element.getNameIdentifier();
         if (nameIdentifier == null) {
+            annotateArrayLengthField(element, holder);
             return;
         }
+
         PsiReference[] references = nameIdentifier.getReferences();
         for (PsiReference reference : references) {
             PsiElement resolvedElement = reference.resolve();
@@ -300,6 +323,43 @@ public class BallerinaAnnotator implements Annotator {
                 Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
             }
+        }
+    }
+
+    private void annotateArrayLengthField(@NotNull VariableReferenceNode element, @NotNull AnnotationHolder holder) {
+        PsiElement lastChild = element.getLastChild();
+        if (lastChild == null) {
+            return;
+        }
+        String text = lastChild.getText();
+        if (!"length".equals(text)) {
+            return;
+        }
+        PsiElement firstChild = element.getFirstChild();
+        if (firstChild == null) {
+            return;
+        }
+        PsiFile containingFile = element.getContainingFile();
+        if (containingFile == null) {
+            return;
+        }
+        PsiReference reference = containingFile.findReferenceAt(firstChild.getTextOffset());
+        if (reference == null) {
+            return;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return;
+        }
+        PsiElement parent = resolvedElement.getParent();
+        if (!(parent instanceof VariableDefinitionNode || parent instanceof ParameterNode
+                || parent instanceof GlobalVariableDefinitionNode)) {
+            return;
+        }
+        boolean isArrayDefinition = BallerinaPsiImplUtil.isArrayDefinition(parent);
+        if (isArrayDefinition) {
+            Annotation annotation = holder.createInfoAnnotation(lastChild, null);
+            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STATIC_FIELD);
         }
     }
 

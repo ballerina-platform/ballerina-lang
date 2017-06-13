@@ -632,15 +632,29 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#triggerWorker}.
+	 * Enter a parse tree produced by the {@code invokeWorker}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
 	 * @param ctx the parse tree
 	 */
-	void enterTriggerWorker(BallerinaParser.TriggerWorkerContext ctx);
+	void enterInvokeWorker(BallerinaParser.InvokeWorkerContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#triggerWorker}.
+	 * Exit a parse tree produced by the {@code invokeWorker}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
 	 * @param ctx the parse tree
 	 */
-	void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx);
+	void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code invokeFork}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
+	 * @param ctx the parse tree
+	 */
+	void enterInvokeFork(BallerinaParser.InvokeForkContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code invokeFork}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
+	 * @param ctx the parse tree
+	 */
+	void exitInvokeFork(BallerinaParser.InvokeForkContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#workerReply}.
 	 * @param ctx the parse tree
@@ -697,6 +711,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#mapArrayVariableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#mapArrayVariableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#expressionList}.
 	 * @param ctx the parse tree

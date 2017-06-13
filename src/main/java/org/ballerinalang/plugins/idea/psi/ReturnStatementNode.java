@@ -14,34 +14,14 @@
  *  limitations under the License.
  */
 
-package psi.vars;
+package org.ballerinalang.plugins.idea.psi;
 
-import psi.BallerinaResolveTestBase;
+import com.intellij.lang.ASTNode;
+import org.jetbrains.annotations.NotNull;
 
-public class BallerinaResolveLocalVariableTest extends BallerinaResolveTestBase {
+public class ReturnStatementNode extends StatementNode {
 
-    @Override
-    protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/vars/local";
-    }
-
-    public void testLocalVariableInAction() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInConnector() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInFunction() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInResource() {
-        doFileTest();
-    }
-
-    public void testLocalVariableInService() {
-        doFileTest();
+    public ReturnStatementNode(@NotNull ASTNode node) {
+        super(node);
     }
 }

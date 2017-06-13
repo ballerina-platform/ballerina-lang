@@ -16,28 +16,24 @@
 
 package completion;
 
-import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     private static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("package", "import", "const", "service",
             "function", "connector", "struct", "typemapper", "annotation");
     private static final List<String> ANY_TYPE = Collections.singletonList("any");
-    private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string");
+    private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "xmlDocument", "json",
             "datatable");
     private static final List<String> COMMON_KEYWORDS = Arrays.asList("if", "else", "fork", "join", "timeout",
-            "worker", "transform", "transaction", "abort", "aborted", "try", "catch", "finally", "iterate", "while",
-            "continue", "break", "throw");
+            "worker", "transform", "transaction", "abort", "aborted", "committed", "try", "catch", "finally", "iterate",
+            "while", "continue", "break", "throw");
     private static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
     private static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
 
@@ -598,6 +594,7 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         expectedLookups.add("continue");
         expectedLookups.add("iterate");
         expectedLookups.add("while");
+        expectedLookups.add("committed");
         doTest("function test () { i<caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -1134,7 +1131,16 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
     }
 
     public void testServiceBody() {
-        doTest("service S{<caret>}", "resource");
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.add("any");
+        expectedLookups.add("resource");
+        doTest("service S{<caret>}", expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
+    public void testServiceBodyAfterAnnotation() {
+        doTest("service S{ @http:GET {} <caret>}", "resource");
     }
 
     public void testServiceAnnotation() {
@@ -1402,16 +1408,20 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.addAll(COMMON_KEYWORDS);
-        expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.add("C");
         expectedLookups.add("any");
+        expectedLookups.add("action");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testConnectorBodyAfterAnnotation() {
+        doTest("connector C(){ @test:test{} <caret> }", "action");
+    }
+
     public void testConnectorBodyVariableDeclarationPackage() {
-        myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
-        doTest("import org.test; connector C(){ te<caret> }", "test", "aborted", "iterate");
+        myFixture.addFileToProject("org/test/file.bal", "package org.test; struct TEST {}");
+        doCheckResult("test.bal", "import org.test; connector C(){ te<caret> }",
+                "import org.test; connector C(){ test: }", null);
     }
 
     public void testConnectorBodyVariableDeclarationPackageInvocation() {
@@ -1741,6 +1751,11 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doCheckResult("test.bal", "function test(){ aborted<caret> }", "function test(){ aborted {\n    \n} }", null);
     }
 
+    public void testCommittedKeyword() {
+        doCheckResult("test.bal", "function test(){ committed<caret> }", "function test(){ committed {\n    \n} }",
+                null);
+    }
+
     public void testTryKeyword() {
         doCheckResult("test.bal", "function test(){ try<caret> }", "function test(){ try {\n    \n} }", null);
     }
@@ -1832,30 +1847,22 @@ public class BallerinaCompletionTest extends LightPlatformCodeInsightFixtureTest
         doTest("function test(){ int a; <caret> int b; }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
+    public void testSuggestionsInTransformStatement() {
+        List<String> expectedLookups = new LinkedList<>();
+        expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(REFERENCE_TYPES);
+        expectedLookups.addAll(COMMON_KEYWORDS);
+        expectedLookups.addAll(VALUE_KEYWORDS);
+        expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
+        expectedLookups.add("a");
+        expectedLookups.add("b");
+        expectedLookups.add("g");
+        expectedLookups.add("any");
+        expectedLookups.add("test");
+        doTest("int g = 1; function test(){ int a = 10; transform { int b = 5; <caret> } }",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
+    }
+
     // todo -  test resource level specific keywords
 
-    private void doTest(String fileContent, String... expectedLookups) {
-        if (fileContent != null) {
-            myFixture.configureByText("test.bal", fileContent);
-        }
-        myFixture.complete(CompletionType.BASIC, 1);
-        List<String> lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, expectedLookups);
-    }
-
-    private void doCheckResult(@NotNull String relativePath, @NotNull String before, String after,
-                               @Nullable Character c, String... expectedLookups) {
-        PsiFile testFile = myFixture.addFileToProject(relativePath, before);
-        myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
-        myFixture.completeBasic();
-        if (c != null) {
-            myFixture.type(c);
-        }
-        if (after != null) {
-            myFixture.checkResult(after);
-        } else {
-            doTest(null, expectedLookups);
-        }
-    }
 }

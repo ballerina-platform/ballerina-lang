@@ -105,6 +105,12 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
+            if (element instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) element).getElementType();
+                if (elementType == BallerinaTypes.QUOTED_STRING) {
+                    return false;
+                }
+            }
             if (element.getParent() instanceof PsiErrorElement) {
                 ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
                 if (serviceBodyNode != null) {
@@ -152,6 +158,12 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
+            if (element instanceof LeafPsiElement) {
+                IElementType elementType = ((LeafPsiElement) element).getElementType();
+                if (elementType == BallerinaTypes.QUOTED_STRING) {
+                    return false;
+                }
+            }
             ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     ResourceDefinitionNode.class);
             CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
