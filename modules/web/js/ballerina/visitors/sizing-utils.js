@@ -74,6 +74,14 @@ class SizingUtil {
         };
     }
 
+    /**
+     * Returns the width of a given string when rendered as svg text according to given options
+     * Unlike `getTextWidth` this method does not try to to truncate the given text depending on its length.
+     * @param {string} text - The string of which the length is measured
+     * @param {Object} options - Options to be used for the rendering
+     * @param {number} options.fontSize - Font size the text should be rendered for measuring width
+     * @return {number} Width of the text in pixels
+     * */
     getOnlyTextWidth(text, options = {}) {
         const { fontSize } = options;
         this.textElement.innerHTML = _.escape(text);
