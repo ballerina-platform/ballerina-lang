@@ -19,6 +19,7 @@ import ASTFactory from '../../ast/ballerina-ast-factory';
 import TryCatchStatementVisitor from './try-catch-statement-visitor';
 import TryStatementVisitor from './try-statement-visitor';
 import CatchStatementVisitor from './catch-statement-visitor';
+import FinallyStatementVisitor from './finally-statement-visitor';
 import IfElseStatementVisitor from './if-else-statement-visitor';
 import IfStatementVisitor from './if-statement-visitor';
 import ElseStatementVisitor from './else-statement-visitor';
@@ -53,6 +54,8 @@ class StatementVisitorFactor {
             return new TryStatementVisitor(parent);
         } else if (ASTFactory.isCatchStatement(statement)) {
             return new CatchStatementVisitor(parent);
+        } else if (ASTFactory.isFinallyStatement(statement)) {
+            return new FinallyStatementVisitor(parent);
         } else if (ASTFactory.isIfElseStatement(statement)) {
             return new IfElseStatementVisitor(parent);
         } else if (ASTFactory.isIfStatement(statement)) {

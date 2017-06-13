@@ -79,13 +79,26 @@ class StatementVisitor extends ASTVisitor {
         return false;
     }
 
+    canVisitFinallyStatement(statement) {
+        return false;
+    }
+
     beginVisitCatchStatement(statement) {
+    }
+
+    beginVisitFinallyStatement(statement) {
     }
 
     visitCatchStatement(statement) {
     }
 
+    visitFinallyStatement(statement) {
+    }
+
     endVisitCatchStatement(statement) {
+    }
+
+    endVisitFinallyStatement(statement) {
     }
 
     canVisitTransactionStatement(statement) {
@@ -424,6 +437,8 @@ class StatementVisitor extends ASTVisitor {
             return this.visitTryStatement(node);
         } else if (ASTFactory.isCatchStatement(node)) {
             return this.visitCatchStatement(node);
+        } else if (ASTFactory.isFinallyStatement(node)) {
+            return this.visitFinallyStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.visitAssignmentStatement(node);
         } else if (ASTFactory.isActionInvocationStatement(node)) {
@@ -485,6 +500,8 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitTryStatement(node);
         } else if (ASTFactory.isCatchStatement(node)) {
             return this.canVisitCatchStatement(node);
+        } else if (ASTFactory.isFinallyStatement(node)) {
+            return this.canVisitFinallyStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.canVisitAssignmentStatement(node);
         } else if (ASTFactory.isTransformStatement(node)) {
@@ -552,6 +569,8 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitTryStatement(node);
         } else if (ASTFactory.isCatchStatement(node)) {
             return this.beginVisitCatchStatement(node);
+        } else if (ASTFactory.isFinallyStatement(node)) {
+            return this.beginVisitFinallyStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.beginVisitAssignmentStatement(node);
         } else if (ASTFactory.isActionInvocationStatement(node)) {
@@ -619,6 +638,8 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitTryStatement(node);
         } else if (ASTFactory.isCatchStatement(node)) {
             return this.endVisitCatchStatement(node);
+        } else if (ASTFactory.isFinallyStatement(node)) {
+            return this.endVisitFinallyStatement(node);
         } else if (ASTFactory.isAssignmentStatement(node)) {
             return this.endVisitAssignmentStatement(node);
         }  else if (ASTFactory.isTransformStatement(node)) {

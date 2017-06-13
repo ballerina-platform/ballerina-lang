@@ -46,6 +46,12 @@ class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
         statement.accept(statementVisitor);
     }
 
+    visitFinallyStatement(statement) {
+        let statementVisitorFactory = new StatementVisitorFactory();
+        let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
+
     endVisitTryCatchStatement(statement) {
         this.appendSource((statement.whiteSpace.useDefault)
           ? this.currentPrecedingIndentation : '');

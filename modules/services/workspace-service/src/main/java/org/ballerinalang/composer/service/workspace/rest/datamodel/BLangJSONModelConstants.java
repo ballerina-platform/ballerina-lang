@@ -309,6 +309,10 @@ public class BLangJSONModelConstants {
 
     public static final String CATCH_BLOCK = "catch_block";
 
+    public static final String FINALLY_BLOCK = "finally_block";
+
+    public static final String CATCH_BLOCKS = "catch_blocks";
+
     public static final String THROW_STATEMENT = "throw_statement";
 
     public static final String ARGUMENT_PARAMETER_DEFINITIONS = "argument_parameter_definitions";

@@ -944,11 +944,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 .TRY_CATCH_STATEMENT);
         this.addPosition(tryCatchStmtObj, tryCatchStmt.getNodeLocation());
         this.addWhitespaceDescriptor(tryCatchStmtObj, tryCatchStmt.getWhiteSpaceDescriptor());
-        tempJsonArrayRef.push(new JsonArray());
 
         if (tryCatchStmt.getTryBlock() != null) {
-            tempJsonArrayRef.push(new JsonArray());
-
             JsonObject tryBlockObj = new JsonObject();
             tryBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TRY_BLOCK);
             this.addPosition(tryBlockObj, tryCatchStmt.getTryBlock().getNodeLocation());
@@ -958,38 +955,46 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             tryCatchStmt.getTryBlock().accept(this);
             tryBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().add(tryBlockObj);
-
-            JsonArray tryStatement = tempJsonArrayRef.peek();
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().addAll(tryStatement);
+            tryCatchStmtObj.add(BLangJSONModelConstants.TRY_BLOCK, tryBlockObj);
         }
 
-        TryCatchStmt.CatchBlock[] catchBlocks = tryCatchStmt.getCatchBlocks();
-        if (catchBlocks.length > 0 && catchBlocks[0] != null) {
+        if (tryCatchStmt.getCatchBlocks().length > 0) {
             tempJsonArrayRef.push(new JsonArray());
-            JsonObject catchBlockObj = new JsonObject();
-            catchBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.CATCH_BLOCK);
-
-            this.addPosition(catchBlockObj, catchBlocks[0].getCatchBlockStmt().getNodeLocation());
-            this.addWhitespaceDescriptor(catchBlockObj, catchBlocks[0].getWhiteSpaceDescriptor());
-            tempJsonArrayRef.push(new JsonArray());
-            catchBlocks[0].getParameterDef().accept(this);
-            catchBlockObj.add(BLangJSONModelConstants.PARAMETER_DEFINITION, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.push(new JsonArray());
-            catchBlocks[0].getCatchBlockStmt().accept(this);
-            catchBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().add(catchBlockObj);
-
-            JsonArray catchStatement = tempJsonArrayRef.peek();
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().addAll(catchStatement);
+            TryCatchStmt.CatchBlock[] catchBlocks = tryCatchStmt.getCatchBlocks();
+            for (TryCatchStmt.CatchBlock catchBlock : catchBlocks) {
+                JsonObject catchBlockObj = new JsonObject();
+                catchBlockObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                        BLangJSONModelConstants.CATCH_BLOCK);
+                this.addPosition(catchBlockObj, catchBlock.getCatchBlockStmt().getNodeLocation());
+                this.addWhitespaceDescriptor(catchBlockObj, catchBlock.getWhiteSpaceDescriptor());
+                tempJsonArrayRef.push(new JsonArray());
+                catchBlock.getParameterDef().accept(this);
+                catchBlockObj.add(BLangJSONModelConstants.PARAMETER_DEFINITION, tempJsonArrayRef.peek());
+                tempJsonArrayRef.pop();
+                tempJsonArrayRef.push(new JsonArray());
+                catchBlock.getCatchBlockStmt().accept(this);
+                catchBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+                tempJsonArrayRef.pop();
+                tempJsonArrayRef.peek().add(catchBlockObj);
+            }
+            // add else catch to parent try-catch
+            tryCatchStmtObj.add(BLangJSONModelConstants.CATCH_BLOCKS, tempJsonArrayRef.peek());
         }
-
-        tryCatchStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
+
+        if (tryCatchStmt.getFinallyBlock() != null) {
+            JsonObject finallyBlockObj = new JsonObject();
+            finallyBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.FINALLY_BLOCK);
+            this.addPosition(finallyBlockObj, tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().getNodeLocation());
+            this.addWhitespaceDescriptor(finallyBlockObj, tryCatchStmt.getWhiteSpaceDescriptor()
+                    .getChildDescriptor("FinallyClause"));
+            tempJsonArrayRef.push(new JsonArray());
+            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
+            finallyBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tryCatchStmtObj.add(BLangJSONModelConstants.FINALLY_BLOCK, finallyBlockObj);
+        }
+
         tempJsonArrayRef.peek().add(tryCatchStmtObj);
     }
 
