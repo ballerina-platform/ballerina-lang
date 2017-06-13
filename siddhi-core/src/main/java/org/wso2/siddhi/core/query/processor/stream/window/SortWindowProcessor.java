@@ -70,11 +70,13 @@ import java.util.Map;
                 @Parameter(name = "attribute",
                         description = "The attribute that should be checked for the order.",
                         type = {DataType.STRING},
-                        optional = true),
+                        optional = true,
+                        defaultValue = "The concatenation of all the attributes of the event is considered."),
                 @Parameter(name = "order",
                         description = "The order define as \"asc\" or \"desc\".",
                         type = {DataType.STRING},
-                        optional = true)
+                        optional = true,
+                        defaultValue = "asc")
         },
         examples = @Example(
                 syntax =  "define stream cseEventStream (symbol string, price float, volume long);\n" +

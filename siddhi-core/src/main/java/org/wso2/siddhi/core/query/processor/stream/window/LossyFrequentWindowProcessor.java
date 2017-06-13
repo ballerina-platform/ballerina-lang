@@ -65,7 +65,8 @@ import java.util.concurrent.ConcurrentHashMap;
                         description = "The attributes to group the events. If no attributes are given, " +
                                 "the concatenation of all the attributes of the event is considered.",
                         type = {DataType.STRING},
-                        optional = true)
+                        optional = true,
+                        defaultValue = "The concatenation of all the attributes of the event is considered.")
         },
         examples = {
                 @Example(

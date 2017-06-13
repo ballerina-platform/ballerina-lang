@@ -72,14 +72,16 @@ import java.util.Map;
                                 "startTime. When startTime is not given, initial value of timestamp " +
                                 "is used as the default.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME},
-                        optional = true),
+                        optional = true,
+                        defaultValue = "0"),
                 @Parameter(name = "timeout",
                         description = "Time to wait for arrival of new event, before flushing " +
                                 "and giving output for events belonging to a specific batch. If timeout is " +
                                 "not provided, system waits till an event from next batch arrives to " +
                                 "flush current batch.",
                         type = {DataType.INT, DataType.LONG, DataType.TIME},
-                        optional = true)
+                        optional = true,
+                        defaultValue = "0")
         },
         examples = {
                 @Example(

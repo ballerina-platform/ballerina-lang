@@ -51,7 +51,8 @@ import java.util.Map;
                 @Parameter(name = "z",
                         description = "z value of the cartesian coordinates.",
                         type = {DataType.DOUBLE},
-                        optional = true)
+                        optional = true,
+                        defaultValue = "If z value is not given, drop the third parameter of the output.")
         },
         examples = {
                 @Example(
