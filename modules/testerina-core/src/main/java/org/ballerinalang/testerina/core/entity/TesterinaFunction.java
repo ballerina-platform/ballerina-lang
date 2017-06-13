@@ -68,20 +68,17 @@ public class TesterinaFunction {
         return invoke(new BValue[] {});
     }
 
-    private BValue[] invoke(BValue[] args) {
-        return invoke(args, new Context());
-    }
-
     /**
-     * Invokes a Ballerina function defined in the given language model.
+     * Invokes a ballerina test function, in blocking mode.
      *
-     * @param bContext ballerina context
-     * @param args     function arguments
-     * @return return values from the function
+     * @param args function arguments
+     * @return values returned by the ballerina function
      */
-    public BValue[] invoke(BValue[] args, Context bContext) {
-        return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(),
-                                        args);
+    public BValue[] invoke(BValue[] args) {
+        Context ctx = new Context(programFile);
+        ctx.initFunction = true;
+        return BLangFunctions.invokeNew(programFile, bFunction.getPackageInfo().getPkgPath(), bFunction.getName(), 
+                args, ctx);
     }
 
 
