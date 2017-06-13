@@ -2391,7 +2391,7 @@ public class BLangVM {
         BType[] retTypes = functionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
 
-        StackFrame caleeSF = new StackFrame(functionInfo, functionInfo.getDefaultWorkerInfo(), 0, null, returnValues);
+        StackFrame caleeSF = new StackFrame(functionInfo, functionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
         copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
                 functionInfo.getParamTypes());
 
@@ -2419,7 +2419,7 @@ public class BLangVM {
         BType[] retTypes = actionInfo.getRetParamTypes();
         BValue[] returnValues = new BValue[retTypes.length];
 
-        StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), 0, null, returnValues);
+        StackFrame caleeSF = new StackFrame(actionInfo, actionInfo.getDefaultWorkerInfo(), ip, null, returnValues);
         copyArgValues(callerSF, caleeSF, funcCallCPEntry.getArgRegs(),
                 actionInfo.getParamTypes());
 
