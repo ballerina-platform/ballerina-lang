@@ -55,7 +55,7 @@ public class IsExists extends AbstractVfsAction {
     public BValue execute(Context context) {
 
         // Extracting Argument values
-        BStruct file = (BStruct) getArgument(context, 1);
+        BStruct file = (BStruct) getRefArgument(context, 1);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         String pathString = file.getStringField(0);

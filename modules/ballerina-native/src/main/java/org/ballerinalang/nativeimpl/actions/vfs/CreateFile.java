@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @BallerinaAction(
         packageName = "ballerina.net.vfs",
-        actionName = "create",
+        actionName = "createFile",
         connectorName = Constants.CONNECTOR_NAME,
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
@@ -36,20 +36,19 @@ import java.util.Map;
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "File struct containing path information") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "type",
-        value = "Specification whether is file or folder") })
-public class Create extends AbstractVfsAction {
+        value = "Specification whether file or folder") })
+public class CreateFile extends AbstractVfsAction {
     @Override public BValue execute(Context context) {
 
         // Extracting Argument values
-        BStruct file = (BStruct) getArgument(context, 1);
-        BString type = (BString) getArgument(context, 2);
+        BStruct file = (BStruct) getRefArgument(context, 1);
+        String type = getStringArgument(context, 0);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         String pathString = file.getStringField(0);
         propertyMap.put(Constants.PROPERTY_URI, pathString);
         propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_CREATE);
-        String strType = type.stringValue();
-        if (strType.equalsIgnoreCase(Constants.TYPE_FOLDER)) {
+        if (type.equalsIgnoreCase(Constants.TYPE_FOLDER)) {
             propertyMap.put(Constants.PROPERTY_FOLDER, Boolean.TRUE.toString());
         }
         try {
