@@ -273,13 +273,6 @@ class ToolPaletteItemProvider extends EventChannel {
             definitions.push(connector);
 
             const toolGroupID = `${pckg.getName()}-tool-group`;
-            // registering connector name-modified event
-            connector.on('name-modified', (newName, oldName) => {
-                self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
-                _.forEach(connector.getActions(), (action) => {
-                    self.updateToolItem(toolGroupID, action, '', newName, 'actionConnectorName');
-                });
-            });
 
             const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
                 return action.getName();
@@ -309,37 +302,6 @@ class ToolPaletteItemProvider extends EventChannel {
                 action.id = action.getId();
                 definitions.push(action);
                 const toolGroupID = `${pckg.getName() }-tool-group`;
-                // registering connector action name-modified event
-                action.on('name-modified', (newName, oldName) => {
-                    self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
-                });
-            });
-            connector.on('connector-action-added', (action) => {
-                const actionIcon = self.icons.action;
-                const toolGroupID = `${pckg.getName() }-tool-group`;
-                action.classNames = 'tool-connector-action';
-
-                action.meta = {
-                    action: action.getName(),
-                    actionConnectorName: connector.getName(),
-                };
-
-                // registering connector action name-modified event
-                action.on('name-modified', (newName, oldName) => {
-                    self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
-                });
-
-                let actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
-                if (action.getReturnParams().length > 0) {
-                    actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
-                }
-                self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
-            });
-
-            connector.on('connector-action-removed', (action) => {
-                const toolGroupID = `${pckg.getName() }-tool-group`;
-                const toolId = `${connector.getName()}-${ action.getActionName()}`;
-                self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
             });
         });
 
@@ -363,10 +325,6 @@ class ToolPaletteItemProvider extends EventChannel {
             definitions.push(functionDef);
 
             const toolGroupID = `${pckg.getName() }-tool-group`;
-            // registering function name-modified event
-            functionDef.on('name-modified', (newName, oldName) => {
-                self.updateToolItem(toolGroupID, functionDef, 'name', newName, 'functionName');
-            });
         });
 
         const group = new ToolGroup({
@@ -375,126 +333,6 @@ class ToolPaletteItemProvider extends EventChannel {
             toolOrder: 'vertical',
             toolDefinitions: definitions,
         });
-
-        pckg.on('connector-defs-added', function (connector) {
-            const packageName = _.last(_.split(pckg.getName(), '.'));
-            const nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
-            const toolGroupID = `${pckg.getName()}-tool-group`;
-            const icon = self.icons.connector;
-
-            const createConnectorDeclChildren = function () {
-                const params = _.map(connector.getParams(),
-                    param => BallerinaASTFactory
-                          .createVariableReferenceExpression({ variableName: param.identifier }),
-                );
-                const varDef = BallerinaASTFactory
-                      .createVariableDefinition({ typeName: `${packageName }:${ connector.getName()}` });
-                const varRef = BallerinaASTFactory
-                  .createVariableReferenceExpression();
-                varRef.addChild(varDef);
-                const connectorName = BallerinaASTFactory.createSimpleTypeName({ typeName: connector.getName(),
-                    packageName });
-
-                const connectorInit = BallerinaASTFactory.createConnectorInitExpression({ arguments: params,
-                    connectorName });
-                const children = [];
-                children.push(varRef);
-                children.push(connectorInit);
-                return children;
-            };
-
-            connector.meta = {
-                childrenFactory: createConnectorDeclChildren,
-            };
-
-            this.addToToolGroup(toolGroupID, connector, nodeFactoryMethod, icon);
-
-            connector.on('name-modified', (newName, oldName) => {
-                self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
-                _.forEach(connector.getActions(), (action) => {
-                    self.updateToolItem(toolGroupID, action, '', newName, 'actionConnectorName');
-                });
-            });
-
-            connector.on('param-added', (newName, oldName) => {
-                const paramString = getParamString();
-                self.updateToolItem(toolGroupID, connector, 'params', paramString, 'params');
-            });
-
-            connector.on('connector-action-added', function (action) {
-                const actionIcon = self.icons.action;
-                action.classNames = 'tool-connector-action';
-                action.setId(action.getId());
-                let actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
-                if (action.getReturnParams().length > 0) {
-                    actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
-                }
-
-                // Setting the meta attributes to be passed as the action arguments
-                action.meta = {
-                    action: action.getName(),
-                    arguments: action.getParameters(),
-                    actionConnectorName: this.getName(),
-                };
-                self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
-
-                action.on('name-modified', (newName, oldName) => {
-                    self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
-                });
-            });
-
-            connector.on('connector-action-removed', (action) => {
-                const toolGroupID = `${pckg.getName() }-tool-group`;
-                const toolId = `${connector.getName()}-${action.getActionName()}`;
-                self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
-            });
-        }, this);
-
-        pckg.on('function-defs-added', function (functionDef) {
-            if (functionDef.getName() === 'main') {
-                // do not add main function to tool palette
-                return;
-            }
-
-            const nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
-
-            // since functions are added to the current package, function name does not need
-            // packageName:functionName format
-            functionDef.meta = {
-                functionDef,
-            };
-            const toolGroupID = `${pckg.getName()}-tool-group`;
-            const icon = self.icons.function;
-            this.addToToolGroup(toolGroupID, functionDef, nodeFactoryMethod, icon);
-
-            functionDef.on('name-modified', (newName, oldName) => {
-                self.updateToolItem(toolGroupID, functionDef, 'name', newName, 'functionName');
-            });
-        }, this);
-
-        var self = this;
-        pckg.on('function-def-removed', (functionDef) => {
-            const toolGroupID = `${pckg.getName()}-tool-group`;
-            const toolId = functionDef.getFunctionName();
-            self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
-        });
-
-        // registering event handler for 'connector-def-removed' event
-        pckg.on('connector-def-removed', (connectorDef) => {
-            const toolGroupID = `${pckg.getName()}-tool-group`;
-            const toolId = connectorDef.getConnectorName();
-            self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
-
-            // remove connector action definitions inside this connector
-            const actions = connectorDef.getConnectorActionDefinitions();
-
-            _.forEach(actions, (action) => {
-                const toolGroupID = `${pckg.getName() }-tool-group`;
-                const toolId = `${connectorDef.getConnectorName() }-${action.getActionName()}`;
-                self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
-            });
-        });
-
         return group;
     }
 
@@ -623,10 +461,6 @@ class ToolPaletteItemProvider extends EventChannel {
                 action.id = action.getId();
                 definitions.push(action);
                 const toolGroupID = `${pckg.getName()}-tool-group`;
-                // registering connector action name-modified event
-                action.on('name-modified', (newName, oldName) => {
-                    self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
-                });
             });
         });
 
@@ -743,10 +577,6 @@ class ToolPaletteItemProvider extends EventChannel {
                 action.id = action.getId();
                 definitions.push(action);
                 const toolGroupID = `${pckg.getName() }-tool-group`;
-                // registering connector action name-modified event
-                action.on('name-modified', (newName, oldName) => {
-                    self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
-                });
             });
         });
 
@@ -805,32 +635,5 @@ class ToolPaletteItemProvider extends EventChannel {
         return group;
     }
 }
-
-/**
- * Generate argument string from the argument array.
- * @param {Object} args argument array
- * @return {String} argument string
- * */
-const getArgumentString = function (args) {
-    let argString = '';
-    for (let itr = 0; itr < args.length; itr++) {
-        argString += args[itr].name;
-        if (args.length !== 1 && (args.length - 1) !== itr) {
-            argString += ',';
-        }
-    }
-    return argString;
-};
-
-/**
- * Generate return parameter string.
- * @param {Object} args return parameter array.
- * @return {String} return argument string
- * */
-const getReturnParamString = function (args) {
-    if (!_.isNil(args) && args.length !== 0) {
-        return args[0].name;
-    }
-};
 
 export default ToolPaletteItemProvider;
