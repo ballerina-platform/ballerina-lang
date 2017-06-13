@@ -41,7 +41,13 @@ class ElseIfStatement extends React.Component {
     }
 
     onAddElseIfClick() {
-        const newElseIfStatement = BallerinaASTFactory.createElseIfStatement();
+        const condition = BallerinaASTFactory.createBasicLiteralExpression({
+            basicLiteralType: 'boolean',
+            basicLiteralValue: true
+        });
+        const newElseIfStatement = BallerinaASTFactory.createElseIfStatement({
+            condition: condition
+        });
         const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
         this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
     }
