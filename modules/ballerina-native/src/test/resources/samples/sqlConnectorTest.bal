@@ -806,3 +806,35 @@ function testDateTimeInParameters () (int[]) {
     sql:ClientConnector.close (testDB);
     return returnValues;
 }
+
+
+function testDateTimeOutParams (int time, int date, int timestamp) (int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter para1 = {sqlType:"integer", value:10, direction:0};
+    sql:Parameter para2 = {sqlType:"date", value:date, direction:0};
+    sql:Parameter para3 = {sqlType:"time", value:time, direction:0};
+    sql:Parameter para4 = {sqlType:"timestamp", value:timestamp, direction:0};
+    sql:Parameter para5 = {sqlType:"datetime", value:timestamp, direction:0};
+
+    sql:Parameter para6 = {sqlType:"date", direction:1};
+    sql:Parameter para7 = {sqlType:"time", direction:1};
+    sql:Parameter para8 = {sqlType:"timestamp", direction:1};
+    sql:Parameter para9 = {sqlType:"datetime", direction:1};
+
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
+
+    sql:ClientConnector.call (testDB, "{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
+
+    sql:Parameter[] emptyParam = [];
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT count(*) from DateTimeTypes where row_id = 10", emptyParam);
+    int count;
+    while (datatables:hasNext(dt)) {
+        count = datatables:getInt(dt, 1);
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close (testDB);
+    return count;
+}
