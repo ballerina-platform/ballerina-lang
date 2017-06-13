@@ -67,8 +67,8 @@ public class WorkspaceServiceConfig {
         return langserverPath;
     }
 
-    public void setLangserverPath(String debuggerPath) {
-        this.debuggerPath = debuggerPath;
+    public void setLangserverPath(String langserverPath) {
+        this.langserverPath = langserverPath;
     }
 
     public String getRootDirectories() {
