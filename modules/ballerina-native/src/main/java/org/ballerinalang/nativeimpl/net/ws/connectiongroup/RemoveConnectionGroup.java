@@ -27,9 +27,10 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Remove a connection group from {@link org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager}
+ * Remove a connection group from {@link org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager}.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
@@ -46,8 +47,18 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 public class RemoveConnectionGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String connectionGroupName = getArgument(context, 0).stringValue();
-        WebSocketConnectionManager.getInstance().removeConnectionGroup(connectionGroupName);
+
+        if (context.getServiceInfo() == null) {
+            throw new BallerinaException("This function is only working with services");
+        }
+
+        String connectionGroupName = getStringArgument(context, 0);
+        boolean connectionGroupRemoved = WebSocketConnectionManager.getInstance().
+                removeConnectionGroup(connectionGroupName);
+        if (!connectionGroupRemoved) {
+            throw new BallerinaException("Connection group name " + connectionGroupName +
+                                                 " not exists. Cannot remove the connection group.");
+        }
         return VOID_RETURN;
     }
 }

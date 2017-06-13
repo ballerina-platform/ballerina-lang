@@ -33,7 +33,6 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -91,11 +90,6 @@ public class Get extends AbstractHTTPAction {
         try {
             // Execute the operation
             executeNonBlockingAction(context, createCarbonMsg(context), callback);
-        } catch (ClientConnectorException | RuntimeException e) {
-            String msg = "Failed to invoke 'get' action in " + Constants.CONNECTOR_NAME
-                    + ". " + e.getMessage();
-            context.getExecutor().createBErrorFromException(e, msg);
-            context.getExecutor().handleBException();
         } catch (Throwable t) {
             // This is should be a JavaError. Need to handle this properly.
             throw new BallerinaException("Failed to invoke 'get' action in " + Constants.CONNECTOR_NAME
@@ -105,9 +99,9 @@ public class Get extends AbstractHTTPAction {
 
     private CarbonMessage createCarbonMsg(Context context) {
         // Extract Argument values
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String path = getArgument(context, 1).stringValue();
-        BMessage bMessage = (BMessage) getArgument(context, 2);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String path = getStringArgument(context, 0);
+        BMessage bMessage = (BMessage) getRefArgument(context, 1);
 
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();

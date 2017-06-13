@@ -36,25 +36,25 @@ public class VariableDefinitionNegativeTest {
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "duplicate-variables.bal:5: redeclared symbol 'b'")
     public void testDuplicateVariables() {
-        BTestUtils.parseBalFile("lang/statements/duplicate-variables.bal");
+        BTestUtils.getProgramFile("lang/statements/duplicate-variables.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-variables.bal:2: undefined symbol 'a'")
     public void testUndeclaredVariables() {
-        BTestUtils.parseBalFile("lang/statements/undeclared-variables.bal");
+        BTestUtils.getProgramFile("lang/statements/undeclared-variables.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:4: undefined type 'Foo'")
     public void testUnsupportedTypeVariable() {
-        BTestUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
+        BTestUtils.getProgramFile("lang/statements/unsupported-type-variable.bal");
     }
 
     @Test(expectedExceptions = BallerinaException.class,
             expectedExceptionsMessageRegExp = "duplicate-constant-variables.bal:2: redeclared symbol 'b'")
     public void testDuplicateConstantVariable() {
-        BTestUtils.parseBalFile("lang/statements/duplicate-constant-variables.bal");
+        BTestUtils.getProgramFile("lang/statements/duplicate-constant-variables.bal");
     }
 
     @Test(description = "Test defining a constant from an arrays type",
@@ -62,6 +62,6 @@ public class VariableDefinitionNegativeTest {
             expectedExceptionsMessageRegExp = "array-type-constants.bal:1:9: " +
                     "mismatched input '\\['. Expecting one of Identifier")
     public void testArrayTypeConstant() {
-        BTestUtils.parseBalFile("lang/statements/array-type-constants.bal");
+        BTestUtils.getProgramFile("lang/statements/array-type-constants.bal");
     }
 }

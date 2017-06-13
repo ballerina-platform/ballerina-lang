@@ -101,112 +101,112 @@ public class SQLDatasource implements BValue {
     private void buildDataSource(BMap options) {
         try {
             HikariConfig config = new HikariConfig();
-            BString key = new BString(Constants.PoolProperties.DATA_SOURCE_CLASSNAME);
+            String key = Constants.PoolProperties.DATA_SOURCE_CLASSNAME;
             BValue value = options.get(key);
             if (value != null) {
                 config.setDataSourceClassName(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.JDBC_URL);
+            key = Constants.PoolProperties.JDBC_URL;
             value = options.get(key);
             if (value != null) {
                 config.setJdbcUrl(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.USER_NAME);
+            key = Constants.PoolProperties.USER_NAME;
             value = options.get(key);
             if (value != null) {
                 config.setUsername(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.PASSWORD);
+            key = Constants.PoolProperties.PASSWORD;
             value = options.get(key);
             if (value != null) {
                 config.setPassword(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.AUTO_COMMIT);
+            key = Constants.PoolProperties.AUTO_COMMIT;
             value = options.get(key);
             if (value != null) {
                 config.setAutoCommit(Boolean.parseBoolean(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.CONNECTION_TIMEOUT);
+            key = Constants.PoolProperties.CONNECTION_TIMEOUT;
             value = options.get(key);
             if (value != null) {
                 config.setConnectionTimeout(Long.parseLong(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.IDLE_TIMEOUT);
+            key = Constants.PoolProperties.IDLE_TIMEOUT;
             value = options.get(key);
             if (value != null) {
                 config.setIdleTimeout(Long.parseLong(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.MAX_LIFETIME);
+            key = Constants.PoolProperties.MAX_LIFETIME;
             value = options.get(key);
             if (value != null) {
                 config.setMaxLifetime(Long.parseLong(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.CONNECTION_TEST_QUERY);
+            key = Constants.PoolProperties.CONNECTION_TEST_QUERY;
             value = options.get(key);
             if (value != null) {
                 config.setConnectionTestQuery(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.MINIMUM_IDLE);
+            key = Constants.PoolProperties.MINIMUM_IDLE;
             value = options.get(key);
             if (value != null) {
                 config.setMinimumIdle(Integer.parseInt(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.MAXIMUM_POOL_SIZE);
+            key = Constants.PoolProperties.MAXIMUM_POOL_SIZE;
             value = options.get(key);
             if (value != null) {
                 config.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.POOL_NAME);
+            key = Constants.PoolProperties.POOL_NAME;
             value = options.get(key);
             if (value != null) {
                 config.setPoolName(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.ISOLATE_INTERNAL_QUERIES);
+            key = Constants.PoolProperties.ISOLATE_INTERNAL_QUERIES;
             value = options.get(key);
             if (value != null) {
                 config.setIsolateInternalQueries(Boolean.parseBoolean(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.ALLOW_POOL_SUSPENSION);
+            key = Constants.PoolProperties.ALLOW_POOL_SUSPENSION;
             value = options.get(key);
             if (value != null) {
                 config.setAllowPoolSuspension(Boolean.parseBoolean(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.READ_ONLY);
+            key = Constants.PoolProperties.READ_ONLY;
             value = options.get(key);
             if (value != null) {
                 config.setReadOnly(Boolean.parseBoolean(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.REGISTER_MBEANS);
+            key = Constants.PoolProperties.REGISTER_MBEANS;
             value = options.get(key);
             if (value != null) {
                 config.setRegisterMbeans(Boolean.parseBoolean(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.CATALOG);
+            key = Constants.PoolProperties.CATALOG;
             value = options.get(key);
             if (value != null) {
                 config.setCatalog(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.CONNECTION_INIT_SQL);
+            key = Constants.PoolProperties.CONNECTION_INIT_SQL;
             value = options.get(key);
             if (value != null) {
                 config.setConnectionInitSql(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.DRIVER_CLASSNAME);
+            key = Constants.PoolProperties.DRIVER_CLASSNAME;
             value = options.get(key);
             if (value != null) {
                 config.setDriverClassName(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.TRANSACTION_ISOLATION);
+            key = Constants.PoolProperties.TRANSACTION_ISOLATION;
             value = options.get(key);
             if (value != null) {
                 config.setTransactionIsolation(value.stringValue());
             }
-            key = new BString(Constants.PoolProperties.VALIDATION_TIMEOUT);
+            key = Constants.PoolProperties.VALIDATION_TIMEOUT;
             value = options.get(key);
             if (value != null) {
                 config.setValidationTimeout(Long.parseLong(value.stringValue()));
             }
-            key = new BString(Constants.PoolProperties.LEAK_DETECTION_THRESHOLD);
+            key = Constants.PoolProperties.LEAK_DETECTION_THRESHOLD;
             value = options.get(key);
             if (value != null) {
                 config.setLeakDetectionThreshold(Long.parseLong(value.stringValue()));
@@ -224,9 +224,9 @@ public class SQLDatasource implements BValue {
     }
 
     private void setDataSourceProperties(BMap options, HikariConfig config) {
-        Set<BString> keySet = options.keySet();
-        for (BString key : keySet) {
-            String keyName = key.stringValue();
+        Set<String> keySet = options.keySet();
+        for (String key : keySet) {
+            String keyName = key;
             if (keyName.startsWith(Constants.PoolProperties.DATASOURCE)) {
                 String keyValue = keyName.substring(Constants.PoolProperties.DATASOURCE.length());
                 BValue value = options.get(key);
@@ -251,6 +251,11 @@ public class SQLDatasource implements BValue {
         return null;
     }
 
+    @Override
+    public BValue copy() {
+        return null;
+    }
+    
     private boolean isXADataSource() {
         try {
             if (hikariDataSource.isWrapperFor(XADataSource.class)) {

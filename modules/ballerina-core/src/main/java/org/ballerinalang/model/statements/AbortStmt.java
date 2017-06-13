@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code AbortStmt} represents an abort action within a transaction block.
@@ -28,8 +29,9 @@ import org.ballerinalang.model.NodeVisitor;
  */
 public class AbortStmt extends AbstractStatement {
 
-    public AbortStmt(NodeLocation location) {
+    public AbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 
     @Override

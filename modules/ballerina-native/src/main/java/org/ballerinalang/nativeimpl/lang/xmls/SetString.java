@@ -26,6 +26,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -48,7 +49,7 @@ import java.util.List;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "set",
+        functionName = "setString",
         args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
 //                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
@@ -74,10 +75,12 @@ public class SetString extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
             // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            String value = getArgument(ctx, 2).stringValue();
+            String value = getStringArgument(ctx, 1);
+            
+            xml = XMLUtils.getSingletonValue(xml);
             
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
@@ -114,9 +117,9 @@ public class SetString extends AbstractNativeFunction {
         } catch (XPathSyntaxException e) {
             ErrorHandler.handleInvalidXPath(OPERATION, e);
         } catch (JaxenException e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         } catch (Throwable e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         }
         
         return VOID_RETURN;

@@ -29,12 +29,16 @@ import net.sf.saxon.tree.tiny.TinyAttributeImpl;
 import net.sf.saxon.tree.tiny.TinyElementImpl;
 import net.sf.saxon.tree.tiny.TinyTextImpl;
 import net.sf.saxon.value.EmptySequence;
+
+import org.apache.axiom.om.OMElement;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -49,7 +53,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "getXml",
+        functionName = "getXmlWithNamespace",
         args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "namespaces", type = TypeEnum.MAP)},
@@ -75,15 +79,17 @@ public class GetXMLWithNamespaces extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
-            BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 2);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
+            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 1);
 
+            xml = XMLUtils.getSingletonValue(xml);
+            
             // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
-            XdmNode doc = builder.build(xml.value().getSAXSource(true));
+            XdmNode doc = builder.build(((OMElement) xml.value()).getSAXSource(true));
             if (namespaces != null && !namespaces.isEmpty()) {
                 for (BString entry : namespaces.keySet()) {
                     xPathCompiler.declareNamespace(entry.stringValue(), namespaces.get(entry).stringValue());
@@ -97,7 +103,7 @@ public class GetXMLWithNamespaces extends AbstractNativeFunction {
             if (sequence instanceof EmptySequence) {
                 ErrorHandler.logWarn(OPERATION, "The xpath '" + xPath + "' does not match any XML element.");
             } else if (sequence instanceof TinyElementImpl || sequence.head() instanceof TinyElementImpl) {
-                result = new BXML(xdmValue.toString());
+                result = new BXMLItem(xdmValue.toString());
             } else if (sequence instanceof TinyAttributeImpl || sequence.head() instanceof TinyAttributeImpl) {
                 throw new BallerinaException("The element matching path '" + xPath + "' is an attribute, but not a " +
                         "XML element.");
@@ -108,9 +114,9 @@ public class GetXMLWithNamespaces extends AbstractNativeFunction {
                 throw new BallerinaException("The element matching path '" + xPath + "' is not a XML element.");
             }
         } catch (SaxonApiException e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         } catch (Throwable e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         }
         //TinyAttributeImpl
         // Setting output value.

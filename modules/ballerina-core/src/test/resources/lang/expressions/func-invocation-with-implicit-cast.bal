@@ -10,28 +10,6 @@ function modifyInt(string a)(string) {
     return b;
 }
 
-
-
-
-
-function testExactMatchWhenCastPossible() (float){
-    float val = 9;
-    return exactMatch(val);
-}
-
-function exactMatch(float b) (float) {
-    return b * 2;
-}
-
-function exactMatch(string b) (float) {
-    float a = 80;
-    return a;
-}
-
-
-
-
-
 function testImplicitCastInvocationWithMultipleParams() (string) {
     int a = 8;
     float b = 5;

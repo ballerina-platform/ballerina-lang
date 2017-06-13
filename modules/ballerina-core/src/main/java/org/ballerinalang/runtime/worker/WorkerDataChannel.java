@@ -17,11 +17,13 @@
  */
 package org.ballerinalang.runtime.worker;
 
+import org.ballerinalang.model.types.BType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is the main class which used as the data channel for worker to worker data communication.
@@ -31,6 +33,7 @@ public class WorkerDataChannel {
     private String source;
     private String target;
     private BlockingQueue<Object[]> channel;
+    private BType[] types;
     private static final Logger log = LoggerFactory.getLogger(WorkerDataChannel.class);
 
     public WorkerDataChannel(String source, String target) {
@@ -53,7 +56,7 @@ public class WorkerDataChannel {
     public Object[] takeData() {
         Object[] data = null;
         try {
-            data = channel.take();
+            data = channel.poll(60, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             // Handle the error properly
             log.error("Error occurred when taking data from the channel");
@@ -79,5 +82,13 @@ public class WorkerDataChannel {
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public BType[] getTypes() {
+        return types;
+    }
+
+    public void setTypes(BType[] types) {
+        this.types = types;
     }
 }

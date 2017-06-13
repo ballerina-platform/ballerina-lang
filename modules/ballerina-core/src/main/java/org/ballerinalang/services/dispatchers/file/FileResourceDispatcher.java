@@ -22,6 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
+import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,7 @@ public class FileResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(FileResourceDispatcher.class);
 
     @Override
+    @Deprecated
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback,
             Context balContext) throws BallerinaException {
         if (log.isDebugEnabled()) {
@@ -48,6 +51,22 @@ public class FileResourceDispatcher implements ResourceDispatcher {
                     + " resources in Service: " + service.getSymbolName().getName());
         }
         return resources[0];
+    }
+
+    @Override
+    public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
+            BallerinaException {
+        if (log.isDebugEnabled()) {
+            log.debug("Starting to find resource in the file service " + service.getName() + " to "
+                    + "deliver the message");
+        }
+        ResourceInfo[] resourceInfoList = service.getResourceInfoList();
+        if (resourceInfoList.length != 1) {
+            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE
+                    + "' has to have only one resource associated to itself. " + "Found " + resourceInfoList.length
+                    + " resources in Service: " + service.getName());
+        }
+        return resourceInfoList[0];
     }
 
     @Override

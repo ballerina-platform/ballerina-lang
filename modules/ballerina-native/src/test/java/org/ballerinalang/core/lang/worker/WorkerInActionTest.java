@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -30,26 +30,42 @@ import org.testng.annotations.Test;
  * Test cases for usages of worker in actions.
  */
 public class WorkerInActionTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile bProgramFile;
 
     @BeforeClass()
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/worker-in-action.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-in-action.bal");
     }
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction1");
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testAction1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
     }
 
     @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction2");
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testAction2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
+
+//    @Test(description = "Test TestConnector action1")
+//    public void testConnectorAction1() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction1");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertTrue(returns[0] instanceof BMessage);
+//    }
+//
+//    @Test(description = "Test TestConnector action2")
+//    public void testConnectorAction2() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction2");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertTrue(returns[0] instanceof BMessage);
+//        final String expected = "{\"name\":\"chanaka\"}";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
 }

@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.lang.messages;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -57,15 +56,15 @@ public class SetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
-        BString payload = (BString) getArgument(context, 1);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        String payload = getStringArgument(context, 0);
         // Clone the message without content
         CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
         msg.setValue(cmsg);
-        msg.setMessageDataSource(payload.stringValue());
+        msg.setMessageDataSource(payload);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
-            log.debug("Setting new payload: " + payload.stringValue());
+            log.debug("Setting new payload: " + payload);
         }
         return VOID_RETURN;
     }

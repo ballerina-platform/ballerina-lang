@@ -27,24 +27,24 @@ import java.util.Set;
 
 /**
  * {@code MapType} represents a map.
- * @param <BString> Key
+ * @param <K> Key
  * @param <V> Value
  * @since 0.8.0
  */
-public class BMap<BString, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
+public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
 
     private int size;
     private static final int INITIAL_CAPACITY = 16;
     private static final int MAX_CAPACITY = 1 << 16;
     @SuppressWarnings("unchecked")
-    private MapEntry<BString, V>[] values = new MapEntry[INITIAL_CAPACITY];
+    private MapEntry<K, V>[] values = new MapEntry[INITIAL_CAPACITY];
 
     /**
      * Retrieve the value for the given key from map.
      * @param key key used to get the value
      * @return value
      */
-    public V get(BString key) {
+    public V get(K key) {
         for (int i = 0; i < size; i++) {
             if (values[i] != null) {
                 if (values[i].getKey().equals(key)) {
@@ -60,7 +60,7 @@ public class BMap<BString, V extends BValue> extends BallerinaMessageDataSource 
      * @param key key related to the value
      * @param value value related to the key
      */
-    public void put(BString key, V value) {
+    public void put(K key, V value) {
         boolean insert = true;
         for (int i = 0; i < size; i++) {
             if (values[i].getKey().equals(key)) {
@@ -97,7 +97,7 @@ public class BMap<BString, V extends BValue> extends BallerinaMessageDataSource 
      * Remove an item from the map.
      * @param key key of the item to be removed
      */
-    public void remove(BString key) {
+    public void remove(K key) {
         for (int i = 0; i < size; i++) {
             if (values[i].getKey().equals(key)) {
                 values[i] = null;
@@ -115,8 +115,8 @@ public class BMap<BString, V extends BValue> extends BallerinaMessageDataSource 
      * Retrieve the set of keys related to this map.
      * @return returns the set of keys
      */
-    public Set<BString> keySet() {
-        Set<BString> set = new HashSet<>();
+    public Set<K> keySet() {
+        Set<K> set = new HashSet<>();
         for (int i = 0; i < size; i++) {
             set.add(values[i].getKey());
         }
@@ -146,6 +146,16 @@ public class BMap<BString, V extends BValue> extends BallerinaMessageDataSource 
         return BTypes.typeMap;
     }
 
+    @Override
+    public BValue copy() {
+        BMap map = BTypes.typeMap.getEmptyValue();
+        for (int i = 0; i < size; i++) {
+            BValue value = values[i].getValue();
+            map.put(values[i].getKey(), value == null ? null : value.copy());
+        }
+        return map;
+    }
+    
     private class MapEntry<K, V> {
         private final K key;
         private V value;

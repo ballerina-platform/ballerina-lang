@@ -41,12 +41,15 @@ public class WhiteSpaceUtil {
     public static final String CLOSING_PAREN = ")";
     public static final String KEYWORD_AS = "as";
     public static final String OPENING_CURLY_BRACE = "{";
+    public static final String CLOSING_CURLY_BRACE = "}";
     public static final String SYMBOL_COLON = ":";
     public static final String NATIVE_KEYWORD = "native";
     public static final String KEYWORD_THROWS = "throws";
     public static final String EQUAL_OPERATOR = "=";
     public static final String IF_KEYWORD = "if";
     public static final String DOT_OPERATOR = ".";
+    public static final String COMMITTED_CLAUSE = "CommittedClause";
+    public static final String ABORTED_CLAUSE = "AbortedClause";
 
     public static String getFileStartingWhiteSpace(CommonTokenStream tokenStream) {
         // find first non-whitespace token
@@ -201,15 +204,23 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START,
                 getWhitespaceToRight(tokenStream,
                         ctx.callableUnitSignature().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                       getFirstTokenWithText(ctx.callableUnitSignature().children, STARTING_PAREN).getTokenIndex()));
         if (ctx.callableUnitSignature().returnParameters() != null) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START,
                     getWhitespaceToLeft(tokenStream,
+                            ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_RETURN_PARAM_START_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream,
                             ctx.callableUnitSignature().returnParameters().start.getTokenIndex()));
         }
         Token throwsToken = getFirstTokenWithText(ctx.callableUnitSignature().children, KEYWORD_THROWS);
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_START_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN,
                     getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
         }
@@ -226,6 +237,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START,
                 getWhitespaceToLeft(tokenStream, ctx.connectorBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_PARAM_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.connectorBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.connectorBody().stop.getTokenIndex()));
         return ws;
@@ -238,8 +251,10 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_IDENTIFIER_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_BODY_START_TO_FIRST_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.structBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_DEF_BODY_END_TO_NEXT_TOKEN,
-                getWhitespaceToLeft(tokenStream, ctx.structBody().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.structBody().stop.getTokenIndex()));
         return ws;
     }
 
@@ -276,6 +291,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_LITERAL_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.simpleLiteral().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -290,6 +307,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_DEF_BODY_START_TO_LAST_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.annotationBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_DEF_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.annotationBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ANNOTATION_DEF_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.annotationBody().stop.getTokenIndex()));
         return ws;
@@ -363,7 +382,7 @@ public class WhiteSpaceUtil {
                                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_EQUAL_OPERATOR_TO_EXPRESSION_START,
                                    getWhitespaceToRight(tokenStream,
-                                         getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
+                                           getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
         }
         ws.addWhitespaceRegion(WhiteSpaceRegions.VAR_DEF_END_TO_LAST_TOKEN,
                                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
@@ -409,6 +428,8 @@ public class WhiteSpaceUtil {
         if (!isNative) {
             ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_LAST_TOKEN,
                     getWhitespaceToLeft(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_START_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.callableUnitBody().start.getTokenIndex()));
             ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_DEF_BODY_END_TO_NEXT_TOKEN,
                     getWhitespaceToRight(tokenStream, ctx.callableUnitBody().stop.getTokenIndex()));
         }
@@ -524,8 +545,13 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START,
                 getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE)
+                        .getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.IF_CLAUSE_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -540,8 +566,13 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, IF_KEYWORD).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START,
                 getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE)
+                        .getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -554,6 +585,9 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START,
                 getWhitespaceToLeft(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
                         getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ELSE_CLAUSE_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
@@ -605,6 +639,9 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_EXCEPTION_WRAPPER_END_TO_BODY_START,
                 getWhitespaceToRight(tokenStream,
                         getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CATCH_CLAUSE_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -617,6 +654,9 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(
+                        tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_END_NEXT_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.catchClauses().start.getTokenIndex()));
         return ws;
@@ -629,7 +669,10 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FINALLY_CLAUSE_FINALLY_KEYWORD_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.TRY_CLAUSE_END_NEXT_TOKEN,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FINALLY_CLAUSE_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(
+                        tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FINALLY_CLAUSE_END_TO_NEXT_TOKEN,
                 getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
@@ -676,7 +719,7 @@ public class WhiteSpaceUtil {
     }
 
     public static WhiteSpaceDescriptor getWorkerInvokeStmtWS(CommonTokenStream tokenStream,
-                                                             BallerinaParser.TriggerWorkerContext ctx) {
+                                                             BallerinaParser.InvokeWorkerContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
@@ -689,6 +732,24 @@ public class WhiteSpaceUtil {
             ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_WORKER_ID_TO_END,
                     getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         }
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getForkInvokeStmtWS(CommonTokenStream tokenStream,
+                                                             BallerinaParser.InvokeForkContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_EXP_TO_ARROW_OPERATOR,
+                getWhitespaceToRight(tokenStream, ctx.expressionList().stop.getTokenIndex()));
+
+//            ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_ARROW_OPERATOR_TO_WORKER_ID,
+//                    getWhitespaceToLeft(tokenStream, ctx.getSymbol().getTokenIndex()));
+//            ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_WORKER_ID_TO_END,
+//                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+
         ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_INVOKE_STMT_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -723,7 +784,7 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
-    public static WhiteSpaceDescriptor getActionInvocationStmtWS(CommonTokenStream tokenStream,
+    public static WhiteSpaceDescriptor getActionInvocationExprWS(CommonTokenStream tokenStream,
                                                                  BallerinaParser.ActionInvocationContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_PRECEDING_WHITESPACE,
@@ -734,6 +795,8 @@ public class WhiteSpaceUtil {
                 getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_IDENTIFIER_TO_EXP_LIST_WRAPPER,
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_EXP_LIST_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -741,17 +804,30 @@ public class WhiteSpaceUtil {
 
     public static WhiteSpaceDescriptor getFunctionInvocationStmtWS(CommonTokenStream tokenStream,
                                                            BallerinaParser.FunctionInvocationStatementContext ctx) {
-        return null;
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_NAME_REF_TO_ARG_LIST_START,
+                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_ARG_LIST_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, CLOSING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
     }
 
     public static WhiteSpaceDescriptor getFunctionInvocationExprWS(CommonTokenStream tokenStream,
                                                            BallerinaParser.FunctionInvocationExpressionContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_PRECEDING_WHITESPACE,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_NAME_REF_TO_EXP_LIST,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_NAME_REF_TO_ARG_LIST_START,
                 getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_END_TO_NEXT_TOKEN,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_ARG_LIST_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
@@ -799,6 +875,8 @@ public class WhiteSpaceUtil {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_LITERAL_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_LITERAL_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_STRUCT_LITERAL_FOLLOWING_WHITESPACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -860,12 +938,28 @@ public class WhiteSpaceUtil {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_TYPE_CAST_START_TO_TYPE_NAME,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP,
                 getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CAST_EXP_FOLLOWING_WHITESPACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getTypeConversionExpWS(CommonTokenStream tokenStream,
+        BallerinaParser.TypeConversionExpressionContext ctx) {
+    WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_PRECEDING_WHITESPACE,
+        getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_TYPE_CAST_START_TO_TYPE_NAME,
+        getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_TYPE_CAST_END_TO_EXP,
+        getWhitespaceToLeft(tokenStream, ctx.expression().start.getTokenIndex()));
+    ws.addWhitespaceRegion(WhiteSpaceRegions.TYPE_CONVERSION_EXP_FOLLOWING_WHITESPACE,
+        getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+    return ws;
+}
 
     public static WhiteSpaceDescriptor getUnaryExpWS(CommonTokenStream tokenStream,
                                                      BallerinaParser.UnaryExpressionContext ctx) {
@@ -882,32 +976,62 @@ public class WhiteSpaceUtil {
     public static WhiteSpaceDescriptor getFieldDefWS(CommonTokenStream tokenStream,
                                                      BallerinaParser.FieldDefinitionContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_TYPE_NAME_TO_ID,
                 getWhitespaceToRight(tokenStream, ctx.typeName().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_ID_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
         if (ctx.simpleLiteral() != null) {
-            ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_ID_TO_EQUAL_OPERATOR,
-                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
-            ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_ID_TO_EQUAL_OPERATOR,
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_EQUAL_OPERATOR_TO_LITERAL,
                     getWhitespaceToLeft(tokenStream, ctx.simpleLiteral().start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_LITERAL_TO_NEXT_TOKEN,
+                    getWhitespaceToRight(tokenStream, ctx.simpleLiteral().stop.getTokenIndex()));
         }
-        ws.addWhitespaceRegion(WhiteSpaceRegions.UNARY_EXP_FOLLOWING_WHITESPACE,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILED_DEF_FOLLOWING_WHITESPACE,
                     getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 
     public static WhiteSpaceDescriptor getBinaryExprWS(CommonTokenStream tokenStream, ParserRuleContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_LEFT_EXP_TO_OPERATOR,
-                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_OPERATOR_TO_RIGHT_EXP,
-                getWhitespaceToLeft(tokenStream, ctx.stop.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_FOLLOWING_WHITESPACE,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        ParserRuleContext leftExpr = getSubExpressionAt(ctx, 0);
+        ParserRuleContext rightExpr = getSubExpressionAt(ctx, 1);
+        if (leftExpr != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_PRECEDING_WHITESPACE,
+                    getWhitespaceToLeft(tokenStream, leftExpr.start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_LEFT_EXP_TO_OPERATOR,
+                    getWhitespaceToRight(tokenStream, leftExpr.stop.getTokenIndex()));
+        }
+        if (rightExpr != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_OPERATOR_TO_RIGHT_EXP,
+                    getWhitespaceToLeft(tokenStream, rightExpr.start.getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.BINARY_EXP_FOLLOWING_WHITESPACE,
+                    getWhitespaceToRight(tokenStream, rightExpr.stop.getTokenIndex()));
+        }
         return ws;
+    }
+
+    private static ParserRuleContext getSubExpressionAt(ParserRuleContext ctx, int index) {
+        ParserRuleContext subExpr = null;
+        List<BallerinaParser.ExpressionContext> expressionContexts = null;
+        if (ctx instanceof BallerinaParser.BinaryAddSubExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryAddSubExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryAndExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryAndExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryCompareExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryCompareExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryDivMulModExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryDivMulModExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryEqualExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryEqualExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryOrExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryOrExpressionContext) ctx).expression();
+        } else if (ctx instanceof BallerinaParser.BinaryPowExpressionContext) {
+            expressionContexts = ((BallerinaParser.BinaryPowExpressionContext) ctx).expression();
+        }
+        if (expressionContexts != null && expressionContexts.size() >= index + 1) {
+            subExpr = expressionContexts.get(index);
+        }
+        return subExpr;
     }
 
     public static WhiteSpaceDescriptor getTransformStmtWS(CommonTokenStream tokenStream,
@@ -919,6 +1043,84 @@ public class WhiteSpaceUtil {
                                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSFORM_STMT_TO_BODY_START,
                                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getActionInvocationStmtWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.ActionInvocationStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ACTION_INVOCATION_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getTransactionWS(CommonTokenStream tokenStream,
+                                                        BallerinaParser.TransactionStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSACTION_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSACTION_STMT_TRANSACTION_KEYWORD_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSACTION_STMT_BODY_START_TO_FIRST_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSACTION_STMT_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, CLOSING_CURLY_BRACE).getTokenIndex()));
+        if (ctx.transactionHandlers().committedClause() != null) {
+            ws.addChildDescriptor(COMMITTED_CLAUSE, getCommittedClauseWS(tokenStream,
+                    ctx.transactionHandlers().committedClause()));
+        }
+        if (ctx.transactionHandlers().abortedClause() != null) {
+            ws.addChildDescriptor(ABORTED_CLAUSE, getAbortedClauseWS(tokenStream,
+                    ctx.transactionHandlers().abortedClause()));
+        }
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getCommittedClauseWS(CommonTokenStream tokenStream,
+                                                            BallerinaParser.CommittedClauseContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.COMMITTED_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.COMMITTED_STMT_TRANSACTION_KEYWORD_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.COMMITTED_STMT_BODY_START_TO_FIRST_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.COMMITTED_STMT_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, CLOSING_CURLY_BRACE).getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getAbortedClauseWS(CommonTokenStream tokenStream,
+                                                          BallerinaParser.AbortedClauseContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ABORTED_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ABORTED_STMT_TRANSACTION_KEYWORD_TO_BODY_START,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ABORTED_STMT_BODY_START_TO_FIRST_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ABORTED_STMT_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, CLOSING_CURLY_BRACE).getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getAbortStmtWS(CommonTokenStream tokenStream,
+                                                      BallerinaParser.AbortStatementContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ABORT_STMT_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ABORT_STMT_ABORT_KEYWORD_TO_END,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.ABORT_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
 }

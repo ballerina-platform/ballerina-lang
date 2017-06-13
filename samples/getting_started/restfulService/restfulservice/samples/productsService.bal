@@ -11,8 +11,7 @@ service productmgt {
 
     @http:GET{}
     @http:Path {value:"/{id}"}
-    resource product(message m,
-    @http:PathParam{value:"id"} string prodId) {
+    resource product(message m, @http:PathParam{value:"id"} string prodId) {
         json payload = (json) productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
@@ -22,7 +21,7 @@ service productmgt {
 
     @http:POST{}
     @http:Path {value:"/"}
-    resource product (message m) {
+    resource addProduct (message m) {
         json jsonReq = messages:getJsonPayload(m);
         string productId = jsons:getString(jsonReq, "$.Product.ID");
         productsMap[productId] = jsonReq;

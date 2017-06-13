@@ -28,8 +28,8 @@ public class BAnyTypeToIntImplicitCastError {
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "any-type-to-int-implicit-cast.bal:3: incompatible types: 'any' " +
-                                              "cannot be converted to 'int'")
+                                              "cannot be assigned to 'int'")
     public void testAnyToIntImplicitCast() {
-        BTestUtils.parseBalFile("lang/any/any-type-to-int-implicit-cast.bal");
+        BTestUtils.getProgramFile("lang/any/any-type-to-int-implicit-cast.bal");
     }
 }

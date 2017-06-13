@@ -36,12 +36,12 @@ import org.testng.annotations.Test;
 public class CommentStmtTest {
 
     @Test(description = "Test the comment statement in the function body")
-    public void testCommentInFunctionBody() {
+    public void testCommentInFunctionBody() { //todo
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
         Statement[] statements = bLangProgram.getLibraryPackages()[0]
                 .getFunctions()[0].getCallableUnitBody().getStatements();
         Assert.assertNotNull(statements, "statements not found");
-        Assert.assertEquals(statements.length, 4, "statement count mismatched");
+        Assert.assertEquals(statements.length, 5, "statement count mismatched");
         Assert.assertTrue(statements[0] instanceof CommentStmt, "1st statement is not a comment statement");
         Assert.assertTrue(statements[2] instanceof CommentStmt, "3rd statement is not a comment statement");
         Assert.assertEquals(((CommentStmt) statements[0]).getComment(), "//comment1", "comment text mismatched");
@@ -52,6 +52,6 @@ public class CommentStmtTest {
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "comment-in-invalid-location.bal:1:0: unwanted token '//invalid .*")
     public void testCommentInInvalidLocation() {
-        BTestUtils.parseBalFile("lang/statements/comment/comment-in-invalid-location.bal");
+        BTestUtils.getProgramFile("lang/statements/comment/comment-in-invalid-location.bal");
     }
 }

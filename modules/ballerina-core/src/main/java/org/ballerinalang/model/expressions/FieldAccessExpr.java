@@ -307,16 +307,6 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     }
     
     @Override
-    public void setTempOffset(int index) {
-        this.varRefExpr.setTempOffset(index);
-    }
-    
-    @Override
-    public int getTempOffset() {
-        return varRefExpr.getTempOffset();
-    }
-    
-    @Override
     public boolean hasTemporaryValues() {
         return varRefExpr.hasTemporaryValues();
     }

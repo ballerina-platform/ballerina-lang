@@ -19,6 +19,7 @@ package org.ballerinalang.core.utils;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -45,7 +46,18 @@ public class BTestUtils {
         try {
             programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             return new BLangProgramLoader().loadLibrary(programPath,
-                Paths.get(sourceFilePath));
+                    Paths.get(sourceFilePath));
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("error while running test: " + e.getMessage());
+        }
+    }
+
+    public static ProgramFile getProgramFile(String sourceFilePath) {
+        Path programPath;
+        try {
+            programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            return new BLangProgramLoader().loadProgramFile(programPath,
+                    Paths.get(sourceFilePath));
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
         }

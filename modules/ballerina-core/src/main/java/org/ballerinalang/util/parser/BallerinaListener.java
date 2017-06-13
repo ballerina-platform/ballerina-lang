@@ -712,15 +712,29 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#triggerWorker}.
+	 * Enter a parse tree produced by the {@code invokeWorker}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
 	 * @param ctx the parse tree
 	 */
-	void enterTriggerWorker(BallerinaParser.TriggerWorkerContext ctx);
+	void enterInvokeWorker(BallerinaParser.InvokeWorkerContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#triggerWorker}.
+	 * Exit a parse tree produced by the {@code invokeWorker}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
 	 * @param ctx the parse tree
 	 */
-	void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx);
+	void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code invokeFork}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
+	 * @param ctx the parse tree
+	 */
+	void enterInvokeFork(BallerinaParser.InvokeForkContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code invokeFork}
+	 * labeled alternative in {@link BallerinaParser#triggerWorker}.
+	 * @param ctx the parse tree
+	 */
+	void exitInvokeFork(BallerinaParser.InvokeForkContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#workerReply}.
 	 * @param ctx the parse tree
@@ -818,15 +832,35 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#rollbackClause}.
+	 * Enter a parse tree produced by {@link BallerinaParser#transactionHandlers}.
 	 * @param ctx the parse tree
 	 */
-	void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx);
+	void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#rollbackClause}.
+	 * Exit a parse tree produced by {@link BallerinaParser#transactionHandlers}.
 	 * @param ctx the parse tree
 	 */
-	void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx);
+	void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#abortedClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#abortedClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#committedClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#committedClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#abortStatement}.
 	 * @param ctx the parse tree
@@ -1025,6 +1059,18 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code typeConversionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

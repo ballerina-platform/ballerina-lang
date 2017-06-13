@@ -53,7 +53,7 @@ public class ToUpperCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).stringValue();
+        String param1 = getStringArgument(context, 0);
         BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
         return getBValues(upperCaseString);
     }

@@ -19,7 +19,9 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 
+import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.util.codegen.ResourceInfo;
 
 public class URITemplateParser {
 
@@ -28,74 +30,88 @@ public class URITemplateParser {
     private Node syntaxTree;
     private Node currentNode;
 
-    public Node parse(String template) throws URITemplateException {
+    public URITemplateParser(Node rootNode) {
+        this.syntaxTree = rootNode;
+    }
+
+    public Node parse(String template, ResourceInfo resource) throws URITemplateException {
         if (!"/".equals(template) && template.endsWith("/")) {
             template = template.substring(0, template.length() - 1);
         }
 
-        boolean expression = false;
-        int startIndex = 0;
-        int maxIndex = template.length() - 1;
+        if (!"/".equals(template)) {
+            for (String segment : template.split("/")) {
 
-        for (int pointerIndex = 0; pointerIndex < template.length(); pointerIndex++) {
-            char ch = template.charAt(pointerIndex);
+                boolean expression = false;
+                int startIndex = 0;
+                int maxIndex = segment.length() - 1;
 
-            switch (ch) {
-                case '{':
-                    if (!expression) {
-                        if (pointerIndex + 1 >= maxIndex) {
-                            throw new URITemplateException("Illegal open brace character");
-                        }
+                for (int pointerIndex = 0; pointerIndex < segment.length(); pointerIndex++) {
+                    char ch = segment.charAt(pointerIndex);
 
-                        expression = true;
-                        if (pointerIndex > startIndex) {
-                            addNode(new Literal(template.substring(startIndex, pointerIndex)));
-                            startIndex = pointerIndex + 1;
-                        } else if (template.charAt(pointerIndex - 1) != '}') {
-                            throw new URITemplateException("Illegal empty literal");
+                    switch (ch) {
+                    case '{':
+                        if (!expression) {
+                            if (pointerIndex + 1 >= maxIndex) {
+                                throw new URITemplateException("Illegal open brace character");
+                            }
+
+                            expression = true;
+                            if (pointerIndex > startIndex) {
+                                addNode(new Literal(segment.substring(startIndex, pointerIndex)));
+                                startIndex = pointerIndex + 1;
+                                // TODO: Check whether we really need this.
+                        /*} else if (segment.charAt(pointerIndex - 1) != '}') {
+                            throw new URITemplateException("Illegal empty literal");*/
+                            } else {
+                                startIndex++;
+                            }
                         } else {
-                            startIndex++;
+                            throw new URITemplateException("Already in expression");
                         }
-                    } else {
-                        throw new URITemplateException("Already in expression");
-                    }
-                    break;
+                        break;
 
-                case '}':
-                    if (expression) {
-                        expression = false;
-                        if (pointerIndex > startIndex) {
-                            createExpressionNode(template.substring(startIndex, pointerIndex));
-                            startIndex = pointerIndex + 1;
-                        } else {
-                            throw new URITemplateException("Illegal empty expression");
-                        }
-                    } else {
-                        throw new URITemplateException("Illegal closing brace detected");
-                    }
-                    break;
-
-                default:
-                    if (pointerIndex == maxIndex) {
-                        String token = template.substring(startIndex);
+                    case '}':
                         if (expression) {
-                            createExpressionNode(token);
+                            expression = false;
+                            if (pointerIndex > startIndex) {
+                                createExpressionNode(segment.substring(startIndex, pointerIndex));
+                                startIndex = pointerIndex + 1;
+                            } else {
+                                throw new URITemplateException("Illegal empty expression");
+                            }
                         } else {
-                            addNode(new Literal(token));
+                            throw new URITemplateException("Illegal closing brace detected");
+                        }
+                        break;
+
+                    default:
+                        if (pointerIndex == maxIndex) {
+                            String token = segment.substring(startIndex);
+                            if (expression) {
+                                createExpressionNode(token);
+                            } else {
+                                addNode(new Literal(token));
+                            }
                         }
                     }
+                }
             }
+            this.currentNode.setResource(resource);
+        } else {
+            this.syntaxTree.setResource(resource);
         }
         return syntaxTree;
     }
 
     private void addNode(Node node) {
-        if (syntaxTree == null) {
-            syntaxTree = node;
+        if (currentNode == null) {
             currentNode = syntaxTree;
+        }
+        if (node.getToken().equals("*")) {
+            currentNode = currentNode.addChild("." + node.getToken(), node);
         } else {
-            currentNode.setNext(node);
-            currentNode = node;
+            currentNode = currentNode.addChild(node.getToken(), node);
         }
     }
 

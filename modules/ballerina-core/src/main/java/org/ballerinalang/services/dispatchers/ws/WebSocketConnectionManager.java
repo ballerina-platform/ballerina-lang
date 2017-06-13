@@ -112,21 +112,28 @@ public class WebSocketConnectionManager {
      *
      * @param groupName name of the broadcast.
      * @param session {@link Session} to remove from the group.
+     * @return true if the connection name was found and connection is removed.
      */
-    public void removeConnectionFromGroup(String groupName, Session session) {
-        // TODO: Throw exception if it is not there.
+    public boolean removeConnectionFromGroup(String groupName, Session session) {
         if (connectionGroups.containsKey(groupName)) {
             connectionGroups.get(groupName).remove(session.getId());
+            return true;
         }
+        return false;
     }
 
     /**
      * Remove the whole group from the groups map.
      *
      * @param groupName name of the group.
+     * @return true if connection group name exists and connection group is removed successfully.
      */
-    public void removeConnectionGroup(String groupName) {
-        connectionGroups.remove(groupName);
+    public boolean removeConnectionGroup(String groupName) {
+        if (connectionGroups.containsKey(groupName)) {
+            connectionGroups.remove(groupName);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -159,9 +166,14 @@ public class WebSocketConnectionManager {
      * Remove connection from the connection store.
      *
      * @param connectionName connection name which should be removed from the store.
+     * @return true if connection name was found in connection store and removed successfully.
      */
-    public void removeConnectionFromStore(String connectionName) {
-        connectionStore.remove(connectionName);
+    public boolean removeConnectionFromStore(String connectionName) {
+        if (connectionStore.containsKey(connectionName)) {
+            connectionStore.remove(connectionName);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -181,7 +193,7 @@ public class WebSocketConnectionManager {
      *
      * @param session {@link Session} which should be removed from all the places.
      */
-    void removeConnectionFromAll(Session session) {
+    public void removeConnectionFromAll(Session session) {
         // Removing session from broadcast sessions map
         broadcastSessions.entrySet().forEach(
                 entry -> entry.getValue().entrySet().removeIf(

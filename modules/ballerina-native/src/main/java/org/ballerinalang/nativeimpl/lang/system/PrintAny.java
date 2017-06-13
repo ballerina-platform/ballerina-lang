@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class PrintAny extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        System.out.print(getArgument(ctx, 0).stringValue());
+        System.out.print(getRefArgument(ctx, 0).stringValue());
         return VOID_RETURN;
     }
 }

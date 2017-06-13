@@ -22,6 +22,7 @@ import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -57,4 +58,22 @@ public class ResourceInvocationExpr extends AbstractExpression implements Execut
         return executor.visit(this);
     }
 
+    @Override
+    public BType[] getTypes() {
+        return null;
+    }
+
+    @Override
+    public void setTypes(BType[] types) {
+    }
+
+    @Override
+    public int[] getOffsets() {
+        return new int[0];
+    }
+
+    @Override
+    public void setOffsets(int[] offsets) {
+
+    }
 }

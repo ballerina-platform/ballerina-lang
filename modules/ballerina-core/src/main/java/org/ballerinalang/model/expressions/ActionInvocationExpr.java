@@ -42,6 +42,8 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private boolean hasReturningBranch;
     private Expression varRefExpr;
 
+    private int[] offsets;
+
     public ActionInvocationExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
                                 String name,
@@ -113,6 +115,14 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         if (!multipleReturnsAvailable && types.length == 1) {
             this.type = types[0];
         }
+    }
+
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
     @Override

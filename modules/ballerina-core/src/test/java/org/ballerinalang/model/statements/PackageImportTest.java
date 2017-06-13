@@ -34,6 +34,6 @@ public class PackageImportTest {
     @Test(expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-import.bal:4: redeclared import package name 'system'")
     public void testDuplicatePackageImports() {
-        BTestUtils.parseBalFile("lang/statements/duplicate-import.bal");
+        BTestUtils.getProgramFile("lang/statements/duplicate-import.bal");
     }
 }

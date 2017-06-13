@@ -50,16 +50,14 @@ import java.util.Map;
 
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram.
- *
+ * @deprecated since 0.88
  * @since 0.8.0
  */
 public class BalProgramExecutor {
 
+    @Deprecated
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
-
-        balContext.setServiceInfo(
-                new CallableUnitInfo(service.getName(), service.getPackagePath(), service.getNodeLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameterDefs().length];
@@ -118,9 +116,7 @@ public class BalProgramExecutor {
             // Only start the debugger if there is an active client (debug session).
             if (debugManager.isDebugSessionActive()) {
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
-                debugger.setParentScope(resource);
                 debugManager.setDebugger(debugger);
-                balContext.setExecutor(debugger);
                 debugger.execute(new ResourceInvocationExpr(resource, exprs));
             } else {
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);

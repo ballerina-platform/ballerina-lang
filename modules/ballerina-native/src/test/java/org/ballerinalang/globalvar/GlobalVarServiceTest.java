@@ -18,11 +18,11 @@
 
 package org.ballerinalang.globalvar;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,11 +34,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class GlobalVarServiceTest {
 
-    BLangProgram bLangProgram;
+    ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = EnvironmentInitializer.setup("lang/globalvar/global-var-service.bal");
+        bLangProgram = EnvironmentInitializer.setupProgramFile("lang/globalvar/global-var-service.bal");
     }
 
     @Test(description = "Test defining global variables in services")
@@ -101,7 +101,7 @@ public class GlobalVarServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(bLangProgram);
+        // EnvironmentInitializer.cleanup(bLangProgram);
     }
 
 }
