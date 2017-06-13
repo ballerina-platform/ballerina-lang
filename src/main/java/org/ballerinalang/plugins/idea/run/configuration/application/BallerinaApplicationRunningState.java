@@ -17,18 +17,43 @@
 package org.ballerinalang.plugins.idea.run.configuration.application;
 
 import com.intellij.execution.ExecutionException;
+import com.intellij.execution.executors.DefaultDebugExecutor;
+import com.intellij.execution.process.ProcessAdapter;
+import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunningState;
 import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
+import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BallerinaApplicationRunningState extends BallerinaRunningState<BallerinaApplicationConfiguration> {
+
+    private int myDebugPort = 5006;
+    @Nullable
+    private BallerinaHistoryProcessListener myHistoryProcessHandler;
 
     BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
                                      @NotNull BallerinaApplicationConfiguration configuration) {
         super(env, module, configuration);
+    }
+
+    @NotNull
+    @Override
+    protected ProcessHandler startProcess() throws ExecutionException {
+        ProcessHandler processHandler = super.startProcess();
+        processHandler.addProcessListener(new ProcessAdapter() {
+            @Override
+            public void startNotified(ProcessEvent event) {
+                if (myHistoryProcessHandler != null) {
+                    myHistoryProcessHandler.apply(processHandler);
+                }
+            }
+        });
+        return processHandler;
     }
 
     @Override
@@ -38,10 +63,27 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         if (parameters.isEmpty()) {
             parameters = myConfiguration.getFilePath();
         }
-        return executor
+        BallerinaExecutor ballerinaExecutor = executor
                 .withParameters("run")
                 .withParameters(kind.name().toLowerCase())
                 .withParameterString(myConfiguration.getBallerinaToolParams())
                 .withParameters(parameters);
+        if (isDebug()) {
+            ballerinaExecutor.withParameters("--debug", String.valueOf(5005));
+            ballerinaExecutor.withParameters("--ballerina.debug", String.valueOf(myDebugPort));
+        }
+        return ballerinaExecutor;
+    }
+
+    public void setDebugPort(int debugPort) {
+        myDebugPort = debugPort;
+    }
+
+    public void setHistoryProcessHandler(@Nullable BallerinaHistoryProcessListener historyProcessHandler) {
+//        myHistoryProcessHandler = historyProcessHandler;
+    }
+
+    public boolean isDebug() {
+        return DefaultDebugExecutor.EXECUTOR_ID.equals(getEnvironment().getExecutor().getId());
     }
 }
