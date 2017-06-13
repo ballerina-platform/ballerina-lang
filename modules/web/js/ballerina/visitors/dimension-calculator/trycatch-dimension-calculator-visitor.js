@@ -35,7 +35,7 @@ class TryCatchStatementDimensionCalculatorVisitor {
     endVisit(node) {
         let viewState = node.getViewState();
         let components = {};
-        let statementWidth = 0;
+        let statementWidth;
         let statementHeight = 0;
         let sortedChildren = _.sortBy(node.getChildren(), function (child) {
             return child.getViewState().bBox.w;

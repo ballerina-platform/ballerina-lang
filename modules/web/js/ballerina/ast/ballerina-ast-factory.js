@@ -37,6 +37,7 @@ import elseIfStatement from './statements/else-if-statement';
 import tryCatchStatement from './statements/trycatch-statement';
 import tryStatement from './statements/try-statement';
 import catchStatement from './statements/catch-statement';
+import finallyStatement from './statements/finally-statement';
 import replyStatement from './statements/reply-statement';
 import whileStatement from './statements/while-statement';
 import returnStatement from './statements/return-statement';
@@ -346,6 +347,14 @@ BallerinaASTFactory.createTryStatement = function (args) {
  */
 BallerinaASTFactory.createCatchStatement = function (args) {
     return new catchStatement(args);
+};
+
+/**
+ * creates FinallyStatement
+ * @param args
+ */
+BallerinaASTFactory.createFinallyStatement = function (args) {
+    return new finallyStatement(args);
 };
 
 /**
@@ -1124,6 +1133,15 @@ BallerinaASTFactory.isCatchStatement = function (child) {
 };
 
 /**
+ * instanceof check for FinallyStatement
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isFinallyStatement = function (child) {
+    return child instanceof finallyStatement;
+};
+
+/**
  * instanceof check for ReplyStatement
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
@@ -1752,6 +1770,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'catch_block':
         node = BallerinaASTFactory.createCatchStatement();
+        break;
+    case 'finally_block':
+        node = BallerinaASTFactory.createFinallyStatement();
         break;
     case 'throw_statement':
         node = BallerinaASTFactory.createThrowStatement();

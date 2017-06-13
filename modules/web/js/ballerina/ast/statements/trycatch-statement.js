@@ -28,6 +28,9 @@ class TryCatchStatement extends Statement {
     constructor(args) {
         super();
         this.type = "TryCatchStatement";
+        this._tryStatement = _.get(args, 'tryStatement');
+        this._catchStatements = _.get(args, 'catchStatements', []);
+        this._finallyStatement = _.get(args, 'finallyStatement');
     }
 
     /**
@@ -52,12 +55,29 @@ class TryCatchStatement extends Statement {
     }
 
     initFromJson(jsonNode) {
+        this._catchStatements.length = 0;
+        this.getChildren().length = 0;
         let self = this;
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
+        let tryBlockNode = jsonNode.try_block;
+        let catchBlocks = jsonNode.catch_blocks;
+        let finallyBlockNode = jsonNode.finally_block;
+
+        this._tryStatement = self.getFactory().createFromJson(tryBlockNode);
+        this._tryStatement.initFromJson(tryBlockNode);
+        this.addChild(this._tryStatement);
+
+        _.each(catchBlocks, (catchBlock) => {
+            let catchNode = self.getFactory().createFromJson(catchBlock);
+            this.getCatchStatements().push(catchNode);
+            this.addChild(catchNode);
+            catchNode.initFromJson(catchBlock);
         });
+
+        if (!_.isNil(finallyBlockNode)) {
+            this._finallyStatement = self.getFactory().createFromJson(finallyBlockNode);
+            this._finallyStatement.initFromJson(finallyBlockNode);
+            this.addChild(this._finallyStatement);
+        }
     }
 
     setStatementFromString(statementString, callback) {
@@ -86,6 +106,14 @@ class TryCatchStatement extends Statement {
                 callback({isValid: false, response: parsedJson});
             }
         }
+    }
+
+    getTryStatement() {
+        return this._tryStatement;
+    }
+
+    getCatchStatements() {
+        return this._catchStatements;
     }
 }
 
