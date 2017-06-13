@@ -1788,7 +1788,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // When getting the action symbol name, Package name for the action is set to null, since the action is
             // registered under connector, and connecter contains the package
             SymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
-                    actionIExpr.getPackagePath(), actionIExpr.getConnectorName(), paramTypes);
+                    actionIExpr.getPackagePath(), actionIExpr.getConnectorName());
 
             // Now check whether there is a matching action
             BLangSymbol actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(actionSymbolName);

@@ -120,6 +120,33 @@ public class ConnectorActionTest {
         Assert.assertEquals(returnVal3.intValue(), functionArg3, "action 5 failed on 3rd return value");
     }
 
+    @Test(description = "Test action invocation dot notation")
+    public void testDotActionInvocation() {
+        String functionArg1 = "inputParam1";
+        String functionArg2 = "inputParam2";
+        int functionArg3 = 3;
+        String functionArg4 = "inputParam4";
+        BValue[] functionArgs = new BValue[] {
+                new BString(functionArg1), new BString(functionArg2), new BInteger(functionArg3),
+                new BString(functionArg4)
+        };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testDotActionInvocation", functionArgs);
+
+        Assert.assertEquals(returns.length, 3);
+
+        BString returnVal1 = (BString) returns[0];
+        Assert.assertSame(returnVal1.getClass(), BString.class, "Invalid class type returned.");
+        Assert.assertEquals(returnVal1.stringValue(), functionArg4, "action 5 failed on first return value");
+
+        BString returnVal2 = (BString) returns[1];
+        Assert.assertSame(returnVal2.getClass(), BString.class, "Invalid class type returned.");
+        Assert.assertEquals(returnVal2.stringValue(), functionArg2, "action 5 failed on 2nd return value");
+
+        BInteger returnVal3 = (BInteger) returns[2];
+        Assert.assertSame(returnVal3.getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(returnVal3.intValue(), functionArg3, "action 5 failed on 3rd return value");
+    }
+
     @Test
     public void testEmptyParamConnector() {
         String input = "hello";
@@ -161,6 +188,21 @@ public class ConnectorActionTest {
     public void testDuplicateAction() {
         BTestUtils.getProgramFile("lang/connectors/duplicate-action.bal");
     }
+
+//    @Test(description = "Test defining duplicate action",
+//            expectedExceptions = {SemanticException.class },
+//            expectedExceptionsMessageRegExp = "duplicate-action.bal:9: redeclared symbol 'foo'")
+//    public void testActionInvokeDotWrongNotation() {
+//        String functionArg1 = "inputParam1";
+//        String functionArg2 = "inputParam2";
+//        int functionArg3 = 3;
+//        String functionArg4 = "inputParam4";
+//        BValue[] functionArgs = new BValue[] {
+//                new BString(functionArg1), new BString(functionArg2), new BInteger(functionArg3),
+//                new BString(functionArg4)
+//        };
+//        BLangFunctions.invokeNew(programFile, "testDotActionInvocationWrong", functionArgs);
+//    }
 
 //    @Test(description = "Test incorrect action invocation",
 //            expectedExceptions = {SemanticException.class },
