@@ -26,7 +26,7 @@ class DimensionCalculatorVisitor {
             var nodeVisitor = new Visitors[node.getType() + 'DimensionCalculatorVisitor']();
             return nodeVisitor['canVisit'](node);
         } else {
-            log.warn('Unable to find Dimension Calculator for : ' + node.getType());
+            log.debug('Unable to find Dimension Calculator for : ' + node.getType());
         }
 
         return false;

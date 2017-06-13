@@ -59,11 +59,9 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
             let varDefVisitor = new VariableDefinitionStatementVisitor(this);
             variableDefStatement.accept(varDefVisitor);
         });
-        log.debug('Begin Visit FunctionDefinition');
     }
 
     visitStructDefinition(structDefinition) {
-        log.debug('Visit FunctionDefinition');
     }
 
     endVisitStructDefinition(structDefinition) {
@@ -72,7 +70,6 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
         this.appendSource((structDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit FunctionDefinition');
     }
 }
 

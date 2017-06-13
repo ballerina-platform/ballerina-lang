@@ -15,27 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import {util} from './../sizing-utils';
 import {timeout} from '../../configs/designer-defaults';
 
 class TimeoutStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit TimeoutStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit TimeoutStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit TimeoutStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit TimeoutStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
         util.addParamDimenstion(node.getViewState(), node.getExpression(), node.getParameterAsString()
             , timeout.title.w);

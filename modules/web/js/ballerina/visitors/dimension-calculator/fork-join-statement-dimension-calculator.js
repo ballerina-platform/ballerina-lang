@@ -24,20 +24,16 @@ import ASTFactory from './../../ast/ballerina-ast-factory';
 class ForkJoinStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit ForkJoinStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit ForkJoinStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit ForkJoinStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit ForkJoinStatementDimensionCalculatorVisitor');
         let viewState = node.getViewState();
         let containerW = DesignerDefaults.fork.lifeLineGutterH;
         const workers = node.filterChildren(function (child) {
@@ -116,4 +112,3 @@ class ForkJoinStatementDimensionCalculatorVisitor {
 }
 
 export default ForkJoinStatementDimensionCalculatorVisitor;
-

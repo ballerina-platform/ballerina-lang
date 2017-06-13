@@ -54,18 +54,15 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
             );
         }
         this.appendSource(constructedSourceSegment);
-        log.debug('Begin Visit ImportDeclaration');
     }
 
     visitImportDeclaration(importDeclaration) {
-        log.debug('Visit ImportDeclaration');
     }
 
     endVisitImportDeclaration(importDeclaration) {
         this.appendSource(';' + importDeclaration.getWSRegion(4));
 
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit ImportDeclaration');
     }
 }
 

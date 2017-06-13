@@ -23,12 +23,10 @@ import {util} from './../sizing-utils';
 class TimeoutStatementPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit TimeoutStatementPositionCalcVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('visit TimeoutStatementPositionCalcVisitor');
         let viewState = node.getViewState();
         let bBox = viewState.bBox;
         const parent = node.getParent();
@@ -47,11 +45,9 @@ class TimeoutStatementPositionCalcVisitor {
     }
 
     visit(node) {
-        log.debug('visit TimeoutStatementPositionCalcVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit TimeoutStatementPositionCalcVisitor');
     }
 }
 

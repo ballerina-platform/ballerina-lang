@@ -21,20 +21,16 @@ import {util} from './../sizing-utils';
 
 class AbortStatementDimensionCalculatorVisitor {
     canVisit(node) {
-        log.debug('can visit AbortStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit AbortStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit AbortStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit AbortStatementDimensionCalculatorVisitor');
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }

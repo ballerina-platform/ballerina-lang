@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
 class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
@@ -43,7 +42,6 @@ class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
         this.appendSource((functionInvocation.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Function Invocation Statement');
     }
 }
 

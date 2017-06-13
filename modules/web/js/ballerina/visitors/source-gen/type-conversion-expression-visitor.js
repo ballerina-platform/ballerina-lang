@@ -31,23 +31,19 @@ class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
 
     beginVisitTypeConversionExpression(expression) {
         this.appendSource('<' + expression.getName() + '>');
-        log.debug('Begin Visit Type Conversion Expression');
     }
 
     visitTypeConversionExpression(expression) {
-        log.debug('Visit Ref Type Type Conversion Expression');
     }
 
     endVisitTypeConversionExpression(expression) {
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Type Conversion Expression');
     }
 
     visitExpression(expression) {
         var expressionVisitorFactory = new ExpressionVisitorFactory();
         var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
         expression.accept(expressionVisitor);
-        log.debug('Visit Expression');
     }
 }
 

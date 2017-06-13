@@ -53,11 +53,9 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
 
         constructedSourceSegment += constantDefinition.getConstantDefinitionAsString();
         this.appendSource(constructedSourceSegment);
-        log.debug('Begin Visit ConstantDefinition');
     }
 
     visitConstantDefinition(constantDefinition) {
-        log.debug('Visit ConstantDefinition');
     }
 
     endVisitConstantDefinition(constantDefinition) {
@@ -65,7 +63,6 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
         this.appendSource((constantDefinition.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit ConstantDefinition');
     }
 }
 

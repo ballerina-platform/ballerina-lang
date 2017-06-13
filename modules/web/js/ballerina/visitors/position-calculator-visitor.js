@@ -17,6 +17,7 @@
  */
 
 import Visitors from './position-calc/components';
+import log from 'log';
 
 class PositionCalculatorVisitor {
 
@@ -25,7 +26,7 @@ class PositionCalculatorVisitor {
             let nodeVisitor = new Visitors[node.getType() + 'PositionCalcVisitor']();
             return nodeVisitor['canVisit'](node);
         } else {
-            console.log("Unable to find position visitor for : " + node.getType());
+            log.debug("Unable to find position visitor for : " + node.getType());
         }
 
         return undefined;

@@ -39,7 +39,6 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.appendSource('try' + tryStatement.getWSRegion(1) + '{' + tryStatement.getWSRegion(2));
         this.appendSource((tryStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
-        log.debug('Begin Visit Try Statement');
     }
 
     visitStatement(statement) {
@@ -54,7 +53,6 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.outdent();
         this.appendSource('}' + tryStatement.getWSRegion(3));
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Try Statement');
     }
 }
 

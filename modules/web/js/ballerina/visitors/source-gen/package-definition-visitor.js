@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
@@ -45,11 +44,9 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
                 + packageDefinition.getPackageName();
             this.appendSource(constructedSourceSegment);
         }
-        log.debug('Begin Visit PackageDefinition');
     }
 
     visitPackageDefinition(packageDefinition) {
-        log.debug('Visit PackageDefinition');
     }
 
     endVisitPackageDefinition(packageDefinition) {
@@ -61,7 +58,6 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
             );
             this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         }
-        log.debug('End Visit PackageDefinition');
     }
 }
 

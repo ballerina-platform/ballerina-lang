@@ -15,9 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
 class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
@@ -35,11 +32,9 @@ class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
         this.appendSource('reply' + replyStatement.getWSRegion(1) + replyStatement.getReplyMessage());
-        log.debug('Begin Visit Reply Statement Definition');
     }
 
     visitReplyStatement(replyStatement) {
-        log.debug('Visit Reply Statement Definition');
     }
 
     endVisitReplyStatement(replyStatement) {
@@ -47,7 +42,6 @@ class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.appendSource((replyStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Reply Statement Definition');
     }
 }
 

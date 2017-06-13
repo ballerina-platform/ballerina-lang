@@ -15,32 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
-import _ from 'lodash';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 import {util} from './../sizing-utils';
-import ResourceParameterDimensionCalculatorVisitor from './resource-parameter-dimension-calculator-visitor';
 
 class ResourceDefinitionDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ResourceDefinitionDimensionCalc');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit ResourceDefinitionDimensionCalc');
     }
 
     visit(node) {
-        log.debug('visit ResourceDefinitionDimensionCalc');
     }
 
     endVisit(node) {
-        log.debug('end visit ResourceDefinitionDimensionCalc');
         util.populatePanelDecoratorBBox(node, node.getResourceName());
     }
 }

@@ -15,25 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
-import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import {util} from './../sizing-utils';
 
 class ResourceParameterDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ResourceParameterDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit ResourceParameterDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit ResourceParameterDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
@@ -48,7 +42,7 @@ class ResourceParameterDimensionCalculatorVisitor {
         viewState.components.deleteIcon.w = DesignerDefaults.panelHeading.heading.height - 7;
         viewState.components.deleteIcon.h = DesignerDefaults.panelHeading.heading.height - 7;
     }
-    
+
 }
 
 export default ResourceParameterDimensionCalculatorVisitor;

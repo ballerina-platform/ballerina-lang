@@ -15,26 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import {util} from './../sizing-utils';
 
 class TryStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit TryStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit TryStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit TryStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit TryStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
     }
 }

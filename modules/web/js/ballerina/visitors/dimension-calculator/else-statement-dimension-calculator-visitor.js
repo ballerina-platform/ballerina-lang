@@ -21,20 +21,16 @@ import {util} from './../sizing-utils';
 class ElseStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Can Visit ElseStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('Can Visit ElseStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('Visit ElseStatementDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('End Visit ElseStatementDimensionCalculatorVisitor');
         util.populateCompoundStatementChild(node);
     }
 }

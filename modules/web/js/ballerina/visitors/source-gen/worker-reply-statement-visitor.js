@@ -15,9 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import WorkerReplyStatement from '../../ast/statements/worker-reply-statement';
 
@@ -32,12 +29,10 @@ class WorkerReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitWorkerReplyStatement(workerReplyStatement) {
         this.appendSource(workerReplyStatement.getStatementString());
-        log.debug('Begin Visit Worker Receive Statement');
     }
 
     endVisitWorkerReplyStatement(workerReplyStatement) {
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
-        log.debug('End Visit Worker Receive Statement');
     }
 }
 

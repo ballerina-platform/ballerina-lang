@@ -36,7 +36,6 @@ class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
             + transactionStatement.getWSRegion(2));
         this.appendSource((transactionStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
-        log.debug('Begin Visit Transaction Statement');
     }
 
     visitStatement(statement) {
@@ -58,7 +57,6 @@ class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
             ? '\n' : transactionStatement.getWSRegion(3);
         this.appendSource("}" + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Transaction Statement');
     }
 }
 

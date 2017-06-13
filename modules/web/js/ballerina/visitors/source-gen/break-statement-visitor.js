@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import BreakStatement from '../../ast/statements/break-statement';
 
@@ -35,11 +34,9 @@ class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
         this.appendSource(breakStatement.getStatementString());
-        log.debug('Begin Visit Break Statement Definition');
     }
 
     visitBreakStatement(breakStatement) {
-        log.debug('Visit Break Statement Definition');
     }
 
     endVisitBreakStatement(breakStatement) {
@@ -48,7 +45,6 @@ class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.appendSource((breakStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Break Statement Definition');
     }
 }
 

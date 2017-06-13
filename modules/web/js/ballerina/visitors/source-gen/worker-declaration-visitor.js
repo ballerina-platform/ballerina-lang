@@ -15,13 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
-import ExpressionVisitorFactory from './expression-visitor-factory';
-import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
 import WorkerDeclaration from '../../ast/worker-declaration';
 
@@ -43,18 +38,15 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
                   + workerDeclaration.getWorkerDeclarationStatement() + ' {\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
-        log.debug('Begin Visit Worker Declaration');
     }
 
     visitWorkerDeclaration(workerDeclaration) {
-        log.debug('Visit Worker Declaration');
     }
 
     endVisitWorkerDeclaration(workerDeclaration) {
         this.outdent();
         this.appendSource(this.getIndentation() + "}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Worker Declaration');
     }
 
     visitStatement(statement) {

@@ -22,12 +22,10 @@ import ASTFactory from './../../ast/ballerina-ast-factory';
 class TryCatchStatementPositionCalcVisitor {
 
     canVisit(node) {
-        log.debug('can visit TryCatchStatementPositionCalcVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('visit TryCatchStatementPositionCalcVisitor');
         let viewState = node.getViewState();
         let bBox = viewState.bBox;
         const parent = node.getParent();
@@ -61,11 +59,9 @@ class TryCatchStatementPositionCalcVisitor {
     }
 
     visit(node) {
-        log.debug('visit TryCatchStatementPositionCalcVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit TryCatchStatementPositionCalcVisitor');
     }
 }
 

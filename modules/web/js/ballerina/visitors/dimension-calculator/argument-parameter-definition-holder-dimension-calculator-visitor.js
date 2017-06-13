@@ -24,16 +24,13 @@ import {util} from './../sizing-utils';
 class ArgumentParameterDefinitionHolderDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ArgumentParameterDefinitionHolderDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit ArgumentParameterDefinitionHolderDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit ArgumentParameterDefinitionHolderDimensionCalculatorVisitor');
     }
 
     endVisit(node) {

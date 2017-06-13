@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractSymbolTableGenVisitor from './abstract-symbol-table-gen-visitor';
 import BallerinaEnvFactory from './../../env/ballerina-env-factory';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
@@ -50,15 +49,12 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
     }
 
     beginVisitBallerinaASTRoot(serviceDefinition) {
-        log.debug('Begin Visit BallerinaASTRoot');
     }
 
     visitBallerinaASTRoot(ballerinaASTRoot) {
-        log.debug('Visit BallerinaASTRoot');
     }
 
     endVisitBallerinaASTRoot(serviceDefinition) {
-        log.debug('End Visit BallerinaASTRoot');
     }
 
     /**

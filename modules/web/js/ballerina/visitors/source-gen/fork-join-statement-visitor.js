@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
@@ -34,7 +34,6 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.node = forkJoinStatement;
         this.closed = false;
         this.appendSource('fork {');
-        log.debug('Begin Visit Fork Statement');
     }
 
     visitWorkerDeclaration(workerDeclaration) {
@@ -48,7 +47,6 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.closed = true;
         }
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Fork Statement');
     }
 
 

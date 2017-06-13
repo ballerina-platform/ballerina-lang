@@ -25,20 +25,16 @@ import {util} from './../sizing-utils';
 class ConnectorDeclarationDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('can visit ConnectorDeclarationDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit ConnectorDeclarationDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit ConnectorDeclarationDimensionCalculatorVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit ConnectorDeclarationDimensionCalculatorVisitor');
         let viewState = node.getViewState();
         let components = {};
 

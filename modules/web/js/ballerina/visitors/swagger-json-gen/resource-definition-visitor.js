@@ -59,10 +59,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         let existingAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
         // Removing http:Path and http:<Method> annotations
         existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation => {
-            return !(!_.isUndefined(httpMethodAnnotation) && 
+            return !(!_.isUndefined(httpMethodAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), httpMethodAnnotation.getPackageName()) &&
                         _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier())) ||
-                    (!_.isUndefined(pathAnnotation) && 
+                    (!_.isUndefined(pathAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
                         _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier()))));
         });
@@ -101,15 +101,12 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         // Updating json with related to non-annotation models.
         this.addParametersAsAnnotations(resourceDefinition, httpMethodJson);
 
-        log.debug('Begin Visit Resource Definition');
     }
 
     visitResourceDefinition(resourceDefinition) {
-        log.debug('Visit ResourceDefinition');
     }
 
     endVisitResourceDefinition(resourceDefinition) {
-        log.debug('End Visit ResourceDefinition');
     }
 
     /**
@@ -249,10 +246,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
     /**
      * Adds the parameters of the resource definition to "parameters" array in the swagger json.
-     * 
+     *
      * @param {ResourceDefinition} resourceDefinition The resource definition which has the parameters.
      * @param {Object} httpMethodJson The http method json which needs to be updated.
-     * 
+     *
      * @memberof ResourceDefinitionVisitor
      */
     addParametersAsAnnotations(resourceDefinition, httpMethodJson) {
@@ -266,7 +263,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
             }
 
             for (const [index, param] of resourceDefinition.getArguments().entries()) {
-                if (index > 0 && param.getChildren().length > 0 && param.getChildren()[0].getChildren().length > 0 && 
+                if (index > 0 && param.getChildren().length > 0 && param.getChildren()[0].getChildren().length > 0 &&
                         resourceDefinition.getFactory().isAnnotationEntry(param.getChildren()[0].getChildren()[0])) {
                     let paramAlreadyExists = false;
                     for (const existingParameter of parametersArray) {
@@ -317,4 +314,3 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 }
 
 export default ResourceDefinitionVisitor;
-

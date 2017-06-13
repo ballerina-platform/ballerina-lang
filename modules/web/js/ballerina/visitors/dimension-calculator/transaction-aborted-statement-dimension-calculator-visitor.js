@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
@@ -23,20 +22,16 @@ import SimpleBBox from './../../ast/simple-bounding-box';
 
 class TransactionAbortedStatementDimensionCalculatorVisitor {
     canVisit(node) {
-        log.debug('Can Visit TransactionAbortedStatementDimensionCalculatorVisitor');
         return true;
     }
 
     beginVisit(node) {
-        log.debug('begin visit TransactionAbortedStatementDimensionCalculatorVisitor');
     }
 
     visit(node) {
-        log.debug('visit TransactionAbortedStatementDimensionCalculationVisitor');
     }
 
     endVisit(node) {
-        log.debug('end visit TransactionAbortedStatementDimensionCalculationVisitor');
         let viewState = node.getViewState();
         let components = {};
         let statementWidth = 0;

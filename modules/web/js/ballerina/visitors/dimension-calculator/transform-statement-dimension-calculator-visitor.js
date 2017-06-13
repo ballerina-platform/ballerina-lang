@@ -16,14 +16,11 @@
  * under the License.
  */
 
-import log from 'log';
 import {util} from './../sizing-utils';
-
 
 class TransformStatementDimensionCalculatorVisitor {
 
     canVisit(node) {
-        log.debug('Begin visit TransformStatementDimensionCalculatorVisitor');
         return true;
     }
 
@@ -34,7 +31,6 @@ class TransformStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        log.debug('End visit TransformStatementDimensionCalculatorVisitor');
         util.populateSimpleStatementBBox(node.getStatementString() , node.getViewState());
     }
 }

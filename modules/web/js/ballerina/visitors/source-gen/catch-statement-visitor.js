@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
@@ -45,7 +44,6 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
                             + catchStatement.getWSRegion(6));
         this.appendSource((catchStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
-        log.debug('Begin Visit Catch Statement');
     }
 
     visitStatement(statement) {
@@ -60,7 +58,6 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.outdent();
         this.appendSource('}' + catchStatement.getWSRegion(7));
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Catch Statement');
     }
 }
 

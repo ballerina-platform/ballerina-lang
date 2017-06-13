@@ -15,9 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 import VariableDefinitionVisitor from './variable-definition-visitor';
 
@@ -31,11 +28,9 @@ class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisi
     }
 
     beginVisitVariableReferenceExpression(expression) {
-        log.debug('Begin Visit Variable Reference Expression');
     }
 
     visitVariableReferenceExpression(expression) {
-        log.debug('Visit Variable Reference Expression');
     }
 
     endVisitVariableReferenceExpression(expression) {
@@ -43,7 +38,6 @@ class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisi
             this.appendSource(expression.getVariableName());
         }
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
-        log.debug('End Visit Variable Reference Expression');
     }
 
     visitVariableDefinition(variableDefinition) {
