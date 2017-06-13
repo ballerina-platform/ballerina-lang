@@ -18,8 +18,6 @@
 
 package org.ballerinalang.nativeimpl.actions;
 
-import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
@@ -31,7 +29,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -53,19 +50,20 @@ public class VFSClientTest {
     public void testCopy() {
         String sourcePath = new File("temp/copy-file.txt").getAbsolutePath();
         String destPath = new File("temp/coppied-file.txt").getAbsolutePath();
-        BValue[] args = { new BString((new File(sourcePath).getAbsolutePath()))
-                , new BString((new File(destPath).getAbsolutePath()))};
+        BValue[] args = { new BString((new File(sourcePath).getAbsolutePath())),
+                          new BString((new File(destPath).getAbsolutePath())) };
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testCopy", args);
-        Assert.assertTrue(((BBoolean)returnVals[0]).booleanValue(), "File wasn't copied");
+        Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue(), "File wasn't copied");
     }
 
     @Test(expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to copy file: file " +
-                                              "not found: temp[\\\\/]copy-non-existing-file.txt.*")
+            expectedExceptionsMessageRegExp =
+                    "error: ballerina.lang.errors:Error, message: failed to copy file: file " +
+                    "not found: temp[\\\\/]copy-non-existing-file.txt.*")
     public void testCopyNonExistentFile() {
         String sourcePath = new File("temp/copy-non-existing-file.txt").getAbsolutePath();
         String destPath = new File("temp/duplicate-non-existing-file.txt").getAbsolutePath();
-        BValue[] args = { new BString(sourcePath), new BString(destPath)};
+        BValue[] args = { new BString(sourcePath), new BString(destPath) };
         BLangFunctions.invokeNew(programFile, "testCopyNonExistent", args);
     }
 
@@ -78,8 +76,8 @@ public class VFSClientTest {
         BValue[] args = { new BString(fileOne), new BString(fileDest), new BString(sourcePath), new BString(destPath) };
 
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testCopy", args);
-        Assert.assertTrue(((BBoolean)returnVals[0]).booleanValue(), "Source file does not exist");
-        Assert.assertTrue(((BBoolean)returnVals[1]).booleanValue(), "File wasn't copied");
+        Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue(), "Source file does not exist");
+        Assert.assertTrue(((BBoolean) returnVals[1]).booleanValue(), "File wasn't copied");
 
     }
 
@@ -94,8 +92,9 @@ public class VFSClientTest {
     }
 
     @Test(expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to move file: file " +
-                                              "not found: temp.*")
+            expectedExceptionsMessageRegExp =
+                    "error: ballerina.lang.errors:Error, message: failed to move file: file " +
+                    "not found: temp.*")
     public void testMoveNonExistentFile() {
         String sourcePath = "temp/move-non-existing-file.txt";
         String destPath = "temp/test/move-non-existing-file.txt";
@@ -112,8 +111,8 @@ public class VFSClientTest {
         BValue[] args = { new BString(fileOne), new BString(fileDest), new BString(sourcePath), new BString(destPath) };
 
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMoveDir", args);
-        Assert.assertFalse(((BBoolean)returnVals[0]).booleanValue(), "File wasn't moved");
-        Assert.assertTrue(((BBoolean)returnVals[1]).booleanValue(), "File wasn't moved");
+        Assert.assertFalse(((BBoolean) returnVals[0]).booleanValue(), "File wasn't moved");
+        Assert.assertTrue(((BBoolean) returnVals[1]).booleanValue(), "File wasn't moved");
     }
 
     @Test
@@ -165,8 +164,7 @@ public class VFSClientTest {
         Assert.assertEquals(content, ((BBlob) results[0]).blobValue(), "Not read properly");
     }
 
-    @Test
-    public void testCreate() {
+    @Test public void testCreate() {
         String targetPath = new File("temp/create-file.txt").getAbsolutePath();
 
         BValue[] args = { new BString(targetPath) };

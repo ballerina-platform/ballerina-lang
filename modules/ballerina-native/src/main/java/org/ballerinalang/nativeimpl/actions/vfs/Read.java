@@ -69,7 +69,7 @@ public class Read extends AbstractVfsAction {
         Map<String, String> propertyMap = new HashMap<>();
         String pathString = file.getStringField(0);
         propertyMap.put(Constants.PROPERTY_URI, pathString);
-        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_ISEXISTS);
+        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_READ);
         CarbonMessage responseMessage = executeCallbackAction(null, propertyMap, context);
 
         return new BBlob(((BinaryCarbonMessage) responseMessage).readBytes().array());

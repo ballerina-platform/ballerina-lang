@@ -65,6 +65,7 @@ public class Write extends AbstractVfsAction {
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         propertyMap.put(Constants.PROPERTY_URI, destination.getStringField(0));
+        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_WRITE);
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)

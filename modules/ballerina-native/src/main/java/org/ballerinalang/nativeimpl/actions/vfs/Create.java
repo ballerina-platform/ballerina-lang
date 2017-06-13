@@ -2,6 +2,7 @@ package org.ballerinalang.nativeimpl.actions.vfs;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -25,7 +26,8 @@ import java.util.Map;
         connectorName = Constants.CONNECTOR_NAME,
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
-                         structPackage = "ballerina.lang.files") },
+                         structPackage = "ballerina.lang.files"),
+                 @Argument(name = "type", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Create a file or folder") })
@@ -33,16 +35,23 @@ import java.util.Map;
         value = "Vfs client connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "File struct containing path information") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "type",
+        value = "Specification whether is file or folder") })
 public class Create extends AbstractVfsAction {
     @Override public BValue execute(Context context) {
 
         // Extracting Argument values
         BStruct file = (BStruct) getArgument(context, 1);
+        BString type = (BString) getArgument(context, 2);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         String pathString = file.getStringField(0);
         propertyMap.put(Constants.PROPERTY_URI, pathString);
         propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_CREATE);
+        String strType = type.stringValue();
+        if (strType.equalsIgnoreCase(Constants.TYPE_FOLDER)) {
+            propertyMap.put(Constants.PROPERTY_FOLDER, Boolean.TRUE.toString());
+        }
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)

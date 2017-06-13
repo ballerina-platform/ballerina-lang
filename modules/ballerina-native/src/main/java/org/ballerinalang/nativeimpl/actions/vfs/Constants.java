@@ -21,12 +21,13 @@ package org.ballerinalang.nativeimpl.actions.vfs;
  * Constants for vfs client connector.
  */
 public class Constants {
-    public static final String VFS_CONNECTOR_NAME = "ClientConnector";
+    public static final String VFS_CONNECTOR_NAME = "vfs";
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String PROPERTY_URI = "uri";
     public static final String PROPERTY_SOURCE = "source";
     public static final String PROPERTY_DESTINATION = "destination";
     public static final String PROPERTY_ACTION = "action";
+    public static final String PROPERTY_FOLDER = "create-folder";
     public static final String ACTION_COPY = "copy";
     public static final String ACTION_CREATE = "create";
     public static final String ACTION_DELETE = "delete";
@@ -34,4 +35,6 @@ public class Constants {
     public static final String ACTION_MOVE = "move";
     public static final String ACTION_READ = "read";
     public static final String ACTION_WRITE = "write";
+    public static final String TYPE_FILE = "file";
+    public static final String TYPE_FOLDER = "folder";
 }
