@@ -421,10 +421,10 @@ class TransformRender
  * @param {object} type definition with parameters to be mapped
  * @param {object} reference AST model reference
  */
-    addSourceType(struct, reference) {
+    addSourceType(struct, removeCallback) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeType(struct, 50, 10, reference, 'source');
+        this.makeType(struct, removeCallback, 50, 10, 'source');
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource);
@@ -510,10 +510,10 @@ class TransformRender
  * @param {object} struct definition with parameters to be mapped
  * @param {object} reference AST model reference
  */
-    addTargetType(struct, reference) {
+    addTargetType(struct, removeCallback) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeType(struct, 50, 10, reference, 'target');
+        this.makeType(struct, removeCallback, 50, 10, 'target');
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
@@ -526,15 +526,17 @@ class TransformRender
  * @param {int} posY Y position cordinate
  * @param {object} reference
  */
-    makeType(struct, posX, posY, reference, type) {
-        this.references.push({name: struct.id, refObj: reference});
+    makeType(struct, removeCallback, posX, posY, type) {
         var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
         var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct');
         var structName = $('<div>');
-
+        var closeButton = $('<span>').attr('id', struct.id + '-button').addClass('fw-stack fw-lg btn btn-remove');
+        var del = $('<i>').addClass('fw fw-delete fw-stack-1x');
         structName.append(structIcon);
         structName.append($('<span>').text(struct.name + " : " + struct.typeName));
         newStruct.append(structName);
+        closeButton.append(del);
+        structName.append(closeButton);
         var subPlaceHolder;
 
         if(type == 'source' ) {
@@ -551,25 +553,29 @@ class TransformRender
         .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $('#' + this.placeHolderName).find('.' + subPlaceHolder).append(newStruct);
+        this.onRemove(struct.id, struct, removeCallback, struct.name);
     }
 
 
 
-    addVariable(variable, type, reference) {
+    addVariable(variable, type, removeCallback) {
         var id = variable.name + this.viewIdSeperator + this.viewId;
         var propId = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
-        this.references.push({name: id, refObj: reference});
         var newVar = $('<div>').attr('id', id).attr('type', type).addClass('variable');
         var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
         var   property = $('<a>').attr('id', propId).addClass('variable-content');
         var propertyName = $('<span>').addClass('property-name').text(variable.name);
         var seperator = $('<span>').addClass('property-name').text(':');
         var propertyType = $('<span>').addClass('property-type').text(variable.type);
+        var closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
+        var del = $('<i>').addClass('fw fw-delete fw-stack-1x');
         newVar.append(varIcon);
         property.append(propertyName);
         property.append(seperator);
         property.append(propertyType);
+        closeButton.append(del);
         newVar.append(property);
+        newVar.append(closeButton);
         var subPlaceHolder;
 
 
@@ -587,6 +593,7 @@ class TransformRender
             $('#' + this.placeHolderName).find('.rightType').append(newVar);
             this.addTarget(property, this);
         }
+        this.onRemove(id, variable, removeCallback, variable.name);
         this.reposition(this);
     }
 
@@ -631,32 +638,7 @@ class TransformRender
             });
 
             $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
-
-        //Remove button functionality
-            $('#' + id + '-button').on('click', () => {
-                var removedFunction = {name: func.name};
-                removedFunction.incomingConnections = [];
-                removedFunction.outgoingConnections = [];
-
-                _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
-                    if (connection.target.id.includes(id)) {
-                        removedFunction.incomingConnections.push(
-                        self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
-                    } else if (connection.source.id.includes(id)) {
-                        removedFunction.outgoingConnections.push(
-                        self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
-                    }
-                });
-
-                for (var i = 0; i < self.references.length; i++) {
-                    if (self.references[i].name === id) {
-                        removedFunction.reference = self.references[i].refObj;
-                    }
-                }
-
-                self.removeType(func.name);
-                onFunctionRemove(reference);
-            });
+            this.onRemove(id, func, onFunctionRemove, reference);
 
             _.forEach(func.getParameters(), parameter => {
                 var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
@@ -983,7 +965,36 @@ class TransformRender
             stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true
         }];
     }
+
+
+onRemove(id, func,removeFunction, reference) {
+    var self = this;
+    $('#' + id + '-button').on('click', () => {
+        var removedFunction = {name: func.name};
+    removedFunction.incomingConnections = [];
+    removedFunction.outgoingConnections = [];
+
+    _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
+        if (connection.target.id.includes(id)) {
+        removedFunction.incomingConnections.push(
+            self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
+    } else if (connection.source.id.includes(id)) {
+        removedFunction.outgoingConnections.push(
+            self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
+    }
+});
+
+for (var i = 0; i < self.references.length; i++) {
+    if (self.references[i].name === id) {
+        removedFunction.reference = self.references[i].refObj;
+    }
 }
 
+self.removeType(func.name);
+removeFunction(reference);
+});
+}
+
+}
 
 export default TransformRender;

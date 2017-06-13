@@ -213,9 +213,10 @@ class TransformStatementDecorator extends React.Component {
 
         $('#btn-add-source').click(function (e) {
             var currentSelection = $('#' + sourceId).val();
-            if (self.setSource(currentSelection, self.predefinedStructs)) {
-                var inputDef = BallerinaASTFactory
-                                        .createVariableReferenceExpression({variableName: currentSelection});
+            var inputDef = BallerinaASTFactory
+                                    .createVariableReferenceExpression({variableName: currentSelection});
+            if (self.setSource(currentSelection, self.predefinedStructs, self.props.model, inputDef.id)) {
+
                 var inputs = self.props.model.getInput();
                 inputs.push(inputDef);
                 self.props.model.setInput(inputs);
@@ -235,9 +236,9 @@ class TransformStatementDecorator extends React.Component {
 
         $('#btn-add-target').click(function (e) {
             var currentSelection = $('#' + targetId).val();
-            if (self.setTarget(currentSelection, self.predefinedStructs)) {
-                var outDef = BallerinaASTFactory
-                                        .createVariableReferenceExpression({variableName: currentSelection});
+            var outDef = BallerinaASTFactory
+                                    .createVariableReferenceExpression({variableName: currentSelection});
+            if (self.setTarget(currentSelection, self.predefinedStructs, self.props.model, outDef.id)) {
                 var outputs = self.props.model.getOutput();
                 outputs.push(outDef);
                 self.props.model.setOutput(outputs);
@@ -784,11 +785,19 @@ class TransformStatementDecorator extends React.Component {
             alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
         }
+
+        var removeFunc = function(id) {
+            self.mapper.removeType(id);
+            self.props.model.setInput([]);
+            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            currentSelectionObj.added = false;
+        }
+
         if (!sourceSelection.added) {
             if (sourceSelection.type == 'struct') {
-                self.mapper.addSourceType(sourceSelection);
+                self.mapper.addSourceType(sourceSelection, removeFunc);
             } else {
-                self.mapper.addVariable(sourceSelection, 'source');
+                self.mapper.addVariable(sourceSelection, 'source', removeFunc);
             }
             sourceSelection.added = true;
             return true;
@@ -803,11 +812,19 @@ class TransformStatementDecorator extends React.Component {
             alerts.error('Mapping target "' + currentSelection + '" cannot be found');
             return false;
         }
+
+        var removeFunc = function(id) {
+            self.mapper.removeType(id);
+            self.props.model.setOutput([]);
+            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            currentSelectionObj.added = false;
+        }
+
         if (!targetSelection.added) {
             if (targetSelection.type == 'struct') {
-                self.mapper.addTargetType(targetSelection);
+                self.mapper.addTargetType(targetSelection, removeFunc);
             } else {
-                self.mapper.addVariable(targetSelection, 'target');
+                self.mapper.addVariable(targetSelection, 'target', removeFunc);
             }
             targetSelection.added = true;
             return true;
