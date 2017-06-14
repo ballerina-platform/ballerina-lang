@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import ASTVisitor from '../ast-visitor';
 import SourceGenUtil from './source-gen-util';
 

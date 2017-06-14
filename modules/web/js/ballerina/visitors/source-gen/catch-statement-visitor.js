@@ -16,16 +16,12 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitCatchStatement(catchStatement) {
+    canVisitCatchStatement() {
         return true;
     }
 
@@ -38,7 +34,7 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
          */
         this.appendSource(`catch${catchStatement.getWSRegion(1)}(${
                              catchStatement.getWSRegion(2)
-                             }${catchStatement.getParameterDefString() // FIXME fix the model to support different catches
+                             }${catchStatement.getParameterDefString() // TODO: support different catches
                              }${catchStatement.getWSRegion(4)})${
                              catchStatement.getWSRegion(5)}{${
                              catchStatement.getWSRegion(6)}`);

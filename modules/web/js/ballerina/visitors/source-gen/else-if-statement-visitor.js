@@ -20,11 +20,8 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitElseIfStatement(elseIfStatement) {
+    canVisitElseIfStatement() {
         return true;
     }
 
@@ -42,8 +39,8 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
         // if using default ws, add a new line to end unless there are anymore elseif stmts available
         // or an else statement is available
         const tailingWS = (elseIfStatement.whiteSpace.useDefault
-                            && (_.isNil(elseIfStatement.getParent().getElseStatement())
-                                      && _.isEqual(_.last(elseIfStatement.getParent().getElseIfStatements()), elseIfStatement)))
+                        && (_.isNil(elseIfStatement.getParent().getElseStatement())
+                            && _.isEqual(_.last(elseIfStatement.getParent().getElseIfStatements()), elseIfStatement)))
                         ? '\n' : elseIfStatement.getWSRegion(6);
         this.appendSource(`}${tailingWS}`);
         this.getParent().appendSource(this.getGeneratedSource());

@@ -22,11 +22,8 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
  * @constructor
  */
 class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitConnectorDeclaration(connectorDeclaration) {
+    canVisitConnectorDeclaration() {
         return true;
     }
 
@@ -38,7 +35,7 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
         this.appendSource(connectorDeclaration.generateExpression());
     }
 
-    visitConnectorDeclaration(connectorDeclaration) {
+    visitConnectorDeclaration() {
     }
 
     endVisitConnectorDeclaration(connectorDeclaration) {

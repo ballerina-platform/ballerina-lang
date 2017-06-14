@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
@@ -24,11 +23,8 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
  * @constructor
  */
 class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitConstantDefinition(constantDefinition) {
+    canVisitConstantDefinition() {
         return true;
     }
 
@@ -44,7 +40,8 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        for (const annotationNode of constantDefinition.getChildrenOfType(constantDefinition.getFactory().isAnnotation)) {
+        for (const annotationNode of constantDefinition.getChildrenOfType(
+                                                                        constantDefinition.getFactory().isAnnotation)) {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
                     + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
@@ -55,7 +52,7 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
         this.appendSource(constructedSourceSegment);
     }
 
-    visitConstantDefinition(constantDefinition) {
+    visitConstantDefinition() {
     }
 
     endVisitConstantDefinition(constantDefinition) {
