@@ -37,7 +37,9 @@ module.exports = {
         }],
         "no-param-reassign": ["off"],
         "no-restricted-syntax": ["off"],
-        "no-plusplus": ["off"]
+        "no-plusplus": ["off"],
+        "func-names": ["off"],
+        "class-methods-use-this": ["off"]
     },
     "plugins": [
         "react"

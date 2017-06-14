@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import js_yaml from 'js-yaml';
+import JS_YAML from 'js-yaml';
+import _ from 'lodash';
 import BallerinaASTFactory from '../ballerina/ast/ballerina-ast-factory';
 import DefaultBallerinaASTFactory from '../ballerina/ast/default-ballerina-ast-factory';
-import _ from 'lodash';
 
 /**
  * This parser class provides means of merging a swagger JSON to a {@link ServiceDefinition} or a
@@ -34,7 +34,7 @@ class SwaggerParser {
      */
     constructor(swaggerDefintiion, isYaml) {
         if (isYaml) {
-            this._swaggerJson = js_yaml.safeLoad(swaggerDefintiion);
+            this._swaggerJson = JS_YAML.safeLoad(swaggerDefintiion);
         } else {
             this._swaggerJson = swaggerDefintiion;
         }
@@ -54,9 +54,15 @@ class SwaggerParser {
 
         // Creating basePath annotation
         if (!_.isUndefined(this._swaggerJson.basePath)) {
-            const basePathAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'http', 'BasePath');
+            const basePathAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations, 'http',
+                                                                                    'BasePath');
             const basePathAnnotation = this._createSimpleAnnotation({
-                annotation: { fullPackageName: 'ballerina.net.http', packageName: 'http', identifier: 'BasePath', supported: true },
+                annotation: {
+                    fullPackageName: 'ballerina.net.http',
+                    packageName: 'http',
+                    identifier: 'BasePath',
+                    supported: true,
+                },
                 swaggerJsonNode: this._swaggerJson.basePath,
             });
             serviceDefinition.addChild(basePathAnnotation, basePathAnnotationIndex, true);
@@ -64,9 +70,14 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(this._swaggerJson.consumes)) {
-            const consumesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Consumes');
+            const consumesAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
+                                                                                    'swagger', 'Consumes');
             const consumesAnnotation = this._createSimpleAnnotation({
-                annotation: { fullPackageName: 'ballerina.net.http.swagger', packageName: 'swagger', identifier: 'Consumes', supported: true },
+                annotation: { fullPackageName: 'ballerina.net.http.swagger',
+                    packageName: 'swagger',
+                    identifier: 'Consumes',
+                    supported: true,
+                },
                 swaggerJsonNode: this._swaggerJson.consumes,
             });
             serviceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
@@ -74,7 +85,8 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(this._swaggerJson.produces)) {
-            const producesAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Produces');
+            const producesAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
+                                                                                    'swagger', 'Produces');
             const producesAnnotation = this._createSimpleAnnotation({
                 annotation: { fullPackageName: 'ballerina.net.http.swagger', identifier: 'Produces', supported: true },
                 swaggerJsonNode: this._swaggerJson.produces,
@@ -88,7 +100,7 @@ class SwaggerParser {
                 let existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
                     const resourceName = resourceDefinition.getResourceName();
                     const operationId = operation.operationId;
-                    if (resourceName == operationId) {
+                    if (resourceName === operationId) {
                         return true;
                     }
                     return false;
@@ -193,7 +205,8 @@ class SwaggerParser {
         // TODO : Create externalDocs, tag, organization, developers.
 
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
-        const serviceInfoAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'ServiceInfo');
+        const serviceInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
+                                                                                    'swagger', 'ServiceInfo');
         serviceDefinition.addChild(serviceInfoAnnotation, serviceInfoAnnotationIndex, true);
     }
 
@@ -213,7 +226,8 @@ class SwaggerParser {
             rightValue: JSON.stringify(this._swaggerJson.swagger),
         }));
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
-        const swaggerAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Swagger');
+        const swaggerAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger',
+                                                                                'Swagger');
         serviceDefinition.addChild(swaggerAnnotation, swaggerAnnotationIndex, true);
     }
 
@@ -239,9 +253,19 @@ class SwaggerParser {
         this._defaultSwaggerToASTConverter(this._swaggerJson.schemes, serviceConfigAnnotation);
 
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
-        const swaggerAnnotationIndex = this._removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'ServiceConfig');
+        const swaggerAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger',
+                                                                                'ServiceConfig');
         serviceDefinition.addChild(serviceConfigAnnotation, swaggerAnnotationIndex, true);
     }
+
+    /**
+     * Creates a simple annotation ast object.
+     *
+     * @param {any} args The arguments of the object. See {@link Annotation}.
+     * @returns {Annotation} A new annotation object.
+     *
+     * @memberof SwaggerParser
+     */
     _createSimpleAnnotation(args) {
         let newAnnotationAst;
         if (!_.isUndefined(args.swaggerJsonNode)) {
@@ -271,7 +295,8 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(httpMethodJsonObject.consumes)) {
-            const consumesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Consumes');
+            const consumesAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+                                                                                    'swagger', 'Consumes');
             const consumesAnnotation = this._createSimpleAnnotation({
                 annotation: { packageName: 'swagger', identifier: 'Consumes', supported: true },
                 swaggerJsonNode: httpMethodJsonObject.consumes,
@@ -281,7 +306,8 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(httpMethodJsonObject.produces)) {
-            const producesAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Produces');
+            const producesAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+                                                                                    'swagger', 'Produces');
             const producesAnnotation = this._createSimpleAnnotation({
                 annotation: { packageName: 'swagger', identifier: 'Produces', supported: true },
                 swaggerJsonNode: httpMethodJsonObject.produces,
@@ -289,8 +315,8 @@ class SwaggerParser {
             resourceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
         }
 
-        this._createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
-        this._createParametersAnnotation(resourceDefinition, httpMethodJsonObject);
+        SwaggerParser.createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
+        this.createParametersAnnotation(resourceDefinition, httpMethodJsonObject);
     }
 
     /**
@@ -299,7 +325,7 @@ class SwaggerParser {
      * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
      * @private
      */
-    _createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
+    static createResourceConfigAnnotation(resourceDefinition) {
         const resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotation({
             fullPackageName: 'ballerina.net.http.swagger',
             packageName: 'swagger',
@@ -307,7 +333,8 @@ class SwaggerParser {
         });
 
         const resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
-        const resourceConfigAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'ResourceConfig');
+        const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+                                                                                        'swagger', 'ResourceConfig');
         resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex, true);
     }
 
@@ -317,16 +344,24 @@ class SwaggerParser {
      * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
      * @private
      */
-    _createResponsesAnnotation(resourceDefinition, httpMethodJsonObject) {
+    static createResponsesAnnotation(resourceDefinition, httpMethodJsonObject) {
         if (!_.isUndefined(httpMethodJsonObject.responses)) {
-            const responsesAnnotation = BallerinaASTFactory.createAnnotation({ packageName: 'swagger', identifier: 'Responses' });
+            const responsesAnnotation = BallerinaASTFactory.createAnnotation({
+                packageName: 'swagger',
+                identifier: 'Responses',
+            });
 
             // Creating the responses array entry
             const responsesAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
-            const responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({ rightValue: responsesAnnotationArray });
+            const responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({
+                rightValue: responsesAnnotationArray,
+            });
             responsesAnnotation.addChild(responseAnnotationEntry);
             _.forEach(httpMethodJsonObject.responses, (codeObj, code) => {
-                const responseAnnotation = BallerinaASTFactory.createAnnotation({ packageName: 'swagger', identifier: 'Response' });
+                const responseAnnotation = BallerinaASTFactory.createAnnotation({
+                    packageName: 'swagger',
+                    identifier: 'Response',
+                });
 
                 const codeAnnotationEntry = resourceDefinition.getFactory().createAnnotationEntry({
                     leftValue: 'code',
@@ -347,8 +382,10 @@ class SwaggerParser {
                 }));
             });
 
-            const resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
-            const resourceConfigAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Responses');
+            const resourceDefinitionAnnotations =
+                                                resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
+            const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+                                                                                            'swagger', 'Responses');
             resourceDefinition.addChild(responsesAnnotation, resourceConfigAnnotationIndex, true);
         }
     }
@@ -362,7 +399,7 @@ class SwaggerParser {
      *
      * @memberof SwaggerParser
      */
-    _createParametersAnnotation(resourceDefinition, httpMethodJsonObject) {
+    static createParametersAnnotation(resourceDefinition, httpMethodJsonObject) {
         if (!_.isUndefined(httpMethodJsonObject.parameters)) {
             const parametersAnnotation = BallerinaASTFactory.createAnnotation({
                 fullPackageName: 'ballerina.net.http.swagger',
@@ -372,7 +409,9 @@ class SwaggerParser {
 
             // Creating the responses array entry
             const parametersAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
-            const parameterAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({ rightValue: parametersAnnotationArray });
+            const parameterAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({
+                rightValue: parametersAnnotationArray,
+            });
             parametersAnnotation.addChild(parameterAnnotationEntry);
             _.forEach(httpMethodJsonObject.parameters, (parameter) => {
                 const responseAnnotation = BallerinaASTFactory.createAnnotation({
@@ -442,8 +481,10 @@ class SwaggerParser {
                 }));
             });
 
-            const resourceDefinitionAnnotations = resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
-            const resourceConfigAnnotationIndex = this._removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'ParametersInfo');
+            const resourceDefinitionAnnotations =
+                                                resourceDefinition.getChildrenOfType(BallerinaASTFactory.isAnnotation);
+            const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+                                                                                        'swagger', 'ParametersInfo');
             resourceDefinition.addChild(parametersAnnotation, resourceConfigAnnotationIndex, true);
         }
     }
@@ -493,7 +534,7 @@ class SwaggerParser {
                     } else {
                         astNode.addChild(BallerinaASTFactory.createAnnotationEntry({
                             leftValue: key,
-                            rightValue: `\"${value}\"`,
+                            rightValue: `"${value}"`,
                         }), undefined, true);
                     }
                 });
@@ -502,13 +543,14 @@ class SwaggerParser {
                 _.forEach(jsonObject, (arrayItem) => {
                     annotationEntryArray.addChild(astNode.getFactory().createAnnotationEntry({
                         leftValue: '',
-                        rightValue: `\"${arrayItem}\"`,
+                        rightValue: `"${arrayItem}"`,
                     }), undefined, true);
                 });
-                astNode.addChild(astNode.getFactory().createAnnotationEntry({ rightValue: annotationEntryArray }), undefined, true);
+                astNode.addChild(astNode.getFactory().createAnnotationEntry({ rightValue: annotationEntryArray }),
+                                                                                undefined, true);
             } else {
                 astNode.addChild(astNode.getFactory().createAnnotationEntry(
-                    { rightValue: `\"${jsonObject}\"` }), undefined, true);
+                    { rightValue: `"${jsonObject}"` }), undefined, true);
             }
         }
     }
@@ -521,7 +563,7 @@ class SwaggerParser {
      * @return {number} The removed annotation index.
      * @private
      */
-    _removeExistingAnnotation(existingAnnotations, annotationPackage, annotationIdentifier) {
+    static removeExistingAnnotation(existingAnnotations, annotationPackage, annotationIdentifier) {
         let removedChildIndex = _.size(existingAnnotations);
         _.forEach(existingAnnotations, (existingAnnotation) => {
             if (_.isEqual(existingAnnotation.getPackageName(), annotationPackage) &&
@@ -530,6 +572,8 @@ class SwaggerParser {
                 existingAnnotation.getParent().removeChild(existingAnnotation, true);
                 return false;
             }
+
+            return true;
         });
 
         return removedChildIndex;

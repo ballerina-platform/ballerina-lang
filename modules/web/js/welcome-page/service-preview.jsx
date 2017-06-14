@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * React component of a preview of a ballerina program shown in welcome page.
@@ -24,21 +25,38 @@ import React from 'react';
  * @class ServicePreviewView
  * @extends {React.Component}
  */
-class ServicePreviewView extends React.Component {
+class ServicePreviewView extends React.PureComponent {
 
     render() {
-        const previewThumbnails = this.props.sampleConfigs.map(config => (<div className="col-md-3 thumbnail-wrapper" onClick={config.clickEventCallback} key={config.sampleName}>
-          <div className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}>
-            <img id="previewImg" src={`images/${config.image}.png`} />
-            <div className="caption">
-              <h4>{config.sampleName}</h4>
-            </div>
-          </div>
-        </div>));
+        let previewThumbnails = (null);
+        if (this.props.sampleConfigs) {
+            previewThumbnails = this.props.sampleConfigs.map(config => (
+              <div
+                role="presentation"
+                className="col-md-3 thumbnail-wrapper"
+                onClick={config.clickEventCallback}
+                key={config.sampleName}
+              >
+                <div className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}>
+                  <img id="previewImg" src={`images/${config.image}.png`} alt={config.sampleName} />
+                  <div className="caption">
+                    <h4>{config.sampleName}</h4>
+                  </div>
+                </div>
+              </div>));
+        }
 
         return (<div>{previewThumbnails}</div>);
     }
-
 }
+
+ServicePreviewView.propTypes = {
+    sampleConfigs: PropTypes.arrayOf(PropTypes.shape({
+        clickEventCallback: PropTypes.func.isRequired,
+        sampleName: PropTypes.string.isRequired,
+        isFile: PropTypes.bool.isRequired,
+        image: PropTypes.string.isRequired,
+    })).isRequired,
+};
 
 export default ServicePreviewView;

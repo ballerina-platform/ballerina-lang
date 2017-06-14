@@ -19,7 +19,6 @@ import _ from 'lodash';
 import log from 'log';
 import $ from 'jquery';
 import Backbone from 'backbone';
-import alerts from 'alerts';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import WelcomeView from './welcome.jsx';
@@ -34,12 +33,12 @@ const FirstLaunchWelcomePage = Backbone.View.extend({
             throw errMsg;
         }
         this._tab = _.get(options, 'tab');
-        let container = $(this._tab.getContentContainer());
+        const container = $(this._tab.getContentContainer());
         // make sure default tab content are cleared
         container.empty();
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = `unable to find container for welcome screen with selector: ${  _.get(options, 'container')}`;
+            errMsg = `unable to find container for welcome screen with selector: ${_.get(options, 'container')}`;
             log.error(errMsg);
             throw errMsg;
         }
@@ -61,40 +60,34 @@ const FirstLaunchWelcomePage = Backbone.View.extend({
 
     render() {
         const view = React.createElement(WelcomeView, {}, null);
-        ReactDOM.render(
-            view,
-            this._$parent_el[0],
-        );
+        ReactDOM.render(view, this._$parent_el[0]);
 
-        let commandManager = this._options.application.commandManager;
-        let browserStorage = this._options.application.browserStorage;
+        const commandManager = this._options.application.commandManager;
+        const browserStorage = this._options.application.browserStorage;
         const workspaceExplorer = this._options.application.workspaceExplorer;
 
         const ballerinaHome = _.get(this._options, 'balHome');
         const samples = _.get(this._options, 'samples', []);
         let sampleConfigs = [];
-        sampleConfigs = samples.map((sample) => ({
-                sampleName: sample.name,
-                isFile: sample.isFile,
-                clickEventCallback: () => {
-                    if (sample.isFile) {
-                        commandManager.dispatch('open-file', ballerinaHome + sample.path);
-                    } else {
-                        commandManager.dispatch('open-folder', ballerinaHome + sample.folder);
-                        if (!workspaceExplorer.isActive()) {
-                            commandManager.dispatch('toggle-file-explorer');
-                        }
-                        commandManager.dispatch('open-file', ballerinaHome + sample.path);
+        sampleConfigs = samples.map(sample => ({
+            sampleName: sample.name,
+            isFile: sample.isFile,
+            clickEventCallback: () => {
+                if (sample.isFile) {
+                    commandManager.dispatch('open-file', ballerinaHome + sample.path);
+                } else {
+                    commandManager.dispatch('open-folder', ballerinaHome + sample.folder);
+                    if (!workspaceExplorer.isActive()) {
+                        commandManager.dispatch('toggle-file-explorer');
                     }
-                },
-                image: sample.image
-            }));
+                    commandManager.dispatch('open-file', ballerinaHome + sample.path);
+                }
+            },
+            image: sample.image,
+        }));
 
         const previews = React.createElement(ServicePreviewView, { sampleConfigs }, null);
-        ReactDOM.render(
-            previews,
-            $('#inner-samples')[0],
-        );
+        ReactDOM.render(previews, $('#inner-samples')[0]);
 
         // When "new" is clicked, open up an empty workspace.
         $('#btn-welcome-new').on('click', () => {
