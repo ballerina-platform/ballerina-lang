@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
@@ -39,7 +41,6 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 public class Main {
     private static final String JC_UNKNOWN_OPTION_PREFIX = "Unknown option:";
     private static final String JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX = "Expected a value after parameter";
-    private static final String BALLERINA_VERSION = Main.class.getPackage().getImplementationVersion();
 
     private static PrintStream outStream = System.err;
 
@@ -191,11 +192,16 @@ public class Main {
     }
 
     private static void printVersionInfo() {
-        StringBuilder out = new StringBuilder();
-        out.append("Ballerina runtime version: ");
-        out.append(BALLERINA_VERSION);
-        out.append("\n");
-        outStream.println(out.toString());
+        try (InputStream inputStream = Main.class.getResourceAsStream("/META-INF/launcher.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            String version = "Ballerina " + properties.getProperty("ballerina.version") + "\n";
+            outStream.print(version);
+        } catch (Throwable ignore) {
+            // Exception is ignored
+            throw LauncherUtils.createUsageException("version info not available");
+        }
     }
 
     /**
@@ -724,10 +730,10 @@ public class Main {
             if (versionCommands == null) {
                 printVersionInfo();
                 return;
-
             } else if (versionCommands.size() > 1) {
                 throw LauncherUtils.createUsageException("too many arguments given");
             }
+
             String userCommand = versionCommands.get(0);
             if (parentCmdParser.getCommands().get(userCommand) == null) {
                 throw LauncherUtils.createUsageException("unknown command `" + userCommand + "`");
