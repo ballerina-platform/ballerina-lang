@@ -243,8 +243,7 @@ class ToolPaletteItemProvider extends EventChannel {
             const createConnectorDeclChildren = function () {
                 const params = _.map(connector.getParams(),
                     param => BallerinaASTFactory
-                          .createVariableReferenceExpression({ variableName: param.identifier }),
-                );
+                          .createVariableReferenceExpression({ variableName: param.identifier }));
                 const varDef = BallerinaASTFactory
                       .createVariableDefinition({ pkgPath: packageName, typeName: connector.getName() });
                 const varRef = BallerinaASTFactory
