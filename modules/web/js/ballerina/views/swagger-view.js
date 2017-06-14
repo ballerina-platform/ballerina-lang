@@ -21,6 +21,7 @@ import $ from 'jquery';
 import EventChannel from 'event_channel';
 import * as YAML from 'js-yaml';
 import SwaggerParser from '../../swagger-parser/swagger-parser';
+
 const ace = global.ace;
 const SwaggerEditorBundle = global.SwaggerEditorBundle;
 
@@ -63,7 +64,6 @@ class SwaggerView extends EventChannel {
      */
     render(swaggerInfos) {
         this._swaggerData = swaggerInfos;
-        const self = this;
         // Creating the swagger editor
         const swaggerEditorElement = $(this._container).find('div.swaggerEditor');
         const swaggerElementID = `z-${this._options.swaggerEditorId}`;
@@ -100,7 +100,7 @@ class SwaggerView extends EventChannel {
 
         let servicesDropDown = $($('<select/>').appendTo(swaggerServiceSelectorDropdownWrapper));
         servicesDropDown = servicesDropDown.select2({
-            data: this.getServicesForDropdown(this._swaggerData),
+            data: this.getServicesForDropdown(),
         });
 
         // Hiding top bar if there is only one service.
@@ -148,7 +148,7 @@ class SwaggerView extends EventChannel {
                     // We keep updating the yaml for a service instead of merging to the service AST
                     _.forEach(this._swaggerData, (swaggerDataEntry) => {
                         if (_.isEqual(swaggerDataEntry.serviceDefinitionAST.getID(), serviceDefinition.getID())) {
-                            swaggerDataEntry.swagger = YAML.safeLoad(self._swaggerAceEditor.getValue());
+                            swaggerDataEntry.swagger = YAML.safeLoad(this._swaggerAceEditor.getValue());
                             swaggerDataEntry.hasModified = true;
                         }
                     });
@@ -174,9 +174,16 @@ class SwaggerView extends EventChannel {
         }
     }
 
-    getServicesForDropdown(swaggerInfos) {
+    /**
+     * Gets the items for the service selection dropdown.
+     *
+     * @returns {Object} An array of objects for select2 dropdown.
+     *
+     * @memberof SwaggerView
+     */
+    getServicesForDropdown() {
         const dataArray = [];
-        _.forEach(swaggerInfos, (swaggerInfo) => {
+        _.forEach(this._swaggerData, (swaggerInfo) => {
             dataArray.push({
                 id: swaggerInfo.serviceDefinitionAST.getID(),
                 text: swaggerInfo.serviceDefinitionAST.getServiceName(),
@@ -184,6 +191,7 @@ class SwaggerView extends EventChannel {
         });
         return dataArray;
     }
+
     /**
      * Set the default node tree.
      * @param {Object} root root node.
@@ -233,7 +241,7 @@ class SwaggerView extends EventChannel {
         } else if (_.isNull(astPath) && this._resourceMappings.has(editorEvent.start.row)) {
             const mapping = this._resourceMappings.get(editorEvent.start.row);
             if (_.isEqual(mapping.type, 'path') && !_.isUndefined(mapping.ast)) {
-                mapping.ast.getChildren()[0].setRightValue('\"\"', { doSilently: true });
+                mapping.ast.getChildren()[0].setRightValue('""', { doSilently: true });
             } else if (_.isEqual(mapping.type, 'method') && !_.isUndefined(mapping.ast)) {
                 mapping.ast.setIdentifier('', { doSilently: true });
             }
@@ -306,7 +314,8 @@ class SwaggerView extends EventChannel {
 
         oldResourcePath = oldResourcePath.trim().replace(/:\s*$/, '');
 
-        const newResourcePath = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim().replace(/:\s*$/, '');
+        const newResourcePath = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim()
+                                                                                                .replace(/:\s*$/, '');
         // Getting the httpMethod value
         for (let i = this._swaggerAceEditor.getCursorPosition().row + 1; i <= this._swaggerAceEditor
             .getSession().getLength(); i++) {
@@ -317,9 +326,11 @@ class SwaggerView extends EventChannel {
                 // Get the operationId if exists.
                 let operationId;
                 const operationIDLineNumber = this._swaggerEditor.fn.AST.getLineNumberForPath(
-                    this._swaggerAceEditor.getValue(), astPath.concat([newResourcePath, httpMethodLine, 'operationId']));
+                    this._swaggerAceEditor.getValue(), astPath.concat([newResourcePath, httpMethodLine,
+                        'operationId']));
                 if (!_.isUndefined(operationIDLineNumber)) {
-                    operationId = this._swaggerAceEditor.getSession().getLine(operationIDLineNumber - 1).trim().replace(/operationId:\s/, '');
+                    operationId = this._swaggerAceEditor.getSession().getLine(operationIDLineNumber - 1).trim()
+                                                                                        .replace(/operationId:\s/, '');
                 }
 
                 // Finding the resource to update
@@ -384,7 +395,8 @@ class SwaggerView extends EventChannel {
 
         oldHttpMethod = oldHttpMethod.trim().replace(/:\s*$/, '');
 
-        const newHttpMethod = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim().replace(/:\s*$/, '');
+        const newHttpMethod = this._swaggerAceEditor.getSession().getLine(editorEvent.end.row).trim()
+                                                                                                .replace(/:\s*$/, '');
         const resourcePath = astPath[1];
 
         // Get the operationId if exists.
@@ -392,7 +404,8 @@ class SwaggerView extends EventChannel {
         const operationIDLineNumber = this._swaggerEditor.fn.AST.getLineNumberForPath(
             this._swaggerAceEditor.getValue(), astPath.concat([newHttpMethod, 'operationId']));
         if (!_.isUndefined(operationIDLineNumber)) {
-            operationId = this._swaggerAceEditor.getSession().getLine(operationIDLineNumber - 1).trim().replace(/operationId:\s/, '');
+            operationId = this._swaggerAceEditor.getSession().getLine(operationIDLineNumber - 1).trim()
+                                                                                        .replace(/operationId:\s/, '');
         }
 
         // Finding the resource to update
@@ -409,8 +422,10 @@ class SwaggerView extends EventChannel {
 
                 if (!_.isUndefined(currentResourcePathAnnotation) &&
                     !_.isUndefined(currentHttpMethodAnnotation) &&
-                    _.isEqual(currentResourcePathAnnotation.getChildren()[0].getRightValue().toLowerCase().replace(/"/g, ''), resourcePath.toLowerCase()) &&
-                    _.isEqual(currentHttpMethodAnnotation.getIdentifier().toLowerCase().replace(/"/g, ''), oldHttpMethod.toLowerCase())) {
+                    _.isEqual(currentResourcePathAnnotation.getChildren()[0].getRightValue().toLowerCase()
+                                                                    .replace(/"/g, ''), resourcePath.toLowerCase()) &&
+                    _.isEqual(currentHttpMethodAnnotation.getIdentifier().toLowerCase().replace(/"/g, ''),
+                                                                                        oldHttpMethod.toLowerCase())) {
                     resourceDefinitionToUpdate = resourceDefinition;
                     break;
                 }
@@ -419,7 +434,8 @@ class SwaggerView extends EventChannel {
 
         // Updating the http method of the resource.
         if (resourceDefinitionToUpdate) {
-            resourceDefinitionToUpdate.getHttpMethodAnnotation().setIdentifier(newHttpMethod.toUpperCase(), { doSilently: true });
+            resourceDefinitionToUpdate.getHttpMethodAnnotation().setIdentifier(newHttpMethod.toUpperCase(),
+                                                                                                { doSilently: true });
             this._resourceMappings.set(editorEvent.start.row,
                 {
                     type: 'method',

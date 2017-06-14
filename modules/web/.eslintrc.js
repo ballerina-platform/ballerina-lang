@@ -32,6 +32,12 @@ module.exports = {
         "import/extensions": ["off"],
         "import/no-named-as-default": ["off"],
         "import/no-named-as-default-member": ["off"],
+        "no-underscore-dangle": ["error", { 
+            "allowAfterThis": true
+        }],
+        "no-param-reassign": ["off"],
+        "no-restricted-syntax": ["off"],
+        "no-plusplus": ["off"]
     },
     "plugins": [
         "react"
