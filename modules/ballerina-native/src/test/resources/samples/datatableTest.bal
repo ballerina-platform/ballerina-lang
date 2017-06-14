@@ -3,7 +3,7 @@ import ballerina.data.sql;
 import ballerina.lang.errors;
 import ballerina.lang.xmls;
 import ballerina.lang.jsons;
-
+import ballerina.lang.blobs;
 
 struct ResultPrimitive {
     int INT_TYPE;
@@ -14,8 +14,18 @@ struct ResultPrimitive {
     string STRING_TYPE;
 }
 
+struct ResultSetTestAlias {
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    boolean BOOLEAN_TYPE;
+    string STRING_TYPE;
+    int DT2INT_TYPE;
+}
+
 struct ResultObject {
-    string BLOB_TYPE;
+    blob BLOB_TYPE;
     string CLOB_TYPE;
     string TIME_TYPE;
     string DATE_TYPE;
@@ -30,6 +40,10 @@ struct ResultMap {
     map FLOAT_ARRAY;
     map BOOLEAN_ARRAY;
     map STRING_ARRAY;
+}
+
+struct ResultBlob {
+    blob BLOB_TYPE;
 }
 
 
@@ -330,7 +344,8 @@ function getObjectAsStringByNameWithStruct () (string blobValue, string clob, st
         errors:TypeCastError err;
         rs, err = (ResultObject)para;
 
-        blobValue = rs.BLOB_TYPE;
+        blob blobData = rs.BLOB_TYPE;
+        blobValue  = blobs:toString(blobData, "UTF-8");
         clob = rs.CLOB_TYPE;
         time = rs.TIME_TYPE;
         date = rs.DATE_TYPE;
@@ -435,4 +450,53 @@ function testToJsonWithinTransaction () (string, int){
         returnValue = - 2;
     }
     return result, returnValue;
+}
+
+function testBlobData () (string blobStringData) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters=[];
+    datatable df2 = sql:ClientConnector.select (testDB, "SELECT blob_type from ComplexTypes LIMIT 1", parameters);
+    blob blobData;
+    while (datatables:hasNext(df2)) {
+        any para = datatables:next(df2);
+        ResultBlob rs;
+        errors:TypeCastError err;
+        rs, err = (ResultBlob)para;
+        blobData = rs.BLOB_TYPE;
+    }
+    blobStringData  = blobs:toString(blobData, "UTF-8");
+
+    sql:ClientConnector.close (testDB);
+    return;
+}
+
+function getXXXByIndexWithStructAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable df = sql:ClientConnector.select (testDB, "SELECT dt1.int_type, dt1.long_type, dt1.float_type,
+           dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
+           left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", parameters);
+    while (datatables:hasNext(df)) {
+        any para = datatables:next(df);
+        ResultSetTestAlias rs;
+        errors:TypeCastError err;
+        rs, err = (ResultSetTestAlias)para;
+
+        i = rs.INT_TYPE;
+        l = rs.LONG_TYPE;
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        b = rs.BOOLEAN_TYPE;
+        s = rs.STRING_TYPE;
+        i2 = rs.DT2INT_TYPE;
+    }
+    datatables:close(df);
+    sql:ClientConnector.close (testDB);
+    return;
 }
