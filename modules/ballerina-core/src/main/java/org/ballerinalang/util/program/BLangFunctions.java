@@ -17,24 +17,13 @@
 */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.BLangExecutor;
-import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.RuntimeEnvironment;
-import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Function;
-import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -56,7 +45,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
 
@@ -105,83 +93,6 @@ public class BLangFunctions {
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName, BValue[] args) {
         return invokeNew(bLangProgram, packageName, functionName, args, new Context(bLangProgram));
-    }
-
-    /**
-     * Invokes a Ballerina function defined in the given language model.
-     *
-     * @param bLangProgram parsed, analyzed and linked object model
-     * @param functionName name of the function to be invoked
-     * @param args         arguments for the function
-     * @param bContext     ballerina context
-     * @return return values from the function
-     */
-
-    public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args, Context bContext) {
-        Function function = getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, args);
-        bLangProgram.setMainPackage(bLangProgram.getLibraryPackages()[0]);
-        if (function == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        if (function.getParameterDefs().length != args.length) {
-            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
-        }
-
-        BValue[] argValues = new BValue[function.getStackFrameSize()];
-
-        int stackIndex = 0;
-        for (int i = 0; i < args.length; i++) {
-            argValues[i] = args[i];
-            stackIndex++;
-        }
-
-        for (ParameterDef returnParam : function.getReturnParameters()) {
-            if (returnParam.getName() == null) {
-                break;
-            }
-
-            argValues[stackIndex] = returnParam.getType().getZeroValue();
-            stackIndex++;
-        }
-
-        BValue[] returnValues = new BValue[function.getReturnParameters().length];
-        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
-                function.getNodeLocation());
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-
-
-        StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
-        bContext.getControlStack().pushFrame(stackFrame);
-
-        // Invoke main function
-        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-        executor.setParentScope(function.getSymbolScope());
-        if (((BallerinaFunction) function).getWorkers().length > 0) {
-            // TODO: Fix this properly.
-            Expression[] exprs = new Expression[args.length];
-            for (int i = 0; i < args.length; i++) {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(), null,
-                        new SymbolName("arg" + i));
-
-                variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
-                StackVarLocation location = new StackVarLocation(i);
-                variableRefExpr.setMemoryLocation(location);
-                exprs[i] = variableRefExpr;
-            }
-            // Start the workers if there is any
-            for (Worker worker : ((BallerinaFunction) function).getWorkers()) {
-                executor.executeWorker(worker, exprs);
-            }
-        }
-        function.getCallableUnitBody().execute(executor);
-        if (executor.isErrorThrown && executor.thrownError != null) {
-            String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
-                    executor.thrownError.getValue(0).stringValue() + "}";
-            throw new BallerinaException(errorMsg);
-        }
-        return returnValues;
-
     }
 
     public static BValue[] invokeNew(ProgramFile bLangProgram, String packageName, String functionName,

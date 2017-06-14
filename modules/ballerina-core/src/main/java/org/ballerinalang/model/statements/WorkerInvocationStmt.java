@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -25,7 +24,6 @@ import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
 import java.util.ArrayList;
@@ -43,8 +41,6 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     private String workerName;
     private Worker calleeWorker;
     private BType[] types = new BType[0];
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
     protected List<Expression> expressionList = new ArrayList<>();
     private WorkerDataChannel workerDataChannel;
     private String enclosingCallableUnitName;
@@ -137,31 +133,6 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
         this.offsets = offsets;
     }
 
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
-    }
-
-    @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
-    }
-
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return null;
-    }
-
     public Expression[] getExpressionList() {
         return expressionList.toArray(new Expression[expressionList.size()]);
     }
@@ -169,11 +140,6 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
     }
 }
 

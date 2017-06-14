@@ -18,14 +18,11 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.typemappers.TriFunction;
 
 /**
  * Class to hold the data related to type conversion expression.
@@ -36,32 +33,16 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
 
     private SimpleTypeName typeName;
     private Expression rExpr;
-    protected TriFunction<BValue, BType, Boolean, BValue[]> evalFunc;
     private BType[] types = new BType[0];
     private int opcode;
 
     private int[] offsets;
-
-    public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
-                              BType targetType) {
-        super(location, whiteSpaceDescriptor);
-        this.rExpr = rExpr;
-        this.type = targetType;
-    }
 
     public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, 
             SimpleTypeName typeName, Expression rExpr) {
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.typeName = typeName;
-    }
-
-    public TriFunction<BValue, BType, Boolean, BValue[]> getEvalFunc() {
-        return evalFunc;
-    }
-
-    public void setEvalFunc(TriFunction<BValue, BType, Boolean, BValue[]> evalFunc) {
-        this.evalFunc = evalFunc;
     }
 
     public Expression getRExpr() {
@@ -83,11 +64,6 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this)[0];
     }
 
     /**
@@ -126,17 +102,6 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
         setTempOffset(offsets[0]);
     }
 
-    /**
-     * Executes and Returns all the results of this expression.
-     *
-     * @param executor instance of a {@code NodeExecutor}
-     * @return results of this expression
-     */
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-    
     @Override
     public void setMultiReturnAvailable(boolean multiReturnsAvailable) {
         this.multipleReturnsAvailable = multiReturnsAvailable;

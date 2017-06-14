@@ -18,7 +18,6 @@
 
 package org.ballerinalang.core;
 
-import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
@@ -50,9 +49,6 @@ public class EnvironmentInitializer {
                         dispatcher.serviceRegistered(service));
             }
         }
-
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-        bLangProgram.setRuntimeEnvironment(runtimeEnv);
 
         return bLangProgram;
     }

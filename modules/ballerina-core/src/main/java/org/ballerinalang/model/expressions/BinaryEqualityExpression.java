@@ -17,14 +17,9 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
 
 /**
  * {@code BinaryEqualityExpression} represents a equality expression in Ballerina.
@@ -35,23 +30,8 @@ import java.util.function.BiFunction;
  */
 public class BinaryEqualityExpression extends BinaryExpression {
 
-    BiFunction<BValue, BValue, BValueType> refTypeEvalFunc;
-    
     public BinaryEqualityExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
                                     Operator op, Expression rExpr) {
         super(location, whiteSpaceDescriptor, lExpr, op, rExpr);
-    }
-
-    public BiFunction<BValue, BValue, BValueType> getRefTypeEvalFunc() {
-        return refTypeEvalFunc;
-    }
-
-    public void setRefTypeEvalFunc(BiFunction<BValue, BValue, BValueType> refTypeEvalFunc) {
-        this.refTypeEvalFunc = refTypeEvalFunc;
-    }
-    
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
     }
 }
