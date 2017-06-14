@@ -8,6 +8,7 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.BLangProgramArchiveBuilder;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -694,11 +695,31 @@ public class Main {
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
+        @Parameter(names = {"--version", "-v"}, description = "display Ballerina version information")
+        private boolean version;
+
         private JCommander parentCmdParser;
 
         @Override
         public void execute() {
-            printUsageInfo(parentCmdParser);
+            if (version) {
+                outStream.println("Ballerina " + "\"" + System.getProperty(Constants.BALLERINA_VERSION) + "\"");
+                outStream.println("home: " + System.getProperty(Constants.BALLERINA_HOME));
+
+                outStream.println();
+                outStream.println(System.getProperty("java.runtime.name"));
+                outStream.println("vm: " + System.getProperty("java.vm.name"));
+                outStream.print("version: " + "\"" + System.getProperty("java.version") + "\", ");
+                outStream.println("vendor: " + "\"" + System.getProperty("java.vendor") + "\"");
+                outStream.println("home: " + System.getProperty("java.home"));
+
+                outStream.println();
+                outStream.print("OS name: " + "\"" + System.getProperty("os.name") + "\", ");
+                outStream.print("version: " + "\"" + System.getProperty("os.version") + "\", ");
+                outStream.println("arch: " + "\"" + System.getProperty("os.arch") + "\"");
+            } else {
+                printUsageInfo(parentCmdParser);
+            }
         }
 
         @Override
