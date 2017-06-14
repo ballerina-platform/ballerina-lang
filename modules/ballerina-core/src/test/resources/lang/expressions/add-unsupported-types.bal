@@ -9,5 +9,5 @@ function addJson() {
 	// Following line is invalid.
 	j3 = j1 + j2;
 	
-	reply m;
+	return m;
 }

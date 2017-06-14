@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 /**
@@ -66,10 +64,6 @@ public abstract class AbstractExpression implements Expression {
 
     public void setMultiReturnAvailable(boolean multiReturnsAvailable) {
         this.multipleReturnsAvailable = multiReturnsAvailable;
-    }
-    
-    public BValue execute(NodeExecutor executor) {
-        return null;
     }
 
     @Override

@@ -17,12 +17,10 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code ArrayMapAccessExpr} represents an arrays access operation.
@@ -39,14 +37,6 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
     private SymbolName symbolName;
     private Expression[] indexExprs;
     private boolean isLHSExpr;
-
-    private ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName,
-                               Expression arrayVarRefExpr, Expression[] indexExprs) {
-        super(location, whiteSpaceDescriptor, null, arrayVarRefExpr);
-        this.symbolName = new SymbolName(varName);
-        this.varName = varName;
-        this.indexExprs = indexExprs;
-    }
 
     private ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName,
                                String pkgName, String pkgPath, Expression arrayVarRefExpr, Expression[] indexExprs) {
@@ -103,10 +93,6 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         visitor.visit(this);
     }
 
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
     /**
      * {@code ArrayMapAccessExprBuilder} represents an arrays access expression builder.
      *
@@ -157,11 +143,6 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         public ArrayMapAccessExpr build() {
             return new ArrayMapAccessExpr(location, whiteSpaceDescriptor, varName, pkgName, pkgPath, arrayMapVarRefExpr,
                     indexExprs);
-        }
-
-        public ArrayMapAccessExpr buildWithSymbol() {
-            return new ArrayMapAccessExpr(location, whiteSpaceDescriptor, symbolName, pkgName, pkgPath,
-                    arrayMapVarRefExpr, indexExprs);
         }
     }
 }

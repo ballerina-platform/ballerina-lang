@@ -95,12 +95,14 @@ public class BDataTable implements BRefType<Object> {
                 value = new BString(iterator.getString(columnName));
                 break;
             case Types.CLOB:
-            case Types.BLOB:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
             case Types.NCLOB:
                 value = new BString(iterator.getObjectAsString(columnName));
+                break;
+            case Types.BLOB:
+                value = iterator.get(columnName, "blob");
                 break;
             case Types.BINARY:
                 value = iterator.get(columnName, "binary");
@@ -179,12 +181,14 @@ public class BDataTable implements BRefType<Object> {
             case Types.LONGNVARCHAR:
             case Types.CLOB:
             case Types.NCLOB:
-            case Types.BLOB:
             case Types.BINARY:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
                 type = BTypes.typeString;
+                break;
+            case Types.BLOB:
+                type = BTypes.typeBlob;
                 break;
             case Types.TINYINT:
             case Types.SMALLINT:
