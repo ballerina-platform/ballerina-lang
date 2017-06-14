@@ -8,7 +8,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
@@ -25,8 +24,7 @@ import java.util.Map;
         connectorName = Constants.CONNECTOR_NAME,
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
-                         structPackage = "ballerina.lang.files") },
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
+                         structPackage = "ballerina.lang.files") })
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Delete a file or a folder") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
@@ -48,7 +46,7 @@ public class Delete extends AbstractVfsAction {
             BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)
                                      .send(null, null, propertyMap);
         } catch (ClientConnectorException e) {
-            throw new BallerinaException("Exception occurred while sending message.", e, context);
+            throw new BallerinaException(e.getMessage(), e, context);
         }
         return null;
     }

@@ -2,14 +2,12 @@ package org.ballerinalang.nativeimpl.actions.vfs;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
@@ -27,8 +25,7 @@ import java.util.Map;
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files"),
-                 @Argument(name = "type", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
+                 @Argument(name = "type", type = TypeEnum.STRING)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Create a file or folder") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
@@ -38,7 +35,8 @@ import java.util.Map;
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "type",
         value = "Specification whether file or folder") })
 public class CreateFile extends AbstractVfsAction {
-    @Override public BValue execute(Context context) {
+    @Override
+    public BValue execute(Context context) {
 
         // Extracting Argument values
         BStruct file = (BStruct) getRefArgument(context, 1);
@@ -56,7 +54,7 @@ public class CreateFile extends AbstractVfsAction {
             BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)
                                      .send(null, null, propertyMap);
         } catch (ClientConnectorException e) {
-            throw new BallerinaException("Exception occurred while sending message.", e, context);
+            throw new BallerinaException(e.getMessage(), e, context);
         }
         return null;
     }

@@ -8,7 +8,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Move
+ * Move a file or a folder from one place to another
  */
 @BallerinaAction(
         packageName = "ballerina.net.vfs",
@@ -27,8 +26,7 @@ import java.util.Map;
                 @Argument(name = "source", type = TypeEnum.STRUCT, structType = "File",
                         structPackage = "ballerina.lang.files"),
                 @Argument(name = "destination", type = TypeEnum.STRUCT, structType = "File",
-                        structPackage = "ballerina.lang.files")},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
+                        structPackage = "ballerina.lang.files")})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "This function copies a file from a given location to another") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
@@ -46,14 +44,14 @@ public class Move extends AbstractVfsAction {
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         propertyMap.put(Constants.PROPERTY_URI, source.getStringField(0));
-        propertyMap.put(Constants.PROPERTY_URI, destination.getStringField(0));
+        propertyMap.put(Constants.PROPERTY_DESTINATION, destination.getStringField(0));
         propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_MOVE);
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)
                                      .send(null, null, propertyMap);
         } catch (ClientConnectorException e) {
-            throw new BallerinaException("Exception occurred while sending message.", e, context);
+            throw new BallerinaException(e.getMessage(), e, context);
         }
         return null;
     }

@@ -29,16 +29,15 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import java.util.Map;
 
 /**
- * {@code AbstractJMSAction} is the base class for all JMS Connector Actions.
+ * {@code AbstractVfsAction} is the base class for all VFS Connector Actions.
  */
 
 public abstract class AbstractVfsAction extends AbstractNativeAction {
     private static final Logger logger = LoggerFactory.getLogger(AbstractVfsAction.class);
-
     private static final long SENDER_TIMEOUT = 180000;
 
     /**
-     * Used to send messages to transport level expecting a callback.
+     *Send message to file client connector expecting a callback.
      *
      * @param message     Message to send to client connector. Value can be null
      * @param propertyMap Property map to send to client connector. Can be null
@@ -53,7 +52,7 @@ public abstract class AbstractVfsAction extends AbstractNativeAction {
             BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)
                                      .send(message, callback, propertyMap);
         } catch (ClientConnectorException e) {
-            throw new BallerinaException("Exception occurred while sending message.", e, context);
+            throw new BallerinaException(e.getMessage(), e, context);
         }
         try {
             // Wait till Response comes

@@ -38,7 +38,7 @@ import java.util.Map;
  */
 @BallerinaAction(
         packageName = "ballerina.net.vfs",
-        actionName = "isExists",
+        actionName = "exists",
         connectorName = Constants.CONNECTOR_NAME,
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
@@ -50,7 +50,9 @@ import java.util.Map;
         value = "Vfs client connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "File struct containing path information") })
-public class IsExists extends AbstractVfsAction {
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "isExist",
+        value = "Boolean representing  whether the file exists") })
+public class Exists extends AbstractVfsAction {
     @Override
     public BValue execute(Context context) {
 
@@ -60,9 +62,10 @@ public class IsExists extends AbstractVfsAction {
         Map<String, String> propertyMap = new HashMap<>();
         String pathString = file.getStringField(0);
         propertyMap.put(Constants.PROPERTY_URI, pathString);
-        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_ISEXISTS);
+        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_EXISTS);
         CarbonMessage responseMessage = executeCallbackAction(null, propertyMap, context);
-
-        return new BBoolean(Boolean.parseBoolean(((TextCarbonMessage) responseMessage).getText()));
+        boolean b = Boolean.parseBoolean(((TextCarbonMessage) responseMessage).getText());
+        context.getControlStackNew().currentFrame.returnValues[0] = new BBoolean(b);
+        return null;
     }
 }

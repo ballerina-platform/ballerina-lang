@@ -31,7 +31,7 @@ public class Constants {
     public static final String ACTION_COPY = "copy";
     public static final String ACTION_CREATE = "create";
     public static final String ACTION_DELETE = "delete";
-    public static final String ACTION_ISEXISTS = "isExists";
+    public static final String ACTION_EXISTS = "exists";
     public static final String ACTION_MOVE = "move";
     public static final String ACTION_READ = "read";
     public static final String ACTION_WRITE = "write";

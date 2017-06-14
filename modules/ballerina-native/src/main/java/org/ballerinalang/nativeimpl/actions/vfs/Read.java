@@ -70,8 +70,9 @@ public class Read extends AbstractVfsAction {
         propertyMap.put(Constants.PROPERTY_URI, pathString);
         propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_READ);
         CarbonMessage responseMessage = executeCallbackAction(null, propertyMap, context);
-
-        return new BBlob(((BinaryCarbonMessage) responseMessage).readBytes().array());
+        context.getControlStackNew().currentFrame.returnValues[0] =
+                new BBlob(((BinaryCarbonMessage) responseMessage).readBytes().array());
+        return null;
     }
 }
 
