@@ -18,12 +18,10 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.Action;
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code ActionInvocationExpr} represents action invocation expression.
@@ -38,11 +36,8 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private Expression[] exprs;
     private Action action;
     private BType[] types = new BType[0];
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
-    private Expression varRefExpr;
-
     private int[] offsets;
+    private Expression varRefExpr;
 
     public ActionInvocationExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -128,36 +123,6 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this)[0];
-    }
-
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
-    }
-
-    @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
     }
 
     public Expression getVarRefExpr() {

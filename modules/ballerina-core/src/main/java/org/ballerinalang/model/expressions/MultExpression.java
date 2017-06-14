@@ -20,12 +20,6 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.Operator.MUL;
 
@@ -35,12 +29,6 @@ import static org.ballerinalang.model.Operator.MUL;
  * @since 0.8.0
  */
 public class MultExpression extends BinaryArithmeticExpression {
-
-    public static final BiFunction<BValue, BValue, BValue> MULT_INT_FUNC =
-            (lVal, rVal) -> new BInteger(((BValueType) lVal).intValue() * ((BValueType) rVal).intValue());
-
-    public static final BiFunction<BValue, BValue, BValue> MULT_FLOAT_FUNC =
-            (lVal, rVal) -> new BFloat(((BValueType) lVal).floatValue() * ((BValueType) rVal).floatValue());
 
     public MultExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
                           Expression rExpr) {
