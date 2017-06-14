@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
-import EventChannel from 'event_channel';
 
 /**
  * @class Function
@@ -27,9 +25,8 @@ import EventChannel from 'event_channel';
  * @param {string} args.id - id of function
  * @constructor
  */
-class Function extends EventChannel {
+class Function {
     constructor(args) {
-        super(args);
         this._name = _.get(args, 'name', '');
         this._id = _.get(args, 'id', '');
         this._parameters = _.get(args, 'parameters', []);

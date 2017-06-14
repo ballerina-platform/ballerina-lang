@@ -28,13 +28,11 @@ import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
  * @class Package
- * @augments EventChannel
  * @param args {Object} - args.name: name of the package
  * @constructor
  */
-class Package extends EventChannel {
+class Package {
     constructor(args) {
-        super();
         this.setName(_.get(args, 'name', ''));
         this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
         this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));

@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 
-import EventChannel from 'event_channel';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
@@ -28,9 +26,8 @@ import BallerinaEnvFactory from './ballerina-env-factory';
  * @param args {Object} - args.name: name of the package
  * @constructor
  */
-class Connector extends EventChannel {
+class Connector {
     constructor(args) {
-        super(args);
         this._name = _.get(args, 'name', '');
         this._id = _.get(args, 'id', '');
         this._actions = _.get(args, 'actions', []);
