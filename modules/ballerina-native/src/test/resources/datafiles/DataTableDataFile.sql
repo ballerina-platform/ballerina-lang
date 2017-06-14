@@ -14,6 +14,15 @@ insert into DataTable (row_id, int_type, long_type, float_type, double_type, boo
 /
 insert into DataTable (row_id) values (2);
 /
+CREATE TABLE IF NOT EXISTS DataTableRep(
+  row_id       INTEGER,
+  int_type     INTEGER,
+  PRIMARY KEY (row_id)
+);
+/
+insert into DataTableRep (row_id, int_type) values
+  (1, 100);
+/
 CREATE TABLE IF NOT EXISTS ComplexTypes(
   row_id         INTEGER NOT NULL IDENTITY,
   blob_type      BLOB(1024),
