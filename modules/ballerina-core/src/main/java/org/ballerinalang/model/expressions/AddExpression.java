@@ -21,15 +21,6 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.model.values.BXML;
-
-import java.util.function.BiFunction;
 
 /**
  * {@code AddExpression} represents a binary add expression.
@@ -37,18 +28,6 @@ import java.util.function.BiFunction;
  * @since 0.8.0
  */
 public class AddExpression extends BinaryArithmeticExpression {
-
-    public static final BiFunction<BValue, BValue, BValue> ADD_INT_FUNC =
-            (lVal, rVal) -> new BInteger(((BValueType) lVal).intValue() + ((BValueType) rVal).intValue());
-
-    public static final BiFunction<BValue, BValue, BValue> ADD_FLOAT_FUNC =
-            (lVal, rVal) -> new BFloat(((BValueType) lVal).floatValue() + ((BValueType) rVal).floatValue());
-
-    public static final BiFunction<BValue, BValue, BValue> ADD_STRING_FUNC =
-            (lVal, rVal) -> new BString(((BValueType) lVal).stringValue() + ((BValueType) rVal).stringValue());
-            
-    public static final BiFunction<BValue, BValue, BValue> ADD_XML_FUNC =
-            (lVal, rVal) -> XMLUtils.concatenate((BXML) lVal, (BXML) rVal);
 
     public AddExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
                          Expression rExpr) {

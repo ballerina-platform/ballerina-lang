@@ -17,34 +17,23 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.typemappers.TriFunction;
+import java.util.Objects;
 
 /**
- * One edge in the Type Lattice graph.
+ * One edge in the Type Lattice.
+ *
+ * @since 0.8.0
  */
 public class TypeEdge {
     private TypeVertex source, target;
-    private TriFunction<BValue, BType, Boolean, BValue[]> typeMapperFunction;
-    private String packageName;
     private boolean safe;
     private int opcode = -1;
 
-    public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean, 
-            BValue[]> typeMapperFunction) {
+    public TypeEdge(TypeVertex source, TypeVertex target, boolean safe, int opcode) {
         this.source = source;
         this.target = target;
-        this.typeMapperFunction = typeMapperFunction;
-        this.packageName = TypeConstants.NATIVE_PACKAGE;
-    }
-
-    public TypeEdge(TypeVertex source, TypeVertex target, TriFunction<BValue, BType, Boolean,
-            BValue[]> typeMapperFunction, boolean safe, int opcode) {
-        this.source = source;
-        this.target = target;
-        this.typeMapperFunction = typeMapperFunction;
         this.opcode = opcode;
-        this.packageName = TypeConstants.NATIVE_PACKAGE;
+        this.safe = safe;
     }
 
     public TypeVertex getSource() {
@@ -63,10 +52,6 @@ public class TypeEdge {
         this.target = target;
     }
 
-    public TriFunction<BValue, BType, Boolean, BValue[]> getTypeMapperFunction() {
-        return typeMapperFunction;
-    }
-
     public boolean isSafe() {
         return safe;
     }
@@ -79,15 +64,14 @@ public class TypeEdge {
      * @return String A String representation of this Edge
      */
     public String toString() {
-        return "({" + source.toString() + ", " + target.toString() + "}" + ": " + 
-                packageName + ")";
+        return "(" + source.toString() + ", " + target.toString() + ")";
     }
 
     /**
      * @return int The hash code for this Edge
      */
     public int hashCode() {
-        return (source.toString() + target.toString() + packageName).hashCode();
+        return Objects.hash(source.toString(), target.toString());
     }
 
     /**
@@ -100,20 +84,6 @@ public class TypeEdge {
         }
 
         TypeEdge e = (TypeEdge) other;
-        if (typeMapperFunction != null) {
-            return e.source.equals(this.source) && e.target.equals(this.target)
-                    && e.packageName.equals(this.packageName)
-                    && e.typeMapperFunction.equals(this.typeMapperFunction);
-        }
-        
-        return false;
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
+        return e.source.equals(this.source) && e.target.equals(this.target);
     }
 }

@@ -69,13 +69,9 @@ public class BalConnectorCallback extends DefaultBalCallback {
     public void done(CarbonMessage carbonMessage) {
         BMessage bMessage = new BMessage(carbonMessage);
         valueRef = bMessage;
-        //context.getControlStack().setValue(4, valueRef);
-        if (context.isVMBasedExecutor()) {
-            context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
-        } else {
-            context.getControlStack().setReturnValue(0, valueRef);
-        }
+        context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
         responseArrived = true;
+
         // Release Thread.
         if (nonBlockingExecution) {
             ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
