@@ -27,6 +27,11 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.runtime.interceptors.BLangVMInterceptors;
+import org.ballerinalang.runtime.interceptors.ResourceInterceptor;
+import org.ballerinalang.runtime.interceptors.ResourceInterceptorCallback;
+import org.ballerinalang.runtime.interceptors.ServerConnectorInterceptorInfo;
+import org.ballerinalang.runtime.interceptors.ServiceInterceptors;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
@@ -46,7 +51,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
-import java.io.PrintStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -59,7 +64,7 @@ public class ServerConnectorMessageHandler {
 
     private static final Logger breLog = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
 
-    private static PrintStream outStream = System.err;
+    private static ServiceInterceptors serviceInterceptors = ServiceInterceptors.getInstance();
 
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
 
@@ -90,11 +95,36 @@ public class ServerConnectorMessageHandler {
 
             // Find the Resource
             ResourceInfo resource = resourceDispatcher.findResource(service, cMsg, callback);
+            // engage Service interceptors.
+            CarbonCallback resourceCallback = callback;
+            if (serviceInterceptors.isEnabled(protocol)) {
+                resourceCallback = new ResourceInterceptorCallback(callback, protocol);
+                ServerConnectorInterceptorInfo interceptorInfo = serviceInterceptors
+                        .getServerConnectorInterceptorInfo(protocol);
 
-            invokeResource(cMsg, callback, resource, service);
-
+                if (interceptorInfo != null) {
+                    List<ResourceInterceptor> requestChain = interceptorInfo.getRequestChain();
+                    BMessage message = new BMessage(cMsg);
+                    // Invoke request interceptor chain.
+                    for (ResourceInterceptor resourceInterceptor : requestChain) {
+                        ResourceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor
+                                (resourceInterceptor, message);
+                        // message
+                        if (result.getMessageIntercepted() == null) {
+                            message = new BMessage(null);
+                        } else {
+                            message = result.getMessageIntercepted();
+                        }
+                        if (!result.isInvokeNext()) {
+                            callback.done(message.value());
+                            return;
+                        }
+                    }
+                }
+            }
+            invokeResource(cMsg, resourceCallback, resource, service);
         } catch (Throwable throwable) {
-            handleErrorInboundPath(cMsg, callback, throwable);
+            handleError(cMsg, callback, throwable);
         }
     }
 
@@ -191,8 +221,7 @@ public class ServerConnectorMessageHandler {
         callback.done(cMsg);
     }
 
-    public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback,
-                                              Throwable throwable) {
+    public static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
         String errorMsg = throwable.getMessage();
 
         // bre log should contain bre stack trace, not the ballerina stack trace
@@ -210,4 +239,5 @@ public class ServerConnectorMessageHandler {
         }
 
     }
+
 }
