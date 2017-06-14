@@ -152,9 +152,9 @@ class WorkerInvocationStatement extends React.Component {
 
         messageManager.setTargetValidationCallback(destination => model.messageDrawTargetAllowed(destination));
 
-        messageManager.startDrawMessage((source, destination) => {
-            const expressionsList = ((source.getInvocationStatement().split('->')[0]).trim()).split(',');
-            let expressionString = '';
+        messageManager.startDrawMessage(function (source, destination) {
+            const expressionsList = ((source.getStatementString().split('->')[0]).trim()).split(',');
+            let expressionString;
             let workerName = '';
 
             /**
@@ -170,7 +170,7 @@ class WorkerInvocationStatement extends React.Component {
             source.setWorkerName(workerName);
             expressionString = _.join(expressionsList, ',');
             expressionString += `->${workerName}`;
-            source.setInvocationStatement(expressionString);
+            source.setStatementFromString(expressionString);
             source.setDestination(destination);
         });
     }
