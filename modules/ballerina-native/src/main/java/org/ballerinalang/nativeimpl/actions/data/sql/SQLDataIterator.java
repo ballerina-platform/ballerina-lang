@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql;
 
 import org.ballerinalang.model.DataIterator;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -198,7 +199,8 @@ public class SQLDataIterator implements DataIterator {
         try {
             switch (type) {
             case "blob":
-                return getBString(rs.getBlob(columnIndex));
+                Blob value = rs.getBlob(columnIndex);
+                return new BBlob(value.getBytes(1L, (int) value.length()));
             case "clob":
                 return getBString(rs.getClob(columnIndex));
             case "nclob":
@@ -224,7 +226,8 @@ public class SQLDataIterator implements DataIterator {
         try {
             switch (type) {
             case "blob":
-                return getBString(rs.getBlob(columnName));
+                Blob value = rs.getBlob(columnName);
+                return new BBlob(value.getBytes(1L, (int) value.length()));
             case "clob":
                 return getBString(rs.getClob(columnName));
             case "nclob":
