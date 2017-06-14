@@ -123,9 +123,6 @@ class TransformStatementDecorator extends React.Component {
                 ' <span id="btn-add-source" class="btn-add-type fw-stack fw-lg btn btn-add">'+
                 '            <i class="fw fw-add fw-stack-1x"></i>'+
                 '          </span>'+
-                '           <span id="btn-remove-source" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
-                '            <i class="fw fw-delete fw-stack-1x"></i>'+
-                '          </span>' +
                 '</div><div class="leftType"></div>');
 
         var middleContent =  $('<div class="middle-content"></div>');
@@ -138,9 +135,6 @@ class TransformStatementDecorator extends React.Component {
                 ' <span id="btn-add-target" class="btn-add-type fw-stack fw-lg btn btn-add">'+
                 '            <i class="fw fw-add fw-stack-1x"></i>'+
                 '          </span>'+
-                '           <span id="btn-remove-target" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
-                '            <i class="fw fw-delete fw-stack-1x"></i>'+
-                '          </span>' +
                 '</div><div class="rightType"></div>');
 
         var transformNameText = $('<p class="transform-header-text ">'
@@ -223,17 +217,6 @@ class TransformStatementDecorator extends React.Component {
             }
         });
 
-        $('#btn-remove-source').click(function (e) {
-            var currentSelection = $('#' + sourceId).val();
-            if (currentSelection != -1) {
-                self.mapper.removeType(currentSelection);
-                self.props.model.setInput([]);
-                var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
-                currentSelectionObj.added = false;
-                self.props.model.children = [];
-            }
-        });
-
         $('#btn-add-target').click(function (e) {
             var currentSelection = $('#' + targetId).val();
             var outDef = BallerinaASTFactory
@@ -242,17 +225,6 @@ class TransformStatementDecorator extends React.Component {
                 var outputs = self.props.model.getOutput();
                 outputs.push(outDef);
                 self.props.model.setOutput(outputs);
-            }
-        });
-
-        $('#btn-remove-target').click(function (e) {
-            var currentSelection = $('#' + targetId).val();
-            if (currentSelection != -1) {
-                self.mapper.removeType(currentSelection);
-                self.props.model.setOutput([]);
-                var currentSelectionObj =  _.find(self.predefinedStructs, { name:currentSelection});
-                currentSelectionObj.added = false;
-                self.props.model.children = [];
             }
         });
 
@@ -788,7 +760,10 @@ class TransformStatementDecorator extends React.Component {
 
         var removeFunc = function(id) {
             self.mapper.removeType(id);
-            self.props.model.setInput([]);
+            _.remove(self.props.model.getInput(),  function(currentObject) {
+                                                                return currentObject.getVariableName() === id;
+                                                           });
+            self.props.model.setInput(self.props.model.getInput());
             var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
         }
@@ -815,7 +790,10 @@ class TransformStatementDecorator extends React.Component {
 
         var removeFunc = function(id) {
             self.mapper.removeType(id);
-            self.props.model.setOutput([]);
+            _.remove(self.props.model.getOutput(), function(currentObject) {
+                                                                return currentObject.getVariableName() === id;
+                                                            })
+            self.props.model.setOutput(self.props.model.getOutput());
             var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
         }
