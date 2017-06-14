@@ -36,6 +36,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -72,6 +73,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ConnectionManager connectionManager;
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
     protected Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
+    protected Map<String, TargetChannel> targetChannelPerHostPool = new HashMap<>();
     protected ListenerConfiguration listenerConfiguration;
     private WebSocketServerHandshaker handshaker;
 
@@ -269,6 +271,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 log.error("Couldn't close target channel socket connections", e);
             }
         });
+        targetChannelPerHostPool.forEach((k, targetChannel) -> targetChannel.getChannel().close());
         connectionManager.notifyChannelInactive();
     }
 
@@ -348,4 +351,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return ctx.channel().id().asLongText();
     }
 
+    public Map<String, TargetChannel> getTargetChannelPerHostPool() {
+        return targetChannelPerHostPool;
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            ctx.close();
+        }
+    }
 }

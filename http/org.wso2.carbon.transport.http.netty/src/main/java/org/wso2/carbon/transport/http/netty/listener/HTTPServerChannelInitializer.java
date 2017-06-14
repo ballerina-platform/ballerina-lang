@@ -28,6 +28,7 @@ import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AsciiString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,6 +181,10 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
+            int socketIdleTimeout = listenerConfiguration.getSocketIdleTimeout(60);
+            // TODO: Let's improve this later for read and write timeouts
+            p.addLast("idleStateHandler",
+                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout));
             p.addLast("handler", new SourceHandler(connectionManager, listenerConfiguration));
         } catch (Exception e) {
             log.error("Cannot Create SourceHandler ", e);

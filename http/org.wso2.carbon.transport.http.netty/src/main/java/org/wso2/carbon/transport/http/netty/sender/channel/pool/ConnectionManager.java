@@ -16,11 +16,13 @@
 package org.wso2.carbon.transport.http.netty.sender.channel.pool;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -208,13 +210,20 @@ public class ConnectionManager {
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
             try {
-                Map<String, GenericObjectPool> connPool = sourceHandler.getTargetChannelPool();
-                GenericObjectPool pool = connPool.get(httpRoute.toString());
-                if (pool == null) {
-                    pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
-                    connPool.put(httpRoute.toString(), pool);
+                Map<String, TargetChannel> connPool = sourceHandler.getTargetChannelPerHostPool();
+                targetChannel = connPool.remove(httpRoute.toString());
+                if (targetChannel == null) {
+                    targetChannel = new TargetChannel();
+                    ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
+                            group, cl, httpRoute, senderConfiguration);
+                    Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
+                    // TODO: Let's improve this later for read and write timeouts
+                    int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60);
+                    channel.pipeline().addLast("idleStateHandler",
+                            new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout));
+                    log.debug("Created channel: {}", channel);
+                    targetChannel.setChannel(channel);
                 }
-                targetChannel = (TargetChannel) pool.borrowObject();
 
                 if (targetChannel.getChannel() != null) {
                     targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
@@ -282,8 +291,8 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
-            Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
-            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
+            Map<String, TargetChannel> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPerHostPool();
+            objectPoolMap.put(targetChannel.getHttpRoute().toString(), targetChannel);
         }
     }
 

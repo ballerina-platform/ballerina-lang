@@ -65,6 +65,9 @@ public class SenderConfiguration {
     @XmlAttribute
     private String certPass;
 
+    @XmlAttribute
+    private int socketIdleTimeout;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters;
@@ -133,5 +136,14 @@ public class SenderConfiguration {
                 parameters);
     }
 
+    public int getSocketIdleTimeout(int defaultValue) {
+        if (socketIdleTimeout == 0) {
+            return defaultValue;
+        }
+        return socketIdleTimeout;
+    }
 
+    public void setSocketIdleTimeout(int socketIdleTimeout) {
+        this.socketIdleTimeout = socketIdleTimeout;
+    }
 }
