@@ -37,7 +37,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private Action action;
     private BType[] types = new BType[0];
     private int[] offsets;
-    private Expression varRefExpr;
+//    private Expression varRefExpr;
 
     public ActionInvocationExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -45,14 +45,14 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
                                 String pkgName,
                                 String pkgPath,
                                 String connectorName,
-                                Expression[] exprs, Expression varRefExpr) {
+                                Expression[] exprs) {
         super(location, whiteSpaceDescriptor);
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
         this.connectorName = connectorName;
         this.exprs = exprs;
-        this.varRefExpr = varRefExpr;
+//        this.varRefExpr = varRefExpr;
     }
 
     public String getConnectorName() {
@@ -125,7 +125,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         visitor.visit(this);
     }
 
-    public Expression getVarRefExpr() {
-        return varRefExpr;
-    }
+//    public Expression getVarRefExpr() {
+//        return varRefExpr;
+//    }
 }
