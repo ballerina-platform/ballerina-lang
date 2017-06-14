@@ -5,7 +5,7 @@ const UnusedFilesWebpackPlugin = require('unused-files-webpack-plugin').UnusedFi
 
 const extractThemes = new ExtractTextPlugin('./[name].css');
 const extractCSSBundle = new ExtractTextPlugin('./bundle.css');
-let exportConfig = {};
+var exportConfig = {};
 const config = [{
     entry: {
         bundle: './index.js',
