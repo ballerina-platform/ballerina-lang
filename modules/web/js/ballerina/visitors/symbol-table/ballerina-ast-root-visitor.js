@@ -109,7 +109,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     newValue = undefined;
                 }
                 self.updateFunctionDefinition(modifiedData.origin, oldValue, newValue, modifiedData.data.child);
-            } else if (BallerinaASTFactory.isReturnType(modifiedData.origin)) {
+            } else if (BallerinaASTFactory.isReturnParameterDefinitionHolder(modifiedData.origin)) {
                 self.updateFunctionDefinition(modifiedData.origin.getParent(), oldValue, newValue, modifiedData.origin);
             }
         });
@@ -233,7 +233,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             functionDef.setId(newValue);
         }
         if (child) {
-            if (BallerinaASTFactory.isReturnType(child)) {
+            if (BallerinaASTFactory.isReturnParameterDefinitionHolder(child)) {
                 const returnTypes = [];
                 _.forEach(functionDefinition.getReturnTypes(), (returnType) => {
                     returnTypes.push({
@@ -242,7 +242,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     });
                 });
                 functionDef.setReturnParams(returnTypes);
-            } else if (BallerinaASTFactory.isArgument(child)) {
+            } else if (BallerinaASTFactory.createArgumentParameterDefinitionHolder(child)) {
                 const args = [];
                 _.forEach(functionDefinition.getArguments(), (argument) => {
                     args.push({
