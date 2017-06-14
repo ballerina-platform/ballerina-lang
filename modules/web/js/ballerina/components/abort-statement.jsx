@@ -21,9 +21,9 @@ import PropTypes from 'prop-types';
 
 class AbortStatement extends React.Component {
     render() {
-        let model = this.props.model;
-        let expression = model.getStatementString();
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression}/>);
+        const model = this.props.model;
+        const expression = model.getStatementString();
+        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
     }
 }
 
@@ -32,11 +32,11 @@ AbortStatement.propTypes = {
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired
+        h: PropTypes.number.isRequired,
     }),
     expression: PropTypes.shape({
-        expression: PropTypes.string
-    })
+        expression: PropTypes.string,
+    }),
 };
 
 export default AbortStatement;

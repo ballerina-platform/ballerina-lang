@@ -16,67 +16,69 @@
  * under the License.
  */
 
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
-import BlockStatementDecorator from "./block-statement-decorator";
+import { getComponentForNodeArray } from './utils';
+import BlockStatementDecorator from './block-statement-decorator';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import './while-statement.css';
-import CompoundStatementDecorator from "./compound-statement-decorator";
+import CompoundStatementDecorator from './compound-statement-decorator';
 
 class WhileStatement extends React.Component {
 
-  constructor(props) {
-      super(props);
-      this.state = {innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false};
-  }
+    constructor(props) {
+        super(props);
+        this.state = { innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false };
+    }
 
-	render() {
-		let model = this.props.model,
-			bBox = model.viewState.bBox;
-		let expression = model.viewState.components.expression;
-		let blockStatementBBox = new SimpleBBox();
-		blockStatementBBox.x = bBox.x;
-		blockStatementBBox.y = bBox.y + model.viewState.components['drop-zone'].h;
-		blockStatementBBox.h = bBox.h - model.viewState.components['drop-zone'].h;
-		blockStatementBBox.w = bBox.w;
-    const innerDropZoneActivated = this.state.innerDropZoneActivated;
-		const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-		const dropZoneClassName = ((!innerDropZoneActivated) ? "inner-drop-zone" : "inner-drop-zone active")
-											+ ((innerDropZoneDropNotAllowed) ? " block" : "");
-		const children = getComponentForNodeArray(this.props.model.getChildren());
+    render() {
+        let model = this.props.model,
+            bBox = model.viewState.bBox;
+        const expression = model.viewState.components.expression;
+        const blockStatementBBox = new SimpleBBox();
+        blockStatementBBox.x = bBox.x;
+        blockStatementBBox.y = bBox.y + model.viewState.components['drop-zone'].h;
+        blockStatementBBox.h = bBox.h - model.viewState.components['drop-zone'].h;
+        blockStatementBBox.w = bBox.w;
+        const innerDropZoneActivated = this.state.innerDropZoneActivated;
+        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
+											+ ((innerDropZoneDropNotAllowed) ? ' block' : '');
+        const children = getComponentForNodeArray(this.props.model.getChildren());
 
-		this.editorOptions = {
+        this.editorOptions = {
             propertyType: 'text',
             key: 'Condition',
-            model: model,
+            model,
             getterMethod: model.getConditionString,
-            setterMethod: model.setConditionFromString
+            setterMethod: model.setConditionFromString,
         };
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-                    <BlockStatementDecorator dropTarget={model} bBox={blockStatementBBox} title={"While"}
-                                             expression={expression} editorOptions={this.editorOptions}>
-                        {children}
-                    </BlockStatementDecorator>
-                </CompoundStatementDecorator>);
-	}
+          <BlockStatementDecorator
+            dropTarget={model} bBox={blockStatementBBox} title={'While'}
+            expression={expression} editorOptions={this.editorOptions}
+          >
+            {children}
+          </BlockStatementDecorator>
+        </CompoundStatementDecorator>);
+    }
 }
 
 WhileStatement.propTypes = {
-	bBox: PropTypes.shape({
-		x: PropTypes.number.isRequired,
-		y: PropTypes.number.isRequired,
-		w: PropTypes.number.isRequired,
-		h: PropTypes.number.isRequired,
-	}),
-	model: PropTypes.instanceOf(ASTNode).isRequired
-}
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }),
+    model: PropTypes.instanceOf(ASTNode).isRequired,
+};
 
 WhileStatement.contextTypes = {
-	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired
+	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 };
 
 export default WhileStatement;

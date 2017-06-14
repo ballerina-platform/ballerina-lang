@@ -25,45 +25,44 @@ import fs from 'fs';
 import { expect } from 'chai';
 import path from 'path';
 
-var getModelBackend = 'http://localhost:8289/ballerina/model/content';
+const getModelBackend = 'http://localhost:8289/ballerina/model/content';
 
-//Ballerina AST Deserializer
-function ballerinaASTDeserializer(fileContent){
-    var backend = new Backend({'url' : getModelBackend});
-    var response = backend.parse({name: 'test.bal', path: '/temp', content: fileContent, 'package': 'test'});
-    var ASTModel = BallerinaASTDeserializer.getASTModel(response);
-    var sourceGenVisitor = new BallerinaASTRootVisitor();
+// Ballerina AST Deserializer
+function ballerinaASTDeserializer(fileContent) {
+    const backend = new Backend({ url: getModelBackend });
+    const response = backend.parse({ name: 'test.bal', path: '/temp', content: fileContent, package: 'test' });
+    const ASTModel = BallerinaASTDeserializer.getASTModel(response);
+    const sourceGenVisitor = new BallerinaASTRootVisitor();
     ASTModel.accept(sourceGenVisitor);
-    var source = sourceGenVisitor.getGeneratedSource();
+    const source = sourceGenVisitor.getGeneratedSource();
     return source;
 }
 
-function readFile(filePath){
+function readFile(filePath) {
     return fs.readFileSync(filePath, 'utf8');
 }
 
 // List all files in a directory in Node.js recursively in a synchronous fashion
 function findBalFilesInDirSync(dir, filelist) {
-    let files = fs.readdirSync(dir);
+    const files = fs.readdirSync(dir);
     filelist = filelist || [];
-    files.forEach(function(file) {
+    files.forEach((file) => {
         if (fs.statSync(path.join(dir, file)).isDirectory()) {
             filelist = findBalFilesInDirSync(path.join(dir, file), filelist);
-        }
-        else if (path.extname(file) === '.bal') {
+        } else if (path.extname(file) === '.bal') {
             filelist.push(path.join(dir, file));
         }
     });
     return filelist;
 }
 
-describe ('Ballerina Composer Test Suite', function() {
-    let testResDir = path.resolve(path.join('js', 'tests', 'resources'));
-    let testFiles = findBalFilesInDirSync(testResDir);
-    testFiles.forEach(function(testFile) {
-        it (testFile.replace(testResDir, '') + ' file serialize/deserialize test', function() {
-            var expectedSource = readFile(testFile);
-            var generatedSource = ballerinaASTDeserializer(expectedSource);
+describe('Ballerina Composer Test Suite', () => {
+    const testResDir = path.resolve(path.join('js', 'tests', 'resources'));
+    const testFiles = findBalFilesInDirSync(testResDir);
+    testFiles.forEach((testFile) => {
+        it(`${testFile.replace(testResDir, '')} file serialize/deserialize test`, () => {
+            const expectedSource = readFile(testFile);
+            const generatedSource = ballerinaASTDeserializer(expectedSource);
             if (generatedSource !== expectedSource) {
                 log.error('error');
             }

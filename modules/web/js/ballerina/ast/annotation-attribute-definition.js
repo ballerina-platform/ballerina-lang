@@ -29,22 +29,22 @@ class AnnotationAttributeDefinition extends ASTNode {
         this._attributeType = _.get(args, 'attributeType');
         this._attributeValue = _.get(args, 'attributeValue', '');
         this._pkgPath = _.get(args, 'pkgPath');
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
             1: ' ',
             2: ' ',
             3: '',
-            4: '\n'
-        }
+            4: '\n',
+        };
     }
 
     setAttributeName(attributeName, options) {
         if (!_.isNil(attributeName) && ASTNode.isValidIdentifier(attributeName)) {
             this.setAttribute('_attributeName', attributeName, options);
         } else {
-            let error = 'Invalid name for the annotation attribute name: ' + attributeName;
+            const error = `Invalid name for the annotation attribute name: ${attributeName}`;
             log.error(error);
-            throw  error;
+            throw error;
         }
     }
 
@@ -80,14 +80,14 @@ class AnnotationAttributeDefinition extends ASTNode {
         let statement = this.getAttributeType() + this.getWSRegion(0)
             + this.getAttributeName();
         if (!_.isEmpty(this.getAttributeValue())) {
-            statement += this.getWSRegion(1) + '=' + this.getWSRegion(2)
-                + this.getAttributeValue()
-                + this.getWSRegion(3);
+            statement += `${this.getWSRegion(1)}=${this.getWSRegion(2)
+                 }${this.getAttributeValue()
+                 }${this.getWSRegion(3)}`;
         } else if (!this.whiteSpace.useDefault) {
             // ignore a default space between indenifier & semicolon
             statement += this.getWSRegion(1);
         }
-        statement += ';' + this.getWSRegion(4);
+        statement += `;${this.getWSRegion(4)}`;
         return statement;
     }
 
@@ -96,17 +96,17 @@ class AnnotationAttributeDefinition extends ASTNode {
      * @override
      * */
     initFromJson(jsonNode) {
-        let self = this;
-        this.setAttributeName(jsonNode.annotation_attribute_name, {doSilently: true});
-        this.setAttributeType(jsonNode.annotation_attribute_type, {doSilently: true});
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        this.setAttributeName(jsonNode.annotation_attribute_name, { doSilently: true });
+        this.setAttributeType(jsonNode.annotation_attribute_type, { doSilently: true });
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
         if (this.getChildren().length > 0) {
             if (this.getFactory().isExpression(this.getChildren()[0])) {
-                this.setAttributeValue(this.getChildren()[0].getExpressionString(), {doSilently: true});
+                this.setAttributeValue(this.getChildren()[0].getExpressionString(), { doSilently: true });
             }
         }
     }

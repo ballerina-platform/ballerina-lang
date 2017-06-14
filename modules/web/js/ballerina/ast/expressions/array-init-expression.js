@@ -34,10 +34,10 @@ class ArrayInitExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        var self = this;
+        const self = this;
         this.getChildren().length = 0;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
@@ -49,11 +49,11 @@ class ArrayInitExpression extends Expression {
      * @override
      */
     getExpressionString() {
-        var generatedExpression = '[';
-        _.each(this.getChildren(), function (child) {
-            generatedExpression += child.getExpressionString() + ",";
+        let generatedExpression = '[';
+        _.each(this.getChildren(), (child) => {
+            generatedExpression += `${child.getExpressionString()},`;
         });
-        generatedExpression = generatedExpression.replace(/,\s*$/, "") + ']';
+        generatedExpression = `${generatedExpression.replace(/,\s*$/, '')}]`;
         return generatedExpression;
     }
 
@@ -69,7 +69,6 @@ class ArrayInitExpression extends Expression {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'array_init_expression')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -80,14 +79,12 @@ class ArrayInitExpression extends Expression {
                 title: 'Array Init Expression Custom Tree modified',
                 context: this,
             });
-            
+
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 }

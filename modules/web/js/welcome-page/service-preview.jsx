@@ -20,23 +20,21 @@ import React from 'react';
 
 /**
  * React component of a preview of a ballerina program shown in welcome page.
- * 
+ *
  * @class ServicePreviewView
  * @extends {React.Component}
  */
 class ServicePreviewView extends React.Component {
 
     render() {
-        var previewThumbnails = this.props.sampleConfigs.map(config => {
-            return (<div className="col-md-3 thumbnail-wrapper" onClick={config.clickEventCallback} key={config.sampleName}>
-                <div className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}>
-                    <img id="previewImg" src={'images/' + config.image + '.png'} />
-                    <div className="caption">
-                        <h4>{config.sampleName}</h4>
-                    </div>
-                </div>
-            </div>);
-        });
+        const previewThumbnails = this.props.sampleConfigs.map(config => (<div className="col-md-3 thumbnail-wrapper" onClick={config.clickEventCallback} key={config.sampleName}>
+          <div className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}>
+            <img id="previewImg" src={`images/${config.image}.png`} />
+            <div className="caption">
+              <h4>{config.sampleName}</h4>
+            </div>
+          </div>
+        </div>));
 
         return (<div>{previewThumbnails}</div>);
     }

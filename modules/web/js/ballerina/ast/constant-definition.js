@@ -30,7 +30,7 @@ class ConstantDefinition extends VariableDeclaration {
         super({
             type: 'Constant-Declaration',
             bType: _.get(args, 'bType'),
-            identifier: _.get(args, 'identifier')
+            identifier: _.get(args, 'identifier'),
         });
         this._value = _.get(args, 'value');
         this.whiteSpace.defaultDescriptor.regions = {
@@ -39,7 +39,7 @@ class ConstantDefinition extends VariableDeclaration {
             2: ' ',
             3: ' ',
             4: '',
-            5: '\n'
+            5: '\n',
         };
     }
 
@@ -57,11 +57,11 @@ class ConstantDefinition extends VariableDeclaration {
     }
 
     getConstantDefinitionAsString() {
-        let sourceGen = 'const' + this.getWSRegion(0) + this._bType
-            + this.getWSRegion(1) + this._identifier
-            + this.getWSRegion(2) + '=' + this.getWSRegion(3);
+        let sourceGen = `const${this.getWSRegion(0)}${this._bType
+             }${this.getWSRegion(1)}${this._identifier
+             }${this.getWSRegion(2)}=${this.getWSRegion(3)}`;
         if (this._bType === 'string') {
-            sourceGen += '"' + this._value + '"';
+            sourceGen += `"${this._value}"`;
         } else {
             sourceGen += this._value;
         }
@@ -85,7 +85,7 @@ class ConstantDefinition extends VariableDeclaration {
         this.setValue(jsonNode.constant_definition_value, { doSilently: true });
 
         for (const childNode of jsonNode.children) {
-            let child = this.getFactory().createFromJson(childNode);
+            const child = this.getFactory().createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         }

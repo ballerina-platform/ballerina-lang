@@ -34,29 +34,29 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitStructDefinition(structDefinition) {
-        let useDefaultWS = structDefinition.whiteSpace.useDefault;
+        const useDefaultWS = structDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
         }
 
         // Adding annotations
         let constructedSourceSegment = '';
-        _.forEach(structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotation), annotationNode => {
+        _.forEach(structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotation), (annotationNode) => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
                     + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
 
-        constructedSourceSegment += 'struct' + structDefinition.getWSRegion(0)
-              + structDefinition.getStructName() + structDefinition.getWSRegion(1)
-              + '{' + structDefinition.getWSRegion(2);
+        constructedSourceSegment += `struct${structDefinition.getWSRegion(0)
+               }${structDefinition.getStructName()}${structDefinition.getWSRegion(1)
+               }{${structDefinition.getWSRegion(2)}`;
         this.appendSource(constructedSourceSegment);
         this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
         _.forEach(structDefinition.getVariableDefinitionStatements(), (variableDefStatement) => {
-            let varDefVisitor = new VariableDefinitionStatementVisitor(this);
+            const varDefVisitor = new VariableDefinitionStatementVisitor(this);
             variableDefStatement.accept(varDefVisitor);
         });
     }
@@ -66,7 +66,7 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitStructDefinition(structDefinition) {
         this.outdent();
-        this.appendSource('}' + structDefinition.getWSRegion(3));
+        this.appendSource(`}${structDefinition.getWSRegion(3)}`);
         this.appendSource((structDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

@@ -34,36 +34,28 @@ class ForkJoinStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
+        const viewState = node.getViewState();
         let containerW = DesignerDefaults.fork.lifeLineGutterH;
-        const workers = node.filterChildren(function (child) {
-            return ASTFactory.isWorkerDeclaration(child);
-        });
-        const join = node.filterChildren(function (child) {
-            return ASTFactory.isJoinStatement(child);
-        });
-        const timeout = node.filterChildren(function (child) {
-            return ASTFactory.isTimeoutStatement(child);
-        });
-        let childWithMaxHeight = _.maxBy(workers, function (child) {
-            return child.getViewState().bBox.h;
-        });
+        const workers = node.filterChildren(child => ASTFactory.isWorkerDeclaration(child));
+        const join = node.filterChildren(child => ASTFactory.isJoinStatement(child));
+        const timeout = node.filterChildren(child => ASTFactory.isTimeoutStatement(child));
+        const childWithMaxHeight = _.maxBy(workers, child => child.getViewState().bBox.h);
 
-        let bodyH = (childWithMaxHeight ? childWithMaxHeight.getViewState().bBox.h : 0 ) +
+        const bodyH = (childWithMaxHeight ? childWithMaxHeight.getViewState().bBox.h : 0) +
             DesignerDefaults.statement.gutter.v * 2;
 
-        let bodyInnerH = (childWithMaxHeight ? childWithMaxHeight.getViewState().components.statementContainer.h : 0 );
+        const bodyInnerH = (childWithMaxHeight ? childWithMaxHeight.getViewState().components.statementContainer.h : 0);
 
-        _.forEach(workers, function (child) {
+        _.forEach(workers, (child) => {
             child.viewState.bBox.h = bodyInnerH;
             child.viewState.components.statementContainer.h = bodyInnerH;
         });
 
-        _.forEach(workers, function (child) {
+        _.forEach(workers, (child) => {
             containerW += child.getViewState().bBox.w + DesignerDefaults.fork.lifeLineGutterH;
         });
 
-        let dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
         let bodyW;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
@@ -90,7 +82,6 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             timeoutBBox.w = halfW;
             timeoutStatementsBBox.w = halfW;
             bodyW = halfW * 2;
-
         } else if (join.length > 0) {
             const joinBBox = join[0].viewState.bBox;
             const joinStatementsBBox = join[0].viewState.components.statementContainer;
@@ -104,8 +95,8 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             throw 'Missing join in a fork statement.';
         }
 
-        viewState.components['body'] = new SimpleBBox(0, 0, bodyW, bodyH);
-        viewState.components['workers'] = new SimpleBBox(0, 0, containerW, bodyH);
+        viewState.components.body = new SimpleBBox(0, 0, bodyW, bodyH);
+        viewState.components.workers = new SimpleBBox(0, 0, containerW, bodyH);
         viewState.bBox.h = bodyH + dropZoneHeight + DesignerDefaults.blockStatement.heading.height + hOfLowerParts;
         viewState.bBox.w = bodyW;
     }

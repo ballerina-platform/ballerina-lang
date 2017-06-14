@@ -18,7 +18,7 @@
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 class ElseStatement extends React.Component {
 
@@ -27,9 +27,9 @@ class ElseStatement extends React.Component {
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (
-            <BlockStatementDecorator dropTarget={model} model={model} bBox={bBox} title={'Else'}>
-                {children}
-            </BlockStatementDecorator>
+          <BlockStatementDecorator dropTarget={model} model={model} bBox={bBox} title={'Else'}>
+            {children}
+          </BlockStatementDecorator>
         );
     }
 }
@@ -40,7 +40,7 @@ ElseStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
 };
 
 

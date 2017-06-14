@@ -33,21 +33,19 @@ class IfElseStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
-        let components = {};
+        const viewState = node.getViewState();
+        const components = {};
         let statementWidth = 0;
         let statementHeight = 0;
-        let sortedChildren = _.sortBy(node.getChildren(), function (child) {
-            return child.getViewState().bBox.w;
-        });
+        const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
 
         if (sortedChildren.length <= 0) {
             throw 'Invalid number of children for if-else statement';
         }
-        let childWithMaxWidth = sortedChildren[sortedChildren.length -1];
+        const childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
         statementWidth = childWithMaxWidth.getViewState().bBox.w;
 
-        _.forEach(node.getChildren(), function (child) {
+        _.forEach(node.getChildren(), (child) => {
             /**
              * Re adjust the width of all the other children
              */
@@ -58,7 +56,7 @@ class IfElseStatementDimensionCalculatorVisitor {
             statementHeight += child.getViewState().bBox.h;
         });
 
-        let dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
 

@@ -25,25 +25,25 @@ import ServiceClient from './service-client';
 import ContextMenu from 'context_menu';
 import 'mcustom_scroller';
 
-var WorkspaceExplorer = Backbone.View.extend({
+const WorkspaceExplorer = Backbone.View.extend({
 
-    initialize: function (config) {
-        var errMsg;
+    initialize(config) {
+        let errMsg;
         if (!_.has(config, 'container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
             throw errMsg;
         }
-        var container = $(_.get(config, 'container'));
+        const container = $(_.get(config, 'container'));
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for file browser with selector: ' + _.get(config, 'container');
+            errMsg = `unable to find container for file browser with selector: ${_.get(config, 'container')}`;
             log.error(errMsg);
             throw errMsg;
         }
         this._$parent_el = container;
 
-        if(!_.has(config, 'application')){
+        if (!_.has(config, 'application')) {
             log.error('Cannot init file browser. config: application not found.');
         }
         this.application = _.get(config, 'application');
@@ -52,13 +52,13 @@ var WorkspaceExplorer = Backbone.View.extend({
         this._lastWidth = undefined;
         this._verticalSeparator = $(_.get(this._options, 'separator'));
         this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
-        this._openedFolders = this.application.browserStorage.get('file-explorer:openedFolders')||[];
+        this._openedFolders = this.application.browserStorage.get('file-explorer:openedFolders') || [];
         this._items = [];
 
-        this._serviceClient = new ServiceClient({application: this.application});
+        this._serviceClient = new ServiceClient({ application: this.application });
 
         // register command
-        this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
+        this.application.commandManager.registerCommand(config.command.id, { shortcuts: config.command.shortcuts });
         this.application.commandManager.registerHandler(config.command.id, this.toggleExplorer, this);
 
         this.application.commandManager.registerCommand('open-folder', {});
@@ -70,61 +70,57 @@ var WorkspaceExplorer = Backbone.View.extend({
         this.application.commandManager.registerHandler('remove-explorer-item', this.removeExplorerItem, this);
     },
 
-    openFolder: function(folderPath){
-        var exist = _.includes(this._openedFolders, folderPath);
-        if(!exist){
+    openFolder(folderPath) {
+        const exist = _.includes(this._openedFolders, folderPath);
+        if (!exist) {
             this._openedFolders.push(folderPath);
             this.createExplorerItem(folderPath);
             this.persistState();
         }
     },
 
-    openFile: function(filePath){
-        var file = this._serviceClient.readFile(filePath);
-        var currentTabForFile = this.application.tabController.getTabForFile(file);
-        if(!_.isNil(currentTabForFile)){
+    openFile(filePath) {
+        const file = this._serviceClient.readFile(filePath);
+        const currentTabForFile = this.application.tabController.getTabForFile(file);
+        if (!_.isNil(currentTabForFile)) {
             this.application.tabController.setActiveTab(currentTabForFile);
             return;
         }
-        this.application.commandManager.dispatch('create-new-tab', {tabOptions: {file: file}});
+        this.application.commandManager.dispatch('create-new-tab', { tabOptions: { file } });
     },
 
-    createExplorerItem: function(folderPath){
-        var opts = {};
+    createExplorerItem(folderPath) {
+        const opts = {};
         _.set(opts, 'application', this.application);
         _.set(opts, 'path', folderPath);
         _.set(opts, 'index', this._items.length - 1);
         _.set(opts, 'container', this._explorerContainer);
-        var explorerItem = new ExplorerItem(opts);
+        const explorerItem = new ExplorerItem(opts);
         explorerItem.render();
         this._items.push(explorerItem);
     },
 
-    removeExplorerItem: function(item){
+    removeExplorerItem(item) {
         item.remove();
-        _.remove(this._items, function(itemEntry){
-            return _.isEqual(itemEntry.path, item.path);
-        });
-        _.remove(this._openedFolders, function(path){
-            return _.isEqual(path, item.path);
-        });
+        _.remove(this._items, itemEntry => _.isEqual(itemEntry.path, item.path));
+        _.remove(this._openedFolders, path => _.isEqual(path, item.path));
         this.persistState();
     },
 
-    persistState: function(){
+    persistState() {
         this.application.browserStorage.put('file-explorer:openedFolders', this._openedFolders);
     },
 
-    isEmpty: function(){
+    isEmpty() {
         return _.isEmpty(this._openedFolders);
     },
 
-    isActive: function(){
+    isActive() {
         return this._activateBtn.parent('li').hasClass('active');
     },
 
-    toggleExplorer: function(){
-        if(this.isActive()){
+    toggleExplorer() {
+        if (this.isActive()) {
             this._$parent_el.parent().width('0px');
             this._containerToAdjust.css('padding-left', _.get(this._options, 'leftOffset'));
             this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
@@ -132,25 +128,25 @@ var WorkspaceExplorer = Backbone.View.extend({
             this.application.reRender(); // to update the diagrams
         } else {
             this._activateBtn.tab('show');
-            var width = this._lastWidth || _.get(this._options, 'defaultWidth');
+            const width = this._lastWidth || _.get(this._options, 'defaultWidth');
             this._$parent_el.parent().width(width);
             this._containerToAdjust.css('padding-left', width);
-            this._verticalSeparator.css('left',  width - _.get(this._options, 'separatorOffset'));
+            this._verticalSeparator.css('left', width - _.get(this._options, 'separatorOffset'));
             this.application.reRender(); // to update the diagrams
         }
     },
 
-    render: function () {
-        var self = this;
-        var activateBtn = $(_.get(this._options, 'activateBtn'));
+    render() {
+        const self = this;
+        const activateBtn = $(_.get(this._options, 'activateBtn'));
         this._activateBtn = activateBtn;
 
-        var explorerContainer = $('<div role="tabpanel"></div>');
+        const explorerContainer = $('<div role="tabpanel"></div>');
         explorerContainer.addClass(_.get(this._options, 'cssClass.container'));
         explorerContainer.attr('id', _.get(this._options, ('containerId')));
         this._$parent_el.append(explorerContainer);
 
-        activateBtn.on('click', function(e){
+        activateBtn.on('click', function (e) {
             $(this).tooltip('hide');
             e.preventDefault();
             e.stopPropagation();
@@ -160,20 +156,20 @@ var WorkspaceExplorer = Backbone.View.extend({
         activateBtn.attr('data-placement', 'bottom').attr('data-container', 'body');
 
         if (this.application.isRunningOnMacOS()) {
-            activateBtn.attr('title', 'Open File Explorer ('
-            + _.get(self._options, 'command.shortcuts.mac.label') + ') ').tooltip();
+            activateBtn.attr('title', `Open File Explorer (${
+             _.get(self._options, 'command.shortcuts.mac.label')}) `).tooltip();
         } else {
-            activateBtn.attr('title', 'Open File Explorer  (' +
-            _.get(self._options, 'command.shortcuts.other.label') + ') ').tooltip();
+            activateBtn.attr('title', `Open File Explorer  (${
+            _.get(self._options, 'command.shortcuts.other.label')}) `).tooltip();
         }
 
         this._verticalSeparator.draggable();
-        this._verticalSeparator.on('drag', function(event){
-            if( event.clientX >= _.get(self._options, 'resizeLimits.minX')
-                && event.clientX <= _.get(self._options, 'resizeLimits.maxX')){
+        this._verticalSeparator.on('drag', (event) => {
+            if (event.clientX >= _.get(self._options, 'resizeLimits.minX')
+                && event.clientX <= _.get(self._options, 'resizeLimits.maxX')) {
                 self._verticalSeparator.css('left', event.clientX);
                 self._verticalSeparator.css('cursor', 'ew-resize');
-                var newWidth = event.clientX;
+                const newWidth = event.clientX;
                 self._$parent_el.parent().width(newWidth);
                 self._containerToAdjust.css('padding-left', event.clientX);
                 self._lastWidth = newWidth;
@@ -184,34 +180,34 @@ var WorkspaceExplorer = Backbone.View.extend({
                 event.stopPropagation();
             }
         });
-        
+
         this._explorerContainer = explorerContainer;
 
         this._contextMenu = new ContextMenu({
             container: this._$parent_el,
-            selector:  'div:first',
-            items:{
-                'add_folder': {
+            selector: 'div:first',
+            items: {
+                add_folder: {
                     name: 'add folder',
                     icon: '',
-                    callback: function () {
+                    callback() {
                         self.application.commandManager.dispatch('show-folder-open-dialog');
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         explorerContainer.mCustomScrollbar({
             theme: 'minimal',
             scrollInertia: 0,
-            axis: 'xy'
+            axis: 'xy',
         });
-        if(!_.isEmpty(this._openedFolders)){
-            this._openedFolders.forEach(function(folder){
+        if (!_.isEmpty(this._openedFolders)) {
+            this._openedFolders.forEach((folder) => {
                 self.createExplorerItem(folder);
             });
         }
         return this;
-    }
+    },
 });
 
 export default WorkspaceExplorer;

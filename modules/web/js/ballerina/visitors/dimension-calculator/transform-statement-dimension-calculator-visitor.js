@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class TransformStatementDimensionCalculatorVisitor {
 
@@ -31,7 +31,7 @@ class TransformStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox(node.getStatementString() , node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }
 

@@ -25,7 +25,7 @@ class ModalDialog extends EventChannel {
     constructor(options) {
         super();
         this._options = options;
-        this._application = _.get(options, "application");
+        this._application = _.get(options, 'application');
         this._$container = $(_.get(options, 'container', 'body'));
     }
 
@@ -67,8 +67,8 @@ class ModalDialog extends EventChannel {
     }
 
     show() {
-        var self = this;
-        this._$modalContainer.modal('show').on('shown.bs.modal', function(){
+        const self = this;
+        this._$modalContainer.modal('show').on('shown.bs.modal', () => {
             self.trigger('loaded');
         });
     }
@@ -79,35 +79,35 @@ class ModalDialog extends EventChannel {
     }
 
     clearError() {
-        this.getErrorContainer().text("");
+        this.getErrorContainer().text('');
         this.getErrorContainer().hide();
     }
 
     hide() {
-        var self = this;
-        this._$modalContainer.modal('hide').on('hidden.bs.modal', function(){
+        const self = this;
+        this._$modalContainer.modal('hide').on('hidden.bs.modal', () => {
             self.trigger('unloaded');
         });
     }
 
     render() {
-        if(!_.isNil(this._$modalContainer)){
+        if (!_.isNil(this._$modalContainer)) {
             this._$modalContainer.remove();
         }
-        var modalContainer = $("<div class='modal fade " + _.get(this._options, 'class') +
-            "' tabindex='-1' role='dialog' aria-hidden='true'></div>");
-        var modalDialog = $("<div class='modal-dialog file-dialog' role='document'></div>");
-        var modalContent = $("<div class='modal-content'></div>");
-        var modalHeader = $("<div class='modal-header'></div>");
-        var modalCloseBtnTop = $("<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
+        const modalContainer = $(`<div class='modal fade ${_.get(this._options, 'class')
+            }' tabindex='-1' role='dialog' aria-hidden='true'></div>`);
+        const modalDialog = $("<div class='modal-dialog file-dialog' role='document'></div>");
+        const modalContent = $("<div class='modal-content'></div>");
+        const modalHeader = $("<div class='modal-header'></div>");
+        const modalCloseBtnTop = $("<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
             "<span aria-hidden='true'>&times;</span></button>");
-        var modalTitle = $("<h4 class='modal-title '></h4>");
-        var modalBody = $("<div class='modal-body'></div>");
-        var modalFooter = $("<div class='modal-footer'></div>");
-        var modalCloseBtnBottom = $("<button type='button' class='btn btn-default btn-file-dialog'" +
+        const modalTitle = $("<h4 class='modal-title '></h4>");
+        const modalBody = $("<div class='modal-body'></div>");
+        const modalFooter = $("<div class='modal-footer'></div>");
+        const modalCloseBtnBottom = $("<button type='button' class='btn btn-default btn-file-dialog'" +
             " data-dismiss='modal'>Close</button>");
-        var modalSubmitBtn = $("<button type='button' class='btn btn-primary btn-file-dialog'>Submit</button>");
-        var errorContainer = $("<div class='alert alert-danger errors-container'></div>");
+        const modalSubmitBtn = $("<button type='button' class='btn btn-primary btn-file-dialog'>Submit</button>");
+        const errorContainer = $("<div class='alert alert-danger errors-container'></div>");
 
         this._$title = modalTitle;
         this._$body = modalBody;
@@ -131,10 +131,10 @@ class ModalDialog extends EventChannel {
         modalFooter.append(modalCloseBtnBottom);
         this._$container.append(modalContainer);
 
-        if(_.has(this._options, 'title')){
+        if (_.has(this._options, 'title')) {
             modalTitle.text(_.get(this._options, 'title'));
         }
-        if(_.has(this._options, 'submitBtnText')){
+        if (_.has(this._options, 'submitBtnText')) {
             modalSubmitBtn.text(_.get(this._options, 'submitBtnText'));
         }
         return modalContainer;

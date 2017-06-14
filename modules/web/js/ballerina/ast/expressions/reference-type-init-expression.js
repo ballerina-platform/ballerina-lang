@@ -30,7 +30,7 @@ class ReferenceTypeInitExpression extends Expression {
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
-            2: ''
+            2: '',
         };
     }
 
@@ -40,9 +40,9 @@ class ReferenceTypeInitExpression extends Expression {
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -54,12 +54,12 @@ class ReferenceTypeInitExpression extends Expression {
      * @override
      */
     getExpressionString() {
-        var generatedExpression = '';
+        let generatedExpression = '';
         this.children.forEach((child) => {
-            generatedExpression += child.getExpressionString() + ',';
+            generatedExpression += `${child.getExpressionString()},`;
         });
-        generatedExpression = '{' + this.getWSRegion(1) + (generatedExpression.substring(0, generatedExpression.length-1))
-            + '}' + this.getWSRegion(2);
+        generatedExpression = `{${this.getWSRegion(1)}${generatedExpression.substring(0, generatedExpression.length - 1)
+             }}${this.getWSRegion(2)}`;
 
         return generatedExpression;
     }
@@ -76,7 +76,6 @@ class ReferenceTypeInitExpression extends Expression {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'reference_type_init_expression')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -89,12 +88,10 @@ class ReferenceTypeInitExpression extends Expression {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 }

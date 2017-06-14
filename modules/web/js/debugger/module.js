@@ -36,7 +36,7 @@ const Debugger = Backbone.View.extend({
         const container = $(_.get(config, 'container'));
             // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for debugger with selector: ' + _.get(config, 'container');
+            errMsg = `unable to find container for debugger with selector: ${_.get(config, 'container')}`;
             log.error(errMsg);
             throw errMsg;
         }
@@ -55,27 +55,25 @@ const Debugger = Backbone.View.extend({
         this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
 
             // register command
-        this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
+        this.application.commandManager.registerCommand(config.command.id, { shortcuts: config.command.shortcuts });
         this.application.commandManager.registerHandler(config.command.id, this.toggleDebugger, this);
-
     },
-    isActive(){
+    isActive() {
         return this._activateBtn.parent('li').hasClass('active');
     },
-    toggleDebugger () {
-        if(this.isActive()){
+    toggleDebugger() {
+        if (this.isActive()) {
             this._$parent_el.parent().width('0px');
             this._containerToAdjust.css('padding-left', _.get(this._options, 'leftOffset'));
             this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
             this._activateBtn.parent('li').removeClass('active');
             this.application.reRender();// to update the diagrams
-
         } else {
             this._activateBtn.tab('show');
             const width = this._lastWidth || _.get(this._options, 'defaultWidth');
             this._$parent_el.parent().width(width);
             this._containerToAdjust.css('padding-left', width);
-            this._verticalSeparator.css('left',  width - _.get(this._options, 'separatorOffset'));
+            this._verticalSeparator.css('left', width - _.get(this._options, 'separatorOffset'));
             this.application.reRender();// to update the diagrams
         }
     },
@@ -90,14 +88,14 @@ const Debugger = Backbone.View.extend({
             const width = this._lastWidth || _.get(this._options, 'defaultWidth');
             this._$parent_el.parent().width(width);
             this._containerToAdjust.css('padding-left', width + _.get(this._options, 'leftOffset'));
-            this._verticalSeparator.css('left',  width + _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
+            this._verticalSeparator.css('left', width + _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
         });
 
         activateBtn.on('hide.bs.tab', () => {
             this._isActive = false;
         });
 
-        activateBtn.on('click', e => {
+        activateBtn.on('click', (e) => {
             $(this).tooltip('hide');
             e.preventDefault();
             e.stopPropagation();
@@ -113,10 +111,9 @@ const Debugger = Backbone.View.extend({
         }
 
         return this;
-
     },
 
-    renderContent () {
+    renderContent() {
         const debuggerContainer = $(`
             <div>
                 <div class="debug-tools-container"></div>
@@ -127,10 +124,10 @@ const Debugger = Backbone.View.extend({
         debuggerContainer.attr('id', _.get(this._options, ('containerId')));
         this._$parent_el.append(debuggerContainer);
 
-        Tools.setArgs({ container : debuggerContainer.find('.debug-tools-container') ,
+        Tools.setArgs({ container: debuggerContainer.find('.debug-tools-container'),
             launchManager: this.launchManager,
             application: this.application,
-            toolbarShortcuts: _.get(this._options, 'toolbarShortcuts')});
+            toolbarShortcuts: _.get(this._options, 'toolbarShortcuts') });
         Tools.render();
 
         Frames.setContainer(debuggerContainer.find('.debug-frames-container'));
@@ -138,9 +135,9 @@ const Debugger = Backbone.View.extend({
         this._debuggerContainer = debuggerContainer;
         debuggerContainer.mCustomScrollbar({
             theme: 'minimal',
-            scrollInertia: 0
+            scrollInertia: 0,
         });
-    }
+    },
 
 });
 

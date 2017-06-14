@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {getCanvasOverlay} from '../configs/app-context';
+import { getCanvasOverlay } from '../configs/app-context';
 import './text-input.css';
 import CreateStruct from './create-struct';
 
@@ -27,7 +27,7 @@ export default class StructOperationsRenderer {
     }
     renderOverlay(options) {
         ReactDOM.render(
-            <CreateStruct {...options}/>,
+          <CreateStruct {...options} />,
             this.overlay);
     }
 }

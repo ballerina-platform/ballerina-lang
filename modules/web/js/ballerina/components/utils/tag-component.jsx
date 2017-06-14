@@ -18,10 +18,10 @@
 import React from 'react';
 import EditableText from './../editable-text';
 import SuggestionsText from './../suggestions-text';
-import {util} from './../../visitors/sizing-utils';
+import { util } from './../../visitors/sizing-utils';
 import './tag-component.css';
 
-let defaultInputValue = "+ Add Value";
+let defaultInputValue = '+ Add Value';
 
 /**
  * Common Tag Controller to render tag input box.
@@ -30,28 +30,28 @@ class TagController extends React.Component {
 
     constructor() {
         super();
-        this.state = {editing: false, editValue: ''};
+        this.state = { editing: false, editValue: '' };
     }
 
     onSelectClick() {
-        this.setState({editing: true, editValue: ''});
+        this.setState({ editing: true, editValue: '' });
     }
 
     onEnter(input) {
-        let setter = this.props.setter;
+        const setter = this.props.setter;
         setter(input);
-        this.setState({editing: false, editValue: ''});
+        this.setState({ editing: false, editValue: '' });
     }
 
     onSelectBlur() {
-        this.setState({editing: false, editValue: ''});
+        this.setState({ editing: false, editValue: '' });
     }
 
     /**
      * Click event handler for input
      * */
     onInputClick() {
-        this.setState({editing: true, editValue: ''});
+        this.setState({ editing: true, editValue: '' });
     }
 
     /**
@@ -59,13 +59,13 @@ class TagController extends React.Component {
      * @param {object} e - Event
      * */
     onInputBlur(e) {
-        let setter = this.props.setter;
-        if (defaultInputValue !== this.state.editValue && this.state.editValue !== "") {
+        const setter = this.props.setter;
+        if (defaultInputValue !== this.state.editValue && this.state.editValue !== '') {
             if (!setter(this.state.editValue)) {
                 e.preventDefault();
             }
         }
-        this.setState({editing: false, editValue: ''});
+        this.setState({ editing: false, editValue: '' });
     }
 
     /**
@@ -74,18 +74,18 @@ class TagController extends React.Component {
      * */
     onKeyDown(e) {
         if (e.keyCode === 13) {
-            let validate = this.props.validateInput;
-            let variableDeclaration = this.state.editValue.replace("=", "").replace(";", "");
+            const validate = this.props.validateInput;
+            const variableDeclaration = this.state.editValue.replace('=', '').replace(';', '');
 
             if (!validate(variableDeclaration)) {
                 return;
             }
 
-            let setter = this.props.setter;
+            const setter = this.props.setter;
             if (!setter(this.state.editValue)) {
                 return;
             }
-            this.setState({editing: false, editValue: ''});
+            this.setState({ editing: false, editValue: '' });
         }
     }
 
@@ -94,7 +94,7 @@ class TagController extends React.Component {
      * @param {object} e - Event
      * */
     onInputChange(e) {
-        this.setState({editing: true, editValue: e.target.value});
+        this.setState({ editing: true, editValue: e.target.value });
     }
 
     /**
@@ -106,101 +106,128 @@ class TagController extends React.Component {
     getSelectBoxController(componentData, modelComponents) {
         if (this.props.label) {
             // Get the width of the label text.
-            let labelWidth = util.getTextWidth(this.props.label, 80, 80).w;
+            const labelWidth = util.getTextWidth(this.props.label, 80, 80).w;
             return (<g key={componentData.title}>
-                <rect x={componentData.components.openingBracket.x - labelWidth}
-                      y={componentData.components.openingBracket.y}
-                      width={labelWidth} height={25} className={this.props.groupClass}/>
-                <text x={componentData.components.openingBracket.x - (labelWidth - 20)}
-                      y={componentData.components.openingBracket.y + 20}>
+              <rect
+                x={componentData.components.openingBracket.x - labelWidth}
+                y={componentData.components.openingBracket.y}
+                width={labelWidth} height={25} className={this.props.groupClass}
+              />
+              <text
+                x={componentData.components.openingBracket.x - (labelWidth - 20)}
+                y={componentData.components.openingBracket.y + 20}
+              >
                     attach
                 </text>
-                <rect x={componentData.components.openingBracket.x}
-                      y={componentData.components.openingBracket.y }
-                      width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
+              <rect
+                x={componentData.components.openingBracket.x}
+                y={componentData.components.openingBracket.y}
+                width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w}
-                      height={25} className={this.props.groupClass}/>
-                <text x={componentData.components.openingBracket.x + 7}
-                      y={componentData.components.openingBracket.y + 5 }
-                      className={componentData.openingBracketClassName}>(
+                height={25} className={this.props.groupClass}
+              />
+              <text
+                x={componentData.components.openingBracket.x + 7}
+                y={componentData.components.openingBracket.y + 5}
+                className={componentData.openingBracketClassName}
+              >(
                 </text>
-                {modelComponents}
+              {modelComponents}
 
-                <g onClick={() => {
-                    this.onSelectClick()
-                }}>
-                    <rect x={componentData.components.closingBracket.x - 130}
-                          y={componentData.components.closingBracket.y + 5 } width={120} height={20}
-                          className="text-placeholder"/>
-                    <text x={componentData.components.closingBracket.x - 124}
-                          y={componentData.components.closingBracket.y + 19}
-                          className="tag-component-attachment-text">
-                        {defaultInputValue}
-                    </text>
-                    <SuggestionsText x={componentData.components.closingBracket.x - 124}
-                                     y={componentData.components.closingBracket.y + 6}
-                                     width={123}
-                                     height={20}
-                                     className="tag-component-editable-text-box"
-                                     onEnter={input => {
-                                         this.onEnter(input)
-                                     }}
-                                     onBlur={() => {
-                                         this.onSelectBlur()
-                                     }}
-                                     show={this.state.editing}
-                                     suggestionsPool={this.props.suggestions}>
-                    </SuggestionsText>
-                </g>
-                <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5 }
-                      className={componentData.closingBracketClassName}>)
+              <g onClick={() => {
+                  this.onSelectClick();
+              }}
+              >
+                <rect
+                  x={componentData.components.closingBracket.x - 130}
+                  y={componentData.components.closingBracket.y + 5} width={120} height={20}
+                  className="text-placeholder"
+                />
+                <text
+                  x={componentData.components.closingBracket.x - 124}
+                  y={componentData.components.closingBracket.y + 19}
+                  className="tag-component-attachment-text"
+                >
+                  {defaultInputValue}
                 </text>
-            </g>);
-        } else {
-            return (<g key={componentData.title}>
-                <rect x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y }
-                      width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
-                      + componentData.components.closingBracket.w}
-                      height={25} className={this.props.groupClass}/>
-                <text x={componentData.components.openingBracket.x + 7}
-                      y={componentData.components.openingBracket.y + 5 }
-                      className={componentData.openingBracketClassName}>(
-                </text>
-                {modelComponents}
-
-                <g onClick={() => {
-                    this.onSelectClick()
-                }}>
-                    <rect x={componentData.components.closingBracket.x - 130}
-                          y={componentData.components.closingBracket.y + 5 } width={120} height={20}
-                          className="text-placeholder"/>
-                    <text x={componentData.components.closingBracket.x - 124}
-                          y={componentData.components.closingBracket.y + 19}
-                          className="tag-component-attachment-text">
-                        {defaultInputValue}
-                    </text>
-                    <SuggestionsText x={componentData.components.closingBracket.x - 124}
-                                     y={componentData.components.closingBracket.y + 6}
-                                     width={123}
-                                     height={20}
-                                     className="tag-component-editable-text-box"
-                                     onEnter={input => {
-                                         this.onEnter(input)
-                                     }}
-                                     onBlur={() => {
-                                         this.onSelectBlur()
-                                     }}
-                                     show={this.state.editing}
-                                     suggestionsPool={this.props.suggestions}>
-                    </SuggestionsText>
-                </g>
-                <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5 }
-                      className={componentData.closingBracketClassName}>)
+                <SuggestionsText
+                  x={componentData.components.closingBracket.x - 124}
+                  y={componentData.components.closingBracket.y + 6}
+                  width={123}
+                  height={20}
+                  className="tag-component-editable-text-box"
+                  onEnter={(input) => {
+                      this.onEnter(input);
+                  }}
+                  onBlur={() => {
+                      this.onSelectBlur();
+                  }}
+                  show={this.state.editing}
+                  suggestionsPool={this.props.suggestions}
+                />
+              </g>
+              <text
+                x={componentData.components.closingBracket.x}
+                y={componentData.components.closingBracket.y + 5}
+                className={componentData.closingBracketClassName}
+              >)
                 </text>
             </g>);
         }
+        return (<g key={componentData.title}>
+          <rect
+            x={componentData.components.openingBracket.x - 3} y={componentData.components.openingBracket.y}
+            width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
+                      + componentData.components.closingBracket.w}
+            height={25} className={this.props.groupClass}
+          />
+          <text
+            x={componentData.components.openingBracket.x + 7}
+            y={componentData.components.openingBracket.y + 5}
+            className={componentData.openingBracketClassName}
+          >(
+                </text>
+          {modelComponents}
+
+          <g onClick={() => {
+              this.onSelectClick();
+          }}
+          >
+            <rect
+              x={componentData.components.closingBracket.x - 130}
+              y={componentData.components.closingBracket.y + 5} width={120} height={20}
+              className="text-placeholder"
+            />
+            <text
+              x={componentData.components.closingBracket.x - 124}
+              y={componentData.components.closingBracket.y + 19}
+              className="tag-component-attachment-text"
+            >
+              {defaultInputValue}
+            </text>
+            <SuggestionsText
+              x={componentData.components.closingBracket.x - 124}
+              y={componentData.components.closingBracket.y + 6}
+              width={123}
+              height={20}
+              className="tag-component-editable-text-box"
+              onEnter={(input) => {
+                  this.onEnter(input);
+              }}
+              onBlur={() => {
+                  this.onSelectBlur();
+              }}
+              show={this.state.editing}
+              suggestionsPool={this.props.suggestions}
+            />
+          </g>
+          <text
+            x={componentData.components.closingBracket.x}
+            y={componentData.components.closingBracket.y + 5}
+            className={componentData.closingBracketClassName}
+          >)
+                </text>
+        </g>);
     }
 
     /**
@@ -211,55 +238,65 @@ class TagController extends React.Component {
      * */
     getArgumentParameterController(componentData, modelComponents) {
         return (
-            <g key={componentData.title}>
-                <rect x={componentData.components.typesIcon.x - 3} y={componentData.components.openingBracket.y}
-                      width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
+          <g key={componentData.title}>
+            <rect
+              x={componentData.components.typesIcon.x - 3} y={componentData.components.openingBracket.y}
+              width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w + componentData.components.typesIcon.w}
-                      height={25} className={this.props.groupClass}/>
-                <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns
+              height={25} className={this.props.groupClass}
+            />
+            <text x={componentData.components.typesIcon.x} y={componentData.components.typesIcon.y}>returns
                 </text>
-                <text x={componentData.components.openingBracket.x + 7 }
-                      y={componentData.components.openingBracket.y + 5 }
-                      className={componentData.openingBracketClassName}>(
+            <text
+              x={componentData.components.openingBracket.x + 7}
+              y={componentData.components.openingBracket.y + 5}
+              className={componentData.openingBracketClassName}
+            >(
                 </text>
-                {modelComponents}
+            {modelComponents}
 
-                <g>
-                    <rect x={componentData.components.closingBracket.x - 124}
-                          y={componentData.components.closingBracket.y + 4 } width={100} height={21}
-                          className="text-placeholder"
-                          onClick={() => {
-                              this.onInputClick()
-                          }}/>
-                    <EditableText x={componentData.components.closingBracket.x - 125}
-                                  y={componentData.components.closingBracket.y + 28 / 2}
-                                  width={103}
-                                  height={20}
-                                  labelClass={"tag-component-label"}
-                                  inputClass={"tag-component-input-text-box"}
-                                  displayText={defaultInputValue}
-                                  placeholder={defaultInputValue}
-                                  onKeyDown={e => {
-                                      this.onKeyDown(e)
-                                  }}
-                                  onBlur={e => {
-                                      this.onInputBlur(e)
-                                  }}
-                                  onClick={() => {
-                                      this.onInputClick()
-                                  }}
-                                  editing={this.state.editing}
-                                  onChange={e => {
-                                      this.onInputChange(e)
-                                  }}>
-                        {this.state.editValue}
-                    </EditableText>
-                </g>
-                <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5}
-                      className={componentData.closingBracketClassName}>)
-                </text>
+            <g>
+              <rect
+                x={componentData.components.closingBracket.x - 124}
+                y={componentData.components.closingBracket.y + 4} width={100} height={21}
+                className="text-placeholder"
+                onClick={() => {
+                    this.onInputClick();
+                }}
+              />
+              <EditableText
+                x={componentData.components.closingBracket.x - 125}
+                y={componentData.components.closingBracket.y + 28 / 2}
+                width={103}
+                height={20}
+                labelClass={'tag-component-label'}
+                inputClass={'tag-component-input-text-box'}
+                displayText={defaultInputValue}
+                placeholder={defaultInputValue}
+                onKeyDown={(e) => {
+                    this.onKeyDown(e);
+                }}
+                onBlur={(e) => {
+                    this.onInputBlur(e);
+                }}
+                onClick={() => {
+                    this.onInputClick();
+                }}
+                editing={this.state.editing}
+                onChange={(e) => {
+                    this.onInputChange(e);
+                }}
+              >
+                {this.state.editValue}
+              </EditableText>
             </g>
+            <text
+              x={componentData.components.closingBracket.x}
+              y={componentData.components.closingBracket.y + 5}
+              className={componentData.closingBracketClassName}
+            >)
+                </text>
+          </g>
         );
     }
 
@@ -271,73 +308,80 @@ class TagController extends React.Component {
      * */
     getReturnParameterController(componentData, modelComponents) {
         return (
-            <g key={componentData.title}>
-                <rect x={componentData.components.openingBracket.x - 3}
-                      y={componentData.components.openingBracket.y}
-                      width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
+          <g key={componentData.title}>
+            <rect
+              x={componentData.components.openingBracket.x - 3}
+              y={componentData.components.openingBracket.y}
+              width={componentData.components.closingBracket.x - (componentData.components.openingBracket.x - 3)
                       + componentData.components.closingBracket.w}
-                      height={25} className={this.props.groupClass}/>
-                <text x={componentData.components.openingBracket.x + 7}
-                      y={componentData.components.openingBracket.y + 5 }
-                      className={componentData.openingBracketClassName}>(
+              height={25} className={this.props.groupClass}
+            />
+            <text
+              x={componentData.components.openingBracket.x + 7}
+              y={componentData.components.openingBracket.y + 5}
+              className={componentData.openingBracketClassName}
+            >(
                 </text>
-                {modelComponents}
+            {modelComponents}
 
-                <g>
-                    <rect x={componentData.components.closingBracket.x - 120}
-                          y={componentData.components.closingBracket.y + 5 } width={100} height={21}
-                          className="text-placeholder"
-                          onClick={() => {
-                              this.onInputClick()
-                          }}/>
-                    <EditableText x={componentData.components.closingBracket.x - 118}
-                                  y={componentData.components.closingBracket.y + 28 / 2 }
-                                  width={103}
-                                  height={20}
-                                  labelClass={"tag-component-label"}
-                                  inputClass={"tag-component-input-text-box"}
-                                  displayText={defaultInputValue}
-                                  placeholder={defaultInputValue}
-                                  onKeyDown={e => {
-                                      this.onKeyDown(e);
-                                  }}
-                                  onBlur={e => {
-                                      this.onInputBlur(e)
-                                  }}
-                                  onClick={() => {
-                                      this.onInputClick()
-                                  }}
-                                  editing={this.state.editing}
-                                  onChange={e => {
-                                      this.onInputChange(e)
-                                  }}>
-                        {this.state.editValue}
-                    </EditableText>
-                </g>
-                <text x={componentData.components.closingBracket.x}
-                      y={componentData.components.closingBracket.y + 5 }
-                      className={componentData.closingBracketClassName}>)
-                </text>
+            <g>
+              <rect
+                x={componentData.components.closingBracket.x - 120}
+                y={componentData.components.closingBracket.y + 5} width={100} height={21}
+                className="text-placeholder"
+                onClick={() => {
+                    this.onInputClick();
+                }}
+              />
+              <EditableText
+                x={componentData.components.closingBracket.x - 118}
+                y={componentData.components.closingBracket.y + 28 / 2}
+                width={103}
+                height={20}
+                labelClass={'tag-component-label'}
+                inputClass={'tag-component-input-text-box'}
+                displayText={defaultInputValue}
+                placeholder={defaultInputValue}
+                onKeyDown={(e) => {
+                    this.onKeyDown(e);
+                }}
+                onBlur={(e) => {
+                    this.onInputBlur(e);
+                }}
+                onClick={() => {
+                    this.onInputClick();
+                }}
+                editing={this.state.editing}
+                onChange={(e) => {
+                    this.onInputChange(e);
+                }}
+              >
+                {this.state.editValue}
+              </EditableText>
             </g>
+            <text
+              x={componentData.components.closingBracket.x}
+              y={componentData.components.closingBracket.y + 5}
+              className={componentData.closingBracketClassName}
+            >)
+                </text>
+          </g>
         );
     }
 
     render() {
-        let modelComponents = this.props.modelComponents;
-        let componentData = this.props.componentData;
+        const modelComponents = this.props.modelComponents;
+        const componentData = this.props.componentData;
         defaultInputValue = componentData.defaultText;
         if (this.props.isSelectBox) {
             return this.getSelectBoxController(componentData, modelComponents);
-        } else {
-            // If parameter is a return type
-            if (componentData.components.typesIcon) {
-                return this.getArgumentParameterController(componentData, modelComponents);
-            } else {
-                // If parameter is a argument parameter
-                return this.getReturnParameterController(componentData, modelComponents);
-            }
         }
-
+            // If parameter is a return type
+        if (componentData.components.typesIcon) {
+            return this.getArgumentParameterController(componentData, modelComponents);
+        }
+                // If parameter is a argument parameter
+        return this.getReturnParameterController(componentData, modelComponents);
     }
 }
 

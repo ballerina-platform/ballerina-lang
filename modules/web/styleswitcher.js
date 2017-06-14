@@ -1,62 +1,100 @@
+/**
+ * Sets the active stylesheet.
+ *
+ *  @param {string} title The stylesheet title. Can be 'default', 'light' or 'dark'.
+ *  @return {void}
+ */
 function setActiveStyleSheet(title) {
-    var i, a, main;
-    for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
-        if(a.getAttribute("rel").indexOf("style") != -1 && a.getAttribute("title")) {
+    let i;
+    for (i = 0; document.getElementsByTagName('link')[i] !== undefined; i += 1) {
+        const a = document.getElementsByTagName('link')[i];
+        if (a.getAttribute('rel').indexOf('style') !== -1 && a.getAttribute('title')) {
             a.disabled = true;
-            if(a.getAttribute("title") == title) a.disabled = false;
+            if (a.getAttribute('title') === title) {
+                a.disabled = false;
+            }
         }
     }
 }
 
+/**
+ * Gets the active stylesheet. Can be 'default', 'light' or 'dark'.
+ *
+ * @returns {string} stylesheet title
+ */
 function getActiveStyleSheet() {
-    var i, a;
-    for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
-        if(a.getAttribute("rel").indexOf("style") != -1 && a.getAttribute("title") && !a.disabled) return a.getAttribute("title");
+    let i;
+    for (i = 0; document.getElementsByTagName('link')[i] !== undefined; i += 1) {
+        const a = document.getElementsByTagName('link')[i];
+        if (a.getAttribute('rel').indexOf('style') !== -1 && a.getAttribute('title') && !a.disabled) {
+            return a.getAttribute('title');
+        }
     }
     return null;
 }
 
+/**
+ * Gets the preffered stylesheet.
+ *
+ * @returns {string} The title of the preferred stylesheet.
+ */
 function getPreferredStyleSheet() {
-    var i, a;
-    for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
-        if(a.getAttribute("rel").indexOf("style") != -1
-       && a.getAttribute("rel").indexOf("alt") == -1
-       && a.getAttribute("title")
-       ) return a.getAttribute("title");
+    let i;
+    for (i = 0; document.getElementsByTagName('link')[i] !== undefined; i += 1) {
+        const a = document.getElementsByTagName('link')[i];
+        if (a.getAttribute('rel').indexOf('style') !== -1 && a.getAttribute('rel').indexOf('alt') === -1
+                && a.getAttribute('title')
+       ) return a.getAttribute('title');
     }
     return null;
 }
 
-function createCookie(name,value,days) {
+/**
+ * Creates a cookie.
+ *
+ * @param {string} name The name of the cookie.
+ * @param {string} value The value of the cookie.
+ * @param {number|undefined} days The number of days for cookie to expire.
+ * @returns {void}
+ */
+function createCookie(name, value, days) {
+    let expires;
     if (days) {
-        var date = new Date();
-        date.setTime(date.getTime()+(days*24*60*60*1000));
-        var expires = "; expires="+date.toGMTString();
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = `;expires=${date.toGMTString()}`;
+    } else {
+        expires = '';
     }
-    else expires = "";
-    document.cookie = name+"="+value+expires+"; path=/";
+    document.cookie = `${name}=${value}${expires}; path=/`;
 }
 
+/**
+ * Reads the value of a cookie.
+ *
+ * @param {string} name The name of the cookie.
+ * @returns {string|undefined} The value of the cookie.
+ */
 function readCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    const nameEQ = `${name}=`;
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i += 1) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
-    return null;
+    return undefined;
 }
 
-window.onload = function(e) {
-    var cookie = readCookie("style");
-    var title = cookie ? cookie : getPreferredStyleSheet();
+window.onload = () => {
+    const cookie = readCookie('style');
+    const title = cookie || getPreferredStyleSheet();
     setActiveStyleSheet(title);
 };
-window.onunload = function(e) {
-    var title = getActiveStyleSheet();
-    createCookie("style", title, 365);
+window.onunload = () => {
+    const title = getActiveStyleSheet();
+    createCookie('style', title, 365);
 };
-var cookie = readCookie("style");
-var title = cookie ? cookie : getPreferredStyleSheet();
+const cookie = readCookie('style');
+const title = cookie || getPreferredStyleSheet();
 setActiveStyleSheet(title);

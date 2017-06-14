@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 
-var MenuItem = function(args){
+const MenuItem = function (args) {
     _.assign(this, args);
     this._application = _.get(this, 'options.application');
 };
@@ -27,12 +27,12 @@ var MenuItem = function(args){
 MenuItem.prototype = Object.create(EventChannel.prototype);
 MenuItem.prototype.constructor = MenuItem;
 
-MenuItem.prototype.render = function(){
-    var parent = _.get(this, 'options.parent');
+MenuItem.prototype.render = function () {
+    const parent = _.get(this, 'options.parent');
 
-    var item = $('<li></li>');
-    var title = $('<span class="pull-left"></span>');
-    var link = $('<a></a>');
+    const item = $('<li></li>');
+    const title = $('<span class="pull-left"></span>');
+    const link = $('<a></a>');
     parent.append(item);
     item.append(link);
     link.append(title);
@@ -42,10 +42,10 @@ MenuItem.prototype.render = function(){
     this._title = title;
     this._listItemElement = item;
 
-    var shortcuts = _.get(this, 'definition.command.shortcuts'),
+    let shortcuts = _.get(this, 'definition.command.shortcuts'),
         commandId = _.get(this, 'definition.command.id');
     if (!_.isNil(shortcuts)) {
-        this._application.commandManager.registerCommand(commandId, {shortcuts: shortcuts});
+        this._application.commandManager.registerCommand(commandId, { shortcuts });
         this.renderShortcutLabel();
     } else {
         this._application.commandManager.registerCommand(commandId, {});
@@ -56,15 +56,14 @@ MenuItem.prototype.render = function(){
     } else {
         this.enable();
     }
-
 };
 
-MenuItem.prototype.getID = function(){
+MenuItem.prototype.getID = function () {
     return _.get(this, 'definition.id');
 };
 
-MenuItem.prototype.renderShortcutLabel = function(){
-    var shortcuts = _.get(this, 'definition.command.shortcuts'),
+MenuItem.prototype.renderShortcutLabel = function () {
+    let shortcuts = _.get(this, 'definition.command.shortcuts'),
         shortcutLabel = $('<span></span>'),
         shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac.label : shortcuts.other.label;
     shortcutLabel.addClass(_.get(this, 'options.cssClass.shortcut'));
@@ -72,25 +71,25 @@ MenuItem.prototype.renderShortcutLabel = function(){
     this._linkElement.append(shortcutLabel);
 };
 
-MenuItem.prototype.disable = function(){
+MenuItem.prototype.disable = function () {
     this._listItemElement.addClass(_.get(this, 'options.cssClass.inactive'));
     this._listItemElement.removeClass(_.get(this, 'options.cssClass.active'));
-    this._linkElement.off("click");
+    this._linkElement.off('click');
 };
 
-MenuItem.prototype.enable = function(){
+MenuItem.prototype.enable = function () {
     this._listItemElement.addClass(_.get(this, 'options.cssClass.active'));
     this._listItemElement.removeClass(_.get(this, 'options.cssClass.inactive'));
-    var self = this;
-    this._linkElement.off("click");
-    this._linkElement.click(function () {
+    const self = this;
+    this._linkElement.off('click');
+    this._linkElement.click(() => {
         self._application.commandManager.dispatch(self.definition.command.id);
     });
 };
 
-MenuItem.prototype.addLabelSuffix = function(labelSuffix){
-    if(!_.isNil(labelSuffix)){
-        this._title.text(_.get(this, 'definition.label') + ' ' + labelSuffix);
+MenuItem.prototype.addLabelSuffix = function (labelSuffix) {
+    if (!_.isNil(labelSuffix)) {
+        this._title.text(`${_.get(this, 'definition.label')} ${labelSuffix}`);
     }
 };
 

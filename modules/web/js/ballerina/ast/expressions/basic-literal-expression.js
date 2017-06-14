@@ -31,7 +31,7 @@ class BasicLiteralExpression extends Expression {
         this._basicLiteralValue = _.get(args, 'basicLiteralValue', '');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
-            1: ''
+            1: '',
         };
     }
 
@@ -45,20 +45,18 @@ class BasicLiteralExpression extends Expression {
     }
 
     setExpressionFromString(expression, callback) {
-        if(!_.isNil(expression)){
-            let fragment = FragmentUtils.createExpressionFragment(expression);
-            let parsedJson = FragmentUtils.parseFragment(fragment);
+        if (!_.isNil(expression)) {
+            const fragment = FragmentUtils.createExpressionFragment(expression);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                     || !_.has(parsedJson, 'syntax_errors'))
                     && _.isEqual(parsedJson.type, 'basic_literal_expression')) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({isValid: true});
+                    callback({ isValid: true });
                 }
-            } else {
-                if (_.isFunction(callback)) {
-                    callback({isValid: false, response: parsedJson});
-                }
+            } else if (_.isFunction(callback)) {
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }
@@ -66,25 +64,24 @@ class BasicLiteralExpression extends Expression {
     getExpressionString() {
         if (this._basicLiteralType === 'string') {
             // Adding double quotes if it is a string.
-            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"' + this.getWSRegion(1);
-        } else {
-            return this._basicLiteralValue + this.getWSRegion(1);
+            return `\"${this.escapeEscapeChars(this._basicLiteralValue)}\"${this.getWSRegion(1)}`;
         }
+        return this._basicLiteralValue + this.getWSRegion(1);
     }
 
-    getBasicLiteralValue(){
+    getBasicLiteralValue() {
         return this._basicLiteralValue;
     }
 
-    getBasicLiteralType(){
+    getBasicLiteralType() {
         return this._basicLiteralType;
     }
 
     escapeEscapeChars(stringVal) {
-        return stringVal.replace(/"/g, "\\\"")
-                        .replace(/\n/g, "\\n")
-                        .replace(/\r/g, "\\r")
-                        .replace(/\t/g, "\\t");
+        return stringVal.replace(/"/g, '\\"')
+                        .replace(/\n/g, '\\n')
+                        .replace(/\r/g, '\\r')
+                        .replace(/\t/g, '\\t');
     }
 }
 

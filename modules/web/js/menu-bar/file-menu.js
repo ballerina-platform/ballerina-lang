@@ -16,121 +16,121 @@
  * under the License.
  */
 
-define(([],function (){
-    var FileMenu = {
-        id: "file",
-        label: "File",
+define(([], function () {
+    const FileMenu = {
+        id: 'file',
+        label: 'File',
         items: [
             {
-                id: "new",
-                label: "New",
+                id: 'new',
+                label: 'New',
                 command: {
-                    id: "create-new-tab",
+                    id: 'create-new-tab',
                     shortcuts: {
                         mac: {
-                            key: "command+ctrl+n",
-                            label: "\u2318\u2303N"
+                            key: 'command+ctrl+n',
+                            label: '\u2318\u2303N',
                         },
                         other: {
-                            key: "ctrl+alt+n",
-                            label: "Ctrl+Alt+N"
-                        }
-                    }
+                            key: 'ctrl+alt+n',
+                            label: 'Ctrl+Alt+N',
+                        },
+                    },
                 },
-                disabled: false
+                disabled: false,
             },
             {
-                id: "open",
-                label: "Open File",
+                id: 'open',
+                label: 'Open File',
                 command: {
-                    id: "open-file-open-dialog",
+                    id: 'open-file-open-dialog',
                     shortcuts: {
                         mac: {
-                            key: "command+o",
-                            label: "\u2318O"
+                            key: 'command+o',
+                            label: '\u2318O',
                         },
                         other: {
-                            key: "ctrl+o",
-                            label: "Ctrl+O"
-                        }
-                    }
+                            key: 'ctrl+o',
+                            label: 'Ctrl+O',
+                        },
+                    },
                 },
-                disabled: false
+                disabled: false,
             },
             {
-                id: "open_folder",
-                label: "Open Folder",
+                id: 'open_folder',
+                label: 'Open Folder',
                 command: {
-                    id: "show-folder-open-dialog",
+                    id: 'show-folder-open-dialog',
                     shortcuts: {
                         mac: {
-                            key: "command+shift+o",
-                            label: "\u2318\u21E7O"
+                            key: 'command+shift+o',
+                            label: '\u2318\u21E7O',
                         },
                         other: {
-                            key: "ctrl+shift+o",
-                            label: "Ctrl+Shift+O"
-                        }
-                    }
+                            key: 'ctrl+shift+o',
+                            label: 'Ctrl+Shift+O',
+                        },
+                    },
                 },
-                disabled: false
+                disabled: false,
             },
             {
-                id: "save",
-                label: "Save",
+                id: 'save',
+                label: 'Save',
                 command: {
-                    id: "save",
+                    id: 'save',
                     shortcuts: {
                         mac: {
-                            key: "command+s",
-                            label: "\u2318S"
+                            key: 'command+s',
+                            label: '\u2318S',
                         },
                         other: {
-                            key: "ctrl+s",
-                            label: "Ctrl+S"
-                        }
-                    }
+                            key: 'ctrl+s',
+                            label: 'Ctrl+S',
+                        },
+                    },
                 },
-                disabled: false
+                disabled: false,
             },
             {
-                id: "saveAs",
-                label: "Save As",
+                id: 'saveAs',
+                label: 'Save As',
                 command: {
-                    id: "open-file-save-dialog",
+                    id: 'open-file-save-dialog',
                     shortcuts: {
                         mac: {
-                            key: "command+shift+s",
-                            label: "\u2318\u21E7S"
+                            key: 'command+shift+s',
+                            label: '\u2318\u21E7S',
                         },
                         other: {
-                            key: "ctrl+shift+s",
-                            label: "Ctrl+Shift+S"
-                        }
-                    }
+                            key: 'ctrl+shift+s',
+                            label: 'Ctrl+Shift+S',
+                        },
+                    },
                 },
-                disabled: false
+                disabled: false,
             },
             {
-                id: "settings",
-                label: "Settings",
+                id: 'settings',
+                label: 'Settings',
                 command: {
-                    id: "open-settings-dialog",
+                    id: 'open-settings-dialog',
                     shortcuts: {
                         mac: {
-                            key: "command+alt+s",
-                            label: "\u2318\u2325S"
+                            key: 'command+alt+s',
+                            label: '\u2318\u2325S',
                         },
                         other: {
-                            key: "ctrl+alt+s",
-                            label: "Ctrl+Alt+S"
-                        }
-                    }
+                            key: 'ctrl+alt+s',
+                            label: 'Ctrl+Alt+S',
+                        },
+                    },
                 },
-                disabled: false
-            }
+                disabled: false,
+            },
 
-        ]
+        ],
 
     };
 

@@ -30,15 +30,15 @@ class ParameterDefinition extends VariableDefinition {
      * @constructor
      * @extends VariableDefinition
      */
-    constructor(args){
+    constructor(args) {
         super(args);
-        //since there are ParameterDefinitions without names (return types) we set this to undefined
+        // since there are ParameterDefinitions without names (return types) we set this to undefined
         this._name = _.get(args, 'name', undefined);
         this.type = 'ParameterDefinition';
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
-            2: ''
+            2: '',
         };
     }
 
@@ -47,21 +47,21 @@ class ParameterDefinition extends VariableDefinition {
      * @param name
      * @param options
      */
-    setName (name, options) {
-        //name can be null for parameter definitions (e.g. : named and unnamed return types)
+    setName(name, options) {
+        // name can be null for parameter definitions (e.g. : named and unnamed return types)
         this.setAttribute('_name', name, options);
     }
 
     getParameterDefinitionAsString() {
-        let argAsString = "";
-        //add annotations
-        this.getChildrenOfType(this.getFactory().isAnnotation).forEach( (annotationNode, index) => {
+        let argAsString = '';
+        // add annotations
+        this.getChildrenOfType(this.getFactory().isAnnotation).forEach((annotationNode, index) => {
             if (annotationNode.isSupported()) {
                 argAsString += annotationNode.toString();
             }
         });
         argAsString += this.getTypeName();
-        argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : "";
+        argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : '';
         argAsString += this.getWSRegion(2);
         return argAsString;
     }
@@ -71,13 +71,13 @@ class ParameterDefinition extends VariableDefinition {
     }
 
     initFromJson(jsonNode) {
-        this.setTypeName(jsonNode.parameter_type, {doSilently: true});
-        this.setName(jsonNode.parameter_name, {doSilently: true});
+        this.setTypeName(jsonNode.parameter_type, { doSilently: true });
+        this.setName(jsonNode.parameter_name, { doSilently: true });
 
         // As of now we only support one annotation.
-        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, "annotation")) {
-            let annotationJson = jsonNode.children[0];
-            let child = this.getFactory().createFromJson(annotationJson);
+        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation')) {
+            const annotationJson = jsonNode.children[0];
+            const child = this.getFactory().createFromJson(annotationJson);
             this.addChild(child);
             child.initFromJson(annotationJson);
         }

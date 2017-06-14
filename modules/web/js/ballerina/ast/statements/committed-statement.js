@@ -27,8 +27,8 @@ class CommittedStatement extends Statement {
             0: '',
             1: ' ',
             2: '\n',
-            3: ' '
-        }
+            3: ' ',
+        };
     }
 
     /**
@@ -36,9 +36,9 @@ class CommittedStatement extends Statement {
      * @param {object} jsonNode - Json model for the node.
      * */
     initFromJson(jsonNode) {
-        let self = this;
-        _.each(jsonNode.children, function (childNode) {
-            let child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

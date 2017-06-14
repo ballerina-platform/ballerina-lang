@@ -23,55 +23,55 @@ import DebugManager from './debug-manager';
 class Frames extends EventChannel {
     constructor() {
         super();
-        var template =
-      '<div class="debug-panel-header debug-frame-header">'+
-      '   <span><a class="tool-group-header-title">Frames</a></span>'+
-      '</div>'+
-      '<div class="panel-group" id="frameAccordion">'+
-      '<% frames.forEach((frame, index) => { %>'+
-      '    <div class="panel panel-default">'+
-      '      <div class="panel-heading">'+
-      '        <h4 class="panel-title">'+
-      '          <a data-toggle="collapse" data-parent="#frameAccordion" href="#<%- frame.frameName %>"><%- frame.frameName %>'+
-      '           <span class="debug-frame-pkg-name">'+
-      '           <i class="fw fw-package"></i> <%- frame.packageName %>'+
-      '           </span>'+
-      '          </a>'+
-      '        </h4>'+
-      '      </div>'+
-      '      <div id="debugger-frame-<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">'+
-      '        <div class="panel-body">'+
-      '        <div class="debug-v-tree">'+
-      '          <ul>'+
-      '          <% frame.variables.forEach( v => { %>'+
-      '          <li>'+
-      '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'+
-      '          <ul>'+
-      '            <li>type : <%- v.type %></li>'+
-      '            <li>scope : <%- v.scope %></li>'+
-      '          </ul>'+
-      '          </li>'+
-      '          <% }); %>'+
-      '          </ul>'+
-      '        </div>'+
-      '        </div>'+
-      '      </div>'+
-      '    </div>'+
-      '<% }); %>'+
+        const template =
+      '<div class="debug-panel-header debug-frame-header">' +
+      '   <span><a class="tool-group-header-title">Frames</a></span>' +
+      '</div>' +
+      '<div class="panel-group" id="frameAccordion">' +
+      '<% frames.forEach((frame, index) => { %>' +
+      '    <div class="panel panel-default">' +
+      '      <div class="panel-heading">' +
+      '        <h4 class="panel-title">' +
+      '          <a data-toggle="collapse" data-parent="#frameAccordion" href="#<%- frame.frameName %>"><%- frame.frameName %>' +
+      '           <span class="debug-frame-pkg-name">' +
+      '           <i class="fw fw-package"></i> <%- frame.packageName %>' +
+      '           </span>' +
+      '          </a>' +
+      '        </h4>' +
+      '      </div>' +
+      '      <div id="debugger-frame-<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">' +
+      '        <div class="panel-body">' +
+      '        <div class="debug-v-tree">' +
+      '          <ul>' +
+      '          <% frame.variables.forEach( v => { %>' +
+      '          <li>' +
+      '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)' +
+      '          <ul>' +
+      '            <li>type : <%- v.type %></li>' +
+      '            <li>scope : <%- v.scope %></li>' +
+      '          </ul>' +
+      '          </li>' +
+      '          <% }); %>' +
+      '          </ul>' +
+      '        </div>' +
+      '        </div>' +
+      '      </div>' +
+      '    </div>' +
+      '<% }); %>' +
       '</div>';
 
 
         this.compiled = _.template(template);
 
         this.js_tree_options = {
-            'core': {
-                'themes':{
-                    'icons':false
-                }
-            }
+            core: {
+                themes: {
+                    icons: false,
+                },
+            },
         };
 
-        DebugManager.on('debug-hit', message => { this.render(message); });
+        DebugManager.on('debug-hit', (message) => { this.render(message); });
         DebugManager.on('resume-execution', () => { this.clear(); });
         DebugManager.on('session-ended', () => { this.clear(); });
         DebugManager.on('session-completed', () => { this.clear(); });
@@ -86,31 +86,30 @@ class Frames extends EventChannel {
     }
 
     render(message) {
-      //clear duplicate main
-        message.frames = _.uniqWith(message.frames, function(obj, other){
-            if (_.isEqual(obj.frameName,other.frameName) && _.isEqual(obj.packageName,other.packageName))
-                return true;
+      // clear duplicate main
+        message.frames = _.uniqWith(message.frames, (obj, other) => {
+            if (_.isEqual(obj.frameName, other.frameName) && _.isEqual(obj.packageName, other.packageName)) { return true; }
         });
       // drop unnecessary first frame in services
-        var firstFrame = _.head(message.frames);
-        if(firstFrame && firstFrame.frameName !== 'main') {
+        const firstFrame = _.head(message.frames);
+        if (firstFrame && firstFrame.frameName !== 'main') {
             message.frames.splice(0, 1);
         }
         message.frames = this.process(message.frames);
 
-        var html = this.compiled(message);
+        const html = this.compiled(message);
         this.container.html(html);
 
-      //render variables tree
+      // render variables tree
         $('.debug-v-tree').jstree(this.js_tree_options);
     }
 
     process(frames) {
-      //reverse order
+      // reverse order
         frames = _.reverse(frames);
 
-        frames.map(function(frame){
-            frame.variables.map( item => {
+        frames.map((frame) => {
+            frame.variables.map((item) => {
                 switch (item.type) {
                 case 'BBoolean':
                     item.type = 'boolean';

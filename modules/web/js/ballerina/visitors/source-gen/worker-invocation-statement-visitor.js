@@ -32,7 +32,7 @@ class WorkerInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     endVisitWorkerInvocationStatement(workerInvocationStatement) {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ";\n");
+        this.getParent().appendSource(`${this.getIndentation() + this.getGeneratedSource()};\n`);
     }
 }
 

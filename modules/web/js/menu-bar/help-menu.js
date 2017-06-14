@@ -16,43 +16,43 @@
  * under the License.
  */
 
-define(([],function (){
-    var HelpMenu = {
-        id: "help",
-        label: "Help",
+define(([], function () {
+    const HelpMenu = {
+        id: 'help',
+        label: 'Help',
         items: [
             {
-                id: "welcome_page",
-                label: "Welcome Page",
+                id: 'welcome_page',
+                label: 'Welcome Page',
                 command: {
-                    id: "go-to-welcome-page"
-                }
+                    id: 'go-to-welcome-page',
+                },
             },
             {
-                id: "user_guide",
-                label: "User Guide",
+                id: 'user_guide',
+                label: 'User Guide',
                 command: {
-                    id: "go-to-user-guide",
+                    id: 'go-to-user-guide',
                     shortcuts: {
                         mac: {
-                            key: "f1",
-                            label: "F1"
+                            key: 'f1',
+                            label: 'F1',
                         },
                         other: {
-                            key: "f1",
-                            label: "F1"
-                        }
-                    }
-                }
+                            key: 'f1',
+                            label: 'F1',
+                        },
+                    },
+                },
             },
             {
-                id: "about",
-                label: "About",
+                id: 'about',
+                label: 'About',
                 command: {
-                    id: "show-about-dialog"
-                }
-            }
-        ]
+                    id: 'show-about-dialog',
+                },
+            },
+        ],
 
     };
 

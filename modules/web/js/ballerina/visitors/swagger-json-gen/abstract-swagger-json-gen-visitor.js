@@ -25,7 +25,7 @@ import ASTVisitor from '../ast-visitor';
 class AbstractSwaggerJsonGenVisitor extends ASTVisitor {
     constructor(parent) {
         super();
-        this._swaggerJson = {'swagger': '2.0'};
+        this._swaggerJson = { swagger: '2.0' };
         this.parent = parent;
     }
 
@@ -44,24 +44,23 @@ class AbstractSwaggerJsonGenVisitor extends ASTVisitor {
     astToJson(annotationEntry) {
         if (annotationEntry.getFactory().isAnnotation(annotationEntry.getRightValue())) {
             // When the right value is an annotation entry array
-            let arrayValues = [];
-            _.forEach(annotationEntry.getRightValue().getChildren(), annotationEntry => {
+            const arrayValues = [];
+            _.forEach(annotationEntry.getRightValue().getChildren(), (annotationEntry) => {
                 arrayValues.push(this.astToJson(annotationEntry));
             });
 
-            return {key: annotationEntry.getLeftValue(), value: arrayValues};
+            return { key: annotationEntry.getLeftValue(), value: arrayValues };
         } else if (annotationEntry.getFactory().isAnnotationEntryArray(annotationEntry.getRightValue())) {
             // When the right value is an annotation entry array
-            let arrayValues = [];
-            _.forEach(annotationEntry.getRightValue().getChildren(), annotationEntry => {
+            const arrayValues = [];
+            _.forEach(annotationEntry.getRightValue().getChildren(), (annotationEntry) => {
                 arrayValues.push(this.astToJson(annotationEntry));
             });
 
-            return {key: annotationEntry.getLeftValue(), value: arrayValues};
-        } else {
-            // When the right value is an BValue.
-            return {key: annotationEntry.getLeftValue(), value: annotationEntry.getRightValue().replace(/"/g, '')};
+            return { key: annotationEntry.getLeftValue(), value: arrayValues };
         }
+            // When the right value is an BValue.
+        return { key: annotationEntry.getLeftValue(), value: annotationEntry.getRightValue().replace(/"/g, '') };
     }
 
     /**

@@ -28,14 +28,14 @@ import FragmentUtils from './../../utils/fragment-utils';
 class ThrowStatement extends Statement {
     constructor(args) {
         super('ThrowStatement');
-        this.type = "ThrowStatement";
+        this.type = 'ThrowStatement';
     }
 
     setExpression(expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
         } else {
-            log.error("Cannot set undefined to the throw statement.");
+            log.error('Cannot set undefined to the throw statement.');
         }
     }
 
@@ -46,12 +46,11 @@ class ThrowStatement extends Statement {
      * @override
      */
     setStatementFromString(statementString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
+        const fragment = FragmentUtils.createStatementFragment(`${statementString};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'throw_statement')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -64,12 +63,10 @@ class ThrowStatement extends Statement {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 
@@ -79,7 +76,7 @@ class ThrowStatement extends Statement {
      * @override
      */
     getStatementString() {
-        return 'throw ' + this.getChildren()[0].getExpressionString();
+        return `throw ${this.getChildren()[0].getExpressionString()}`;
     }
 
     /**
@@ -88,9 +85,9 @@ class ThrowStatement extends Statement {
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

@@ -18,7 +18,7 @@
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 class AbortedStatement extends React.Component {
     constructor(props) {
@@ -31,13 +31,13 @@ class AbortedStatement extends React.Component {
      * @return {object} react element or null
      * */
     getAddCommittedStatementButton() {
-        let model = this.props.model;
-        let parent = model.parent;
-        let bBox = model.viewState.bBox;
+        const model = this.props.model;
+        const parent = model.parent;
+        const bBox = model.viewState.bBox;
         if (!parent.getCommittedStatement()) {
             return (<g onClick={this.onAddCommittedClick}>
-                <rect x={bBox.x+bBox.w-10} y={bBox.y+bBox.h-25} width={20} height={20} rx={10} ry={10} className='add-else-button'/>
-                <text x={bBox.x+bBox.w-4} y={bBox.y+bBox.h-15} width={20} height={20} className='add-else-button-label'>+</text>
+              <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
+              <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
             </g>);
         }
         return null;
@@ -47,7 +47,7 @@ class AbortedStatement extends React.Component {
      * Event handler for click add committed button.
      * */
     onAddCommittedClick() {
-        let parent = this.props.model.parent;
+        const parent = this.props.model.parent;
         parent.createCommittedStatement();
     }
 
@@ -57,21 +57,24 @@ class AbortedStatement extends React.Component {
      * @return {object}
      * */
     getBlockStatementDecorator(utilities) {
-        let model = this.props.model;
-        let bBox = model.viewState.bBox;
-        let titleWidth = model.viewState.titleWidth;
-        let children = getComponentForNodeArray(model.getChildren());
+        const model = this.props.model;
+        const bBox = model.viewState.bBox;
+        const titleWidth = model.viewState.titleWidth;
+        const children = getComponentForNodeArray(model.getChildren());
         if (utilities) {
-            return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-                                             title={"Aborted"} utilities={utilities}>
-                {children}
-            </BlockStatementDecorator>);
-        } else {
-            return (<BlockStatementDecorator dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-                                             title={"Aborted"}>
-                {children}
+            return (<BlockStatementDecorator
+              dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+              title={'Aborted'} utilities={utilities}
+            >
+              {children}
             </BlockStatementDecorator>);
         }
+        return (<BlockStatementDecorator
+          dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+          title={'Aborted'}
+        >
+          {children}
+        </BlockStatementDecorator>);
     }
 
     render() {
@@ -84,8 +87,8 @@ AbortedStatement.propTypes = {
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired
-    })
+        h: PropTypes.number.isRequired,
+    }),
 };
 
 export default AbortedStatement;

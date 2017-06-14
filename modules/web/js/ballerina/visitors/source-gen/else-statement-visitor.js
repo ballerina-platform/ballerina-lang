@@ -36,23 +36,23 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
         * If we need to add additional parameters which are dynamically added to the configuration start
         * that particular source generation has to be constructed here
         */
-        this.appendSource('else' + elseStatement.getWSRegion(1) + '{' + elseStatement.getWSRegion(2));
+        this.appendSource(`else${elseStatement.getWSRegion(1)}{${elseStatement.getWSRegion(2)}`);
         this.appendSource((elseStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
         log.debug('Begin visit Else Statement Definition');
     }
 
     visitStatement(statement) {
-        if(!_.isEqual(this.node, statement)) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        if (!_.isEqual(this.node, statement)) {
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }
 
     endVisitElseStatement(elseStatement) {
         this.outdent();
-        this.appendSource('}' + elseStatement.getWSRegion(3));
+        this.appendSource(`}${elseStatement.getWSRegion(3)}`);
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Else Statement Definition');
     }

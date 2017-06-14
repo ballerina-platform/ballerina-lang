@@ -30,7 +30,7 @@ class JoinStatement extends Statement {
         super('JoinStatement');
         this._joinType = _.get(args, 'joinType', 'all');
         this._joinWorkers = _.get(args, 'joinWorkers', []);
-        const parameterDefinition = this.getFactory().createParameterDefinition({typeName: 'map', name: 'm'});
+        const parameterDefinition = this.getFactory().createParameterDefinition({ typeName: 'map', name: 'm' });
         this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
     }
 
@@ -38,7 +38,7 @@ class JoinStatement extends Statement {
         const workerDeclarations = [];
         const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isWorkerDeclaration(child)) {
                 workerDeclarations.push(child);
             }
@@ -61,7 +61,7 @@ class JoinStatement extends Statement {
     }
 
     getJoinConditionString() {
-        return (this._joinType === 'any' ? 'some ' + this._joinCount : this._joinType) + ' ' + this._joinWorkers.join(',');
+        return `${this._joinType === 'any' ? `some ${this._joinCount}` : this._joinType} ${this._joinWorkers.join(',')}`;
     }
 
     getJoinType() {
@@ -109,18 +109,18 @@ class JoinStatement extends Statement {
             const factory = this.getFactory();
             const typeName = match[1];
             const name = match[2];
-            const parameterDefinition = factory.createParameterDefinition({typeName, name});
+            const parameterDefinition = factory.createParameterDefinition({ typeName, name });
             this.setParameter(parameterDefinition);
         }
     }
 
     initFromJson(jsonNode) {
         const self = this;
-        self.setJoinType(jsonNode['join_type']);
-        self.setJoinCount(jsonNode['join_count']);
-        self.setJoinWorkers(jsonNode['join_workers']);
+        self.setJoinType(jsonNode.join_type);
+        self.setJoinCount(jsonNode.join_count);
+        self.setJoinWorkers(jsonNode.join_workers);
 
-        const paramJsonNode = jsonNode['join_parameter'];
+        const paramJsonNode = jsonNode.join_parameter;
         if (paramJsonNode) {
             const paramASTNode = self.getFactory().createFromJson(paramJsonNode);
             paramASTNode.initFromJson(paramJsonNode);
@@ -128,8 +128,8 @@ class JoinStatement extends Statement {
         }
 
         if (jsonNode.children) {
-            _.each(jsonNode.children, function (childNode) {
-                let child = self.getFactory().createFromJson(childNode);
+            _.each(jsonNode.children, (childNode) => {
+                const child = self.getFactory().createFromJson(childNode);
                 self.addChild(child);
                 child.initFromJson(childNode);
             });

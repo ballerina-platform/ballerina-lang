@@ -32,22 +32,20 @@ class TransactionAbortedStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
-        let components = {};
+        const viewState = node.getViewState();
+        const components = {};
         let statementWidth = 0;
         let statementHeight = 0;
-        let sortedChildren = _.sortBy(node.getChildren(), function (child) {
-            return child.getViewState().bBox.w;
-        });
+        const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
 
         if (sortedChildren.length <= 0) {
             throw 'Invalid number of children for Transaction-Aborted statement';
         }
 
-        let childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
+        const childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
         statementWidth = childWithMaxWidth.getViewState().bBox.w;
 
-        _.forEach(node.getChildren(), function (child) {
+        _.forEach(node.getChildren(), (child) => {
             if (child.id !== childWithMaxWidth.id) {
                 child.getViewState().components.statementContainer.w = childWithMaxWidth.getViewState().components.statementContainer.w;
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
@@ -55,7 +53,7 @@ class TransactionAbortedStatementDimensionCalculatorVisitor {
             statementHeight += child.getViewState().bBox.h;
         });
 
-        let dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
 

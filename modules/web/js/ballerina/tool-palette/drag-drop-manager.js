@@ -18,16 +18,16 @@
 import log from 'log';
 import _ from 'lodash';
 import Backbone from 'backbone';
-var DragDropManager = Backbone.Model.extend(
+const DragDropManager = Backbone.Model.extend(
     /** @lends DragDropManager.prototype */
     {
-        modelName: "DragDropManager",
+        modelName: 'DragDropManager',
         /**
          * @augments Backbone.Model
          * @constructs
          * @class Handles validations for drag and drop
          */
-        initialize: function (attrs, options) {
+        initialize(attrs, options) {
             this.idAttribute = this.cid;
         },
 
@@ -37,7 +37,7 @@ var DragDropManager = Backbone.Model.extend(
          * @param validateDropTargetCallback {DragDropManager~validateDropTargetCallback} - call back to do additional validations on drop target
          *
          */
-        setNodeBeingDragged: function (type, validateDropTargetCallback) {
+        setNodeBeingDragged(type, validateDropTargetCallback) {
             if (!_.isUndefined(type)) {
                 this.set('nodeBeingDragged', type);
             }
@@ -59,15 +59,15 @@ var DragDropManager = Backbone.Model.extend(
          * Gets the node which is being dragged at a given moment - if any.
          * @return {ASTNode}
          */
-        getNodeBeingDragged: function () {
-            return  this.get('nodeBeingDragged');
+        getNodeBeingDragged() {
+            return this.get('nodeBeingDragged');
         },
 
         /**
          * Reset drag-drop manager. Call this once dragging stops.
          * @fires DragDropManager#drag-stop
          */
-        reset: function(){
+        reset() {
             /**
              * @event DragDropManager#drag-stop
              * @type {ASTNode}
@@ -89,8 +89,8 @@ var DragDropManager = Backbone.Model.extend(
          * @param [getDroppedNodeIndexCallBack] {DragDropManager~getDroppedNodeIndex}
          * @fires DragDropManager#drop-target-changed
          */
-        setActivatedDropTarget: function (activatedDropTarget, validateDropSourceCallback, getDroppedNodeIndexCallBack) {
-            var lastActivatedDropTarget = this.get('activatedDropTarget');
+        setActivatedDropTarget(activatedDropTarget, validateDropSourceCallback, getDroppedNodeIndexCallBack) {
+            const lastActivatedDropTarget = this.get('activatedDropTarget');
             if (!_.isUndefined(activatedDropTarget)) {
                 this.set('activatedDropTarget', activatedDropTarget);
             }
@@ -100,7 +100,7 @@ var DragDropManager = Backbone.Model.extend(
             if (!_.isUndefined(getDroppedNodeIndexCallBack)) {
                 this.set('getDroppedNodeIndexCallBack', getDroppedNodeIndexCallBack);
             }
-            if (!_.isEqual(activatedDropTarget, lastActivatedDropTarget)){
+            if (!_.isEqual(activatedDropTarget, lastActivatedDropTarget)) {
                 /**
                  * @event DragDropManager#drop-target-changed
                  * @type ASTNode
@@ -128,7 +128,7 @@ var DragDropManager = Backbone.Model.extend(
          * Gets currently the node currently being dragged.
          * @return {ASTNode}
          */
-        getActivatedDropTarget: function () {
+        getActivatedDropTarget() {
             return this.get('activatedDropTarget');
         },
 
@@ -136,8 +136,8 @@ var DragDropManager = Backbone.Model.extend(
          * Gets index of currently dropped element.
          * @return {number} index
          */
-        getDroppedNodeIndex: function () {
-            if(this.isAtValidDropTarget() && _.isFunction(this.get('getDroppedNodeIndexCallBack'))){
+        getDroppedNodeIndex() {
+            if (this.isAtValidDropTarget() && _.isFunction(this.get('getDroppedNodeIndexCallBack'))) {
                 return this.get('getDroppedNodeIndexCallBack')(this.getNodeBeingDragged());
             }
             return -1;
@@ -147,7 +147,7 @@ var DragDropManager = Backbone.Model.extend(
          * Clears currently activated drop target. Call this when the item being dragged go away from your drop zone.
          * @fires DragDropManager#drop-target-changed
          */
-        clearActivatedDropTarget: function () {
+        clearActivatedDropTarget() {
             this.set('activatedDropTarget', undefined);
             this.set('validateDropSourceCallback', undefined);
             this.set('getDroppedNodeIndexCallBack', undefined);
@@ -159,27 +159,26 @@ var DragDropManager = Backbone.Model.extend(
          *
          * @return {boolean} Default is false
          */
-        isAtValidDropTarget: function(){
-            var allowedBySource = true,
+        isAtValidDropTarget() {
+            let allowedBySource = true,
                 allowedByTarget = true,
                 allowedBySourceValidateCallBack = true,
                 allowedByTargetValidateCallBack = true;
 
-            if(!_.isUndefined(this.getActivatedDropTarget())){
-
+            if (!_.isUndefined(this.getActivatedDropTarget())) {
                 allowedBySource = this.getNodeBeingDragged().canBeAChildOf(this.getActivatedDropTarget());
                 allowedByTarget = this.getActivatedDropTarget().canBeParentOf(this.getNodeBeingDragged());
 
-                var validateDropTargetCallback = this.get('validateDropTargetCallback');
-                if(!_.isUndefined(validateDropTargetCallback)){
-                    if(_.isFunction(validateDropTargetCallback)){
+                const validateDropTargetCallback = this.get('validateDropTargetCallback');
+                if (!_.isUndefined(validateDropTargetCallback)) {
+                    if (_.isFunction(validateDropTargetCallback)) {
                         allowedByTargetValidateCallBack = validateDropTargetCallback(this.getActivatedDropTarget());
                     }
                 }
 
-                var validateDropSourceCallback = this.get('validateDropSourceCallback');
-                if(!_.isUndefined(validateDropSourceCallback)){
-                    if(_.isFunction(validateDropSourceCallback)){
+                const validateDropSourceCallback = this.get('validateDropSourceCallback');
+                if (!_.isUndefined(validateDropSourceCallback)) {
+                    if (_.isFunction(validateDropSourceCallback)) {
                         allowedBySourceValidateCallBack = validateDropSourceCallback(this.getNodeBeingDragged());
                     }
                 }
@@ -195,9 +194,9 @@ var DragDropManager = Backbone.Model.extend(
          * Indicates whether there is a node being dragged at the moment.
          * @return {boolean}
          */
-        isOnDrag: function(){
+        isOnDrag() {
             return !_.isNil(this.get('nodeBeingDragged'));
-        }
+        },
     });
 
 export default DragDropManager;

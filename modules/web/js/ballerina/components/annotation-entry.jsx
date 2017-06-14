@@ -18,7 +18,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 class AnnotationEntry extends React.Component {
     constructor(props) {
@@ -26,20 +26,20 @@ class AnnotationEntry extends React.Component {
     }
 
     render() {
-        let model = this.props.model;
+        const model = this.props.model;
 
-        let rValue = model.getRightValue();
-        let rPrint = "";
-        if(typeof rValue == "string"){
+        const rValue = model.getRightValue();
+        let rPrint = '';
+        if (typeof rValue === 'string') {
             rPrint = rValue;
-        }else if(rValue.constructor.name == "AnnotationEntryArray"){
+        } else if (rValue.constructor.name == 'AnnotationEntryArray') {
             rPrint = rValue.toString();
         }
-        
-        return <span>
-                <span className="annotation-value-key">{model.getLeftValue() + " :"}</span>
-                <span className="annotation-value">{ rPrint }</span>  
-            </span>;
+
+        return (<span>
+          <span className="annotation-value-key">{`${model.getLeftValue()} :`}</span>
+          <span className="annotation-value">{ rPrint }</span>
+        </span>);
     }
 }
 

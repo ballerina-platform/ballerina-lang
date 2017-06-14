@@ -31,7 +31,7 @@ class VariableReferenceExpression extends Expression {
             0: '',
             1: '',
             2: '',
-            3: ''
+            3: '',
 
         };
         this.setVariableName(_.get(args, 'variableName'));
@@ -93,14 +93,14 @@ class VariableReferenceExpression extends Expression {
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
-        this.setVariableName(jsonNode.variable_reference_name, {doSilently: true});
-        this.setPackageName(jsonNode.package_name, {doSilently: true});
+        this.setVariableName(jsonNode.variable_reference_name, { doSilently: true });
+        this.setPackageName(jsonNode.package_name, { doSilently: true });
     }
 
     /**
@@ -109,20 +109,18 @@ class VariableReferenceExpression extends Expression {
      * @override
      */
     setExpressionFromString(expression, callback) {
-        if(!_.isNil(expression)){
-            let fragment = FragmentUtils.createExpressionFragment(expression);
-            let parsedJson = FragmentUtils.parseFragment(fragment);
+        if (!_.isNil(expression)) {
+            const fragment = FragmentUtils.createExpressionFragment(expression);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                    || !_.has(parsedJson, 'syntax_errors'))
                    && _.isEqual(parsedJson.type, 'variable_reference_expression')) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({isValid: true});
+                    callback({ isValid: true });
                 }
-            } else {
-                if (_.isFunction(callback)) {
-                    callback({isValid: false, response: parsedJson});
-                }
+            } else if (_.isFunction(callback)) {
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }
@@ -133,8 +131,8 @@ class VariableReferenceExpression extends Expression {
      * @override
      */
     getExpressionString() {
-        return (!_.isNil(this.getPackageName()) ? (this.getPackageName()
-                + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
+        return (!_.isNil(this.getPackageName()) ? (`${this.getPackageName()
+                + this.getWSRegion(1)}:${this.getWSRegion(2)}`) : '')
                 + this.getVariableName() + this.getWSRegion(3);
     }
 

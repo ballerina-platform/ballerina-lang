@@ -21,9 +21,9 @@ import CommonUtils from '../utils/common-utils';
 
 class WorkerDeclaration extends ASTNode {
     constructor(args) {
-        super("WorkerDeclaration");
-        this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
-        this._reply = _.get(args, "replyStatement", null);
+        super('WorkerDeclaration');
+        this._isDefaultWorker = _.get(args, 'isDefaultWorker', false);
+        this._reply = _.get(args, 'replyStatement', null);
         this._workerDeclarationStatement = _.get(args, 'declarationStatement', '');
         this._invoker = undefined;
         this._replyReceiver = undefined;
@@ -106,7 +106,7 @@ class WorkerDeclaration extends ASTNode {
     addArgument(paramType, paramName) {
         this.getArgumentsList().push({
             parameter_type: paramType,
-            parameter_name: paramName
+            parameter_name: paramName,
         });
     }
 
@@ -115,22 +115,22 @@ class WorkerDeclaration extends ASTNode {
     }
 
     initFromJson(jsonNode) {
-        var self = this;
-        var BallerinaASTFactory = this.getFactory();
+        const self = this;
+        const BallerinaASTFactory = this.getFactory();
         this.setWorkerName(jsonNode.worker_name);
-        var args = jsonNode.argument_declaration;
+        const args = jsonNode.argument_declaration;
 
-        _.forEach(args, function(argument) {
+        _.forEach(args, (argument) => {
             self.addArgument(argument.parameter_type, argument.parameter_name);
         });
 
         this.setWorkerDeclarationStatement(this.getWorkerName());
 
         // TODO: check whether return types are allowed
-        _.each(jsonNode.children, function (childNode) {
-            var child = undefined;
-            var childNodeTemp = undefined;
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+        _.each(jsonNode.children, (childNode) => {
+            let child;
+            let childNodeTemp;
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -150,16 +150,16 @@ class WorkerDeclaration extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: "newWorker",
+                defaultValue: 'newWorker',
                 setter: this.setWorkerName,
                 getter: this.getWorkerName,
                 parents: [{
                     // function-def/connector-action/resource
                     node: this.parent,
                     getChildrenFunc: this.parent.getWorkerDeclarations,
-                    getter: this.getWorkerName
-                }]
-            }]
+                    getter: this.getWorkerName,
+                }],
+            }],
         });
     }
 
@@ -168,13 +168,13 @@ class WorkerDeclaration extends ASTNode {
      * @return {string} - Arguments as string.
      */
     getArgumentsAsString() {
-        var argsAsString = "";
-        var args = this.getArgumentsList();
-        _.forEach(args, function(argument, index){
-            argsAsString += argument.parameter_type + " ";
+        let argsAsString = '';
+        const args = this.getArgumentsList();
+        _.forEach(args, (argument, index) => {
+            argsAsString += `${argument.parameter_type} `;
             argsAsString += argument.parameter_name;
             if (args.length - 1 != index) {
-                argsAsString += " , ";
+                argsAsString += ' , ';
             }
         });
         return argsAsString;

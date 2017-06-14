@@ -87,15 +87,15 @@ class ConnectorInitExpression extends Expression {
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
-        let self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        const self = this;
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-        let argExprs = [];
-        _.each(jsonNode.arguments, function (argNode) {
-            let expr = self.getFactory().createFromJson(argNode);
+        const argExprs = [];
+        _.each(jsonNode.arguments, (argNode) => {
+            const expr = self.getFactory().createFromJson(argNode);
             argExprs.push(expr);
             expr.initFromJson(argNode);
         });
@@ -104,8 +104,8 @@ class ConnectorInitExpression extends Expression {
             connectorName = self.getFactory().createFromJson(jsonNode.connector_name);
             connectorName.initFromJson(jsonNode.connector_name);
         }
-        this.setConnectorName(connectorName, {doSilently: true});
-        this.setArgs(argExprs, {doSilently: true});
+        this.setConnectorName(connectorName, { doSilently: true });
+        this.setArgs(argExprs, { doSilently: true });
     }
 
     setExpressionFromString(expressionString, callback) {
@@ -114,7 +114,6 @@ class ConnectorInitExpression extends Expression {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'connector_init_expr')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -127,19 +126,17 @@ class ConnectorInitExpression extends Expression {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 
     getExpressionString() {
-        let expr = 'create' + this.getWSRegion(1)
-            + this.getConnectorName().toString()
-            + this.getWSRegion(2) + '(';
+        let expr = `create${this.getWSRegion(1)
+             }${this.getConnectorName().toString()
+             }${this.getWSRegion(2)}(`;
         this.getArgs().forEach((arg, index) => {
             expr += (index !== 0 && arg.whiteSpace.useDefault) ? ' ' : '';
             expr += arg.generateExpression();

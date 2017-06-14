@@ -69,7 +69,7 @@ class WorkerInvocationStatement extends Statement {
      */
     getStatementString() {
         let statementStr = '';
-        for(var itr = 0; itr < this._expressionList.length; itr ++) {
+        for (let itr = 0; itr < this._expressionList.length; itr++) {
             if (BallerinaASTFactory.isExpression(this.getExpressionList()[itr])) {
                 statementStr += this.getExpressionList()[itr].getExpressionString();
             } else if (BallerinaASTFactory.isStatement(this.getExpressionList()[itr])) {
@@ -80,7 +80,7 @@ class WorkerInvocationStatement extends Statement {
                 statementStr += ',';
             }
         }
-        statementStr += '->' + this.getWorkerName();
+        statementStr += `->${this.getWorkerName()}`;
 
         return statementStr;
     }
@@ -92,12 +92,11 @@ class WorkerInvocationStatement extends Statement {
      * @override
      */
     setStatementFromString(statementString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
+        const fragment = FragmentUtils.createStatementFragment(`${statementString};`);
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'worker_invocation_statement')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -110,12 +109,10 @@ class WorkerInvocationStatement extends Statement {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 
@@ -132,11 +129,11 @@ class WorkerInvocationStatement extends Statement {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        var workerName = jsonNode.worker_name;const self = this;
+        const workerName = jsonNode.worker_name; const self = this;
         const expressionList = jsonNode.expression_list;
         this.getExpressionList().length = 0;
 
-        for (let itr = 0; itr < expressionList.length; itr ++) {
+        for (let itr = 0; itr < expressionList.length; itr++) {
             const expressionNode = BallerinaASTFactory.createFromJson(expressionList[itr].expression[0]);
             expressionNode.initFromJson(expressionList[itr].expression[0]);
             self.addToExpressionList(expressionNode);
@@ -144,9 +141,7 @@ class WorkerInvocationStatement extends Statement {
 
         let workerInstance;
         if (!_.isNil(this.getParent())) {
-            workerInstance = _.find(this.getParent().getChildren(), function (child) {
-                return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
-            });
+            workerInstance = _.find(this.getParent().getChildren(), child => self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName);
         }
 
         this.setDestination(workerInstance);

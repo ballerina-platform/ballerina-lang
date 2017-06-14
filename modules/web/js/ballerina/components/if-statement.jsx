@@ -18,7 +18,7 @@
 import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import './if-statement.css';
 
@@ -31,7 +31,7 @@ class IfStatement extends React.Component {
             key: 'If condition',
             model: props.model,
             getterMethod: props.model.getConditionString,
-            setterMethod: props.model.setConditionFromString
+            setterMethod: props.model.setConditionFromString,
         };
 
         this.onAddElseClick = this.onAddElseClick.bind(this);
@@ -39,13 +39,13 @@ class IfStatement extends React.Component {
 
     onAddElseClick() {
         const parent = this.props.model.parent;
-        if(parent.getElseStatement()) {
+        if (parent.getElseStatement()) {
             const condition = BallerinaASTFactory.createBasicLiteralExpression({
                 basicLiteralType: 'boolean',
-                basicLiteralValue: true
+                basicLiteralValue: true,
             });
             const newElseIfStatement = BallerinaASTFactory.createElseIfStatement({
-                condition: condition
+                condition,
             });
             const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
             this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
@@ -58,20 +58,22 @@ class IfStatement extends React.Component {
     render() {
         let model = this.props.model,
             bBox = model.viewState.bBox,
-            expression = model.viewState.components['expression'];
+            expression = model.viewState.components.expression;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         const addElseBtn = (
-            <g onClick={this.onAddElseClick}>
-                <rect x={bBox.x+bBox.w-10} y={bBox.y+bBox.h-25} width={20} height={20} rx={10} ry={10} className='add-else-button'/>
-                <text x={bBox.x+bBox.w-4} y={bBox.y+bBox.h-15} width={20} height={20} className='add-else-button-label'>+</text>
-            </g>
+          <g onClick={this.onAddElseClick}>
+            <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
+            <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
+          </g>
         );
 
         return (
-            <BlockStatementDecorator dropTarget={model} bBox={bBox} title={'If'} expression={expression}
-                    editorOptions={this.editorOptions} model={model.parent} utilities={addElseBtn}>
-                {children}
-            </BlockStatementDecorator>
+          <BlockStatementDecorator
+            dropTarget={model} bBox={bBox} title={'If'} expression={expression}
+            editorOptions={this.editorOptions} model={model.parent} utilities={addElseBtn}
+          >
+            {children}
+          </BlockStatementDecorator>
         );
     }
 }
@@ -82,7 +84,7 @@ IfStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
 };
 
 

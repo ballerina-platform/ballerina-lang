@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {util} from './../sizing-utils';
-import {timeout} from '../../configs/designer-defaults';
+import { util } from './../sizing-utils';
+import { timeout } from '../../configs/designer-defaults';
 
 class TimeoutStatementDimensionCalculatorVisitor {
 

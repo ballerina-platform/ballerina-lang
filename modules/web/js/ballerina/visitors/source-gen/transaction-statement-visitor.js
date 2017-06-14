@@ -32,30 +32,30 @@ class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitTransactionStatement(transactionStatement) {
         this.node = transactionStatement;
-        this.appendSource("transaction" + transactionStatement.getWSRegion(1) + "{"
-            + transactionStatement.getWSRegion(2));
+        this.appendSource(`transaction${transactionStatement.getWSRegion(1)}{${
+             transactionStatement.getWSRegion(2)}`);
         this.appendSource((transactionStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
 
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
-            let statementVisitorFactory = new StatementVisitorFactory();
-            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }
 
     endVisitTransactionStatement(transactionStatement) {
         this.outdent();
-        /*if using default ws, add a new line to end unless there are any aborted
+        /* if using default ws, add a new line to end unless there are any aborted
          or committed statement available*/
-        let parent = transactionStatement.getParent();
-        let tailingWS = (transactionStatement.whiteSpace.useDefault
+        const parent = transactionStatement.getParent();
+        const tailingWS = (transactionStatement.whiteSpace.useDefault
         && (_.isEmpty(parent.getAbortedStatement())
         && _.isEmpty(parent.getCommittedStatement())))
             ? '\n' : transactionStatement.getWSRegion(3);
-        this.appendSource("}" + tailingWS);
+        this.appendSource(`}${tailingWS}`);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

@@ -22,7 +22,7 @@ class TypeDefinition extends ASTNode {
     constructor(typeElement) {
         super();
         this.typeElement = typeElement || [];
-        this.type = "TypeDefinition";
+        this.type = 'TypeDefinition';
     }
 
     setTypeElement(typeElement, options) {

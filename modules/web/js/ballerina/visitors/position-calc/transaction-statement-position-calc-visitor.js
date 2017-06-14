@@ -26,11 +26,14 @@ class TransactionStatementPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('begin visit TransactionStatementPositionCalcVisitor');
-        let parentViewState = node.getParent().getViewState();
-        let parentBBox = parentViewState.bBox;
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
-        let x, y, statementContainerX, statementContainerY;
+        const parentViewState = node.getParent().getViewState();
+        const parentBBox = parentViewState.bBox;
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
+        let x,
+            y,
+            statementContainerX,
+            statementContainerY;
 
         x = parentBBox.x;
         y = parentBBox.y + parentViewState.components['drop-zone'].h;

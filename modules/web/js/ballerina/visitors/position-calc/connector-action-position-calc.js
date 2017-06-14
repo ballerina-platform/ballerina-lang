@@ -54,7 +54,7 @@ class ConnectorActionPositionCalcVisitor {
      * @memberof ConnectorActionPositionCalcVisitor
      */
     createPositionForTitleNode(parameter, x, y) {
-        let viewState = parameter.getViewState();
+        const viewState = parameter.getViewState();
         // Positioning the parameter
         viewState.bBox.x = x;
         viewState.bBox.y = y;

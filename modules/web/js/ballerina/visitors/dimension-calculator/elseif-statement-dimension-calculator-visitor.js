@@ -16,7 +16,7 @@
  * under the License.
  */
 import log from 'log';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class ElseIfStatementDimensionCalculatorVisitor {
 

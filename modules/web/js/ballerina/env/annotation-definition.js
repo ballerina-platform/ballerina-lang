@@ -21,7 +21,7 @@ import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
  * Represents an annotation definition in the ballerina-env.
- * 
+ *
  * @class AnnotationDefinition
  * @extends {EventChannel}
  */
@@ -31,10 +31,10 @@ class AnnotationDefinition extends EventChannel {
      * @param {Object} args Object to initialize
      * @param {string} args.packagePath The package name of the annotation definition.
      * @param {string} args.name The name of the annotation definition.
-     * @param {string[]} args.attachmentPoints The points which the annotation definition can be attached as an 
+     * @param {string[]} args.attachmentPoints The points which the annotation definition can be attached as an
      * annotation attachment.
      * @param {AnnotationAttributeDefinition[]} The fields of the annotation definition.
-     * 
+     *
      * @memberof AnnotationDefinition
      */
     constructor(args) {
@@ -56,7 +56,7 @@ class AnnotationDefinition extends EventChannel {
     setName(name) {
         this._name = name;
     }
-    
+
     getName() {
         return this._name;
     }
@@ -90,23 +90,21 @@ class AnnotationDefinition extends EventChannel {
     }
 
     removeAnnotationAttributeDefinition(annotationAttributeDefinition) {
-        let annotationAttributeDefinitionToBeRemoved = annotationAttributeDefinition;
-        this._annotationAttributeDefinitions = 
-            _.remove(this._annotationAttributeDefinitions, (annotationAttributeDefinition) => {
-                return annotationAttributeDefinition.getIdentifier() === 
-                                                            annotationAttributeDefinitionToBeRemoved.getIdentifier();
-            });
+        const annotationAttributeDefinitionToBeRemoved = annotationAttributeDefinition;
+        this._annotationAttributeDefinitions =
+            _.remove(this._annotationAttributeDefinitions, annotationAttributeDefinition => annotationAttributeDefinition.getIdentifier() ===
+                                                            annotationAttributeDefinitionToBeRemoved.getIdentifier());
     }
 
     /**
      * Sets values from a json object
-     * 
+     *
      * @param {Object} jsonNode json object with values.
      * @param {string} jsonNode.packagePath The package of the annotation definition.
      * @param {string} jsonNode.name The name of the annotation definition.
      * @param {string[]} jsonNode.attachmentPoints The attachment points of the annotation definition.
      * @param {Object[]} jsonNode.annotationAttributeDefs The field attributes of the annotation definition.
-     * 
+     *
      * @memberof AnnotationDefinition
      */
     initFromJson(jsonNode) {
@@ -115,8 +113,8 @@ class AnnotationDefinition extends EventChannel {
         this.setAttachmentPoints(jsonNode.attachmentPoints);
 
         // Setting the fields of the annotation definition.
-        for (let annotationattributeDef of jsonNode.annotationAttributeDefs) {
-            let annotationAttributeDefinition = BallerinaEnvFactory.createAnnotationAttributeDefinition();
+        for (const annotationattributeDef of jsonNode.annotationAttributeDefs) {
+            const annotationAttributeDefinition = BallerinaEnvFactory.createAnnotationAttributeDefinition();
             annotationAttributeDefinition.initFromJson(annotationattributeDef);
             this.addAnnotationAttributeDefinition(annotationAttributeDefinition);
         }

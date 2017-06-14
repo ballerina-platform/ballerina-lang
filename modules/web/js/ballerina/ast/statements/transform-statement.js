@@ -25,8 +25,8 @@ import Statement from './statement';
 class TransformStatement extends Statement {
     constructor(args) {
         super(args);
-        this.input =  _.get(args, 'input', []);
-        this.output =  _.get(args, 'output', []);
+        this.input = _.get(args, 'input', []);
+        this.output = _.get(args, 'output', []);
         this.type = 'TransformStatement';
     }
 
@@ -53,20 +53,20 @@ class TransformStatement extends Statement {
      * @param {Object} jsonNode.transform_output output variable refs for transform statement
      */
     initFromJson(jsonNode) {
-        _.each(jsonNode.transform_input, childNode => {
-            var inputVar = this.getFactory().createFromJson(childNode);
+        _.each(jsonNode.transform_input, (childNode) => {
+            const inputVar = this.getFactory().createFromJson(childNode);
             inputVar.initFromJson(childNode);
             this.input.push(inputVar);
         });
 
-        _.each(jsonNode.transform_output, childNode => {
-            var outputVar = this.getFactory().createFromJson(childNode);
+        _.each(jsonNode.transform_output, (childNode) => {
+            const outputVar = this.getFactory().createFromJson(childNode);
             outputVar.initFromJson(childNode);
             this.output.push(outputVar);
         });
 
-        _.each(jsonNode.children, childNode => {
-            var child = this.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = this.getFactory().createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });
@@ -78,8 +78,8 @@ class TransformStatement extends Statement {
      */
     removeChild(child, ignoreModifiedTreeEvent, willVisit) {
         if (!_.isUndefined(willVisit) && willVisit !== true) {
-            var parentModelChildren = this.children;
-            for (var itr = 0; itr < parentModelChildren.length; itr++) {
+            const parentModelChildren = this.children;
+            for (let itr = 0; itr < parentModelChildren.length; itr++) {
                 if (parentModelChildren[itr].id === child.id) {
                     parentModelChildren.splice(itr, 1);
                     break;

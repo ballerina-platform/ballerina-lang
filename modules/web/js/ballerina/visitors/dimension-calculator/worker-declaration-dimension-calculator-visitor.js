@@ -32,19 +32,19 @@ class WorkerDeclarationDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        var viewState = node.getViewState();
-        var components = {};
+        const viewState = node.getViewState();
+        const components = {};
 
-        components['statementContainer'] = new SimpleBBox();
-        var statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        components.statementContainer = new SimpleBBox();
+        const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
-        var statementWidth = DesignerDefaults.lifeLine.width + statementContainerWidthPadding;
-        var statementHeight = 0;
+        let statementWidth = DesignerDefaults.lifeLine.width + statementContainerWidthPadding;
+        let statementHeight = 0;
 
-        _.forEach(statementChildren, function(child) {
+        _.forEach(statementChildren, (child) => {
             statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
-            if((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth){
+            if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }
         });
@@ -58,8 +58,8 @@ class WorkerDeclarationDimensionCalculatorVisitor {
         viewState.bBox.h = statementHeight + DesignerDefaults.lifeLine.head.height * 2;
         viewState.bBox.w = statementWidth;
 
-        components['statementContainer'].h = statementHeight;
-        components['statementContainer'].w = statementWidth;
+        components.statementContainer.h = statementHeight;
+        components.statementContainer.w = statementWidth;
 
         viewState.components = components;
     }

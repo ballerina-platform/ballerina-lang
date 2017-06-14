@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class WhileStatementDimensionCalculatorVisitor {
 
@@ -33,16 +33,16 @@ class WhileStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
-        let expression = node.getConditionString();
-        let bBox = viewState.bBox;
-        let components = {};
+        const viewState = node.getViewState();
+        const expression = node.getConditionString();
+        const bBox = viewState.bBox;
+        const components = {};
         let statementContainerWidth = 0;
         let statementContainerHeight = 0;
-        let children = node.getChildren();
-        components['statementContainer'] = new SimpleBBox();
+        const children = node.getChildren();
+        components.statementContainer = new SimpleBBox();
 
-        _.forEach(children, function (child) {
+        _.forEach(children, (child) => {
             statementContainerHeight += child.getViewState().bBox.h;
             if (child.getViewState().bBox.w > statementContainerWidth) {
                 statementContainerWidth = child.getViewState().bBox.w;
@@ -57,7 +57,7 @@ class WhileStatementDimensionCalculatorVisitor {
         DesignerDefaults.blockStatement.body.height - DesignerDefaults.blockStatement.heading.height);
         statementContainerWidth = getStatementContainerWidth(statementContainerWidth);
 
-        let dropZoneHeight = DesignerDefaults.statement.gutter.v;
+        const dropZoneHeight = DesignerDefaults.statement.gutter.v;
         components['drop-zone'] = new SimpleBBox();
         components['drop-zone'].h = dropZoneHeight;
 
@@ -65,15 +65,15 @@ class WhileStatementDimensionCalculatorVisitor {
         bBox.h = statementContainerHeight +
             DesignerDefaults.blockStatement.heading.height + dropZoneHeight;
 
-        components['statementContainer'].h = statementContainerHeight;
-        components['statementContainer'].w = statementContainerWidth;
+        components.statementContainer.h = statementContainerHeight;
+        components.statementContainer.w = statementContainerWidth;
 
         // for compound statement like while we need to render condition expression
         // we will calculate the width of the expression and adjest the block statement
-        if(expression != undefined){
+        if (expression != undefined) {
             // see how much space we have to draw the condition
-            let available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
-            components['expression'] = util.getTextWidth(expression,0,available);
+            const available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
+            components.expression = util.getTextWidth(expression, 0, available);
         }
 
         viewState.components = components;

@@ -40,7 +40,7 @@ class BackTickExpression extends Expression {
     }
 
     getExpressionString() {
-        return ('`' + this._backTickEnclosedString + '`');
+        return (`\`${this._backTickEnclosedString}\``);
     }
 
     setExpressionFromString(expressionString, callback) {
@@ -49,7 +49,6 @@ class BackTickExpression extends Expression {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'back_tick_expression')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -62,12 +61,10 @@ class BackTickExpression extends Expression {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 }

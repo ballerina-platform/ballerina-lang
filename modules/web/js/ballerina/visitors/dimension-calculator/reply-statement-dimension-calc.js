@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class ReplyStatementDimensionCalculatorVisitor {
 
@@ -32,7 +32,7 @@ class ReplyStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox( node.getReplyExpression() , node.getViewState());
+        util.populateSimpleStatementBBox(node.getReplyExpression(), node.getViewState());
     }
 }
 

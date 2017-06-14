@@ -30,87 +30,87 @@ class LaunchManager extends EventChannel {
     }
 
     runApplication(file) {
-        this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
+        this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendRunApplicationMessage',file));
+        this.channel.on('connected', _.bindKey(this, 'sendRunApplicationMessage', file));
     }
 
     runService(file) {
-        this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
+        this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', () => { this.sendRunServiceMessage(file); });
     }
 
     debugApplication(file) {
-        this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
+        this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', () => { this.sendDebugApplicationMessage(file); });
     }
 
     debugService(file) {
-        this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
+        this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', () => { this.sendDebugServiceMessage(file); });
     }
 
     sendRunApplicationMessage(file) {
-        var message = {
-            'command': 'RUN_PROGRAM',
-            'fileName' : file.getName(),
-            'filePath' : file.getPath(),
-            'commandArgs': this.getApplicationConfigs(file)
+        const message = {
+            command: 'RUN_PROGRAM',
+            fileName: file.getName(),
+            filePath: file.getPath(),
+            commandArgs: this.getApplicationConfigs(file),
         };
         this.channel.sendMessage(message);
     }
 
     sendRunServiceMessage(file) {
-        var message = {
-            'command': 'RUN_SERVICE',
-            'fileName' : file.getName(),
-            'filePath' : file.getPath()
+        const message = {
+            command: 'RUN_SERVICE',
+            fileName: file.getName(),
+            filePath: file.getPath(),
         };
         this.channel.sendMessage(message);
     }
 
     sendDebugApplicationMessage(file) {
-        var message = {
-            'command': 'DEBUG_PROGRAM',
-            'fileName' : file.getName(),
-            'filePath' : file.getPath(),
-            'commandArgs': this.getApplicationConfigs(file)
+        const message = {
+            command: 'DEBUG_PROGRAM',
+            fileName: file.getName(),
+            filePath: file.getPath(),
+            commandArgs: this.getApplicationConfigs(file),
         };
         this.channel.sendMessage(message);
     }
 
     sendDebugServiceMessage(file) {
-        var message = {
-            'command': 'DEBUG_SERVICE',
-            'fileName' : file.getName(),
-            'filePath' : file.getPath()
+        const message = {
+            command: 'DEBUG_SERVICE',
+            fileName: file.getName(),
+            filePath: file.getPath(),
         };
         this.channel.sendMessage(message);
     }
 
     processMesssage(message) {
-        if(message.code === 'OUTPUT'){
-            if(_.endsWith(message.message, this.debugPort)){
-                this.trigger('debug-active',this.debugEndpoint);
+        if (message.code === 'OUTPUT') {
+            if (_.endsWith(message.message, this.debugPort)) {
+                this.trigger('debug-active', this.debugEndpoint);
                 return;
             }
         }
-        if(message.code === 'EXECUTION_STARTED'){
+        if (message.code === 'EXECUTION_STARTED') {
             this.active = true;
             this.trigger('execution-started');
         }
-        if(message.code === 'EXECUTION_STOPED' || message.code === 'EXECUTION_TERMINATED'){
+        if (message.code === 'EXECUTION_STOPED' || message.code === 'EXECUTION_TERMINATED') {
             this.active = false;
             this.trigger('execution-ended');
         }
-        if(message.code === 'DEBUG_PORT'){
+        if (message.code === 'DEBUG_PORT') {
             this.debugPort = message.port;
             return;
         }
-        if(message.code === 'EXIT'){
+        if (message.code === 'EXIT') {
             this.active = false;
             this.trigger('session-ended');
         }
@@ -131,14 +131,14 @@ class LaunchManager extends EventChannel {
     }
 
     stopProgram() {
-        var message = {
-            'command': 'TERMINATE',
+        const message = {
+            command: 'TERMINATE',
         };
         this.channel.sendMessage(message);
     }
 
     getApplicationConfigs(file) {
-        var args = this.application.browserStorage.get(`launcher-app-configs-${file.id}`);
+        const args = this.application.browserStorage.get(`launcher-app-configs-${file.id}`);
         return args || '';
     }
 }

@@ -38,7 +38,7 @@ class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitFuncInvocationStatement(functionInvocation) {
-        this.appendSource(';' + functionInvocation.getWSRegion(4));
+        this.appendSource(`;${functionInvocation.getWSRegion(4)}`);
         this.appendSource((functionInvocation.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

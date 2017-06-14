@@ -37,7 +37,7 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitAssignmentStatement(assignmentStatement) {
-        this.appendSource(';' + assignmentStatement.getWSRegion(3));
+        this.appendSource(`;${assignmentStatement.getWSRegion(3)}`);
         this.appendSource((assignmentStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

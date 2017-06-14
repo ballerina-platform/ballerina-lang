@@ -27,16 +27,15 @@ class TransactionAbortedStatementPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('begin visit TransactionAbortedStatementPositionCalcVisitor');
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
-        let parent = node.getParent();
-        let parentViewState = parent.getViewState();
-        let parentStatementContainer = parentViewState.components.statementContainer;
-        let parentStatements = parent.filterChildren(function (child) {
-            return ASTFactory.isStatement(child) || ASTFactory.isExpression(child);
-        });
-        let currentIndex = _.findIndex(parentStatements, node);
-        let x, y;
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
+        const parent = node.getParent();
+        const parentViewState = parent.getViewState();
+        const parentStatementContainer = parentViewState.components.statementContainer;
+        const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
+        const currentIndex = _.findIndex(parentStatements, node);
+        let x,
+            y;
 
         if (parentStatementContainer.w < bBox.w) {
             throw 'Invalid statement container width found, statement width should be greater than or equal to ' +
@@ -48,7 +47,7 @@ class TransactionAbortedStatementPositionCalcVisitor {
         } else if (currentIndex > 0) {
             y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom();
         } else {
-            throw 'Invalid Index found for ' + node.getType();
+            throw `Invalid Index found for ${node.getType()}`;
         }
 
         bBox.x = x;

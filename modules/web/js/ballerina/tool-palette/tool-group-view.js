@@ -21,80 +21,80 @@ import * as d3 from 'd3';
 import Backbone from 'backbone';
 import ToolView from './tool-view';
 
-var toolGroupView = Backbone.View.extend({
+const toolGroupView = Backbone.View.extend({
 
-    initialize: function (options) {
-        log.debug("toolGroupview init");
+    initialize(options) {
+        log.debug('toolGroupview init');
         _.set(options, 'animationTime', 200);
         this._options = options;
-        _.extend(this, _.pick(options, ["toolPalette"]));
+        _.extend(this, _.pick(options, ['toolPalette']));
     },
 
-    render: function (parent, toolOrderVertical, addToTop, collapsed, gridConfig) {
-        var self = this;
-        var groupDiv = $('<div></div>');
+    render(parent, toolOrderVertical, addToTop, collapsed, gridConfig) {
+        const self = this;
+        const groupDiv = $('<div></div>');
 
-        if(addToTop) {
+        if (addToTop) {
             parent.prepend(groupDiv);
         } else {
             parent.append(groupDiv);
         }
 
-        groupDiv.attr('id', "tool-group-" + this.model.attributes.toolGroupID);
-        groupDiv.attr('class', "tool-group");
+        groupDiv.attr('id', `tool-group-${this.model.attributes.toolGroupID}`);
+        groupDiv.attr('class', 'tool-group');
 
-        var groupHeaderDiv = $("<div></div>");
+        const groupHeaderDiv = $('<div></div>');
         groupDiv.append(groupHeaderDiv);
-        groupHeaderDiv.attr('class', "tool-group-header");
+        groupHeaderDiv.attr('class', 'tool-group-header');
 
-        var groupTitle = $("<a></a>");
+        const groupTitle = $('<a></a>');
         groupHeaderDiv.append(groupTitle);
-        groupTitle.attr('class', "tool-group-header-title")
+        groupTitle.attr('class', 'tool-group-header-title')
                 .text(this.model.attributes.toolGroupName);
 
-        var groupCollapseIcon = $("<span></span>");
+        const groupCollapseIcon = $('<span></span>');
         groupHeaderDiv.append(groupCollapseIcon);
-        groupCollapseIcon.attr('class', "collapse-icon fw fw-up");
+        groupCollapseIcon.attr('class', 'collapse-icon fw fw-up');
 
-        var groupBodyDiv = $("<div></div>");
+        const groupBodyDiv = $('<div></div>');
         groupDiv.append(groupBodyDiv);
-        groupBodyDiv.attr('class', "tool-group-body tool-group-body-list");
+        groupBodyDiv.attr('class', 'tool-group-body tool-group-body-list');
         this._$toolGroupBody = groupBodyDiv;
 
-        if(this.model.attributes.gridConfig){
-            var toolsViewModeControlsDiv = $("<div class='tools-view-modes-controls clearfix'></div>");
+        if (this.model.attributes.gridConfig) {
+            const toolsViewModeControlsDiv = $("<div class='tools-view-modes-controls clearfix'></div>");
             groupBodyDiv.append(toolsViewModeControlsDiv);
 
-            var groupTilesIcon = $("<a class='tool-group-tiles-view'></a>");
+            const groupTilesIcon = $("<a class='tool-group-tiles-view'></a>");
             toolsViewModeControlsDiv.append(groupTilesIcon);
-            groupTilesIcon.attr('class', "collapse-icon fw fw-tiles");
-            groupTilesIcon.click(function(){
+            groupTilesIcon.attr('class', 'collapse-icon fw fw-tiles');
+            groupTilesIcon.click(function () {
                 $(this).parents('.tool-group').find('.tool-group-body')
-                        .attr("class", "tool-group-body tool-group-body-tiles");
+                        .attr('class', 'tool-group-body tool-group-body-tiles');
                 $('body')
                     .removeClass('tool-palette-view-grid tool-palette-view-list')
                     .addClass('tool-palette-view-tiles');
                 return false;
             });
 
-            var groupGridIcon = $("<a class='tool-group-action-grid'></a>");
+            const groupGridIcon = $("<a class='tool-group-action-grid'></a>");
             toolsViewModeControlsDiv.append(groupGridIcon);
-            groupGridIcon.attr('class', "collapse-icon fw fw-grid");
-            groupGridIcon.click(function(){
+            groupGridIcon.attr('class', 'collapse-icon fw fw-grid');
+            groupGridIcon.click(function () {
                 $(this).parents('.tool-group').find('.tool-group-body')
-                        .attr("class", "tool-group-body tool-group-body-grid");
+                        .attr('class', 'tool-group-body tool-group-body-grid');
                 $('body')
                     .removeClass('tool-palette-view-tiles tool-palette-view-list')
                     .addClass('tool-palette-view-grid');
                 return false;
             });
 
-            var groupListIcon = $("<a class='tool-group-list-view'></a>");
+            const groupListIcon = $("<a class='tool-group-list-view'></a>");
             toolsViewModeControlsDiv.append(groupListIcon);
-            groupListIcon.attr('class', "collapse-icon fw fw-list");
-            groupListIcon.click(function(){
+            groupListIcon.attr('class', 'collapse-icon fw fw-list');
+            groupListIcon.click(function () {
                 $(this).parents('.tool-group').find('.tool-group-body')
-                        .attr("class", "tool-group-body tool-group-body-list");
+                        .attr('class', 'tool-group-body tool-group-body-list');
                 $('body')
                     .removeClass('tool-palette-view-grid tool-palette-view-tiles')
                     .addClass('tool-palette-view-list');
@@ -102,36 +102,32 @@ var toolGroupView = Backbone.View.extend({
             });
         }
 
-        if(collapsed) {
+        if (collapsed) {
             groupBodyDiv.hide();
             groupHeaderDiv.addClass('tool-group-header-collapse');
             groupCollapseIcon.removeClass('fw-up');
-            groupCollapseIcon.removeClass("glyphicon-chevron-up");
+            groupCollapseIcon.removeClass('glyphicon-chevron-up');
             groupCollapseIcon.addClass('fw-down');
-            groupCollapseIcon.toggleClass("glyphicon-chevron-down");
+            groupCollapseIcon.toggleClass('glyphicon-chevron-down');
         }
 
         // Iterate and stop adding duplicates of each function
-        var tools = [];
-        var toolDocumentMap = {};
+        let tools = [];
+        const toolDocumentMap = {};
         if (toolOrderVertical) {
             // Check whether parameter type string available
-            var isStringParamExist = function (parameters) {
-                return _.find(parameters, function (param) {
-                    return _.isEqual(param.type,"string");
-                }) ? true : false;
+            const isStringParamExist = function (parameters) {
+                return !!_.find(parameters, param => _.isEqual(param.type, 'string'));
             };
 
                 // Replace the existing tool with tool which has string params.
-            var replaceGivenToolWithExistingTool = function (replacement) {
-                var index = _.findIndex(tools, function (tool) {
-                    return _.isEqual(tool.id, replacement.id);
-                });
+            const replaceGivenToolWithExistingTool = function (replacement) {
+                const index = _.findIndex(tools, tool => _.isEqual(tool.id, replacement.id));
                 tools[index] = replacement;
             };
 
-            _.forEach(this.model.tools, function (tool) {
-                var id = "/" + tool.id + "/";
+            _.forEach(this.model.tools, (tool) => {
+                const id = `/${tool.id}/`;
                 if (!toolDocumentMap[id]) {
                     toolDocumentMap[id] = id;
                     tools.push(tool);
@@ -143,30 +139,30 @@ var toolGroupView = Backbone.View.extend({
             tools = this.model.tools;
         }
 
-        tools.forEach(function (tool) {
-            var toolOptions = _.clone(_.get(self._options, 'tool'));
+        tools.forEach((tool) => {
+            const toolOptions = _.clone(_.get(self._options, 'tool'));
             _.set(toolOptions, 'toolPalette', self.toolPalette);
             _.set(toolOptions, 'model', tool);
-            var toolView = new ToolView(toolOptions);
+            const toolView = new ToolView(toolOptions);
             toolView.render(groupBodyDiv, toolOrderVertical);
         });
 
         this.el = groupDiv[0].outerHTML;
         this.$el = groupDiv;
 
-        groupHeaderDiv.click(function () {
-            groupHeaderDiv.toggleClass("tool-group-header-collapse");
-            groupBodyDiv.slideToggle(_.get(self._options, 'animationTime'), function () {
-                if (groupHeaderDiv.hasClass("tool-group-header-collapse")) {
+        groupHeaderDiv.click(() => {
+            groupHeaderDiv.toggleClass('tool-group-header-collapse');
+            groupBodyDiv.slideToggle(_.get(self._options, 'animationTime'), () => {
+                if (groupHeaderDiv.hasClass('tool-group-header-collapse')) {
                     groupCollapseIcon.removeClass('fw-up');
-                    groupCollapseIcon.removeClass("glyphicon-chevron-up");
+                    groupCollapseIcon.removeClass('glyphicon-chevron-up');
                     groupCollapseIcon.addClass('fw-down');
-                    groupCollapseIcon.toggleClass("glyphicon-chevron-down");
+                    groupCollapseIcon.toggleClass('glyphicon-chevron-down');
                 } else {
                     groupCollapseIcon.removeClass('fw-down');
-                    groupCollapseIcon.removeClass("glyphicon-chevron-down");
+                    groupCollapseIcon.removeClass('glyphicon-chevron-down');
                     groupCollapseIcon.addClass('fw-up');
-                    groupCollapseIcon.toggleClass("glyphicon-chevron-up");
+                    groupCollapseIcon.toggleClass('glyphicon-chevron-up');
                 }
             });
         });
@@ -176,13 +172,13 @@ var toolGroupView = Backbone.View.extend({
         return this;
     },
 
-    onToolAdded: function (tool) {
-        var self = this;
+    onToolAdded(tool) {
+        const self = this;
         if (!_.isUndefined(self._$toolGroupBody)) {
-            var toolOptions = _.clone(_.get(self._options, 'tool'));
+            const toolOptions = _.clone(_.get(self._options, 'tool'));
             _.set(toolOptions, 'toolPalette', self.toolPalette);
             _.set(toolOptions, 'model', tool);
-            var toolView = new ToolView(toolOptions);
+            const toolView = new ToolView(toolOptions);
             toolView.render(self._$toolGroupBody, true);
         }
     },
@@ -191,10 +187,10 @@ var toolGroupView = Backbone.View.extend({
      * function for removing given tool item from the tool palette view
      * @param {string} toolId
      */
-    onToolRemoved: function (toolId) {
-        var self = this;
-        self._$toolGroupBody.find('#'+toolId).remove();
-    }
+    onToolRemoved(toolId) {
+        const self = this;
+        self._$toolGroupBody.find(`#${toolId}`).remove();
+    },
 });
 
 export default toolGroupView;

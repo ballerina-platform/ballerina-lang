@@ -23,7 +23,7 @@ class TypeElement extends ASTNode {
         super();
         this.type = type;
         this.identifier = identifier;
-        this.type = "TypeElement";
+        this.type = 'TypeElement';
     }
 
     setType(type, options) {

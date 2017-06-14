@@ -25,12 +25,12 @@ import Statement from './statement';
 class BreakStatement extends Statement {
     constructor() {
         super();
-        this.type = "BreakStatement";
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.type = 'BreakStatement';
+        this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
-            2: '\n'
-        }
+            2: '\n',
+        };
     }
 
     canBeAChildOf(node) {

@@ -36,7 +36,7 @@ class ConnectorDefinition extends ASTNode {
             1: ' ',
             2: ' ',
             3: '\n',
-            4: '\n'
+            4: '\n',
         };
     }
 
@@ -70,13 +70,13 @@ class ConnectorDefinition extends ASTNode {
      * @param identifier - The identifier of the argument.
      */
     addArgument(type, identifier) {
-        //creating argument
-        let newArgumentParamDef = this.getFactory().createParameterDefinition();
+        // creating argument
+        const newArgumentParamDef = this.getFactory().createParameterDefinition();
         newArgumentParamDef.setTypeName(type);
         newArgumentParamDef.setName(identifier);
 
-        let argParamDefHolder = this.getArgumentParameterDefinitionHolder();
-        let index = argParamDefHolder.getChildren().length;
+        const argParamDefHolder = this.getArgumentParameterDefinitionHolder();
+        const index = argParamDefHolder.getChildren().length;
 
         argParamDefHolder.addChild(newArgumentParamDef, index + 1);
     }
@@ -104,9 +104,9 @@ class ConnectorDefinition extends ASTNode {
      * @return {string} - Arguments as string.
      */
     getArgumentsAsString() {
-        let argsStringArray = [];
-        let args = this.getArguments();
-        _.forEach(args, function (arg) {
+        const argsStringArray = [];
+        const args = this.getArguments();
+        _.forEach(args, (arg) => {
             argsStringArray.push(arg.getParameterDefinitionAsString());
         });
         return _.join(argsStringArray, ', ');
@@ -122,7 +122,7 @@ class ConnectorDefinition extends ASTNode {
         if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
             this.setAttribute('connector_name', name, options);
         } else {
-            let errorString = "Invalid connector name: " + name;
+            const errorString = `Invalid connector name: ${name}`;
             log.error(errorString);
             throw errorString;
         }
@@ -133,13 +133,13 @@ class ConnectorDefinition extends ASTNode {
      * @param child
      * @param index
      */
-    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId)  {
+    addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         if (this.getFactory().isConnectorDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype)
               .addChild.call(this, child, 0, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
             Object.getPrototypeOf(this.constructor.prototype)
-            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) ;
+            .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         }
     }
 
@@ -174,10 +174,10 @@ class ConnectorDefinition extends ASTNode {
      * @return {VariableDefinitionStatement[]}
      */
     getVariableDefinitionStatements() {
-        let variableDefinitionStatements = [];
-        let self = this;
+        const variableDefinitionStatements = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isVariableDefinitionStatement(child)) {
                 variableDefinitionStatements.push(child);
             }
@@ -192,45 +192,38 @@ class ConnectorDefinition extends ASTNode {
      * @param {string} assignedValue - The right hand expression.
      */
     addVariableDefinitionStatement(bType, identifier, assignedValue) {
-
         // Check is identifier is not null or empty.
         if (_.isNil(identifier) || _.isEmpty(identifier)) {
-            let errorStringOfEmptyIdentifier = "A variable definition requires an identifier.";
+            const errorStringOfEmptyIdentifier = 'A variable definition requires an identifier.';
             log.error(errorStringOfEmptyIdentifier);
             throw errorStringOfEmptyIdentifier;
         }
 
         // Check if already variable definition statement exists with same identifier.
-        let identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
-                function (variableDefinitionStatement) {
-                    return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
-                }) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
+                variableDefinitionStatement => _.isEqual(variableDefinitionStatement.getIdentifier(), identifier)) !== -1;
 
         // If variable definition statement with the same identifier exists, then throw an error. Else create the new
         // variable definition statement.
         if (identifierAlreadyExists) {
-            let errorString = "A variable definition with identifier '" + identifier + "' already exists.";
+            const errorString = `A variable definition with identifier '${identifier}' already exists.`;
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new constant definition.
-            let newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            let stmtString = bType + ' ' + identifier;
+            const newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
+            let stmtString = `${bType} ${identifier}`;
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
-                stmtString +=  ' = ' + assignedValue;
+                stmtString += ` = ${assignedValue}`;
             }
             newVariableDefinitionStatement.setStatementFromString(stmtString);
-            let self = this;
+            const self = this;
 
             // Get the index of the last variable definition statement.
-            let index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.getFactory().isVariableDefinitionStatement(child);
-            });
+            let index = _.findLastIndex(this.getChildren(), child => self.getFactory().isVariableDefinitionStatement(child));
 
             if (index === -1) {
-                index = _.findLastIndex(this.getChildren(), function (child) {
-                    return self.getFactory().isConnectorDeclaration(child);
-                });
+                index = _.findLastIndex(this.getChildren(), child => self.getFactory().isConnectorDeclaration(child));
             }
 
             this.addChild(newVariableDefinitionStatement, index + 1);
@@ -242,20 +235,18 @@ class ConnectorDefinition extends ASTNode {
      * @param {string} modelID - The model ID of variable definition statement.
      */
     removeVariableDefinitionStatement(modelID) {
-        let self = this;
+        const self = this;
         // Deleting the variable definition statement from the children.
-        let variableDefinitionStatementToRemove = _.find(this.getChildren(), function (child) {
-            return self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID);
-        });
+        const variableDefinitionStatementToRemove = _.find(this.getChildren(), child => self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID));
 
         this.removeChild(variableDefinitionStatementToRemove);
     }
 
     getConnectionDeclarations() {
-        let connectorDeclaration = [];
-        let self = this;
+        const connectorDeclaration = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);
             }
@@ -267,10 +258,10 @@ class ConnectorDefinition extends ASTNode {
     }
 
     getConnectorActionDefinitions() {
-        let connectorActionDefinitions = [];
-        let self = this;
+        const connectorActionDefinitions = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isConnectorAction(child)) {
                 connectorActionDefinitions.push(child);
             }
@@ -285,13 +276,13 @@ class ConnectorDefinition extends ASTNode {
      * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     initFromJson(jsonNode) {
-        let self = this;
-        this.setConnectorName(jsonNode.connector_name, {doSilently: true});
+        const self = this;
+        this.setConnectorName(jsonNode.connector_name, { doSilently: true });
 
-        _.each(jsonNode.children, function (childNode) {
-            let child = undefined;
-            let childNodeTemp = undefined;
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+        _.each(jsonNode.children, (childNode) => {
+            let child;
+            let childNodeTemp;
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -330,9 +321,9 @@ class ConnectorDefinition extends ASTNode {
                     // ballerina-ast-node
                     node: this.parent,
                     getChildrenFunc: this.parent.getConnectorDefinitions,
-                    getter: this.getConnectorName
-                }]
-            }]
+                    getter: this.getConnectorName,
+                }],
+            }],
         });
     }
 
@@ -342,10 +333,8 @@ class ConnectorDefinition extends ASTNode {
      * @return {ConnectorDeclaration}
      */
     getConnectorByName(connectorName) {
-        let factory = this.getFactory();
-        let connectorReference = _.find(this.getChildren(), function (child) {
-            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
-        });
+        const factory = this.getFactory();
+        const connectorReference = _.find(this.getChildren(), child => (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName)));
 
         return connectorReference;
     }
@@ -355,10 +344,8 @@ class ConnectorDefinition extends ASTNode {
      * @return {ConnectorDeclaration[]} connectorReferences
      */
     getConnectorsInImmediateScope() {
-        let factory = this.getFactory();
-        let connectorReferences = _.filter(this.getChildren(), function (child) {
-            return factory.isConnectorDeclaration(child);
-        });
+        const factory = this.getFactory();
+        const connectorReferences = _.filter(this.getChildren(), child => factory.isConnectorDeclaration(child));
 
         return connectorReferences;
     }

@@ -39,8 +39,8 @@ class VariableDefinition extends ASTNode {
         if (!_.isNil(name)) {
             this.setAttribute('_name', name, options);
         } else {
-            log.error('Invalid Name [' + name + '] Provided');
-            throw 'Invalid Name [' + name + '] Provided';
+            log.error(`Invalid Name [${name}] Provided`);
+            throw `Invalid Name [${name}] Provided`;
         }
     }
 
@@ -53,8 +53,8 @@ class VariableDefinition extends ASTNode {
         if (!_.isNil(typeName)) {
             this.setAttribute('_typeName', typeName, options);
         } else {
-            log.error('Invalid Type Name [' + typeName + '] Provided');
-            throw 'Invalid Type Name [' + typeName + '] Provided';
+            log.error(`Invalid Type Name [${typeName}] Provided`);
+            throw `Invalid Type Name [${typeName}] Provided`;
         }
     }
 
@@ -102,8 +102,8 @@ class VariableDefinition extends ASTNode {
         if (!_.isNil(isPublic)) {
             this.setAttribute('_isPublic', isPublic, options);
         } else {
-            log.error('Invalid array type [' + isPublic + '] Provided');
-            throw 'Invalid array type [' + isPublic + '] Provided';
+            log.error(`Invalid array type [${isPublic}] Provided`);
+            throw `Invalid array type [${isPublic}] Provided`;
         }
     }
 
@@ -120,19 +120,19 @@ class VariableDefinition extends ASTNode {
      * @return {string} - Variable definition as string.
      */
     getVariableDefinitionAsString() {
-        return this._typeName + " " + this._name + ";";
+        return `${this._typeName} ${this._name};`;
     }
 
     initFromJson(jsonNode) {
-        var self = this;
-        this.setName(jsonNode.variable_name, {doSilently: true});
-        this.setTypeName(jsonNode.variable_type, {doSilently: true});
-        this.setPkgName(jsonNode.package_name, {doSilently: true});
+        const self = this;
+        this.setName(jsonNode.variable_name, { doSilently: true });
+        this.setTypeName(jsonNode.variable_type, { doSilently: true });
+        this.setPkgName(jsonNode.package_name, { doSilently: true });
         this._isArray = jsonNode.is_array_type;
         this._dimensions = jsonNode.dimensions;
 
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

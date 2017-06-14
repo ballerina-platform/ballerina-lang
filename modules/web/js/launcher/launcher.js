@@ -23,7 +23,7 @@ import _ from 'lodash';
 import LaunchManager from './launch-manager';
 import alerts from 'alerts';
 
-let Launcher = Backbone.View.extend({
+const Launcher = Backbone.View.extend({
 
     initialize(config) {
         let errMsg;
@@ -41,7 +41,7 @@ let Launcher = Backbone.View.extend({
         }
         this._$parent_el = container;
 
-        if(!_.has(config, 'application')){
+        if (!_.has(config, 'application')) {
             log.error('Cannot init file browser. config: application not found.');
         }
         this.application = _.get(config, 'application');
@@ -52,7 +52,7 @@ let Launcher = Backbone.View.extend({
         this._items = [];
 
             // register command
-        this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
+        this.application.commandManager.registerCommand(config.command.id, { shortcuts: config.command.shortcuts });
         this.application.commandManager.registerHandler(config.command.id, this.toggleExplorer, this);
 
         this.compiled = _.template('<div><% if (!active) { %>'
@@ -75,26 +75,25 @@ let Launcher = Backbone.View.extend({
 
         this.appArgsDialog = $('#modalRunApplicationWithArgs');
 
-        //event bindings
-        this._$parent_el.on('click','#run_application', () => { this.runApplication(); });
-        this._$parent_el.on('click','#run_service', () => { this.runService(); });
-        this._$parent_el.on('click','#stop_program', () => { this.stopProgram(); });
-        this._$parent_el.on('click','#reploy-program', () => { this.reDeployProgram(); });
+        // event bindings
+        this._$parent_el.on('click', '#run_application', () => { this.runApplication(); });
+        this._$parent_el.on('click', '#run_service', () => { this.runService(); });
+        this._$parent_el.on('click', '#stop_program', () => { this.stopProgram(); });
+        this._$parent_el.on('click', '#reploy-program', () => { this.reDeployProgram(); });
 
-        LaunchManager.on('execution-started',() => { this.renderBody(); });
-        LaunchManager.on('execution-ended',() => { this.renderBody(); });
+        LaunchManager.on('execution-started', () => { this.renderBody(); });
+        LaunchManager.on('execution-ended', () => { this.renderBody(); });
 
-        this._$parent_el.on('click', '.btn-config', e => {
+        this._$parent_el.on('click', '.btn-config', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.appArgsDialog.modal('show');
         });
-
     },
 
-    runService(){
+    runService() {
         const activeTab = this.application.tabController.getActiveTab();
-        if(this.isReadyToRun(activeTab)) {
+        if (this.isReadyToRun(activeTab)) {
             const file = activeTab.getFile();
             LaunchManager.runService(file);
         } else {
@@ -102,11 +101,11 @@ let Launcher = Backbone.View.extend({
         }
     },
 
-    runApplication(){
+    runApplication() {
         const activeTab = this.application.tabController.getActiveTab();
 
         // only file tabs can run application
-        if(this.isReadyToRun(activeTab)) {
+        if (this.isReadyToRun(activeTab)) {
             const file = activeTab.getFile();
             LaunchManager.runApplication(file);
         } else {
@@ -121,20 +120,20 @@ let Launcher = Backbone.View.extend({
 
         const file = tab.getFile();
             // file is not saved give an error and avoid running
-        if(file.isDirty()) {
+        if (file.isDirty()) {
             return false;
         }
 
         return true;
     },
 
-    stopProgram(){
+    stopProgram() {
         LaunchManager.stopProgram();
     },
 
     reDeployProgram() {
         const activeTab = this.application.tabController.getActiveTab();
-        if(this.isReadyToRun(activeTab)) {
+        if (this.isReadyToRun(activeTab)) {
             this.stopProgram();
             // wait for termination message from channel
             LaunchManager.once('execution-ended', () => {
@@ -145,12 +144,12 @@ let Launcher = Backbone.View.extend({
         }
     },
 
-    isActive(){
+    isActive() {
         return this._activateBtn.parent('li').hasClass('active');
     },
 
-    toggleExplorer(){
-        if(this.isActive()){
+    toggleExplorer() {
+        if (this.isActive()) {
             this._$parent_el.parent().width('0px');
             this._containerToAdjust.css('padding-left', _.get(this._options, 'leftOffset'));
             this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
@@ -161,7 +160,7 @@ let Launcher = Backbone.View.extend({
             const width = this._lastWidth || _.get(this._options, 'defaultWidth');
             this._$parent_el.parent().width(width);
             this._containerToAdjust.css('padding-left', width);
-            this._verticalSeparator.css('left',  width - _.get(this._options, 'separatorOffset'));
+            this._verticalSeparator.css('left', width - _.get(this._options, 'separatorOffset'));
             this.application.reRender();// to update the diagrams
         }
     },
@@ -175,7 +174,7 @@ let Launcher = Backbone.View.extend({
         launcherContainer.attr('id', _.get(this._options, ('containerId')));
         this._$parent_el.append(launcherContainer);
 
-        activateBtn.on('click', e => {
+        activateBtn.on('click', (e) => {
             $(this).tooltip('hide');
             e.preventDefault();
             e.stopPropagation();
@@ -194,10 +193,10 @@ let Launcher = Backbone.View.extend({
         launcherContainer.mCustomScrollbar({
             theme: 'minimal',
             scrollInertia: 0,
-            axis: 'xy'
+            axis: 'xy',
         });
-        if(!_.isEmpty(this._openedFolders)){
-            this._openedFolders.forEach( folder => {
+        if (!_.isEmpty(this._openedFolders)) {
+            this._openedFolders.forEach((folder) => {
                 this.createExplorerItem(folder);
             });
         }
@@ -207,14 +206,14 @@ let Launcher = Backbone.View.extend({
     },
 
 
-    renderBody (){
+    renderBody() {
         this._launcherContainer.html(this.compiled(LaunchManager));
     },
 
-    showConsole (){
+    showConsole() {
         $('#tab-content-wrapper').css('height:70%');
         $('#console-container').css('height:30%');
-    }
+    },
 });
 
 export default Launcher;

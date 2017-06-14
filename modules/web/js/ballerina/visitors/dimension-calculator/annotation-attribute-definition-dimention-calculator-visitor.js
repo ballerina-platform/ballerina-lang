@@ -18,7 +18,7 @@
 
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from '../sizing-utils';
+import { util } from '../sizing-utils';
 
 class AnnotationAttributeDimensionCalculatorVisitor {
     canVisit(node) {
@@ -32,8 +32,8 @@ class AnnotationAttributeDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        let viewState = node.getViewState();
-        let components = {};
+        const viewState = node.getViewState();
+        const components = {};
 
         viewState.bBox.h = DesignerDefaults.annotationAttributeDefinition.body.height;
         viewState.bBox.w = DesignerDefaults.annotationAttributeDefinition.body.width;

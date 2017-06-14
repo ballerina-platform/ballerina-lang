@@ -27,7 +27,7 @@ class NullLiteralExpression extends Expression {
 
     constructor(args) {
         super('NullLiteralExpression');
-        this._expression = "null";
+        this._expression = 'null';
     }
 
     /**
@@ -41,7 +41,7 @@ class NullLiteralExpression extends Expression {
     getExpressionString() {
         // directly return null sine this is a null expression.
         // todo need to add white space.
-        return "null";
+        return 'null';
     }
 
 }

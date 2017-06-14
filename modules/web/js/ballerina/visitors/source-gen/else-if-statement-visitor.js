@@ -30,9 +30,9 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitElseIfStatement(elseIfStatement) {
         this.node = elseIfStatement;
-        this.appendSource('else' + elseIfStatement.getWSRegion(1) + 'if' + elseIfStatement.getWSRegion(2)
-                            + '(' + elseIfStatement.getWSRegion(3) +  elseIfStatement.getConditionString()
-                            + ')' + elseIfStatement.getWSRegion(4) + '{' + elseIfStatement.getWSRegion(5));
+        this.appendSource(`else${elseIfStatement.getWSRegion(1)}if${elseIfStatement.getWSRegion(2)
+                             }(${elseIfStatement.getWSRegion(3)}${elseIfStatement.getConditionString()
+                             })${elseIfStatement.getWSRegion(4)}{${elseIfStatement.getWSRegion(5)}`);
         this.appendSource((elseIfStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
@@ -41,18 +41,18 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.outdent();
         // if using default ws, add a new line to end unless there are anymore elseif stmts available
         // or an else statement is available
-        let tailingWS = (elseIfStatement.whiteSpace.useDefault
+        const tailingWS = (elseIfStatement.whiteSpace.useDefault
                             && (_.isNil(elseIfStatement.getParent().getElseStatement())
                                       && _.isEqual(_.last(elseIfStatement.getParent().getElseIfStatements()), elseIfStatement)))
                         ? '\n' : elseIfStatement.getWSRegion(6);
-        this.appendSource('}' + tailingWS);
+        this.appendSource(`}${tailingWS}`);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
     visitStatement(statement) {
-        if(!_.isEqual(this.node, statement)) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        if (!_.isEqual(this.node, statement)) {
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }

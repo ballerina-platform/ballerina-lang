@@ -17,7 +17,7 @@
  */
 
 import * as PositioningUtils from './utils';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class WorkerReplyStatementPositionCalcVisitor {
 

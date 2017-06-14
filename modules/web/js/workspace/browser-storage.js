@@ -29,16 +29,16 @@ class BrowserStorage {
 
     // Generate a pseudo-GUID by concatenating random hexadecimal.
     guid() {
-        return (this.S4() + this.S4() + '-' + this.S4() + '-' + this.S4() + '-' + this.S4() + '-' + this.S4() + this.S4() + this.S4());
+        return (`${this.S4() + this.S4()}-${this.S4()}-${this.S4()}-${this.S4()}-${this.S4()}${this.S4()}${this.S4()}`);
     }
 
 
     put(key, value) {
-        this.localStorage().setItem(this.name + '-' + key, JSON.stringify(value));
+        this.localStorage().setItem(`${this.name}-${key}`, JSON.stringify(value));
     }
 
     get(key) {
-        return this.jsonData(this.localStorage().getItem(this.name + '-' + key));
+        return this.jsonData(this.localStorage().getItem(`${this.name}-${key}`));
     }
 
     create(model) {
@@ -46,23 +46,22 @@ class BrowserStorage {
             model.id = this.guid();
             model.set(model.idAttribute, model.id);
         }
-        this.localStorage().setItem(this.name + '-' + model.id, JSON.stringify(model));
+        this.localStorage().setItem(`${this.name}-${model.id}`, JSON.stringify(model));
         return this.find(model);
     }
 
     update(model) {
-        this.localStorage().setItem(this.name + '-' + model.id, JSON.stringify(model));
+        this.localStorage().setItem(`${this.name}-${model.id}`, JSON.stringify(model));
         return this.find(model);
     }
 
     find(model) {
-        return this.jsonData(this.localStorage().getItem(this.name + '-' + model.id));
+        return this.jsonData(this.localStorage().getItem(`${this.name}-${model.id}`));
     }
 
     destroy(model) {
-        if (model.isNew())
-            return false;
-        this.localStorage().removeItem(this.name + '-' + model.id);
+        if (model.isNew()) { return false; }
+        this.localStorage().removeItem(`${this.name}-${model.id}`);
         return model;
     }
 

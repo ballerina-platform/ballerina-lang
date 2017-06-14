@@ -17,31 +17,31 @@
  */
 
 import React from 'react';
-import {storiesOf, action, linkTo} from '@kadira/storybook';
+import { storiesOf, action, linkTo } from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
 import StatementContainer from '../js/ballerina/components/statement-container';
 import { components } from '../js/ballerina/components/components';
 import '../css/diagram/diagram.css';
 
 const canvasBbox = {
-  w: 500,
-  h: 500
+    w: 500,
+    h: 500,
 };
 
 storiesOf('Throw-Statement', module)
     .add('default view', () => {
-        const throwStatement = React.createElement(components['ThrowStatement'],
+        const throwStatement = React.createElement(components.ThrowStatement,
             {
                 model: {
-                    viewState: {bBox: {x: 0, y: 0, w: 200, h: 50}},
-                    expression: "throw Exception"
-                }
+                    viewState: { bBox: { x: 0, y: 0, w: 200, h: 50 } },
+                    expression: 'throw Exception',
+                },
             }, null);
         return (
-            <CanvasDecorator bBox={canvasBbox}>
-                <StatementContainer>
-                    {throwStatement}
-                </StatementContainer>
-            </CanvasDecorator>
+          <CanvasDecorator bBox={canvasBbox}>
+            <StatementContainer>
+              {throwStatement}
+            </StatementContainer>
+          </CanvasDecorator>
         );
     });

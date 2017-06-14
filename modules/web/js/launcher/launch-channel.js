@@ -27,7 +27,7 @@ const WS_SSL_CODE = 1015;
 class LaunchChannel extends EventChannel {
     constructor(args) {
         super();
-        if(_.isNil(args.endpoint)){
+        if (_.isNil(args.endpoint)) {
             throw 'Invalid Endpoint';
         }
         _.assign(this, args);
@@ -36,8 +36,8 @@ class LaunchChannel extends EventChannel {
     }
 
     connect() {
-        var websocket = new WebSocket(this.endpoint);
-        //bind functions
+        const websocket = new WebSocket(this.endpoint);
+        // bind functions
         websocket.onmessage = (strMessage) => { this.parseMessage(strMessage); };
         websocket.onopen = () => { this.onOpen(); };
         websocket.onclose = (event) => { this.onClose(event); };
@@ -46,7 +46,7 @@ class LaunchChannel extends EventChannel {
     }
 
     parseMessage(strMessage) {
-        var message = JSON.parse(strMessage.data);
+        const message = JSON.parse(strMessage.data);
         this.launcher.processMesssage(message);
     }
 
@@ -58,17 +58,15 @@ class LaunchChannel extends EventChannel {
         this.launcher.active = false;
         this.launcher.trigger('session-terminated');
         let reason;
-        if (event.code === WS_NORMAL_CODE){
+        if (event.code === WS_NORMAL_CODE) {
             reason = 'Normal closure';
             this.trigger('session-ended');
             this.debugger.active = false;
             return;
-        }
-        else if(event.code === WS_SSL_CODE){
+        } else if (event.code === WS_SSL_CODE) {
             reason = 'Certificate Issue';
-        }
-        else{
-            reason = 'Unknown reason :' + event.code;
+        } else {
+            reason = `Unknown reason :${event.code}`;
         }
         log.debug(`Web socket closed, reason ${reason}`);
     }

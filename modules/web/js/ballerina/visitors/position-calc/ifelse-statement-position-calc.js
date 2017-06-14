@@ -28,16 +28,15 @@ class IfElseStatementPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('visit IfElseStatementPositionCalcVisitor');
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
         const parent = node.getParent();
         const parentViewState = parent.getViewState();
         const parentStatementContainer = parentViewState.components.statementContainer;
-        let parentStatements = parent.filterChildren(function (child) {
-            return ASTFactory.isStatement(child) || ASTFactory.isExpression(child);
-        });
+        const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
         const currentIndex = _.findIndex(parentStatements, node);
-        let x, y;
+        let x,
+            y;
 
         /**
          * Here we center the statement based on the parent's statement container's dimensions
@@ -47,13 +46,13 @@ class IfElseStatementPositionCalcVisitor {
             throw 'Invalid statement container width found, statement width should be greater than or equal to ' +
             'statement/ statement width ';
         }
-        x = parentStatementContainer.x + (parentStatementContainer.w - bBox.w)/2;
+        x = parentStatementContainer.x + (parentStatementContainer.w - bBox.w) / 2;
         if (currentIndex === 0) {
             y = parentStatementContainer.y;
         } else if (currentIndex > 0) {
             y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom();
         } else {
-            throw 'Invalid Index found for ' + node.getType();
+            throw `Invalid Index found for ${node.getType()}`;
         }
 
         bBox.x = x;

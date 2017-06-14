@@ -19,21 +19,20 @@
 import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {panel} from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { panel } from './../../configs/designer-defaults';
+import { util } from './../sizing-utils';
 
 function getSimpleStatementPosition(node) {
-    let viewState = node.getViewState();
-    let bBox = viewState.bBox;
+    const viewState = node.getViewState();
+    const bBox = viewState.bBox;
     const parent = node.getParent();
     const parentViewState = parent.getViewState();
     const parentStatementContainer = parentViewState.components.statementContainer || {};
 
-    let parentStatements = parent.filterChildren(function (child) {
-        return ASTFactory.isStatement(child) || ASTFactory.isExpression(child);
-    });
+    const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
     const currentIndex = _.findIndex(parentStatements, node);
-    let x, y;
+    let x,
+        y;
 
     /**
      * Here we center the statement based on the parent's statement container's dimensions
@@ -49,7 +48,7 @@ function getSimpleStatementPosition(node) {
     } else if (currentIndex > 0) {
         y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom();
     } else {
-        throw 'Invalid Index found for ' + node.getType();
+        throw `Invalid Index found for ${node.getType()}`;
     }
 
     bBox.x = x;
@@ -57,8 +56,8 @@ function getSimpleStatementPosition(node) {
 }
 
 function getCompoundStatementChildPosition(node) {
-    let viewState = node.getViewState();
-    let bBox = viewState.bBox;
+    const viewState = node.getViewState();
+    const bBox = viewState.bBox;
     const currentIndex = _.findIndex(node.getParent().getChildren(), node);
     /**
      * Current Index should be greater than 0
@@ -67,7 +66,10 @@ function getCompoundStatementChildPosition(node) {
         throw 'Invalid Current Index Found for Block Statement';
     }
     const previousStatement = node.getParent().getChildren()[currentIndex - 1];
-    let x, y, statementContainerX, statementContainerY;
+    let x,
+        y,
+        statementContainerX,
+        statementContainerY;
 
     x = previousStatement.getViewState().bBox.x;
     y = previousStatement.getViewState().bBox.getBottom();
@@ -82,26 +84,28 @@ function getCompoundStatementChildPosition(node) {
 
 
 function populateInnerPanelDecoratorBBoxPosition(node) {
-    let parent = node.getParent();
-    let viewSate = node.getViewState();
-    let parentViewState = parent.getViewState();
-    var parentBBox = parentViewState.bBox;
-    let bBox = viewSate.bBox;
-    let statementContainerBBox = viewSate.components.statementContainer;
-    let headerBBox = viewSate.components.heading;
-    let bodyBBox = viewSate.components.body;
-    let annotation = viewSate.components.annotation;
-    let resources = _.filter(parent.getChildren(), function (child) {
-        return ASTFactory.isResourceDefinition(child) ||
-            ASTFactory.isConnectorAction(child);
-    });
-    let x, y, headerX, headerY, bodyX, bodyY;
-    let currentResourceIndex = _.findIndex(resources, node);
+    const parent = node.getParent();
+    const viewSate = node.getViewState();
+    const parentViewState = parent.getViewState();
+    const parentBBox = parentViewState.bBox;
+    const bBox = viewSate.bBox;
+    const statementContainerBBox = viewSate.components.statementContainer;
+    const headerBBox = viewSate.components.heading;
+    const bodyBBox = viewSate.components.body;
+    const annotation = viewSate.components.annotation;
+    const resources = _.filter(parent.getChildren(), child => ASTFactory.isResourceDefinition(child) ||
+            ASTFactory.isConnectorAction(child));
+    let x,
+        y,
+        headerX,
+        headerY,
+        bodyX,
+        bodyY;
+    const currentResourceIndex = _.findIndex(resources, node);
 
     headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
 
     if (currentResourceIndex === 0) {
-
         const serviceVariablesHeightGap = node.getParent().getViewState().components.variablesPane.h +
             DesignerDefaults.panel.body.padding.top;
 
@@ -109,9 +113,7 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
          * If there are service level connectors, then we need to drop the first resource further down,
          * in order to maintain a gap between the connector heading and the resource heading
          */
-        const parentLevelConnectors = node.getParent().filterChildren(function (child) {
-            return ASTFactory.isConnectorDeclaration(child);
-        });
+        const parentLevelConnectors = node.getParent().filterChildren(child => ASTFactory.isConnectorDeclaration(child));
         if (parentLevelConnectors.length > 0) {
             headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
                 DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
@@ -120,9 +122,8 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
         }
 
         headerY += serviceVariablesHeightGap;
-
     } else if (currentResourceIndex > 0) {
-        let previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
+        const previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
         headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
     } else {
         throw 'Invalid Index for Resource Definition';
@@ -146,27 +147,30 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
 }
 
 function populateOuterPanelDecoratorBBoxPosition(node) {
-    let viewSate = node.getViewState();
-    let bBox = viewSate.bBox;
-    let parent = node.getParent();
-    let panelChildren = parent.filterChildren(function (child) {
-        return ASTFactory.isFunctionDefinition(child) ||
+    const viewSate = node.getViewState();
+    const bBox = viewSate.bBox;
+    const parent = node.getParent();
+    const panelChildren = parent.filterChildren(child => ASTFactory.isFunctionDefinition(child) ||
             ASTFactory.isServiceDefinition(child) ||
             ASTFactory.isConnectorDefinition(child) ||
             ASTFactory.isAnnotationDefinition(child) ||
             ASTFactory.isStructDefinition(child) ||
-            ASTFactory.isPackageDefinition(child);
-    });
-    let heading = viewSate.components.heading;
-    let body = viewSate.components.body;
-    let annotation = viewSate.components.annotation;
-    let currentServiceIndex = _.findIndex(panelChildren, node);
-    let x, y, headerX, headerY, bodyX, bodyY;
+            ASTFactory.isPackageDefinition(child));
+    const heading = viewSate.components.heading;
+    const body = viewSate.components.body;
+    const annotation = viewSate.components.annotation;
+    const currentServiceIndex = _.findIndex(panelChildren, node);
+    let x,
+        y,
+        headerX,
+        headerY,
+        bodyX,
+        bodyY;
     if (currentServiceIndex === 0) {
         headerX = DesignerDefaults.panel.wrapper.gutter.h;
         headerY = DesignerDefaults.panel.wrapper.gutter.v;
     } else if (currentServiceIndex > 0) {
-        let previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
+        const previousServiceBBox = panelChildren[currentServiceIndex - 1].getViewState().bBox;
         headerX = DesignerDefaults.panel.wrapper.gutter.h;
         headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
     } else {
@@ -186,23 +190,19 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     body.y = bodyY;
 
     // here we need to re adjust resource width to match the service width.
-    let resources = node.filterChildren(function (child) {
-        return ASTFactory.isResourceDefinition(child) ||
-            ASTFactory.isConnectorAction(child);
-    });
+    const resources = node.filterChildren(child => ASTFactory.isResourceDefinition(child) ||
+            ASTFactory.isConnectorAction(child));
     // make sure you substract the panel padding to calculate the min width of a resource.
-    let minWidth = node.getViewState().bBox.w - ( panel.body.padding.left + panel.body.padding.right );
+    const minWidth = node.getViewState().bBox.w - (panel.body.padding.left + panel.body.padding.right);
     let connectorWidthTotal = 0;
-    let connectors = node.filterChildren(function (child) {
-        return ASTFactory.isConnectorDeclaration(child);
-    });
+    const connectors = node.filterChildren(child => ASTFactory.isConnectorDeclaration(child));
 
-    _.forEach(connectors, function (connector) {
+    _.forEach(connectors, (connector) => {
         connectorWidthTotal += connector.getViewState().bBox.w + DesignerDefaults.lifeLine.gutter.h;
     });
 
-    resources.forEach(function (element) {
-        let viewState = element.getViewState();
+    resources.forEach((element) => {
+        const viewState = element.getViewState();
         // if the service width is wider than resource width we will readjust.
         if (viewState.bBox.w + connectorWidthTotal < minWidth) {
             viewState.bBox.w = minWidth - connectorWidthTotal;
@@ -211,7 +211,7 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
 }
 
 function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
-    let viewState = node.getViewState();
+    const viewState = node.getViewState();
 
     if (node.getArguments) {
         viewState.components.openingParameter.x = viewState.bBox.x
@@ -226,7 +226,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
             + viewState.components.openingParameter.w;
         if (node.getArguments().length > 0) {
             for (let i = 0; i < node.getArguments().length; i++) {
-                let argument = node.getArguments()[i];
+                const argument = node.getArguments()[i];
                 nextXPositionOfParameter = createPositionForTitleNode(argument, nextXPositionOfParameter,
                     (viewState.bBox.y + viewState.components.annotation.h));
             }
@@ -238,13 +238,13 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
     }
 
     if (node.getAttachmentPoints) {
-        /// Positioning parameters
+        // / Positioning parameters
         // Setting positions of function parameters.
         // Positioning the opening bracket component of the parameters.
         viewState.components.openingParameter.x = viewState.bBox.x
             + viewState.titleWidth + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width
-            + DesignerDefaults.panelHeading.iconSize.padding + util.getTextWidth("attach", 80, 80).w;
+            + DesignerDefaults.panelHeading.iconSize.padding + util.getTextWidth('attach', 80, 80).w;
         viewState.components.openingParameter.y = viewState.bBox.y + viewState.components.annotation.h;
 
         viewState.attachments = {};
@@ -253,9 +253,9 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
             + viewState.components.openingParameter.w;
         if (node.getAttachmentPoints().length > 0) {
             for (let i = 0; i < node.getAttachmentPoints().length; i++) {
-                let attachment = {
+                const attachment = {
                     attachment: node.getAttachmentPoints()[i],
-                    model: node
+                    model: node,
                 };
                 nextXPositionOfParameter = createPositionForTitleNode(attachment, nextXPositionOfParameter,
                     (viewState.bBox.y + viewState.components.annotation.h));
@@ -268,7 +268,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
     }
 
     if (node.getReturnTypes) {
-        //// Positioning return types
+        // // Positioning return types
         // Setting positions of return types.
         // Positioning the Parameters text component.
         viewState.components.returnTypesIcon.x = viewState.components.closingParameter.x
@@ -289,7 +289,7 @@ function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
             + viewState.components.openingReturnType.w;
         if (node.getReturnTypes().length > 0) {
             for (let i = 0; i < node.getReturnTypes().length; i++) {
-                let returnType = node.getReturnTypes()[i];
+                const returnType = node.getReturnTypes()[i];
                 nextXPositionOfReturnType = createPositionForTitleNode(returnType, nextXPositionOfReturnType,
                     (viewState.bBox.y + viewState.components.annotation.h));
             }
@@ -307,5 +307,5 @@ export {
     getCompoundStatementChildPosition,
     populateOuterPanelDecoratorBBoxPosition,
     populateInnerPanelDecoratorBBoxPosition,
-    populatePanelHeadingPositioning
+    populatePanelHeadingPositioning,
 };

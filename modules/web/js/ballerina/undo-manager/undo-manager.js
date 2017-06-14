@@ -42,7 +42,7 @@ class UndoManager extends EventChannel {
     }
 
     _push(undoableOperation) {
-        if(this._undoStack.length === this._limit){
+        if (this._undoStack.length === this._limit) {
             // remove oldest undoable operation
             this._undoStack.splice(0, 1);
         }
@@ -63,7 +63,7 @@ class UndoManager extends EventChannel {
     }
 
     undo() {
-        var taskToUndo = this._undoStack.pop();
+        const taskToUndo = this._undoStack.pop();
         taskToUndo.undo();
         this._redoStack.push(taskToUndo);
     }
@@ -73,7 +73,7 @@ class UndoManager extends EventChannel {
     }
 
     redo() {
-        var taskToRedo = this._redoStack.pop();
+        const taskToRedo = this._redoStack.pop();
         taskToRedo.redo();
         this._undoStack.push(taskToRedo);
     }
@@ -83,7 +83,7 @@ class UndoManager extends EventChannel {
     }
 
     onUndoableOperation(event) {
-        var undoableOperation = UndoableOperationFactory.getOperation(event);
+        const undoableOperation = UndoableOperationFactory.getOperation(event);
         this._push(undoableOperation);
     }
 }

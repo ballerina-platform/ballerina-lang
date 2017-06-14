@@ -30,18 +30,15 @@ class ConnectorDeclarationPositionCalcVisitor {
 
     beginVisit(node) {
         log.debug('begin visit ConnectorDeclarationPositionCalcVisitor');
-        let viewState = node.getViewState();
-        let bBox = viewState.bBox;
-        let parent = node.getParent();
-        let parentViewState = parent.getViewState();
-        let workers = _.filter(parent.getChildren(), function (child) {
-            return ASTFactory.isWorkerDeclaration(child);
-        });
-        let connectors = _.filter(parent.getChildren(), function (child) {
-            return ASTFactory.isConnectorDeclaration(child);
-        });
-        let connectorIndex = _.findIndex(connectors, node);
-        let x, y;
+        const viewState = node.getViewState();
+        const bBox = viewState.bBox;
+        const parent = node.getParent();
+        const parentViewState = parent.getViewState();
+        const workers = _.filter(parent.getChildren(), child => ASTFactory.isWorkerDeclaration(child));
+        const connectors = _.filter(parent.getChildren(), child => ASTFactory.isConnectorDeclaration(child));
+        const connectorIndex = _.findIndex(connectors, node);
+        let x,
+            y;
 
         if (ASTFactory.isServiceDefinition(parent) || ASTFactory.isConnectorDefinition(parent)) {
             x = positionPanelLevelConnectors(connectors, connectorIndex, parent);
@@ -69,9 +66,7 @@ class ConnectorDeclarationPositionCalcVisitor {
 
 function positionPanelLevelConnectors(connectors, connectorIndex, parentNode) {
     let xPosition;
-    const innerPanelNodes = parentNode.filterChildren(function (child) {
-        return ASTFactory.isResourceDefinition(child) || ASTFactory.isConnectorAction(child);
-    });
+    const innerPanelNodes = parentNode.filterChildren(child => ASTFactory.isResourceDefinition(child) || ASTFactory.isConnectorAction(child));
 
     if (connectorIndex === 0) {
         if (innerPanelNodes.length === 0) {
@@ -98,7 +93,7 @@ function positionInnerPanelLevelConnectors(connectors, connectorIndex, workers, 
              * calculated. Therefore we need to consider the widths of them to get the connector x position
              */
             let totalWorkerStmtContainerWidth = 0;
-            _.forEach(workers, function (worker) {
+            _.forEach(workers, (worker) => {
                 totalWorkerStmtContainerWidth += worker.getViewState().components.statementContainer.w;
             });
             xPosition = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h +

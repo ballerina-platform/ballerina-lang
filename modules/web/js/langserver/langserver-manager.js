@@ -30,7 +30,7 @@ class LangServerManager extends EventChannel {
     }
 
     runApplication(file) {
-        this.channel = new LangserverChannel({endpoint: this.endpoint, launcher: this});
+        this.channel = new LangserverChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', _.bindKey(this, 'sendRunApplicationMessage', file));
     }

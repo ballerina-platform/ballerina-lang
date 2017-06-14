@@ -31,9 +31,9 @@ import Argument from './argument';
 class ResourceParameter extends Argument {
     constructor(args) {
         super(args);
-        this.annotationType = _.get(args, "annotationType");
-        this.annotationText = _.get(args, "annotationText");
-        this.type = "ResourceParameter";
+        this.annotationType = _.get(args, 'annotationType');
+        this.annotationText = _.get(args, 'annotationText');
+        this.type = 'ResourceParameter';
     }
 
     setAnnotationType(annotationType, options) {
@@ -57,10 +57,10 @@ class ResourceParameter extends Argument {
      * @return {string} - String representation.
      */
     getParameterAsString() {
-        var paramAsString = !_.isUndefined(this.getAnnotationType()) ? this.getAnnotationType() : "";
+        let paramAsString = !_.isUndefined(this.getAnnotationType()) ? this.getAnnotationType() : '';
         paramAsString += !_.isUndefined(this.getAnnotationText()) && !_.isEmpty(this.getAnnotationText()) ?
-        "{value:\"" + this.getAnnotationText() + "\"} " : "";
-        paramAsString += "" + this.getBType() + " ";
+        `{value:"${this.getAnnotationText()}"} ` : '';
+        paramAsString += `${this.getBType()} `;
         paramAsString += this.getIdentifier();
 
         return paramAsString.trim();
@@ -72,7 +72,7 @@ class ResourceParameter extends Argument {
      * @static
      */
     static getSupportedAnnotations() {
-        return ["@http:PathParam", "@http:QueryParam"/*, "@HeaderParam", "@FormParam", "@Body"*/];
+        return ['@http:PathParam', '@http:QueryParam'/* , "@HeaderParam", "@FormParam", "@Body"*/];
     }
 
     /**
@@ -80,14 +80,14 @@ class ResourceParameter extends Argument {
      * @param jsonNode
      */
     initFromJson(jsonNode) {
-        this.setBType(jsonNode.parameter_type, {doSilently: true});
-        this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
+        this.setBType(jsonNode.parameter_type, { doSilently: true });
+        this.setIdentifier(jsonNode.parameter_name, { doSilently: true });
 
         // As of now we only support one annotation.
         if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation_attachment')) {
-            var annotationJson = jsonNode.children[0];
-            this.setAnnotationType('@' + annotationJson.annotation_package_name + ':' + annotationJson.annotation_name, {doSilently: true});
-            this.setAnnotationText(annotationJson.children[0].value, {doSilently: true});
+            const annotationJson = jsonNode.children[0];
+            this.setAnnotationType(`@${annotationJson.annotation_package_name}:${annotationJson.annotation_name}`, { doSilently: true });
+            this.setAnnotationText(annotationJson.children[0].value, { doSilently: true });
         }
     }
 }

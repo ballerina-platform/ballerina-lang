@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- 
+
 import React from 'react';
 import { storiesOf, action, linkTo } from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
@@ -25,57 +25,57 @@ import '../css/diagram/diagram.css';
 
 storiesOf('BlockStatementDecorator', module)
   .add('while box', () => {
-    const whileStatement = React.createElement(components['BlockStatementDecorator'],
-        { bBox: { x: 0, y: 0, w: 200, h: 100},
-         title: "while"}, null);
-    const canvusbBox = {h:800};
-    return (
-      <CanvasDecorator bBox={canvusbBox}>
+      const whileStatement = React.createElement(components.BlockStatementDecorator,
+          { bBox: { x: 0, y: 0, w: 200, h: 100 },
+              title: 'while' }, null);
+      const canvusbBox = { h: 800 };
+      return (
+        <CanvasDecorator bBox={canvusbBox}>
           <StatementContainer>
-                  {whileStatement}
+            {whileStatement}
           </StatementContainer>
-      </CanvasDecorator>
-      )
+        </CanvasDecorator>
+      );
   })
   .add('if box', () => {
-    const blockStatement = React.createElement(components['BlockStatementDecorator'],
-        { bBox: { x: 0, y: 0, w: 200, h: 100},
-         title: "if"}, null);
-    const canvusbBox = {h:800};
-    return (
-      <CanvasDecorator bBox={canvusbBox}>
+      const blockStatement = React.createElement(components.BlockStatementDecorator,
+          { bBox: { x: 0, y: 0, w: 200, h: 100 },
+              title: 'if' }, null);
+      const canvusbBox = { h: 800 };
+      return (
+        <CanvasDecorator bBox={canvusbBox}>
           <StatementContainer>
-                  {blockStatement}
+            {blockStatement}
           </StatementContainer>
-      </CanvasDecorator>
-    )
+        </CanvasDecorator>
+      );
   })
   .add('if box', () => {
-    const ifst = React.createElement(components['BlockStatementDecorator'],
-        { bBox: { x: 0, y: 0, w: 200, h: 100},
-         title: "if"}, null);
-    const elsest = React.createElement(components['BlockStatementDecorator'],
-        { bBox: { x: 0, y: 100, w: 200, h: 100},
-         title: "else"}, null);
-    const canvusbBox = {h:800};
-    return (
-      <CanvasDecorator bBox={canvusbBox}>
+      const ifst = React.createElement(components.BlockStatementDecorator,
+          { bBox: { x: 0, y: 0, w: 200, h: 100 },
+              title: 'if' }, null);
+      const elsest = React.createElement(components.BlockStatementDecorator,
+          { bBox: { x: 0, y: 100, w: 200, h: 100 },
+              title: 'else' }, null);
+      const canvusbBox = { h: 800 };
+      return (
+        <CanvasDecorator bBox={canvusbBox}>
           <StatementContainer>
-                  { [ifst, elsest ]}
+            { [ifst, elsest]}
           </StatementContainer>
-      </CanvasDecorator>
-    )
+        </CanvasDecorator>
+      );
   })
   .add('try box', () => {
-    const tryst = React.createElement(components['BlockStatementDecorator'],
-        { bBox: { x: 0, y: 0, w: 200, h: 100},
-         title: "try"}, null);
-    const canvusbBox = {h:800};
-    return (
-      <CanvasDecorator bBox={canvusbBox}>
+      const tryst = React.createElement(components.BlockStatementDecorator,
+          { bBox: { x: 0, y: 0, w: 200, h: 100 },
+              title: 'try' }, null);
+      const canvusbBox = { h: 800 };
+      return (
+        <CanvasDecorator bBox={canvusbBox}>
           <StatementContainer>
-                  {tryst}
+            {tryst}
           </StatementContainer>
-      </CanvasDecorator>
-    )
+        </CanvasDecorator>
+      );
   });

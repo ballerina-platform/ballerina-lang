@@ -26,7 +26,7 @@ class FieldAccessExpression extends Expression {
         this._isArrayExpression = _.get(args, 'isArrayExpression', false);
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
-            1: ''
+            1: '',
         };
     }
 
@@ -39,44 +39,38 @@ class FieldAccessExpression extends Expression {
      */
     getExpressionString() {
         if (this.getChildren().length === 1) {
-            var exp = this.getChildren()[0];
+            const exp = this.getChildren()[0];
             if (this.getFactory().isBasicLiteralExpression(exp)) {
                 if (exp.getBasicLiteralType() === 'string') {
                     if (this.getIsArrayExpression()) {
-                        return '[' + exp.getExpressionString() + ']';
-                    } else {
-                        return '.' + exp.getBasicLiteralValue();
+                        return `[${exp.getExpressionString()}]`;
                     }
-                } else {
-                    return '[' + exp.getExpressionString() + ']';
+                    return `.${exp.getBasicLiteralValue()}`;
                 }
-            } else {
-                return '[' + exp.getExpressionString() + ']';
+                return `[${exp.getExpressionString()}]`;
             }
+            return `[${exp.getExpressionString()}]`;
         } else if (this.getChildren().length === 2) {
-            var firstVar = this.getChildren()[0];
-            var secondVar = this.getChildren()[1];
+            const firstVar = this.getChildren()[0];
+            const secondVar = this.getChildren()[1];
             if (this.getFactory().isFieldAccessExpression(this.getParent())) {
                 // if this is an inner field access expression
                 if (this.getIsArrayExpression()) {
-                    return '[' + firstVar.getExpressionString() + ']' + secondVar.getExpressionString();
-                } else {
-                    if (this.getFactory().isBasicLiteralExpression(firstVar)) {
-                        if (firstVar.getBasicLiteralType() === 'string') {
-                            if (this.getIsArrayExpression()) {
-                                return '[' + firstVar.getExpressionString() + ']' + secondVar.getExpressionString();
-                            } else {
-                                return '.' + firstVar.getBasicLiteralValue() + secondVar.getExpressionString();
-                            }
+                    return `[${firstVar.getExpressionString()}]${secondVar.getExpressionString()}`;
+                }
+                if (this.getFactory().isBasicLiteralExpression(firstVar)) {
+                    if (firstVar.getBasicLiteralType() === 'string') {
+                        if (this.getIsArrayExpression()) {
+                            return `[${firstVar.getExpressionString()}]${secondVar.getExpressionString()}`;
                         }
-                    } else {
-                        return '.' + firstVar.getExpressionString() + secondVar.getExpressionString();
+                        return `.${firstVar.getBasicLiteralValue()}${secondVar.getExpressionString()}`;
                     }
+                } else {
+                    return `.${firstVar.getExpressionString()}${secondVar.getExpressionString()}`;
                 }
             } else {
                 return firstVar.getExpressionString() + secondVar.getExpressionString();
             }
-
         } else {
             log.error('Error in determining Field Access expression');
         }
@@ -88,7 +82,6 @@ class FieldAccessExpression extends Expression {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'field_access_expression')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -101,12 +94,10 @@ class FieldAccessExpression extends Expression {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 
@@ -124,9 +115,9 @@ class FieldAccessExpression extends Expression {
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
-        this.setIsArrayExpression(jsonNode.is_array_expression, {doSilently: true});
-        _.each(jsonNode.children, childNode => {
-            var child = this.getFactory().createFromJson(childNode);
+        this.setIsArrayExpression(jsonNode.is_array_expression, { doSilently: true });
+        _.each(jsonNode.children, (childNode) => {
+            const child = this.getFactory().createFromJson(childNode);
             this.addChild(child);
             child.initFromJson(childNode);
         });

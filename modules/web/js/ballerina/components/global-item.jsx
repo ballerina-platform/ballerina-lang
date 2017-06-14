@@ -23,19 +23,19 @@ export default class GlobalDefinitionItem extends React.Component {
     constructor() {
         super();
         this.state = {
-            highlighted: false
-        }
+            highlighted: false,
+        };
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
         this.handleMouseLeave = this.handleMouseLeave.bind(this);
         this.handleDeleteClick = this.handleDeleteClick.bind(this);
     }
 
     handleMouseEnter() {
-        this.setState({highlighted: true});
+        this.setState({ highlighted: true });
     }
 
     handleMouseLeave() {
-        this.setState({highlighted: false});
+        this.setState({ highlighted: false });
     }
 
     handleDeleteClick() {
@@ -43,31 +43,31 @@ export default class GlobalDefinitionItem extends React.Component {
     }
 
     render() {
-        const {x, y, w, h} = this.props.bBox;
+        const { x, y, w, h } = this.props.bBox;
         const leftPadding = 10;
 
         const deleteStyle = {};
 
-        if(!this.state.highlighted) {
+        if (!this.state.highlighted) {
             deleteStyle.display = 'none';
         }
 
         let className = 'global-definition-item';
 
-        if(this.state.highlighted) {
+        if (this.state.highlighted) {
             className = 'global-definition-item-hightlighted';
         }
 
         return (
-            <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-                <rect x={ x } y={ y } height={h} width={w} className='background' />
-                <text x={ x + leftPadding } y={ y + h/2 } rx="0" ry="0" className="global-definition-text">
-                    {this.props.getValue(this.props.globalDec)}
-                </text>
-                <rect x={ x } y={ y } height={h} width={w} className="global-definition-decorator" />
-                <rect x={ x + w - 30} y={ y } height={h} width={30} className='delete-background' onClick={this.handleDeleteClick}/>
-                <text x={ x + w - 18 } y={ y + h/2 } style={deleteStyle} className='delete-x' onClick={this.handleDeleteClick}>x</text>
-            </g>
+          <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+            <rect x={x} y={y} height={h} width={w} className="background" />
+            <text x={x + leftPadding} y={y + h / 2} rx="0" ry="0" className="global-definition-text">
+              {this.props.getValue(this.props.globalDec)}
+            </text>
+            <rect x={x} y={y} height={h} width={w} className="global-definition-decorator" />
+            <rect x={x + w - 30} y={y} height={h} width={30} className="delete-background" onClick={this.handleDeleteClick} />
+            <text x={x + w - 18} y={y + h / 2} style={deleteStyle} className="delete-x" onClick={this.handleDeleteClick}>x</text>
+          </g>
         );
     }
 }

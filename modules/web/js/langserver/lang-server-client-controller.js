@@ -25,7 +25,7 @@ import log from 'log';
 
 
 // ################ Handle the websocket closing and error as well #######################
-class LangServerClientController extends EventChannel{
+class LangServerClientController extends EventChannel {
     constructor(options) {
         super();
         this.langserverChannel = undefined;
@@ -36,7 +36,7 @@ class LangServerClientController extends EventChannel{
     }
 
     init() {
-        this.langserverChannel = new LangserverChannel({ endpoint : this.endpoint, clientController: this });
+        this.langserverChannel = new LangserverChannel({ endpoint: this.endpoint, clientController: this });
         this.langserverChannel.on('connected', () => {
             this.initializeRequest();
         });
@@ -48,11 +48,11 @@ class LangServerClientController extends EventChannel{
      * Send the initialize request to the language server
      */
     initializeRequest() {
-        let session = new RequestSession();
-        var message = {
+        const session = new RequestSession();
+        const message = {
             id: session.getId(),
             jsonrpc: '2.0',
-            method : "initialize"
+            method: 'initialize',
         };
         session.setMessage(message);
         session.setCallback(() => {
@@ -68,14 +68,14 @@ class LangServerClientController extends EventChannel{
      * @param {function} callback Callback method for handling the response
      */
     workspaceSymbolRequest(query, callback) {
-        let session = new RequestSession();
-        var message = {
+        const session = new RequestSession();
+        const message = {
             id: session.getId(),
             jsonrpc: '2.0',
-            method : "workspace/symbol",
+            method: 'workspace/symbol',
             params: {
-                query: query
-            }
+                query,
+            },
         };
         session.setMessage(message);
         session.setCallback((responseMsg) => {
@@ -90,34 +90,34 @@ class LangServerClientController extends EventChannel{
     // Start language server notifications
 
     documentDidOpenNotification(options) {
-        var message = {
+        const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didOpen',
             params: {
-                textDocument: options.textDocument
-            }
+                textDocument: options.textDocument,
+            },
         };
 
         this.langserverChannel.sendMessage(message);
     }
 
     documentDidCloseNotification(options) {
-        var message = {
+        const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didClose',
             params: {
-                textDocument: options.textDocument
-            }
+                textDocument: options.textDocument,
+            },
         };
 
         this.langserverChannel.sendMessage(message);
     }
 
     documentDidSaveNotification(options) {
-        var message = {
+        const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didSave',
-            params: options.didSaveParams
+            params: options.didSaveParams,
         };
 
         this.langserverChannel.sendMessage(message);
@@ -126,9 +126,7 @@ class LangServerClientController extends EventChannel{
     // End language server notifications
 
     processMessage(message) {
-        let session = _.find(this.requestSessions, (session) => {
-            return session.getId() === message.id;
-        });
+        const session = _.find(this.requestSessions, session => session.getId() === message.id);
         session.executeCallback(message);
     }
 

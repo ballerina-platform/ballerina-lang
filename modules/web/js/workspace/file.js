@@ -19,7 +19,7 @@ import _ from 'lodash';
 import Backbone from 'backbone';
 import log from 'log';
 
-var File = Backbone.Model.extend(
+let File = Backbone.Model.extend(
     {
         defaults: {
             path: 'temp',
@@ -28,10 +28,10 @@ var File = Backbone.Model.extend(
             isPersisted: false,
             lastPersisted: _.now(),
             isDirty: true,
-            langserverCallbacks: undefined
+            langserverCallbacks: undefined,
         },
 
-        initialize: function (attrs, options) {
+        initialize (attrs, options) {
             var errMsg;
             if (!this.get('isPersisted')){
                 if(!_.has(options, 'storage')){
@@ -44,7 +44,7 @@ var File = Backbone.Model.extend(
             }
         },
 
-        save: function(){
+        save(){
             if(!_.isNil(this._storage.get(this.id))){
                 this._storage.update(this);
             } else {
@@ -71,75 +71,75 @@ var File = Backbone.Model.extend(
             return this;
         },
 
-        setPath: function(path){
+        setPath(path){
             this.set('path', path);
             return this;
         },
 
-        setStorage: function(storage){
+        setStorage(storage){
             this._storage = storage;
             return this;
         },
 
-        setPersisted: function(isPersisted){
+        setPersisted(isPersisted){
             this.set('isPersisted', isPersisted);
             return this;
         },
 
-        setLastPersisted: function(lsatPersisted){
+        setLastPersisted(lsatPersisted){
             this.set('lastPersisted', lsatPersisted);
             return this;
         },
 
-        setDirty: function(isDirty){
+        setDirty(isDirty){
             this.set('isDirty', isDirty);
             this.trigger('dirty-state-change', isDirty);
             return this;
         },
 
-        setName: function(name){
+        setName(name){
             this.set('name', name);
             return this;
         },
 
-        setContent: function(name){
+        setContent(name){
             this.set('content', name);
             return this;
         },
 
-        getPath: function(){
+        getPath(){
             return this.get('path');
         },
 
-        getName: function(){
+        getName(){
             return this.get('name');
         },
 
-        getContent: function(){
+        getContent(){
             return this.get('content');
         },
 
-        getLastPersisted: function(){
+        getLastPersisted(){
             return this.get('lastPersisted');
         },
 
 
-        isPersisted: function(){
+        isPersisted(){
             return this.get('isPersisted');
         },
 
-        isDirty: function(){
+        isDirty(){
             return this.get('isDirty');
         },
 
         setLangserverCallbacks(callbacks) {
-            this.set('langserverCallbacks',callbacks);
+            this.set('langserverCallbacks', callbacks);
         },
 
         getLangserverCallbacks() {
             return this.get('langserverCallbacks');
-        }
-    }
+        },
+    },
 );
 
 export default File;

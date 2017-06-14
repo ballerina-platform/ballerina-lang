@@ -41,7 +41,7 @@ class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisi
     }
 
     visitVariableDefinition(variableDefinition) {
-        var variableDefinitionVisitor = new VariableDefinitionVisitor(this);
+        const variableDefinitionVisitor = new VariableDefinitionVisitor(this);
         variableDefinition.accept(variableDefinitionVisitor);
     }
 }

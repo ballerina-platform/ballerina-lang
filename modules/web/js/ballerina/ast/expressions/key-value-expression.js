@@ -31,7 +31,7 @@ class KeyValueExpression extends Expression {
             0: '',
             1: ' ',
             2: ' ',
-            3: ''
+            3: '',
         };
     }
 
@@ -42,7 +42,7 @@ class KeyValueExpression extends Expression {
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
         _.each(jsonNode.children, (childNode) => {
-            let child = this.getFactory().createFromJson(childNode);
+            const child = this.getFactory().createFromJson(childNode);
             this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
@@ -53,12 +53,12 @@ class KeyValueExpression extends Expression {
     * @param sonNode
     */
     getExpressionString() {
-        var expString = '';
-        var keyExpressionNode = this.children[0];
-        var valueExpressionNode = this.children[1];
-        expString += keyExpressionNode.getExpressionString()
-                  + ':' + this.getWSRegion(2)
-                  + valueExpressionNode.getExpressionString();
+        let expString = '';
+        const keyExpressionNode = this.children[0];
+        const valueExpressionNode = this.children[1];
+        expString += `${keyExpressionNode.getExpressionString()
+                   }:${this.getWSRegion(2)
+                   }${valueExpressionNode.getExpressionString()}`;
         return expString;
     }
 
@@ -75,7 +75,6 @@ class KeyValueExpression extends Expression {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'key_value_expression')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -88,12 +87,10 @@ class KeyValueExpression extends Expression {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 }

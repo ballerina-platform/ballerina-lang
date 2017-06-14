@@ -27,7 +27,7 @@ class ReturnParameterDefinitionHolder extends ASTNode {
      * contains {ParameterDefinition} as children
      * @constructor
      */
-    constructor (args) {
+    constructor(args) {
         super('ReturnParameterDefinitionHolder');
     }
 
@@ -35,11 +35,11 @@ class ReturnParameterDefinitionHolder extends ASTNode {
      * initialize from json
      * @param jsonNode
      */
-    initFromJson (jsonNode) {
-        var self = this;
+    initFromJson(jsonNode) {
+        const self = this;
 
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

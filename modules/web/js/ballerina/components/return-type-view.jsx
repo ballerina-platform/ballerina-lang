@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
 import ImageUtil from './image-util';
 
@@ -26,20 +26,22 @@ class ReturnTypeView extends React.Component {
     }
 
     render() {
-        let model = this.props.model;
-        let viewState = model.viewState;
-        let returnTypeAsString = model.getParameterDefinitionAsString();
-        return (<g><rect x={viewState.x} y={viewState.y + 3} width={viewState.w} height={viewState.h} rx="0" ry="0" className="return-type-wrapper"></rect>
-            <text x={viewState.x + 5} y={viewState.y + 3} className="return-type-text">{returnTypeAsString}</text>
-            <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 3} width={viewState.components.deleteIcon.w} height={viewState.components.deleteIcon.h} rx="0" ry="0" className="return-type-delete-icon-wrapper"></rect>
-            <image x={viewState.components.deleteIcon.x + 2} y={viewState.components.deleteIcon.y + 5} width="14" height="14" className="return-type-delete-icon"
-                xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()} />
-        </g>)
+        const model = this.props.model;
+        const viewState = model.viewState;
+        const returnTypeAsString = model.getParameterDefinitionAsString();
+        return (<g><rect x={viewState.x} y={viewState.y + 3} width={viewState.w} height={viewState.h} rx="0" ry="0" className="return-type-wrapper" />
+          <text x={viewState.x + 5} y={viewState.y + 3} className="return-type-text">{returnTypeAsString}</text>
+          <rect x={viewState.components.deleteIcon.x} y={viewState.components.deleteIcon.y + 3} width={viewState.components.deleteIcon.w} height={viewState.components.deleteIcon.h} rx="0" ry="0" className="return-type-delete-icon-wrapper" />
+          <image
+            x={viewState.components.deleteIcon.x + 2} y={viewState.components.deleteIcon.y + 5} width="14" height="14" className="return-type-delete-icon"
+            xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}
+          />
+        </g>);
     }
 }
 
 ReturnTypeView.propTypes = {
-}
+};
 
 
 export default ReturnTypeView;

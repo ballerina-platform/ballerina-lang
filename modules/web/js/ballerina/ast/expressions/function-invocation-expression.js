@@ -31,19 +31,19 @@ class FunctionInvocationExpression extends Expression {
         this._packageName = _.get(args, 'packageName', '');
         this._functionName = _.get(args, 'functionName', 'callFunction');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
             2: '',
-            3: ''
+            3: '',
         };
-        this.whiteSpace.defaultDescriptor.children =  {
+        this.whiteSpace.defaultDescriptor.children = {
             nameRef: {
                 0: '',
                 1: '',
                 2: '',
-                3: ''
-            }
+                3: '',
+            },
         };
     }
 
@@ -77,22 +77,22 @@ class FunctionInvocationExpression extends Expression {
      * @override
      */
     getExpressionString() {
-        var text = '';
+        let text = '';
         if (!_.isNil(this._packageName) && !_.isEmpty(this._packageName) && !_.isEqual(this._packageName, 'Current Package')) {
-            text += this._packageName + this.getChildWSRegion('nameRef', 1) + ':';
+            text += `${this._packageName + this.getChildWSRegion('nameRef', 1)}:`;
         }
         text += this.getChildWSRegion('nameRef', 2) + this._functionName + this.getWSRegion(1);
-        text += '('+ this.getWSRegion(2);
+        text += `(${this.getWSRegion(2)}`;
 
         this.children.forEach((child, index) => {
             if (index !== 0) {
                 text += ',';
-                text += child.getExpressionString({includePrecedingWS: true});
+                text += child.getExpressionString({ includePrecedingWS: true });
             } else {
                 text += child.getExpressionString();
             }
-        })
-        text += ')' + this.getWSRegion(3);
+        });
+        text += `)${this.getWSRegion(3)}`;
         return text;
     }
 
@@ -102,7 +102,6 @@ class FunctionInvocationExpression extends Expression {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'function_invocation_expression')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -115,12 +114,10 @@ class FunctionInvocationExpression extends Expression {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 
@@ -135,16 +132,16 @@ class FunctionInvocationExpression extends Expression {
      */
     initFromJson(jsonNode) {
         this.children = [];
-        var self = this;
-        this.setPackageName(jsonNode.package_name, {doSilently: true});
-        if (_.isEqual(jsonNode.package_path, '.')){
-            this.setFullPackageName('Current Package', {doSilently: true});
+        const self = this;
+        this.setPackageName(jsonNode.package_name, { doSilently: true });
+        if (_.isEqual(jsonNode.package_path, '.')) {
+            this.setFullPackageName('Current Package', { doSilently: true });
         } else {
-            this.setFullPackageName(jsonNode.package_path, {doSilently: true});
+            this.setFullPackageName(jsonNode.package_path, { doSilently: true });
         }
-        this.setFunctionName(jsonNode.function_name, {doSilently: true});
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
+        this.setFunctionName(jsonNode.function_name, { doSilently: true });
+        _.each(jsonNode.children, (childNode) => {
+            const child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

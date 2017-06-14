@@ -18,11 +18,11 @@
 
 // Sets up environment for tests to run on node.js by providing a mock browser
 // environment using jsdom.
-var jsdom = require('jsdom').jsdom;
+const jsdom = require('jsdom').jsdom;
 
 global.document = jsdom('');
 global.window = document.defaultView;
-Object.keys(document.defaultView).forEach(function(property) {
+Object.keys(document.defaultView).forEach((property) => {
     if (typeof global[property] === 'undefined') {
         global[property] = document.defaultView[property];
     }
@@ -31,5 +31,5 @@ Object.keys(document.defaultView).forEach(function(property) {
 global.navigator = {
     userAgent: 'node.js',
     platform: 'node.js',
-    appName: 'Node JS'
+    appName: 'Node JS',
 };

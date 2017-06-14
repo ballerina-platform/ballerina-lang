@@ -38,9 +38,9 @@ class Connector extends EventChannel {
     }
 
     setName(name) {
-        var oldName = this._name;
+        const oldName = this._name;
         this._name = name;
-        this.trigger("name-modified", name, oldName);
+        this.trigger('name-modified', name, oldName);
     }
 
     getName() {
@@ -65,7 +65,7 @@ class Connector extends EventChannel {
 
     addAction(action) {
         this._actions.push(action);
-        this.trigger("connector-action-added", action);
+        this.trigger('connector-action-added', action);
     }
 
     /**
@@ -73,10 +73,8 @@ class Connector extends EventChannel {
      * @param {ConnectorActionDefinition} actionDef - ConnectorActionDefinition to be removed
      */
     removeAction(actionDef) {
-        _.remove(this._actions, function (action) {
-            return _.isEqual(action.getName(), actionDef.getActionName());
-        });
-        this.trigger("connector-action-removed", actionDef);
+        _.remove(this._actions, action => _.isEqual(action.getName(), actionDef.getActionName()));
+        this.trigger('connector-action-removed', actionDef);
     }
 
     /**
@@ -84,9 +82,9 @@ class Connector extends EventChannel {
      * @param {ConnectorDefinition} connectorDef - ConnectorDefinition whose children need to be removed
      */
     removeAllActions(connectorDef) {
-        var self = this;
-        _.each(connectorDef.getChildren(), function (child) {
-            if(BallerinaASTFactory.isConnectorAction(child)){
+        const self = this;
+        _.each(connectorDef.getChildren(), (child) => {
+            if (BallerinaASTFactory.isConnectorAction(child)) {
                 self.removeAction(child);
             }
         });
@@ -101,14 +99,12 @@ class Connector extends EventChannel {
      * @param {string} actionName - name of the action
      */
     getActionByName(actionName) {
-        return _.find(this.getActions(), function (action) {
-            return _.isEqual(action.getName(),actionName);
-        });
+        return _.find(this.getActions(), action => _.isEqual(action.getName(), actionName));
     }
 
     addParam(param) {
         this._params.push(param);
-        this.trigger("param-added", param);
+        this.trigger('param-added', param);
     }
 
     getParams(param) {
@@ -116,12 +112,12 @@ class Connector extends EventChannel {
     }
 
     initFromJson(jsonNode) {
-        var self = this;
+        const self = this;
 
         this.setName(jsonNode.name);
 
-        _.each(jsonNode.actions, function (actionNode) {
-            var action = BallerinaEnvFactory.createConnectorAction();
+        _.each(jsonNode.actions, (actionNode) => {
+            const action = BallerinaEnvFactory.createConnectorAction();
             action.initFromJson(actionNode);
             self.addAction(action);
         });

@@ -18,13 +18,13 @@
 import log4javascript from 'log4javascript';
 
 
-var logger = log4javascript.getLogger("client-logger");
-var consoleAppender = new log4javascript.BrowserConsoleAppender();
+const logger = log4javascript.getLogger('client-logger');
+const consoleAppender = new log4javascript.BrowserConsoleAppender();
 consoleAppender.setThreshold(log4javascript.Level.INFO);
 logger.addAppender(consoleAppender);
 
-logger.initAjaxAppender = function(workspaceServiceEP){
-    var ajaxAppender = new log4javascript.AjaxAppender(workspaceServiceEP + "/log");
+logger.initAjaxAppender = function (workspaceServiceEP) {
+    const ajaxAppender = new log4javascript.AjaxAppender(`${workspaceServiceEP}/log`);
     ajaxAppender.setThreshold(log4javascript.Level.INFO);
     logger.addAppender(ajaxAppender);
 };

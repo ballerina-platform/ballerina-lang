@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class ReturnStatementDimensionCalculatorVisitor {
 
@@ -32,7 +32,7 @@ class ReturnStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox( node.getReturnExpression() , node.getViewState());
+        util.populateSimpleStatementBBox(node.getReturnExpression(), node.getViewState());
     }
 }
 

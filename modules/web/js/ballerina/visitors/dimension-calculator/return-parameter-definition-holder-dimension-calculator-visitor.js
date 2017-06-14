@@ -16,7 +16,7 @@
  * under the License.
  */
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 class ReturnParameterDefinitionHolderDimensionCalculatorVisitor {
 
@@ -33,8 +33,8 @@ class ReturnParameterDefinitionHolderDimensionCalculatorVisitor {
     endVisit(node) {
         // Creating component for text.
         for (let i = 0; i < node.getChildren().length; i++) {
-            let parameterDefinition = node.getChildren()[i];
-            let viewState = parameterDefinition.getViewState();
+            const parameterDefinition = node.getChildren()[i];
+            const viewState = parameterDefinition.getViewState();
 
             viewState.w = util.getTextWidth(parameterDefinition.getParameterDefinitionAsString(), 0).w;
             viewState.h = DesignerDefaults.panelHeading.heading.height - 7;

@@ -19,18 +19,18 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import Tool from './tool';
 
-var toolGroup = Backbone.Model.extend({
-    initialize: function (attributes) {
+const toolGroup = Backbone.Model.extend({
+    initialize(attributes) {
         this.tools = [];
-        var self = this;
-        _.forEach( attributes.toolDefinitions,  function(toolDefinition){
+        let self = this;
+        _.forEach(attributes.toolDefinitions, function (toolDefinition) {
             self.addTool(toolDefinition);
-        }
+        },
             );
     },
 
-    addTool: function (definition) {
-        var newTool = new Tool(definition);
+    addTool(definition) {
+        let newTool = new Tool(definition);
         this.tools.push(newTool);
         this.trigger('tool-added', newTool);
     },
@@ -39,8 +39,8 @@ var toolGroup = Backbone.Model.extend({
      * remove given tool item from the tool group
      * @param {Tool} tool - tool to be removed
      */
-    removeTool: function (tool) {
-        _.remove(this.tools, function (toolItem) {
+    removeTool(tool) {
+        _.remove(this.tools, (toolItem) => {
             return _.isEqual(toolItem.id, tool.id);
         });
         this.trigger('tool-removed', tool.id);
@@ -50,8 +50,8 @@ var toolGroup = Backbone.Model.extend({
      * remove given tool item from the tool group
      * @param {string} toolId - tool ID of the tool to be removed.
      */
-    removeToolByToolId: function (toolId) {
-        _.remove(this.tools, function (toolItem) {
+    removeToolByToolId(toolId) {
+        _.remove(this.tools, (toolItem) => {
             return _.isEqual(toolItem.id, toolId);
         });
         this.trigger('tool-removed', toolId);
@@ -62,8 +62,8 @@ var toolGroup = Backbone.Model.extend({
      * @param {Object} tool - tool to be updated
      * @param {Object} newValue - new value to update the tool with
      */
-    updateTool: function (tool, attribute, newValue, metaAttr) {
-        var selectedTool = _.find(this.tools, function (toolItem) {
+    updateTool(tool, attribute, newValue, metaAttr) {
+        let selectedTool = _.find(this.tools, (toolItem) => {
             return _.isEqual(toolItem.get('id'), tool.getId());
         });
         if (!_.isNil(newValue)) {
@@ -81,20 +81,20 @@ var toolGroup = Backbone.Model.extend({
 
             }
 
-            if(!_.isUndefined(metaAttr)){
+            if (!_.isUndefined(metaAttr)) {
                 selectedTool.attributes.meta[metaAttr] = newValue;
             }
         }
     },
 
-    modelName: "ToolGroup",
+    modelName: 'ToolGroup',
 
     defaults: {
-        toolGroupID: "id-not-set",
-        toolGroupName: "",
-        toolGroup: "",
-        gridConfig: false
-    }
+        toolGroupID: 'id-not-set',
+        toolGroupName: '',
+        toolGroup: '',
+        gridConfig: false,
+    },
 });
 
 export default toolGroup;

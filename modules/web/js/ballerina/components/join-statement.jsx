@@ -19,7 +19,7 @@ import React from 'react';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import './join-statement.css';
 
@@ -37,7 +37,7 @@ class JoinStatement extends React.Component {
             key: 'Join Condition',
             model: props.model,
             getterMethod: props.model.getJoinConditionString,
-            setterMethod: props.model.setJoinConditionFromString
+            setterMethod: props.model.setJoinConditionFromString,
         };
         const parameterEditorOptions = {
             propertyType: 'text',
@@ -45,7 +45,7 @@ class JoinStatement extends React.Component {
             value: parameterBbox.text,
             model: props.model,
             getterMethod: props.model.getParameterAsString,
-            setterMethod: props.model.setParameterAsString
+            setterMethod: props.model.setParameterAsString,
         };
 
 
@@ -62,28 +62,32 @@ class JoinStatement extends React.Component {
         if (!model.parent.hasTimeout()) {
             addTimeoutBtn =
                 (
-                    <g onClick={this.addTimeout.bind(this)}>
-                        <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20}  rx={10} ry={10} className='add-timeout-button'/>
-                        <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className='add-timeout-button-label'>+
+                  <g onClick={this.addTimeout.bind(this)}>
+                    <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-timeout-button" />
+                    <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-timeout-button-label">+
                         </text>
-                    </g>
+                  </g>
                 );
         } else {
             addTimeoutBtn = null;
         }
 
         return (
-            <CompoundStatementDecorator model={model} bBox={bBox} onDelete={this.onDelete.bind(this)}>
-                <BlockStatementDecorator model={model} dropTarget={model} bBox={bBox} title={'Join'}
-                                         parameterBbox={parameterBbox} utilities={addTimeoutBtn} undeletable={true}
-                                         parameterEditorOptions={parameterEditorOptions}
-                                         expression={{text: model.getJoinConditionString()}} editorOptions={this.editorOptions}>
-                    {model.children.length > 0 &&
-                    <line x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
-                          className="join-lifeline"/> }
-                    {children}
-                </BlockStatementDecorator>
-            </CompoundStatementDecorator>);
+          <CompoundStatementDecorator model={model} bBox={bBox} onDelete={this.onDelete.bind(this)}>
+            <BlockStatementDecorator
+              model={model} dropTarget={model} bBox={bBox} title={'Join'}
+              parameterBbox={parameterBbox} utilities={addTimeoutBtn} undeletable
+              parameterEditorOptions={parameterEditorOptions}
+              expression={{ text: model.getJoinConditionString() }} editorOptions={this.editorOptions}
+            >
+              {model.children.length > 0 &&
+                <line
+                  x1={bBox.getCenterX()} y1={lifeLineY1} x2={bBox.getCenterX()} y2={lifeLineY2}
+                  className="join-lifeline"
+                /> }
+              {children}
+            </BlockStatementDecorator>
+          </CompoundStatementDecorator>);
     }
 
     addTimeout() {
@@ -92,7 +96,7 @@ class JoinStatement extends React.Component {
         parent.addChild(newTimeoutStatement);
     }
 
-    onDelete(){
+    onDelete() {
         this.props.model.parent.remove();
     }
 }
@@ -103,7 +107,7 @@ JoinStatement.propTypes = {
         y: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
-    })
+    }),
 };
 
 

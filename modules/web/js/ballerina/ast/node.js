@@ -42,8 +42,8 @@ class ASTNode extends EventChannel {
             if (!_.isNil(this.parent)) {
                 this.parent.trigger('tree-modified', event);
             } else {
-                log.debug("Cannot find the parent node to propagate tree modified event up. Node: " + this.getType() +
-                    ", EventType: " + event.type + ", EventTitle: " + event.title);
+                log.debug(`Cannot find the parent node to propagate tree modified event up. Node: ${this.getType()
+                    }, EventType: ${event.type}, EventTitle: ${event.title}`);
             }
         });
 
@@ -60,7 +60,7 @@ class ASTNode extends EventChannel {
         this.viewState = {
             bBox: new SimpleBBox(),
             components: {},
-            dimensionsSynced: false
+            dimensionsSynced: false,
         };
     }
 
@@ -68,7 +68,7 @@ class ASTNode extends EventChannel {
      * Get the node's view state
      * @return {{bBox: BBox}} node's view state
      */
-    getViewState(){
+    getViewState() {
         return this.viewState;
     }
 
@@ -117,9 +117,9 @@ class ASTNode extends EventChannel {
             this.children.splice(index, 0, child);
         }
 
-        //setting the parent node - doing silently avoid subsequent change events
+        // setting the parent node - doing silently avoid subsequent change events
         child.setParent(this, {
-            doSilently: true
+            doSilently: true,
         });
         if (generateId) {
             child.generateUniqueIdentifiers();
@@ -140,9 +140,9 @@ class ASTNode extends EventChannel {
                 origin: this,
                 type: 'child-added',
                 data: {
-                    child: child,
-                    index: index
-                }
+                    child,
+                    index,
+                },
             });
         }
     }
@@ -155,15 +155,15 @@ class ASTNode extends EventChannel {
      * @fires  ASTNode#tree-modified
      */
     removeChild(child, ignoreTreeModifiedEvent) {
-        var parentModelChildren = this.children;
-        for (var itr = 0; itr < parentModelChildren.length; itr++) {
+        const parentModelChildren = this.children;
+        for (let itr = 0; itr < parentModelChildren.length; itr++) {
             if (parentModelChildren[itr].id === child.id) {
                 parentModelChildren.splice(itr, 1);
 
                 /**
                  * @event ASTNode#child-removed
                  */
-                this.trigger("child-removed", child);
+                this.trigger('child-removed', child);
 
                 if (!ignoreTreeModifiedEvent) {
                     /**
@@ -173,9 +173,9 @@ class ASTNode extends EventChannel {
                         origin: this,
                         type: 'child-removed',
                         data: {
-                            child: child,
-                            index: itr
-                        }
+                            child,
+                            index: itr,
+                        },
                     });
                 }
                 break;
@@ -198,7 +198,7 @@ class ASTNode extends EventChannel {
      * @param ignoreTreeModifiedEvent {boolean}
      */
     removeChildById(id, ignoreTreeModifiedEvent) {
-        var child = this.getChildById(id);
+        const child = this.getChildById(id);
         this.removeChild(child, ignoreTreeModifiedEvent);
     }
 
@@ -210,12 +210,12 @@ class ASTNode extends EventChannel {
         if (visitor.canVisit(this)) {
             visitor.beginVisit(this);
             visitor.visit(this);
-            _.forEach(this.children, function (child) {
+            _.forEach(this.children, (child) => {
                 if (child) {
                     visitor.visit(child);
                     // forward visitor down the hierarchy to visit children of current child
                     // if visitor doesn't support visiting children of current child, it will break
-                    if(visitor.canVisit(child)) {
+                    if (visitor.canVisit(child)) {
                         child.accept(visitor);
                     }
                 }
@@ -284,9 +284,7 @@ class ASTNode extends EventChannel {
      * @param name of child to remove
      */
     removeChildByName(predicateFunction, name) {
-        _.remove(this.getChildren(), function (child) {
-            return predicateFunction && (child.getName() === name);
-        });
+        _.remove(this.getChildren(), child => predicateFunction && (child.getName() === name));
     }
 
     /**
@@ -298,7 +296,7 @@ class ASTNode extends EventChannel {
     }
 
     initFromJson(jsonNode) {
-        throw "InitFromJson not implemented";
+        throw 'InitFromJson not implemented';
     }
 
     /**
@@ -311,45 +309,44 @@ class ASTNode extends EventChannel {
      * @param [options.doSilently=false] {boolean} a flag to indicate whether events should not be fired
      */
     setAttribute(attributeName, newValue, options) {
-
-        var oldValue = _.get(this, attributeName);
+        const oldValue = _.get(this, attributeName);
 
         _.set(this, attributeName, newValue);
 
         // fire change event with necessary callbacks for undo/redo
         if (_.isNil(options) || !options.doSilently) {
-            var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
+            const title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : `Modify ${this.getType()}`;
             /**
              * @event ASTNode#tree-modified
              */
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: title,
+                title,
                 context: this,
                 data: {
-                    attributeName: attributeName,
-                    newValue: newValue,
-                    oldValue: oldValue
+                    attributeName,
+                    newValue,
+                    oldValue,
                 },
-                undo: function () {
+                undo() {
                     this.setAttribute(attributeName, oldValue, {
-                        doSilently: true
+                        doSilently: true,
                     });
                     if (_.has(options, 'undoCallBack') && _.isFunction(options.undoCallBack)) {
-                        var undoCallBack = _.get(options, 'undoCallBack');
+                        const undoCallBack = _.get(options, 'undoCallBack');
                         undoCallBack();
                     }
                 },
-                redo: function () {
+                redo() {
                     this.setAttribute(attributeName, newValue, {
-                        doSilently: true
+                        doSilently: true,
                     });
                     if (_.has(options, 'redoCallBack') && _.isFunction(options.redoCallBack)) {
-                        var redoCallBack = _.get(options, 'redoCallBack');
+                        const redoCallBack = _.get(options, 'redoCallBack');
                         redoCallBack();
                     }
-                }
+                },
             });
         }
     }
@@ -375,15 +372,15 @@ class ASTNode extends EventChannel {
      * @param [options.doSilently=false] {boolean} a flag to indicate whether events should not be fired
      */
     pushToArrayAttribute(arrAttrName, newValue, options) {
-        var currentArray = _.get(this, arrAttrName);
+        const currentArray = _.get(this, arrAttrName);
 
         // Check if a value already exists for the given key
-        var existingValueIndex = -1;
+        let existingValueIndex = -1;
         if (_.has(options, 'predicate')) {
             existingValueIndex = _.findIndex(currentArray, options.predicate);
         }
 
-        var existingValue;
+        let existingValue;
 
         if (existingValueIndex === -1) {
             // A value with this key does not exists, then add a new one.
@@ -397,33 +394,33 @@ class ASTNode extends EventChannel {
 
         // fire change event with necessary callbacks for undo/redo
         if (_.isNil(options) || !options.doSilently) {
-            var title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
+            const title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : `Modify ${this.getType()}`;
             /**
              * @event ASTNode#tree-modified
              */
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: title,
+                title,
                 context: this,
-                undo: function () {
-                    var currentArray = _.get(this, arrAttrName);
+                undo() {
+                    const currentArray = _.get(this, arrAttrName);
                     if (existingValueIndex === -1) {
                         // A value with this key did not exist. So remove it.
                         _.remove(currentArray, options.predicate);
                     } else {
                         this.pushToArrayAttribute(arrAttrName, existingValue, {
                             predicate: options.predicate,
-                            doSilently: true
+                            doSilently: true,
                         });
                     }
                 },
-                redo: function () {
+                redo() {
                     this.pushToArrayAttribute(arrAttrName, newValue, {
                         predicate: options.predicate,
-                        doSilently: true
+                        doSilently: true,
                     });
-                }
+                },
             });
         }
     }
@@ -434,9 +431,9 @@ class ASTNode extends EventChannel {
      * @return {boolean} - True if valid, else false.
      */
     static isValidIdentifier(identifier) {
-        if(_.isUndefined(identifier)) {
+        if (_.isUndefined(identifier)) {
             return false;
-        } else if(/^[a-zA-Z0-9_]*$/.test(identifier)){
+        } else if (/^[a-zA-Z0-9_]*$/.test(identifier)) {
             return true;
         }
         return false;
@@ -502,12 +499,12 @@ class ASTNode extends EventChannel {
     }
 
     getWSRegion(regionId) {
-        let region = _.get(this.getWhiteSpaceDescriptor().regions, regionId);
+        const region = _.get(this.getWhiteSpaceDescriptor().regions, regionId);
         return (!_.isNil(region)) ? region : '';
     }
 
     getChildWSRegion(childId, regionId) {
-        let region = _.get(_.get(this.getWhiteSpaceDescriptor().children, childId).regions, regionId);
+        const region = _.get(_.get(this.getWhiteSpaceDescriptor().children, childId).regions, regionId);
         return (!_.isNil(region)) ? region : '';
     }
 
@@ -516,9 +513,7 @@ class ASTNode extends EventChannel {
      * @return {ASTNode[]}                   An array of children.
      */
     getChildrenOfType(typeCheckFunction) {
-        return _.filter(this.getChildren(), function (child) {
-            return typeCheckFunction.call(child.getFactory(), child);
-        });
+        return _.filter(this.getChildren(), child => typeCheckFunction.call(child.getFactory(), child));
     }
 
     /**
@@ -528,9 +523,9 @@ class ASTNode extends EventChannel {
      * @param {number[]} pathVector An array
      */
     getPathToNode(node, pathVector) {
-        let nodeParent = node.getParent();
+        const nodeParent = node.getParent();
         if (!_.isNil(nodeParent)) {
-            let nodeIndex = _.findIndex(nodeParent.getChildren(), node);
+            const nodeIndex = _.findIndex(nodeParent.getChildren(), node);
             pathVector.push(nodeIndex);
             this.getPathToNode(nodeParent, pathVector);
         }
@@ -544,9 +539,9 @@ class ASTNode extends EventChannel {
      */
     getNodeByVector(root, pathVector) {
         let returnNode = root;
-        let reverseVector = _.reverse(pathVector);
+        const reverseVector = _.reverse(pathVector);
 
-        _.forEach(reverseVector, function (index) {
+        _.forEach(reverseVector, (index) => {
             returnNode = returnNode.getChildren()[index];
         });
         return returnNode;
@@ -561,11 +556,9 @@ class ASTNode extends EventChannel {
         if (BallerinaAstFactory.isResourceDefinition(parent) || BallerinaAstFactory.isResourceDefinition(parent) ||
             BallerinaAstFactory.isConnectorAction(parent) || BallerinaAstFactory.isFunctionDefinition(parent) ||
             BallerinaAstFactory.isWorkerDeclaration(parent)) {
-
             return parent;
-        } else {
-            return parent.getTopLevelParent();
         }
+        return parent.getTopLevelParent();
     }
 }
 
@@ -576,8 +569,8 @@ var uuid = function () {
             .toString(16)
             .substring(1);
     }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-        s4() + '-' + s4() + s4() + s4();
+    return `${s4() + s4()}-${s4()}-${s4()}-${
+        s4()}-${s4()}${s4()}${s4()}`;
 };
 
 export default ASTNode;

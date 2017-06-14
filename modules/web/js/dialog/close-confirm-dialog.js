@@ -29,14 +29,14 @@ class CloseConfirmDialog extends ModalDialog {
     }
 
     init() {
-        if(this._initialized) {
+        if (this._initialized) {
             return;
         }
 
-        var saveBtn = $("<button type='button' class='btn btn-primary'>Save</button>");
-        var dontSaveBtn = $("<button type='button' class='btn btn-default" +
+        const saveBtn = $("<button type='button' class='btn btn-primary'>Save</button>");
+        const dontSaveBtn = $("<button type='button' class='btn btn-default" +
                             " close-file-confirm-dialog-btn'>Don't Save</button>");
-        var cancelBtn = $("<button type='button' class='btn btn-default'" +
+        const cancelBtn = $("<button type='button' class='btn btn-default'" +
                           " data-dismiss='modal'>Cancel</button>");
         this._saveBtn = saveBtn;
         this._dontSaveBtn = dontSaveBtn;
@@ -46,32 +46,32 @@ class CloseConfirmDialog extends ModalDialog {
 
         this._initialized = true;
 
-        this._$modalContainer.addClass("close-confirm-dialog");
+        this._$modalContainer.addClass('close-confirm-dialog');
     }
 
     askConfirmation(options) {
-        var self = this;
+        const self = this;
         this.init();
 
-        var name = options.file.getName();
-        this.setTitle("Save Changes?");
+        const name = options.file.getName();
+        this.setTitle('Save Changes?');
 
-        var body = this.getBody();
+        const body = this.getBody();
         body.empty();
-        body.append($("<p><br>File '" + name + "' contains changes, do you want to save them before closing? <br>Your changes will be lost if you close this file without saving.</p>"));
+        body.append($(`<p><br>File '${name}' contains changes, do you want to save them before closing? <br>Your changes will be lost if you close this file without saving.</p>`));
 
         this._saveBtn.unbind('click');
         this._dontSaveBtn.unbind('click');
 
-        this._saveBtn.click(function(e){
-            if(_.has(options, 'handleConfirm')){
+        this._saveBtn.click((e) => {
+            if (_.has(options, 'handleConfirm')) {
                 self.hide();
                 options.handleConfirm(true);
             }
         });
 
-        this._dontSaveBtn.click(function(e){
-            if(_.has(options, 'handleConfirm')){
+        this._dontSaveBtn.click((e) => {
+            if (_.has(options, 'handleConfirm')) {
                 self.hide();
                 options.handleConfirm(false);
             }

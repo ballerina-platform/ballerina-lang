@@ -28,14 +28,13 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
     canVisitWhileStatement(whileStatement) {
         if (_.isNil(this.node)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     beginVisitWhileStatement(whileStatement) {
         this.node = whileStatement;
-        this.appendSource('\n' + this.getIndentation() + 'while (' + whileStatement.getConditionString() + ') {\n');
+        this.appendSource(`\n${this.getIndentation()}while (${whileStatement.getConditionString()}) {\n`);
         this.indent();
     }
 
@@ -43,16 +42,16 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitStatement(statement) {
-        if(!_.isEqual(this.node, statement)) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        if (!_.isEqual(this.node, statement)) {
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }
 
     endVisitWhileStatement(whileStatement) {
         this.outdent();
-        this.appendSource(this.getIndentation() + "}\n");
+        this.appendSource(`${this.getIndentation()}}\n`);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

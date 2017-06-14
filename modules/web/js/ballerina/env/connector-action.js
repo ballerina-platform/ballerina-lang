@@ -36,9 +36,9 @@ class ConnectorAction extends EventChannel {
     }
 
     setName(name) {
-        var oldName = this._name;
+        const oldName = this._name;
         this._name = name;
-        this.trigger("name-modified", name, oldName);
+        this.trigger('name-modified', name, oldName);
     }
 
     getName() {
@@ -110,11 +110,10 @@ class ConnectorAction extends EventChannel {
 
     initFromASTModel(connectorActionModel) {
         this.setName(connectorActionModel.getActionName());
-        this.setId(connectorActionModel.getParent().getConnectorName() + '-' + connectorActionModel.getActionName());
+        this.setId(`${connectorActionModel.getParent().getConnectorName()}-${connectorActionModel.getActionName()}`);
         this.setParameters(connectorActionModel.getArguments());
         this.setReturnParams(connectorActionModel.getReturnTypes());
     }
 }
 
 export default ConnectorAction;
-    

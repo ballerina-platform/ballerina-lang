@@ -31,7 +31,7 @@ class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     }
 
     beginVisitTypeCastExpression(expression) {
-        this.appendSource('(' + expression.getName() + ')');
+        this.appendSource(`(${expression.getName()})`);
         log.debug('Begin Visit Type Cast Expression');
     }
 
@@ -45,8 +45,8 @@ class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     }
 
     visitExpression(expression) {
-        var expressionVisitorFactory = new ExpressionVisitorFactory();
-        var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
+        const expressionVisitorFactory = new ExpressionVisitorFactory();
+        const expressionVisitor = expressionVisitorFactory.getExpressionView({ model: expression, parent: this });
         expression.accept(expressionVisitor);
         log.debug('Visit Expression');
     }

@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import {statement} from './../configs/designer-defaults';
-import {blockStatement} from './../configs/designer-defaults';
+import { statement } from './../configs/designer-defaults';
+import { blockStatement } from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
@@ -26,7 +26,7 @@ import _ from 'lodash';
 
 class SizingUtil {
     constructor() {
-        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('style', 'border: 1px solid black');
         svg.setAttribute('width', '600');
         svg.setAttribute('height', '250');
@@ -49,15 +49,15 @@ class SizingUtil {
         let width = statement.padding.left + this.textElement.getComputedTextLength() + statement.padding.right;
         // if the width is more then max width crop the text
         if (width <= minWidth) {
-            //set the width to minimam width
+            // set the width to minimam width
             width = minWidth;
         } else if (width > minWidth && width <= maxWidth) {
             // do nothing
         } else {
             // We need to truncate displayText and show an ellipses at the end.
-            let ellipses = '...';
+            const ellipses = '...';
             let possibleCharactersCount = 0;
-            for (let i = (text.length - 1); 1 < i; i--) {
+            for (let i = (text.length - 1); i > 1; i--) {
                 if ((statement.padding.left + this.textElement.getSubStringLength(0, i) + statement.padding.right) < maxWidth) {
                     possibleCharactersCount = i;
                     break;
@@ -70,12 +70,12 @@ class SizingUtil {
         }
         return {
             w: width,
-            text: text
+            text,
         };
     }
 
     getOnlyTextWidth(text, options = {}) {
-        const {fontSize} = options;
+        const { fontSize } = options;
         this.textElement.innerHTML = _.escape(text);
         const currentFZ = this.textElement.style.fontSize;
         this.textElement.style.fontSize = fontSize;
@@ -85,8 +85,8 @@ class SizingUtil {
     }
 
     populateSimpleStatementBBox(expression, viewState) {
-        let textViewState = util.getTextWidth(expression);
-        let dropZoneHeight = statement.gutter.v;
+        const textViewState = util.getTextWidth(expression);
+        const dropZoneHeight = statement.gutter.v;
         viewState.components['drop-zone'] = new SimpleBBox();
         viewState.components['drop-zone'].h = dropZoneHeight;
 
@@ -99,21 +99,19 @@ class SizingUtil {
     }
 
     getHighestStatementContainer(workers) {
-        const sortedWorkers = _.sortBy(workers, function (worker) {
-            return worker.viewState.components.statementContainer.h;
-        });
+        const sortedWorkers = _.sortBy(workers, worker => worker.viewState.components.statementContainer.h);
         return sortedWorkers.length > 0 ? sortedWorkers[sortedWorkers.length - 1].getViewState().components.statementContainer.h : -1;
     }
 
     populateCompoundStatementChild(node, expression = undefined) {
-        let viewState = node.getViewState();
-        let components = {};
-        components['statementContainer'] = new SimpleBBox();
-        let statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        const viewState = node.getViewState();
+        const components = {};
+        components.statementContainer = new SimpleBBox();
+        const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
         let statementContainerWidth = 0;
         let statementContainerHeight = 0;
 
-        _.forEach(statementChildren, function (child) {
+        _.forEach(statementChildren, (child) => {
             statementContainerHeight += child.viewState.bBox.h;
             if (child.viewState.bBox.w > statementContainerWidth) {
                 statementContainerWidth = child.viewState.bBox.w;
@@ -135,12 +133,12 @@ class SizingUtil {
         // we will calculate the width of the expression and adjest the block statement
         if (expression !== undefined) {
             // see how much space we have to draw the condition
-            let available = statementContainerWidth - blockStatement.heading.width - 10;
-            components['expression'] = this.getTextWidth(expression, 0, available);
+            const available = statementContainerWidth - blockStatement.heading.width - 10;
+            components.expression = this.getTextWidth(expression, 0, available);
         }
 
-        components['statementContainer'].h = statementContainerHeight;
-        components['statementContainer'].w = statementContainerWidth;
+        components.statementContainer.h = statementContainerHeight;
+        components.statementContainer.w = statementContainerWidth;
 
         viewState.bBox.h = statementContainerHeight + blockStatement.heading.height;
         viewState.bBox.w = statementContainerWidth;
@@ -151,48 +149,47 @@ class SizingUtil {
     addParamDimenstion(viewState, expression, param, offset) {
         const components = viewState.components;
         const paramW = util.getTextWidth(param, 3);
-        components['param'] = new SimpleBBox(0, 0, paramW.w, 0);
-        components['param'].text = paramW.text;
+        components.param = new SimpleBBox(0, 0, paramW.w, 0);
+        components.param.text = paramW.text;
         const joinTypeW = util.getTextWidth(expression, 3);
         const widthOfText = paramW.w + joinTypeW.w + offset +
             blockStatement.heading.paramSeparatorOffsetX + blockStatement.heading.paramSeparatorOffsetX +
             blockStatement.heading.paramEndOffsetX;
         viewState.bBox.w = Math.max(viewState.bBox.w, widthOfText);
-
     }
 
     populatePanelDecoratorBBox(node, name) {
-        let viewState = node.getViewState();
-        let components = {};
+        const viewState = node.getViewState();
+        const components = {};
 
         const textWidth = util.getTextWidth(name);
         viewState.titleWidth = textWidth.w + DesignerDefaults.panel.heading.title.margin.right
             + DesignerDefaults.panelHeading.iconSize.width;
         viewState.trimmedTitle = textWidth.text;
 
-        components['heading'] = new SimpleBBox();
-        components['heading'].h = DesignerDefaults.panel.heading.height;
+        components.heading = new SimpleBBox();
+        components.heading.h = DesignerDefaults.panel.heading.height;
 
-        components['annotation'] = new SimpleBBox();
+        components.annotation = new SimpleBBox();
 
         if (_.isUndefined(node.viewState.showAnnotationContainer)) {
             node.viewState.showAnnotationContainer = true;
         }
 
         if (!node.viewState.showAnnotationContainer) {
-            components['annotation'].h = 0;
+            components.annotation.h = 0;
         } else {
-            components['annotation'].h = this.getAnnotationHeight(node, 40);
+            components.annotation.h = this.getAnnotationHeight(node, 40);
         }
 
-        components['statementContainer'] = new SimpleBBox();
-        let statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        components.statementContainer = new SimpleBBox();
+        const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
         let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         let statementHeight = 0;
 
-        _.forEach(statementChildren, function (child) {
+        _.forEach(statementChildren, (child) => {
             statementHeight += child.viewState.bBox.h;
             if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
@@ -209,18 +206,14 @@ class SizingUtil {
             statementHeight = DesignerDefaults.statementContainer.height;
         }
 
-        components['statementContainer'].h = statementHeight;
-        components['statementContainer'].w = statementWidth;
+        components.statementContainer.h = statementHeight;
+        components.statementContainer.w = statementWidth;
 
-        components['body'] = new SimpleBBox();
+        components.body = new SimpleBBox();
 
-        let workerChildren = node.filterChildren(function (child) {
-            return BallerinaASTFactory.isWorkerDeclaration(child);
-        });
+        const workerChildren = node.filterChildren(child => BallerinaASTFactory.isWorkerDeclaration(child));
 
-        let connectorChildren = node.filterChildren(function (child) {
-            return BallerinaASTFactory.isConnectorDeclaration(child);
-        });
+        const connectorChildren = node.filterChildren(child => BallerinaASTFactory.isConnectorDeclaration(child));
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
 
@@ -228,53 +221,49 @@ class SizingUtil {
          * If the current default worker's statement container height is less than the highest worker's statement container
          * we set the default statement container height to the highest statement container's height
          */
-        components['statementContainer'].h = _.max([components['statementContainer'].h, highestStatementContainerHeight]);
+        components.statementContainer.h = _.max([components.statementContainer.h, highestStatementContainerHeight]);
 
-        const defaultWorkerLifeLineHeight = components['statementContainer'].h + DesignerDefaults.lifeLine.head.height * 2;
+        const defaultWorkerLifeLineHeight = components.statementContainer.h + DesignerDefaults.lifeLine.head.height * 2;
 
         let lifeLineWidth = 0;
-        _.forEach(workerChildren.concat(connectorChildren), function (child) {
+        _.forEach(workerChildren.concat(connectorChildren), (child) => {
             lifeLineWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
-            child.getViewState().bBox.h = _.max([components['statementContainer'].h, highestStatementContainerHeight]) +
+            child.getViewState().bBox.h = _.max([components.statementContainer.h, highestStatementContainerHeight]) +
                 DesignerDefaults.lifeLine.head.height * 2;
-            child.getViewState().components.statementContainer.h = _.max([components['statementContainer'].h,
+            child.getViewState().components.statementContainer.h = _.max([components.statementContainer.h,
                 highestStatementContainerHeight]);
         });
 
         if (node.viewState.collapsed) {
-            components['body'].h = 0;
+            components.body.h = 0;
         } else {
-            components['body'].h = ((DesignerDefaults.panel.body.height < defaultWorkerLifeLineHeight) ? defaultWorkerLifeLineHeight : DesignerDefaults.panel.body.height)
+            components.body.h = ((DesignerDefaults.panel.body.height < defaultWorkerLifeLineHeight) ? defaultWorkerLifeLineHeight : DesignerDefaults.panel.body.height)
                 + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
 
-        components['body'].w = components['statementContainer'].w + DesignerDefaults.panel.body.padding.right +
+        components.body.w = components.statementContainer.w + DesignerDefaults.panel.body.padding.right +
             DesignerDefaults.panel.body.padding.left + lifeLineWidth;
-        components['annotation'].w = components['body'].w;
+        components.annotation.w = components.body.w;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
 
-        components['parametersPrefixContainer'] = {};
-        components['parametersPrefixContainer'].w = util.getTextWidth('Parameters: ').w;
+        components.parametersPrefixContainer = {};
+        components.parametersPrefixContainer.w = util.getTextWidth('Parameters: ').w;
 
         viewState.components = components;
         this.populateHeadingWidth(node);
     }
 
     populateOuterPanelDecoratorBBox(node, name) {
-        let viewState = node.getViewState();
-        let components = {};
+        const viewState = node.getViewState();
+        const components = {};
         let totalResourceHeight = 0;
         let connectorStatementContainerHeight = 0;
-        let resources = node.filterChildren(function (child) {
-            return ASTFactory.isResourceDefinition(child) ||
-                ASTFactory.isConnectorAction(child);
-        });
-        let connectors = node.filterChildren(function (child) {
-            return ASTFactory.isConnectorDeclaration(child);
-        });
+        const resources = node.filterChildren(child => ASTFactory.isResourceDefinition(child) ||
+                ASTFactory.isConnectorAction(child));
+        const connectors = node.filterChildren(child => ASTFactory.isConnectorDeclaration(child));
         let maxResourceWidth = 0;
-        //Initial statement height include panel heading and panel padding.
+        // Initial statement height include panel heading and panel padding.
         let bodyHeight = DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         // Set the width initial value to the padding left and right
         let bodyWidth = DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right;
@@ -289,7 +278,7 @@ class SizingUtil {
         /**
          * If there are service level connectors, their height depends on the heights of the resources
          */
-        _.forEach(resources, function (resource) {
+        _.forEach(resources, (resource) => {
             totalResourceHeight += resource.getViewState().bBox.h;
             if (maxResourceWidth < resource.getViewState().bBox.w) {
                 maxResourceWidth = resource.getViewState().bBox.w;
@@ -304,7 +293,7 @@ class SizingUtil {
         /**
          * Set the max resource width to the resources
          */
-        _.forEach(resources, function (resource) {
+        _.forEach(resources, (resource) => {
             resource.getViewState().bBox.w = maxResourceWidth;
             resource.getViewState().components.body.w = maxResourceWidth;
         });
@@ -328,7 +317,7 @@ class SizingUtil {
             /**
              * Adjust the height of the connectors and adjust the service's body width with the connector widths
              */
-            _.forEach(connectors, function (connector) {
+            _.forEach(connectors, (connector) => {
                 connector.getViewState().bBox.h = connectorStatementContainerHeight +
                     DesignerDefaults.lifeLine.head.height * 2;
                 connector.getViewState().components.statementContainer.h = connectorStatementContainerHeight;
@@ -347,15 +336,15 @@ class SizingUtil {
             bodyHeight = DesignerDefaults.innerPanel.body.height;
         }
 
-        components['heading'] = new SimpleBBox();
-        components['body'] = new SimpleBBox();
-        components['annotation'] = new SimpleBBox();
-        components['variablesPane'] = new SimpleBBox();
-        components['heading'].h = DesignerDefaults.panel.heading.height;
+        components.heading = new SimpleBBox();
+        components.body = new SimpleBBox();
+        components.annotation = new SimpleBBox();
+        components.variablesPane = new SimpleBBox();
+        components.heading.h = DesignerDefaults.panel.heading.height;
         if (node.viewState.collapsed) {
-            components['body'].h = 0;
+            components.body.h = 0;
         } else {
-            components['body'].h = bodyHeight;
+            components.body.h = bodyHeight;
         }
 
         if (_.isUndefined(node.viewState.showAnnotationContainer)) {
@@ -363,29 +352,29 @@ class SizingUtil {
         }
 
         if (!node.viewState.showAnnotationContainer) {
-            components['annotation'].h = 0;
+            components.annotation.h = 0;
         } else {
-            components['annotation'].h = this.getAnnotationHeight(node, 40);
+            components.annotation.h = this.getAnnotationHeight(node, 40);
         }
 
-        components['variablesPane'].h = variableDefinitionsHeight;
+        components.variablesPane.h = variableDefinitionsHeight;
 
-        components['body'].w = bodyWidth;
-        components['annotation'].w = bodyWidth;
+        components.body.w = bodyWidth;
+        components.annotation.w = bodyWidth;
 
-        viewState.bBox.h = components['heading'].h + components['body'].h + components['annotation'].h;
+        viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;
         this.populateHeadingWidth(node);
     }
 
     getStatementHeightBefore(statement) {
-        let parent = statement.getParent();
-        let statements = parent.filterChildren(BallerinaASTFactory.isStatement);
-        let currentStatementIndex = _.indexOf(statements, statement);
-        let statementsBefore = _.slice(statements, 0, currentStatementIndex);
+        const parent = statement.getParent();
+        const statements = parent.filterChildren(BallerinaASTFactory.isStatement);
+        const currentStatementIndex = _.indexOf(statements, statement);
+        const statementsBefore = _.slice(statements, 0, currentStatementIndex);
 
         let height = 0;
-        _.forEach(statementsBefore, function (stmt) {
+        _.forEach(statementsBefore, (stmt) => {
             height += stmt.getViewState().bBox.h;
         });
 
@@ -405,17 +394,13 @@ class SizingUtil {
     getTotalHeightUpto(parent, childNode) {
         const self = this;
 
-        const statementChildren = _.filter(parent.getChildren(), function (child) {
-            return BallerinaASTFactory.isStatement(child);
-        });
-        const nodeIndex = _.findIndex(statementChildren, function (child) {
-            return child.id === childNode.id;
-        });
+        const statementChildren = _.filter(parent.getChildren(), child => BallerinaASTFactory.isStatement(child));
+        const nodeIndex = _.findIndex(statementChildren, child => child.id === childNode.id);
 
         const slicedChildren = _.slice(statementChildren, 0, nodeIndex);
         let totalHeight = 0;
 
-        _.forEach(slicedChildren, function (child) {
+        _.forEach(slicedChildren, (child) => {
             const dimensionSynced = child.getViewState().dimensionsSynced;
             if (BallerinaASTFactory.isWorkerInvocationStatement(child) && !dimensionSynced) {
                 if (!child.getViewState().dimensionsSynced) {
@@ -441,8 +426,8 @@ class SizingUtil {
      * @param {ASTNode} node - worker invocation node
      */
     syncWorkerInvocationDimension(node) {
-        let destinationWorkerName = node.getWorkerName();
-        let topLevelParent = node.getTopLevelParent();
+        const destinationWorkerName = node.getWorkerName();
+        const topLevelParent = node.getTopLevelParent();
         const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
             topLevelParent.getParent() : topLevelParent;
 
@@ -450,7 +435,7 @@ class SizingUtil {
         if (destinationWorkerName === 'default') {
             workerDeclaration = workersParent;
         } else {
-            workerDeclaration = _.find(workersParent.getChildren(), function (child) {
+            workerDeclaration = _.find(workersParent.getChildren(), (child) => {
                 if (BallerinaASTFactory.isWorkerDeclaration(child)) {
                     return child.getWorkerName() === destinationWorkerName;
                 }
@@ -491,15 +476,15 @@ class SizingUtil {
      * @param {ASTNode} node - worker reply statement
      */
     syncWorkerReplyDimension(node) {
-        let destinationWorkerName = node.getWorkerName();
-        let topLevelParent = node.getTopLevelParent();
+        const destinationWorkerName = node.getWorkerName();
+        const topLevelParent = node.getTopLevelParent();
         const workersParent = BallerinaASTFactory.isWorkerDeclaration(topLevelParent) ?
             topLevelParent.getParent() : topLevelParent;
         let workerDeclaration;
         if (destinationWorkerName === 'default') {
             workerDeclaration = workersParent;
         } else {
-            workerDeclaration = _.find(workersParent.getChildren(), function (child) {
+            workerDeclaration = _.find(workersParent.getChildren(), (child) => {
                 if (BallerinaASTFactory.isWorkerDeclaration(child)) {
                     return child.getWorkerName() === destinationWorkerName;
                 }
@@ -542,20 +527,18 @@ class SizingUtil {
     getWorkerReplyStatementTo(parentNode, workerName) {
         let childNodes;
         if (!_.isNil(parentNode)) {
-            childNodes = _.filter(parentNode.getChildren(), function (child) {
+            childNodes = _.filter(parentNode.getChildren(), (child) => {
                 if (BallerinaASTFactory.isWorkerReplyStatement(child)) {
                     return child.getWorkerName() === workerName;
-                } else {
-                    return false;
                 }
+                return false;
             });
         }
 
         if (_.isNil(childNodes)) {
             return undefined;
-        } else {
-            return childNodes[0];
         }
+        return childNodes[0];
     }
 
     /**
@@ -566,19 +549,17 @@ class SizingUtil {
      * @returns {undefined|ASTNode}
      */
     getWorkerInvocationStatementFrom(parentNode, workerName) {
-        const childNodes = _.filter(parentNode.getChildren(), function (child) {
+        const childNodes = _.filter(parentNode.getChildren(), (child) => {
             if (BallerinaASTFactory.isWorkerInvocationStatement(child)) {
                 return child.getWorkerName() === workerName;
-            } else {
-                return false;
             }
+            return false;
         });
 
         if (_.isNil(childNodes)) {
             return undefined;
-        } else {
-            return childNodes[0];
         }
+        return childNodes[0];
     }
 
     /**
@@ -598,7 +579,7 @@ class SizingUtil {
             ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
             ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
             ASTFactory.isStructDefinition(node)) {
-            for (let annotation of node.getChildrenOfType(ASTFactory.isAnnotation)) {
+            for (const annotation of node.getChildrenOfType(ASTFactory.isAnnotation)) {
                 height += this.getAnnotationHeight(annotation);
             }
         } else if (!_.isUndefined(node) && ASTFactory.isAnnotation(node)) {
@@ -607,7 +588,7 @@ class SizingUtil {
             if (node.getChildren().length > 0) {
                 // Considering the closing bracket line.
                 height += annotationLineHeight;
-                for (let child of node.getChildren()) {
+                for (const child of node.getChildren()) {
                     height += this.getAnnotationHeight(child);
                 }
             }
@@ -626,7 +607,7 @@ class SizingUtil {
                     height += annotationLineHeight;
                 }
                 // Calculating the height for the array children.
-                for (let arrayChild of node.getRightValue().getChildren()) {
+                for (const arrayChild of node.getRightValue().getChildren()) {
                     height += this.getAnnotationHeight(arrayChild);
                 }
             }
@@ -642,20 +623,18 @@ class SizingUtil {
             return 35;
         }
 
-        const variables = node.filterChildren(function (child) {
-            return ASTFactory.isVariableDefinitionStatement(child);
-        });
+        const variables = node.filterChildren(child => ASTFactory.isVariableDefinitionStatement(child));
 
         if (!_.isEmpty(variables)) {
-            height = height + (variables.length * 30);
+            height += (variables.length * 30);
         }
 
         return height;
     }
 
     populateHeadingWidth(node) {
-        let viewState = node.getViewState();
-        //// Creating components for parameters
+        const viewState = node.getViewState();
+        // // Creating components for parameters
         if (node.getArguments) {
             // Creating component for opening bracket of the parameters view.
             viewState.components.openingParameter = {};
@@ -665,12 +644,12 @@ class SizingUtil {
             viewState.components.closingParameter = {};
             viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
-            viewState.components['heading'].w += viewState.components.openingParameter.w
+            viewState.components.heading.w += viewState.components.openingParameter.w
                 + viewState.components.closingParameter.w
                 + this.getParameterTypeWidth(node) + 120;
         }
 
-        //// Creating components for attachment points of the annotation
+        // // Creating components for attachment points of the annotation
         if (node.getAttachmentPoints) {
             // Creating component for opening bracket of the parameters view.
             viewState.components.openingParameter = {};
@@ -680,12 +659,12 @@ class SizingUtil {
             viewState.components.closingParameter = {};
             viewState.components.closingParameter.w = util.getTextWidth(')', 0).w;
 
-            viewState.components['heading'].w = viewState.components.openingParameter.w
+            viewState.components.heading.w = viewState.components.openingParameter.w
                 + viewState.components.closingParameter.w
                 + this.annotationAttachmentPointWidth(node) + 140;
         }
 
-        //// Creating components for return types
+        // // Creating components for return types
         if (node.getReturnTypes) {
             // Creating component for the Return type text.
             viewState.components.returnTypesIcon = {};
@@ -699,17 +678,17 @@ class SizingUtil {
             viewState.components.closingReturnType = {};
             viewState.components.closingReturnType.w = util.getTextWidth(')', 0).w;
 
-            viewState.components['heading'].w += viewState.components.returnTypesIcon.w
+            viewState.components.heading.w += viewState.components.returnTypesIcon.w
                 + viewState.components.openingReturnType.w
                 + viewState.components.closingReturnType.w
                 + this.getReturnTypeWidth(node) + 120;
         }
 
-        viewState.components['heading'].w += viewState.titleWidth + 100;
+        viewState.components.heading.w += viewState.titleWidth + 100;
 
         // Get the largest among component heading width and component body width.
-        let componentWidth = viewState.components['heading'].w > viewState.components['body'].w
-            ? viewState.components['heading'].w : viewState.components['body'].w;
+        const componentWidth = viewState.components.heading.w > viewState.components.body.w
+            ? viewState.components.heading.w : viewState.components.body.w;
 
         viewState.bBox.w = componentWidth + (DesignerDefaults.panel.wrapper.gutter.h * 2);
     }

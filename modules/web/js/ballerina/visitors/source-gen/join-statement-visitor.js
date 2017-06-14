@@ -30,8 +30,8 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitJoinStatement(joinStatement) {
         this.node = joinStatement;
-        this.appendSource('join (' + joinStatement.getJoinConditionString() + ') (' +
-            joinStatement.getParameter().getParameterDefinitionAsString() + '){\n');
+        this.appendSource(`join (${joinStatement.getJoinConditionString()}) (${
+            joinStatement.getParameter().getParameterDefinitionAsString()}){\n`);
         log.debug('Begin Visit Join Statement');
     }
 
@@ -44,8 +44,8 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
-            let statementVisitorFactory = new StatementVisitorFactory();
-            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }

@@ -42,7 +42,7 @@ class AbstractSourceGenVisitor extends ASTVisitor {
 
     getIndentation() {
         let indentation = '';
-        for(let i=0; i < this.indentCount; i++) {
+        for (let i = 0; i < this.indentCount; i++) {
             indentation += '    ';
         }
         return indentation;
@@ -69,7 +69,7 @@ class AbstractSourceGenVisitor extends ASTVisitor {
     }
 
     replaceCurrentPrecedingIndentation(newIndentation) {
-        let newContent = SourceGenUtil
+        const newContent = SourceGenUtil
             .replaceTailingIndentation(this.getParent().getGeneratedSource(), newIndentation);
         this.getParent().setGeneratedSource(newContent);
     }

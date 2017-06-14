@@ -33,7 +33,7 @@ import ImportDeclaration from './import-declaration';
  */
 class BallerinaASTRoot extends ASTNode {
     constructor(args) {
-        super("BallerinaASTRoot");
+        super('BallerinaASTRoot');
         this.packageDefinition = _.get(args, 'packageDefinition');
         const self = this;
         const factory = self.getFactory();
@@ -41,8 +41,8 @@ class BallerinaASTRoot extends ASTNode {
         // Ignore if already added or if it is a current package
         const addImport = function (fullPackageName) {
             if (!self.isExistingPackage(fullPackageName)
-                && !_.isEqual(fullPackageName, "Current Package")) {
-                let importDeclaration = factory.createImportDeclaration();
+                && !_.isEqual(fullPackageName, 'Current Package')) {
+                const importDeclaration = factory.createImportDeclaration();
                 importDeclaration.setPackageName(fullPackageName);
                 importDeclaration.setParent(self);
                 self.addImport(importDeclaration);
@@ -61,15 +61,15 @@ class BallerinaASTRoot extends ASTNode {
             } else if (factory.isServiceDefinition(child)) {
                 const annotations = child.getChildrenOfType(factory.isAnnotation);
                 const resources = child.getChildrenOfType(factory.isResourceDefinition);
-                _.forEach(annotations, annotation => {
+                _.forEach(annotations, (annotation) => {
                     addImport(annotation.getFullPackageName(), options);
                 });
-                _.forEach(resources, resource => {
+                _.forEach(resources, (resource) => {
                     addImportsForTopLevel(resource, options);
                 });
             } else if (factory.isResourceDefinition(child)) {
-                let annotations = child.getChildrenOfType(factory.isAnnotation);
-                _.forEach(annotations, annotation => {
+                const annotations = child.getChildrenOfType(factory.isAnnotation);
+                _.forEach(annotations, (annotation) => {
                     addImport(annotation.getFullPackageName(), options);
                 });
             } else if (factory.isActionInvocationExpression(child)) {
@@ -77,28 +77,26 @@ class BallerinaASTRoot extends ASTNode {
                     addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isFunctionInvocationStatement(child)) {
-                const functionInvocationExpression = _.find(child.children, function (child) {
-                    return factory.isFunctionInvocationExpression(child);
-                });
+                const functionInvocationExpression = _.find(child.children, child => factory.isFunctionInvocationExpression(child));
                 if (functionInvocationExpression &&
                     functionInvocationExpression._fullPackageName) {
                     addImport(functionInvocationExpression.getFullPackageName(), options);
                 }
             }
         };
-        this.on('tree-modified', function (e) {
-            if (e.type === "child-added") {
-                //to add the imports based on the function/action drag and drop to editor
-                addImportsForTopLevel(e.data.child, {doSilently: true});
+        this.on('tree-modified', (e) => {
+            if (e.type === 'child-added') {
+                // to add the imports based on the function/action drag and drop to editor
+                addImportsForTopLevel(e.data.child, { doSilently: true });
             }
         });
 
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
             2: '',
-            3: '\n'
-        }
+            3: '\n',
+        };
     }
 
     /**
@@ -106,7 +104,7 @@ class BallerinaASTRoot extends ASTNode {
      * @param packageDefinition
      */
     setPackageDefinition(packageDefinition, options) {
-        if(!_.isNil(packageDefinition)){
+        if (!_.isNil(packageDefinition)) {
             packageDefinition.setParent(this, options);
             this.setAttribute('packageDefinition', packageDefinition, options);
         }
@@ -125,9 +123,9 @@ class BallerinaASTRoot extends ASTNode {
      * @return {*}
      */
     getImportDeclarations() {
-        var importDeclarations = [];
-        var ballerinaASTFactory = this.getFactory();
-        _.forEach(this.getChildren(), function(child){
+        const importDeclarations = [];
+        const ballerinaASTFactory = this.getFactory();
+        _.forEach(this.getChildren(), (child) => {
             if (ballerinaASTFactory.isImportDeclaration(child)) {
                 importDeclarations.push(child);
             }
@@ -148,24 +146,20 @@ class BallerinaASTRoot extends ASTNode {
      * Deletes an import with given package name.
      */
     deleteImport(packageName, options) {
-        var ballerinaASTFactory = this.getFactory();
-        var importDeclaration = _.find(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
-        });
+        const ballerinaASTFactory = this.getFactory();
+        const importDeclaration = _.find(this.getChildren(), child => ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName);
 
-        var modifiedEvent = {
+        const modifiedEvent = {
             origin: this,
             type: 'child-removed',
             title: 'remove import',
             data: {
                 child: importDeclaration,
-                index: this.getIndexOfChild(importDeclaration)
-            }
+                index: this.getIndexOfChild(importDeclaration),
+            },
         };
 
-        _.remove(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
-        });
+        _.remove(this.getChildren(), child => ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName);
 
         /**
          * @event ASTNode#tree-modified
@@ -181,15 +175,13 @@ class BallerinaASTRoot extends ASTNode {
      */
     addImport(importDeclaration, options) {
         if (this.isExistingPackage(importDeclaration.getPackageName())) {
-            var errorString = "Package \"" + importDeclaration.getPackageName() + "\" is already imported.";
+            const errorString = `Package "${importDeclaration.getPackageName()}" is already imported.`;
             log.error(errorString);
             throw errorString;
         }
 
-        var ballerinaASTFactory = this.getFactory();
-        var index = _.findLastIndex(this.getChildren(), function(child){
-            return ballerinaASTFactory.isImportDeclaration(child);
-        });
+        const ballerinaASTFactory = this.getFactory();
+        let index = _.findLastIndex(this.getChildren(), child => ballerinaASTFactory.isImportDeclaration(child));
 
         // If there are no imports index is -1. Then we need to add the first import after the package
         // definition which is the first child of the ast root
@@ -198,14 +190,14 @@ class BallerinaASTRoot extends ASTNode {
         }
         this.getChildren().splice(index + 1, 0, importDeclaration);
 
-        var modifiedEvent = {
+        const modifiedEvent = {
             origin: this,
             type: 'child-added',
             title: 'add import',
             data: {
                 child: importDeclaration,
-                index: index + 1
-            }
+                index: index + 1,
+            },
         };
 
         /**
@@ -217,7 +209,7 @@ class BallerinaASTRoot extends ASTNode {
         }
     }
 
-    //// Start of constant definition functions
+    // // Start of constant definition functions
 
     /**
      * Adds a new constance definition.
@@ -226,37 +218,30 @@ class BallerinaASTRoot extends ASTNode {
      * @param {string} value - The value of the constant.
      */
     addConstantDefinition(bType, identifier, value) {
-
         // Check if already constant declaration exists with same identifier.
-        var identifierAlreadyExists = _.findIndex(this.getConstantDefinitions(), function (constantDefinition) {
-            return constantDefinition.getIdentifier() === identifier;
-        }) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getConstantDefinitions(), constantDefinition => constantDefinition.getIdentifier() === identifier) !== -1;
 
         // If constant declaration with the same identifier exists, then throw an error. Else create the new constant
         // declaration.
         if (identifierAlreadyExists) {
-            var errorString = "A constant with identifier '" + identifier + "' already exists.";
+            const errorString = `A constant with identifier '${identifier}' already exists.`;
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new constant definition.
-            var newConstantDefinition = this.getFactory().createConstantDefinition();
+            const newConstantDefinition = this.getFactory().createConstantDefinition();
             newConstantDefinition.setBType(bType);
             newConstantDefinition.setIdentifier(identifier);
             newConstantDefinition.setValue(value);
 
-            var self = this;
+            const self = this;
 
             // Get the index of the last constant declaration.
-            var index = _.findLastIndex(this.getChildren(), function (child) {
-                return self.getFactory().isConstantDefinition(child);
-            });
+            let index = _.findLastIndex(this.getChildren(), child => self.getFactory().isConstantDefinition(child));
 
             // If index is still -1, then get the index of the last import.
             if (index == -1) {
-                index = _.findLastIndex(this.getChildren(), function (child) {
-                    return self.getFactory().isImportDeclaration(child);
-                });
+                index = _.findLastIndex(this.getChildren(), child => self.getFactory().isImportDeclaration(child));
             }
 
             // If index is still -1, then consider the package definition.
@@ -273,11 +258,9 @@ class BallerinaASTRoot extends ASTNode {
      * @param {string} modelID - The ID of the constant definition.
      */
     removeConstantDefinition(modelID) {
-        var self = this;
+        const self = this;
         // Deleting the variable from the children.
-        var resourceParameter = _.find(this.getChildren(), function (child) {
-            return self.getFactory().isConstantDefinition(child) && child.id === modelID;
-        });
+        const resourceParameter = _.find(this.getChildren(), child => self.getFactory().isConstantDefinition(child) && child.id === modelID);
 
         this.removeChild(resourceParameter);
     }
@@ -287,10 +270,10 @@ class BallerinaASTRoot extends ASTNode {
      * @return {ConstantDefinition[]} - The constant definitions.
      */
     getConstantDefinitions() {
-        var constantDeclarations = [];
-        var self = this;
+        const constantDeclarations = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isConstantDefinition(child)) {
                 constantDeclarations.push(child);
             }
@@ -298,15 +281,15 @@ class BallerinaASTRoot extends ASTNode {
         return constantDeclarations;
     }
 
-    //// End of constant definition functions
+    // // End of constant definition functions
 
-    //// Start of annotation definitions functions
+    // // Start of annotation definitions functions
 
     getAnnotationDefinitions() {
-        var annotationDefinition = [];
-        var self = this;
+        const annotationDefinition = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isAnnotationDefinition(child)) {
                 annotationDefinition.push(child);
             }
@@ -314,15 +297,15 @@ class BallerinaASTRoot extends ASTNode {
         return annotationDefinition;
     }
 
-    //// End of annotation definitions functions
+    // // End of annotation definitions functions
 
-    //// Start of service definitions functions
+    // // Start of service definitions functions
 
     getServiceDefinitions() {
-        var serviceDefinition = [];
-        var self = this;
+        const serviceDefinition = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isServiceDefinition(child)) {
                 serviceDefinition.push(child);
             }
@@ -330,15 +313,15 @@ class BallerinaASTRoot extends ASTNode {
         return serviceDefinition;
     }
 
-    //// End of service definitions functions
+    // // End of service definitions functions
 
-    //// Start of connector definitions functions
+    // // Start of connector definitions functions
 
     getConnectorDefinitions() {
-        var connectorDefinitions = [];
-        var self = this;
+        const connectorDefinitions = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isConnectorDefinition(child)) {
                 connectorDefinitions.push(child);
             }
@@ -346,15 +329,15 @@ class BallerinaASTRoot extends ASTNode {
         return connectorDefinitions;
     }
 
-    //// End of connector definitions functions
+    // // End of connector definitions functions
 
-    //// Start of function definitions functions
+    // // Start of function definitions functions
 
     getFunctionDefinitions() {
-        var functionDefinitions = [];
-        var self = this;
+        const functionDefinitions = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isFunctionDefinition(child)) {
                 functionDefinitions.push(child);
             }
@@ -362,15 +345,15 @@ class BallerinaASTRoot extends ASTNode {
         return functionDefinitions;
     }
 
-    //// End of function definitions functions
+    // // End of function definitions functions
 
-    //// Start of struct definitions functions
+    // // Start of struct definitions functions
 
     getStructDefinitions() {
-        var structDefinitions = [];
-        var self = this;
+        const structDefinitions = [];
+        const self = this;
 
-        _.forEach(this.getChildren(), function (child) {
+        _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isStructDefinition(child)) {
                 structDefinitions.push(child);
             }
@@ -378,7 +361,7 @@ class BallerinaASTRoot extends ASTNode {
         return structDefinitions;
     }
 
-    //// End of struct definitions functions
+    // // End of struct definitions functions
 
     /**
      * Validates possible immediate child types.
@@ -387,11 +370,9 @@ class BallerinaASTRoot extends ASTNode {
      * @return {boolean}
      */
     canBeParentOf(node) {
-        var BallerinaASTFactory = this.getFactory();
+        const BallerinaASTFactory = this.getFactory();
 
-        var existingMainFunction = _.find(this.getFunctionDefinitions(), function(functionDef){
-            return functionDef.isMainFunction();
-        });
+        const existingMainFunction = _.find(this.getFunctionDefinitions(), functionDef => functionDef.isMainFunction());
 
         if (!_.isNil(existingMainFunction) && BallerinaASTFactory.isFunctionDefinition(node) && node.isMainFunction()) {
             return false;
@@ -412,9 +393,7 @@ class BallerinaASTRoot extends ASTNode {
      * @return {Boolean} if exist returns true if doesn't return false
      * */
     isExistingPackage(packageName) {
-        return _.find(this.getImportDeclarations(), function (child) {
-            return _.isEqual(child.getPackageName(), packageName);
-        }) ? true : false;
+        return !!_.find(this.getImportDeclarations(), child => _.isEqual(child.getPackageName(), packageName));
     }
 }
 

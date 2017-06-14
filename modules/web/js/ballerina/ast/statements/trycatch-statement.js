@@ -27,7 +27,7 @@ import FragmentUtils from './../../utils/fragment-utils';
 class TryCatchStatement extends Statement {
     constructor(args) {
         super();
-        this.type = "TryCatchStatement";
+        this.type = 'TryCatchStatement';
         this._tryStatement = _.get(args, 'tryStatement');
         this._catchStatements = _.get(args, 'catchStatements', []);
         this._finallyStatement = _.get(args, 'finallyStatement');
@@ -42,7 +42,7 @@ class TryCatchStatement extends Statement {
         if (!_.isNil(exception)) {
             this.setAttribute('_exceptionType', exception, options);
         } else {
-            log.error("Cannot set undefined to the exception.");
+            log.error('Cannot set undefined to the exception.');
         }
     }
 
@@ -57,17 +57,17 @@ class TryCatchStatement extends Statement {
     initFromJson(jsonNode) {
         this._catchStatements.length = 0;
         this.getChildren().length = 0;
-        let self = this;
-        let tryBlockNode = jsonNode.try_block;
-        let catchBlocks = jsonNode.catch_blocks;
-        let finallyBlockNode = jsonNode.finally_block;
+        const self = this;
+        const tryBlockNode = jsonNode.try_block;
+        const catchBlocks = jsonNode.catch_blocks;
+        const finallyBlockNode = jsonNode.finally_block;
 
         this._tryStatement = self.getFactory().createFromJson(tryBlockNode);
         this._tryStatement.initFromJson(tryBlockNode);
         this.addChild(this._tryStatement);
 
         _.each(catchBlocks, (catchBlock) => {
-            let catchNode = self.getFactory().createFromJson(catchBlock);
+            const catchNode = self.getFactory().createFromJson(catchBlock);
             this.getCatchStatements().push(catchNode);
             this.addChild(catchNode);
             catchNode.initFromJson(catchBlock);
@@ -86,7 +86,6 @@ class TryCatchStatement extends Statement {
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
             && _.isEqual(parsedJson.type, 'try_catch_statement')) {
-
             this.initFromJson(parsedJson);
 
             // Manually firing the tree-modified event here.
@@ -99,12 +98,10 @@ class TryCatchStatement extends Statement {
             });
 
             if (_.isFunction(callback)) {
-                callback({isValid: true});
+                callback({ isValid: true });
             }
-        } else {
-            if (_.isFunction(callback)) {
-                callback({isValid: false, response: parsedJson});
-            }
+        } else if (_.isFunction(callback)) {
+            callback({ isValid: false, response: parsedJson });
         }
     }
 

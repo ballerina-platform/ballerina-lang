@@ -35,27 +35,25 @@ class RightOperandExpression extends Expression {
      * @override
      */
     setExpressionFromString(expression, callback) {
-        if(!_.isNil(expression)){
-            let fragment = FragmentUtils.createExpressionFragment(expression);
-            let parsedJson = FragmentUtils.parseFragment(fragment);
+        if (!_.isNil(expression)) {
+            const fragment = FragmentUtils.createExpressionFragment(expression);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                    || !_.has(parsedJson, 'syntax_errors'))
                    && _.isEqual(parsedJson.type, 'right_operand_expression')) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
-                    callback({isValid: true});
+                    callback({ isValid: true });
                 }
-            } else {
-                if (_.isFunction(callback)) {
-                    callback({isValid: false, response: parsedJson});
-                }
+            } else if (_.isFunction(callback)) {
+                callback({ isValid: false, response: parsedJson });
             }
         }
     }
 
     getExpressionString() {
-        var expression = '';
-        _.forEach(this.getChildren(), child => {
+        let expression = '';
+        _.forEach(this.getChildren(), (child) => {
             expression += child.getExpressionString();
         });
         return expression;
@@ -68,7 +66,7 @@ class RightOperandExpression extends Expression {
     initFromJson(jsonNode) {
         if (!_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childJsonNode) => {
-                let child = this.getFactory().createFromJson(childJsonNode);
+                const child = this.getFactory().createFromJson(childJsonNode);
                 this.addChild(child, undefined, true, true);
                 child.initFromJson(childJsonNode);
             });

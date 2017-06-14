@@ -22,8 +22,8 @@ import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import ParameterView from './parameter-view';
 import ReturnTypeView from './return-type-view';
-import {getComponentForNodeArray} from './utils';
-import {lifeLine} from './../configs/designer-defaults';
+import { getComponentForNodeArray } from './utils';
+import { lifeLine } from './../configs/designer-defaults';
 
 class FunctionDefinition extends React.Component {
 
@@ -36,51 +36,55 @@ class FunctionDefinition extends React.Component {
         const name = this.props.model.getFunctionName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
-        //lets calculate function worker lifeline bounding box.
-        let function_worker_bBox = {};
+        // lets calculate function worker lifeline bounding box.
+        const function_worker_bBox = {};
         function_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
         function_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
         function_worker_bBox.w = lifeLine.width;
         function_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
 
-        let classes = {
-            lineClass: "default-worker-life-line",
-            polygonClass: "default-worker-life-line-polygon"
+        const classes = {
+            lineClass: 'default-worker-life-line',
+            polygonClass: 'default-worker-life-line-polygon',
         };
 
 
         // filter children nodes and create components
-        let children = getComponentForNodeArray(this.props.model.getChildren());
+        const children = getComponentForNodeArray(this.props.model.getChildren());
 
         // change icon for main function
-        let icons = "tool-icons/function";
-        if ('main' === name) {
-            icons = "tool-icons/main-function";
+        let icons = 'tool-icons/function';
+        if (name === 'main') {
+            icons = 'tool-icons/main-function';
         }
 
-        let titleComponentData = [{
+        const titleComponentData = [{
             isNode: true,
-            model: this.props.model.getArgumentParameterDefinitionHolder()
+            model: this.props.model.getArgumentParameterDefinitionHolder(),
         }, {
             isNode: true,
-            model: this.props.model.getReturnParameterDefinitionHolder()
+            model: this.props.model.getReturnParameterDefinitionHolder(),
         }];
 
-        return (<PanelDecorator icon={icons} title={name} bBox={bBox}
-                                model={this.props.model}
-                                dropTarget={this.props.model}
-                                dropSourceValidateCB={(node) => this.canDropToPanelBody(node)}
-                                titleComponentData={titleComponentData}>
-            <LifeLine title="default" bBox={function_worker_bBox} classes={classes}/>
-            <StatementContainer dropTarget={this.props.model}
-                                title="StatementContainer" bBox={statementContainerBBox}>
-                {children}
-            </StatementContainer>
+        return (<PanelDecorator
+          icon={icons} title={name} bBox={bBox}
+          model={this.props.model}
+          dropTarget={this.props.model}
+          dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+          titleComponentData={titleComponentData}
+        >
+          <LifeLine title="default" bBox={function_worker_bBox} classes={classes} />
+          <StatementContainer
+            dropTarget={this.props.model}
+            title="StatementContainer" bBox={statementContainerBBox}
+          >
+            {children}
+          </StatementContainer>
         </PanelDecorator>);
     }
 
     canDropToPanelBody(nodeBeingDragged) {
-        let nodeFactory = this.props.model.getFactory();
+        const nodeFactory = this.props.model.getFactory();
         // IMPORTANT: override default validation logic
         // Panel's drop zone is for worker and connector declarations only.
         // Statements should only be allowed on top of function worker's dropzone.

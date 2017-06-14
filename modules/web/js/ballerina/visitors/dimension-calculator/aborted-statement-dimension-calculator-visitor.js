@@ -16,8 +16,8 @@
  * under the License.
  */
 import log from 'log';
-import {util} from './../sizing-utils';
-import {blockStatement} from './../../configs/designer-defaults.js';
+import { util } from './../sizing-utils';
+import { blockStatement } from './../../configs/designer-defaults.js';
 
 class AbortedStatementDimensionCalculatorVisitor {
     canVisit(node) {
@@ -33,9 +33,9 @@ class AbortedStatementDimensionCalculatorVisitor {
     endVisit(node) {
         util.populateCompoundStatementChild(node);
 
-        /// Calculate the title width as to the keyword width.
-        let viewState = node.getViewState();
-        viewState.titleWidth = util.getTextWidth("Aborted").w;
+        // / Calculate the title width as to the keyword width.
+        const viewState = node.getViewState();
+        viewState.titleWidth = util.getTextWidth('Aborted').w;
     }
 }
 

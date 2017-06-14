@@ -20,7 +20,7 @@ import EventChannel from 'event_channel';
 
 /**
  * Represents a single field inside an annotation definition({@link AnnotationDefinition}) for ballerina-env.
- * 
+ *
  * @class AnnotationAttributeDefinition
  * @extends {EventChannel}
  */
@@ -32,7 +32,7 @@ class AnnotationAttributeDefinition extends EventChannel {
      * @param {boolean} args.arrayType Whether the attribute is an arrayed typed.
      * @param {string} args.packagePath The package to which the field belongs to.
      * @param {string} args.identifier The identifier of the field. Example: "foo" of "string foo".
-     * 
+     *
      * @memberof AnnotationAttributeDefinition
      */
     constructor(args) {
@@ -77,13 +77,13 @@ class AnnotationAttributeDefinition extends EventChannel {
 
     /**
      * Sets values from a json object
-     * 
+     *
      * @param {Object} jsonNode json object with values.
      * @param {string} jsonNode.bType The ballerina type of the attribute/field.
      * @param {boolean} jsonNode.arrayType Whether the attribute is an arrayed type.
      * @param {string} jsonNode.identifier The identifier of the attribute/field.
      * @param {string} jsonNode.packagePath the package path of the attribute/field.
-     * 
+     *
      * @memberof AnnotationAttributeDefinition
      */
     initFromJson(jsonNode) {

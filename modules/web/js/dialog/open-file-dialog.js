@@ -27,7 +27,7 @@ import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-contex
 import File from 'workspace/file';
 import 'bootstrap';
 import './dialog.css';
-var OpenFileDialog = Backbone.View.extend(
+const OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
     {
             /**
@@ -36,7 +36,7 @@ var OpenFileDialog = Backbone.View.extend(
              * @class SaveToFileDialog
              * @param {Object} config configuration options for the SaveToFileDialog
              */
-        initialize: function (options) {
+        initialize(options) {
             this.app = options;
             this.dialog_container = $(_.get(options.config.dialog, 'container'));
             this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
@@ -44,46 +44,46 @@ var OpenFileDialog = Backbone.View.extend(
             this.ballerina_editor = _.get(options.config.tab_controller.tabs.tab, 'ballerina_editor');
         },
 
-        show: function(){
+        show() {
             this._fileOpenModal.modal('show');
         },
 
-        select: function(path){
+        select(path) {
             this._fileBrowser.select('path');
         },
 
-        render: function () {
-                //TODO : this render method should be rewritten with improved UI
-            var self = this;
-            var fileBrowser;
-            var fileContent;
-            var app = this.app;
-            var notification_container = this.notification_container;
-            var ballerinaEditorOptions = this.ballerina_editor;
+        render() {
+                // TODO : this render method should be rewritten with improved UI
+            const self = this;
+            let fileBrowser;
+            let fileContent;
+            const app = this.app;
+            const notification_container = this.notification_container;
+            const ballerinaEditorOptions = this.ballerina_editor;
                 // var sourceViewContainer =  this.source_view_container;
-            var diagramRenderingContext = new DiagramRenderContext();
-            var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
+            const diagramRenderingContext = new DiagramRenderContext();
+            const ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
 
-            var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-            packageDefinition.setPackageName("samples.passthrough");
+            const packageDefinition = BallerinaASTFactory.createPackageDefinition();
+            packageDefinition.setPackageName('samples.passthrough');
             ballerinaAstRoot1.addChild(packageDefinition);
             ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
-            if(!_.isNil(this._fileOpenModal)){
+            if (!_.isNil(this._fileOpenModal)) {
                 this._fileOpenModal.remove();
             }
 
-            var fileOpen = $(
+            const fileOpen = $(
                     "<div class='modal fade' id='openConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
                     "<div class='modal-dialog file-dialog' role='document'>" +
                     "<div class='modal-content'>" +
                     "<div class='modal-header'>" +
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
-                    "</button>" +
+                    '</button>' +
                     "<h4 class='modal-title file-dialog-title'>Open File</h4>" +
-                    "<hr class='style1'>"+
-                    "</div>" +
+                    "<hr class='style1'>" +
+                    '</div>' +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal' onsubmit='return false'>" +
@@ -91,82 +91,81 @@ var OpenFileDialog = Backbone.View.extend(
                     "<label for='location' class='col-sm-2 file-dialog-label'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
                     "<input type='text' class='file-dialog-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs/sample.bal'>" +
-                    "</div>" +
-                    "</div>" +
+                    '</div>' +
+                    '</div>' +
                     "<div class='form-group'>" +
                     "<div class='file-dialog-form-scrollable-block'>" +
                     "<div id='fileTree'>" +
-                    "</div>" +
+                    '</div>' +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
                     "<div class='form-group'>" +
                     "<div class='file-dialog-form-btn'>" +
                     "<button id='openButton' type='button' class='btn btn-primary'>Open" +
-                    "</button>" +
+                    '</button>' +
                     "<div class='divider'/>" +
                     "<button type='button' class='btn btn-default' data-dismiss='modal'>Cancel</button>" +
-                    "</div>" +
-                    "</div>" +
-                    "</form>" +
+                    '</div>' +
+                    '</div>' +
+                    '</form>' +
                     "<div id='openFileWizardError' class='alert alert-danger'>" +
-                    "<strong>Error!</strong> Something went wrong." +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>"
+                    '<strong>Error!</strong> Something went wrong.' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>',
                 );
 
-            var successNotification = $(
+            const successNotification = $(
                     "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-success' id='success-alert'>" +
                     "<span class='notification'>" +
-                    "Configuration opened successfully !" +
-                    "</span>" +
-                    "</div>");
+                    'Configuration opened successfully !' +
+                    '</span>' +
+                    '</div>');
 
             function getErrorNotification(detailedErrorMsg) {
-                var errorMsg = "Error while opening configuration";
-                if (!_.isEmpty(detailedErrorMsg)){
-                    errorMsg += (" : " + detailedErrorMsg);
+                let errorMsg = 'Error while opening configuration';
+                if (!_.isEmpty(detailedErrorMsg)) {
+                    errorMsg += (` : ${  detailedErrorMsg}`);
                 }
                 return $(
-                        "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
-                        "<span class='notification'>" +
-                        errorMsg +
-                        "</span>" +
-                        "</div>");
+                        `${"<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
+                        "<span class='notification'>"}${
+                        errorMsg
+                        }</span>` +
+                        '</div>');
             }
 
-            var openConfigModal = fileOpen.filter("#openConfigModal");
-            var openFileWizardError = fileOpen.find("#openFileWizardError");
-            var location = fileOpen.find("input").filter("#location");
+            const openConfigModal = fileOpen.filter('#openConfigModal');
+            const openFileWizardError = fileOpen.find('#openFileWizardError');
+            const location = fileOpen.find('input').filter('#location');
 
-            var treeContainer  = fileOpen.find("div").filter("#fileTree");
-            fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:true});
+            const treeContainer = fileOpen.find('div').filter('#fileTree');
+            fileBrowser = new FileBrowser({ container: treeContainer, application: app, fetchFiles: true });
 
             fileBrowser.render();
             this._fileBrowser = fileBrowser;
 
-                //Gets the selected location from tree and sets the value as location
-            this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
-                if(selectedLocation){
+                // Gets the selected location from tree and sets the value as location
+            this.listenTo(fileBrowser, 'selected', (selectedLocation) => {
+                if (selectedLocation) {
                     location.val(selectedLocation);
                 }
             });
 
 
-            fileOpen.find("button").filter("#openButton").click(function () {
-
-                var _location = location.val();
+            fileOpen.find('button').filter('#openButton').click(() => {
+                const _location = location.val();
                 if (_.isEmpty(_location)) {
-                    openFileWizardError.text("Invalid Value for Location.");
+                    openFileWizardError.text('Invalid Value for Location.');
                     openFileWizardError.show();
                     return;
                 }
-                openConfiguration({location: location});
+                openConfiguration({ location });
             });
 
 
@@ -176,41 +175,41 @@ var OpenFileDialog = Backbone.View.extend(
 
             function alertSuccess() {
                 $(notification_container).append(successNotification);
-                successNotification.fadeTo(2000, 200).slideUp(1000, function () {
+                successNotification.fadeTo(2000, 200).slideUp(1000, () => {
                     successNotification.slideUp(1000);
                 });
             }
 
             function alertError(errorMessage) {
-                var errorNotification = getErrorNotification(errorMessage);
+                const errorNotification = getErrorNotification(errorMessage);
                 $(notification_container).append(errorNotification);
-                errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
+                errorNotification.fadeTo(2000, 200).slideUp(1000, () => {
                     errorNotification.slideUp(1000);
                 });
             }
 
-            function openModel(source){
-                let parserServiceURL = app.config.services.parser.endpoint;
+            function openModel(source) {
+                const parserServiceURL = app.config.services.parser.endpoint;
                 $.ajax({
                     url: parserServiceURL,
-                    type: "POST",
+                    type: 'POST',
                     data: JSON.stringify(source),
-                    contentType: "application/json; charset=utf-8",
+                    contentType: 'application/json; charset=utf-8',
                     async: false,
-                    dataType:"json",
-                    success: function (data, textStatus, xhr) {
+                    dataType: 'json',
+                    success(data, textStatus, xhr) {
                         if (xhr.status == 200) {
-                            var root = BallerinaASTDeserializer.getASTModel(data);
+                            let root = BallerinaASTDeserializer.getASTModel(data);
                             openConfigModal.modal('hide');
-                            var command = app.commandManager;
-                            command.dispatch("create-new-tab", root);
+                            let command = app.commandManager;
+                            command.dispatch('create-new-tab', root);
                         } else {
                             alertError(data.Error);
                         }
                     },
-                    error: function (res, errorCode, error) {
+                    error(res, errorCode, error) {
                         alertError(JSON.parse(res.responseText).Error);
-                    }
+                    },
                 });
             }
 
@@ -224,49 +223,49 @@ var OpenFileDialog = Backbone.View.extend(
             }
 
             function openConfiguration() {
-                var defaultView = {configLocation: location.val()};
+                const defaultView = { configLocation: location.val() };
 
-                var workspaceServiceURL = app.config.services.workspace.endpoint;
-                var saveServiceURL = workspaceServiceURL + "/read";
+                const workspaceServiceURL = app.config.services.workspace.endpoint;
+                const saveServiceURL = `${workspaceServiceURL}/read`;
 
-                var path = defaultView.configLocation;
+                const path = defaultView.configLocation;
                 $.ajax({
                     url: saveServiceURL,
-                    type: "POST",
+                    type: 'POST',
                     data: path,
-                    contentType: "text/plain; charset=utf-8",
+                    contentType: 'text/plain; charset=utf-8',
                     async: false,
-                    success: function (data, textStatus, xhr) {
+                    success(data, textStatus, xhr) {
                         if (xhr.status == 200) {
-                            var pathArray = _.split(path, self.app.getPathSeperator()),
+                            let pathArray = _.split(path, self.app.getPathSeperator()),
                                 fileName = _.last(pathArray),
-                                folderPath = _.join(_.take(pathArray, pathArray.length -1), self.app.getPathSeperator());
+                                folderPath = _.join(_.take(pathArray, pathArray.length - 1), self.app.getPathSeperator());
 
-                            var file = new File({
+                            let file = new File({
                                 name: fileName,
                                 path: folderPath,
                                 content: data.content,
                                 isPersisted: true,
-                                isDirty: false
+                                isDirty: false,
                             });
                             openConfigModal.modal('hide');
-                            app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
+                            app.commandManager.dispatch('create-new-tab', { tabOptions: { file: file } });
                         } else {
                             openFileWizardError.text(data.Error);
                             openFileWizardError.show();
                         }
                     },
-                    error: function (res, errorCode, error) {
-                        var msg = _.isString(error) ? error : res.statusText;
-                        if(isJsonString(res.responseText)){
-                            var resObj = JSON.parse(res.responseText);
-                            if(_.has(resObj, 'Error')){
+                    error(res, errorCode, error) {
+                        let msg = _.isString(error) ? error : res.statusText;
+                        if (isJsonString(res.responseText)) {
+                            let resObj = JSON.parse(res.responseText);
+                            if (_.has(resObj, 'Error')) {
                                 msg = _.get(resObj, 'Error');
                             }
                         }
                         openFileWizardError.text(msg);
                         openFileWizardError.show();
-                    }
+                    },
                 });
             }
         },

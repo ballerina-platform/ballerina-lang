@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import TagController from './utils/tag-component';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -38,15 +38,15 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * @return {boolean} true||false
      * */
     addReturnParameter(input) {
-        let model = this.props.model;
-        let splitedExpression = input.split(" ");
+        const model = this.props.model;
+        const splitedExpression = input.split(' ');
 
-        let parameterDef = model.getFactory().createParameterDefinition();
-        let bType = splitedExpression[0];
+        const parameterDef = model.getFactory().createParameterDefinition();
+        const bType = splitedExpression[0];
         if (this.validateType(bType)) {
             parameterDef.setTypeName(bType);
         } else {
-            let errorString = "Incorrect Variable Type: " + bType;
+            const errorString = `Incorrect Variable Type: ${bType}`;
             Alerts.error(errorString);
             return false;
         }
@@ -54,7 +54,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
         if (!_.isNil(splitedExpression[1])) {
             parameterDef.setName(splitedExpression[1]);
             if (this.checkWhetherIdentifierAlreadyExist(splitedExpression[1])) {
-                let errorString = "Variable Already exists: " + splitedExpression[1];
+                const errorString = `Variable Already exists: ${splitedExpression[1]}`;
                 Alerts.error(errorString);
                 return false;
             }
@@ -86,11 +86,11 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const {renderingContext} = this.context;
-        let dropdownData = [];
-        let bTypes = renderingContext.environment.getTypes();
-        _.forEach(bTypes, function (bType) {
-            dropdownData.push({id: bType, text: bType});
+        const { renderingContext } = this.context;
+        const dropdownData = [];
+        const bTypes = renderingContext.environment.getTypes();
+        _.forEach(bTypes, (bType) => {
+            dropdownData.push({ id: bType, text: bType });
         });
 
         return dropdownData;
@@ -101,13 +101,13 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * */
     validateType(typeString) {
         let isValid = false;
-        let typeList = this.getTypeDropdownValues();
+        const typeList = this.getTypeDropdownValues();
         let type;
         const structs = this.context.renderingContext.getPackagedScopedEnvironment()._currentPackage._structDefinitions;
-        let types = _.map(typeList, 'id');
+        const types = _.map(typeList, 'id');
 
-        if (typeString.substring(typeString.length-2) === '[]') {
-            type = typeString.substring(0, typeString.length-2);
+        if (typeString.substring(typeString.length - 2) === '[]') {
+            type = typeString.substring(0, typeString.length - 2);
         } else if (typeString.split(':').length === 2) {
             // TODO: Here we assume that the type is a struct referred from another package
             return true;
@@ -128,35 +128,37 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * @return {boolean} true - change the state, false - don't change the state
      * */
     validateInput(input) {
-        let splitedExpression = input.split(" ");
+        const splitedExpression = input.split(' ');
         return splitedExpression.length > 1;
     }
 
     render() {
-        let model = this.props.model;
-        let componentData = {
+        const model = this.props.model;
+        const componentData = {
             title: 'Return Types: ',
             components: {
                 openingBracket: this.props.model.parent.getViewState().components.openingReturnType,
                 typesIcon: this.props.model.parent.getViewState().components.returnTypesIcon,
-                closingBracket: this.props.model.parent.getViewState().components.closingReturnType
+                closingBracket: this.props.model.parent.getViewState().components.closingReturnType,
             },
             openingBracketClassName: 'return-types-opening-brack-text',
             closingBracketClassName: 'return-types-closing-brack-text',
             prefixTextClassName: 'return-types-prefix-text',
-            defaultText: "+ Add Returns"
+            defaultText: '+ Add Returns',
         };
-        let children = getComponentForNodeArray(model.getChildren());
+        const children = getComponentForNodeArray(model.getChildren());
         return (
-            <TagController key={model.getID()} model={model} setter={this.addReturnParameter}
-                           validateInput={this.validateInput} modelComponents={children}
-                           componentData={componentData} groupClass="return-parameter-group"/>
+          <TagController
+            key={model.getID()} model={model} setter={this.addReturnParameter}
+            validateInput={this.validateInput} modelComponents={children}
+            componentData={componentData} groupClass="return-parameter-group"
+          />
         );
     }
 }
 
 ReturnParameterDefinitionHolder.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ReturnParameterDefinitionHolder;

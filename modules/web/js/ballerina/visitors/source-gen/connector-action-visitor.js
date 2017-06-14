@@ -46,33 +46,33 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        var actionReturnTypes = connectorAction.getReturnTypes();
-        let useDefaultWS = connectorAction.whiteSpace.useDefault;
+        const actionReturnTypes = connectorAction.getReturnTypes();
+        const useDefaultWS = connectorAction.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
         }
-        var connectorActionReturnTypesSource = '';
+        let connectorActionReturnTypesSource = '';
         if (!_.isEmpty(actionReturnTypes)) {
             // if return types were not there before && no space ATM before (, add a space before
-            let precedingWS = ((_.isEmpty(connectorAction.getWSRegion(3))  &&
+            const precedingWS = ((_.isEmpty(connectorAction.getWSRegion(3)) &&
                     actionReturnTypes[0].whiteSpace.useDefault) ? ' ' : connectorAction.getWSRegion(3));
-            connectorActionReturnTypesSource = precedingWS + '(' + connectorAction.getReturnTypesAsString() + ')';
+            connectorActionReturnTypesSource = `${precedingWS}(${connectorAction.getReturnTypesAsString()})`;
         }
 
         let constructedSourceSegment = '';
-        _.forEach(connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotation), annotationNode => {
+        _.forEach(connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotation), (annotationNode) => {
             if (annotationNode.isSupported()) {
                 constructedSourceSegment += annotationNode.toString()
                   + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
 
-        constructedSourceSegment += 'action' + connectorAction.getWSRegion(1)
-            + connectorAction.getActionName()
-            + connectorAction.getWSRegion(2) + '(' + connectorAction.getArgumentsAsString()
-            + ')' + connectorActionReturnTypesSource
-            + connectorAction.getWSRegion(4) + '{' + connectorAction.getWSRegion(5);
+        constructedSourceSegment += `action${connectorAction.getWSRegion(1)
+             }${connectorAction.getActionName()
+             }${connectorAction.getWSRegion(2)}(${connectorAction.getArgumentsAsString()
+             })${connectorActionReturnTypesSource
+             }${connectorAction.getWSRegion(4)}{${connectorAction.getWSRegion(5)}`;
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -89,7 +89,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorAction(connectorAction) {
         this.outdent();
-        this.appendSource('}' + connectorAction.getWSRegion(6));
+        this.appendSource(`}${connectorAction.getWSRegion(6)}`);
         this.appendSource((connectorAction.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
@@ -101,8 +101,8 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      * @param {Statement} statement
      */
     visitStatement(statement) {
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        const statementVisitorFactory = new StatementVisitorFactory();
+        const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
@@ -111,7 +111,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      * @param {ConnectorDeclaration} connectorDeclaration
      */
     visitConnectorDeclaration(connectorDeclaration) {
-        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 
@@ -120,7 +120,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      * @param {VariableDeclaration} variableDeclaration
      */
     visitVariableDeclaration(variableDeclaration) {
-        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);
     }
 
@@ -129,7 +129,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      * @param workerDeclaration
      */
     visitWorkerDeclaration(workerDeclaration) {
-        var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
+        const workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
         workerDeclaration.accept(workerDeclarationVisitor);
     }
 }

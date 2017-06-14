@@ -17,7 +17,7 @@
  */
 
 import log from 'log';
-import {util} from './../sizing-utils';
+import { util } from './../sizing-utils';
 
 
 class AssignmentStatementDimensionCalculatorVisitor {
@@ -33,7 +33,7 @@ class AssignmentStatementDimensionCalculatorVisitor {
     }
 
     endVisit(node) {
-        util.populateSimpleStatementBBox( node.getStatementString() , node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }
 

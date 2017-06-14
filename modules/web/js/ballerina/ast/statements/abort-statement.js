@@ -20,12 +20,12 @@ import Statement from './statement';
 class AbortStatement extends Statement {
     constructor() {
         super();
-        this.type = "AbortStatement";
-        this.whiteSpace.defaultDescriptor.regions =  {
+        this.type = 'AbortStatement';
+        this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
-            2: '\n'
-        }
+            2: '\n',
+        };
     }
 
     /**
@@ -51,7 +51,7 @@ class AbortStatement extends Statement {
      * @override
      * */
     getStatementString() {
-        return "abort";
+        return 'abort';
     }
 }
 

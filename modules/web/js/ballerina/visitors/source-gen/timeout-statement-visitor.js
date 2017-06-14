@@ -30,8 +30,8 @@ class TimeoutStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitTimeoutStatement(timeoutStatement) {
         this.node = timeoutStatement;
-        this.appendSource('timeout (' + timeoutStatement.getExpression() + ') ('
-            + timeoutStatement.getParameterAsString() + '){\n');
+        this.appendSource(`timeout (${timeoutStatement.getExpression()}) (${
+             timeoutStatement.getParameterAsString()}){\n`);
         log.debug('Begin Visit Timeout Statement');
     }
 
@@ -44,8 +44,8 @@ class TimeoutStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
-            let statementVisitorFactory = new StatementVisitorFactory();
-            let statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            const statementVisitorFactory = new StatementVisitorFactory();
+            const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }
     }

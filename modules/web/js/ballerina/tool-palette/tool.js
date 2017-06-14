@@ -19,8 +19,8 @@
 import _ from 'lodash';
 import Backbone from 'backbone';
 
-var tool = Backbone.Model.extend({
-    initialize: function (args) {
+const tool = Backbone.Model.extend({
+    initialize(args) {
         this.name = _.get(args, 'name', null);
         this.icon = _.get(args, 'icon', null);
         this.iconSrc = _.get(args, 'iconSrc', null);
@@ -28,25 +28,25 @@ var tool = Backbone.Model.extend({
         this.dragCursorOffset = _.get(args, 'dragCursorOffset', undefined);
         this.classNames = _.get(args, 'classNames', undefined);
 
-        if(!_.isNil(args.meta)){
+        if (!_.isNil(args.meta)) {
             this.parent = args.meta.actionConnectorName;
         }
     },
 
-    modelName: "Tool",
+    modelName: 'Tool',
 
     defaults: {
-        id: "",
-        title: "",
-        icon: "",
-        classNames:"",
+        id: '',
+        title: '',
+        icon: '',
+        classNames: '',
     },
 
     /**
      * sets name
      * @param {string} name
      */
-    setName: function (name) {
+    setName(name) {
         this.set('name', name);
         this.trigger('name-modified', name);
     },
@@ -55,7 +55,7 @@ var tool = Backbone.Model.extend({
      * sets id
      * @param {string} id
      */
-    setId: function (id) {
+    setId(id) {
         this.set('id', id);
         this.trigger('id-modified', id);
     },
@@ -64,7 +64,7 @@ var tool = Backbone.Model.extend({
      * sets title
      * @param {string} title
      */
-    setTitle: function (title) {
+    setTitle(title) {
         this.set('title', title);
         this.trigger('title-modified', title);
     },
@@ -73,10 +73,10 @@ var tool = Backbone.Model.extend({
      * sets params
      * @param {string} title
      */
-    setParams: function (params) {
+    setParams(params) {
         this.set('params', params);
         this.trigger('params-modified', params);
-    }
+    },
 
 });
 

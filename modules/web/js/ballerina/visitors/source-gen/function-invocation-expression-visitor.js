@@ -35,7 +35,7 @@ class FunctionInvocationExpressionVisitor extends AbstractStatementSourceGenVisi
     }
 
     beginVisitFuncInvocationExpression(functionInvocation) {
-        var source = functionInvocation.getFunctionalExpression();
+        const source = functionInvocation.getFunctionalExpression();
         this.appendSource(source);
     }
 
