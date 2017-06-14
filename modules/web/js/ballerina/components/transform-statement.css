@@ -206,7 +206,7 @@ svg.plumbConnect path {
 .type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
     top:10px;
     left:10px;
-    width:220px;
+    width:250px;
     position:absolute;
     height : 30px
 }
@@ -310,7 +310,7 @@ svg.plumbConnect path {
 .btn-add-type {
     color: #666769;
     top:10px;
-    left:235px;
+    left:265px;
     position:absolute;
 }
 
