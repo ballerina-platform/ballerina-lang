@@ -86,6 +86,7 @@
 .btn-debug-action{
     width: 20% !important;
     padding:11px !important;
+    float: left;
 }
 
 .sidebar-left .btn-debug-action:hover ,

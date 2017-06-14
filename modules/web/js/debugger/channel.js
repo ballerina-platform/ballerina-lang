@@ -28,7 +28,7 @@ class Channel extends EventChannel {
     constructor(args) {
         super();
         if (_.isNil(args.endpoint)) {
-            throw 'Invalid Endpoint';
+            throw new Error('Invalid Endpoint');
         }
         _.assign(this, args);
     }

@@ -24,41 +24,44 @@ class Frames extends EventChannel {
     constructor() {
         super();
         const template =
-      '<div class="debug-panel-header debug-frame-header">' +
-      '   <span><a class="tool-group-header-title">Frames</a></span>' +
-      '</div>' +
-      '<div class="panel-group" id="frameAccordion">' +
-      '<% frames.forEach((frame, index) => { %>' +
-      '    <div class="panel panel-default">' +
-      '      <div class="panel-heading">' +
-      '        <h4 class="panel-title">' +
-      '          <a data-toggle="collapse" data-parent="#frameAccordion" href="#<%- frame.frameName %>"><%- frame.frameName %>' +
-      '           <span class="debug-frame-pkg-name">' +
-      '           <i class="fw fw-package"></i> <%- frame.packageName %>' +
-      '           </span>' +
-      '          </a>' +
-      '        </h4>' +
-      '      </div>' +
-      '      <div id="debugger-frame-<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">' +
-      '        <div class="panel-body">' +
-      '        <div class="debug-v-tree">' +
-      '          <ul>' +
-      '          <% frame.variables.forEach( v => { %>' +
-      '          <li>' +
-      '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)' +
-      '          <ul>' +
-      '            <li>type : <%- v.type %></li>' +
-      '            <li>scope : <%- v.scope %></li>' +
-      '          </ul>' +
-      '          </li>' +
-      '          <% }); %>' +
-      '          </ul>' +
-      '        </div>' +
-      '        </div>' +
-      '      </div>' +
-      '    </div>' +
-      '<% }); %>' +
-      '</div>';
+            `<div class="debug-panel-header debug-frame-header">
+                <span><a class="tool-group-header-title">Frames</a></span>
+            </div>
+            <div class="panel-group" id="frameAccordion">
+            <% frames.forEach((frame, index) => { %>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse"
+                                data-parent="#frameAccordion"
+                                href="#<%- frame.frameName %>"><%- frame.frameName %>
+                                <span class="debug-frame-pkg-name">
+                                <i class="fw fw-package"></i> <%- frame.packageName %>
+                               </span>
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="debugger-frame-<%- frame.frameName %>"
+                        class="panel-collapse collapse <% if(index == 0){%>in<% } %>">
+                        <div class="panel-body">
+                        <div class="debug-v-tree">
+                            <ul>
+                                <% frame.variables.forEach( v => { %>
+                                <li>
+                                    <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)
+                                    <ul>
+                                        <li>type : <%- v.type %></li>
+                                        <li>scope : <%- v.scope %></li>
+                                    </ul>
+                                </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            <% }); %>
+            </div>`;
 
 
         this.compiled = _.template(template);
@@ -88,7 +91,10 @@ class Frames extends EventChannel {
     render(message) {
       // clear duplicate main
         message.frames = _.uniqWith(message.frames, (obj, other) => {
-            if (_.isEqual(obj.frameName, other.frameName) && _.isEqual(obj.packageName, other.packageName)) { return true; }
+            if (_.isEqual(obj.frameName, other.frameName) && _.isEqual(obj.packageName, other.packageName)) {
+                return true;
+            }
+            return false;
         });
       // drop unnecessary first frame in services
         const firstFrame = _.head(message.frames);
@@ -106,9 +112,9 @@ class Frames extends EventChannel {
 
     process(frames) {
       // reverse order
-        frames = _.reverse(frames);
+        const newFrames = _.reverse(frames);
 
-        frames.map((frame) => {
+        newFrames.map((frame) => {
             frame.variables.map((item) => {
                 switch (item.type) {
                 case 'BBoolean':
@@ -173,7 +179,7 @@ class Frames extends EventChannel {
             return frame;
         });
 
-        return frames;
+        return newFrames;
     }
 }
 

@@ -19,33 +19,66 @@
 import $ from 'jquery';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import DebugManager from './debug-manager';
 import alerts from 'alerts';
+import DebugManager from './debug-manager';
 
 class Tools extends EventChannel {
     constructor() {
         super();
-        this.compiled = _.template('<% if (!active) { %>'
-            + '<div class="debug-panel-header">'
-            + '     <span class="tool-group-header-title">Debug</span>'
-            + '</div>'
-            + '<div class="btn-group col-xs-12">'
-            + '     <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debugging Application"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
-            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_service" title="Start Debugging Service">Service</button>'
-            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="remote_debug" title="Start Debugging Remotely">Debug Remotely</button>'
-            + '</div>'
-            + '<% } %>'
-            + '<% if (active) { %>'
-            + '<div class="debug-panel-header">'
-            + '     <span class="tool-group-header-title">Debugger Active</span></span>'
-            + '</div>'
-            + '<div class="">'
-            + '<button type="button" class="btn btn-default btn-debug-action" data-action="Stop"  title="Stop Debug ( Alt + P )"><i class="fw fw-stop" /></button>'
-            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>'
-            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>'
-            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>'
-            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepOut"  title="Step Out ( Alt + U )"><i class="fw fw-stepout " /></button>'
-            + '</div><% } %>');
+        this.compiled = _.template(
+            `<% if (!active) { %>
+              <div class="debug-panel-header">
+                   <span class="tool-group-header-title">Debug</span>
+              </div>
+              <div class="btn-group col-xs-12">
+                <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12"
+                  id="debug_application"
+                  title="Start Debugging Application">
+                 <span class="launch-label">Application</span>
+                 <button type="button" class="btn btn-default pull-right btn-config" title="Config">
+                    <i class="fw fw-configarations"></i>
+                  </button>
+                </div>
+                <button type="button"
+                  class="btn btn-default text-left btn-debug-activate col-xs-12"
+                  id="debug_service" title="Start Debugging Service">
+                  Service
+                </button>
+                 <button type="button"
+                    class="btn btn-default text-left btn-debug-activate col-xs-12"
+                    id="remote_debug" title="Start Debugging Remotely">
+                    Debug Remotely
+                 </button>
+              </div>
+              <% } %>
+              <% if (active) { %>
+              <div class="debug-panel-header">
+                <span class="tool-group-header-title">Debugger Active</span></span>
+              </div>
+              <div class="">
+              <button type="button"
+                class="btn btn-default btn-debug-action" data-action="Stop"  title="Stop Debug ( Alt + P )">
+                <i class="fw fw-stop" />
+              </button>
+              <button type="button"
+                class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
+                data-action="Resume"  title="Resume ( Alt + R )">
+                <i class="fw fw-start " />
+              </button>
+              <button type="button"
+                class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
+                data-action="StepOver"  title="Step Over ( Alt + O )">
+                <i class="fw fw-stepover " />
+              </button>
+              <button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
+                data-action="StepIn"  title="Step In ( Alt + I )">
+                <i class="fw fw-stepin " />
+              </button>
+              <button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
+                data-action="StepOut"  title="Step Out ( Alt + U )">
+                <i class="fw fw-stepout " />
+              </button>
+              </div><% } %>`);
 
         this.connectionDialog = $('#modalDebugConnection');
         this.appArgsDialog = $('#modalRunApplicationWithArgs');
@@ -79,11 +112,13 @@ class Tools extends EventChannel {
         const self = this;
         $('#form-run-application-with-args').submit(function (e) {
             e.preventDefault();
-            const args = $(this).serializeArray().map(input => input.value).join(' ').trim();
+            const newArgs = $(this).serializeArray().map(input => input.value)
+                                .join(' ')
+                                .trim();
             const activeTab = self.application.tabController.getActiveTab();
             if (activeTab && activeTab.getFile()) {
                 const id = activeTab.getFile().id;
-                self.application.browserStorage.put(`launcher-app-configs-${id}`, args);
+                self.application.browserStorage.put(`launcher-app-configs-${id}`, newArgs);
             }
             self.appArgsDialog.modal('hide');
         });
@@ -106,8 +141,9 @@ class Tools extends EventChannel {
             const activeTab = this.application.tabController.getActiveTab();
             if (activeTab && activeTab.getFile()) {
                 const { id } = activeTab.getFile();
-                const args = (this.application.browserStorage.get(`launcher-app-configs-${id}`) || '').split(' ');
-                _.each(args, (arg, i) => {
+                const argsString = this.application.browserStorage.get(`launcher-app-configs-${id}`) || '';
+                const currentArgs = argsString.split(' ');
+                _.each(currentArgs, (arg, i) => {
                     if (i === 0) {
                         $('#form-run-application-with-args input[type=\'text\']').get(0).value = arg;
                     } else {
@@ -158,9 +194,11 @@ class Tools extends EventChannel {
         case 'Stop':
             action = DebugManager.stop.bind(DebugManager);
             break;
+        default:
+            throw Error('Unknown action');
         }
 
-        return function () {
+        return () => {
             if (this.navigation) {
                 action();
             }
