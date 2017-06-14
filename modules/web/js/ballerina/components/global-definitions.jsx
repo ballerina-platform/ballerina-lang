@@ -20,13 +20,14 @@ import React from 'react';
 import './global-definitions.css';
 import ImageUtil from './image-util';
 import { util as SizingUtils } from '../visitors/sizing-utils';
+import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
 
 export default class GlobalDefinitions extends React.Component {
 
     render() {
         const { bBox, title, numberOfItems, onExpand } = this.props;
 
-        const headerHeight = 35;
+        const headerHeight = variablesPaneDefaults.headerHeight;
         const leftPadding = 10;
         const iconSize = 20;
         const iconLeftPadding = 12;

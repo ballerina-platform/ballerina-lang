@@ -23,6 +23,7 @@ import SuggestionsText from './suggestions-text';
 import GlobalItem from './global-item';
 import EditableText from './editable-text';
 import BallerinaEnvironment from '../env/environment';
+import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
 
 export default class GlobalExpanded extends React.Component {
     constructor() {
@@ -61,11 +62,11 @@ export default class GlobalExpanded extends React.Component {
 
     render() {
         const bBox = this.props.bBox;
+        const topBarHeight = variablesPaneDefaults.topBarHeight;
+        const globalInputHeight = variablesPaneDefaults.inputHeight;
         const globalHeight = 30;
-        const globalInputHeight = 40;
         const globalDeclarationWidth = 310;
         const leftPadding = 10;
-        const topBarHeight = 25;
         const iconSize = 20;
         const globalElements = [];
 

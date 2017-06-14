@@ -625,10 +625,11 @@ class SizingUtil {
     }
 
     getConnectorLevelVariablesHeight(node) {
-        let height = 65;
+        const variablesPaneDefaults = DesignerDefaults.variablesPane;
+        let height = variablesPaneDefaults.topBarHeight + variablesPaneDefaults.inputHeight;
 
         if (!node.viewState.variablesExpanded) {
-            return 35;
+            return variablesPaneDefaults.headerHeight;
         }
 
         const variables = node.filterChildren(child => ASTFactory.isVariableDefinitionStatement(child));
