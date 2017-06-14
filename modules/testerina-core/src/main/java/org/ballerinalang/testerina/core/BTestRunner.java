@@ -26,7 +26,6 @@ import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
@@ -54,11 +53,7 @@ public class BTestRunner {
             TesterinaRegistry.getInstance().addProgramFile(programFile);
         });
 
-        if (ModeResolver.getInstance().isDebugEnabled()) {
-            DebugManager debugManager = DebugManager.getInstance();
-            // This will start the websocket server.
-            debugManager.init();
-        }
+	// TODO Implement debugging for Testerina
 
         executeTestFunctions(programFiles);
         tReport.printTestSummary();
