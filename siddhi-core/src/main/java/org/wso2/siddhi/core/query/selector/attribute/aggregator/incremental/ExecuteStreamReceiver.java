@@ -24,24 +24,19 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.event.stream.converter.AggregatorEventConverterFactory;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
+import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
+import org.wso2.siddhi.core.util.parser.helper.AggregationDefinitionParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.expression.AttributeFunction;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.condition.In;
-import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
-import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ExecuteStreamReceiver implements StreamJunction.Receiver {
 
@@ -50,9 +45,10 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     protected String streamId;
     protected Executor next;
     private StreamEventConverter streamEventConverter;
-    private MetaStreamEvent metaStreamEvent;
+    private MetaStreamEvent newMetaStreamEvent;
     private MetaStreamEvent originalMetaStreamEvent;
-    private StreamEventPool streamEventPool;
+    private StreamEventPool originalStreamEventPool;
+    private StreamEventPool newStreamEventPool;
     protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
     protected int stateProcessorsSize;
     protected LatencyTracker latencyTracker;
@@ -61,7 +57,10 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     protected boolean batchProcessingAllowed;
     private SiddhiDebugger siddhiDebugger;
     private String aggregatorName;
-    private Map<Attribute, Integer> mappingPositions;
+    private List<ExpressionExecutor> metaValueRetrievers;
+    private Scheduler scheduler;
+    private TimePeriod.Duration minSchedulingTime;
+    private boolean isFirstEvent = true;
 
     public ExecuteStreamReceiver(String streamId, LatencyTracker latencyTracker, String queryName) {
         this.streamId = streamId;
@@ -111,12 +110,12 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
         if (siddhiDebugger != null) {
             siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, complexEvents);
         }
-        StreamEvent firstEvent = streamEventPool.borrowEvent();
+        StreamEvent firstEvent = originalStreamEventPool.borrowEvent();
         streamEventConverter.convertComplexEvent(complexEvents, firstEvent);
         StreamEvent currentEvent = firstEvent;
         complexEvents = complexEvents.getNext();
         while (complexEvents != null) {
-            StreamEvent nextEvent = streamEventPool.borrowEvent();
+            StreamEvent nextEvent = originalStreamEventPool.borrowEvent();
             streamEventConverter.convertComplexEvent(complexEvents, nextEvent);
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
@@ -128,7 +127,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     @Override
     public void receive(Event event) {
         if (event != null) {
-            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+            StreamEvent borrowedEvent = originalStreamEventPool.borrowEvent();
             streamEventConverter.convertEvent(event, borrowedEvent);
             if (siddhiDebugger != null) {
                 siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, borrowedEvent);
@@ -139,11 +138,11 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event[] events) {
-        StreamEvent firstEvent = streamEventPool.borrowEvent();
+        StreamEvent firstEvent = originalStreamEventPool.borrowEvent();
         streamEventConverter.convertEvent(events[0], firstEvent);
         StreamEvent currentEvent = firstEvent;
         for (int i = 1, eventsLength = events.length; i < eventsLength; i++) {
-            StreamEvent nextEvent = streamEventPool.borrowEvent();
+            StreamEvent nextEvent = originalStreamEventPool.borrowEvent();
             streamEventConverter.convertEvent(events[i], nextEvent);
             currentEvent.setNext(nextEvent);
             currentEvent = nextEvent;
@@ -157,7 +156,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(Event event, boolean endOfBatch) {
-        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+        StreamEvent borrowedEvent = originalStreamEventPool.borrowEvent();
         streamEventConverter.convertEvent(event, borrowedEvent);
         ComplexEventChunk<StreamEvent> streamEventChunk = null;
         synchronized (this) {
@@ -177,105 +176,42 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
 
     @Override
     public void receive(long timestamp, Object[] data) {
-        // TODO: 6/2/17 change mapping mechanism
-        StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        streamEventConverter.convertData(timestamp, data, borrowedEvent);
-        //Only the groupBy attribute values and timestamp (if available) are mapped with converter.
-        //The base aggregate values must be taken from compositeAggregator.
+        // Convert data using the original meta
+        StreamEvent borrowedOriginalEvent = originalStreamEventPool.borrowEvent();
+        streamEventConverter.convertData(timestamp, data, borrowedOriginalEvent);
 
-        List<Attribute> onAfterWindowData = metaStreamEvent.getOnAfterWindowData(); //get index of new attribute (from the map we pass here)
-
-        for (Map.Entry<Attribute, Integer> mapping: mappingPositions.entrySet()) {
-            int toPosition = onAfterWindowData.indexOf(mapping.getKey());
-            int fromPosition = mapping.getValue();
-            Object dataValue = data[fromPosition];
-            switch (dataValue.getClass().getTypeName()) {
-                case "java.lang.Integer":
-                    switch (onAfterWindowData.get(toPosition).getType()) {
-                        case INT:
-                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
-                            break;
-                        case LONG:
-                            borrowedEvent.setOnAfterWindowData(((Integer)dataValue).longValue(), toPosition);
-                            break;
-                        case FLOAT:
-                            borrowedEvent.setOnAfterWindowData(((Integer)dataValue).floatValue(), toPosition);
-                            break;
-                        case DOUBLE:
-                            borrowedEvent.setOnAfterWindowData(((Integer)dataValue).doubleValue(), toPosition);
-                            break;
-                        default:
-                            // TODO: 6/7/17 exception
-                    }
-                    break;
-                case "java.lang.Long":
-                    switch (onAfterWindowData.get(toPosition).getType()) {
-                        case INT:
-                            borrowedEvent.setOnAfterWindowData(((Long)dataValue).intValue(), toPosition);
-                            break;
-                        case LONG:
-                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
-                            break;
-                        case FLOAT:
-                            borrowedEvent.setOnAfterWindowData(((Long)dataValue).floatValue(), toPosition);
-                            break;
-                        case DOUBLE:
-                            borrowedEvent.setOnAfterWindowData(((Long)dataValue).doubleValue(), toPosition);
-                            break;
-                        default:
-                            // TODO: 6/7/17 exception
-                    }
-                    break;
-                case "java.lang.Float":
-                    switch (onAfterWindowData.get(toPosition).getType()) {
-                        case INT:
-                            borrowedEvent.setOnAfterWindowData(((Float)dataValue).intValue(), toPosition);
-                            break;
-                        case LONG:
-                            borrowedEvent.setOnAfterWindowData(((Float)dataValue).longValue(), toPosition);
-                            break;
-                        case FLOAT:
-                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
-                            break;
-                        case DOUBLE:
-                            borrowedEvent.setOnAfterWindowData(((Float)dataValue).doubleValue(), toPosition);
-                            break;
-                        default:
-                            // TODO: 6/7/17 exception
-                    }
-                    break;
-                case "java.lang.Double":
-                    switch (onAfterWindowData.get(toPosition).getType()) {
-                        case INT:
-                            borrowedEvent.setOnAfterWindowData(((Double)dataValue).intValue(), toPosition);
-                            break;
-                        case LONG:
-                            borrowedEvent.setOnAfterWindowData(((Double)dataValue).longValue(), toPosition);
-                            break;
-                        case FLOAT:
-                            borrowedEvent.setOnAfterWindowData(((Double)dataValue).floatValue(), toPosition);
-                            break;
-                        case DOUBLE:
-                            borrowedEvent.setOnAfterWindowData(dataValue, toPosition);
-                            break;
-                        default:
-                            // TODO: 6/7/17 exception
-                    }
-                    break;
-                default:
-                    // TODO: 6/7/17 exception
-
+        StreamEvent borrowedNewEvent = newStreamEventPool.borrowEvent();
+        if (newMetaStreamEvent.getOnAfterWindowData().size() == metaValueRetrievers.size()) {
+            // User has defined the timeStamp
+            int i = 0;
+            for (ExpressionExecutor expressionExecutor : metaValueRetrievers) {
+                borrowedNewEvent.getOnAfterWindowData()[i] = expressionExecutor.execute(borrowedOriginalEvent);
+                i++;
             }
-
+        } else if (newMetaStreamEvent.getOnAfterWindowData().size() == metaValueRetrievers.size() +1 ) {
+            // User has not defined the timeStamp
+            borrowedNewEvent.getOnAfterWindowData()[0] = System.currentTimeMillis();
+            int i = 1;
+            for (ExpressionExecutor expressionExecutor : metaValueRetrievers) {
+                borrowedNewEvent.getOnAfterWindowData()[i] = expressionExecutor.execute(borrowedOriginalEvent);
+                i++;
+            }
+        } else {
+            // TODO: 6/11/17 error
+            // Expression executors must be defined to retrieve each new meta value
         }
 
-        //then put value to borrowedEvent using the map
+        if (isFirstEvent) {
+            scheduler.notifyAt(AggregationDefinitionParserHelper.getNextEmitTime(
+                    (Long) borrowedNewEvent.getOnAfterWindowData()[0], minSchedulingTime));
+        }
+
 
         // Send to debugger
         if (siddhiDebugger != null) {
-            siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, borrowedEvent);
+            siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, borrowedOriginalEvent);
         }
-        execute(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed));
+        execute(new ComplexEventChunk<>(borrowedNewEvent, borrowedNewEvent, this.batchProcessingAllowed));
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
@@ -283,8 +219,15 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
         streamEventChunk.clear();
     }
 
-    public void setMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
-        this.metaStreamEvent = metaStreamEvent;
+    public void processTimerEvent(ComplexEventChunk complexEventChunk) {
+        // Method to set scheduler notify time
+        this.scheduler.notifyAt(AggregationDefinitionParserHelper.getNextEmitTime(
+                complexEventChunk.getFirst().getTimestamp(), minSchedulingTime)); // TODO: 6/13/17 is this correct? Assumes that timestamp
+        // of timer event
+    }
+
+    public void setNewMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
+        this.newMetaStreamEvent = metaStreamEvent;
     }
 
     public void setOriginalMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
@@ -292,7 +235,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     }
 
     public boolean toTable() {
-        return metaStreamEvent.isTableEvent();
+        return newMetaStreamEvent.isTableEvent();
     }
 
     public void setBatchProcessingAllowed(boolean batchProcessingAllowed) {
@@ -303,8 +246,12 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
         this.next = next;
     }
 
-    public void setStreamEventPool(StreamEventPool streamEventPool) {
-        this.streamEventPool = streamEventPool;
+    public void setStreamEventPoolForOriginalMeta(StreamEventPool streamEventPool) {
+        this.originalStreamEventPool = streamEventPool;
+    }
+
+    public void setStreamEventPoolForNewMeta(StreamEventPool streamEventPool) {
+        this.newStreamEventPool = streamEventPool;
     }
 
     public void setLockWrapper(LockWrapper lockWrapper) {
@@ -312,7 +259,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     }
 
     public void init() {
-        streamEventConverter = AggregatorEventConverterFactory.constructEventConverter(metaStreamEvent, originalMetaStreamEvent);
+        streamEventConverter = StreamEventConverterFactory.constructEventConverter(originalMetaStreamEvent);
     }
 
     public void addStatefulProcessor(PreStateProcessor stateProcessor) {
@@ -320,11 +267,16 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
         stateProcessorsSize = stateProcessors.size();
     }
 
-    /*public void setCompositeAggregator(List<CompositeAggregator> compositeAggregator) {
-        this.compositeAggregator = compositeAggregator;
-    }*/
-
-    public void setMappingPositions(Map<Attribute, Integer> mappingPositions) {
-        this.mappingPositions = mappingPositions;
+    public void setExpressionExecutors(List<ExpressionExecutor> metaValueRetrievers) {
+        this.metaValueRetrievers = metaValueRetrievers;
     }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    public void setMinSchedulingTime(TimePeriod.Duration minSchedulingTime) {
+        this.minSchedulingTime = minSchedulingTime;
+    }
+
 }

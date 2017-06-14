@@ -17,27 +17,36 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-
 public class CountIncrementalAttributeAggregator implements CompositeAggregator {
 
-    private String attributeName;
-    private Attribute.Type type;
+    private Attribute[] incrementalAttributes;
+    private Expression[] initialValues;
 
+    public CountIncrementalAttributeAggregator(Attribute attribute) {
+        Attribute count;
+        Expression countInitialValue;
 
-    public CountIncrementalAttributeAggregator(AttributeFunction attributeFunction) {
-        if (attributeFunction.getParameters() == null || attributeFunction.getParameters().length != 1) {
-            // TODO: 3/3/17 exception
+        // Since we set the initial value of count, we can simply set it as long
+        // However, since count is summed internally (in avg incremental calculation),
+        // ensure that either double or long is used here (since return value of sum is long or
+        // double. Long is chosen here)
+        count = new Attribute("_COUNT_".concat(attribute.getName()), Attribute.Type.LONG);
+        countInitialValue = Expression.value(1L);
+
+        this.incrementalAttributes = new Attribute[] { count };
+        this.initialValues = new Expression[] { countInitialValue };
+
+        if (!((incrementalAttributes.length == initialValues.length)
+                && (initialValues.length == getIncrementalAggregators().length))) {
+            // TODO: 6/10/17 This is an error in implementation logic. What needs to be done?
+            // For each incremental attribute, an initial value and base incremental aggregator must be defined
         }
-
-        if (attributeFunction.getParameters()[0] == null || !(attributeFunction.getParameters()[0] instanceof Variable)) {
-            // TODO: 3/3/17 Exception
-        }
-        this.attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
     }
 
     @Override
@@ -45,34 +54,32 @@ public class CountIncrementalAttributeAggregator implements CompositeAggregator 
         return super.clone();
     }
 
-    public String getAttributeName() {
-        return this.attributeName;
-    }
-
     public Attribute.Type getType() {
-        return Attribute.Type.DOUBLE;
+        return Attribute.Type.LONG;
     }
 
     public Object aggregate(Object... results) {
         if (results == null || results.length != 1) {
             // TODO: 3/3/17 exception
         }
-        Double count = (Double) results[0];
+        Long count = (Long) results[0];
         return count;
     }
 
-    public Expression[] getBaseAggregators() {
-        Expression count = Expression.function("sum", Expression.value(1d));
-        return new Expression[]{count};
+    @Override
+    public Attribute[] getIncrementalAttributes() {
+        return this.incrementalAttributes;
     }
 
-    /*public static Expression getInternalExpression(String baseCategory) {
-        switch (baseCategory) {
-            case "count":
-                return Expression.value(1d);
-            default:
-                throw new Error("Only count base aggregate is defined for count aggregator");
-        }
-    }*/
-}
+    @Override
+    public Expression[] getIncrementalAttributeInitialValues() {
+        return this.initialValues;
+    }
 
+    @Override
+    public Expression[] getIncrementalAggregators() {
+        Expression countAggregator = Expression.function("sum",
+                Expression.variable(getIncrementalAttributes()[0].getName()));
+        return new Expression[] { countAggregator };
+    }
+}

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AggregatorEventConverterFactory {
+    // TODO: 6/11/17 delete this class since no longer used
 
     public static StreamEventConverter constructEventConverter(MetaStreamEvent metaStreamEvent, MetaStreamEvent originalMetaStreamEvent) {
 

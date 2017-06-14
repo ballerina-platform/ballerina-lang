@@ -5,7 +5,7 @@ import java.util.List;
 
 public class TimePeriod {
 
-    public enum Duration {SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS}
+    public enum Duration {SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS}
 
     public enum Operator {RANGE, INTERVAL}
 

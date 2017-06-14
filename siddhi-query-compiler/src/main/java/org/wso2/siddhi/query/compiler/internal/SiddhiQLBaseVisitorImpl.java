@@ -2204,10 +2204,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             return TimePeriod.Duration.DAYS;
         }
 
-        if (ctx.WEEKS() != null) {
-            return TimePeriod.Duration.WEEKS;
-        }
-
         if (ctx.MONTHS() != null) {
             return TimePeriod.Duration.MONTHS;
         }

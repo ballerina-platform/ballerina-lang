@@ -4,12 +4,13 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public interface CompositeAggregator {
-    public String getAttributeName();
+    Attribute.Type getType();
 
-    public Attribute.Type getType();
+    Object aggregate(Object... results);
 
-    public Object aggregate(Object... results);
+    Attribute[] getIncrementalAttributes();
 
-    public Expression[] getBaseAggregators();
+    Expression[] getIncrementalAttributeInitialValues();
 
+    Expression[] getIncrementalAggregators();
 }

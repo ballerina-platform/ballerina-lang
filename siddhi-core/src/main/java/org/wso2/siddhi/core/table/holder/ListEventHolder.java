@@ -59,7 +59,7 @@ public class ListEventHolder extends LinkedList<StreamEvent> implements EventHol
         // to tables in incremental aggregator. // TODO: 5/29/17 need to change? change-if instance of ListEventHolder
         StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
         if (eventConverter instanceof ZeroStreamEventConverter) {
-            ((ZeroStreamEventConverter) eventConverter).convertData(timeStamp, addingEvent, streamEvent);
+            eventConverter.convertData(timeStamp, addingEvent, streamEvent);
             this.add(streamEvent);
         }
     }

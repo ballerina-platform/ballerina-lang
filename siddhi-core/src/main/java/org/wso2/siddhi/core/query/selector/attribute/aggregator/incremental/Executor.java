@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -39,7 +39,7 @@ public interface Executor {
      * Set next executor element in execution chain
      *
      */
-    void setNextExecutor();
+    void setNextExecutor(Executor executor);
 
     /**
      * Set as the last element of the execution chain

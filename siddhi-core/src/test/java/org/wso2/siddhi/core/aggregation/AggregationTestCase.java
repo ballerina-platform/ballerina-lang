@@ -203,7 +203,7 @@ public class AggregationTestCase {
                         select("avgPrice", Expression.function("avg", Expression.variable("price"))).
                         groupBy(Expression.variable("symbol").ofStream("StockStream"))).
                 aggregateBy(Expression.variable("timestamp")).every(
-                TimePeriod.interval(TimePeriod.Duration.WEEKS, TimePeriod.Duration.SECONDS, TimePeriod.Duration.MINUTES));
+                TimePeriod.interval(TimePeriod.Duration.SECONDS, TimePeriod.Duration.MINUTES));
 
 //        aggregationDefinition.annotation(Annotation.annotation("info").element("name", "aggregator1")); // TODO: 5/11/17 why this doesn't work?
         SiddhiContext siddhicontext = new SiddhiContext();
