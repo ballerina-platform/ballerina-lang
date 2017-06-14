@@ -121,17 +121,17 @@ public class Main {
             cmdParser.addCommand("help", helpCmd);
             helpCmd.setParentCmdParser(cmdParser);
 
-            // Build Version Command
-            VersionCmd versionCmd = new VersionCmd();
-            cmdParser.addCommand("version", versionCmd);
-            versionCmd.setParentCmdParser(cmdParser);
-
             // loading additional commands via SPI
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addCommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);
             }
+
+            // Build Version Command
+            VersionCmd versionCmd = new VersionCmd();
+            cmdParser.addCommand("version", versionCmd);
+            versionCmd.setParentCmdParser(cmdParser);
 
             cmdParser.setProgramName("ballerina");
             cmdParser.parse(args);
@@ -706,7 +706,7 @@ public class Main {
      *
      * @since 0.8.1
      */
-    @Parameters(commandNames = "version", commandDescription = "print version information")
+    @Parameters(commandNames = "version", commandDescription = "print Ballerina version")
     private static class VersionCmd implements BLauncherCmd {
 
         @Parameter(description = "Command name")
@@ -747,8 +747,6 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina -v\n");
-            out.append("  ballerina --version\n");
             out.append("  ballerina version\n");
         }
 
@@ -773,9 +771,6 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, description = "for more information")
         private boolean helpFlag;
 
-        @Parameter(names = {"--version", "-v"}, description = "for version information")
-        private boolean versionFlag;
-
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
@@ -783,10 +778,6 @@ public class Main {
 
         @Override
         public void execute() {
-            if (versionFlag) {
-                printVersionInfo();
-                return;
-            }
             printUsageInfo(parentCmdParser);
         }
 
