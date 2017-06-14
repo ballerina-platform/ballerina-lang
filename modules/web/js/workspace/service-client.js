@@ -21,6 +21,22 @@ import $ from 'jquery';
 import EventChannel from 'event_channel';
 import File from './file';
 
+function getErrorFromResponse(xhr, textStatus, errorThrown) {
+    let msg = _.isString(errorThrown) ? errorThrown : xhr.statusText;
+    let responseObj;
+    try {
+        responseObj = JSON.parse(xhr.responseText);
+    } catch (e) {
+        // ignore
+    }
+    if (!_.isNil(responseObj)) {
+        if (_.has(responseObj, 'Error')) {
+            msg = _.get(responseObj, 'Error');
+        }
+    }
+    return { error: true, message: msg };
+}
+
 /**
  * @class ServiceClient
  */
@@ -104,14 +120,15 @@ class ServiceClient extends EventChannel {
                 log.error(data.message);
             },
         });
+
         return data;
     }
 
     readFile(filePath) {
-        let fileData = this.readFileContent(filePath),
-            pathArray = _.split(filePath, this.application.getPathSeperator()),
-            fileName = _.last(pathArray),
-            folderPath = _.join(_.take(pathArray, pathArray.length - 1), this.application.getPathSeperator());
+        const fileData = this.readFileContent(filePath);
+        const pathArray = _.split(filePath, this.application.getPathSeperator());
+        const fileName = _.last(pathArray);
+        const folderPath = _.join(_.take(pathArray, pathArray.length - 1), this.application.getPathSeperator());
 
         const docUri = `${folderPath}/${fileName}`;
         const documentOptions = {
@@ -138,7 +155,7 @@ class ServiceClient extends EventChannel {
         $.ajax({
             type: 'GET',
             context: this,
-            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/exists?` + `path=${btoa(path)}`,
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/exists?path=${btoa(path)}`,
             contentType: 'text/plain; charset=utf-8',
             async: false,
             success(response) {
@@ -157,7 +174,7 @@ class ServiceClient extends EventChannel {
         $.ajax({
             type: 'GET',
             context: this,
-            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/create?` + `path=${btoa(path)
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/create?path=${btoa(path)
                  }&type=${btoa(type)}`,
             contentType: 'text/plain; charset=utf-8',
             async: false,
@@ -177,7 +194,7 @@ class ServiceClient extends EventChannel {
         $.ajax({
             type: 'GET',
             context: this,
-            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/delete?` + `path=${btoa(path)
+            url: `${_.get(this.application, 'config.services.workspace.endpoint')}/delete?path=${btoa(path)
                  }&type=${btoa(type)}`,
             contentType: 'text/plain; charset=utf-8',
             async: false,
@@ -208,7 +225,7 @@ class ServiceClient extends EventChannel {
                     .setPersisted(true)
                     .setLastPersisted(_.now())
                     .save();
-                log.debug(`File ${file.getName()} saved successfully at ${file.getPath()}`);
+            log.debug(`File ${file.getName()} saved successfully at ${file.getPath()}`);
             },
             error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);
@@ -217,22 +234,7 @@ class ServiceClient extends EventChannel {
         });
         return data;
     }
-}
 
-var getErrorFromResponse = function (xhr, textStatus, errorThrown) {
-    let msg = _.isString(errorThrown) ? errorThrown : xhr.statusText,
-        responseObj;
-    try {
-        responseObj = JSON.parse(xhr.responseText);
-    } catch (e) {
-        // ignore
-    }
-    if (!_.isNil(responseObj)) {
-        if (_.has(responseObj, 'Error')) {
-            msg = _.get(responseObj, 'Error');
-        }
-    }
-    return { error: true, message: msg };
-};
+}
 
 export default ServiceClient;
