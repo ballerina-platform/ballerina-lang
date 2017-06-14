@@ -19,10 +19,8 @@
 /**
  * Module to provide items(tool groups, tools) for a given tool palette.
  */
-import log from 'log';
 import _ from 'lodash';
 import Package from './../env/package';
-import ToolPalette from './../tool-palette/tool-palette';
 import ToolGroup from './../tool-palette/tool-group';
 import InitialTools from './initial-definitions';
 import EventChannel from 'event_channel';
@@ -498,7 +496,7 @@ class ToolPaletteItemProvider extends EventChannel {
 
 
     /**
-     * Create and return a ToolGroup object for a given package
+     * Create and return a connector ToolGroup object for a given package
      * @param pckg {Package} Package Object.
      */
     getConnectorToolGroup(pckg) {

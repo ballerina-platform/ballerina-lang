@@ -38,9 +38,7 @@ class Connector extends EventChannel {
     }
 
     setName(name) {
-        const oldName = this._name;
         this._name = name;
-        this.trigger('name-modified', name, oldName);
     }
 
     getName() {
@@ -65,7 +63,6 @@ class Connector extends EventChannel {
 
     addAction(action) {
         this._actions.push(action);
-        this.trigger('connector-action-added', action);
     }
 
     /**
@@ -73,8 +70,9 @@ class Connector extends EventChannel {
      * @param {ConnectorActionDefinition} actionDef - ConnectorActionDefinition to be removed
      */
     removeAction(actionDef) {
-        _.remove(this._actions, action => _.isEqual(action.getName(), actionDef.getActionName()));
-        this.trigger('connector-action-removed', actionDef);
+        _.remove(this._actions, function (action) {
+            return _.isEqual(action.getName(), actionDef.getActionName());
+        });
     }
 
     /**
@@ -90,7 +88,7 @@ class Connector extends EventChannel {
         });
     }
 
-    getActions(action) {
+    getActions() {
         return this._actions;
     }
 
@@ -104,10 +102,9 @@ class Connector extends EventChannel {
 
     addParam(param) {
         this._params.push(param);
-        this.trigger('param-added', param);
     }
 
-    getParams(param) {
+    getParams() {
         return this._params;
     }
 

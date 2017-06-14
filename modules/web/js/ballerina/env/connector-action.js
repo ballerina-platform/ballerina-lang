@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 
@@ -36,9 +35,7 @@ class ConnectorAction extends EventChannel {
     }
 
     setName(name) {
-        const oldName = this._name;
         this._name = name;
-        this.trigger('name-modified', name, oldName);
     }
 
     getName() {
