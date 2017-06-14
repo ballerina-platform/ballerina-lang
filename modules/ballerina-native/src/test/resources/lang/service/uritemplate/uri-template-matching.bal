@@ -101,6 +101,14 @@ service echo11 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:POST{}
+    @http:Path {value:"/so2"}
+    resource echo (message m) {
+        http:convertToResponse(m);
+        reply m;
+
+    }
 }
 
 @http:BasePath {value:"/hello/world"}
@@ -144,3 +152,11 @@ service echo33 {
     }
 }
 
+service echo44 {
+    resource echo1 (message m, string foo) {
+        message response = {};
+        json responseJson = {"first":foo, "echo44": "echo1"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+}

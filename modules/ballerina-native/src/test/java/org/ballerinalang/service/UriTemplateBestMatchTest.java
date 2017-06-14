@@ -18,6 +18,7 @@
 package org.ballerinalang.service;
 
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
@@ -27,6 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
+
 
 /**
  * Test class for Uri Template based resource dispatchers.
@@ -272,6 +274,44 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertEquals(bJson.value().get("echo33").asText(), "echo1"
                 , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with all default values")
+    public void testAllDefaultValues() {
+        String path = "/echo44/echo1?foo=zzz";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+
+        Assert.assertEquals(bJson.value().get("first").asText(), "zzz"
+                , "Resource dispatched to wrong template");
+
+        Assert.assertEquals(bJson.value().get("echo44").asText(), "echo1"
+               , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test suitable method with URL. /hello/so2 ")
+    public void testWrongGETMethod() {
+        String path = "/hello/so2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
+        Assert.assertEquals(trueResponse, 405, "Method not found");
+    }
+
+    @Test(description = "Test suitable method with URL. /hello/echo2 ")
+    public void testWrongPOSTMethod() {
+        String path = "/hello/echo2";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "POST");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
+        Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
     @AfterClass

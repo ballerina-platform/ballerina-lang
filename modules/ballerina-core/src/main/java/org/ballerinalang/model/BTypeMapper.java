@@ -155,7 +155,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * Get worker interaction statements related to a callable unit
+     * Get worker interaction statements related to a callable unit.
      *
      * @return Queue of worker interactions
      */
@@ -165,7 +165,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * Get the workers defined within a callable unit
+     * Get the workers defined within a callable unit.
      *
      * @return Array of workers
      */

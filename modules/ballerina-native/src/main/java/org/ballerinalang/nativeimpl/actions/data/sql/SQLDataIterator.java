@@ -57,8 +57,8 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public void close() {
-        SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, false);
+    public void close(boolean isInTransaction) {
+        SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
         rs = null;
         stmt = null;
         conn = null;

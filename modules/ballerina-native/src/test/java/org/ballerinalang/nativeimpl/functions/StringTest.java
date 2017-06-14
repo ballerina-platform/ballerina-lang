@@ -25,10 +25,10 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -271,7 +271,7 @@ public class StringTest {
 
     @Test
     public void testXmlValueOf() {
-        BValue[] args = {new BXML("<test>name</test>")};
+        BValue[] args = {new BXMLItem("<test>name</test>")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "xmlValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -280,9 +280,9 @@ public class StringTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class})
+    @Test(expectedExceptions = {BLangRuntimeException.class})
     public void testXmlValueOfNegative() {
-        BValue[] args = {new BXML("<test>name<test>")};
+        BValue[] args = {new BXMLItem("<test>name<test>")};
         BLangFunctions.invokeNew(programFile, "xmlValueOf", args);
     }
 

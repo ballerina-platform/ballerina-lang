@@ -1537,28 +1537,59 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startTransactionhStmt(getCurrentLocation(ctx));
+            modelBuilder.startTransactionStmt(getCurrentLocation(ctx));
         }
     }
 
     @Override
     public void exitTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addTransactionStmt();
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getTransactionWS(tokenStream, ctx);
+            }
+            modelBuilder.addTransactionStmt(whiteSpaceDescriptor);
         }
     }
 
     @Override
-    public void enterRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+    public void enterTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.addTransactionBlockStmt();
+    }
+
+    @Override
+    public void exitTransactionHandlers(BallerinaParser.TransactionHandlersContext ctx) {
+
+    }
+
+    @Override
+    public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startRollbackClause(getCurrentLocation(ctx));
+            modelBuilder.startAbortedClause(getCurrentLocation(ctx));
         }
     }
 
     @Override
-    public void exitRollbackClause(BallerinaParser.RollbackClauseContext ctx) {
+    public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addRollbackClause();
+            modelBuilder.addAbortedClause();
+        }
+    }
+
+    @Override
+    public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCommittedClause(getCurrentLocation(ctx));
+        }
+    }
+
+    @Override
+    public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.addCommittedClause();
         }
     }
 
@@ -1572,7 +1603,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.createAbortStmt(getCurrentLocation(ctx));
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAbortStmtWS(tokenStream, ctx);
+        }
+        modelBuilder.createAbortStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
@@ -1605,14 +1640,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBacktickString(BallerinaParser.BacktickStringContext ctx) {
-        if (ctx.exception == null) {
-            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-            if (isVerboseMode) {
-                whiteSpaceDescriptor = WhiteSpaceUtil.getBacktickStringWS(tokenStream, ctx);
-            }
-            modelBuilder.createBacktickExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                    ctx.BacktickStringLiteral().getText());
-        }
     }
 
     @Override

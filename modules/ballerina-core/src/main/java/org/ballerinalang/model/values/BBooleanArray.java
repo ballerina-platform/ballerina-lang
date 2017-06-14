@@ -32,6 +32,10 @@ public class BBooleanArray extends BNewArray {
 
     private int[] values;
 
+    private BBooleanArray(int[] values) {
+        this.values = values;
+    }
+
     public BBooleanArray() {
         values = (int[]) newArrayInstance(Integer.TYPE);
     }
@@ -54,5 +58,12 @@ public class BBooleanArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BBooleanArray booleanArray = new BBooleanArray(Arrays.copyOf(values, values.length));
+        booleanArray.size = this.size;
+        return booleanArray;
     }
 }

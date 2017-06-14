@@ -83,28 +83,54 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         annotations = new ArrayList<>();
     }
 
-    /**
-     * Get Argument by index.
-     *
-     * @param context current {@code {@link Context}} instance.
-     * @param index   index of the parameter.
-     * @return BValue;
-     */
-    public BValue getArgument(Context context, int index) {
+    public BValue getRefArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-
-            // TODO This logic go away when we remove old blocking executor
-            BValue result;
-            if (context.isVMBasedExecutor()) {
-                result = context.getControlStackNew().getCurrentFrame().argValues[index];
-            } else {
-                result = context.getControlStack().getCurrentFrame().values[index];
-            }
-
+            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
+
             return result;
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public byte[] getBlobArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            byte[] result = context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
+            if (result == null) {
+                throw new BallerinaException("argument " + index + " is null");
+            }
+
+            return result;
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public int getIntArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (int) context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public String getStringArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public long getLongArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public boolean getBooleanArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -125,14 +151,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public void executeNative(Context context) {
         try {
             BValue[] retVals = execute(context);
-
-            // TODO This logic go away when we remove old blocking executor
-            BValue[] returnRefs;
-            if (context.isVMBasedExecutor()) {
-                returnRefs = context.getControlStackNew().getCurrentFrame().returnValues;
-            } else {
-                returnRefs = context.getControlStack().getCurrentFrame().returnValues;
-            }
+            BValue[] returnRefs = context.getControlStackNew().getCurrentFrame().returnValues;
 
             if (returnRefs.length != 0) {
                 for (int i = 0; i < returnRefs.length; i++) {
@@ -144,13 +163,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
                 }
             }
         } catch (RuntimeException e) {
-//            BException exception = new BException(e.getMessage());
-            // TODO : Fix this once we remove Blocking executor
-//            if (context.getExecutor() != null) {
-////                context.getExecutor().handleBException(exception);
-//            } else {
-                throw e;
-//            }
+            throw e;
         }
     }
 
@@ -351,7 +364,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     /**
-     * Get worker interaction statements related to a callable unit
+     * Get worker interaction statements related to a callable unit.
      *
      * @return Queue of worker interactions
      */
@@ -361,7 +374,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     /**
-     * Get the workers defined within a callable unit
+     * Get the workers defined within a callable unit.
      *
      * @return Array of workers
      */

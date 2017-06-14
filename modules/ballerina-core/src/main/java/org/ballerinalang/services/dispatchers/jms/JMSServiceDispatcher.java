@@ -165,10 +165,12 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
                 Constants.ANNOTATION_JMS_SOURCE);
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) service.getAttributeInfo(
                 AttributeInfo.ANNOTATIONS_ATTRIBUTE);
-        for (AnnotationAttachmentInfo annotationInfo : attributeInfo.getAnnotationAttachmentInfo()) {
-            if (Constants.JMS_PACKAGE.equals(annotationInfo.getPkgPath()) &&
-                    Constants.ANNOTATION_CONNECTION_PROPERTY.equals(annotationInfo.getName())) {
-                connectionProperties.add(annotationInfo);
+        if (attributeInfo != null) {
+            for (AnnotationAttachmentInfo annotationInfo : attributeInfo.getAnnotationAttachmentInfo()) {
+                if (Constants.JMS_PACKAGE.equals(annotationInfo.getPkgPath()) &&
+                        Constants.ANNOTATION_CONNECTION_PROPERTY.equals(annotationInfo.getName())) {
+                    connectionProperties.add(annotationInfo);
+                }
             }
         }
 

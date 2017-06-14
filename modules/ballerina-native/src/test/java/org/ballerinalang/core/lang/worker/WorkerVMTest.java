@@ -26,13 +26,15 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Worker vm test cases.
+ */
 public class WorkerVMTest {
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
         bProgramFile = BTestUtils.getProgramFile("samples/worker-vm.bal");
-        //bProgramFile = BTestUtils.getProgramFile("samples/multi-function-vm.bal");
     }
 
 

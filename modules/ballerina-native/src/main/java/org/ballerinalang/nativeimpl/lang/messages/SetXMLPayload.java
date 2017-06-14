@@ -55,8 +55,8 @@ public class SetXMLPayload extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         // Accessing First Parameter Value.
-        BMessage msg = (BMessage) getArgument(context, 0);
-        BXML payload = (BXML) getArgument(context, 1);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        BXML payload = (BXML) getRefArgument(context, 1);
 
         // Clone the message without content
         CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());

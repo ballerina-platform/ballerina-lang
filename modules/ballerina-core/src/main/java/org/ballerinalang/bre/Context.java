@@ -23,7 +23,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -37,17 +39,15 @@ import java.util.Map;
 public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
     private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
-    protected Map<String, Object> properties = new HashMap();
-    private CallableUnitInfo serviceInfo;
-    private Object serverConnectorProtocol;
+    protected Map<String, Object> properties = new HashMap<>();
+    private ServiceInfo serviceInfo;
     private BallerinaTransactionManager ballerinaTransactionManager;
+    private DebugInfoHolder debugInfoHolder;
+    private boolean debugEnabled = false;
 
-    // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
-    private boolean vmBasedExecutor = false;
     private int startIP;
     private BStruct errorThrown;
 
@@ -58,25 +58,30 @@ public class Context {
     public FunctionCallCPEntry funcCallCPEntry;
     public ActionInfo actionInfo;
 
+    @Deprecated
     public Context() {
-        this.controlStack = new ControlStack();
-        this.controlStackNew = new ControlStackNew();
-    }
-
-    public Context(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
-        this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
 
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
-        this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
 
-    public ControlStack getControlStack() {
-        return this.controlStack;
+    public DebugInfoHolder getDebugInfoHolder() {
+        return debugInfoHolder;
+    }
+
+    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        this.debugInfoHolder = debugInfoHolder;
+    }
+
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
     }
 
     public ControlStackNew getControlStackNew() {
@@ -85,6 +90,10 @@ public class Context {
 
     public CarbonMessage getCarbonMessage() {
         return this.cMsg;
+    }
+
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
     }
 
     public Object getProperty(String key) {
@@ -107,20 +116,12 @@ public class Context {
         this.balCallback = balCallback;
     }
     
-    public CallableUnitInfo getServiceInfo() {
+    public ServiceInfo getServiceInfo() {
         return this.serviceInfo;
     }
 
-    public void setServiceInfo(CallableUnitInfo serviceInfo) {
+    public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
-    }
-
-    public Object getServerConnectorProtocol() {
-        return serverConnectorProtocol;
-    }
-
-    public void setServerConnectorProtocol(Object serverConnectorProtocol) {
-        this.serverConnectorProtocol = serverConnectorProtocol;
     }
 
     public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
@@ -133,14 +134,6 @@ public class Context {
 
     public boolean isInTransaction() {
         return this.ballerinaTransactionManager != null;
-    }
-
-    public boolean isVMBasedExecutor() {
-        return vmBasedExecutor;
-    }
-
-    public void setVMBasedExecutor(boolean vmBasedExecutor) {
-        this.vmBasedExecutor = vmBasedExecutor;
     }
 
     public BStruct getError() {

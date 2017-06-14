@@ -20,6 +20,7 @@ package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
+import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -27,15 +28,17 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
+import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,18 +89,7 @@ public class ServerConnectorMessageHandler {
             }
 
             // Find the Resource
-            ResourceInfo resource = null;
-            try {
-                resource = resourceDispatcher.findResource(service, cMsg, callback);
-            } catch (BallerinaException ex) {
-                throw new BallerinaException("no resource found to handle the request to Service: " +
-                        service.getName() + " : " + ex.getMessage());
-            }
-            if (resource == null) {
-                throw new BallerinaException("no resource found to handle the request to Service: " +
-                        service.getName());
-                // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
-            }
+            ResourceInfo resource = resourceDispatcher.findResource(service, cMsg, callback);
 
             invokeResource(cMsg, callback, resource, service);
 
@@ -117,10 +109,13 @@ public class ServerConnectorMessageHandler {
     public static void invokeResource(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
+        ProgramFile programFile = packageInfo.getProgramFile();
 
-        Context context = new Context();
-        ControlStackNew controlStackNew = context.getControlStackNew();
+        Context context = new Context(programFile);
+        context.setServiceInfo(serviceInfo);
+        context.setCarbonMessage(carbonMessage);
         context.setBalCallback(new DefaultBalCallback(carbonCallback));
+        ControlStackNew controlStackNew = context.getControlStackNew();
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
@@ -177,7 +172,18 @@ public class ServerConnectorMessageHandler {
         calleeSF.setIntLocalVars(intLocalVars);
         calleeSF.setRefLocalVars(refLocalVars);
 
+        // Execute workers
+        int[] retRegs = {0};
+        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, calleeSF, retRegs);
+
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
+        if (VMDebugManager.getInstance().isDebugEnagled()) {
+            VMDebugManager debugManager = VMDebugManager.getInstance();
+            context.setDebugInfoHolder(new DebugInfoHolder());
+            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+            context.setDebugEnabled(true);
+            debugManager.setDebuggerContext("main", context); //todo fix
+        }
         bLangVM.run(context);
     }
 
@@ -187,9 +193,8 @@ public class ServerConnectorMessageHandler {
 
     public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback,
                                               Throwable throwable) {
-        // TODO : Refactor this logic.
         String errorMsg = throwable.getMessage();
-        outStream.println(errorMsg);
+
         // bre log should contain bre stack trace, not the ballerina stack trace
         breLog.error("error: " + errorMsg, throwable);
         Object protocol = cMsg.getProperty("PROTOCOL");
@@ -205,27 +210,4 @@ public class ServerConnectorMessageHandler {
         }
 
     }
-
-    public static void handleErrorFromOutbound(Context balContext, Throwable throwable) {
-        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        String errorWithTrace = errorMsg + "\n" + stacktrace;
-        outStream.println(errorWithTrace);
-
-        // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg + ", ballerina service stack trace: " + stacktrace, throwable);
-
-        Object protocol = balContext.getServerConnectorProtocol();
-        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-        try {
-            optionalErrorHandler
-                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), null,
-                            balContext.getBalCallback());
-        } catch (Exception e) {
-            throw new BallerinaException("Cannot handle error using the error handler for: " + protocol, e);
-        }
-    }
-
 }

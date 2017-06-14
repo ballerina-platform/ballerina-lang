@@ -51,7 +51,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class GetStatusCode extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         int statusCode = -1;
-        BMessage bMsg = (BMessage) getArgument(ctx, 0);
+        BMessage bMsg = (BMessage) getRefArgument(ctx, 0);
         String statusCodeStr = String.valueOf(bMsg.value().getProperty(Constants.HTTP_STATUS_CODE));
 
         try {

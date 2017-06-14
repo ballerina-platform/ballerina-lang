@@ -18,17 +18,32 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 /**
- * This class contains helper functions to invoke workers
+ * This class contains helper functions to invoke workers.
  *
  * @since 0.88
  */
@@ -39,7 +54,7 @@ public class BLangVMWorkers {
         BType[] paramTypes = callableUnitInfo.getParamTypes();
 
         for (WorkerInfo workerInfo : callableUnitInfo.getWorkerInfoMap().values()) {
-            Context workerContext = new Context();
+            Context workerContext = new Context(programFile);
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
             workerContext.setStartIP(workerInfo.getCodeAttributeInfo().getCodeAddrs());
@@ -54,43 +69,62 @@ public class BLangVMWorkers {
 
             BLangVM bLangVM = new BLangVM(programFile);
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, callableUnitInfo, workerContext, workerInfo);
+            WorkerExecutor workerRunner = new WorkerExecutor(bLangVM, workerContext, workerInfo);
             executor.submit(workerRunner);
         }
 
     }
 
-    static class WorkerExecutor implements Runnable {
+    static class WorkerExecutor implements Callable<WorkerResult> {
 
-//        private static final Logger log = LoggerFactory.getLogger(org.ballerinalang.bre.WorkerExecutor.class);
-//        private static PrintStream outStream = System.err;
+        private static final Logger log = LoggerFactory.getLogger(WorkerExecutor.class);
+        private static PrintStream outStream = System.out;
 
         private BLangVM bLangVM;
-        private CallableUnitInfo callableUnitInfo;
         private Context bContext;
         private WorkerInfo workerInfo;
 
-        public WorkerExecutor(BLangVM bLangVM, CallableUnitInfo callableUnitInfo,
-                              Context bContext, WorkerInfo workerInfo) {
+        public WorkerExecutor(BLangVM bLangVM, Context bContext, WorkerInfo workerInfo) {
             this.bLangVM = bLangVM;
-            this.callableUnitInfo = callableUnitInfo;
             this.bContext = bContext;
             this.workerInfo = workerInfo;
         }
 
         @Override
-        public void run() {
-            try {
-                bLangVM.run(bContext);
-//                worker.getCallableUnitBody().execute(executor);
-            } catch (RuntimeException throwable) {
-//                String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-//                String stacktrace = ErrorHandlerUtils.getServiceStackTrace(bContext, throwable);
-//                String errorWithTrace = "exception in worker" + worker.getName() + " : " + errorMsg +
-// "\n" + stacktrace;
-//                log.error(errorWithTrace);
-//                outStream.println(errorWithTrace);
+        public WorkerResult call() throws BallerinaException {
+            BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
+            bLangVM.execWorker(bContext,
+                    workerInfo.getCodeAttributeInfo().getCodeAddrs(), workerInfo.getWorkerEndIP());
+            if (bContext.getError() != null) {
+                String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                outStream.println("error in worker '" + workerInfo.getWorkerName() + "': " + stackTraceStr);
             }
+
+            if (workerInfo.getWorkerDataChannelForForkJoin() != null) {
+                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
+                BType[] types = workerInfo.getWorkerDataChannelForForkJoin().getTypes();
+                for (int i = 0; i < types.length; i++) {
+                    BType paramType = types[i];
+                    switch (paramType.getTag()) {
+                        case TypeTags.INT_TAG:
+                            bRefValueArray.add(i, ((BInteger) results[i]));
+                            break;
+                        case TypeTags.FLOAT_TAG:
+                            bRefValueArray.add(i, ((BFloat) results[i]));
+                            break;
+                        case TypeTags.STRING_TAG:
+                            bRefValueArray.add(i, ((BString) results[i]));
+                            break;
+                        case TypeTags.BOOLEAN_TAG:
+                            bRefValueArray.add(i, ((BBoolean) results[i]));
+                            break;
+                        default:
+                            bRefValueArray.add(i, ((BRefType) results[i]));
+                    }
+                }
+            }
+
+            return new WorkerResult(workerInfo.getWorkerName(), bRefValueArray);
         }
     }
 }

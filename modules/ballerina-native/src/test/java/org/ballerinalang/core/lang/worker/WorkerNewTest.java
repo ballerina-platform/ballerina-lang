@@ -26,14 +26,15 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Worker implementation test cases.
+ */
 public class WorkerNewTest {
 
-    //private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/worker-multi-interaction.bal");
         bProgramFile = BTestUtils.getProgramFile("samples/worker-multi-interaction.bal");
     }
 

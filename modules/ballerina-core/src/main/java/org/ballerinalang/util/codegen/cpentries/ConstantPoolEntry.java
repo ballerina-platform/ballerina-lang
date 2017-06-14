@@ -43,7 +43,8 @@ public interface ConstantPoolEntry {
         CP_ENTRY_STRUCT((byte) 15),
         CP_ENTRY_TYPE((byte) 16),
         CP_ENTRY_WORKER_INVOKE((byte) 17),
-        CP_ENTRY_WORKER_REPLY((byte) 18);
+        CP_ENTRY_WORKER_REPLY((byte) 18),
+        CP_ENTRY_FORK_JOIN((byte) 19);
 
         byte value;
 

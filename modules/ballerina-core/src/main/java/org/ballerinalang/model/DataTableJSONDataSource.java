@@ -40,13 +40,16 @@ public class DataTableJSONDataSource implements JSONDataSource {
 
     private JSONObjectGenerator objGen;
 
-    public DataTableJSONDataSource(BDataTable df) {
-        this(df, new DefaultJSONObjectGenerator());
+    private boolean isInTransaction;
+
+    public DataTableJSONDataSource(BDataTable df, boolean isInTransaction) {
+        this(df, new DefaultJSONObjectGenerator(), isInTransaction);
     }
 
-    public DataTableJSONDataSource(BDataTable df, JSONObjectGenerator objGen) {
+    public DataTableJSONDataSource(BDataTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
         this.df = df;
         this.objGen = objGen;
+        this.isInTransaction = isInTransaction;
     }
 
     @Override
@@ -56,7 +59,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
             this.objGen.transform(this.df).serialize(gen, serializerProvider);
         }
         gen.writeEndArray();
-        this.df.close();
+        this.df.close(this.isInTransaction);
     }
 
     /**

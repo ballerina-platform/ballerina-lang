@@ -20,11 +20,6 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.Operator.SUB;
 
@@ -34,12 +29,6 @@ import static org.ballerinalang.model.Operator.SUB;
  * @since 0.8.0
  */
 public class SubtractExpression extends BinaryArithmeticExpression {
-
-    public static final BiFunction<BValueType, BValueType, BValueType> SUB_INT_FUNC =
-            (lVal, rVal) -> new BInteger(lVal.intValue() - rVal.intValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> SUB_FLOAT_FUNC =
-            (lVal, rVal) -> new BFloat(lVal.floatValue() - rVal.floatValue());
 
     public SubtractExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
                               Expression rExpr) {

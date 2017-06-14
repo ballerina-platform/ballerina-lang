@@ -48,10 +48,23 @@ public class ControlStackNew {
         if (fp > 0) {
             currentFrame = stackFrames[--fp];
         }  else {
+            currentFrame = null;
             fp--;
         }
 
         return poppedFrame;
+    }
+
+    public StackFrame peekFrame() {
+        StackFrame peekFrame = null;
+        if (fp > 0) {
+            peekFrame = stackFrames[fp - 1];
+        }
+        return peekFrame;
+    }
+
+    public StackFrame getRootFrame() {
+        return stackFrames[0];
     }
 
     public StackFrame getCurrentFrame() {

@@ -47,7 +47,6 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
@@ -86,7 +85,7 @@ import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.statements.ThrowStmt;
-import org.ballerinalang.model.statements.TransactionRollbackStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
@@ -127,7 +126,6 @@ public class BLangModelBuilder {
     public static final String ATTACHMENT_POINTS = "attachmentPoints";
     public static final String IF_CLAUSE = "IfClause";
     public static final String ELSE_CLAUSE = "ElseClause";
-    public static final String CATCH_CLAUSE = "CatchClause";
     public static final String TRY_CLAUSE = "TryClause";
     public static final String FINALLY_CLAUSE = "FinallyClause";
 
@@ -157,8 +155,7 @@ public class BLangModelBuilder {
 
     protected Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
 
-    protected Stack<TransactionRollbackStmt.TransactionRollbackStmtBuilder> transactionRollbackStmtBuilderStack =
-            new Stack<>();
+    protected Stack<TransactionStmt.TransactionStmtBuilder> transactionStmtBuilderStack = new Stack<>();
 
     protected Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
     protected Stack<List<Worker>> workerStack = new Stack<>();
@@ -334,8 +331,7 @@ public class BLangModelBuilder {
         SymbolName symbolName = new SymbolName(identifier.getName());
 
         // Check whether this constant is already defined.
-        StructuredUnit structScope = (StructuredUnit) currentScope;
-        BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
+        BLangSymbol fieldSymbol = ((StructuredUnit) currentScope).resolveMembers(symbolName);
         if (fieldSymbol != null) {
             String errMsg = BLangExceptionHelper
                     .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
@@ -349,9 +345,10 @@ public class BLangModelBuilder {
         
         if (currentScope instanceof StructDef) {
             VariableDef fieldDef = new VariableDef(location, null, identifier, typeName, symbolName, currentScope);
-            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, identifier.getName());
+            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, null, identifier.getName());
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
+            fieldDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
             currentStructBuilder.addField(fieldDefStmt);
         } else if (currentScope instanceof AnnotationDef) {
             AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, identifier, typeName,
@@ -735,13 +732,6 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
-    public void createBacktickExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                   String stringContent) {
-        String templateStr = getValueWithinBackquote(stringContent);
-        BacktickExpr backtickExpr = new BacktickExpr(location, whiteSpaceDescriptor,  templateStr);
-        exprStack.push(backtickExpr);
-    }
-
     public void startExprList() {
         exprListStack.push(new ArrayList<>());
     }
@@ -838,22 +828,6 @@ public class BLangModelBuilder {
 
     public void createMapStructLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         List<KeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
-        for (KeyValueExpr argExpr : keyValueExprList) {
-
-            if (argExpr.getKeyExpr() instanceof BacktickExpr) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
-                errorMsgs.add(errMsg);
-
-            }
-
-            if (argExpr.getValueExpr() instanceof BacktickExpr) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
-                errorMsgs.add(errMsg);
-
-            }
-        }
 
         Expression[] argExprs;
         if (keyValueExprList.size() == 0) {
@@ -1565,51 +1539,71 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
-    public void startTransactionhStmt(NodeLocation location) {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
-                = new TransactionRollbackStmt.TransactionRollbackStmtBuilder();
-        transactionRollbackStmtBuilder.setLocation(location);
-        transactionRollbackStmtBuilderStack.push(transactionRollbackStmtBuilder);
+    public void startTransactionStmt(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = new TransactionStmt.TransactionStmtBuilder();
+        transactionStmtBuilder.setLocation(location);
+        transactionStmtBuilderStack.push(transactionStmtBuilder);
         BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void startRollbackClause(NodeLocation location) {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
-                transactionRollbackStmtBuilderStack.peek();
-        // Creating Transaction clause.
+    public void addTransactionBlockStmt() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt transactionBlock = blockStmtBuilder.build();
-        transactionRollbackStmtBuilder.setTransactionBlock(transactionBlock);
+        transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
-        // Staring parsing rollback clause.
-        TransactionRollbackStmt.RollbackBlock rollbackBlock = new TransactionRollbackStmt.RollbackBlock(currentScope);
-        transactionRollbackStmtBuilder.setRollbackBlock(rollbackBlock);
-        currentScope = rollbackBlock;
-        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
-        blockStmtBuilderStack.push(rollbackBlockBuilder);
-        currentScope = rollbackBlockBuilder.getCurrentScope();
     }
 
-    public void addRollbackClause() {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder =
-                transactionRollbackStmtBuilderStack.peek();
-        BlockStmt.BlockStmtBuilder rollbackBlockBuilder = blockStmtBuilderStack.pop();
-        BlockStmt rollbackBlock = rollbackBlockBuilder.build();
-        currentScope = rollbackBlock.getEnclosingScope();
-        transactionRollbackStmtBuilder.setRollbackBlockStmt(rollbackBlock);
+    public void startAbortedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing aborted clause.
+        TransactionStmt.AbortedBlock abortedBlock = new TransactionStmt.AbortedBlock(currentScope);
+        transactionStmtBuilder.setAbortedBlock(abortedBlock);
+        currentScope = abortedBlock;
+        BlockStmt.BlockStmtBuilder abortedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(abortedBlockBuilder);
+        currentScope = abortedBlockBuilder.getCurrentScope();
     }
 
-    public void addTransactionStmt() {
-        TransactionRollbackStmt.TransactionRollbackStmtBuilder transactionRollbackStmtBuilder
-                = transactionRollbackStmtBuilderStack.pop();
-        TransactionRollbackStmt transactionRollbackStmt = transactionRollbackStmtBuilder.build();
-        addToBlockStmt(transactionRollbackStmt);
+    public void addAbortedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder abortedBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt abortedBlock = abortedBlockBuilder.build();
+        currentScope = abortedBlock.getEnclosingScope();
+        transactionStmtBuilder.setAbortedBlockStmt(abortedBlock);
     }
 
-    public void createAbortStmt(NodeLocation location) {
-        addToBlockStmt(new AbortStmt(location));
+    public void startCommittedClause(NodeLocation location) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        // Staring parsing committed clause.
+        TransactionStmt.CommittedBlock committedBlock = new TransactionStmt.CommittedBlock(currentScope);
+        transactionStmtBuilder.setCommittedBlock(committedBlock);
+        currentScope = committedBlock;
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        blockStmtBuilderStack.push(committedBlockBuilder);
+        currentScope = committedBlockBuilder.getCurrentScope();
+    }
+
+    public void addCommittedClause() {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = blockStmtBuilderStack.pop();
+        BlockStmt committedBlock = committedBlockBuilder.build();
+        currentScope = committedBlock.getEnclosingScope();
+        transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
+    }
+
+    public void addTransactionStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
+        transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        TransactionStmt transactionStmt = transactionStmtBuilder.build();
+        addToBlockStmt(transactionStmt);
+    }
+
+    public void createAbortStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        addToBlockStmt(new AbortStmt(location, whiteSpaceDescriptor));
     }
 
     // Literal Values
@@ -1795,11 +1789,7 @@ public class BLangModelBuilder {
 
     protected void checkArgExprValidity(NodeLocation location, Expression argExpr) {
         String errMsg = null;
-        if (argExpr instanceof BacktickExpr) {
-            errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
-
-        } else if (argExpr instanceof ArrayInitExpr) {
+        if (argExpr instanceof ArrayInitExpr) {
             errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
 
@@ -1852,7 +1842,7 @@ public class BLangModelBuilder {
      * - Right expressions of Assignment Statement becomes input of transform statement
      * - Variables in each of left and right expressions of all statements are extracted as input and output
      * - A variable that is used as an input cannot be used as an output in another statement
-     * - If inputs and outputs are used interchangeably, a semantic error is thrown
+     * - If inputs and outputs are used interchangeably, a semantic error is thrown.
      *
      * @param blockStmt transform statement block statement
      * @param inputs    input variable reference expressions map

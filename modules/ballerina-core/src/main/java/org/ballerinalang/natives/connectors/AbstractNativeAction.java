@@ -73,30 +73,46 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         annotations = new ArrayList<>();
     }
 
-    /**
-     * Get Argument by index.
-     *
-     * @param context current {@code {@link Context}} instance.
-     * @param index   index of the parameter.
-     * @return BValue;
-     */
-    public BValue getArgument(Context context, int index) {
+    public BValue getRefArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-
-            BValue result;
-            if (context.isVMBasedExecutor()) {
-                result = context.getControlStackNew().getCurrentFrame().argValues[index];
-            } else {
-                result = context.getControlStack().getCurrentFrame().values[index];
-            }
-
+            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
+
             return result;
         }
         throw new ArgumentOutOfRangeException(index);
     }
+
+    public int getIntArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (int) context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public String getStringArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public long getLongArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public boolean getBooleanArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
 
     public abstract BValue execute(Context context);
 
@@ -120,7 +136,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     /**
      * Declare implementation of Native action is support non-blocking behaviour.
-     *
+     * <p>
      * Default is false, Override to support non-blocking behaviour.
      *
      * @return true, if current is implementation supports non-blocking.
@@ -316,7 +332,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     /**
-     * Get worker interaction statements related to a callable unit
+     * Get worker interaction statements related to a callable unit.
      *
      * @return Queue of worker interactions
      */
@@ -326,7 +342,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     /**
-     * Get the workers defined within a callable unit
+     * Get the workers defined within a callable unit.
      *
      * @return Array of workers
      */

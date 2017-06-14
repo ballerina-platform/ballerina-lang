@@ -49,6 +49,30 @@ under the License.
         </packages>
     </test>
 
+    <test name="ballerina-native-expr-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.expressions"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-native-stmt-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.statements"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-native-struct-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.structs"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-native-values-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.values"/>
+        </packages>
+    </test>
+
     <!-- Service Related Test Cases -->
 
     <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
@@ -75,14 +99,13 @@ under the License.
     </test>-->
 
     <!-- WebSocket Test Cases -->
-    <!-- TODO : Fix this. -->
-    <!--<test name="websocket-test-cases" parallel="false">
+    <test name="websocket-test-cases" parallel="false">
         <classes>
             <class name="org.ballerinalang.nativeimpl.functions.ws.WebSocketEndpointTest"/>
             <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionGroupTest"/>
             <class name="org.ballerinalang.nativeimpl.functions.ws.ConnectionStoreTest"/>
         </classes>
-    </test>-->
+    </test>
 
     <!-- TODO : Fix This -->
     <!--<test name="ballerina-identifier-literal-test-suite">

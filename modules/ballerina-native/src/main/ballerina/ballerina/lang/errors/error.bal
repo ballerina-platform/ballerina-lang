@@ -22,9 +22,21 @@ function toString(StackTraceItem item)(string){
     return item.packageName + ":" + item.caller + "(" + item.fileName + ":" + item.lineNumber + ")";
 }
 
-struct CastError {
+struct TypeCastError {
     string msg;
     Error cause;
     string sourceType;
     string targetType;
+}
+
+struct TypeConversionError {
+    string msg;
+    Error cause;
+    string sourceType;
+    string targetType;
+}
+
+struct NullReferenceError {
+    string msg;
+    Error cause;
 }

@@ -50,8 +50,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ToJSON extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        return getBValues(dataTable.toJSON());
+        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
+        return getBValues(dataTable.toJSON(ctx.isInTransaction()));
     }
     
 }

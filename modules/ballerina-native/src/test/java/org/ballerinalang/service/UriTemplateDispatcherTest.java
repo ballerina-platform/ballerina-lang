@@ -18,6 +18,7 @@
 package org.ballerinalang.service;
 
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
@@ -70,12 +71,11 @@ public class UriTemplateDispatcherTest {
         cMsg.setHeader(xOrderIdHeadeName, xOrderIdHeadeValue);
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertEquals(
-                response.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE), 500,
-                "Response code mismatch");
+                response.getProperty(Constants.HTTP_STATUS_CODE), 404, "Response code mismatch");
         Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
         //checking the exception message
         String errorMessage = response.getMessageDataSource().getMessageAsString();
-        Assert.assertTrue(errorMessage.contains("no resource found to handle the request to Service"),
+        Assert.assertTrue(errorMessage.contains("no matching resource found for path"),
                 "Expected error not found.");
     }
 

@@ -74,9 +74,9 @@ public class GetHmac extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String baseString = getArgument(context, 0).stringValue();
-        String keyString = getArgument(context, 1).stringValue();
-        String algorithm = getArgument(context, 2).stringValue();
+        String baseString = getStringArgument(context, 0);
+        String keyString = getStringArgument(context, 1);
+        String algorithm = getStringArgument(context, 2);
         String hmacAlgorithm;
 
         //todo document the supported algorithm

@@ -25,18 +25,17 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Test cases for usages of worker in functions.
  */
 public class WorkerInFunctionTest {
-    //private BLangProgram bLangProgram;
     private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        //bLangProgram = BTestUtils.parseBalFile("samples/worker-declaration-stmt.bal");
-        bProgramFile = BTestUtils.getProgramFile("samples/worker-declaration-stmt.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-in-function-test.bal");
     }
 
     //@Test(description = "Test worker in function")
@@ -49,7 +48,7 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //@Test(description = "Test simple worker in function")
+    @Test(description = "Test simple worker in function")
     public void testSimpleWorkerInFunction() {
         BValue[] args = {new BMessage()};
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testSimpleWorker", args);
@@ -59,8 +58,9 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //@Test(description = "Test worker accessing parameters passed into function")
+    @Test(description = "Test worker accessing parameters passed into function")
     public void testWorkerAccessingFunctionParameters() {
+        bProgramFile = BTestUtils.getProgramFile("samples/worker-accessing-function-params.bal");
         BValue[] args = {new BInteger(100)};
         BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testFunctionArgumentAccessFromWorker", args);
         Assert.assertEquals(returns.length, 1);
@@ -68,34 +68,4 @@ public class WorkerInFunctionTest {
         final String expected = "1100";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
-
-//    @Test(description = "Test worker in function")
-//    public void testWorkerInFunction() {
-//        BValue[] args = {new BMessage()};
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testworker", args);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BMessage);
-//        final String expected = "{\"name\":\"WSO2\"}";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
-//
-//    @Test(description = "Test simple worker in function")
-//    public void testSimpleWorkerInFunction() {
-//        BValue[] args = {new BMessage()};
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSimpleWorker", args);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BMessage);
-//        final String expected = "{\"name\":\"chanaka\"}";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
-//
-//    @Test(description = "Test worker accessing parameters passed into function")
-//    public void testWorkerAccessingFunctionParameters() {
-//        BValue[] args = {new BInteger(100)};
-//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFunctionArgumentAccessFromWorker", args);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BInteger);
-//        final String expected = "1100";
-//        Assert.assertEquals(returns[0].stringValue(), expected);
-//    }
 }

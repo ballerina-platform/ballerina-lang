@@ -57,9 +57,9 @@ public class SetHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
-        String headerName = getArgument(context, 1).stringValue();
-        String headerValue = getArgument(context, 2).stringValue();
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        String headerName = getStringArgument(context, 0);
+        String headerValue = getStringArgument(context, 1);
         // Set new header.
         msg.setHeader(headerName, headerValue);
         if (LOG.isDebugEnabled()) {

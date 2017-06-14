@@ -85,6 +85,10 @@ public class ProgramFile {
         return packageInfoMap.get(packageName);
     }
 
+    public PackageInfo[] getPackageInfoCollection() {
+        return packageInfoMap.values().toArray(new PackageInfo[0]);
+    }
+
     public void addPackageInfo(String packageName, PackageInfo packageInfo) {
         packageInfoMap.put(packageName, packageInfo);
     }
