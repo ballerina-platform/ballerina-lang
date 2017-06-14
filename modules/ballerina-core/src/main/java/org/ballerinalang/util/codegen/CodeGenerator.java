@@ -2387,11 +2387,8 @@ public class CodeGenerator implements NodeVisitor {
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }
-        if (timeoutIP == nextIP()) {
-            gotoInstruction.setOperand(0, nextIP() + 1);
-        } else {
-            gotoInstruction.setOperand(0, nextIP());
-        }
+
+        gotoInstruction.setOperand(0, nextIP());
     }
 
 
