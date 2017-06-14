@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ASTNode from '../node';
+
 const supportedHttpMethodAnnotations = ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTION'];
 
 /**
@@ -115,7 +116,7 @@ class Annotation extends ASTNode {
 
     /**
      * The ballerina source code for the current annotation including its nested children.
-     * @return {string}
+     * @return {string} The source code of the annotation.
      */
     toString() {
         let annotationString;
@@ -140,6 +141,7 @@ class Annotation extends ASTNode {
      * @param {string} jsonNode.annotation_package_path The full path of the annotation.
      * @param {string} jsonNode.annotation_package_name The package name.
      * @param {string} jsonNode.annotation_name The identifier of the annotation.
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         this.setFullPackageName(jsonNode.annotation_package_path, { doSilently: true });
