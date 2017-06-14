@@ -1776,8 +1776,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         Expression[] exprs = actionIExpr.getArgExprs();
-        for (int i = 0; i < exprs.length; i++) {
-            visitSingleValueExpr(exprs[i]);
+        for (Expression expr : exprs) {
+            visitSingleValueExpr(expr);
         }
 
         linkAction(actionIExpr);

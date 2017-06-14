@@ -762,10 +762,6 @@ public class BLangModelBuilder {
 
     public void addActionInvocationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                         NameReference nameReference, String actionName, boolean argsAvailable) {
-//        VariableRefExpr variableRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, nameReference.name,
-//                nameReference.pkgName, nameReference.pkgPath);
-//        variableRefExpr.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
-
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
         cIExprBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
@@ -780,7 +776,6 @@ public class BLangModelBuilder {
         cIExprBuilder.setPkgName(nameReference.pkgName);
         cIExprBuilder.setPkgPath(nameReference.pkgPath);
         cIExprBuilder.setConnectorName(nameReference.name);
-//        cIExprBuilder.setVarRefExpr(variableRefExpr);
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
         exprStack.push(invocationExpr);
