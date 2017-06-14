@@ -23,6 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Helper class ot be used by siddhi tests. Any extension can utilize methods in here
+ */
 public class SiddhiTestHelper {
     public static void waitForEvents(long sleepTime, int expectedCount, AtomicInteger actualCount, long timeout)
             throws InterruptedException {
