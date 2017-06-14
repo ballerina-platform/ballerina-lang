@@ -21,13 +21,6 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.GlobalVarLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.composer.service.workspace.api.StringUtil;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
@@ -61,7 +54,6 @@ import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
@@ -85,14 +77,12 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -1574,17 +1564,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BacktickExpr backtickExpr) {
-        JsonObject backtickExprObj = new JsonObject();
-        this.addPosition(backtickExprObj, backtickExpr.getNodeLocation());
-        this.addWhitespaceDescriptor(backtickExprObj, backtickExpr.getWhiteSpaceDescriptor());
-        backtickExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.BACK_TICK_EXPRESSION);
-        backtickExprObj.addProperty(BLangJSONModelConstants.BACK_TICK_ENCLOSED_STRING, backtickExpr.getTemplateStr());
-        tempJsonArrayRef.peek().add(backtickExprObj);
-    }
-
-    @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         JsonObject instanceCreationExprObj = new JsonObject();
         this.addPosition(instanceCreationExprObj, instanceCreationExpr.getNodeLocation());
@@ -1597,16 +1576,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         instanceCreationExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(instanceCreationExprObj);
-    }
-
-    @Override
-    public void visit(MainInvoker mainInvoker) {
-        //TODO
-    }
-
-    @Override
-    public void visit(ResourceInvocationExpr resourceInvokerExpr) {
-        //TODO
     }
 
     @Override
@@ -1650,26 +1619,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         connectorInitExprObj.add(BLangJSONModelConstants.ARGUMENTS, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(connectorInitExprObj);
-    }
-
-    @Override
-    public void visit(ConstantLocation constantLocation) {
-        //TODO
-    }
-
-    @Override
-    public void visit(StackVarLocation stackVarLocation) {
-        //TODO
-    }
-
-    @Override
-    public void visit(ConnectorVarLocation connectorVarLocation) {
-        //TODO
-    }
-
-    @Override
-    public void visit(ServiceVarLocation serviceVarLocation) {
-        //TODO
     }
 
     @Override
@@ -1722,16 +1671,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ArrayLengthExpression arrayLengthExpression) {
-
-    }
-
-    @Override
-    public void visit(StructVarLocation structVarLocation) {
-        // TODO
-    }
-
-    @Override
-    public void visit(WorkerVarLocation workerVarLocation) {
 
     }
 
@@ -1878,15 +1817,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(GlobalVariableDef globalVariableDef) {
 
     }
-
-    @Override
-    public void visit(GlobalVarLocation globalVarLocation) {
-
-    }
-
-    //    public void visit(WorkerVarLocation workerVarLocation){
-    //
-    //    }
 
     private void addPosition(JsonObject jsonObj, NodeLocation nodeLocation) {
         if (nodeLocation != null) {

@@ -18,13 +18,6 @@
 
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.GlobalVarLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationDef;
@@ -51,7 +44,6 @@ import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
@@ -75,14 +67,12 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -612,13 +602,6 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
     
     @Override
-    public void visit(BacktickExpr backtickExpr) {
-        StringBuffer buffer = new StringBuffer();
-        bufferStack.push(buffer);
-        buffer.append("'" + backtickExpr.getTemplateStr() + "'").append(";");
-    }
-    
-    @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
@@ -629,16 +612,6 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
     
     @Override
-    public void visit(MainInvoker mainInvoker) {
-        //TODO
-    }
-    
-    @Override
-    public void visit(ResourceInvocationExpr resourceInvokerExpr) {
-        //TODO
-    }
-    
-    @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         //TODO
     }
@@ -646,26 +619,6 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         
-    }
-    
-    @Override
-    public void visit(ConstantLocation constantLocation) {
-        //TODO
-    }
-    
-    @Override
-    public void visit(StackVarLocation stackVarLocation) {
-        //TODO
-    }
-    
-    @Override
-    public void visit(ConnectorVarLocation connectorVarLocation) {
-        //TODO
-    }
-    
-    @Override
-    public void visit(ServiceVarLocation serviceVarLocation) {
-        //TODO
     }
 
     @Override
@@ -709,16 +662,6 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
     
     @Override
-    public void visit(StructVarLocation structVarLocation) {
-        //TODO
-    }
-    
-    @Override
-    public void visit(WorkerVarLocation workerVarLocation) {
-        
-    }
-    
-    @Override
     public void visit(StructInitExpr structInitExpr) {
         //TODO
     }
@@ -736,11 +679,6 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(ModExpression modExpression) {
         
-    }
-
-    @Override
-    public void visit(GlobalVarLocation globalVarLocation) {
-
     }
 
     @Override
