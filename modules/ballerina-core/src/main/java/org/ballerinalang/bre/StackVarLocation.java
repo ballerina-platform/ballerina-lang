@@ -17,17 +17,12 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.model.Node;
-import org.ballerinalang.model.NodeExecutor;
-import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BValue;
-
 /**
  * {@code LocalVarLocation} represents a location of a local variable stored in the stack frame.
  *
  * @since 0.8.0
  */
-public class StackVarLocation extends MemoryLocation implements Node {
+public class StackVarLocation extends MemoryLocation {
     private int stackFrameOffset;
 
     public StackVarLocation(int stackFrameOffset) {
@@ -37,15 +32,4 @@ public class StackVarLocation extends MemoryLocation implements Node {
     public int getStackFrameOffset() {
         return stackFrameOffset;
     }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
 }

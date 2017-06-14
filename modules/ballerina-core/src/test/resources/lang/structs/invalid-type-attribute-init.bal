@@ -1,9 +1,9 @@
 function testInvalidTypeAttributeinit() {
 	string name;
-	Department dpt = {dptName:54};
+	Department dpt = {dptNames:54};
 }
 
 struct Department {
-	string dptName;
+	map dptNames;
 	int count;
 }

@@ -161,7 +161,6 @@ public class BLangVM {
 
         this.context = context;
         this.controlStack = context.getControlStackNew();
-        this.context.setVMBasedExecutor(true);
         this.ip = context.getStartIP();
         currentCallableUnitInfo = currentFrame.getCallableUnitInfo();
 

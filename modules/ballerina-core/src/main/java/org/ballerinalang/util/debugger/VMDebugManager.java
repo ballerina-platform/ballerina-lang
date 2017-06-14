@@ -24,7 +24,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
@@ -46,9 +45,7 @@ public class VMDebugManager {
     private volatile Semaphore executionSem;
 
     private VMDebugServer debugServer;
-
-    private ProgramFile programFile;
-
+    
     private boolean debugEnagled;
 
     private volatile boolean done;
