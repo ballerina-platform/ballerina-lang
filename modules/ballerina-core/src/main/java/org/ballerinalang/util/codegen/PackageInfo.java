@@ -21,6 +21,7 @@ import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class PackageInfo {
     private Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
 
-    private Map<String, FunctionInfo> functionInfoMap = new HashMap<>();
+    private Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
     private Map<String, ConnectorInfo> connectorInfoMap = new HashMap<>();
 
