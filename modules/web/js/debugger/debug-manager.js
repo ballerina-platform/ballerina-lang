@@ -18,9 +18,9 @@
 
 import _ from 'lodash';
 import EventChannel from 'event_channel';
+import log from 'log';
 import Channel from './channel';
 import DebugPoint from './debug-point';
-import log from 'log';
 
 class DebugManager extends EventChannel {
     constructor() {

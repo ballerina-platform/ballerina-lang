@@ -18,8 +18,8 @@
 
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import LaunchChannel from './launch-channel';
 import Console from 'console';
+import LaunchChannel from './launch-channel';
 
 class LaunchManager extends EventChannel {
     constructor() {

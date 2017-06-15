@@ -20,8 +20,8 @@ import log from 'log';
 import $ from 'jquery';
 import Backbone from 'backbone';
 import _ from 'lodash';
-import LaunchManager from './launch-manager';
 import alerts from 'alerts';
+import LaunchManager from './launch-manager';
 
 const Launcher = Backbone.View.extend({
 
@@ -55,23 +55,43 @@ const Launcher = Backbone.View.extend({
         this.application.commandManager.registerCommand(config.command.id, { shortcuts: config.command.shortcuts });
         this.application.commandManager.registerHandler(config.command.id, this.toggleExplorer, this);
 
-        this.compiled = _.template('<div><% if (!active) { %>'
-            + '<div class="debug-panel-header">'
-            + '     <span class="tool-group-header-title">Run</span>'
-            + '</div>'
-            + '<div class="btn-group col-xs-12">'
-            + '     <div type="button" id="run_application" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Application"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
-            + '     <button type="button" id="run_service" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Service">Service</button>'
-            + '</div>'
-            + '<% } %>'
-            + '<% if (active) { %>'
-            + '<div class="debug-panel-header">'
-            + '     <span class="tool-group-header-title">Program Running</span></span>'
-            + '</div>'
-            + '<div class="btn-group col-xs-12">'
-            + '<button type="button" class="btn btn-default btn-debug-activate" title="Redeploy" id="reploy-program"><i class="fw fw-refresh" /> Redeploy Application</button>'
-            + '<button type="button" class="btn btn-default btn-debug-activate" title="Stop Application" id="stop_program"><i class="fw fw-stop" /> Stop Application</button>'
-            + '</div><% } %></div>');
+        this.compiled = _.template(`
+            <div>
+              <% if (!active) { %>
+                <div class="debug-panel-header">
+                     <span class="tool-group-header-title">Run</span>
+                </div>
+                <div class="btn-group col-xs-12">
+                     <div type="button" id="run_application"
+                        class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Application">
+                     <span class="launch-label">Application</span>
+                        <button type="button" class="btn btn-default pull-right btn-config" title="Config">
+                          <i class="fw fw-configarations"></i>
+                        </button>
+                      </div>
+                     <button type="button" id="run_service"
+                        class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Service">
+                        Service
+                      </button>
+                </div>
+                <% } %>
+                <% if (active) { %>
+                <div class="debug-panel-header">
+                     <span class="tool-group-header-title">Program Running</span></span>
+                </div>
+                <div class="btn-group col-xs-12">
+                <button type="button" class="btn btn-default btn-debug-activate" title="Redeploy" id="reploy-program">
+                    <i class="fw fw-refresh" />
+                    Redeploy Application
+                </button>
+                <button type="button" class="btn btn-default btn-debug-activate"
+                  title="Stop Application" id="stop_program">
+                  <i class="fw fw-stop" />
+                  Stop Application
+                </button>
+              </div>
+              <% } %>
+            </div>`);
 
         this.appArgsDialog = $('#modalRunApplicationWithArgs');
 
@@ -152,7 +172,8 @@ const Launcher = Backbone.View.extend({
         if (this.isActive()) {
             this._$parent_el.parent().width('0px');
             this._containerToAdjust.css('padding-left', _.get(this._options, 'leftOffset'));
-            this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
+            this._verticalSeparator.css('left',
+                _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
             this._activateBtn.parent('li').removeClass('active');
             this.application.reRender();// to update the diagrams
         } else {
