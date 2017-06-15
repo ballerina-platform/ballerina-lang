@@ -29,6 +29,7 @@ import org.ballerinalang.model.expressions.Expression;
  */
 public class AssignStmt extends AbstractStatement {
     private Expression[] lhsExprs;
+    private boolean isVarDeclaration;
 
     private Expression rhsExpr;
 
@@ -63,4 +64,13 @@ public class AssignStmt extends AbstractStatement {
     public void setRhsExpr(Expression rhsExpr) {
         this.rhsExpr = rhsExpr;
     }
+
+    public boolean isVarDeclaration() {
+        return isVarDeclaration;
+    }
+
+    public void setVarDeclaration(boolean isVarDeclaration) {
+        this.isVarDeclaration = isVarDeclaration;
+    }
+
 }

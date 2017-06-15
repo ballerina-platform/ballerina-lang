@@ -1122,6 +1122,25 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(VariableDef varDef) {
+        // Resolves the type of the variable
+        BType lhsType = null;
+        if (varDef.getTypeName().getName().equals("var")) {
+        } else {
+            //this is not a possibility to current ballerina grammar added for completeness
+            lhsType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
+            varDef.setType(lhsType);
+        }
+
+        // Check whether this variable is already defined, if not define it.
+        SymbolName symbolName = new SymbolName(varDef.getName(), currentPkg);
+        BLangSymbol varSymbol = currentScope.resolve(symbolName);
+        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+            BLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
+        }
+        currentScope.define(symbolName, varDef);
+
+        // Set memory location
+        //setMemoryLocation(varDef);
     }
 
 
@@ -1190,11 +1209,34 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression[] lExprs = assignStmt.getLExprs();
+        if (assignStmt.isVarDeclaration()) {
+            for (Expression expr : lExprs) {
+                if (!(expr instanceof VariableRefExpr)) {
+                    BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
+                }
+                VariableRefExpr refExpr = (VariableRefExpr) expr;
+                Identifier identifier = new Identifier(refExpr.getVarName());
+                SymbolName symbolName = new SymbolName(identifier.getName());
+                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                        refExpr.getWhiteSpaceDescriptor(), identifier,
+                        new SimpleTypeName("var"), symbolName, currentScope);
+                refExpr.setVariableDef(variableDef);
+                refExpr.getVariableDef().accept(this);
+            }
+        }
         visitLExprsOfAssignment(assignStmt, lExprs);
 
         Expression rExpr = assignStmt.getRExpr();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
+            if (assignStmt.isVarDeclaration()) {
+                VariableRefExpr[] variableRefExprs = (VariableRefExpr[]) lExprs;
+                if (rExpr instanceof FunctionInvocationExpr) {
+                    assignVariableRefTypes(variableRefExprs, ((FunctionInvocationExpr) rExpr).getTypes());
+                } else if (rExpr instanceof ActionInvocationExpr) {
+                    assignVariableRefTypes(variableRefExprs, ((ActionInvocationExpr) rExpr).getTypes());
+                }
+            }
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
         }
@@ -1202,6 +1244,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (lExprs.length > 1 && (rExpr instanceof TypeCastExpression || rExpr instanceof TypeConversionExpr)) {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
+            if (assignStmt.isVarDeclaration()) {
+                VariableRefExpr[] variableRefExprs = (VariableRefExpr[]) lExprs;
+                if (rExpr instanceof TypeCastExpression) {
+                    assignVariableRefTypes(variableRefExprs, ((TypeCastExpression) rExpr).getTypes());
+                } else if (rExpr instanceof TypeConversionExpr) {
+                    assignVariableRefTypes(variableRefExprs, ((TypeConversionExpr) rExpr).getTypes());
+                }
+            }
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
             return;
         }
@@ -1211,6 +1261,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType lhsType = lExpr.getType();
 
         if (rExpr instanceof RefTypeInitExpr) {
+            if (assignStmt.isVarDeclaration()) {
+                BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
+            }
             RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
             assignStmt.setRExpr(refTypeInitExpr);
             refTypeInitExpr.accept(this);
@@ -1219,6 +1272,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         visitSingleValueExpr(rExpr);
         BType rhsType = rExpr.getType();
+        if (assignStmt.isVarDeclaration()) {
+            assignVariableRefTypes(new VariableRefExpr[]{(VariableRefExpr) lExpr}, new BType[]{rhsType});
+        }
 
         // Check whether the right-hand type can be assigned to the left-hand type.
         AssignabilityResult result = performAssignabilityCheck(lhsType, rExpr);
@@ -1229,6 +1285,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                     rhsType, lhsType);
         }
     }
+
+    private static void assignVariableRefTypes(VariableRefExpr[] expr, BType[] returnTypes) {
+        for (int i = 0; i < expr.length; i++) {
+            expr[i].getVariableDef().setType(returnTypes[i]);
+        }
+    }
+
 
     @Override
     public void visit(BlockStmt blockStmt) {

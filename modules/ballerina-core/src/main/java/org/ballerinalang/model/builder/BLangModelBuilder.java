@@ -1113,12 +1113,16 @@ public class BLangModelBuilder {
         addToBlockStmt(commentStmt);
     }
 
-    public void createAssignmentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void createAssignmentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                     boolean isVarDeclaration) {
         Expression rExpr = exprStack.pop();
         List<Expression> lExprList = exprListStack.pop();
 
         AssignStmt assignStmt = new AssignStmt(location, lExprList.toArray(new Expression[lExprList.size()]), rExpr);
         assignStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        if (isVarDeclaration) {
+            assignStmt.setVarDeclaration(true);
+        }
         addToBlockStmt(assignStmt);
     }
 
