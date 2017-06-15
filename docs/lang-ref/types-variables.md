@@ -51,8 +51,17 @@ Ballerina includes the following value types:
 - int
 - float
 - string
+- blob
 
 The types `int` and `float` both support 64-bit IEEE754 arithmetic. The `boolean` type has only two values: `true` and `false`. The `string` type operates similar to value types in that assignment and comparison involve the full value and not the pointer.
+
+The `blob` type in Ballerina is used to represent a sequence of bytes. Currently there are two different ways to create a blob value.
+- A string can be converted to a blob using the `toBlob` function in the strings package.
+- A file can be read into a blob using the `read` function of the Ballerina file API.
+
+The following functionalities can be achieved using the 'blob' value type.
+- A blob can be converted to a string using the `toString` function in the blobs package.
+- A blob can be written or appended to a file using the `write` function in the Ballerina file API.
 
 Value types can be initialized at declaration by assigning a value of that type. If they are not initialized, they have the following default values: 
 
@@ -60,6 +69,7 @@ Value types can be initialized at declaration by assigning a value of that type.
 - float: 0.0
 - string: "" (empty string, not null)
 - boolean: false
+- blob: null (blobs can only be populated using a function)
 
 ## User-defined reference types
 

@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.actions.data.sql;
 
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
@@ -36,6 +35,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,27 +74,10 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    public String getString(int index) {
-        try {
-            return rs.getString(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
     @Override
     public String getString(String columnName) {
         try {
             return rs.getString(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public long getInt(int index) {
-        try {
-            return rs.getLong(index);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -110,15 +93,6 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public double getFloat(int index) {
-        try {
-            return rs.getDouble(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     public double getFloat(String columnName) {
         try {
             return rs.getDouble(columnName);
@@ -128,32 +102,9 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
-    public boolean getBoolean(int index) {
-        try {
-            return rs.getBoolean(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     public boolean getBoolean(String columnName) {
         try {
             return rs.getBoolean(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public String getObjectAsString(int columnIndex) {
-        try {
-            Object object = rs.getObject(columnIndex);
-            if (object != null) {
-                return getString(object);
-            } else {
-                return null;
-            }
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -195,73 +146,29 @@ public class SQLDataIterator implements DataIterator {
 
     // Below method doesn't support streaming.
     @Override
-    public BValue get(int columnIndex, String type) {
+    public BValue get(String columnName, int type) {
         try {
             switch (type) {
-            case "blob":
-                Blob value = rs.getBlob(columnIndex);
-                return new BBlob(value.getBytes(1L, (int) value.length()));
-            case "clob":
-                return getBString(rs.getClob(columnIndex));
-            case "nclob":
-                return getBString(rs.getNClob(columnIndex));
-            case "date":
-                return new BInteger(rs.getDate(columnIndex).getTime());
-            case "time":
-                return new BInteger(rs.getTime(columnIndex).getTime());
-            case "timestamp":
-                return new BInteger(rs.getTimestamp(columnIndex).getTime());
-            case "binary":
-                return getBString(rs.getBinaryStream(columnIndex));
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException("failed to get the value of " + type + ": " + e.getMessage(), e);
-        }
-        return null;
-    }
-
-    // Below method doesn't support streaming.
-    @Override
-    public BValue get(String columnName, String type) {
-        try {
-            switch (type) {
-            case "blob":
+            case Types.BLOB:
                 Blob value = rs.getBlob(columnName);
                 return new BBlob(value.getBytes(1L, (int) value.length()));
-            case "clob":
+            case Types.CLOB:
                 return getBString(rs.getClob(columnName));
-            case "nclob":
+            case Types.NCLOB:
                 return getBString(rs.getNClob(columnName));
-            case "date":
-                return new BInteger(rs.getDate(columnName).getTime());
-            case "time":
-                return new BInteger(rs.getTime(columnName).getTime());
-            case "timestamp":
-                return new BInteger(rs.getTimestamp(columnName).getTime());
-            case "binary":
+            case Types.DATE:
+                return getBString(rs.getDate(columnName));
+            case Types.TIME:
+                return getBString(rs.getTime(columnName));
+            case Types.TIMESTAMP:
+                return getBString(rs.getTimestamp(columnName));
+            case Types.BINARY:
                 return getBString(rs.getBinaryStream(columnName));
             }
         } catch (SQLException e) {
             throw new BallerinaException("failed to get the value of " + type + ": " + e.getMessage(), e);
         }
         return null;
-    }
-
-    @Override
-    public Map<String, Object> getArray(int columnIndex) {
-        Map<String, Object> resultMap = new HashMap<>();
-        try {
-            Array array = rs.getArray(columnIndex);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                for (int i = 0; i < objArray.length; i++) {
-                    resultMap.put(String.valueOf(i), objArray[i]);
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-        return resultMap;
     }
 
     @Override
@@ -291,5 +198,17 @@ public class SQLDataIterator implements DataIterator {
 
     private BValue getBString(Blob blob) throws SQLException {
         return new BString(SQLDatasourceUtils.getString(blob));
+    }
+
+    private BValue getBString(Date date) throws SQLException {
+        return new BString(SQLDatasourceUtils.getString(date));
+    }
+
+    private BValue getBString(Time time) throws SQLException {
+        return new BString(SQLDatasourceUtils.getString(time));
+    }
+
+    private BValue getBString(Timestamp timestamp) throws SQLException {
+        return new BString(SQLDatasourceUtils.getString(timestamp));
     }
 }

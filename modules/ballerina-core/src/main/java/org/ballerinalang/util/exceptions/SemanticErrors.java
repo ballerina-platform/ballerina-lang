@@ -110,7 +110,9 @@ public enum SemanticErrors {
     RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt", "SEMANTIC_0090"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt", "SEMANTIC_0091"),
-    INVALID_PROTOCOL("invalid.protocol", "SEMANTIC_0083"),
+    INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
+    INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
+    INVALID_PROTOCOL("invalid.protocol", "SEMANTIC_0094"),
     ;
 
     private String errorMsgKey;

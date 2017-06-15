@@ -57,6 +57,10 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         return connectorName;
     }
 
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
+    }
+
     @Override
     public String getName() {
         return name;
@@ -75,6 +79,10 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public Expression[] getArgExprs() {
         return exprs;
+    }
+
+    public void setArgExprs(Expression[] exprs) {
+        this.exprs = exprs;
     }
 
     @Override
@@ -114,4 +122,5 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
 }
