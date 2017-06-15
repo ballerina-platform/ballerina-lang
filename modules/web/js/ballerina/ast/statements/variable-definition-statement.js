@@ -25,14 +25,13 @@ import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-w
 
 /**
  * Class to represent an Variable Definition statement.
- * @param {Object} [args] - Arguments for creating a variable definition statement.
- * @param {string} [args.leftExpression] - The left hand expression.
- * @param {string|undefined} [args.rightExpression] - The right hand expression.
- * @constructor
- * @augments Statement
  */
 class VariableDefinitionStatement extends Statement {
-    constructor(args) {
+    /**
+     * Constructor for VariableDefinitionStatement
+     * @constructor
+     */
+    constructor() {
         super('VariableDefinitionStatement');
         this.whiteSpace.defaultDescriptor.regions = {
             0: ' ',
@@ -51,8 +50,8 @@ class VariableDefinitionStatement extends Statement {
         let variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
             (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
         variableDefinitionStatementString += this.getBType();
-        if (((this.getChildren()[0]).getChildren()[0])._isArray) {
-            for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0])._dimensions; itr++) {
+        if (((this.getChildren()[0]).getChildren()[0]).isArray()) {
+            for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0]).getDimensions; itr++) {
                 variableDefinitionStatementString += '[]';
             }
         }
@@ -91,14 +90,29 @@ class VariableDefinitionStatement extends Statement {
                   : undefined;
     }
 
+    /**
+     * Set the identifier of the variable
+     * @param {string} identifier - variable identifier
+     * @returns {void}
+     */
     setIdentifier(identifier) {
         this.children[0].setVariableName(identifier);
     }
 
+    /**
+     * Set the BuiltIn Type of the variable
+     * @param {string} bType - BType of the variable
+     * @returns {void}
+     */
     setBType(bType) {
         this.children[0].setVariableType(bType);
     }
 
+    /**
+     * Set the variable value
+     * @param {string} value - value of the variable
+     * @returns {void}
+     */
     setValue(value) {
         const fragment = FragmentUtils.createExpressionFragment(value);
         const parsedJson = FragmentUtils.parseFragment(fragment);
@@ -118,7 +132,9 @@ class VariableDefinitionStatement extends Statement {
 
     /**
      * Set the variable definition statement string
-     * @param {string} variableDefinitionStatementString - variable definition statement string
+     * @param {string} stmtString - variable definition statement string
+     * @param {function} callback - callback function
+     * @override
      */
     setStatementFromString(stmtString, callback) {
         const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
@@ -199,6 +215,11 @@ class VariableDefinitionStatement extends Statement {
         }
     }
 
+    /**
+     * initialize VariableDefinitionStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         this.children = [];
         _.each(jsonNode.children, (childNode) => {

@@ -16,40 +16,49 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import ConditionalStatement from './conditional-statement';
 import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Class for while statement in ballerina.
- * @param {Object} args - Argument object for creating an if statement.
- * @param {string} [args.condition="true"] - The condition for "while".
- * @param {Statement} [args.statements="[]] - Statements of the "while".
- * @constructor
- * @augments ConditionalStatement
  */
 class WhileStatement extends ConditionalStatement {
+    /**
+     * Constructor for while statement in ballerina.
+     * @param {Object} args - Argument object for creating an if statement.
+     * @param {string} [args.condition="true"] - The condition for "while".
+     * @param {Statement} [args.statements="[]] - Statements of the "while".
+     * @constructor
+     */
     constructor(args) {
         super();
         this.type = 'WhileStatement';
         if (!_.isNil(_.get(args, 'condition'))) {
             this.setCondition(_.get(args, 'condition'));
-        }        else {
+        } else {
+            const opts = {
+                basicLiteralType: 'boolean',
+                basicLiteralValue: true,
+            };
             // create default condition
-            this.setCondition(this.getFactory().createBasicLiteralExpression(
-                {
-                    basicLiteralType: 'boolean',
-                    basicLiteralValue: true,
-                },
-            ));
+            this.setCondition(this.getFactory().createBasicLiteralExpression(opts));
         }
         this._statements = _.get(args, 'statements', []);
     }
 
+    /**
+     * Get the condition as a string
+     * @return {string} condition as string
+     */
     getConditionString() {
         return this.getCondition().getExpressionString();
     }
 
+    /**
+     * Set the condition from string
+     * @param {string} conditionString - condition string from which condition being set
+     * @returns {void}
+     */
     setConditionFromString(conditionString) {
         if (!_.isNil(conditionString) || !_.isEmpty(conditionString)) {
             const fragment = FragmentUtils.createExpressionFragment(conditionString);
@@ -61,22 +70,33 @@ class WhileStatement extends ConditionalStatement {
         }
     }
 
+    /**
+     * Set the condition
+     * @param {Expression} condition - condition string
+     * @param {object} options - set attribute options
+     * @returns {void}
+     */
     setCondition(condition, options) {
         if (!_.isNil(condition)) {
             this.setAttribute('_condition', condition, options);
         }
     }
 
+    /**
+     * Get the while statement condition
+     * @returns {expression} condition expression
+     */
     getCondition() {
         return this._condition;
     }
 
     /**
      * initialize from json
-     * @param jsonNode
+     * @param {object} jsonNode - json node from which the while statement being initialized
+     * @returns {void}
      */
     initFromJson(jsonNode) {
-        let self = this;
+        const self = this;
         if (!_.isNil(jsonNode.condition)) {
             const condition = self.getFactory().createFromJson(jsonNode.condition);
             condition.initFromJson(jsonNode.condition);
@@ -87,7 +107,8 @@ class WhileStatement extends ConditionalStatement {
             let child;
             let childNodeTemp;
             // TODO : generalize this logic
-            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1])
+                && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {

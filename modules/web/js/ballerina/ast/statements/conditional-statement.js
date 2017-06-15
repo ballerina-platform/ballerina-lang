@@ -22,11 +22,14 @@ import Expression from './../expressions/expression';
 
 /**
  * Class to represent a condition to ballerina.
- * @param condition The condition of a conditional statement.
- * @param statements The statements of a conditional statement.
- * @constructor
  */
 class ConditionalStatement extends Statement {
+    /**
+     * CConstructor for condition statement
+     * @param {string|expression} condition The condition of a conditional statement.
+     * @param {[ASTNode]} statements The statements of a conditional statement.
+     * @constructor
+     */
     constructor(condition, statements) {
         super();
         this._condition = condition || 'true';
@@ -34,6 +37,12 @@ class ConditionalStatement extends Statement {
         this.type = 'ConditionalStatement';
     }
 
+    /**
+     * Set the condition.
+     * @param {Expression} condition full package name
+     * @param {Object} options set attribute options
+     * @returns {void}
+     */
     setCondition(condition, options) {
         if (!_.isNil(condition) && condition instanceof Expression) {
             this.setAttribute('_condition', condition, options);
@@ -42,10 +51,20 @@ class ConditionalStatement extends Statement {
         }
     }
 
+    /**
+     * Get condition
+     * @return {expression} condition expression
+     */
     getCondition() {
         return this._condition;
     }
 
+    /**
+     * Set the statements.
+     * @param {[Statement]} statements Statements array
+     * @param {Object} options set attribute options
+     * @returns {void}
+     */
     setStatements(statements, options) {
         // There should be atleast one statement.
         if (!_.isNil(statements)) {
@@ -55,6 +74,10 @@ class ConditionalStatement extends Statement {
         }
     }
 
+    /**
+     * Get the Statements
+     * @return {[ASTNode]} statement array
+     */
     getStatements() {
         return this._statments;
     }

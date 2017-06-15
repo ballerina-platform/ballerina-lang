@@ -23,12 +23,20 @@ import ASTNode from '../node';
  * @constructor
  */
 class BlockStatement extends ASTNode {
+    /**
+     * Constructor for block statement
+     */
     constructor() {
         super('BlockStatement');
     }
 
+    /**
+     * Add variable declaration
+     * @param {string} name variable name
+     * @param {string} type variable type name
+     * @returns {void}
+     */
     addVariableDeclaration(name, type) {
-        const self = this;
         const ballerinaASTFactory = this.getFactory();
         const leftExpression = type + ' ' + name;
         const args = {
@@ -55,6 +63,7 @@ class BlockStatement extends ASTNode {
     /**
      * Initialize BlockStatement from json object
      * @param {Object} jsonNode - JSON object for initialization.
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         const self = this;
@@ -65,8 +74,15 @@ class BlockStatement extends ASTNode {
         });
     }
 
+    /**
+     * Remove child from model
+     * @param {ASTNode} child child node
+     * @param {boolean} ignoreModifiedTreeEvent whether ignore the tree modified event
+     * @param {boolean} willVisit whether visit or not
+     * @returns {void}
+     */
     removeChild(child, ignoreModifiedTreeEvent, willVisit) {
-        if (!_.isUndefined(willVisit) && willVisit != true) {
+        if (!_.isUndefined(willVisit) && willVisit !== true) {
             const parentModelChildren = this.children;
             for (let itr = 0; itr < parentModelChildren.length; itr++) {
                 if (parentModelChildren[itr].id === child.id) {

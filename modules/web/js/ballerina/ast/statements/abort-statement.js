@@ -17,7 +17,13 @@
  */
 import Statement from './statement';
 
+/**
+ * Class for Abort statement
+ */
 class AbortStatement extends Statement {
+    /**
+     * Constructor for abort statement
+     */
     constructor() {
         super();
         this.type = 'AbortStatement';
@@ -39,9 +45,9 @@ class AbortStatement extends Statement {
 
     /**
      * initialize the node from the node json object.
-     * @param {object} jsonNode - json model for the node.
-     * */
-    initFromJson(jsonNode) {
+     * @returns {void}
+     */
+    initFromJson() {
         // No Children Available to Iterate Through.
     }
 

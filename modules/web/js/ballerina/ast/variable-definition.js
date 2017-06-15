@@ -137,6 +137,22 @@ class VariableDefinition extends ASTNode {
             child.initFromJson(childNode);
         });
     }
+
+    /**
+     * Get the dimensions
+     * @return {number} - number of dimensions
+     */
+    getDimensions() {
+        return this._dimensions;
+    }
+
+    /**
+     * Get is array
+     * @return {boolean} - whether is array or not
+     */
+    isArray() {
+        return this._isArray;
+    }
 }
 
 export default VariableDefinition;

@@ -22,11 +22,12 @@ import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 /**
  * Class to represent a action invocation to ballerina.
- * @param args
- * @constructor
  */
 class ActionInvocationStatement extends Statement {
-    constructor(args) {
+    /**
+     * Constructor for Action invocation statement
+     */
+    constructor() {
         super('ActionInvocationStatement');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
@@ -37,6 +38,7 @@ class ActionInvocationStatement extends Statement {
     /**
      * initialize ActionInvocationStatement from json object
      * @param {Object} jsonNode to initialize from
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
@@ -50,19 +52,22 @@ class ActionInvocationStatement extends Statement {
 
     /**
      * Get the statement string
-     * @return {string} statement string
+     * @returns {string} statement string
      * @override
      */
     getStatementString() {
+        let statementString = '';
         if (this.getChildren().length > 0) {
-            return this.getChildren()[0].getExpressionString();
+            statementString = this.getChildren()[0].getExpressionString();
         }
+        return statementString;
     }
 
     /**
      * Set the statement string
-     * @param {string} statementString
-     * @param {function} callback
+     * @param {string} stmtString statement string
+     * @param {function} callback callback function
+     * @returns {void}
      */
     setStatementFromString(stmtString, callback) {
         const fragment = FragmentUtils.createStatementFragment(stmtString + ';');

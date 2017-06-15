@@ -18,7 +18,14 @@
 import _ from 'lodash';
 import Statement from './statement';
 
+/**
+ * Class for Transaction statement
+ */
 class TransactionStatement extends Statement {
+    /**
+     * Constructor for TransactionStatement
+     * @override
+     */
     constructor() {
         super();
         this.type = 'TransactionStatement';
@@ -33,6 +40,7 @@ class TransactionStatement extends Statement {
     /**
      * initialize the node from the node json.
      * @param {object} jsonNode - json model for the node.
+     * @returns {void}
      * */
     initFromJson(jsonNode) {
         const self = this;

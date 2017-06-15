@@ -17,9 +17,14 @@
  */
 import _ from 'lodash';
 import Statement from './statement';
-import FragmentUtils from './../../utils/fragment-utils';
 
+/**
+ * Class to represent an Committed statement.
+ */
 class CommittedStatement extends Statement {
+    /**
+     * Constructor for committed statement
+     */
     constructor() {
         super();
         this.type = 'CommittedStatement';
@@ -34,6 +39,7 @@ class CommittedStatement extends Statement {
     /**
      * Initialize the node from the node json.
      * @param {object} jsonNode - Json model for the node.
+     * @returns {void}
      * */
     initFromJson(jsonNode) {
         const self = this;

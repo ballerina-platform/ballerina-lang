@@ -18,7 +18,13 @@
 import _ from 'lodash';
 import Statement from './statement';
 
+/**
+ * Class for Aborted Statement
+ */
 class AbortedStatement extends Statement {
+    /**
+     * Constructor for Aborted statement
+     */
     constructor() {
         super();
         this.type = 'AbortedStatement';
@@ -33,7 +39,8 @@ class AbortedStatement extends Statement {
     /**
      * Initialize the node from the node json.
      * @param {object} jsonNode - Json model for the node.
-     * */
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         const self = this;
         _.each(jsonNode.children, (childNode) => {
