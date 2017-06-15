@@ -70,7 +70,7 @@ class IfElseStatement extends Statement {
      * @param args
      */
     createElseStatement(args) {
-        const newElseStatement = new ElseStatement(args);
+        const newElseStatement = this.getFactory().createElseStatement(args);
         this._elseStatement = newElseStatement;
         this.addChild(newElseStatement);
         return newElseStatement;
@@ -86,7 +86,7 @@ class IfElseStatement extends Statement {
             basicLiteralValue: true,
         });
         _.set(args, 'condition', condition);
-        const newElseIfStatement = new ElseIfStatement(args);
+        const newElseIfStatement = this.getFactory().createElseIfStatement(args);
         this._elseIfStatements.push(newElseIfStatement);
         this.addChild(newElseIfStatement);
         return newElseIfStatement;
