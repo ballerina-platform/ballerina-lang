@@ -670,7 +670,15 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(VariableDef variableDef) {
-
+        MemoryLocation memoryLocation = variableDef.getMemoryLocation();
+        if (memoryLocation instanceof StackVarLocation || memoryLocation instanceof WorkerVarLocation) {
+            int lvIndex = getNextIndex(variableDef.getType().getTag(), lvIndexes);
+            MemoryLocation stackVarLocation = new StackVarLocation(lvIndex);
+            variableDef.setMemoryLocation(stackVarLocation);
+            // TODO : Check whether this can be simplified
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
+            currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
+        }
     }
 
     @Override
@@ -724,6 +732,12 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
+        if (assignStmt.isVarDeclaration()) {
+            for (Expression expr : assignStmt.getLExprs()) {
+                ((VariableRefExpr) expr).getVariableDef().accept(this);
+            }
+        }
+
         // Evaluate the rhs expression
         Expression rExpr = assignStmt.getRExpr();
         if (rExpr == null) {

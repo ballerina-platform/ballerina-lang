@@ -1108,6 +1108,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Resolves the type of the variable
         BType lhsType = null;
         if (varDef.getTypeName().getName().equals("var")) {
+
         } else {
             // This is not a possible case with current ballerina grammar - added for completeness
             lhsType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
@@ -1123,7 +1124,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentScope.define(symbolName, varDef);
 
         // Set memory location
-        //setMemoryLocation(varDef);
+        setMemoryLocation(varDef);
     }
 
 
@@ -1203,8 +1204,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
                         refExpr.getWhiteSpaceDescriptor(), identifier,
                         new SimpleTypeName("var"), symbolName, currentScope);
-                refExpr.setVariableDef(variableDef);
-                refExpr.getVariableDef().accept(this);
+                variableDef.accept(this);
             }
         }
         visitLExprsOfAssignment(assignStmt, lExprs);
@@ -1213,11 +1213,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
             if (assignStmt.isVarDeclaration()) {
-                VariableRefExpr[] variableRefExprs = (VariableRefExpr[]) lExprs;
                 if (rExpr instanceof FunctionInvocationExpr) {
-                    assignVariableRefTypes(variableRefExprs, ((FunctionInvocationExpr) rExpr).getTypes());
+                    assignVariableRefTypes(lExprs, ((FunctionInvocationExpr) rExpr).getTypes());
                 } else if (rExpr instanceof ActionInvocationExpr) {
-                    assignVariableRefTypes(variableRefExprs, ((ActionInvocationExpr) rExpr).getTypes());
+                    assignVariableRefTypes(lExprs, ((ActionInvocationExpr) rExpr).getTypes());
                 }
             }
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
@@ -1228,11 +1227,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
             if (assignStmt.isVarDeclaration()) {
-                VariableRefExpr[] variableRefExprs = (VariableRefExpr[]) lExprs;
                 if (rExpr instanceof TypeCastExpression) {
-                    assignVariableRefTypes(variableRefExprs, ((TypeCastExpression) rExpr).getTypes());
+                    assignVariableRefTypes(lExprs, ((TypeCastExpression) rExpr).getTypes());
                 } else if (rExpr instanceof TypeConversionExpr) {
-                    assignVariableRefTypes(variableRefExprs, ((TypeConversionExpr) rExpr).getTypes());
+                    assignVariableRefTypes(lExprs, ((TypeConversionExpr) rExpr).getTypes());
                 }
             }
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
@@ -1256,7 +1254,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(rExpr);
         BType rhsType = rExpr.getType();
         if (assignStmt.isVarDeclaration()) {
-            assignVariableRefTypes(new VariableRefExpr[]{(VariableRefExpr) lExpr}, new BType[]{rhsType});
+            assignVariableRefTypes(new Expression[]{lExpr}, new BType[]{rhsType});
+            lhsType = rhsType;
         }
 
         // Check whether the right-hand type can be assigned to the left-hand type.
@@ -1269,9 +1268,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private static void assignVariableRefTypes(VariableRefExpr[] expr, BType[] returnTypes) {
+    private static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
         for (int i = 0; i < expr.length; i++) {
-            expr[i].getVariableDef().setType(returnTypes[i]);
+            ((VariableRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
         }
     }
 
