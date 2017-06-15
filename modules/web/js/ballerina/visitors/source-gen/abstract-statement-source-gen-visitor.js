@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import StatementVisitor from '../statement-visitor';
 import SourceGenUtil from './source-gen-util';
 

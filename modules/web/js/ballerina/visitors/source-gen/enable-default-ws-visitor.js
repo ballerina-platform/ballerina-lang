@@ -29,7 +29,7 @@ class EnableDefaultWSVisitor {
         return node instanceof ASTNode;
     }
 
-    beginVisit() {
+    beginVisit(node) {
         return true;
     }
 
@@ -52,7 +52,7 @@ class EnableDefaultWSVisitor {
         }
     }
 
-    endVisit() {
+    endVisit(node) {
         return true;
     }
 }

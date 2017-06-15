@@ -28,8 +28,11 @@ import WorkerDeclarationVisitor from './worker-declaration-visitor';
  * @constructor
  */
 class ConnectorActionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    canVisitConnectorAction() {
+    canVisitConnectorAction(connectorAction) {
         return true;
     }
 
@@ -76,7 +79,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         log.debug('Begin Visit Connector Action');
     }
 
-    visitConnectorAction() {
+    visitConnectorAction(connectorAction) {
         log.debug('Visit Connector Action');
     }
 

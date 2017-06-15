@@ -28,8 +28,11 @@ import StatementVisitorFactory from './statement-visitor-factory';
  * @constructor
  */
 class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    canVisitConnectorDefinition() {
+    canVisitConnectorDefinition(connectorDefinition) {
         return true;
     }
 
@@ -49,13 +52,12 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
         }
         let constructedSourceSegment = '';
-        _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation),
-            (annotationNode) => {
-                if (annotationNode.isSupported()) {
-                    constructedSourceSegment += annotationNode.toString()
-                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-                }
-            });
+        _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), (annotationNode) => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += annotationNode.toString()
+                  + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
+            }
+        });
 
         let argumentsSrc = '';
         _.forEach(connectorDefinition.getArguments(), (argument, index) => {
@@ -78,7 +80,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         log.debug('Begin Visit Connector Definition');
     }
 
-    visitConnectorDefinition() {
+    visitConnectorDefinition(connectorDefinition) {
         log.debug('Visit Connector Definition');
     }
 
