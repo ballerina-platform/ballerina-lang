@@ -341,10 +341,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open a new symbol scope
         openScope(service);
 
-        if (!DispatcherRegistry.getInstance().protocolExist(service.getProtocolPkg())) {
-            throw BLangExceptionHelper.getSemanticError(service, SemanticErrors.INVALID_PROTOCOL,
-                    service.getProtocolPkg());
-        }
+//        if (!DispatcherRegistry.getInstance().protocolExist(service.getProtocolPkg())) {
+//            throw BLangExceptionHelper.getSemanticError(service, SemanticErrors.INVALID_PROTOCOL,
+//                    service.getProtocolPkg());
+//        }
 
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);

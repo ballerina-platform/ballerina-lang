@@ -24,9 +24,6 @@ import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -50,45 +47,6 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class BLangProgramRunner {
 
-
-    @Deprecated
-    public void startServices(BLangProgram bLangProgram) {
-        BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-        if (servicePackages.length == 0) {
-            throw new RuntimeException("no service(s) found in '" + bLangProgram.getProgramFilePath() + "'");
-        }
-
-        int serviceCount = 0;
-        for (BLangPackage servicePackage : servicePackages) {
-            for (Service service : servicePackage.getServices()) {
-                serviceCount++;
-                service.setBLangProgram(bLangProgram);
-                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-                        dispatcher.serviceRegistered(service));
-
-//                ServiceDispatcher serviceDispatcher = DispatcherRegistry.getInstance()
-//                        .getServiceDispatcher(service.getProtocolPkg());
-//                serviceDispatcher.serviceRegistered(service);
-////                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-////                        dispatcher.serviceRegistered(service));
-//                // Build Flow for Non-Blocking execution.
-//                service.accept(flowBuilder);
-            }
-        }
-
-        if (serviceCount == 0) {
-            throw new RuntimeException("no service(s) found in '" + bLangProgram.getProgramFilePath() + "'");
-        }
-        if (ModeResolver.getInstance().isDebugEnabled()) {
-            DebugManager debugManager = DebugManager.getInstance();
-            // This will start the websocket server.
-            debugManager.init();
-        }
-
-        // Create a runtime environment for this Ballerina application
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-        bLangProgram.setRuntimeEnvironment(runtimeEnv);
-    }
     public void startServices(ProgramFile programFile) {
         String[] servicePackageNameList = programFile.getServicePackageNameList();
         if (servicePackageNameList.length == 0) {

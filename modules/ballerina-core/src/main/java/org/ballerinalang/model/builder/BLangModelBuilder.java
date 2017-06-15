@@ -1026,7 +1026,7 @@ public class BLangModelBuilder {
         String protocolPkg = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
-        currentCUGroupBuilder.setProtocolPkg(protocolPkg);
+        currentCUGroupBuilder.setProtocolPkg(protocolPkgName == null ? null : protocolPkg);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));

@@ -35,7 +35,7 @@ definition
     ;
 
 serviceDefinition
-    :   'service' '<' Identifier '>' Identifier serviceBody
+    :   'service' ('<' Identifier '>')? Identifier serviceBody
     ;
 
 serviceBody
