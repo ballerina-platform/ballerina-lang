@@ -66,7 +66,7 @@ class PackageScopedEnvironment {
     getFilteredPackages(excludes) {
         return this._packages.filter((item) => {
             for (let i = 0; i < excludes.length; i++) {
-                if (excludes[i] == item.getName()) {
+                if (excludes[i] === item.getName()) {
                     return false;
                 }
             }
@@ -81,12 +81,10 @@ class PackageScopedEnvironment {
         return _.find(this._packages, pckg => pckg.getName() === packageName);
     }
 
-    searchPackage(query, exclude) {
-        const search_text = query;
-        const exclude_packages = exclude;
+    searchPackage(query, excludePackages) {
         const result = _.filter(this._packages, (pckg) => {
-            const existing = _.filter(exclude_packages, ex => pckg.getName() == ex);
-            return (existing.length == 0) && new RegExp(search_text.toUpperCase()).exec(pckg.getName().toUpperCase());
+            const existing = _.filter(excludePackages, exclude => pckg.getName() === exclude);
+            return (existing.length === 0) && new RegExp(query.toUpperCase()).exec(pckg.getName().toUpperCase());
         });
         return result;
     }

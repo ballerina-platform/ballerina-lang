@@ -16,8 +16,8 @@
  * under the License.
  */
 import _ from 'lodash';
-import ASTNode from './node';
 import log from 'log';
+import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
 
 /**
@@ -57,7 +57,6 @@ class ServiceDefinition extends ASTNode {
 
     getConnectionDeclarations() {
         const connectorDeclaration = [];
-        const self = this;
 
         _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isConnectorDeclaration(child)) {
@@ -65,8 +64,8 @@ class ServiceDefinition extends ASTNode {
             }
         });
 
-        return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
-            return connectorDeclaration.getConnectorVariable();
+        return _.sortBy(connectorDeclaration, [function (connectorDec) {
+            return connectorDec.getConnectorVariable();
         }]);
     }
 
@@ -102,9 +101,8 @@ class ServiceDefinition extends ASTNode {
 
         // Check if already variable definition statement exists with same identifier.
         const identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
-                                                                                (variableDefinitionStatement) => {
-                                                                                    return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
-                                                                                }) !== -1;
+                   variableDefinitionStatement =>
+                       _.isEqual(variableDefinitionStatement.getIdentifier(), identifier)) !== -1;
 
         // If variable definition statement with the same identifier exists, then throw an error. Else create the new
         // variable definition statement.
@@ -121,12 +119,9 @@ class ServiceDefinition extends ASTNode {
             }
             newVariableDefinitionStatement.setStatementFromString(stmtString);
 
-            const self = this;
-
             // Get the index of the last variable definition statement.
-            const index = _.findLastIndex(this.getChildren(), (child) => {
-                return self.getFactory().isVariableDefinitionStatement(child);
-            });
+            const index = _.findLastIndex(this.getChildren(), child =>
+                                    this.getFactory().isVariableDefinitionStatement(child));
 
             this.addChild(newVariableDefinitionStatement, index + 1);
         }
@@ -139,9 +134,8 @@ class ServiceDefinition extends ASTNode {
     removeVariableDefinitionStatement(modelID) {
         const self = this;
         // Deleting the variable definition statement from the children.
-        const variableDefinitionStatementToRemove = _.find(this.getChildren(), (child) => {
-            return self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID);
-        });
+        const variableDefinitionStatementToRemove = _.find(this.getChildren(), child =>
+                    self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID));
 
         this.removeChild(variableDefinitionStatementToRemove);
     }
@@ -171,7 +165,8 @@ class ServiceDefinition extends ASTNode {
         _.each(jsonNode.children, (childNode) => {
             let child;
             let childNodeTemp;
-            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === 'variable_definition_statement' &&
+                      !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -191,18 +186,15 @@ class ServiceDefinition extends ASTNode {
      * @param ignoreChildAddedEvent {boolean}
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-        const self = this;
         let newIndex = index;
         // Always the connector declarations should be the first children
         if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
-            newIndex = _.findLastIndex(this.getChildren(), (node) => {
-                return self.BallerinaASTFactory.isConnectorDeclaration(node);
-            });
+            newIndex = _.findLastIndex(this.getChildren(), node =>
+                             this.BallerinaASTFactory.isConnectorDeclaration(node));
 
             if (newIndex === -1) {
-                newIndex = _.findLastIndex(this.getChildren(), (child) => {
-                    return self.getFactory().isVariableDefinitionStatement(child);
-                });
+                newIndex = _.findLastIndex(this.getChildren(), childIndex =>
+                                  this.getFactory().isVariableDefinitionStatement(childIndex));
             }
             newIndex += 1;
         }
@@ -259,9 +251,8 @@ class ServiceDefinition extends ASTNode {
      */
     getConnectorByName(connectorName) {
         const factory = this.getFactory();
-        const connectorReference = _.find(this.getChildren(), (child) => {
-            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
-        });
+        const connectorReference = _.find(this.getChildren(), child =>
+                (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName)));
 
         return connectorReference;
     }

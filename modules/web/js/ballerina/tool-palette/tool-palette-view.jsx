@@ -34,7 +34,6 @@ class Tool extends React.Component {
 
     constructor(props) {
         super(props);
-        this.model = props.tool;
     }
 
     componentDidMount() {
@@ -76,8 +75,8 @@ class Tool extends React.Component {
     createHandleDragStartEvent() {
         return (event, ui) => {
             // Get the meta information/ arguments to create the particular tool
-            const meta = this.model.get('meta') || {};
-            this.context.dragDropManager.setNodeBeingDragged(this.model.nodeFactoryMethod(meta, true));
+            const meta = this.props.tool.get('meta') || {};
+            this.context.dragDropManager.setNodeBeingDragged(this.props.tool.nodeFactoryMethod(meta, true));
         };
     }
 

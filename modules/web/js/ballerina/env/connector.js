@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 
-import EventChannel from 'event_channel';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import BallerinaEnvFactory from './ballerina-env-factory';
 
@@ -28,9 +26,8 @@ import BallerinaEnvFactory from './ballerina-env-factory';
  * @param args {Object} - args.name: name of the package
  * @constructor
  */
-class Connector extends EventChannel {
+class Connector {
     constructor(args) {
-        super(args);
         this._name = _.get(args, 'name', '');
         this._id = _.get(args, 'id', '');
         this._actions = _.get(args, 'actions', []);
@@ -38,9 +35,7 @@ class Connector extends EventChannel {
     }
 
     setName(name) {
-        const oldName = this._name;
         this._name = name;
-        this.trigger('name-modified', name, oldName);
     }
 
     getName() {
@@ -65,7 +60,6 @@ class Connector extends EventChannel {
 
     addAction(action) {
         this._actions.push(action);
-        this.trigger('connector-action-added', action);
     }
 
     /**
@@ -73,8 +67,9 @@ class Connector extends EventChannel {
      * @param {ConnectorActionDefinition} actionDef - ConnectorActionDefinition to be removed
      */
     removeAction(actionDef) {
-        _.remove(this._actions, action => _.isEqual(action.getName(), actionDef.getActionName()));
-        this.trigger('connector-action-removed', actionDef);
+        _.remove(this._actions, (action) => {
+            return _.isEqual(action.getName(), actionDef.getActionName());
+        });
     }
 
     /**
@@ -82,15 +77,14 @@ class Connector extends EventChannel {
      * @param {ConnectorDefinition} connectorDef - ConnectorDefinition whose children need to be removed
      */
     removeAllActions(connectorDef) {
-        const self = this;
         _.each(connectorDef.getChildren(), (child) => {
             if (BallerinaASTFactory.isConnectorAction(child)) {
-                self.removeAction(child);
+                this.removeAction(child);
             }
         });
     }
 
-    getActions(action) {
+    getActions() {
         return this._actions;
     }
 
@@ -104,22 +98,19 @@ class Connector extends EventChannel {
 
     addParam(param) {
         this._params.push(param);
-        this.trigger('param-added', param);
     }
 
-    getParams(param) {
+    getParams() {
         return this._params;
     }
 
     initFromJson(jsonNode) {
-        const self = this;
-
         this.setName(jsonNode.name);
 
         _.each(jsonNode.actions, (actionNode) => {
             const action = BallerinaEnvFactory.createConnectorAction();
             action.initFromJson(actionNode);
-            self.addAction(action);
+            this.addAction(action);
         });
     }
 }

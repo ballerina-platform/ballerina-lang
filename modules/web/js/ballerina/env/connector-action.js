@@ -15,19 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
-import EventChannel from 'event_channel';
 
 /**
  * @class ConnectorAction
- * @augments EventChannel
  * @param args {Object} - args.name: name of the package
  * @constructor
  */
-class ConnectorAction extends EventChannel {
+class ConnectorAction {
     constructor(args) {
-        super();
         this._name = _.get(args, 'name', '');
         this._id = _.get(args, 'id', '');
         this.action = _.get(args, 'action', '');
@@ -36,9 +32,7 @@ class ConnectorAction extends EventChannel {
     }
 
     setName(name) {
-        const oldName = this._name;
         this._name = name;
-        this.trigger('name-modified', name, oldName);
     }
 
     getName() {
