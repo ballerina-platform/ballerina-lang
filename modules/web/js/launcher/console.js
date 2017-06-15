@@ -18,8 +18,18 @@
 import $ from 'jquery';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
-
+/**
+ * Displays messages sent From Launcher/Debugger backend
+ *
+ * @class Console
+ * @extends {EventChannel}
+ */
 class Console extends EventChannel {
+    /**
+     * Creates an instance of Console.
+     *
+     * @memberof Console
+     */
     constructor() {
         super();
         this.container = $('#console-container');
@@ -27,11 +37,18 @@ class Console extends EventChannel {
 
         this.container.on('click', '.closeConsole', () => { this.hide(); });
     }
-
+    /**
+     * @param {Application} app - Application object
+     *
+     * @memberof Console
+     */
     setApplication(app) {
         this.application = app;
     }
-
+    /**
+     * Show console view
+     * @memberof Console
+     */
     show() {
         this.container.show();
         $('#service-tabs-wrapper').css('height', '70%');
@@ -39,17 +56,29 @@ class Console extends EventChannel {
         this.container.css('height', '30%');
         this.application.reRender();
     }
-
+    /**
+     * Hide console view
+     * @memberof Console
+     */
     hide() {
         this.container.hide();
         $('#service-tabs-wrapper').css('height', '100%');
         this.application.reRender();
     }
-
+    /**
+     * Clears Previous console outputs
+     * @memberof Console
+     */
     clear() {
         this.console.html('');
     }
 
+    /**
+     * Print a line in console
+     * @param {Object} message
+     *
+     * @memberof Console
+     */
     println(message) {
         const specialCharsEscapedStr = _.escape(message.message);
         this.console.append(`<span class="${message.type}">${specialCharsEscapedStr}<span>`);

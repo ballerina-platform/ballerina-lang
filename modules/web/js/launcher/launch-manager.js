@@ -20,39 +20,73 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import Console from 'console';
 import LaunchChannel from './launch-channel';
-
+/**
+ * Launch Manager
+ * @class LaunchManager
+ * @extends {EventChannel}
+ */
 class LaunchManager extends EventChannel {
+    /**
+     * Creates an instance of LaunchManager.
+     *
+     * @memberof LaunchManager
+     */
     constructor() {
         super();
         this.enable = false;
         this.channel = undefined;
         this.active = false;
     }
-
+    /**
+     *
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     runApplication(file) {
         this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', _.bindKey(this, 'sendRunApplicationMessage', file));
     }
-
+    /**
+     * Run Ballerina Service
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     runService(file) {
         this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', () => { this.sendRunServiceMessage(file); });
     }
-
+    /**
+     * Run Ballerina main
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     debugApplication(file) {
         this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', () => { this.sendDebugApplicationMessage(file); });
     }
-
+    /**
+     * Debug ballerina Service
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     debugService(file) {
         this.channel = new LaunchChannel({ endpoint: this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected', () => { this.sendDebugServiceMessage(file); });
     }
-
+    /**
+     * Send message to ballerina program
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     sendRunApplicationMessage(file) {
         const message = {
             command: 'RUN_PROGRAM',
@@ -62,7 +96,12 @@ class LaunchManager extends EventChannel {
         };
         this.channel.sendMessage(message);
     }
-
+    /**
+     * Send message to ballerina service
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     sendRunServiceMessage(file) {
         const message = {
             command: 'RUN_SERVICE',
@@ -71,7 +110,12 @@ class LaunchManager extends EventChannel {
         };
         this.channel.sendMessage(message);
     }
-
+    /**
+     * Send message to debugging ballerina program
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     sendDebugApplicationMessage(file) {
         const message = {
             command: 'DEBUG_PROGRAM',
@@ -81,7 +125,12 @@ class LaunchManager extends EventChannel {
         };
         this.channel.sendMessage(message);
     }
-
+    /**
+     * Send message to debugging ballerina service
+     * @param {File} file - File instance
+     *
+     * @memberof LaunchManager
+     */
     sendDebugServiceMessage(file) {
         const message = {
             command: 'DEBUG_SERVICE',
@@ -90,7 +139,12 @@ class LaunchManager extends EventChannel {
         };
         this.channel.sendMessage(message);
     }
-
+    /**
+     *
+     * @param {Object} message - Process message from backend
+     *
+     * @memberof LaunchManager
+     */
     processMesssage(message) {
         if (message.code === 'OUTPUT') {
             if (_.endsWith(message.message, this.debugPort)) {
@@ -116,12 +170,20 @@ class LaunchManager extends EventChannel {
         }
         Console.println(message);
     }
-
+    /**
+     * Clear and Open console view
+     * @memberof LaunchManager
+     */
     openConsole() {
         Console.clear();
         Console.show();
     }
-
+    /**
+     * Init launch manager
+     * @param {any} options - Config options
+     *
+     * @memberof LaunchManager
+     */
     init(options) {
         this.endpoint = _.get(options, 'application.config.services.launcher.endpoint');
         this.debugEndpoint = _.get(options, 'application.config.services.debugger.endpoint');
@@ -129,14 +191,24 @@ class LaunchManager extends EventChannel {
         this.application = options.application;
         Console.setApplication(this.application);
     }
-
+    /**
+     * Stop ballerina program
+     *
+     * @memberof LaunchManager
+     */
     stopProgram() {
         const message = {
             command: 'TERMINATE',
         };
         this.channel.sendMessage(message);
     }
-
+    /**
+     * Get application configs
+     * @param {File} file - File instance
+     * @returns {Object} application configs
+     *
+     * @memberof LaunchManager
+     */
     getApplicationConfigs(file) {
         const args = this.application.browserStorage.get(`launcher-app-configs-${file.id}`);
         return args || '';

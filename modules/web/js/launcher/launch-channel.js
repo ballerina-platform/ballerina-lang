@@ -24,17 +24,33 @@ import log from 'log';
 const WS_NORMAL_CODE = 1000;
 const WS_SSL_CODE = 1015;
 
+/**
+ * Connect to Launcher backend
+ *
+ * @class LaunchChannel
+ * @extends {EventChannel}
+ */
 class LaunchChannel extends EventChannel {
+    /**
+     * Creates an instance of LaunchChannel.
+     * @param {Object} args - connection configurations
+     *
+     * @memberof LaunchChannel
+     */
     constructor(args) {
         super();
         if (_.isNil(args.endpoint)) {
-            throw 'Invalid Endpoint';
+            throw new Error('Invalid Endpoint');
         }
         _.assign(this, args);
 
         this.connect();
     }
-
+    /**
+     * Connect to launcher backend
+     *
+     * @memberof LaunchChannel
+     */
     connect() {
         const websocket = new WebSocket(this.endpoint);
         // bind functions
@@ -44,16 +60,31 @@ class LaunchChannel extends EventChannel {
         websocket.onerror = () => { this.onError(); };
         this.websocket = websocket;
     }
-
+    /**
+     * Parses string to JSON
+     * @param {String} strMessage - message
+     *
+     * @memberof LaunchChannel
+     */
     parseMessage(strMessage) {
         const message = JSON.parse(strMessage.data);
         this.launcher.processMesssage(message);
     }
-
+    /**
+     * Sends message to backend
+     * @param {Object} message - object to send
+     *
+     * @memberof LaunchChannel
+     */
     sendMessage(message) {
         this.websocket.send(JSON.stringify(message));
     }
-
+    /**
+     * Handles websocket onClose event
+     * @param {Object} event - websocket onClose event
+     *
+     * @memberof LaunchChannel
+     */
     onClose(event) {
         this.launcher.active = false;
         this.launcher.trigger('session-terminated');
@@ -70,12 +101,20 @@ class LaunchChannel extends EventChannel {
         }
         log.debug(`Web socket closed, reason ${reason}`);
     }
-
+    /**
+     * Handles websocket onError event
+     *
+     * @memberof LaunchChannel
+     */
     onError() {
         this.launcher.active = false;
         this.launcher.trigger('session-error');
     }
-
+    /**
+     * Handles websocket onOpen event
+     *
+     * @memberof LaunchChannel
+     */
     onOpen() {
         this.launcher.active = true;
         this.trigger('connected');

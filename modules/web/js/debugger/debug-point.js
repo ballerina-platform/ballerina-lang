@@ -17,10 +17,16 @@
  */
 
 /**
+ * @description DebugPoint class
  * @class DebugPoint
- * @args
  */
 class DebugPoint {
+    /**
+     * @description Creates an instance of DebugPoint.
+     * @param {Object} args - DebugPoint properties
+     *
+     * @memberof DebugPoint
+     */
     constructor(args) {
         this.fileName = args.fileName || '';
         this.lineNumber = args.lineNumber || 0;
