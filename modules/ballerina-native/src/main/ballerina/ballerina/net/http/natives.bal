@@ -41,6 +41,18 @@ native function setStatusCode (message m, int statusCode);
 @doc:Param { value:"reasonPhrase: Reason phrase value" }
 native function setReasonPhrase (message m, string reasonPhrase);
 
+@doc:Description { value:"Gets the session attribute"}
+@doc:Param { value:"m: A message object" }
+@doc:Param { value:"attributeKey: HTTPSession attribute key" }
+@doc:Return { value:"string: HTTPSession attribute value" }
+native function getSessionAttribute (message m, string attributeKey) (string);
+
+@doc:Description { value:"Sets session attributes to the message"}
+@doc:Param { value:"m: A message object" }
+@doc:Param { value:"attributeKey: HTTPSession attribute key" }
+@doc:Param { value:"attributeValue: HTTPSession attribute Value" }
+native function setSessionAttribute (message m, string attributeKey, string attributeValue);
+
 connector ClientConnector (string serviceUri) {
 
 	@doc:Description { value:"The POST action implementation of the HTTP Connector."}

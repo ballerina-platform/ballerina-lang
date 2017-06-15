@@ -21,6 +21,7 @@ import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
+import org.ballerinalang.services.dispatchers.SessionManager;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -49,6 +50,7 @@ public class Context {
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
+    private SessionManager sessionManager;
 
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
     private boolean vmBasedExecutor = false;
@@ -72,6 +74,7 @@ public class Context {
         this.programFile = programFile;
         this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
+        this.sessionManager = SessionManager.getInstance();
     }
 
     public DebugInfoHolder getDebugInfoHolder() {
@@ -180,5 +183,9 @@ public class Context {
 
     public ProgramFile getProgramFile() {
         return programFile;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager.getInstance();
     }
 }
