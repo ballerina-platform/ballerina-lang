@@ -17,8 +17,6 @@
  */
 
 import _ from 'lodash';
-import $ from 'jquery';
-import * as d3 from 'd3';
 import log from 'log';
 /**
  * Adding the generic util functions for rendering basic shapes
@@ -71,11 +69,11 @@ const rect = function (x, y, width, height, rx, ry, parent) {
  */
 const circle = function (x, y, radius, parent) {
     logParentUndefined(parent);
-    const circle = parent.append('circle')
+    const svgCircle = parent.append('circle')
             .attr('cx', x)
             .attr('cy', y)
             .attr('r', radius);
-    return circle;
+    return svgCircle;
 };
 
 /**
@@ -92,7 +90,7 @@ const centeredRect = function (center, width, height, rx, ry, parent) {
     logParentUndefined(parent);
     rx = rx || 0;
     ry = ry || 0;
-    return this.rect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent);
+    return this.rect(center.x() - (width / 2), center.y() - (height / 2), width, height, rx, ry, parent);
 };
 
 /**
@@ -282,6 +280,7 @@ draw.rect = rect;
 draw.line = line;
 draw.lineFromPoints = lineFromPoints;
 draw.textElement = textElement;
+draw.inputElement = inputElement;
 draw.centeredText = centeredText;
 draw.circle = circle;
 draw.group = group;
