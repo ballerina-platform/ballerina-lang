@@ -16,9 +16,9 @@
  * under the License.
  */
 import _ from 'lodash';
-import EventChannel from './../event/channel';
 import log from 'log';
 import Mousetrap from 'mousetrap';
+import EventChannel from './../event/channel';
 
 // command manager constructor
 /**
@@ -49,9 +49,9 @@ class CommandManager {
                 } is registered.`);
             // do shortcut key bindings
             if (_.has(options, 'shortcuts')) {
-                let shortcuts = _.get(options, 'shortcuts'),
-                    key = this.app.isRunningOnMacOS() ? shortcuts.mac.key : shortcuts.other.key,
-                    commandBus = this.commandBus;
+                const shortcuts = _.get(options, 'shortcuts');
+                const key = this.app.isRunningOnMacOS() ? shortcuts.mac.key : shortcuts.other.key;
+                const commandBus = this.commandBus;
                 Mousetrap.bind(key, (e) => {
                     commandBus.trigger(cmd);
                     e.preventDefault();
@@ -114,15 +114,12 @@ class CommandManager {
      * @param cmdID  String command ID **** always 1st arg
      * @param args  0..* args for the command handler
      *
-     * ****IMPORTANT*****
-     * using implicit arguments object instead of traditional
-     * function parameter defs to enable dynamic number of args
      */
-    dispatch() {
-        const cmdID = arguments[0];
+    dispatch(...args) {
+        const cmdID = args[0];
         if (!_.isUndefined(cmdID)) {
             // get only needed args for trigger - right now all are wanted
-            const triggerArgs = _.takeRight(arguments, arguments.length);
+            const triggerArgs = _.takeRight(args, args.length);
             const triggerFn = this.commandBus.trigger;
             triggerFn.apply(this.commandBus, triggerArgs);
         }

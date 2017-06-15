@@ -19,14 +19,19 @@
 import backends from 'bal_configs/backends';
 // This import defines ace/worker/mirror so we can ace.require ace/worker/mirror later
 import './ace-mirror-worker';
-ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], (acequire, exports, module) => {
+
+const ace = global.ace;
+
+ace.define('ace/worker/ballerina', ['require', 'exports'], (acequire, exports) => {
     const oop = acequire('ace/lib/oop');
 
     const Mirror = acequire('ace/worker/mirror').Mirror;
 
-    const WorkerModule = exports.WorkerModule = function (sender) {
+    const WorkerModule = function (sender) {
         Mirror.call(this, sender);
     };
+
+    exports.WorkerModule = WorkerModule;
 
     // Mirror is a simple class which keeps main and webWorker versions of the document in sync
     oop.inherits(WorkerModule, Mirror);
