@@ -39,6 +39,12 @@
         </fileSet>
 
         <fileSet>
+            <directory>interceptors</directory>
+            <outputDirectory>bre/interceptors</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+
+        <fileSet>
             <directory>logs</directory>
             <outputDirectory>logs</outputDirectory>
             <fileMode>644</fileMode>
@@ -130,6 +136,9 @@
                 <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.jms</include>
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
+                <include>org.wso2.carbon.config:org.wso2.carbon.config</include>
+                <include>org.wso2.carbon.secvault:org.wso2.carbon.secvault</include>
+                <include>org.wso2.carbon.utils:carbon-utils</include>
                 <include>org.apache.commons.wso2:commons-vfs2</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
