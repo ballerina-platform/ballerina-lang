@@ -37,6 +37,10 @@ public class BallerinaWebSocketAdaptor extends WebSocketAdapter {
     public void onTextMessage(WebSocket ws, String message) {
         // Received a response. Print the received message.
         System.out.println(message);
+
+
+
+
     }
 
     @Override

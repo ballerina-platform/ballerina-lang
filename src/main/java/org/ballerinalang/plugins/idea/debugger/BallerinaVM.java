@@ -30,7 +30,7 @@
 //import org.jetbrains.debugger.DummyBreakpointManager;
 //import org.jetbrains.debugger.ScriptBase;
 //import org.jetbrains.debugger.ScriptManagerBase;
-//import org.jetbrains.debugger.StandaloneVmHelper;
+import org.jetbrains.debugger.StandaloneVmHelper;
 //import org.jetbrains.debugger.StepAction;
 //import org.jetbrains.debugger.SuspendContextManagerBase;
 //import org.jetbrains.debugger.VmBase;

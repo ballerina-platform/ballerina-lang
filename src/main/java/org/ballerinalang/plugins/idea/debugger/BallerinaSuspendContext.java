@@ -20,6 +20,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XSuspendContext;
+import org.ballerinalang.plugins.idea.debugger.dto.MessageDTO;
 import org.ballerinalang.plugins.idea.debugger.protocol.BallerinaAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,10 +32,13 @@ public class BallerinaSuspendContext extends XSuspendContext {
     @NotNull
     private final BallerinaExecutionStack myStack;
 
-    public BallerinaSuspendContext(@NotNull BallerinaDebugProcess process, int threadId,
-                                   @NotNull List<BallerinaAPI.Location> locations,
-                                   @NotNull BallerinaCommandProcessor processor) {
-        myStack = new BallerinaExecutionStack(process, threadId, locations, processor);
+    public BallerinaSuspendContext(@NotNull BallerinaDebugProcess process
+                                   //            , int threadId,
+                                   //                                   @NotNull List<BallerinaAPI.Location> locations,
+                                   //                                   @NotNull BallerinaCommandProcessor processor
+            , MessageDTO message
+    ) {
+        myStack = new BallerinaExecutionStack(process/*, threadId, locations, processor*/, message);
     }
 
     @Nullable
@@ -53,30 +57,39 @@ public class BallerinaSuspendContext extends XSuspendContext {
 
         @NotNull
         private final BallerinaDebugProcess myProcess;
-        @NotNull
-        private final List<BallerinaAPI.Location> myLocations;
-        @NotNull
-        private final BallerinaCommandProcessor myProcessor;
+        //        @NotNull
+        //        private final List<BallerinaAPI.Location> myLocations;
+        //        @NotNull
+        //        private final BallerinaCommandProcessor myProcessor;
         @NotNull
         private final List<BallerinaStackFrame> myStack;
 
-        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process, int threadId,
-                                       @NotNull List<BallerinaAPI.Location> locations,
-                                       @NotNull BallerinaCommandProcessor processor) {
-            super("Thread #" + threadId);
+        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process
+                                       //                , int threadId,
+                                       //                                       @NotNull List<BallerinaAPI.Location>
+                                       // locations,
+                                       //                                       @NotNull BallerinaCommandProcessor
+                                       // processor
+
+                , MessageDTO message
+        ) {
+            super("Thread #" + 1);
             myProcess = process;
-            myLocations = locations;
-            myProcessor = processor;
-            myStack = ContainerUtil.newArrayListWithCapacity(locations.size());
-            for (int i = 0; i < myLocations.size(); i++) {
-                myStack.add(new BallerinaStackFrame(myProcess, myLocations.get(i), myProcessor, i));
-            }
+            //            myLocations = locations;
+            //            myProcessor = processor;
+            //            myStack = ContainerUtil.newArrayListWithCapacity(locations.size());
+            //            for (int i = 0; i < myLocations.size(); i++) {
+            //                myStack.add(new BallerinaStackFrame(myProcess, myLocations.get(i), myProcessor, i));
+            //            }
+            myStack = ContainerUtil.newArrayListWithCapacity(1);
+            myStack.add(new BallerinaStackFrame(myProcess, /*myLocations.get(i), myProcessor, i*/message));
         }
 
         @Nullable
         @Override
         public XStackFrame getTopFrame() {
             return ContainerUtil.getFirstItem(myStack);
+            //            return null;
         }
 
         @Override

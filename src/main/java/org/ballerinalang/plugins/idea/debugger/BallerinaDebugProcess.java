@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.debugger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.ui.ExecutionConsole;
@@ -39,11 +40,16 @@ import com.intellij.xdebugger.stepping.XSmartStepIntoHandler;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
+import com.neovisionaries.ws.client.WebSocketFrame;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakpointProperties;
+
+import org.ballerinalang.plugins.idea.debugger.dto.BreakPointDTO;
+import org.ballerinalang.plugins.idea.debugger.dto.MessageDTO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,7 +59,11 @@ import javax.swing.event.HyperlinkListener;
 public class BallerinaDebugProcess extends XDebugProcess {
 
     private WebSocket mySocket;
-    private ExecutionResult myExecutionResult;
+    private final ExecutionResult myExecutionResult;
+    private final ProcessHandler myProcessHandler;
+    private final ExecutionConsole myExecutionConsole;
+    private final BallerinaDebuggerEditorsProvider myEditorsProvider;
+
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
     private final AtomicBoolean connectedListenerAdded = new AtomicBoolean();
 
@@ -62,6 +72,26 @@ public class BallerinaDebugProcess extends XDebugProcess {
         super(session);
         this.mySocket = socket;
         this.myExecutionResult = executionResult;
+        this.myProcessHandler = executionResult.getProcessHandler();
+        this.myExecutionConsole = executionResult.getExecutionConsole();
+        this.myEditorsProvider = new BallerinaDebuggerEditorsProvider();
+
+        // Todo - add session
+        //        myDebuggerSession = XsltDebuggerSession.getInstance(myProcessHandler);
+
+
+    }
+
+    @Nullable
+    @Override
+    protected ProcessHandler doGetProcessHandler() {
+        return myProcessHandler;
+    }
+
+    @NotNull
+    @Override
+    public ExecutionConsole createConsole() {
+        return myExecutionConsole;
     }
 
     @NotNull
@@ -70,13 +100,19 @@ public class BallerinaDebugProcess extends XDebugProcess {
         return new XBreakpointHandler[]{new MyBreakpointHandler()};
     }
 
+    @NotNull
+    @Override
+    public XDebuggerEditorsProvider getEditorsProvider() {
+        return myEditorsProvider;
+    }
+
     @Override
     public void sessionInitialized() {
         // To debug the debugger, add a breakpoint here. When it is hit, connect to the ballerina runtime using a
         // remote connection. then continue from here.
-        BallerinaWebSocketAdaptor webSocketAdaptor = new BallerinaWebSocketAdaptor();
+        //        BallerinaWebSocketAdaptor webSocketAdaptor = new BallerinaWebSocketAdaptor();
         try {
-            mySocket = mySocket.addListener(webSocketAdaptor);
+            //            mySocket = mySocket.addListener(webSocketAdaptor);
             mySocket = mySocket.connect();
         } catch (WebSocketException e) {
             e.printStackTrace();
@@ -122,7 +158,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void stop() {
-        super.getSession().stop();
         if (mySocket.isOpen()) {
             mySocket.sendText("{\"command\":\"STOP\"}");
         }
@@ -163,6 +198,42 @@ public class BallerinaDebugProcess extends XDebugProcess {
                             initBreakpointHandlersAndSetBreakpoints(true);
                             mySocket.sendText("{\"command\":\"START\"}");
                         }
+
+                        @Override
+                        public void onTextFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+                            String json = frame.getPayloadText();
+
+                            ObjectMapper mapper = new ObjectMapper();
+                            MessageDTO message = null;
+                            try {
+                                message = mapper.readValue(json, MessageDTO.class);
+                            } catch (IOException e) {
+
+                            }
+
+                            if (message == null) {
+                                System.out.println(json);
+                                return;
+                            }
+
+                            if ("DEBUG_HIT".equals(message.getCode())) {
+                                XBreakpoint<BallerinaBreakpointProperties> breakpoint
+                                        = findBreak(message.getLocation());
+                                BallerinaSuspendContext context =
+                                        new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+                                XDebugSession session = getSession();
+                                if (breakpoint == null) {
+                                    session.positionReached(context);
+                                } else {
+                                    session.breakpointReached(breakpoint, null, context);
+                                }
+
+
+                            }
+
+
+                        }
                     }
             );
         }
@@ -189,17 +260,27 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
     }
 
-    @Nullable
-    @Override
-    protected ProcessHandler doGetProcessHandler() {
-        return super.doGetProcessHandler();
+    private XBreakpoint<BallerinaBreakpointProperties> findBreak(@NotNull BreakPointDTO breakPointDTO) {
+
+        String fileName = breakPointDTO.getFileName();
+        int lineNumber = breakPointDTO.getLineNumber();
+
+        for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
+            XSourcePosition breakpointPosition = breakpoint.getSourcePosition();
+            if (breakpointPosition == null) {
+                continue;
+            }
+            VirtualFile file = breakpointPosition.getFile();
+            int line = breakpointPosition.getLine() + 1;
+
+            // Todo - get relative package path
+            if (file.getName().equals(fileName) && line == lineNumber) {
+                return breakpoint;
+            }
+        }
+        return null;
     }
 
-    @NotNull
-    @Override
-    public ExecutionConsole createConsole() {
-        return myExecutionResult.getExecutionConsole();
-    }
 
     @Nullable
     @Override
@@ -208,13 +289,17 @@ public class BallerinaDebugProcess extends XDebugProcess {
     }
 
     @Override
-    public void registerAdditionalActions(@NotNull DefaultActionGroup leftToolbar, @NotNull DefaultActionGroup
-            topToolbar, @NotNull DefaultActionGroup settings) {
+    public void registerAdditionalActions(@NotNull DefaultActionGroup leftToolbar,
+                                          @NotNull DefaultActionGroup topToolbar,
+                                          @NotNull DefaultActionGroup settings) {
         super.registerAdditionalActions(leftToolbar, topToolbar, settings);
     }
 
     @Override
     public String getCurrentStateMessage() {
+        if (mySocket.isOpen()) {
+            return "Connected to " + mySocket.getURI();
+        }
         return super.getCurrentStateMessage();
     }
 
@@ -244,12 +329,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
     @Override
     public boolean isLibraryFrameFilterSupported() {
         return super.isLibraryFrameFilterSupported();
-    }
-
-    @NotNull
-    @Override
-    public XDebuggerEditorsProvider getEditorsProvider() {
-        return new BallerinaDebuggerEditorsProvider();
     }
 
     //    private static final Key<Integer> ID = Key.create("DLV_BP_ID");
@@ -322,7 +401,8 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
                 VirtualFile file = breakpointPosition.getFile();
                 int line = breakpointPosition.getLine();
-                stringBuilder.append("{\"fileName\":\"").append(file.getPath()).append("\"");
+                // Todo - get relative package path
+                stringBuilder.append("{\"fileName\":\"").append(file.getName()).append("\"");
                 stringBuilder.append(", \"lineNumber\":").append(line + 1).append("}");
                 if (i < size - 1) {
                     stringBuilder.append(",");
