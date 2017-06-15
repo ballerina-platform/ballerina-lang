@@ -31,17 +31,18 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
+import com.neovisionaries.ws.client.WebSocket;
+import com.neovisionaries.ws.client.WebSocketFactory;
 import org.ballerinalang.plugins.idea.debugger.BallerinaDebugProcess;
-import org.ballerinalang.plugins.idea.debugger.BallerinaRemoteVMConnection;
+import org.ballerinalang.plugins.idea.debugger.BallerinaWebSocketAdaptor;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunningState;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.concurrency.AsyncPromise;
 import org.jetbrains.concurrency.Promise;
-import org.jetbrains.debugger.connection.RemoteVmConnection;
 
-import java.net.InetSocketAddress;
+import java.io.IOException;
 import java.net.ServerSocket;
 
 public class BallerinaDebugger extends AsyncGenericProgramRunner {
@@ -121,10 +122,33 @@ public class BallerinaDebugger extends AsyncGenericProgramRunner {
                     @NotNull
                     @Override
                     public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
-                        RemoteVmConnection connection = new BallerinaRemoteVMConnection();
-                        BallerinaDebugProcess process = new BallerinaDebugProcess(session, connection, executionResult);
-                        connection.open(new InetSocketAddress(NetUtils.getLoopbackAddress(), port));
-                        return process;
+
+
+                        try {
+                            String address = NetUtils.getLoopbackAddress().getHostAddress() + ":" + port;
+
+                            WebSocketFactory webSocketFactory = new WebSocketFactory();
+
+                            WebSocket webSocket = webSocketFactory.createSocket("ws://" + address + "/debug");
+
+
+
+
+                            //                            RemoteVmConnection connection = new
+                            // BallerinaRemoteVMConnection();
+                            //                            BallerinaDebugProcess process = new BallerinaDebugProcess
+                            // (session, connection,
+                            //                                    executionResult);
+                            //                            connection.open(new InetSocketAddress(NetUtils
+                            // .getLoopbackAddress(), port));
+
+
+                            return new BallerinaDebugProcess(session, webSocket, executionResult);
+
+                        } catch (IOException e) {
+                            throw new ExecutionException("Connection failed.");
+                        }
+
                     }
                 }).getRunContentDescriptor();
             }

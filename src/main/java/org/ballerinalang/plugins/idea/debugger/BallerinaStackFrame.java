@@ -144,20 +144,20 @@ public class BallerinaStackFrame extends XStackFrame {
         component.setIcon(AllIcons.Debugger.StackFrame);
     }
 
-    @NotNull
-    private <T> Promise<T> send(@NotNull BallerinaRequest<T> request) {
-        return BallerinaDebugProcess.send(request, myProcessor);
-    }
+//    @NotNull
+//    private <T> Promise<T> send(@NotNull BallerinaRequest<T> request) {
+//        return BallerinaDebugProcess.send(request, myProcessor);
+//    }
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        send(new BallerinaRequest.ListLocalVars(myId)).done(variables -> {
-            XValueChildrenList xVars = new XValueChildrenList(variables.size());
-            for (BallerinaAPI.Variable v : variables) xVars.add(v.name, createXValue(v, BallerinaIcons.VARIABLE));
-            send(new BallerinaRequest.ListFunctionArgs(myId)).done(args -> {
-                for (BallerinaAPI.Variable v : args) xVars.add(v.name, createXValue(v, BallerinaIcons.PARAMETER));
-                node.addChildren(xVars, true);
-            });
-        });
+//        send(new BallerinaRequest.ListLocalVars(myId)).done(variables -> {
+//            XValueChildrenList xVars = new XValueChildrenList(variables.size());
+//            for (BallerinaAPI.Variable v : variables) xVars.add(v.name, createXValue(v, BallerinaIcons.VARIABLE));
+//            send(new BallerinaRequest.ListFunctionArgs(myId)).done(args -> {
+//                for (BallerinaAPI.Variable v : args) xVars.add(v.name, createXValue(v, BallerinaIcons.PARAMETER));
+//                node.addChildren(xVars, true);
+//            });
+//        });
     }
 }

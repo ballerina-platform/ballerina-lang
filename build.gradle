@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.6'
+    compile group: 'com.neovisionaries', name: 'nv-websocket-client', version: '2.2'
 }
 
 apply plugin: 'idea'
