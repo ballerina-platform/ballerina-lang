@@ -28,6 +28,9 @@ let defaultInputValue = '+ Add Value';
 
 /**
  * Common Tag Controller to render tag input box.
+ *
+ * @class TagController
+ * @extends {React.Component}
  * */
 class TagController extends React.Component {
 

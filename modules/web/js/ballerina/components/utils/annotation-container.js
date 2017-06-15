@@ -19,6 +19,8 @@ let keyIndex = 0;
 
 /**
  * Class of annotation container.
+ *
+ * @class AnnotationContainer
  * */
 class AnnotationContainer {
 
