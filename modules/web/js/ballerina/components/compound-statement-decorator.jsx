@@ -51,36 +51,6 @@ class CompoundStatementDecorator extends React.Component {
         dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
-    startDropZones() {
-        this.setState({ innerDropZoneExist: true });
-    }
-
-    stopDragZones() {
-        this.setState({ innerDropZoneExist: false });
-    }
-
-    render() {
-        const { bBox, model } = this.props;
-        // we need to draw a drop box above the statement
-        const drop_zone_x = bBox.x + (bBox.w - lifeLine.width) / 2;
-        const innerDropZoneActivated = this.state.innerDropZoneActivated;
-        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
-        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-    											+ ((innerDropZoneDropNotAllowed) ? ' block' : '');
-
-        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
-
-        return (<g className="compound-statement">
-          <rect
-            x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
-            className={dropZoneClassName} {...fill}
-            onMouseOver={e => this.onDropZoneActivate(e)}
-            onMouseOut={e => this.onDropZoneDeactivate(e)}
-          />
-          {this.props.children}
-        </g>);
-    }
-
     onDropZoneActivate(e) {
   			const dragDropManager = this.context.dragDropManager,
   						dropTarget = this.props.model.getParent(),
@@ -106,7 +76,7 @@ class CompoundStatementDecorator extends React.Component {
   			}
   	}
 
-  	onDropZoneDeactivate(e) {
+    onDropZoneDeactivate(e) {
   			const dragDropManager = this.context.dragDropManager,
   						dropTarget = this.props.model.getParent();
   			if (dragDropManager.isOnDrag()) {
@@ -116,6 +86,36 @@ class CompoundStatementDecorator extends React.Component {
   					}
   			}
   	}
+
+    startDropZones() {
+        this.setState({ innerDropZoneExist: true });
+    }
+
+    stopDragZones() {
+        this.setState({ innerDropZoneExist: false });
+    }
+
+  	render() {
+        const { bBox, model } = this.props;
+        // we need to draw a drop box above the statement
+        const drop_zone_x = bBox.x + (bBox.w - lifeLine.width) / 2;
+        const innerDropZoneActivated = this.state.innerDropZoneActivated;
+        const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
+        const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
+    											+ ((innerDropZoneDropNotAllowed) ? ' block' : '');
+
+        const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
+
+        return (<g className="compound-statement">
+          <rect
+            x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={statement.gutter.v}
+            className={dropZoneClassName} {...fill}
+            onMouseOver={e => this.onDropZoneActivate(e)}
+            onMouseOut={e => this.onDropZoneDeactivate(e)}
+          />
+          {this.props.children}
+        </g>);
+    }
 }
 
 CompoundStatementDecorator.propTypes = {

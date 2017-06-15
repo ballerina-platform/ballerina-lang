@@ -50,6 +50,10 @@ class ConnectorDeclaration extends React.Component {
         };
     }
 
+    onDelete() {
+        this.props.model.remove();
+    }
+
     render() {
         const statementContainerBBox = this.props.model.viewState.components.statementContainer;
         const connectorBBox = {};
@@ -75,10 +79,6 @@ class ConnectorDeclaration extends React.Component {
             {children}
         </g>
         );
-    }
-
-    onDelete() {
-        this.props.model.remove();
     }
 }
 

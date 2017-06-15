@@ -36,14 +36,20 @@ class TextBox extends React.Component {
         this.textInput.focus();
     }
 
-    componentDidUpdate() {
-        this.textInput.focus();
-    }
-
     componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.initialValue,
             display: nextProps.display,
+        });
+    }
+
+    componentDidUpdate() {
+        this.textInput.focus();
+    }
+
+    onBlur(e) {
+        this.setState({
+            display: false,
         });
     }
 
@@ -52,12 +58,6 @@ class TextBox extends React.Component {
             value: this.textInput.value,
         });
         this.props.onChange(e.target.value);
-    }
-
-    onBlur(e) {
-        this.setState({
-            display: false,
-        });
     }
 
     render() {
@@ -106,14 +106,20 @@ class Dropdown extends React.Component {
         this.dropDown.focus();
     }
 
-    componentDidUpdate() {
-        this.dropDown.focus();
-    }
-
     componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.initialValue,
             display: nextProps.display,
+        });
+    }
+
+    componentDidUpdate() {
+        this.dropDown.focus();
+    }
+
+    onBlur(e) {
+        this.setState({
+            display: false,
         });
     }
 
@@ -122,12 +128,6 @@ class Dropdown extends React.Component {
             value: this.dropDown.value,
         });
         this.props.onChange(e.target.value);
-    }
-
-    onBlur(e) {
-        this.setState({
-            display: false,
-        });
     }
 
     render() {

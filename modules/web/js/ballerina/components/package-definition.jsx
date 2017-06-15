@@ -52,44 +52,6 @@ class PackageDefinition extends React.Component {
         this.handlePackageIconClick = this.handlePackageIconClick.bind(this);
     }
 
-    handleImportsBadgeClick() {
-        this.props.model.setAttribute('viewState.importsExpanded', !this.props.model.viewState.importsExpanded);
-    }
-
-    handleGlobalsBadgeClick() {
-        this.props.model.setAttribute('viewState.globalsExpanded', !this.props.model.viewState.globalsExpanded);
-    }
-
-    handlePackageIconClick() {
-        this.setState({ packageDefExpanded: true });
-        if (!this.state.packageDefValue) {
-            this.setState({ packageNameEditing: true });
-        }
-    }
-
-    handleAddImport(value) {
-        const newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
-        newImportDeclaration.setPackageName(value);
-        newImportDeclaration.setParent(this.props.model.parent);
-        this.props.model.parent.addImport(newImportDeclaration);
-    }
-
-    handleDeleteImport(value) {
-        this.props.model.parent.deleteImport(value);
-    }
-
-    handleAddGlobal(value) {
-        const match = this.globalDecRegex.exec(value);
-
-        if (match && match[1] && match[2] && match[3]) {
-            this.props.model.parent.addConstantDefinition(match[1], match[2], match[3]);
-        }
-    }
-
-    handleDeleteGlobal(deletedGlobal) {
-        this.props.model.parent.removeConstantDefinition(deletedGlobal.getID());
-    }
-
     onPackageClick() {
         this.setState({ packageNameEditing: true });
     }
@@ -107,6 +69,44 @@ class PackageDefinition extends React.Component {
 
     onPackageInputChange(e) {
         this.setState({ packageDefValue: e.target.value });
+    }
+
+    handleAddGlobal(value) {
+        const match = this.globalDecRegex.exec(value);
+
+        if (match && match[1] && match[2] && match[3]) {
+            this.props.model.parent.addConstantDefinition(match[1], match[2], match[3]);
+        }
+    }
+
+    handleAddImport(value) {
+        const newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
+        newImportDeclaration.setPackageName(value);
+        newImportDeclaration.setParent(this.props.model.parent);
+        this.props.model.parent.addImport(newImportDeclaration);
+    }
+
+    handleDeleteGlobal(deletedGlobal) {
+        this.props.model.parent.removeConstantDefinition(deletedGlobal.getID());
+    }
+
+    handleDeleteImport(value) {
+        this.props.model.parent.deleteImport(value);
+    }
+
+    handleGlobalsBadgeClick() {
+        this.props.model.setAttribute('viewState.globalsExpanded', !this.props.model.viewState.globalsExpanded);
+    }
+
+    handleImportsBadgeClick() {
+        this.props.model.setAttribute('viewState.importsExpanded', !this.props.model.viewState.importsExpanded);
+    }
+
+    handlePackageIconClick() {
+        this.setState({ packageDefExpanded: true });
+        if (!this.state.packageDefValue) {
+            this.setState({ packageNameEditing: true });
+        }
     }
 
     render() {

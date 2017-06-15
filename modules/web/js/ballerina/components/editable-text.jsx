@@ -38,6 +38,21 @@ class EditableText extends React.Component {
         this.renderTextBox = this.renderTextBox.bind(this);
     }
 
+    componentDidMount() {
+        this.renderTextBox();
+    }
+
+    componentDidUpdate(prevProps) {
+        const editingJustFinished = prevProps.editing && !this.props.editing;
+        if (this.props.editing || editingJustFinished) {
+            this.renderTextBox();
+        }
+    }
+
+    componentWillUnmount() {
+        ReactDOM.render(<noscript />, this.context.overlay);
+    }
+
     renderTextBox() {
         const {
             x, y, width, height = 25, onChange, onBlur, onKeyDown, children = '',
@@ -76,21 +91,6 @@ class EditableText extends React.Component {
         const inputElement = (<input {...inputProps} className={inputClass} />);
 
         ReactDOM.render(inputElement, this.context.overlay);
-    }
-
-    componentDidUpdate(prevProps) {
-        const editingJustFinished = prevProps.editing && !this.props.editing;
-        if (this.props.editing || editingJustFinished) {
-            this.renderTextBox();
-        }
-    }
-
-    componentDidMount() {
-        this.renderTextBox();
-    }
-
-    componentWillUnmount() {
-        ReactDOM.render(<noscript />, this.context.overlay);
     }
 
     render() {

@@ -63,6 +63,224 @@ class AnnotationContainer extends React.Component {
         };
     }
 
+    // // End of package name autosuggest dropdown funcs.
+
+    componentDidUpdate() {
+        this.currentInput && this.currentInput.focus();
+    }
+
+    // // End of package name autosuggest dropdown funcs.
+
+    // // Start of identifier autosuggest dropdown funcs.
+
+    onAnnotationIdentifierChange(event, { newValue }) {
+        this.setState({
+            selectedIdentifierValue: newValue,
+        });
+    }
+
+    onAnnotationIdentifierKeyDown(e) {
+        if (e.keyCode === 8 && this.state.selectedIdentifierValue === '') {
+            this.setState({
+                hasPackageNameSelected: false,
+                selectedIdentifierValue: '',
+            });
+            e.preventDefault();
+        }
+    }
+
+    onAnnotationIdentifierSelected(event, { suggestionValue }) {
+        // Add annotation to the node(serviceDefinition, resourceDefinition, etc)
+        // http://jsbin.com/orokep/edit?html,css,js,output
+        let match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue),
+            packagePrefix = match && match[1];
+
+        const newAnnotation = ASTFactory.createAnnotation({
+            fullPackageName: this.state.selectedPackageNameValue,
+            packageName: packagePrefix,
+            identifier: suggestionValue,
+        });
+
+        this.props.model.parentNode.addChild(newAnnotation);
+
+        // Add import if not imported to AST-Root.
+        const importToBeAdded = ASTFactory.createImportDeclaration({
+            packageName: this.state.selectedPackageNameValue,
+        });
+        this.context.renderingContext.ballerinaFileEditor.getModel().addImport(importToBeAdded);
+
+        // Resetting the state of the component.
+        this.setState({
+            selectedPackageNameValue: '',
+            hasPackageNameSelected: false,
+            selectedIdentifierValue: '',
+        });
+    }
+
+    onAnnotationIdentifierSuggestionsClearRequested() {
+        this.setState({
+            shownIdentifierSuggestions: [],
+        });
+    }
+
+    onAnnotationIdentifierSuggestionsFetchRequested({ value }) {
+        this.setState({
+            shownIdentifierSuggestions: this.getAnnotationIdentifierSuggestions(value),
+        });
+    }
+
+    onAnnotationPackageNameBlur() {
+        this.setState({
+            hasPackageNameSelected: false,
+        });
+    }
+
+    // // Start of package name autosuggest dropdown funcs.
+
+    onAnnotationPackageNameChange(event, { newValue }) {
+        this.setState({
+            selectedPackageNameValue: newValue,
+            hasPackageNameSelected: false,
+        });
+    }
+
+    onAnnotationPackageNameSelected() {
+        this.setState({
+            hasPackageNameSelected: true,
+        });
+    }
+
+    onAnnotationPackageNameSuggestionsClearRequested() {
+        this.setState({
+            shownPackageNameSuggestions: [],
+        });
+    }
+
+    onAnnotationPackageNameSuggestionsFetchRequested({ value }) {
+        this.setState({
+            shownPackageNameSuggestions: this.getAnnotationPackageNameSuggestions(value),
+        });
+    }
+
+    getAnnotationIdentifierSuggestionValue(suggestion) {
+        return suggestion.name;
+    }
+
+    getAnnotationIdentifierSuggestions(value) {
+        const escapedValue = this.escapeRegexCharacters(value.trim());
+        const regex = new RegExp(`^${  escapedValue}`, 'i');
+
+        // Get the list of annotations that belongs to the selected package. this.supportedAnnotations is already filtered by attatchment points.
+        const selectedAnnotations = this.getSupportedAnnotation().filter(
+            annotationObj => annotationObj.packageName === this.state.selectedPackageNameValue,
+        );
+
+        // Get an object array of the supported annotations with the name/identifier of an annotation.
+        const annotationNames = selectedAnnotations.map((supportedAnnotation) => ({
+                name: supportedAnnotation.annotationDefinition.getName()
+            }));
+
+        // Filtering the annotations with the typed in value.
+        return annotationNames.filter(annotationName => regex.test(annotationName.name));
+    }
+
+    getAnnotationPackageNameSuggestionValue(suggestion) {
+        return suggestion.name;
+    }
+
+    getAnnotationPackageNameSuggestions(value) {
+        const escapedValue = this.escapeRegexCharacters(value.trim());
+
+        const regex = new RegExp(`^${  escapedValue}`, 'i');
+        const supportedAnnotations = this.getSupportedAnnotation();
+        const packageNameSuggestions = this.getPackageNameSuggestions(supportedAnnotations);
+
+        return packageNameSuggestions.filter(packageName => regex.test(packageName.name));
+    }
+
+    /**
+     * Gets the list of package names for suggestions
+     *
+     * @returns Package names
+     *
+     * @memberof AnnotationContainer
+     */
+    getPackageNameSuggestions(supportedAnnotations) {
+        const tempPackageNameSuggestions = supportedAnnotations.map((supportedAnnotation) => ({
+                name: supportedAnnotation.packageName
+            }));
+
+        return tempPackageNameSuggestions.filter((obj, pos, arr) => arr.map(mapObj => mapObj['name']).indexOf(obj['name']) === pos);
+    }
+
+    /**
+     * Gets the supported annotation depending on the type of node
+     *
+     * @returns Supported annotations.
+     *
+     * @memberof AnnotationContainer
+     */
+    getSupportedAnnotation() {
+        const supportedAnnotations = [];
+        let attachmentType = '';
+        if (ASTFactory.isServiceDefinition(this.props.model.parentNode)) {
+            attachmentType = 'service';
+        } else if (ASTFactory.isResourceDefinition(this.props.model.parentNode)) {
+            attachmentType = 'resource';
+        } else if (ASTFactory.isFunctionDefinition(this.props.model.parentNode)) {
+            attachmentType = 'function';
+        } else if (ASTFactory.isConnectorDefinition(this.props.model.parentNode)) {
+            attachmentType = 'connector';
+        } else if (ASTFactory.isConnectorAction(this.props.model.parentNode)) {
+            attachmentType = 'action';
+        } else if (ASTFactory.isAnnotationDefinition(this.props.model.parentNode)) {
+            attachmentType = 'annotation';
+        } else if (ASTFactory.isStructDefinition(this.props.model.parentNode)) {
+            attachmentType = 'struct';
+        }
+        // TODO : Add the rest of the attatchment points.
+
+        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+            for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
+                if (_.includes(annotationDefinition.getAttachmentPoints(), attachmentType)) {
+                    // Filtering by ignoring already added annotations.
+                    const parentNodeAnnotations = this.props.model.parentNode.getChildrenOfType(ASTFactory.isAnnotation);
+                    let annotationAlreadyExists = false;
+                    for (const annotation of parentNodeAnnotations) {
+                        if (annotation.getFullPackageName() === packageDefintion.getName() &&
+                            annotation.getIdentifier() === annotationDefinition.getName()) {
+                            annotationAlreadyExists = true;
+                            break;
+                        }
+                    }
+
+                    if (!annotationAlreadyExists) {
+                        supportedAnnotations.push({ packageName: packageDefintion.getName(), annotationDefinition });
+                    }
+                }
+            }
+        }
+
+        return supportedAnnotations;
+    }
+
+    // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
+    escapeRegexCharacters(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    renderAnnotationIdentifierSuggestion(suggestion) {
+        return (
+          <span>{suggestion.name}</span>
+        );
+    }
+
+    renderAnnotationPackageNameSuggestion(suggestion) {
+        return (
+          <span>{suggestion.name}</span>
+        );
+    }
+
     /**
      * Rendering the annotation editor view.
      *
@@ -135,224 +353,6 @@ class AnnotationContainer extends React.Component {
                 </div>
             </div>;
         
-    }
-
-    /**
-     * Gets the supported annotation depending on the type of node
-     *
-     * @returns Supported annotations.
-     *
-     * @memberof AnnotationContainer
-     */
-    getSupportedAnnotation() {
-        const supportedAnnotations = [];
-        let attachmentType = '';
-        if (ASTFactory.isServiceDefinition(this.props.model.parentNode)) {
-            attachmentType = 'service';
-        } else if (ASTFactory.isResourceDefinition(this.props.model.parentNode)) {
-            attachmentType = 'resource';
-        } else if (ASTFactory.isFunctionDefinition(this.props.model.parentNode)) {
-            attachmentType = 'function';
-        } else if (ASTFactory.isConnectorDefinition(this.props.model.parentNode)) {
-            attachmentType = 'connector';
-        } else if (ASTFactory.isConnectorAction(this.props.model.parentNode)) {
-            attachmentType = 'action';
-        } else if (ASTFactory.isAnnotationDefinition(this.props.model.parentNode)) {
-            attachmentType = 'annotation';
-        } else if (ASTFactory.isStructDefinition(this.props.model.parentNode)) {
-            attachmentType = 'struct';
-        }
-        // TODO : Add the rest of the attatchment points.
-
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
-            for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                if (_.includes(annotationDefinition.getAttachmentPoints(), attachmentType)) {
-                    // Filtering by ignoring already added annotations.
-                    const parentNodeAnnotations = this.props.model.parentNode.getChildrenOfType(ASTFactory.isAnnotation);
-                    let annotationAlreadyExists = false;
-                    for (const annotation of parentNodeAnnotations) {
-                        if (annotation.getFullPackageName() === packageDefintion.getName() &&
-                            annotation.getIdentifier() === annotationDefinition.getName()) {
-                            annotationAlreadyExists = true;
-                            break;
-                        }
-                    }
-
-                    if (!annotationAlreadyExists) {
-                        supportedAnnotations.push({ packageName: packageDefintion.getName(), annotationDefinition });
-                    }
-                }
-            }
-        }
-
-        return supportedAnnotations;
-    }
-
-    /**
-     * Gets the list of package names for suggestions
-     *
-     * @returns Package names
-     *
-     * @memberof AnnotationContainer
-     */
-    getPackageNameSuggestions(supportedAnnotations) {
-        const tempPackageNameSuggestions = supportedAnnotations.map((supportedAnnotation) => ({
-                name: supportedAnnotation.packageName
-            }));
-
-        return tempPackageNameSuggestions.filter((obj, pos, arr) => arr.map(mapObj => mapObj['name']).indexOf(obj['name']) === pos);
-    }
-
-    // // Start of package name autosuggest dropdown funcs.
-
-    onAnnotationPackageNameChange(event, { newValue }) {
-        this.setState({
-            selectedPackageNameValue: newValue,
-            hasPackageNameSelected: false,
-        });
-    }
-
-    onAnnotationPackageNameBlur() {
-        this.setState({
-            hasPackageNameSelected: false,
-        });
-    }
-
-    onAnnotationPackageNameSuggestionsFetchRequested({ value }) {
-        this.setState({
-            shownPackageNameSuggestions: this.getAnnotationPackageNameSuggestions(value),
-        });
-    }
-
-    onAnnotationPackageNameSuggestionsClearRequested() {
-        this.setState({
-            shownPackageNameSuggestions: [],
-        });
-    }
-
-    onAnnotationPackageNameSelected() {
-        this.setState({
-            hasPackageNameSelected: true,
-        });
-    }
-
-    // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
-    escapeRegexCharacters(str) {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    getAnnotationPackageNameSuggestions(value) {
-        const escapedValue = this.escapeRegexCharacters(value.trim());
-
-        const regex = new RegExp(`^${  escapedValue}`, 'i');
-        const supportedAnnotations = this.getSupportedAnnotation();
-        const packageNameSuggestions = this.getPackageNameSuggestions(supportedAnnotations);
-
-        return packageNameSuggestions.filter(packageName => regex.test(packageName.name));
-    }
-
-    getAnnotationPackageNameSuggestionValue(suggestion) {
-        return suggestion.name;
-    }
-
-    renderAnnotationPackageNameSuggestion(suggestion) {
-        return (
-          <span>{suggestion.name}</span>
-        );
-    }
-
-    // // End of package name autosuggest dropdown funcs.
-
-    // // Start of identifier autosuggest dropdown funcs.
-
-    onAnnotationIdentifierChange(event, { newValue }) {
-        this.setState({
-            selectedIdentifierValue: newValue,
-        });
-    }
-
-    onAnnotationIdentifierKeyDown(e) {
-        if (e.keyCode === 8 && this.state.selectedIdentifierValue === '') {
-            this.setState({
-                hasPackageNameSelected: false,
-                selectedIdentifierValue: '',
-            });
-            e.preventDefault();
-        }
-    }
-
-    onAnnotationIdentifierSuggestionsFetchRequested({ value }) {
-        this.setState({
-            shownIdentifierSuggestions: this.getAnnotationIdentifierSuggestions(value),
-        });
-    }
-
-    onAnnotationIdentifierSuggestionsClearRequested() {
-        this.setState({
-            shownIdentifierSuggestions: [],
-        });
-    }
-
-    onAnnotationIdentifierSelected(event, { suggestionValue }) {
-        // Add annotation to the node(serviceDefinition, resourceDefinition, etc)
-        // http://jsbin.com/orokep/edit?html,css,js,output
-        let match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue),
-            packagePrefix = match && match[1];
-
-        const newAnnotation = ASTFactory.createAnnotation({
-            fullPackageName: this.state.selectedPackageNameValue,
-            packageName: packagePrefix,
-            identifier: suggestionValue,
-        });
-
-        this.props.model.parentNode.addChild(newAnnotation);
-
-        // Add import if not imported to AST-Root.
-        const importToBeAdded = ASTFactory.createImportDeclaration({
-            packageName: this.state.selectedPackageNameValue,
-        });
-        this.context.renderingContext.ballerinaFileEditor.getModel().addImport(importToBeAdded);
-
-        // Resetting the state of the component.
-        this.setState({
-            selectedPackageNameValue: '',
-            hasPackageNameSelected: false,
-            selectedIdentifierValue: '',
-        });
-    }
-
-    getAnnotationIdentifierSuggestions(value) {
-        const escapedValue = this.escapeRegexCharacters(value.trim());
-        const regex = new RegExp(`^${  escapedValue}`, 'i');
-
-        // Get the list of annotations that belongs to the selected package. this.supportedAnnotations is already filtered by attatchment points.
-        const selectedAnnotations = this.getSupportedAnnotation().filter(
-            annotationObj => annotationObj.packageName === this.state.selectedPackageNameValue,
-        );
-
-        // Get an object array of the supported annotations with the name/identifier of an annotation.
-        const annotationNames = selectedAnnotations.map((supportedAnnotation) => ({
-                name: supportedAnnotation.annotationDefinition.getName()
-            }));
-
-        // Filtering the annotations with the typed in value.
-        return annotationNames.filter(annotationName => regex.test(annotationName.name));
-    }
-
-    getAnnotationIdentifierSuggestionValue(suggestion) {
-        return suggestion.name;
-    }
-
-    renderAnnotationIdentifierSuggestion(suggestion) {
-        return (
-          <span>{suggestion.name}</span>
-        );
-    }
-
-    // // End of package name autosuggest dropdown funcs.
-
-    componentDidUpdate() {
-        this.currentInput && this.currentInput.focus();
     }
 }
 

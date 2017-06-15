@@ -34,12 +34,12 @@ export default class importDeclarationExpanded extends React.Component {
         this.handleAddImportBlur = this.handleAddImportBlur.bind(this);
     }
 
-    handleAddImportClick() {
-        this.setState({ showSuggestions: true });
-    }
-
     handleAddImportBlur() {
         this.setState({ showSuggestions: false });
+    }
+
+    handleAddImportClick() {
+        this.setState({ showSuggestions: true });
     }
 
     render() {

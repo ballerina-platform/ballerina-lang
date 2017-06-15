@@ -63,40 +63,15 @@ class TransformStatementDecorator extends React.Component {
         dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
-    startDropZones() {
-        this.setState({ innerDropZoneExist: true });
+    onArrowStartPointMouseOut(e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0;
     }
 
-    stopDragZones() {
-        this.setState({ innerDropZoneExist: false });
-    }
-
-    onDelete() {
-        this.props.model.remove();
-    }
-
-    onJumptoCodeLine() {
-        const { viewState: { fullExpression } } = this.props;
-        const { renderingContext: { ballerinaFileEditor } } = this.context;
-
-        const container = ballerinaFileEditor._container;
-        $(container).find('.view-source-btn').trigger('click');
-        ballerinaFileEditor.getSourceView().jumpToLine({ expression: fullExpression });
-    }
-
-    renderBreakpointIndicator() {
-        const breakpointSize = 14;
-        const pointX = this.statementBox.x + this.statementBox.w - breakpointSize / 2;
-        const pointY = this.statementBox.y - breakpointSize / 2;
-        return (
-          <Breakpoint
-                  x={pointX}
-                  y={pointY}
-                  size={breakpointSize}
-                  isBreakpoint={this.props.model.isBreakpoint}
-                  onClick={() => this.onBreakpointClick()}
-                />
-        );
+    onArrowStartPointMouseOver(e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0.5;
+        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
     }
 
     onBreakpointClick() {
@@ -107,6 +82,51 @@ class TransformStatementDecorator extends React.Component {
         } else {
             model.addBreakpoint();
         }
+    }
+
+    onDelete() {
+        this.props.model.remove();
+    }
+
+    onDropZoneActivate(e) {
+        const dragDropManager = this.context.dragDropManager,
+            dropTarget = this.props.model.getParent(),
+            model = this.props.model;
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget,
+				(nodeBeingDragged) => {
+                    // IMPORTANT: override node's default validation logic
+                    // This drop zone is for statements only.
+                    // Statements should only be allowed here.
+    return model.getFactory().isStatement(nodeBeingDragged);
+},
+				() => {
+    return dropTarget.getIndexOfChild(model);
+},
+			);
+            this.setState({ innerDropZoneActivated: true,
+                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
+            });
+            dragDropManager.once('drop-target-changed', function () {
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }, this);
+        }
+        e.stopPropagation();
+    }
+
+    onDropZoneDeactivate(e) {
+        const dragDropManager = this.context.dragDropManager,
+			  dropTarget = this.props.model.getParent();
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }
+        }
+        e.stopPropagation();
     }
 
     onExpand() {
@@ -358,10 +378,251 @@ class TransformStatementDecorator extends React.Component {
         });
     }
 
+    onJumptoCodeLine() {
+        const { viewState: { fullExpression } } = this.props;
+        const { renderingContext: { ballerinaFileEditor } } = this.context;
+
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+        ballerinaFileEditor.getSourceView().jumpToLine({ expression: fullExpression });
+    }
+
+    onMouseDown(e) {
+        const messageManager = this.context.messageManager;
+        const model = this.props.model;
+        const bBox = model.getViewState().bBox;
+        const statement_h = this.statementBox.h;
+        const messageStartX = bBox.x + bBox.w;
+        const messageStartY = this.statementBox.y + statement_h / 2;
+        let actionInvocation;
+        if (ASTFactory.isAssignmentStatement(model)) {
+            actionInvocation = model.getChildren()[1].getChildren()[0];
+        } else if (ASTFactory.isVariableDefinitionStatement(model)) {
+            actionInvocation = model.getChildren()[1];
+        }
+        messageManager.setSource(actionInvocation);
+        messageManager.setIsOnDrag(true);
+        messageManager.setMessageStart(messageStartX, messageStartY);
+
+        messageManager.setTargetValidationCallback((destination) => {
+            return actionInvocation.messageDrawTargetAllowed(destination);
+        });
+
+        messageManager.startDrawMessage((source, destination) => {
+            source.setAttribute('_connector', destination);
+        });
+    }
+
+    onMouseUp(e) {
+        const messageManager = this.context.messageManager;
+        messageManager.reset();
+    }
+
+    onTransformDropZoneActivate(e) {
+        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+        const dragDropManager = this.context.dragDropManager,
+            dropTarget = this.props.model,
+            model = this.props.model;
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget,
+				(nodeBeingDragged) => {
+					// This drop zone is for assignment statements only.
+                    // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
+                    // is an Assignment Statement, that implies there is a return parameter . If there is no
+                    // return parameter, then it is a Function Invocation Statement, which is validated with below check.
+    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
+},
+				() => {
+    return dropTarget.getChildren().length;
+},
+            );
+        }
+        e.stopPropagation();
+    }
+
+    onTransformDropZoneDeactivate(e) {
+        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+        const dragDropManager = this.context.dragDropManager,
+            dropTarget = this.props.model.getParent();
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }
+        }
+        e.stopPropagation();
+    }
+
+    onUpdate(text) {
+    }
+
+    getConnectionProperties(type, expression) {
+        const con = {};
+        if (BallerinaASTFactory.isFieldAccessExpression(expression)) {
+            con[type + 'Struct'] = expression.getChildren()[0].getVariableName();
+            const complexProp = this.createComplexProp(con[type + 'Struct'],
+                                        expression.getChildren()[1].getChildren());
+            con[type + 'Type'] = complexProp.types.reverse();
+            con[type + 'Property'] = complexProp.names.reverse();
+        } else if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+            con[type + 'Function'] = true;
+            if (_.isNull(expression.getPackageName())) {
+                // for current package, where package name is null
+                const packageName = expression.getFullPackageName().replace(' ', '');
+                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
+            } else {
+                const packageName = expression.getPackageName().replace(' ', '');
+                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
+            }
+            con[type + 'Id'] = expression.getID();
+        } else if (BallerinaASTFactory.isVariableReferenceExpression(expression)) {
+            con[type + 'Struct'] = expression.getVariableName();
+            const varRef = _.find(self.predefinedStructs, { name: expression.getVariableName() });
+            if (!_.isUndefined(varRef)) {
+                con[type + 'Type'] = [varRef.type];
+            }
+            con[type + 'Property'] = [expression.getVariableName()];
+        } else if (['name', 'type'].every(prop => prop in expression)) {
+            con[type + 'Property'] = [expression.name];
+            con[type + 'Type'] = [expression.type];
+        } else if (_.has(expression, 'type')) {
+            con[type + 'Property'] = [undefined];
+            con[type + 'Type'] = [expression.type];
+        } else {
+            log.error('Unknown type to define connection properties');
+        }
+        return con;
+    }
+
     getFunctionDefinition(functionInvocationExpression) {
         const funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
 						functionInvocationExpression.getFullPackageName());
         return funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+    }
+
+    getStructAccessNode(name, property) {
+        let structExpressions = [];
+
+        _.forEach(property, (prop) => {
+            structExpressions.push(self.createAccessNode(name, prop));
+        });
+
+        for (let i = structExpressions.length - 1; i > 0; i--) {
+            structExpressions[i - 1].children[1].addChild(structExpressions[i].children[1]);
+        }
+        return structExpressions[0];
+    }
+
+    setActionVisibility(show) {
+        if (!this.context.dragDropManager.isOnDrag()) {
+            if (show) {
+                this.context.activeArbiter.readyToActivate(this);
+            } else {
+                this.context.activeArbiter.readyToDeactivate(this);
+            }
+        }
+    }
+
+    setSource(currentSelection, predefinedStructs) {
+        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+        if (_.isUndefined(sourceSelection)){
+            alerts.error('Mapping source "' + currentSelection + '" cannot be found');
+            return false;
+        }
+
+        const removeFunc = function(id) {
+            self.mapper.removeType(id);
+            _.remove(self.props.model.getInput(),(currentObject) => {
+                return currentObject.getVariableName() === id;
+            });
+            self.props.model.setInput(self.props.model.getInput());
+            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            currentSelectionObj.added = false;
+        }
+
+        if (!sourceSelection.added) {
+            if (sourceSelection.type == 'struct') {
+                self.mapper.addSourceType(sourceSelection, removeFunc);
+            } else {
+                self.mapper.addVariable(sourceSelection, 'source', removeFunc);
+            }
+            sourceSelection.added = true;
+            return true;
+        } 
+            return false;
+        
+    }
+    setTarget(currentSelection, predefinedStructs) {
+        var targetSelection = _.find(predefinedStructs, { name: currentSelection});
+        if (_.isUndefined(targetSelection)){
+            alerts.error('Mapping target "' + currentSelection + '" cannot be found');
+            return false;
+        }
+
+        const removeFunc = function(id) {
+            self.mapper.removeType(id);
+            _.remove(self.props.model.getOutput(),(currentObject) => {
+                return currentObject.getVariableName() === id;
+            });
+            self.props.model.setOutput(self.props.model.getOutput());
+            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            currentSelectionObj.added = false;
+        }
+
+        if (!targetSelection.added) {
+            if (targetSelection.type == 'struct') {
+                self.mapper.addTargetType(targetSelection, removeFunc);
+            } else {
+                self.mapper.addVariable(targetSelection, 'target', removeFunc);
+            }
+            targetSelection.added = true;
+            return true;
+        } 
+            return false;
+        
+    }
+
+    createAccessNode(name, property) {
+        let structExpression = BallerinaASTFactory.createFieldAccessExpression();
+        let structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
+        let structProperty = BallerinaASTFactory.createBasicLiteralExpression({ basicLiteralType: 'string',
+            basicLiteralValue: property });
+        let structName = BallerinaASTFactory.createVariableReferenceExpression();
+
+        structName.setVariableName(name);
+        structExpression.addChild(structName);
+        structPropertyHolder.addChild(structProperty);
+        structExpression.addChild(structPropertyHolder);
+
+        return structExpression;
+    }
+
+    createComplexProp(typeName, children)    {
+        let prop = {};
+        prop.names = [];
+        prop.types = [];
+
+        const propName = children[0].getBasicLiteralValue();
+        const struct = _.find(self.predefinedStructs, { name: typeName });
+        if (_.isUndefined(struct)) {
+            alerts.error('Struct definition for variable "' + typeName + '" cannot be found');
+            return;
+        }
+        const structProp = _.find(struct.properties, { name: propName });
+        if (_.isUndefined(structProp)) {
+            alerts.error('Struct field "' + propName + '" cannot be found in variable "' + typeName + '"');
+            return;
+        }
+        const propType = structProp.type;
+        if (children.length > 1) {
+            prop = self.createComplexProp(propName, children[1].getChildren());
+        }
+        prop.types.push(propType);
+        prop.names.push(propName);
+        return prop;
     }
 
     createConnection(statement) {
@@ -417,81 +678,6 @@ class TransformStatementDecorator extends React.Component {
         }
     }
 
-    getConnectionProperties(type, expression) {
-        const con = {};
-        if (BallerinaASTFactory.isFieldAccessExpression(expression)) {
-            con[type + 'Struct'] = expression.getChildren()[0].getVariableName();
-            const complexProp = this.createComplexProp(con[type + 'Struct'],
-                                        expression.getChildren()[1].getChildren());
-            con[type + 'Type'] = complexProp.types.reverse();
-            con[type + 'Property'] = complexProp.names.reverse();
-        } else if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-            con[type + 'Function'] = true;
-            if (_.isNull(expression.getPackageName())) {
-                // for current package, where package name is null
-                const packageName = expression.getFullPackageName().replace(' ', '');
-                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
-            } else {
-                const packageName = expression.getPackageName().replace(' ', '');
-                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
-            }
-            con[type + 'Id'] = expression.getID();
-        } else if (BallerinaASTFactory.isVariableReferenceExpression(expression)) {
-            con[type + 'Struct'] = expression.getVariableName();
-            const varRef = _.find(self.predefinedStructs, { name: expression.getVariableName() });
-            if (!_.isUndefined(varRef)) {
-                con[type + 'Type'] = [varRef.type];
-            }
-            con[type + 'Property'] = [expression.getVariableName()];
-        } else if (['name', 'type'].every(prop => prop in expression)) {
-            con[type + 'Property'] = [expression.name];
-            con[type + 'Type'] = [expression.type];
-        } else if (_.has(expression, 'type')) {
-            con[type + 'Property'] = [undefined];
-            con[type + 'Type'] = [expression.type];
-        } else {
-            log.error('Unknown type to define connection properties');
-        }
-        return con;
-    }
-
-    drawConnection(id, source, target) {
-        const con = { id: id };
-        _.merge(con, source, target);
-        self.mapper.addConnection(con);
-    }
-
-    findExistingAssignmentStatement(id) {
-        return _.find(self.props.model.getChildren(), (child) => {
-            return child.getID() === id;
-        });
-    }
-
-    createComplexProp(typeName, children)    {
-        let prop = {};
-        prop.names = [];
-        prop.types = [];
-
-        const propName = children[0].getBasicLiteralValue();
-        const struct = _.find(self.predefinedStructs, { name: typeName });
-        if (_.isUndefined(struct)) {
-            alerts.error('Struct definition for variable "' + typeName + '" cannot be found');
-            return;
-        }
-        const structProp = _.find(struct.properties, { name: propName });
-        if (_.isUndefined(structProp)) {
-            alerts.error('Struct field "' + propName + '" cannot be found in variable "' + typeName + '"');
-            return;
-        }
-        const propType = structProp.type;
-        if (children.length > 1) {
-            prop = self.createComplexProp(propName, children[1].getChildren());
-        }
-        prop.types.push(propType);
-        prop.names.push(propName);
-        return prop;
-    }
-
     createType(name, typeName, predefinedStruct) {
         let struct = {};
         struct.name = name;
@@ -513,6 +699,54 @@ class TransformStatementDecorator extends React.Component {
         });
         self.predefinedStructs.push(struct);
         return struct;
+    }
+
+    drawConnection(id, source, target) {
+        const con = { id: id };
+        _.merge(con, source, target);
+        self.mapper.addConnection(con);
+    }
+
+    findExistingAssignmentStatement(id) {
+        return _.find(self.props.model.getChildren(), (child) => {
+            return child.getID() === id;
+        });
+    }
+
+    loadSchemaToComboBox(comboBoxId, name, typeName) {
+        $('#' + comboBoxId).append('<option value="' + name + '">' + name + ' : ' + typeName + '</option>');
+    }
+
+    openExpressionEditor(e) {
+        const options = this.props.editorOptions;
+        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        if (options) {
+            new ExpressionEditor(this.statementBox, this.context.container,
+                text => this.onUpdate(text), options, packageScope);
+        }
+    }
+
+    startDropZones() {
+        this.setState({ innerDropZoneExist: true });
+    }
+
+    stopDragZones() {
+        this.setState({ innerDropZoneExist: false });
+    }
+
+    renderBreakpointIndicator() {
+        const breakpointSize = 14;
+        const pointX = this.statementBox.x + this.statementBox.w - breakpointSize / 2;
+        const pointY = this.statementBox.y - breakpointSize / 2;
+        return (
+          <Breakpoint
+                  x={pointX}
+                  y={pointY}
+                  size={breakpointSize}
+                  isBreakpoint={this.props.model.isBreakpoint}
+                  onClick={() => this.onBreakpointClick()}
+                />
+        );
     }
 
     render() {
@@ -579,240 +813,6 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
             }
           {this.props.children}
         </g>);
-    }
-
-    setActionVisibility(show) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-            if (show) {
-                this.context.activeArbiter.readyToActivate(this);
-            } else {
-                this.context.activeArbiter.readyToDeactivate(this);
-            }
-        }
-    }
-
-    onTransformDropZoneActivate(e) {
-        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.model,
-            model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-				(nodeBeingDragged) => {
-					// This drop zone is for assignment statements only.
-                    // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
-                    // is an Assignment Statement, that implies there is a return parameter . If there is no
-                    // return parameter, then it is a Function Invocation Statement, which is validated with below check.
-    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
-},
-				() => {
-    return dropTarget.getChildren().length;
-},
-            );
-        }
-        e.stopPropagation();
-    }
-
-    onTransformDropZoneDeactivate(e) {
-        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
-        e.stopPropagation();
-    }
-    onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.model.getParent(),
-            model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-				(nodeBeingDragged) => {
-                    // IMPORTANT: override node's default validation logic
-                    // This drop zone is for statements only.
-                    // Statements should only be allowed here.
-    return model.getFactory().isStatement(nodeBeingDragged);
-},
-				() => {
-    return dropTarget.getIndexOfChild(model);
-},
-			);
-            this.setState({ innerDropZoneActivated: true,
-                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-            });
-            dragDropManager.once('drop-target-changed', function () {
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }, this);
-        }
-        e.stopPropagation();
-    }
-
-    onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-			  dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
-        e.stopPropagation();
-    }
-
-    onArrowStartPointMouseOver(e) {
-        e.target.style.fill = '#444';
-        e.target.style.fillOpacity = 0.5;
-        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
-    }
-
-    onArrowStartPointMouseOut(e) {
-        e.target.style.fill = '#444';
-        e.target.style.fillOpacity = 0;
-    }
-
-    onMouseDown(e) {
-        const messageManager = this.context.messageManager;
-        const model = this.props.model;
-        const bBox = model.getViewState().bBox;
-        const statement_h = this.statementBox.h;
-        const messageStartX = bBox.x + bBox.w;
-        const messageStartY = this.statementBox.y + statement_h / 2;
-        let actionInvocation;
-        if (ASTFactory.isAssignmentStatement(model)) {
-            actionInvocation = model.getChildren()[1].getChildren()[0];
-        } else if (ASTFactory.isVariableDefinitionStatement(model)) {
-            actionInvocation = model.getChildren()[1];
-        }
-        messageManager.setSource(actionInvocation);
-        messageManager.setIsOnDrag(true);
-        messageManager.setMessageStart(messageStartX, messageStartY);
-
-        messageManager.setTargetValidationCallback((destination) => {
-            return actionInvocation.messageDrawTargetAllowed(destination);
-        });
-
-        messageManager.startDrawMessage((source, destination) => {
-            source.setAttribute('_connector', destination);
-        });
-    }
-
-    onMouseUp(e) {
-        const messageManager = this.context.messageManager;
-        messageManager.reset();
-    }
-
-    openExpressionEditor(e) {
-        const options = this.props.editorOptions;
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
-        if (options) {
-            new ExpressionEditor(this.statementBox, this.context.container,
-                text => this.onUpdate(text), options, packageScope);
-        }
-    }
-
-    onUpdate(text) {
-    }
-
-    loadSchemaToComboBox(comboBoxId, name, typeName) {
-        $('#' + comboBoxId).append('<option value="' + name + '">' + name + ' : ' + typeName + '</option>');
-    }
-
-    createAccessNode(name, property) {
-        let structExpression = BallerinaASTFactory.createFieldAccessExpression();
-        let structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
-        let structProperty = BallerinaASTFactory.createBasicLiteralExpression({ basicLiteralType: 'string',
-            basicLiteralValue: property });
-        let structName = BallerinaASTFactory.createVariableReferenceExpression();
-
-        structName.setVariableName(name);
-        structExpression.addChild(structName);
-        structPropertyHolder.addChild(structProperty);
-        structExpression.addChild(structPropertyHolder);
-
-        return structExpression;
-    }
-
-    getStructAccessNode(name, property) {
-        let structExpressions = [];
-
-        _.forEach(property, (prop) => {
-            structExpressions.push(self.createAccessNode(name, prop));
-        });
-
-        for (let i = structExpressions.length - 1; i > 0; i--) {
-            structExpressions[i - 1].children[1].addChild(structExpressions[i].children[1]);
-        }
-        return structExpressions[0];
-    }
-
-    setSource(currentSelection, predefinedStructs) {
-        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
-        if (_.isUndefined(sourceSelection)){
-            alerts.error('Mapping source "' + currentSelection + '" cannot be found');
-            return false;
-        }
-
-        const removeFunc = function(id) {
-            self.mapper.removeType(id);
-            _.remove(self.props.model.getInput(),(currentObject) => {
-                return currentObject.getVariableName() === id;
-            });
-            self.props.model.setInput(self.props.model.getInput());
-            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
-            currentSelectionObj.added = false;
-        }
-
-        if (!sourceSelection.added) {
-            if (sourceSelection.type == 'struct') {
-                self.mapper.addSourceType(sourceSelection, removeFunc);
-            } else {
-                self.mapper.addVariable(sourceSelection, 'source', removeFunc);
-            }
-            sourceSelection.added = true;
-            return true;
-        } 
-            return false;
-        
-    }
-
-    setTarget(currentSelection, predefinedStructs) {
-        var targetSelection = _.find(predefinedStructs, { name: currentSelection});
-        if (_.isUndefined(targetSelection)){
-            alerts.error('Mapping target "' + currentSelection + '" cannot be found');
-            return false;
-        }
-
-        const removeFunc = function(id) {
-            self.mapper.removeType(id);
-            _.remove(self.props.model.getOutput(),(currentObject) => {
-                return currentObject.getVariableName() === id;
-            });
-            self.props.model.setOutput(self.props.model.getOutput());
-            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
-            currentSelectionObj.added = false;
-        }
-
-        if (!targetSelection.added) {
-            if (targetSelection.type == 'struct') {
-                self.mapper.addTargetType(targetSelection, removeFunc);
-            } else {
-                self.mapper.addVariable(targetSelection, 'target', removeFunc);
-            }
-            targetSelection.added = true;
-            return true;
-        } 
-            return false;
-        
     }
 }
 

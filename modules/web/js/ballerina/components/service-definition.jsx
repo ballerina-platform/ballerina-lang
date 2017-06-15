@@ -36,6 +36,30 @@ class ServiceDefinition extends React.Component {
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
 
+    canDropToPanelBody(nodeBeingDragged) {
+        const nodeFactory = this.props.model.getFactory();
+          // IMPORTANT: override default validation logic
+          // Panel's drop zone is for resource defs and connector declarations only.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+              || nodeFactory.isResourceDefinition(nodeBeingDragged);
+    }
+
+    handleAddVariable(value) {
+        const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
+        const match = variableDefRegex.exec(value);
+        if (match && match[1] && match[2] && match[3]) {
+            this.props.model.addVariableDefinitionStatement(match[1], match[2], match[3]);
+        }
+    }
+
+    handleDeleteVariable(deletedGlobal) {
+        this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
+    }
+
+    handleVarialblesBadgeClick() {
+        this.props.model.setAttribute('viewState.variablesExpanded', !this.props.model.viewState.variablesExpanded);
+    }
+
     render() {
         const model = this.props.model;
         const viewState = model.getViewState();
@@ -78,30 +102,6 @@ class ServiceDefinition extends React.Component {
                 }
             {children}
         </PanelDecorator>);
-    }
-
-    handleVarialblesBadgeClick() {
-        this.props.model.setAttribute('viewState.variablesExpanded', !this.props.model.viewState.variablesExpanded);
-    }
-
-    canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
-          // IMPORTANT: override default validation logic
-          // Panel's drop zone is for resource defs and connector declarations only.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-              || nodeFactory.isResourceDefinition(nodeBeingDragged);
-    }
-
-    handleAddVariable(value) {
-        const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
-        const match = variableDefRegex.exec(value);
-        if (match && match[1] && match[2] && match[3]) {
-            this.props.model.addVariableDefinitionStatement(match[1], match[2], match[3]);
-        }
-    }
-
-    handleDeleteVariable(deletedGlobal) {
-        this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
     }
 }
 

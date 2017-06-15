@@ -29,6 +29,10 @@ class ActionBox extends React.Component {
         this.isHiddenToHidden = true;
     }
 
+    componentWillReceiveProps(nextProps, nextState) {
+        this.isHiddenToHidden = !(this.props.show || nextProps.show);
+    }
+
     render() {
         const bBox = this.props.bBox;
         const numIcons = 3 - (this.props.onBreakpointClick ? 0 : 1);
@@ -63,10 +67,6 @@ class ActionBox extends React.Component {
                 onClick={this.props.onJumptoCodeLine}
             />
         </g>);
-    }
-
-    componentWillReceiveProps(nextProps, nextState) {
-        this.isHiddenToHidden = !(this.props.show || nextProps.show);
     }
 
 }

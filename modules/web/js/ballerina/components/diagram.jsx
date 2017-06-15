@@ -52,6 +52,23 @@ class Diagram extends React.Component {
         });
     }
 
+    getChildContext() {
+        return {
+            dragDropManager: this.props.dragDropManager,
+            messageManager: this.props.messageManager,
+            container: this.props.container,
+            renderer: this.props.renderer,
+            overlay: this.props.overlay,
+            renderingContext: this.props.renderingContext,
+            structOperationsRenderer: this.props.structOperationsRenderer,
+            activeArbiter: new ActiveArbiter(),
+        };
+    }
+
+    getModel() {
+        return this.model;
+    }
+
     setModel(model) {
         this.model = model;
 
@@ -62,10 +79,6 @@ class Diagram extends React.Component {
         // following code is a debounce to throttle redundant tree-modified events
         // we need to fix our tree modified and remove the debounce.
         // this.model.on('tree-modified', _.debounce(_.bind(() => { this.forceUpdate(); }, this), 150));
-    }
-
-    getModel() {
-        return this.model;
     }
 
     render() {
@@ -111,19 +124,6 @@ class Diagram extends React.Component {
         return (<CanvasDecorator dropTarget={this.model} title="StatementContainer" bBox={viewState.bBox} annotations={annotations}>
             {others}
         </CanvasDecorator>);
-    }
-
-    getChildContext() {
-        return {
-            dragDropManager: this.props.dragDropManager,
-            messageManager: this.props.messageManager,
-            container: this.props.container,
-            renderer: this.props.renderer,
-            overlay: this.props.overlay,
-            renderingContext: this.props.renderingContext,
-            structOperationsRenderer: this.props.structOperationsRenderer,
-            activeArbiter: new ActiveArbiter(),
-        };
     }
 }
 

@@ -42,6 +42,31 @@ class BlockStatementDecorator extends React.Component {
         this.onJumptoCodeLine = this.onJumptoCodeLine.bind(this);
     }
 
+    onBreakpointClick() {
+        const { model } = this.props;
+        const { isBreakpoint = false } = model;
+        if (model.isBreakpoint) {
+            model.removeBreakpoint();
+        } else {
+            model.addBreakpoint();
+        }
+    }
+
+    onDelete() {
+        const model = this.props.model || this.props.dropTarget;
+        model.remove();
+    }
+
+    onJumptoCodeLine() {
+        const { renderingContext: { ballerinaFileEditor } } = this.context;
+
+        const container = ballerinaFileEditor._container;
+        $(container).find('.view-source-btn').trigger('click');
+    }
+
+    onUpdate(text) {
+    }
+
     setActionVisibility(show, e) {
         if (!this.context.dragDropManager.isOnDrag()) {
             const myRoot = ReactDOM.findDOMNode(this);
@@ -86,26 +111,11 @@ class BlockStatementDecorator extends React.Component {
         return isInStatement;
     }
 
-    onDelete() {
-        const model = this.props.model || this.props.dropTarget;
-        model.remove();
-    }
-
-    onBreakpointClick() {
-        const { model } = this.props;
-        const { isBreakpoint = false } = model;
-        if (model.isBreakpoint) {
-            model.removeBreakpoint();
-        } else {
-            model.addBreakpoint();
+    openExpressionEditor(value, options, e) {
+        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        if (value && options) {
+            new ExpressionEditor(this.conditionBox, this.context.container, text => this.onUpdate(text), options, packageScope);
         }
-    }
-
-    onJumptoCodeLine() {
-        const { renderingContext: { ballerinaFileEditor } } = this.context;
-
-        const container = ballerinaFileEditor._container;
-        $(container).find('.view-source-btn').trigger('click');
     }
 
     renderBreakpointIndicator() {
@@ -230,16 +240,6 @@ class BlockStatementDecorator extends React.Component {
             }
             { model.isBreakpoint && this.renderBreakpointIndicator() }
         </g>);
-    }
-
-    openExpressionEditor(value, options, e) {
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
-        if (value && options) {
-            new ExpressionEditor(this.conditionBox, this.context.container, text => this.onUpdate(text), options, packageScope);
-        }
-    }
-
-    onUpdate(text) {
     }
 }
 

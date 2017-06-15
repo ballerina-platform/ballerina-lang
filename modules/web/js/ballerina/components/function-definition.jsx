@@ -31,6 +31,15 @@ class FunctionDefinition extends React.Component {
         super(props);
     }
 
+    canDropToPanelBody(nodeBeingDragged) {
+        const nodeFactory = this.props.model.getFactory();
+        // IMPORTANT: override default validation logic
+        // Panel's drop zone is for worker and connector declarations only.
+        // Statements should only be allowed on top of function worker's dropzone.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
+    }
+
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getFunctionName();
@@ -81,15 +90,6 @@ class FunctionDefinition extends React.Component {
                 {children}
             </StatementContainer>
         </PanelDecorator>);
-    }
-
-    canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
-        // IMPORTANT: override default validation logic
-        // Panel's drop zone is for worker and connector declarations only.
-        // Statements should only be allowed on top of function worker's dropzone.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 
 

@@ -29,6 +29,15 @@ import { lifeLine } from './../configs/designer-defaults';
 
 class ConnectorAction extends React.Component {
 
+    canDropToPanelBody(nodeBeingDragged) {
+        const nodeFactory = this.props.model.getFactory();
+        // IMPORTANT: override default validation logic
+        // Panel's drop zone is for worker and connector declarations only.
+        // Statements should only be allowed on top of resource worker's dropzone.
+        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
+    }
+
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getActionName();
@@ -70,15 +79,6 @@ class ConnectorAction extends React.Component {
                 </StatementContainer>
             </g>
         </PanelDecorator>);
-    }
-
-    canDropToPanelBody(nodeBeingDragged) {
-        const nodeFactory = this.props.model.getFactory();
-        // IMPORTANT: override default validation logic
-        // Panel's drop zone is for worker and connector declarations only.
-        // Statements should only be allowed on top of resource worker's dropzone.
-        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
-            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 }
 

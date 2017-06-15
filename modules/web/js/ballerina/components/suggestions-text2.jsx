@@ -49,25 +49,32 @@ class SuggestionsText extends React.Component {
         };
     }
 
-    renderSuggestion(suggestion) {
-        const { value } = this.state;
-        const sugName = suggestion.name;
-        const parts = sugName.split(value);
-        const highlightedString = [];
+    componentDidMount() {
+        this.renderSuggestionsText();
+        this.input && this.input.focus();
+    }
 
-        parts.forEach((p, i) => {
-            highlightedString.push(<span key={i}>{p}</span>);
-            if (i < parts.length - 1) {
-                // if not last
-                highlightedString.push(<span key={i + 100}><b>{value}</b></span>);
-            }
-        });
+    componentDidUpdate(prevProps) {
+        if (prevProps.show || this.props.show) {
+            // If its not showing previously and still not showing no need to re-render
+            // this also avoids removing other possible html elements from html overlay
+            this.renderSuggestionsText();
+            this.input && this.input.focus();
+        }
+    }
 
-        return (
-          <div>
-              {highlightedString}
-            </div>
-        );
+    componentWillUnmount() {
+        ReactDOM.render(<noscript />, this.context.overlay);
+    }
+
+    onChange(event, { newValue, method }) {
+        this.props.onChange(newValue);
+    }
+
+    onKeyDown(e) {
+        if (e.keyCode === 13) {
+            this.props.onEnter();
+        }
     }
 
     getSuggestionValue(suggestion) {
@@ -88,18 +95,25 @@ class SuggestionsText extends React.Component {
         return matches;
     }
 
-    onKeyDown(e) {
-        if (e.keyCode === 13) {
-            this.props.onEnter();
-        }
-    }
+    renderSuggestion(suggestion) {
+        const { value } = this.state;
+        const sugName = suggestion.name;
+        const parts = sugName.split(value);
+        const highlightedString = [];
 
-    onChange(event, { newValue, method }) {
-        this.props.onChange(newValue);
-    }
+        parts.forEach((p, i) => {
+            highlightedString.push(<span key={i}>{p}</span>);
+            if (i < parts.length - 1) {
+                // if not last
+                highlightedString.push(<span key={i + 100}><b>{value}</b></span>);
+            }
+        });
 
-    componentWillUnmount() {
-        ReactDOM.render(<noscript />, this.context.overlay);
+        return (
+          <div>
+              {highlightedString}
+            </div>
+        );
     }
 
     renderSuggestionsContainer({ containerProps, children, query }) {
@@ -160,20 +174,6 @@ class SuggestionsText extends React.Component {
               shouldRenderSuggestions={() => true}
             />, this.context.overlay,
         );
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.show || this.props.show) {
-            // If its not showing previously and still not showing no need to re-render
-            // this also avoids removing other possible html elements from html overlay
-            this.renderSuggestionsText();
-            this.input && this.input.focus();
-        }
-    }
-
-    componentDidMount() {
-        this.renderSuggestionsText();
-        this.input && this.input.focus();
     }
 
     render() {

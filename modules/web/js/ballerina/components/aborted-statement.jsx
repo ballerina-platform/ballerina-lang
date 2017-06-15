@@ -27,6 +27,14 @@ class AbortedStatement extends React.Component {
     }
 
     /**
+     * Event handler for click add committed button.
+     * */
+    onAddCommittedClick() {
+        const parent = this.props.model.parent;
+        parent.createCommittedStatement();
+    }
+
+    /**
      * Get add committed statement button
      * @return {object} react element or null
      * */
@@ -41,14 +49,6 @@ class AbortedStatement extends React.Component {
             </g>);
         }
         return null;
-    }
-
-    /**
-     * Event handler for click add committed button.
-     * */
-    onAddCommittedClick() {
-        const parent = this.props.model.parent;
-        parent.createCommittedStatement();
     }
 
     /**

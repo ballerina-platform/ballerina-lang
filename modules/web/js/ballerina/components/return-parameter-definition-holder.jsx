@@ -33,6 +33,20 @@ class ReturnParameterDefinitionHolder extends React.Component {
     }
 
     /**
+     * Get types of ballerina to which can be applied when declaring variables.
+     * */
+    getTypeDropdownValues() {
+        const { renderingContext } = this.context;
+        const dropdownData = [];
+        const bTypes = renderingContext.environment.getTypes();
+        _.forEach(bTypes, (bType) => {
+            dropdownData.push({ id: bType, text: bType });
+        });
+
+        return dropdownData;
+    }
+
+    /**
      * Setter to add return parameters.
      * @param {string} input - input from tag-controller.
      * @return {boolean} true||false
@@ -83,17 +97,13 @@ class ReturnParameterDefinitionHolder extends React.Component {
     }
 
     /**
-     * Get types of ballerina to which can be applied when declaring variables.
+     * Validate input from controller and apply condition to tell whether to change the state.
+     * @param {string} input
+     * @return {boolean} true - change the state, false - don't change the state
      * */
-    getTypeDropdownValues() {
-        const { renderingContext } = this.context;
-        const dropdownData = [];
-        const bTypes = renderingContext.environment.getTypes();
-        _.forEach(bTypes, (bType) => {
-            dropdownData.push({ id: bType, text: bType });
-        });
-
-        return dropdownData;
+    validateInput(input) {
+        const splitedExpression = input.split(' ');
+        return splitedExpression.length > 1;
     }
 
     /**
@@ -120,16 +130,6 @@ class ReturnParameterDefinitionHolder extends React.Component {
         }
 
         return isValid;
-    }
-
-    /**
-     * Validate input from controller and apply condition to tell whether to change the state.
-     * @param {string} input
-     * @return {boolean} true - change the state, false - don't change the state
-     * */
-    validateInput(input) {
-        const splitedExpression = input.split(' ');
-        return splitedExpression.length > 1;
     }
 
     render() {

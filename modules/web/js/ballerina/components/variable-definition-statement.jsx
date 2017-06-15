@@ -42,6 +42,54 @@ class VariableDefinitionStatement extends React.Component {
         };
     }
 
+    onArrowStartPointMouseOut(e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0;
+    }
+
+    onArrowStartPointMouseOver(e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0.5;
+        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
+    }
+
+    onMouseDown(e) {
+        const messageManager = this.context.messageManager;
+        const model = this.props.model;
+        const bBox = model.getViewState().bBox;
+        const statement_h = this.statementBox.h;
+        const messageStartX = bBox.x + bBox.w;
+        const messageStartY = this.statementBox.y + statement_h / 2;
+        let actionInvocation;
+        actionInvocation = model.getChildren()[1];
+        messageManager.setSource(actionInvocation);
+        messageManager.setIsOnDrag(true);
+        messageManager.setMessageStart(messageStartX, messageStartY);
+
+        messageManager.setTargetValidationCallback(destination => actionInvocation.messageDrawTargetAllowed(destination));
+
+        messageManager.startDrawMessage((source, destination) => {
+            source.setConnector(destination);
+            model.generateStatementString();
+            model.trigger('tree-modified', { type: 'custom', title: 'action set' });
+        });
+    }
+
+    onMouseUp(e) {
+        const messageManager = this.context.messageManager;
+        messageManager.reset();
+    }
+
+    setActionVisibility(show) {
+        if (!this.context.dragDropManager.isOnDrag()) {
+            if (show) {
+                this.context.activeArbiter.readyToActivate(this);
+            } else {
+                this.context.activeArbiter.readyToDeactivate(this);
+            }
+        }
+    }
+
     /**
      * Render Function for the variable statement.
      * */
@@ -111,54 +159,6 @@ class VariableDefinitionStatement extends React.Component {
             </g>
             }
         </StatementDecorator>);
-    }
-
-    setActionVisibility(show) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-            if (show) {
-                this.context.activeArbiter.readyToActivate(this);
-            } else {
-                this.context.activeArbiter.readyToDeactivate(this);
-            }
-        }
-    }
-
-    onArrowStartPointMouseOver(e) {
-        e.target.style.fill = '#444';
-        e.target.style.fillOpacity = 0.5;
-        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
-    }
-
-    onArrowStartPointMouseOut(e) {
-        e.target.style.fill = '#444';
-        e.target.style.fillOpacity = 0;
-    }
-
-    onMouseDown(e) {
-        const messageManager = this.context.messageManager;
-        const model = this.props.model;
-        const bBox = model.getViewState().bBox;
-        const statement_h = this.statementBox.h;
-        const messageStartX = bBox.x + bBox.w;
-        const messageStartY = this.statementBox.y + statement_h / 2;
-        let actionInvocation;
-        actionInvocation = model.getChildren()[1];
-        messageManager.setSource(actionInvocation);
-        messageManager.setIsOnDrag(true);
-        messageManager.setMessageStart(messageStartX, messageStartY);
-
-        messageManager.setTargetValidationCallback(destination => actionInvocation.messageDrawTargetAllowed(destination));
-
-        messageManager.startDrawMessage((source, destination) => {
-            source.setConnector(destination);
-            model.generateStatementString();
-            model.trigger('tree-modified', { type: 'custom', title: 'action set' });
-        });
-    }
-
-    onMouseUp(e) {
-        const messageManager = this.context.messageManager;
-        messageManager.reset();
     }
 }
 
