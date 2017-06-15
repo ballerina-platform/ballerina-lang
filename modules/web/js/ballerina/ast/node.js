@@ -272,7 +272,7 @@ class ASTNode extends EventChannel {
 
     /**
      * Filter matching children belonging to current scope from the predicate function
-     * @param predicateFunction a function returning a boolean to match filter condition from children
+     * @param {func} predicateFunction a function returning a boolean to match filter condition from children
      * @return {[ASTNode]} array of matching AST nodes
      */
     filterChildrenInScope(predicateFunction) {

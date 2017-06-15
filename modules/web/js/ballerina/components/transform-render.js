@@ -960,31 +960,36 @@ class TransformRender {
         }];
     }
 
-
-    onRemove(id, func, removeFunction, reference) {
-        const self = this;
+/**
+ * Bind the onRemove click event and callback to given container
+ * @param {string} unique identifier
+ * @param {object} container information
+ * @param {function} onRemoveFunction callback
+ * @param {int} Reference AST Node id
+ */
+    onRemove(id, container, removeFunction, reference) {
         $('#' + id + '-button').on('click', () => {
-            const removedFunction = { name: func.name };
+            const removedFunction = { name: container.name };
             removedFunction.incomingConnections = [];
             removedFunction.outgoingConnections = [];
 
-            _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
+            _.forEach(this.jsPlumbInstance.getAllConnections(), (connection) => {
                 if (connection.target.id.includes(id)) {
                     removedFunction.incomingConnections.push(
-            self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
+            this.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
                 } else if (connection.source.id.includes(id)) {
                     removedFunction.outgoingConnections.push(
-            self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
+                        this.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
                 }
             });
 
-            for (let i = 0; i < self.references.length; i++) {
-                if (self.references[i].name === id) {
-                    removedFunction.reference = self.references[i].refObj;
+            for (let i = 0; i < this.references.length; i++) {
+                if (this.references[i].name === id) {
+                    removedFunction.reference = this.references[i].refObj;
                 }
             }
 
-            self.removeType(func.name);
+            this.removeType(container.name);
             removeFunction(reference);
         });
     }
