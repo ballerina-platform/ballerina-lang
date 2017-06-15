@@ -28,6 +28,7 @@ import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +37,9 @@ import java.util.Arrays;
 /**
  * BLangVMInterceptors is utility class for invoking an interceptor using Ballerina VM.
  */
-public class BLangVMInterceptors {
+public interface BLangVMInterceptors {
 
-    private static final Logger logger = LoggerFactory.getLogger(BLangVMInterceptors.class);
-
+    Logger LOGGER = LoggerFactory.getLogger(BLangVMInterceptors.class);
 
     /**
      * Invokes given ResourceInterceptor with given message.
@@ -48,8 +48,8 @@ public class BLangVMInterceptors {
      * @param bMessage            input arguments for the interceptor
      * @return return values from the interceptor
      */
-    public static ResourceInterceptor.Result invokeResourceInterceptor(ResourceInterceptor resourceInterceptor,
-                                                                       BMessage bMessage) {
+    static ResourceInterceptor.Result invokeResourceInterceptor(ResourceInterceptor resourceInterceptor,
+                                                                BMessage bMessage) {
 
         Context context = new Context(resourceInterceptor.getProgramFile());
         PackageInfo packageInfo = resourceInterceptor.getPackageInfo();
@@ -107,8 +107,8 @@ public class BLangVMInterceptors {
 
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
-            logger.error("error in service interception, " + stackTraceStr);
-            return new ResourceInterceptor.Result(false, new BMessage());
+            LOGGER.error("error in service interception, " + stackTraceStr);
+            throw new BLangRuntimeException(BLangVMErrors.getErrorMessage(context.getError()));
         }
 
         return new ResourceInterceptor.Result(callerSF.getIntRegs()[0] == 1, (BMessage) callerSF.getRefRegs()[0]);

@@ -49,11 +49,6 @@ public class ResourceInterceptor {
         return interceptorFunction;
     }
 
-    @Override
-    public String toString() {
-        return packageInfo.getPkgPath() + ":" + interceptorFunction.getName();
-    }
-
     /**
      * Represents Interceptor type
      */

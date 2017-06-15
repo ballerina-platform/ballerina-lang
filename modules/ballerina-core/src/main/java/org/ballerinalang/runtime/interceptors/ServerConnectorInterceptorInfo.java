@@ -30,8 +30,7 @@ import java.util.Map;
  */
 public class ServerConnectorInterceptorInfo {
 
-    boolean isEnabled;
-    Path deploymentPath;
+      Path deploymentPath;
     String serverConnector;
     List<ResourceInterceptor> requestChain = new ArrayList<>();
     List<ResourceInterceptor> responseChain = new ArrayList<>();
@@ -41,18 +40,6 @@ public class ServerConnectorInterceptorInfo {
 
     public ServerConnectorInterceptorInfo(String serverConnector) {
         this.serverConnector = serverConnector;
-    }
-
-    public boolean isEnabled() {
-        return isEnabled;
-    }
-
-    public Path getDeploymentPath() {
-        return deploymentPath;
-    }
-
-    public String getServerConnector() {
-        return serverConnector;
     }
 
     public List<ResourceInterceptor> getRequestChain() {

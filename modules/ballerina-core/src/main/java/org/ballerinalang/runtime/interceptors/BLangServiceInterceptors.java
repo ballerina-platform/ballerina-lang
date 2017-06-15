@@ -43,22 +43,22 @@ import java.util.Map;
 /**
  * Manager class service interceptors.
  */
-public class ServiceInterceptors {
+public class BLangServiceInterceptors {
 
     public static final String REQUEST_INTERCEPTOR_NAME = "requestInterceptor";
     public static final String RESPONSE_INTERCEPTOR_NAME = "responseInterceptor";
 
-    private static ServiceInterceptors instance = new ServiceInterceptors();
+    private static BLangServiceInterceptors instance = new BLangServiceInterceptors();
 
     private boolean isInitialized = false;
     private Map<String, ServerConnectorInterceptorInfo> serverConnectorInterceptorInfoMap = new HashMap<>();
     private Map<String, Boolean> enabledServerConnectorMap = new HashMap<>();
 
 
-    private ServiceInterceptors() {
+    private BLangServiceInterceptors() {
     }
 
-    public static ServiceInterceptors getInstance() {
+    public static BLangServiceInterceptors getInstance() {
         return instance;
     }
 
@@ -113,11 +113,7 @@ public class ServiceInterceptors {
         if (!isInitialized) {
             return false;
         }
-        Boolean enabled = enabledServerConnectorMap.get(serviceConnectorID);
-        if (enabled == null) {
-            return false;
-        }
-        return enabled;
+        return Boolean.TRUE.equals(enabledServerConnectorMap.get(serviceConnectorID));
     }
 
     public ServerConnectorInterceptorInfo getServerConnectorInterceptorInfo(String id) {
@@ -190,6 +186,12 @@ public class ServiceInterceptors {
             }
         }
         return matching;
+    }
+
+    public void clear() {
+        this.isInitialized = false;
+        this.serverConnectorInterceptorInfoMap.clear();
+        this.enabledServerConnectorMap.clear();
     }
 
 }

@@ -23,8 +23,7 @@ import org.wso2.carbon.config.ConfigProviderFactory;
 import org.wso2.carbon.config.ConfigurationException;
 import org.wso2.carbon.config.provider.ConfigProvider;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -57,11 +56,7 @@ public class BLangConfigurationManager {
         Path balConfPath = null;
         String balConfString = System.getProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF);
         if (balConfString != null) {
-            try {
-                balConfPath = Paths.get(new URI(balConfString));
-            } catch (URISyntaxException e) {
-                breLog.warn("invalid ballerina.conf property, using default configuration location.");
-            }
+            balConfPath = Paths.get(new File(balConfString).toURI());
         }
         if (balConfPath == null) {
             balConfPath = Paths.get(System.getProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME),
