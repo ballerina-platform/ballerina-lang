@@ -21,9 +21,6 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import TransformStatementVisitorFactory from './transform-statement-visitor-factory';
 
 class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     canVisitTransformStatement() {
         return true;

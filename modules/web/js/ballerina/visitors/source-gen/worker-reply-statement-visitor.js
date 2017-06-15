@@ -19,9 +19,6 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import WorkerReplyStatement from '../../ast/statements/worker-reply-statement';
 
 class WorkerReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     canVisitWorkerReplyStatement(workerReplyStatement) {
         return workerReplyStatement instanceof WorkerReplyStatement;
@@ -31,7 +28,7 @@ class WorkerReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.appendSource(workerReplyStatement.getStatementString());
     }
 
-    endVisitWorkerReplyStatement(workerReplyStatement) {
+    endVisitWorkerReplyStatement() {
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ';\n');
     }
 }

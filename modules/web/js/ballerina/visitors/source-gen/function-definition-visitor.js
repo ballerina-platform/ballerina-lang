@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
@@ -29,11 +28,8 @@ import WorkerDeclarationVisitor from './worker-declaration-visitor';
  * @constructor
  */
 class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitFunctionDefinition(functionDefinition) {
+    canVisitFunctionDefinition() {
         return true;
     }
 
@@ -51,19 +47,23 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         const functionReturnTypes = functionDefinition.getReturnTypesAsString();
         let functionReturnTypesSource;
         if (!_.isEmpty(functionReturnTypes)) {
-            functionReturnTypesSource = '(' + functionDefinition.getWSRegion(5) + functionDefinition.getReturnTypesAsString() + ')';
+            functionReturnTypesSource = '(' + functionDefinition.getWSRegion(5)
+                                                                + functionDefinition.getReturnTypesAsString() + ')';
         }
 
         let constructedSourceSegment = '';
-        _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation), (annotationNode) => {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString()
-                  + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-            }
-        });
-        constructedSourceSegment += ((functionDefinition.isNative() ? 'native' + functionDefinition.getWSRegion(0) : ''));
+        _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation),
+            (annotationNode) => {
+                if (annotationNode.isSupported()) {
+                    constructedSourceSegment += annotationNode.toString()
+                        + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
+                }
+            });
+        constructedSourceSegment += ((functionDefinition.isNative() ? 'native'
+                                                                            + functionDefinition.getWSRegion(0) : ''));
         constructedSourceSegment += 'function' + functionDefinition.getWSRegion(1)
-            + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2) + '(' + functionDefinition.getWSRegion(3)
+            + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2)
+                                                                            + '(' + functionDefinition.getWSRegion(3)
             + functionDefinition.getArgumentsAsString() + ')';
         constructedSourceSegment += (!_.isNil(functionReturnTypesSource)
             ? (functionDefinition.getWSRegion(4) + functionReturnTypesSource) : '');
@@ -75,7 +75,7 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         log.debug('Begin Visit FunctionDefinition');
     }
 
-    visitFunctionDefinition(functionDefinition) {
+    visitFunctionDefinition() {
         log.debug('Visit FunctionDefinition');
     }
 

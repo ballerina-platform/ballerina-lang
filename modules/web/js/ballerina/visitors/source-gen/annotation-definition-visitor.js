@@ -21,11 +21,8 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import SourceGenUtil from './source-gen-util';
 
 class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitAnnotationDefinition(annotationDefinition) {
+    canVisitAnnotationDefinition() {
         return true;
     }
 
@@ -37,19 +34,21 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
-        _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation), (annotationNode) => {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString()
-                  + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-            }
-        });
+        _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation),
+                (annotationNode) => {
+                    if (annotationNode.isSupported()) {
+                        constructedSourceSegment += annotationNode.toString()
+                        + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
+                    }
+                });
 
         constructedSourceSegment += 'annotation' + annotationDefinition.getWSRegion(0)
             + annotationDefinition.getAnnotationName() + annotationDefinition.getWSRegion(1);
         if (annotationDefinition.getAttachmentPoints().length > 0) {
             constructedSourceSegment += 'attach';
             annotationDefinition.getAttachmentPoints().forEach((attachmentPoint, index) => {
-                constructedSourceSegment += annotationDefinition.getChildWSRegion('attachmentPoints.children.' + attachmentPoint, 0)
+                constructedSourceSegment += annotationDefinition.getChildWSRegion('attachmentPoints.children.'
+                    + attachmentPoint, 0)
                     + attachmentPoint
                     + annotationDefinition.getChildWSRegion('attachmentPoints.children.' + attachmentPoint, 1);
                 if (index + 1 < annotationDefinition.getAttachmentPoints().length) {
@@ -66,7 +65,8 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
         _.each(annotationDefinition.getAnnotationAttributeDefinitions(), (attrDefinition) => {
             const currentPrecedingIndentation = SourceGenUtil.getTailingIndentation(constructedSourceSegment);
             if (attrDefinition.whiteSpace.useDefault) {
-                constructedSourceSegment = SourceGenUtil.replaceTailingIndentation(constructedSourceSegment, self.getIndentation());
+                constructedSourceSegment = SourceGenUtil.replaceTailingIndentation(constructedSourceSegment,
+                                                                                    self.getIndentation());
             }
             constructedSourceSegment += attrDefinition.getAttributeStatementString();
             if (attrDefinition.whiteSpace.useDefault) {
@@ -78,7 +78,7 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
         log.debug('Begin Visit Annotation Definition');
     }
 
-    visitAnnotationDefinition(annotationDefinition) {
+    visitAnnotationDefinition() {
         log.debug('Visit Annotation Definition');
     }
 

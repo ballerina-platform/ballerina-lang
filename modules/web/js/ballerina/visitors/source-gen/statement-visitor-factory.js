@@ -107,6 +107,8 @@ class StatementVisitorFactor {
         } else if (ASTFactory.isCommittedStatement(statement)) {
             return new CommittedStatementVisitor(parent);
         }
+
+        return undefined;
     }
 }
 

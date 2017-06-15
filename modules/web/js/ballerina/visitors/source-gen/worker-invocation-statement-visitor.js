@@ -19,9 +19,6 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import WorkerInvocationStatement from '../../ast/statements/worker-invocation-statement';
 
 class WorkerInvocationStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     canVisitWorkerInvocationStatement(workerInvocationStatement) {
         return workerInvocationStatement instanceof WorkerInvocationStatement;
@@ -31,7 +28,7 @@ class WorkerInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         this.appendSource(workerInvocationStatement.getStatementString());
     }
 
-    endVisitWorkerInvocationStatement(workerInvocationStatement) {
+    endVisitWorkerInvocationStatement() {
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ';\n');
     }
 }

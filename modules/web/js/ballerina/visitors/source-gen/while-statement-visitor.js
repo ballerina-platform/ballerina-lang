@@ -16,16 +16,12 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitWhileStatement(whileStatement) {
+    canVisitWhileStatement() {
         if (_.isNil(this.node)) {
             return true;
         }
@@ -38,7 +34,7 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.indent();
     }
 
-    visitWhileStatement(whileStatement) {
+    visitWhileStatement() {
     }
 
     visitStatement(statement) {
@@ -49,7 +45,7 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
-    endVisitWhileStatement(whileStatement) {
+    endVisitWhileStatement() {
         this.outdent();
         this.appendSource(this.getIndentation() + '}\n');
         this.getParent().appendSource(this.getGeneratedSource());

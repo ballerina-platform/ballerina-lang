@@ -19,9 +19,6 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';
 
 class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     canVisitVariableDefinitionStatement(variableDefinitionStatement) {
         return variableDefinitionStatement instanceof VariableDefinitionStatement;

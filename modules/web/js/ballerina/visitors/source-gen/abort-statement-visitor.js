@@ -20,9 +20,6 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import AbortStatement from '../../ast/statements/abort-statement';
 
 class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     /**
      * Can visit Abort Statement.
@@ -51,7 +48,7 @@ class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
      * Visit Abort Statement.
      * @param {AbortStatement} abortStatement
      * */
-    visitAbortStatement(abortStatement) {
+    visitAbortStatement() {
         log.debug('visit Abort Statement');
     }
 

@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
 
@@ -24,11 +23,8 @@ import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
  * @extends AbstractSwaggerJsonGenVisitor
  */
 class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitResourceDefinition(resourceDefinition) {
+    canVisitResourceDefinition() {
         return true;
     }
 
@@ -58,9 +54,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         // Creating annotations
         let existingAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
         // Removing http:Path and http:<Method> annotations
-        existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation => !(!_.isUndefined(httpMethodAnnotation) &&
+        existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation =>
+                    (!(!_.isUndefined(httpMethodAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), httpMethodAnnotation.getPackageName()) &&
-                        _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier())) ||
+                        _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier()))) ||
                     (!_.isUndefined(pathAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
                         _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier())))));
@@ -100,10 +97,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         this.addParametersAsAnnotations(resourceDefinition, httpMethodJson);
     }
 
-    visitResourceDefinition(resourceDefinition) {
+    visitResourceDefinition() {
     }
 
-    endVisitResourceDefinition(resourceDefinition) {
+    endVisitResourceDefinition() {
     }
 
     /**

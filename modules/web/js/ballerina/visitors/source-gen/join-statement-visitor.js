@@ -16,15 +16,13 @@
  * under the License.
  */
 import log from 'log';
+import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitJoinStatement(joinStatement) {
+    canVisitJoinStatement() {
         return true;
     }
 
@@ -35,7 +33,7 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
         log.debug('Begin Visit Join Statement');
     }
 
-    endVisitJoinStatement(joinStatement) {
+    endVisitJoinStatement() {
         this.appendSource('}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Join Statement');

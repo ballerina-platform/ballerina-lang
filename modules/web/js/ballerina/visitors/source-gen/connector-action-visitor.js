@@ -28,11 +28,8 @@ import WorkerDeclarationVisitor from './worker-declaration-visitor';
  * @constructor
  */
 class ConnectorActionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitConnectorAction(connectorAction) {
+    canVisitConnectorAction() {
         return true;
     }
 
@@ -52,6 +49,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
+
         let connectorActionReturnTypesSource = '';
         if (!_.isEmpty(actionReturnTypes)) {
             // if return types were not there before && no space ATM before (, add a space before
@@ -79,7 +77,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         log.debug('Begin Visit Connector Action');
     }
 
-    visitConnectorAction(connectorAction) {
+    visitConnectorAction() {
         log.debug('Visit Connector Action');
     }
 

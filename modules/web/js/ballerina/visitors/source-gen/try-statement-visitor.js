@@ -16,16 +16,12 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitTryStatement(tryStatement) {
+    canVisitTryStatement() {
         return true;
     }
 

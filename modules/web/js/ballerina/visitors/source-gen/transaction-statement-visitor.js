@@ -17,16 +17,12 @@
  */
 
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitTransactionStatement(transactionStatement) {
+    canVisitTransactionStatement() {
         return true;
     }
 

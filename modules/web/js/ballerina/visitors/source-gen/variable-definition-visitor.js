@@ -18,11 +18,8 @@
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 class VariableDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitVariableDefinition(variableDefinition) {
+    canVisitVariableDefinition() {
         return true;
     }
 
@@ -32,10 +29,10 @@ class VariableDefinitionVisitor extends AbstractSourceGenVisitor {
         }
     }
 
-    visitVariableDefinition(variableDefinition) {
+    visitVariableDefinition() {
     }
 
-    endVisitVariableDefinition(variableDefinition) {
+    endVisitVariableDefinition() {
         this.getParent().appendSource(this.getIndentation() +
                             this.getGeneratedSource());
     }

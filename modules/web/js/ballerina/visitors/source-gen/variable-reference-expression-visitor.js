@@ -19,18 +19,15 @@ import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen
 import VariableDefinitionVisitor from './variable-definition-visitor';
 
 class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitVariableReferenceExpression(expression) {
+    canVisitVariableReferenceExpression() {
         return true;
     }
 
-    beginVisitVariableReferenceExpression(expression) {
+    beginVisitVariableReferenceExpression() {
     }
 
-    visitVariableReferenceExpression(expression) {
+    visitVariableReferenceExpression() {
     }
 
     endVisitVariableReferenceExpression(expression) {

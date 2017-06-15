@@ -21,9 +21,6 @@ import ReturnStatement from '../../ast/statements/return-statement';
 import ExpressionVisitorFactory from './expression-visitor-factory';
 
 class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     canVisitReturnStatement(returnStatement) {
         return returnStatement instanceof ReturnStatement;
