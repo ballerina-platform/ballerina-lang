@@ -17,10 +17,10 @@
  */
 
 import React from 'react';
-import { storiesOf, action, linkTo } from '@kadira/storybook';
+import { storiesOf } from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
-import ArrowDecorator from '../js/ballerina/components/arrow-decorator';
-import components from '../js/ballerina/components/components';
+import StatementContainer from '../js/ballerina/components/statement-container';
+import { components } from '../js/ballerina/components/components';
 import '../css/diagram/diagram.css';
 
 const canvasBbox = {
@@ -28,19 +28,20 @@ const canvasBbox = {
     h: 500,
 };
 
-storiesOf('ArrowDecorator', module)
-  .add('default view', () => (
-    <CanvasDecorator bBox={canvasBbox}>
-      <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} />
-    </CanvasDecorator>
-    ))
-  .add('angled arrow', () => (
-    <CanvasDecorator bBox={canvasBbox}>
-      <ArrowDecorator start={{ x: 0, y: 0 }} end={{ x: 320, y: 100 }} />
-    </CanvasDecorator>
-    ))
-  .add('dashed arrow', () => (
-    <CanvasDecorator bBox={canvasBbox}>
-      <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} dashed />
-    </CanvasDecorator>
-    ));
+storiesOf('Return-Statement', module)
+    .add('default view', () => {
+        const returnStatement = React.createElement(components.ReturnStatement,
+            {
+                model: {
+                    viewState: { bBox: { x: 0, y: 0, w: 200, h: 50 } },
+                    expression: 'return a',
+                },
+            }, null);
+        return (
+          <CanvasDecorator bBox={canvasBbox}>
+            <StatementContainer>
+              {returnStatement}
+            </StatementContainer>
+          </CanvasDecorator>
+        );
+    });
