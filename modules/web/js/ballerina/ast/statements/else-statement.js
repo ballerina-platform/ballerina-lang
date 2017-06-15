@@ -16,15 +16,15 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import Statement from './statement';
 
 /**
  * Class for else node in ballerina.
- * @param elseStatements The 'else' statements of an IF condition.
- * @constructor
  */
 class ElseStatement extends Statement {
+    /**
+     * Constructor for Else statement
+     */
     constructor() {
         super();
         this.type = 'ElseStatement';
@@ -35,11 +35,16 @@ class ElseStatement extends Statement {
             3: '\n',
         };
     }
-
+    /**
+     * initialize AssignmentStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         _.each(jsonNode.children, (childNode) => {
             let child;
-            // FIXME Keeping existing fragile  logic to detect connector declaration as it is for now. We should refactor this
+            // FIXME Keeping existing fragile  logic to detect connector declaration as
+            // it is for now. We should refactor this
             if (childNode.type === 'variable_definition_statement' &&
                 !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = this.getFactory().createConnectorDeclaration();

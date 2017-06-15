@@ -22,9 +22,13 @@ import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class to represent a worker invocation statement in ballerina.
- * @constructor
  */
 class WorkerInvocationStatement extends Statement {
+    /**
+     * Constructor for WorkerInvocationStatement
+     * @param {object} args - constructor arguments for WorkerInvocationStatement
+     * @constructor
+     */
     constructor(args) {
         super('WorkerInvocationStatement');
         this._source = _.get(args, 'source');
@@ -34,37 +38,69 @@ class WorkerInvocationStatement extends Statement {
         this._workerName = _.get(args, 'workerName', 'workerName');
     }
 
+    /**
+     * Set the source worker
+     * @param {ASTNode} source - source worker
+     * @returns {void}
+     */
     setSource(source) {
         this._source = source;
     }
 
+    /**
+     * Get the source worker
+     * @returns {ASTNode} - source worker
+     */
     getSource() {
         return this._source;
     }
 
+    /**
+     * Set Destination Worker
+     * @param {ASTNode} destination - destination worker
+     * @returns {void}
+     */
     setDestination(destination) {
         this._destination = destination;
     }
 
+    /**
+     * Get the destination worker
+     * @returns {ASTNode} - destination worker
+     */
     getDestination() {
         return this._destination;
     }
 
+    /**
+     * Set Worker name
+     * @param {string} workerName - worker name
+     * @returns {void}
+     */
     setWorkerName(workerName) {
         this._workerName = workerName;
     }
 
+    /**
+     * Get the worker name
+     * @returns {string} - worker name
+     */
     getWorkerName() {
         return this._workerName;
     }
 
+    /**
+     * Add the expression to the expression list
+     * @param {expression} expression - expression to be added to the expression list
+     * @returns {void}
+     */
     addToExpressionList(expression) {
         this._expressionList.push(expression);
     }
 
     /**
      * Get the statement String
-     * @returns {string} statement string\
+     * @returns {string} statement string
      * @override
      */
     getStatementString() {
@@ -87,8 +123,8 @@ class WorkerInvocationStatement extends Statement {
 
     /**
      * Set the statement string
-     * @param {string} statementString
-     * @param {function} callback
+     * @param {string} statementString - statement string from which the action invocation is set
+     * @param {function} callback - callback function
      * @override
      */
     setStatementFromString(statementString, callback) {
@@ -116,17 +152,23 @@ class WorkerInvocationStatement extends Statement {
         }
     }
 
+    /**
+     * Define what type of nodes that this node can be added as a child.
+     * @param {ASTNode} node - Parent node that this node becoming a child of.
+     * @return {boolean} true|false.
+     */
     canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
             || this.getFactory().isWorkerDeclaration(node)
             || this.getFactory().isConnectorAction(node)
-            || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
+            || this.getFactory().isStatement(node);
     }
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize AssignmentStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         const workerName = jsonNode.worker_name; const self = this;
@@ -142,7 +184,8 @@ class WorkerInvocationStatement extends Statement {
         let workerInstance;
         if (!_.isNil(this.getParent())) {
             workerInstance = _.find(this.getParent().getChildren(), (child) => {
-                return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
+                return self.getFactory().isWorkerDeclaration(child)
+                    && !child.isDefaultWorker() && child.getWorkerName() === workerName;
             });
         }
 
@@ -150,6 +193,11 @@ class WorkerInvocationStatement extends Statement {
         this.setWorkerName(workerName);
     }
 
+    /**
+     * Whether the message draw to the target worker is allowed
+     * @param {ASTNode} target - target worker. This can be worker, resource function or a connector action
+     * @return {boolean} - whether message can be drawn to the target
+     */
     messageDrawTargetAllowed(target) {
         return this.getFactory().isWorkerDeclaration(target)
             || this.getFactory().isResourceDefinition(target)

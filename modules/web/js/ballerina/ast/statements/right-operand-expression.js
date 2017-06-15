@@ -21,17 +21,20 @@ import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for RightOperandExpression
- * @param {Object} args - Arguments to create the RightOperandExpression
- * @constructor
  */
 class RightOperandExpression extends Expression {
-    constructor(args) {
+    /**
+     * Constructor for right operand expression
+     * @constructor
+     */
+    constructor() {
         super('RightOperandExpression');
     }
 
     /**
      * Set the expression from the expression string
-     * @param {string} expressionString
+     * @param {string} expression expression string
+     * @param {function} callback callback function
      * @override
      */
     setExpressionFromString(expression, callback) {
@@ -51,6 +54,10 @@ class RightOperandExpression extends Expression {
         }
     }
 
+    /**
+     * Get the expression as a string
+     * @return {string} expression string
+     */
     getExpressionString() {
         let expression = '';
         _.forEach(this.getChildren(), (child) => {
@@ -61,7 +68,8 @@ class RightOperandExpression extends Expression {
 
     /**
      * setting parameters from json
-     * @param jsonNode
+     * @param {object} jsonNode json node from which the expression initialized
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         if (!_.isEmpty(jsonNode.children)) {

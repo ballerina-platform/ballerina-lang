@@ -22,9 +22,13 @@ import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class for try-catch statement in ballerina.
- * @constructor
  */
 class TryCatchStatement extends Statement {
+    /**
+     * Constructor for TryCatchStatement
+     * @param {object} args - arguments for the tryCatchStatement
+     * @override
+     */
     constructor(args) {
         super();
         this.type = 'TryCatchStatement';
@@ -35,8 +39,9 @@ class TryCatchStatement extends Statement {
 
     /**
      * setter for catch block exception
-     * @param {string} exception
-     * @param {object} options
+     * @param {string} exception - exception string
+     * @param {object} options - set attribute options
+     * @returns {void}
      */
     setExceptionType(exception, options) {
         if (!_.isNil(exception)) {
@@ -54,6 +59,11 @@ class TryCatchStatement extends Statement {
         return this._exceptionType;
     }
 
+    /**
+     * initialize TryCatchStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         this._catchStatements.length = 0;
         this.getChildren().length = 0;
@@ -80,6 +90,12 @@ class TryCatchStatement extends Statement {
         }
     }
 
+    /**
+     * Set the statement from statement string
+     * @param {string} statementString - statement string
+     * @param {function} callback - callback function
+     * @returns {void}
+     */
     setStatementFromString(statementString, callback) {
         const fragment = FragmentUtils.createStatementFragment(statementString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
@@ -105,10 +121,18 @@ class TryCatchStatement extends Statement {
         }
     }
 
+    /**
+     * Get the try statement
+     * @returns {TryStatement} try statement
+     */
     getTryStatement() {
         return this._tryStatement;
     }
 
+    /**
+     * Get the catch statement
+     * @returns {CatchStatement} catch statement
+     */
     getCatchStatements() {
         return this._catchStatements;
     }

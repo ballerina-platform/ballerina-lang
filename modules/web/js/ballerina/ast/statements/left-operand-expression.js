@@ -21,26 +21,32 @@ import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Constructor for LeftOperandExpression
- * @param {Object} args - Arguments to create the LeftOperandExpression
- * @constructor
  */
 class LeftOperandExpression extends Expression {
-    constructor(args) {
+    /**
+     *constructor for Left operand expression
+     * @constructor
+     */
+    constructor() {
         super('LeftOperandExpression');
     }
 
+    /**
+     * Get the expression string
+     * @return {string} expression string
+     */
     getExpressionString() {
         const exps = [];
         _.forEach(this.getChildren(), (child) => {
             exps.push(child.getExpressionString());
         });
-        const expression = _.join(exps, ',');
-        return expression;
+        return _.join(exps, ',');
     }
 
     /**
      * Set the expression from the expression string
-     * @param {string} expressionString
+     * @param {string} expression expression string
+     * @param {function} callback function
      * @override
      */
     setExpressionFromString(expression, callback) {
@@ -62,7 +68,8 @@ class LeftOperandExpression extends Expression {
 
     /**
      * setting parameters from json
-     * @param jsonNode
+     * @param {object} jsonNode json node
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         if (!_.isEmpty(jsonNode.children)) {

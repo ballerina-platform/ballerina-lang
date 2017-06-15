@@ -20,9 +20,12 @@ import Statement from './statement';
 
 /**
  * Class for try statement in ballerina.
- * @constructor
  */
 class TryStatement extends Statement {
+    /**
+     * Constructor for TryStatement
+     * @override
+     */
     constructor() {
         super();
         this.type = 'TryStatement';
@@ -34,6 +37,11 @@ class TryStatement extends Statement {
         };
     }
 
+    /**
+     * initialize TryStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         const self = this;
         _.each(jsonNode.children, (childNode) => {

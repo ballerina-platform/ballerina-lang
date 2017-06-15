@@ -21,10 +21,13 @@ import Statement from './statement';
 
 /**
  * Class for reply statement in ballerina.
- * @param message expression of a reply statement.
- * @constructor
  */
 class ReplyStatement extends Statement {
+    /**
+     * Constructor for reply statement
+     * @param {object} args arguments for reply statement
+     * @constructor
+     */
     constructor(args) {
         super();
         this._message = _.get(args, 'message') || '';
@@ -36,6 +39,12 @@ class ReplyStatement extends Statement {
         };
     }
 
+    /**
+     * Set reply message
+     * @param {expression} message replying expression
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setReplyMessage(message, options) {
         if (!_.isNil(message)) {
             this.setAttribute('_message', message, options);
@@ -44,10 +53,19 @@ class ReplyStatement extends Statement {
         }
     }
 
+    /**
+     * Get replying expression
+     * @return {expression} replying expression
+     */
     getReplyMessage() {
         return this._message;
     }
 
+    /**
+     * Check whether, Can be a child of the given node
+     * @param {ASTNode} node ast node to be check against
+     * @return {boolean} can be a child of status
+     */
     canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
                 || this.getFactory().isWorkerDeclaration(node)
@@ -56,7 +74,8 @@ class ReplyStatement extends Statement {
 
     /**
      * initialize from json
-     * @param jsonNode
+     * @param {object} jsonNode json node
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         let { expression } = jsonNode;
@@ -67,10 +86,19 @@ class ReplyStatement extends Statement {
         this.setReplyMessage(expression, { doSilently: true });
     }
 
+    /**
+     * Get reply expression string
+     * @return {string} reply expression string
+     */
     getReplyExpression() {
         return `reply ${this.getReplyMessage()}`;
     }
 
+    /**
+     * Check Whether message drawing target is allowed for te given target
+     * @param {ASTNode} target target node
+     * @return {boolean} target allowed or not
+     */
     messageDrawTargetAllowed(target) {
         return this.getFactory().isResourceDefinition(target)
             || this.getFactory().isConnectorAction(target)

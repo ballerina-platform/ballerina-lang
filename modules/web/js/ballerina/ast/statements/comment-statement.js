@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import Statement from './statement';
 
 /**
@@ -25,6 +24,10 @@ import Statement from './statement';
  * @augments Statement
  */
 class CommentStatement extends Statement {
+    /**
+     * Constructor for comment statement
+     * @param {object} args constructor arguments
+     */
     constructor(args) {
         super();
         this.type = 'CommentStatement';
@@ -36,8 +39,9 @@ class CommentStatement extends Statement {
     }
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize AssignmentStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         this._commentString = jsonNode.comment_string;

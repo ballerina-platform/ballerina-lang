@@ -23,6 +23,9 @@ import Statement from './statement';
  * @augments Statement
  */
 class BreakStatement extends Statement {
+    /**
+     * Constructor for break statement
+     */
     constructor() {
         super();
         this.type = 'BreakStatement';
@@ -33,21 +36,25 @@ class BreakStatement extends Statement {
         };
     }
 
+    /**
+     * Define what type of nodes that this node can be added as a child.
+     * @param {ASTNode} node - Parent node that this node becoming a child of.
+     * @return {boolean} true|false.
+     */
     canBeAChildOf(node) {
         return this.getFactory().isStatement(node);
     }
 
     /**
      * initialize from json
-     * @param jsonNode
+     * @returns {void}
      */
-    initFromJson(jsonNode) {
-
+    initFromJson() {
     }
 
     /**
      * Get the statement string
-     * @returns {string}
+     * @returns {string} break statement string
      * @override
      */
     getStatementString() {

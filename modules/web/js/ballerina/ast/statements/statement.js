@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import ASTNode from '../node';
 
 /**
@@ -23,9 +22,6 @@ import ASTNode from '../node';
  * @constructor
  */
 class Statement extends ASTNode {
-    constructor(type) {
-        super(type);
-    }
 
     /**
      * Get all the connector references in the immediate scope
@@ -34,21 +30,24 @@ class Statement extends ASTNode {
     getConnectorsInImmediateScope() {
         return this.getParent().getConnectorsInImmediateScope();
     }
-
     /**
-    * get the string from expression editor
-    * call fragment parser and get parse tree of the node
-    * validate and create children from scratch
-    **/
+     * get the string from expression editor
+     * call fragment parser and get parse tree of the node
+     * validate and create children from scratch
+     * @throws {Error}
+     * @returns {void}
+     */
     setStatementFromString() {
-        throw 'This method should be implemented by sub class';
+        throw new Error('This method should be implemented by sub class');
     }
 
     /**
-    * Traverse the children and generate a string to show up in expression editor
-    **/
+     * Traverse the children and generate a string to show up in expression editor
+     * @throws {Error}
+     * @returns {string} statement string
+     */
     getStatementString() {
-        throw 'This method should be implemented by sub class';
+        throw new Error('This method should be implemented by sub class');
     }
 }
 

@@ -21,15 +21,22 @@ import BallerinaASTFactory from './../ballerina-ast-factory';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 
+/**
+ * class for Transaction aborted statement
+ */
 class TransactionAbortedStatement extends Statement {
-    constructor(args) {
+    /**
+     * Constructor for TransactionAbortedStatement
+     * @constructor
+     */
+    constructor() {
         super();
         this.type = 'TransactionAbortedStatement';
     }
 
     /**
      * Get Aborted Statement associated with transaction.
-     * @return {AbortedStatement}
+     * @return {AbortedStatement} aborted statement
      * */
     getAbortedStatement() {
         return this.children.find(c => (BallerinaASTFactory.isAbortedStatement(c)));
@@ -37,7 +44,7 @@ class TransactionAbortedStatement extends Statement {
 
     /**
      * Get Committed Statement associated with transaction.
-     * @return {CommittedStatement}
+     * @return {CommittedStatement} committed statement
      * */
     getCommittedStatement() {
         return this.children.find(c => (BallerinaASTFactory.isCommittedStatement(c)));
@@ -45,9 +52,9 @@ class TransactionAbortedStatement extends Statement {
 
     /**
      * Create Aborted Statement.
-     * @param {object} args
-     * @return {AbortedStatement}
-     * */
+     * @param {object} args aborted statement arguments
+     * @return {AbortedStatement} new aborted statement
+     */
     createAbortedStatement(args) {
         const abortedStatement = BallerinaASTFactory.createAbortedStatement(args);
         this.addChild(abortedStatement);
@@ -56,9 +63,9 @@ class TransactionAbortedStatement extends Statement {
 
     /**
      * Create Committed Statement.
-     * @param {object} args
-     * @return {CommittedStatement}
-     * */
+     * @param {object} args committed statement arguments
+     * @return {CommittedStatement} new committed statement
+     */
     createCommittedStatement(args) {
         const committedStatement = BallerinaASTFactory.createCommittedStatement(args);
         this.addChild(committedStatement);
@@ -68,7 +75,8 @@ class TransactionAbortedStatement extends Statement {
     /**
      * Initialize the node from the node related model json.
      * @param {object} jsonNode - json object for the node.
-     * */
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         const self = this;
         _.each(jsonNode.children, (childNode) => {
@@ -80,8 +88,8 @@ class TransactionAbortedStatement extends Statement {
 
     /**
      * Set the statement from string
-     * @param {string} statementString
-     * @param {function} callback
+     * @param {string} statementString statement string from which the statement is being set
+     * @param {function} callback callback function
      * @override
      */
     setStatementFromString(statementString, callback) {

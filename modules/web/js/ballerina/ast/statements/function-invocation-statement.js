@@ -25,10 +25,12 @@ import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-w
 /**
  * Class to represent a function invocation statement in ballerina.
  * @class FunctionInvocationStatement
- * @constructor
  */
 class FunctionInvocationStatement extends Statement {
-    constructor(args) {
+    /**
+     * Constructor for Function invocation statement
+     */
+    constructor() {
         super('FunctionInvocationStatement');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
@@ -47,6 +49,12 @@ class FunctionInvocationStatement extends Statement {
         };
     }
 
+    /**
+     * Set the assignment statement model from string
+     * @param {string} stmtString statement string
+     * @param {function} callback callback function
+     * @returns {void}
+     */
     setStatementFromString(stmtString, callback) {
         const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
@@ -92,14 +100,18 @@ class FunctionInvocationStatement extends Statement {
         }
     }
 
-
+    /**
+     * Get the statement string
+     * @return {string} - statement string
+     */
     getStatementString() {
         return !_.isEmpty(this.children) ? this.children[0].getExpressionString() : '';
     }
 
     /**
      * initialize from json
-     * @param jsonNode
+     * @param {object} jsonNode json node
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         const self = this;
