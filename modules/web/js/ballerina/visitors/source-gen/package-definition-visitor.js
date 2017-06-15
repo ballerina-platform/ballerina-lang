@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
@@ -24,11 +23,8 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
  * @constructor
  */
 class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitPackageDefinition(packageDefinition) {
+    canVisitPackageDefinition() {
         return true;
     }
 
@@ -39,14 +35,14 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== '') {
-            let constructedSourceSegment = 'package'
+            const constructedSourceSegment = 'package'
                 + packageDefinition.getParent().getWSRegion(1)
                 + packageDefinition.getPackageName();
             this.appendSource(constructedSourceSegment);
         }
     }
 
-    visitPackageDefinition(packageDefinition) {
+    visitPackageDefinition() {
     }
 
     endVisitPackageDefinition(packageDefinition) {
@@ -54,8 +50,7 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
             this.appendSource(
               packageDefinition.getParent().getWSRegion(2)
               + ';'
-              + packageDefinition.getParent().getWSRegion(3),
-            );
+              + packageDefinition.getParent().getWSRegion(3));
             this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         }
     }

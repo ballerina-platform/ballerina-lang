@@ -19,11 +19,8 @@ import log from 'log';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
 class SructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitStructFieldAccessExpression(structFieldAccessExpression) {
+    canVisitStructFieldAccessExpression() {
         return true;
     }
 
@@ -32,11 +29,11 @@ class SructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisit
         log.debug('Begin Visit Struct Field Access Expression');
     }
 
-    visitStructFieldAccessExpression(structFieldAccessExpression) {
+    visitStructFieldAccessExpression() {
         log.debug('Visit Struct Field Access Expression');
     }
 
-    endVisitStructFieldAccessExpression(structFieldAccessExpression) {
+    endVisitStructFieldAccessExpression() {
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Struct Field Access Expression');
     }

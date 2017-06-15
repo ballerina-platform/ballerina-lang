@@ -16,8 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
@@ -25,11 +23,8 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
  * @constructor
  */
 class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitImportDeclaration(importDeclaration) {
+    canVisitImportDeclaration() {
         return true;
     }
 
@@ -56,7 +51,7 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
         this.appendSource(constructedSourceSegment);
     }
 
-    visitImportDeclaration(importDeclaration) {
+    visitImportDeclaration() {
     }
 
     endVisitImportDeclaration(importDeclaration) {

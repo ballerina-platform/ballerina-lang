@@ -19,9 +19,6 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import AssignmentStatement from '../../ast/statements/assignment-statement';
 
 class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     canVisitAssignmentStatement(assignmentStatement) {
         return assignmentStatement instanceof AssignmentStatement;

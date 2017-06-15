@@ -20,11 +20,8 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class FinallyStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitFinallyStatement(finallyStatement) {
+    canVisitFinallyStatement() {
         return true;
     }
 

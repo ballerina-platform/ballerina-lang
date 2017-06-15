@@ -21,11 +21,8 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitIfStatement(ifStatement) {
+    canVisitIfStatement() {
         return true;
     }
 

@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import VariableDefinitionStatementVisitor from './variable-definition-statement-visitor';
 
@@ -25,11 +24,8 @@ import VariableDefinitionStatementVisitor from './variable-definition-statement-
  * @constructor
  */
 class StructDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitStructDefinition(structDefinition) {
+    canVisitStructDefinition() {
         return true;
     }
 
@@ -61,7 +57,7 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
         });
     }
 
-    visitStructDefinition(structDefinition) {
+    visitStructDefinition() {
     }
 
     endVisitStructDefinition(structDefinition) {

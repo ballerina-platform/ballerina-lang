@@ -25,9 +25,6 @@ import WorkerDeclaration from '../../ast/worker-declaration';
  * @constructor
  */
 class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
     canVisitWorkerDeclaration(workerDeclaration) {
         return workerDeclaration instanceof WorkerDeclaration && !workerDeclaration.isDefaultWorker();
@@ -40,10 +37,10 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
         this.indent();
     }
 
-    visitWorkerDeclaration(workerDeclaration) {
+    visitWorkerDeclaration() {
     }
 
-    endVisitWorkerDeclaration(workerDeclaration) {
+    endVisitWorkerDeclaration() {
         this.outdent();
         this.appendSource(this.getIndentation() + '}\n');
         this.getParent().appendSource(this.getGeneratedSource());

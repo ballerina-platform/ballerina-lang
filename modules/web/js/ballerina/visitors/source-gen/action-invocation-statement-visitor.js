@@ -15,21 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
 class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitActionInvocationExpression(actionInvocationExpr) {
+    canVisitActionInvocationExpression() {
         return true;
     }
 
-    canVisitActionInvocationStatement(actionInvocationStatement) {
+    canVisitActionInvocationStatement() {
         return true;
     }
 

@@ -26,7 +26,7 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.closed = false;
     }
 
-    canVisitForkJoinStatement(forkJoinStatement) {
+    canVisitForkJoinStatement() {
         return true;
     }
 
@@ -41,7 +41,7 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
         workerDeclaration.accept(workerDeclarationVisitor);
     }
 
-    endVisitForkJoinStatement(forkJoinStatement) {
+    endVisitForkJoinStatement() {
         if (!this.closed) {
             this.appendSource('}\n');
             this.closed = true;

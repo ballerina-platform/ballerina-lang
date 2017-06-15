@@ -23,6 +23,8 @@ class TransformStatementVisitorFactory {
         if (ASTFactory.isAssignmentStatement(statement)) {
             return new TransformAssignmentStatementVisitor(parent);
         }
+
+        return undefined;
     }
 }
 

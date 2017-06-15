@@ -19,11 +19,8 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class TransactionAbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitTransactionAbortedStatement(statement) {
+    canVisitTransactionAbortedStatement() {
         return true;
     }
 

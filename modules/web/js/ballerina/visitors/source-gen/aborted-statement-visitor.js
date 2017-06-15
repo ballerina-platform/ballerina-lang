@@ -21,11 +21,8 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitAbortedStatement(abortedStatement) {
+    canVisitAbortedStatement() {
         return true;
     }
 

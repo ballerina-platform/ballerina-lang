@@ -45,16 +45,16 @@ class AbstractSwaggerJsonGenVisitor extends ASTVisitor {
         if (annotationEntry.getFactory().isAnnotation(annotationEntry.getRightValue())) {
             // When the right value is an annotation entry array
             const arrayValues = [];
-            _.forEach(annotationEntry.getRightValue().getChildren(), (annotationEntry) => {
-                arrayValues.push(this.astToJson(annotationEntry));
+            _.forEach(annotationEntry.getRightValue().getChildren(), (annotationEntryChild) => {
+                arrayValues.push(this.astToJson(annotationEntryChild));
             });
 
             return { key: annotationEntry.getLeftValue(), value: arrayValues };
         } else if (annotationEntry.getFactory().isAnnotationEntryArray(annotationEntry.getRightValue())) {
             // When the right value is an annotation entry array
             const arrayValues = [];
-            _.forEach(annotationEntry.getRightValue().getChildren(), (annotationEntry) => {
-                arrayValues.push(this.astToJson(annotationEntry));
+            _.forEach(annotationEntry.getRightValue().getChildren(), (annotationEntryChild) => {
+                arrayValues.push(this.astToJson(annotationEntryChild));
             });
 
             return { key: annotationEntry.getLeftValue(), value: arrayValues };

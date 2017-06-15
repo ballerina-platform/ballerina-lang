@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import ASTNode from '../node';
+
 const supportedHttpMethodAnnotations = ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTION'];
 
 /**

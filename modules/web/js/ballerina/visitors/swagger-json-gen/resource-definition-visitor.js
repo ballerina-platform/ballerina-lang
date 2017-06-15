@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
 
@@ -24,11 +23,8 @@ import AbstractSwaggerJsonGenVisitor from './abstract-swagger-json-gen-visitor';
  * @extends AbstractSwaggerJsonGenVisitor
  */
 class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitResourceDefinition(resourceDefinition) {
+    canVisitResourceDefinition() {
         return true;
     }
 
@@ -58,9 +54,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         // Creating annotations
         let existingAnnotations = resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation);
         // Removing http:Path and http:<Method> annotations
-        existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation => !(!_.isUndefined(httpMethodAnnotation) &&
+        existingAnnotations = _.remove(existingAnnotations.slice(), existingAnnotation =>
+                    (!(!_.isUndefined(httpMethodAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), httpMethodAnnotation.getPackageName()) &&
-                        _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier())) ||
+                        _.isEqual(existingAnnotation.getIdentifier(), httpMethodAnnotation.getIdentifier()))) ||
                     (!_.isUndefined(pathAnnotation) &&
                         (_.isEqual(existingAnnotation.getPackageName(), pathAnnotation.getPackageName()) &&
                         _.isEqual(existingAnnotation.getIdentifier(), pathAnnotation.getIdentifier())))));
@@ -71,22 +68,28 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
 
         // Creating the annotation
         _.forEach(existingAnnotations, (existingAnnotation) => {
-            if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceConfig')) {
+            if (_.isEqual(existingAnnotation.getPackageName(), 'swagger')
+                                                && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceConfig')) {
                 this.parseResourceConfigAnnotation(existingAnnotation, httpMethodJson);
-            } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceInfo')) {
+            } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger')
+                                                    && _.isEqual(existingAnnotation.getIdentifier(), 'ResourceInfo')) {
                 this.parseResourceInfoAnnotation(existingAnnotation, httpMethodJson);
-            } else if ((_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'ParametersInfo'))) {
+            } else if ((_.isEqual(existingAnnotation.getPackageName(), 'swagger')
+                                                && _.isEqual(existingAnnotation.getIdentifier(), 'ParametersInfo'))) {
                 this.parseParameterInfoAnnotation(existingAnnotation, httpMethodJson);
-            } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger') && _.isEqual(existingAnnotation.getIdentifier(), 'Responses')) {
+            } else if (_.isEqual(existingAnnotation.getPackageName(), 'swagger')
+                                                        && _.isEqual(existingAnnotation.getIdentifier(), 'Responses')) {
                 this.parseResponsesAnnotation(existingAnnotation, httpMethodJson);
-            } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Consumes')) {
+            } else if (_.isEqual(existingAnnotation.getPackageName(), 'http')
+                                                        && _.isEqual(existingAnnotation.getIdentifier(), 'Consumes')) {
                 const consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
                 const consumes = [];
                 _.forEach(consumesAnnotationEntryArray.getChildren(), (consumesAnnotationEntry) => {
                     consumes.push(this.removeDoubleQuotes(consumesAnnotationEntry.getRightValue()));
                 });
                 _.set(httpMethodJson, 'consumes', consumes);
-            } else if (_.isEqual(existingAnnotation.getPackageName(), 'http') && _.isEqual(existingAnnotation.getIdentifier(), 'Produces')) {
+            } else if (_.isEqual(existingAnnotation.getPackageName(), 'http')
+                                                        && _.isEqual(existingAnnotation.getIdentifier(), 'Produces')) {
                 const producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
                 const produces = [];
                 _.forEach(producesAnnotationEntryArray.getChildren(), (producesAnnotationEntry) => {
@@ -100,10 +103,10 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
         this.addParametersAsAnnotations(resourceDefinition, httpMethodJson);
     }
 
-    visitResourceDefinition(resourceDefinition) {
+    visitResourceDefinition() {
     }
 
-    endVisitResourceDefinition(resourceDefinition) {
+    endVisitResourceDefinition() {
     }
 
     /**
@@ -171,7 +174,8 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'name')) {
                     _.set(tempParameterObj, 'name', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
-                    _.set(tempParameterObj, 'description', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                    _.set(tempParameterObj, 'description',
+                                                    this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'required')) {
                     if (_.isString(responseAnnotationEntry.getRightValue())) {
                         _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue() === 'true');
@@ -179,7 +183,8 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                         _.set(tempParameterObj, 'required', responseAnnotationEntry.getRightValue());
                     }
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'allowEmptyValue')) {
-                    _.set(tempParameterObj, 'allowEmptyValue', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                    _.set(tempParameterObj, 'allowEmptyValue',
+                                                    this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'type')) {
                     _.set(tempParameterObj, 'type', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'format')) {
@@ -187,7 +192,8 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'schema')) {
                     _.set(tempParameterObj, 'schema', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'collectionFormat')) {
-                    _.set(tempParameterObj, 'collectionFormat', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                    _.set(tempParameterObj, 'collectionFormat',
+                                                    this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'items')) {
                     // TODO : Implement items annotation.
                 }
@@ -218,7 +224,8 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'code')) {
                     _.set(tempCodesObj, 'code', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'description')) {
-                    _.set(tempCodesObj, 'description', this.removeDoubleQuotes(responseAnnotationEntry.getRightValue()));
+                    _.set(tempCodesObj, 'description', this.removeDoubleQuotes(
+                                                                            responseAnnotationEntry.getRightValue()));
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'response')) {
                     // TODO : support response annotation
                 } else if (_.isEqual(responseAnnotationEntry.getLeftValue(), 'headers')) {
@@ -289,9 +296,9 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                             }
 
                             // Setting the type of the parameter.
-                            if (annotationValue.startsWith('\"')) {
+                            if (annotationValue.startsWith('"')) {
                                 _.set(tempParameterObj, 'type', 'string');
-                            } else if (!_.isNaN(parseInt(annotationValue))) {
+                            } else if (!_.isNaN(parseInt(annotationValue, 10))) {
                                 _.set(tempParameterObj, 'type', 'integer');
                             } else if (annotationValue === 'true' || annotationValue === 'false') {
                                 _.set(tempParameterObj, 'type', 'boolean');
