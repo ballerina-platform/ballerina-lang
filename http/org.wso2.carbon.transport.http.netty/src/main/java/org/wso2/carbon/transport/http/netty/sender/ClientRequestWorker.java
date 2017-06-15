@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -72,34 +70,34 @@ public class ClientRequestWorker implements Runnable {
 
     @Override
     public void run() {
-        Channel channel = null;
-        TargetChannel targetChannel = null;
+        // TODO: Talk to others and remove it!!
+//        if (poolManagementPolicy == ConnectionManager.PoolManagementPolicy.
+//                PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
+//            targetChannel = new TargetChannel();
+//            ChannelFuture future = ChannelUtils
+//                    .getNewChannelFuture(targetChannel, eventLoopGroup, aClass, httpRoute, senderConfig);
+//
+//            try {
+//                channel = ChannelUtils.openChannel(future, httpRoute);
+//            } catch (Exception failedCause) {
+//                String msg = "Error when creating channel for route " + httpRoute;
+//                log.error(msg, failedCause);
+//                MessagingException messagingException = new MessagingException(msg, failedCause, 101503);
+//                carbonMessage.setMessagingException(messagingException);
+//                carbonCallback.done(carbonMessage);
+//                return;
+//            } finally {
+//                if (channel != null) {
+//                    targetChannel.setChannel(channel);
+//                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
+//                }
+//            }
+//        } else {
+//            targetChannel = processThroughConnectionPool();
+//
+//        }
 
-        if (poolManagementPolicy == ConnectionManager.PoolManagementPolicy.
-                PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
-            targetChannel = new TargetChannel();
-            ChannelFuture future = ChannelUtils
-                    .getNewChannelFuture(targetChannel, eventLoopGroup, aClass, httpRoute, senderConfig);
-
-            try {
-                channel = ChannelUtils.openChannel(future, httpRoute);
-            } catch (Exception failedCause) {
-                String msg = "Error when creating channel for route " + httpRoute;
-                log.error(msg, failedCause);
-                MessagingException messagingException = new MessagingException(msg, failedCause, 101503);
-                carbonMessage.setMessagingException(messagingException);
-                carbonCallback.done(carbonMessage);
-                return;
-            } finally {
-                if (channel != null) {
-                    targetChannel.setChannel(channel);
-                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
-                }
-            }
-        } else {
-            targetChannel = processThroughConnectionPool();
-
-        }
+        TargetChannel targetChannel = processThroughConnectionPool();
         if (targetChannel != null) {
             targetChannel.setHttpRoute(httpRoute);
             if (targetChannel.getTargetHandler() != null) {

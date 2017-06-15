@@ -55,36 +55,27 @@ public class ConnectionManager {
     private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
 
     private static volatile ConnectionManager connectionManager;
-
     private PoolConfiguration poolConfiguration;
-
+    private PoolManagementPolicy poolManagementPolicy;
+    private final List<Map<String, GenericObjectPool>> poolList;
+    private AtomicInteger index = new AtomicInteger(1);
     private int poolCount;
 
-    private final List<Map<String, GenericObjectPool>> poolList;
-
-    //Connection Pool to be used  when Carbon transport HTTP Listeners are not used.
-    private final Map<String, GenericObjectPool> localConnectionMap;
-
-    private PoolManagementPolicy poolManagementPolicy;
-
-    private AtomicInteger index = new AtomicInteger(1);
-
     private ExecutorService executorService;
-
     private EventLoopGroup clientEventGroup;
 
     private ConnectionManager(PoolConfiguration poolConfiguration, Map<String, Object> transportProperties) {
         this.poolConfiguration = poolConfiguration;
         this.poolCount = poolConfiguration.getNumberOfPools();
         this.executorService = Executors.newFixedThreadPool(poolConfiguration.getExecutorServiceThreads());
-        localConnectionMap = new ConcurrentHashMap<>();
         if (poolConfiguration.getNumberOfPools() == 0) {
             this.poolManagementPolicy = PoolManagementPolicy.DEFAULT_POOLING;
         } else if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING;
-        } else if (poolConfiguration.getNumberOfPools() == 2) {
-            this.poolManagementPolicy = PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING;
         }
+//        else if (poolConfiguration.getNumberOfPools() == 2) {
+//            this.poolManagementPolicy = PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING;
+//        }
 
         poolList = new ArrayList<>();
         for (int i = 0; i < poolCount; i++) {
@@ -144,11 +135,9 @@ public class ConnectionManager {
     public void executeTargetChannel(HttpRoute httpRoute, SourceHandler sourceHandler,
             SenderConfiguration senderConfiguration, HttpRequest httpRequest, CarbonMessage carbonMessage,
             CarbonCallback carbonCallback) throws Exception {
-        TargetChannel targetChannel = null;
 
         Class cl;
         EventLoopGroup group;
-
         if (sourceHandler != null) {
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
             group = ctx.channel().eventLoop();
@@ -162,93 +151,93 @@ public class ConnectionManager {
         // Take connections from Global connection pool
         if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
             Map<String, GenericObjectPool> objectPoolMap = sourceHandler.getTargetChannelPool();
-            GenericObjectPool pool = objectPoolMap.get(httpRoute.toString());
-            if (pool == null) {
-                pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
-                objectPoolMap.put(httpRoute.toString(), pool);
+            synchronized (this) {
+                GenericObjectPool pool = objectPoolMap.get(httpRoute.toString());
+                if (pool == null) {
+                    pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                    objectPoolMap.put(httpRoute.toString(), pool);
+                }
             }
             try {
                 acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                         carbonMessage, carbonCallback, PoolManagementPolicy.
-                                                 GLOBAL_ENDPOINT_CONNECTION_CACHING, pool, group, cl);
+                                                 carbonMessage, carbonCallback, PoolManagementPolicy.
+                                                 GLOBAL_ENDPOINT_CONNECTION_CACHING,
+                                                 objectPoolMap.get(httpRoute.toString()), group, cl);
             } catch (Exception e) {
-                String msg = "Cannot borrow free channel from pool ";
+                String msg = "Cannot borrow free channel from pool";
                 log.error(msg, e);
                 MessagingException messagingException = new MessagingException(msg, e, 101500);
                 carbonMessage.setMessagingException(messagingException);
                 carbonCallback.done(carbonMessage);
-            }
-            return;
-            // TODO: re-verify the functionality
-        } else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
-            // manage connections according to per inbound channel caching method
-            if (!sourceHandler.isChannelFutureExists(httpRoute)) {
-                acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                         carbonMessage, carbonCallback,
-                                         PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
-                                         null, group, cl);
-            } else {
-                synchronized (sourceHandler) {
-                    if (sourceHandler.isChannelFutureExists(httpRoute)) {
-                        targetChannel = sourceHandler.removeChannelFuture(httpRoute);
-                        Channel channel = targetChannel.getChannel();
-                        if (!channel.isActive()) {
-                            acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                                     carbonMessage, carbonCallback,
-                                                     PoolManagementPolicy.
-                                                             PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
-                                                     null, group, cl);
-                        }
-                    } else {
-                        acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                                 carbonMessage, carbonCallback,
-                                                 PoolManagementPolicy.
-                                                         PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
-                                                 null, group, cl);
-                    }
-                }
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
-            try {
-                Map<String, TargetChannel> connPool = sourceHandler.getTargetChannelPerHostPool();
-                targetChannel = connPool.remove(httpRoute.toString());
-                if (targetChannel == null) {
-                    targetChannel = new TargetChannel();
-                    ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
-                            group, cl, httpRoute, senderConfiguration);
-                    Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
-                    // TODO: Let's improve this later for read and write timeouts
-                    int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60);
-                    channel.pipeline().addLast("idleStateHandler",
-                            new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout));
-                    log.debug("Created channel: {}", channel);
-                    targetChannel.setChannel(channel);
-                }
-
-                if (targetChannel.getChannel() != null) {
-                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
-                    targetChannel.setCorrelatedSource(sourceHandler);
-                    targetChannel.setHttpRoute(httpRoute);
-                    TargetHandler targetHandler = targetChannel.getTargetHandler();
-                    targetHandler.setCallback(carbonCallback);
-                    targetHandler.setIncomingMsg(carbonMessage);
-                    targetHandler.setConnectionManager(connectionManager);
-                    targetHandler.setTargetChannel(targetChannel);
-                    if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage)) {
-                        targetChannel.setRequestWritten(true); // If request written
-                    }
-                }
-            } catch (Exception e) {
-                String msg = "Failed to send the request through the default pooling";
-                log.error(msg, e);
-                MessagingException messagingException = new MessagingException(msg, e, 101500);
-                carbonMessage.setMessagingException(messagingException);
-                carbonCallback.done(carbonMessage);
+        try {
+            Map<String, TargetChannel> connPool = sourceHandler.getTargetChannelPerHostPool();
+            TargetChannel targetChannel = connPool.remove(httpRoute.toString());
+            if (targetChannel == null) {
+                targetChannel = new TargetChannel();
+                ChannelFuture channelFuture = ChannelUtils.getNewChannelFuture(targetChannel,
+                        group, cl, httpRoute, senderConfiguration);
+                Channel channel = ChannelUtils.openChannel(channelFuture, httpRoute);
+                // TODO: Let's improve this later for read and write timeouts
+                int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60);
+                channel.pipeline().addLast("idleStateHandler",
+                        new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout));
+                log.debug("Created channel: {}", channel);
+                targetChannel.setChannel(channel);
             }
-            return;
-        }
 
-        // TODO: Talk to other authors and remove this in the next release!
+            if (targetChannel.getChannel() != null) {
+                targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
+                targetChannel.setCorrelatedSource(sourceHandler);
+                targetChannel.setHttpRoute(httpRoute);
+                TargetHandler targetHandler = targetChannel.getTargetHandler();
+                targetHandler.setCallback(carbonCallback);
+                targetHandler.setIncomingMsg(carbonMessage);
+                targetHandler.setConnectionManager(connectionManager);
+                targetHandler.setTargetChannel(targetChannel);
+                if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage)) {
+                    targetChannel.setRequestWritten(true); // If request written
+                }
+            }
+        } catch (Exception e) {
+            String msg = "Failed to send the request through the default pooling";
+            log.error(msg, e);
+            MessagingException messagingException = new MessagingException(msg, e, 101500);
+            carbonMessage.setMessagingException(messagingException);
+            carbonCallback.done(carbonMessage);
+        }
+    }
+
+//        TODO: Talk to others and remove it!!!
+//        else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
+            // manage connections according to per inbound channel caching method
+//            if (!sourceHandler.isChannelFutureExists(httpRoute)) {
+//                acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+//                                         carbonMessage, carbonCallback,
+//                                         PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+//                                         null, group, cl);
+//            } else {
+//                synchronized (sourceHandler) {
+//                    if (sourceHandler.isChannelFutureExists(httpRoute)) {
+//                        targetChannel = sourceHandler.removeChannelFuture(httpRoute);
+//                        Channel channel = targetChannel.getChannel();
+//                        if (!channel.isActive()) {
+//                            acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+//                                                     carbonMessage, carbonCallback,
+//                                                     PoolManagementPolicy.
+//                                                             PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+//                                                     null, group, cl);
+//                        }
+//                    } else {
+//                        acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+//                                                 carbonMessage, carbonCallback,
+//                                                 PoolManagementPolicy.
+//                                                         PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+//                                                 null, group, cl);
+//                    }
+//                }
+//            }
 //        else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
 //            GenericObjectPool pool = localConnectionMap.get(httpRoute.toString());
 //            if (pool == null) {
@@ -259,12 +248,11 @@ public class ConnectionManager {
 //                                     carbonMessage, carbonCallback, PoolManagementPolicy.
 //                                             DEFAULT_POOLING, pool, group, cl);
 //        }
+//        if (targetChannel != null) {
+//            targetChannel.setHttpRoute(httpRoute);
+//            targetChannel.setCorrelatedSource(sourceHandler);
+//        }
 
-        // TODO: Remove this from the next release!!
-        if (targetChannel != null) {
-            targetChannel.setHttpRoute(httpRoute);
-            targetChannel.setCorrelatedSource(sourceHandler);
-        }
     }
 
     private void acquireChannelAndDeliver(HttpRoute httpRoute, SourceHandler sourceHandler,
@@ -284,10 +272,7 @@ public class ConnectionManager {
 
     //Add connection to Pool back
     public void returnChannel(TargetChannel targetChannel) throws Exception {
-        if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
-            SourceHandler sourceHandler = targetChannel.getCorrelatedSource();
-            sourceHandler.addTargetChannel(targetChannel.getHttpRoute(), targetChannel);
-        } else if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
+        if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
@@ -295,6 +280,10 @@ public class ConnectionManager {
                     .getTargetChannelPerHostPool();
             objectPoolMap.put(targetChannel.getHttpRoute().toString(), targetChannel);
         }
+//        else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
+//            SourceHandler sourceHandler = targetChannel.getCorrelatedSource();
+//            sourceHandler.addTargetChannel(targetChannel.getHttpRoute(), targetChannel);
+//        }
     }
 
     private void releaseChannelToPool(TargetChannel targetChannel, GenericObjectPool pool) throws Exception {
@@ -332,7 +321,7 @@ public class ConnectionManager {
     public enum PoolManagementPolicy {
         DEFAULT_POOLING,
         GLOBAL_ENDPOINT_CONNECTION_CACHING,
-        PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING
+//        PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING
     }
 
 }

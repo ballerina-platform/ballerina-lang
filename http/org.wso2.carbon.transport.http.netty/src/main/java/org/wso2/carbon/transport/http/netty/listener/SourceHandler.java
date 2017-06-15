@@ -264,13 +264,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
-        targetChannelPool.forEach((k, genericObjectPool) -> {
-            try {
-                genericObjectPool.close();
-            } catch (Exception e) {
-                log.error("Couldn't close target channel socket connections", e);
-            }
-        });
         targetChannelPerHostPool.forEach((k, targetChannel) -> targetChannel.getChannel().close());
         connectionManager.notifyChannelInactive();
     }
