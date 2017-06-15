@@ -160,10 +160,10 @@ const DragDropManager = Backbone.Model.extend(
          * @return {boolean} Default is false
          */
         isAtValidDropTarget() {
-            let allowedBySource = true,
-                allowedByTarget = true,
-                allowedBySourceValidateCallBack = true,
-                allowedByTargetValidateCallBack = true;
+            let allowedBySource = true;
+            let allowedByTarget = true;
+            let allowedBySourceValidateCallBack = true;
+            let allowedByTargetValidateCallBack = true;
 
             if (!_.isUndefined(this.getActivatedDropTarget())) {
                 allowedBySource = this.getNodeBeingDragged().canBeAChildOf(this.getActivatedDropTarget());

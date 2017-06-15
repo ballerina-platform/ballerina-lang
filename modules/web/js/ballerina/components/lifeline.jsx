@@ -36,11 +36,49 @@ class LifeLine extends React.Component {
         this.state = { active: 'hidden' };
     }
 
+    onDelete() {
+        this.props.onDelete();
+    }
+
     onJumptoCodeLine() {
         const { renderingContext: { ballerinaFileEditor } } = this.context;
         const container = ballerinaFileEditor._container;
         $(container).find('.view-source-btn').trigger('click');
         ballerinaFileEditor.getSourceView().jumpToLine({});
+    }
+
+    onUpdate(text) {
+    }
+
+    setActionVisibility(show, e) {
+        if (!this.context.dragDropManager.isOnDrag()) {
+            let elm = e.target;
+            const myRoot = ReactDOM.findDOMNode(this);
+            const regex = new RegExp('(^|\\s)unhoverable(\\s|$)');
+            let isUnhighliable = false;
+            while (elm && elm !== myRoot && elm.getAttribute) {
+                if (regex.test(elm.getAttribute('class'))) {
+                    isUnhighliable = true;
+                }
+                elm = elm.parentNode;
+            }
+
+            if (!isUnhighliable && show) {
+                this.context.activeArbiter.readyToActivate(this);
+            } else {
+                this.context.activeArbiter.readyToDeactivate(this);
+            }
+            if (isUnhighliable) {
+            }
+        }
+    }
+
+    openExpressionEditor(e) {
+        const options = this.props.editorOptions;
+        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        if (options) {
+            new ExpressionEditor(this.topBox, this.context.container, text => this.onUpdate(text), options, packageScope);
+        }
     }
 
     render() {
@@ -93,44 +131,6 @@ class LifeLine extends React.Component {
             />
                         }
         </g>);
-    }
-
-    openExpressionEditor(e) {
-        const options = this.props.editorOptions;
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
-        if (options) {
-            new ExpressionEditor(this.topBox, this.context.container, text => this.onUpdate(text), options, packageScope);
-        }
-    }
-
-    onUpdate(text) {
-    }
-
-    setActionVisibility(show, e) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-            let elm = e.target;
-            const myRoot = ReactDOM.findDOMNode(this);
-            const regex = new RegExp('(^|\\s)unhoverable(\\s|$)');
-            let isUnhighliable = false;
-            while (elm && elm !== myRoot && elm.getAttribute) {
-                if (regex.test(elm.getAttribute('class'))) {
-                    isUnhighliable = true;
-                }
-                elm = elm.parentNode;
-            }
-
-            if (!isUnhighliable && show) {
-                this.context.activeArbiter.readyToActivate(this);
-            } else {
-                this.context.activeArbiter.readyToDeactivate(this);
-            }
-            if (isUnhighliable) {
-            }
-        }
-    }
-
-    onDelete() {
-        this.props.onDelete();
     }
 }
 

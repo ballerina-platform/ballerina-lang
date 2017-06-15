@@ -42,12 +42,45 @@ class ActionInvocationStatement extends React.Component {
         };
     }
 
+    onArrowStartPointMouseOut(e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0;
+    }
+
+    onArrowStartPointMouseOver(e) {
+        e.target.style.fill = '#444';
+        e.target.style.fillOpacity = 0.5;
+        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
+    }
+
+    onMouseDown(e) {
+        const messageManager = this.context.messageManager;
+        const model = this.props.model;
+        const messageStartX = this.statementBox.x + this.statementBox.w;
+        const messageStartY = this.statementBox.y + this.statementBox.h / 2;
+        const actionInvocation = model.getChildren()[0];
+        messageManager.setSource(actionInvocation);
+        messageManager.setIsOnDrag(true);
+        messageManager.setMessageStart(messageStartX, messageStartY);
+
+        messageManager.setTargetValidationCallback(destination => actionInvocation.messageDrawTargetAllowed(destination));
+
+        messageManager.startDrawMessage((source, destination) => {
+            source.setConnector(destination, { doSilently: false });
+        });
+    }
+
+    onMouseUp(e) {
+        const messageManager = this.context.messageManager;
+        messageManager.reset();
+    }
+
     /**
      * Render Function for the Action Invocation statement.
      * */
     render() {
-        let model = this.props.model,
-            expression = model.viewState.expression;
+        const model = this.props.model;
+        const expression = model.viewState.expression;
         const actionInvocation = model.getChildren()[0];
         const bBox = model.getViewState().bBox;
         let connector = actionInvocation._connector;
@@ -107,39 +140,6 @@ class ActionInvocationStatement extends React.Component {
                 {!_.isNil(connector) && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
             </g>
         </StatementDecorator>);
-    }
-
-    onArrowStartPointMouseOver(e) {
-        e.target.style.fill = '#444';
-        e.target.style.fillOpacity = 0.5;
-        e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
-    }
-
-    onArrowStartPointMouseOut(e) {
-        e.target.style.fill = '#444';
-        e.target.style.fillOpacity = 0;
-    }
-
-    onMouseDown(e) {
-        const messageManager = this.context.messageManager;
-        const model = this.props.model;
-        const messageStartX = this.statementBox.x + this.statementBox.w;
-        const messageStartY = this.statementBox.y + this.statementBox.h / 2;
-        const actionInvocation = model.getChildren()[0];
-        messageManager.setSource(actionInvocation);
-        messageManager.setIsOnDrag(true);
-        messageManager.setMessageStart(messageStartX, messageStartY);
-
-        messageManager.setTargetValidationCallback(destination => actionInvocation.messageDrawTargetAllowed(destination));
-
-        messageManager.startDrawMessage((source, destination) => {
-            source.setConnector(destination, { doSilently: false });
-        });
-    }
-
-    onMouseUp(e) {
-        const messageManager = this.context.messageManager;
-        messageManager.reset();
     }
 }
 

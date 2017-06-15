@@ -30,16 +30,16 @@ export default class GlobalDefinitionItem extends React.Component {
         this.handleDeleteClick = this.handleDeleteClick.bind(this);
     }
 
+    handleDeleteClick() {
+        this.props.onDeleteClick(this.props.globalDec);
+    }
+
     handleMouseEnter() {
         this.setState({ highlighted: true });
     }
 
     handleMouseLeave() {
         this.setState({ highlighted: false });
-    }
-
-    handleDeleteClick() {
-        this.props.onDeleteClick(this.props.globalDec);
     }
 
     render() {

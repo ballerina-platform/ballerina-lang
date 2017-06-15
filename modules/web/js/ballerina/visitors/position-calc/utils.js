@@ -31,8 +31,8 @@ function getSimpleStatementPosition(node) {
 
     const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
     const currentIndex = _.findIndex(parentStatements, node);
-    let x,
-        y;
+    let x;
+    let y;
 
     /**
      * Here we center the statement based on the parent's statement container's dimensions
@@ -66,10 +66,10 @@ function getCompoundStatementChildPosition(node) {
         throw 'Invalid Current Index Found for Block Statement';
     }
     const previousStatement = node.getParent().getChildren()[currentIndex - 1];
-    let x,
-        y,
-        statementContainerX,
-        statementContainerY;
+    let x;
+    let y;
+    let statementContainerX;
+    let statementContainerY;
 
     x = previousStatement.getViewState().bBox.x;
     y = previousStatement.getViewState().bBox.getBottom();
@@ -95,12 +95,12 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     const annotation = viewSate.components.annotation;
     const resources = _.filter(parent.getChildren(), child => ASTFactory.isResourceDefinition(child) ||
             ASTFactory.isConnectorAction(child));
-    let x,
-        y,
-        headerX,
-        headerY,
-        bodyX,
-        bodyY;
+    let x;
+    let y;
+    let headerX;
+    let headerY;
+    let bodyX;
+    let bodyY;
     const currentResourceIndex = _.findIndex(resources, node);
 
     headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
@@ -160,12 +160,12 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     const body = viewSate.components.body;
     const annotation = viewSate.components.annotation;
     const currentServiceIndex = _.findIndex(panelChildren, node);
-    let x,
-        y,
-        headerX,
-        headerY,
-        bodyX,
-        bodyY;
+    let x;
+    let y;
+    let headerX;
+    let headerY;
+    let bodyX;
+    let bodyY;
     if (currentServiceIndex === 0) {
         headerX = DesignerDefaults.panel.wrapper.gutter.h;
         headerY = DesignerDefaults.panel.wrapper.gutter.v;

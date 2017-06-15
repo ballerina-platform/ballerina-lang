@@ -41,8 +41,8 @@ class Arrow extends React.Component {
         const enable = this.props.enable;
         const drawOnMouseMove = this.state.drawOnMouseMoveFlag;
         const messageManager = this.context.messageManager;
-        let arrowStart,
-            arrowEnd;
+        let arrowStart;
+        let arrowEnd;
 
         if (drawOnMouseMove > -1) {
             arrowStart = messageManager.getMessageStart();

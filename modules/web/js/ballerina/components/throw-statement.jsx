@@ -39,8 +39,8 @@ class ThrowStatement extends React.Component {
      * Render function for the throw statement.
      * */
     render() {
-        let model = this.props.model,
-            expression = model.getStatementString();
+        const model = this.props.model;
+        const expression = model.getStatementString();
         return (<StatementDecorator model={model} viewState={model.viewState} editorOptions={this.editorOptions} expression={expression} />);
     }
 }

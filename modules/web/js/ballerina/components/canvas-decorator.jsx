@@ -32,6 +32,35 @@ class CanvasDecorator extends React.Component {
         this.state = { dropZoneActivated: false, dropZoneDropNotAllowed: false };
     }
 
+    onDropZoneActivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.dropTarget;
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget);
+            this.setState({ dropZoneActivated: true,
+                dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget() });
+            dragDropManager.once('drop-target-changed', () => {
+                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
+            });
+        }
+        e.stopPropagation();
+    }
+
+    onDropZoneDeactivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.dropTarget;
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
+            }
+        }
+        e.stopPropagation();
+    }
+
     render() {
         const { bBox = {} } = this.props;
         const dropZoneActivated = this.state.dropZoneActivated;
@@ -67,35 +96,6 @@ class CanvasDecorator extends React.Component {
                 </svg>
             </div>
         );
-    }
-
-    onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.dropTarget;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget);
-            this.setState({ dropZoneActivated: true,
-                dropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget() });
-            dragDropManager.once('drop-target-changed', () => {
-                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
-            });
-        }
-        e.stopPropagation();
-    }
-
-    onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.dropTarget;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ dropZoneActivated: false, dropZoneDropNotAllowed: false });
-            }
-        }
-        e.stopPropagation();
     }
 }
 

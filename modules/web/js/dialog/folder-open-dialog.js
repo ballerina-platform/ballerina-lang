@@ -69,10 +69,10 @@ const FolderOpenDialog = Backbone.View.extend(
         },
 
         render() {
-            let fileBrowser,
-                app = this.application,
-                options = this._options,
-                self = this;
+            let fileBrowser;
+            const app = this.application;
+            const options = this._options;
+            const self = this;
 
             if (!_.isNil(this._modalContainer)) {
                 this._modalContainer.remove();
@@ -91,7 +91,7 @@ const FolderOpenDialog = Backbone.View.extend(
             fileBrowser.render();
             this._fileBrowser = fileBrowser;
 
-                // Gets the selected location from tree and sets the value as location
+            // Gets the selected location from tree and sets the value as location
             this.listenTo(fileBrowser, 'selected', (selectedLocation) => {
                 if (selectedLocation) {
                     errorsContainer.hide();

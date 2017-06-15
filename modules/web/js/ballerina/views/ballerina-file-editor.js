@@ -377,11 +377,11 @@ class BallerinaFileEditor extends EventChannel {
             this.setActiveView('source');
         });
 
-        var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
+        const swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
         swaggerViewBtn.click(() => {
             try {
-                let isSourceChanged = !self._sourceView.isClean(),
-                    savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+                let isSourceChanged = !self._sourceView.isClean();
+                let savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     let source = self._sourceView.getContent();
                     if (!_.isEmpty(source.trim())) {
@@ -445,7 +445,7 @@ class BallerinaFileEditor extends EventChannel {
             }
         });
 
-        var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
+        const designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
         designViewBtn.click(() => {
             if (self.isInSwaggerView() && self._swaggerView.hasSwaggerErrors()) {
                 alerts.error('Cannot switch to Design view due to syntax errors.');
@@ -454,8 +454,9 @@ class BallerinaFileEditor extends EventChannel {
             }
 
             // re-parse if there are modifications to source
-            let isSourceChanged = !self._sourceView.isClean(),
-                savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+            let isSourceChanged = !self._sourceView.isClean();
+
+            let savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
             let isSwaggerChanged = self.isInSwaggerView();
             if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                 let source = self._sourceView.getContent();

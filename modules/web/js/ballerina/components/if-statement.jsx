@@ -56,9 +56,9 @@ class IfStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox,
-            expression = model.viewState.components.expression;
+        const model = this.props.model;
+        const bBox = model.viewState.bBox;
+        const expression = model.viewState.components.expression;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         const addElseBtn = (
             <g onClick={this.onAddElseClick}>

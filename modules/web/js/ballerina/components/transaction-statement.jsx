@@ -27,6 +27,18 @@ class TransactionStatement extends React.Component {
     }
 
     /**
+     * Event Handler for click add aborted and committed button.
+     * */
+    onAddAbortedCommittedClick() {
+        const parent = this.props.model.parent;
+        if (!parent.getAbortedStatement()) {
+            parent.createAbortedStatement();
+        } else if (!parent.getCommittedStatement()) {
+            parent.createCommittedStatement();
+        }
+    }
+
+    /**
      * Get add aborted and committed statement button.
      * @return {object}
      * */
@@ -43,18 +55,6 @@ class TransactionStatement extends React.Component {
             );
         }
         return null;
-    }
-
-    /**
-     * Event Handler for click add aborted and committed button.
-     * */
-    onAddAbortedCommittedClick() {
-        const parent = this.props.model.parent;
-        if (!parent.getAbortedStatement()) {
-            parent.createAbortedStatement();
-        } else if (!parent.getCommittedStatement()) {
-            parent.createCommittedStatement();
-        }
     }
 
     /**

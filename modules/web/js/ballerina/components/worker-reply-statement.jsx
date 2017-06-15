@@ -35,8 +35,8 @@ class WorkerReplyStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model,
-            expression = model.viewState.expression;
+        const model = this.props.model;
+        const expression = model.viewState.expression;
         if (!_.isUndefined(model.getDestination())) {
             const workerReplyStatement = model.getDestination().findChild(BallerinaASTFactory.isReplyStatement);
             if (!_.isUndefined(workerReplyStatement)) {

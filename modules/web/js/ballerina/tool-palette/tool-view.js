@@ -138,9 +138,9 @@ const toolView = Backbone.View.extend({
     },
 
     createCloneCallback(view) {
-        var icon = this.model.icon,
-            self = this,
-            iconSize = _.get(this, 'options.dragIcon.box.size');
+        const icon = this.model.icon;
+        var self = this;
+        const iconSize = _.get(this, 'options.dragIcon.box.size');
         var self = this;
         d3.select(icon).attr('width', iconSize).attr('height', iconSize);
         function cloneCallBack() {

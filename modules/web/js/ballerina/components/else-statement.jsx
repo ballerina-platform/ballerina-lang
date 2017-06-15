@@ -23,8 +23,8 @@ import { getComponentForNodeArray } from './utils';
 class ElseStatement extends React.Component {
 
     render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox;
+        const model = this.props.model;
+        const bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (
             <BlockStatementDecorator dropTarget={model} model={model} bBox={bBox} title={'Else'}>

@@ -33,8 +33,8 @@ class FunctionInvocationStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model,
-		    expression = model.viewState.expression;
+        const model = this.props.model;
+        const expression = model.viewState.expression;
         return (<StatementDecorator
             viewState={model.viewState} expression={expression}
             editorOptions={this.editorOptions} model={model}

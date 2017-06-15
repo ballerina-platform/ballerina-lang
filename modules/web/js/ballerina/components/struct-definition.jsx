@@ -50,18 +50,39 @@ class StructDefinition extends React.Component {
         };
     }
 
+    onAddStructTypeChange(value) {
+        this.validateStructType(value);
+        this.setState({
+            newType: value,
+        });
+    }
+
+    addVariableDefinitionStatement(bType, identifier, defaultValue) {
+        if (!bType) {
+            const errorString = 'Struct Type Cannot be empty';
+            Alerts.error(errorString);
+            throw errorString;
+        }
+        this.validateIdentifierName(identifier);
+        this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
+    }
+
+    createNew() {
+        this.addVariableDefinitionStatement(this.state.newType, this.state.newIdentifier, this.state.newValue);
+        this.setState({
+            newType: '',
+            newIdentifier: '',
+            newValue: '',
+        });
+    }
+
     deleteStatement(node) {
         node.remove();
     }
 
-    renderTextBox(textValue, bBox, callback) {
-        this.context.renderer.renderTextBox({
-            bBox,
-            display: true,
-            initialValue: textValue || '',
-            onChange(value) {
-                callback(value);
-            },
+    handleAddTypeClick() {
+        this.setState({
+            canShowAddType: true,
         });
     }
 
@@ -102,32 +123,46 @@ class StructDefinition extends React.Component {
         );
     }
 
-    handleAddTypeClick() {
-        this.setState({
-            canShowAddType: true,
-        });
-    }
-
-    createNew() {
-        this.addVariableDefinitionStatement(this.state.newType, this.state.newIdentifier, this.state.newValue);
-        this.setState({
-            newType: '',
-            newIdentifier: '',
-            newValue: '',
-        });
-    }
-
     hideAddSuggestions() {
         this.setState({ canShowAddType: false });
     }
 
-    onAddStructTypeChange(value) {
-        this.validateStructType(value);
-        this.setState({
-            newType: value,
-        });
-    }
+    validateIdentifierName(identifier) {
+        const { model } = this.props;
+        if (!identifier || !identifier.length) {
+            const errorString = 'Identifier cannot be empty';
+            Alerts.error(errorString);
+            throw errorString;
+        }
 
+        if (!ASTNode.isValidIdentifier(identifier)) {
+            const errorString = `Invalid identifier for a variable: ${identifier}`;
+            Alerts.error(errorString);
+            throw errorString;
+        }
+
+        const identifierAlreadyExists = _.findIndex(model.getVariableDefinitionStatements(), (variableDefinitionStatement) => {
+            return variableDefinitionStatement.getIdentifier() === identifier;
+        }) !== -1;
+        if (identifierAlreadyExists) {
+            const errorString = `A variable with identifier ${identifier} already exists.`;
+            Alerts.error(errorString);
+            throw errorString;
+        }
+    }
+    validateStructType(structType) {
+        if (!structType || !structType.length) {
+            const errorString = 'Struct Type cannot be empty';
+            Alerts.error(errorString);
+            throw errorString;
+        }
+
+        if (!ASTNode.isValidIdentifier(structType)) {
+            const errorString = `Invalid Struct Type : ${structType}`;
+            Alerts.error(errorString);
+            throw errorString;
+        }
+    }
     renderContentOperations({ x, y, w, h }, columnSize) {
         const placeHolderPadding = 10;
         const submitButtonPadding = 5;
@@ -202,50 +237,15 @@ x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPaddi
           </g>
         );
     }
-    validateIdentifierName(identifier) {
-        const { model } = this.props;
-        if (!identifier || !identifier.length) {
-            const errorString = 'Identifier cannot be empty';
-            Alerts.error(errorString);
-            throw errorString;
-        }
-
-        if (!ASTNode.isValidIdentifier(identifier)) {
-            const errorString = `Invalid identifier for a variable: ${identifier}`;
-            Alerts.error(errorString);
-            throw errorString;
-        }
-
-        const identifierAlreadyExists = _.findIndex(model.getVariableDefinitionStatements(), (variableDefinitionStatement) => {
-            return variableDefinitionStatement.getIdentifier() === identifier;
-        }) !== -1;
-        if (identifierAlreadyExists) {
-            const errorString = `A variable with identifier ${identifier} already exists.`;
-            Alerts.error(errorString);
-            throw errorString;
-        }
-    }
-    validateStructType(structType) {
-        if (!structType || !structType.length) {
-            const errorString = 'Struct Type cannot be empty';
-            Alerts.error(errorString);
-            throw errorString;
-        }
-
-        if (!ASTNode.isValidIdentifier(structType)) {
-            const errorString = `Invalid Struct Type : ${structType}`;
-            Alerts.error(errorString);
-            throw errorString;
-        }
-    }
-    addVariableDefinitionStatement(bType, identifier, defaultValue) {
-        if (!bType) {
-            const errorString = 'Struct Type Cannot be empty';
-            Alerts.error(errorString);
-            throw errorString;
-        }
-        this.validateIdentifierName(identifier);
-        this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
+    renderTextBox(textValue, bBox, callback) {
+        this.context.renderer.renderTextBox({
+            bBox,
+            display: true,
+            initialValue: textValue || '',
+            onChange(value) {
+                callback(value);
+            },
+        });
     }
 
     render() {

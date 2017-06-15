@@ -27,8 +27,8 @@ class BreakStatement extends React.Component {
      * Render function for the break statement.
      * */
     render() {
-        let model = this.props.model,
-            expression = model.getStatementString();
+        const model = this.props.model;
+        const expression = model.getStatementString();
         return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} />);
     }
 }

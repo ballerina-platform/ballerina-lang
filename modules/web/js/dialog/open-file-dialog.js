@@ -237,9 +237,9 @@ const OpenFileDialog = Backbone.View.extend(
                     async: false,
                     success(data, textStatus, xhr) {
                         if (xhr.status == 200) {
-                            let pathArray = _.split(path, self.app.getPathSeperator()),
-                                fileName = _.last(pathArray),
-                                folderPath = _.join(_.take(pathArray, pathArray.length - 1), self.app.getPathSeperator());
+                            let pathArray = _.split(path, self.app.getPathSeperator());
+                            let fileName = _.last(pathArray);
+                            let folderPath = _.join(_.take(pathArray, pathArray.length - 1), self.app.getPathSeperator());
 
                             let file = new File({
                                 name: fileName,
@@ -249,7 +249,7 @@ const OpenFileDialog = Backbone.View.extend(
                                 isDirty: false,
                             });
                             openConfigModal.modal('hide');
-                            app.commandManager.dispatch('create-new-tab', { tabOptions: { file: file } });
+                            app.commandManager.dispatch('create-new-tab', { tabOptions: { file } });
                         } else {
                             openFileWizardError.text(data.Error);
                             openFileWizardError.show();

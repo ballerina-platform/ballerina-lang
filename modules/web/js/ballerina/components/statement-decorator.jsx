@@ -60,16 +60,54 @@ class StatementDecorator extends React.Component {
         dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
-    startDropZones() {
-        this.setState({ innerDropZoneExist: true });
+    onBreakpointClick() {
+        const { model } = this.props;
+        const { isBreakpoint = false } = model;
+        if (model.isBreakpoint) {
+        model.removeBreakpoint();
+    } else {
+        model.addBreakpoint();
     }
-
-    stopDragZones() {
-        this.setState({ innerDropZoneExist: false });
     }
 
     onDelete() {
         this.props.model.remove();
+    }
+
+    onDropZoneActivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        const model = this.props.model;
+        if (dragDropManager.isOnDrag()) {
+        if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+        return;
+    }
+        dragDropManager.setActivatedDropTarget(dropTarget,
+							nodeBeingDragged =>
+									// IMPORTANT: override node's default validation logic
+									// This drop zone is for statements only.
+									// Statements should only be allowed here.
+									 model.getFactory().isStatement(nodeBeingDragged),
+							() => dropTarget.getIndexOfChild(model),
+					);
+        this.setState({ innerDropZoneActivated: true,
+        innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
+    });
+        dragDropManager.once('drop-target-changed', function () {
+        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+    }, this);
+    }
+    }
+
+    onDropZoneDeactivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        if (dragDropManager.isOnDrag()) {
+        if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+        dragDropManager.clearActivatedDropTarget();
+        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+    }
+    }
     }
 
     onJumptoCodeLine() {
@@ -79,6 +117,36 @@ class StatementDecorator extends React.Component {
         const container = ballerinaFileEditor._container;
         $(container).find('.view-source-btn').trigger('click');
         ballerinaFileEditor.getSourceView().jumpToLine({ expression: fullExpression });
+    }
+
+    onUpdate(text) {
+    }
+
+    setActionVisibility(show) {
+        if (!this.context.dragDropManager.isOnDrag()) {
+        if (show) {
+        this.context.activeArbiter.readyToActivate(this);
+    } else {
+        this.context.activeArbiter.readyToDeactivate(this);
+    }
+    }
+    }
+
+    openExpressionEditor(e) {
+        let options = this.props.editorOptions;
+        let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        if (options) {
+        new ExpressionEditor(this.statementBox, this.context.container,
+				text => this.onUpdate(text), options, packageScope);
+    }
+    }
+
+    startDropZones() {
+        this.setState({ innerDropZoneExist: true });
+    }
+
+    stopDragZones() {
+        this.setState({ innerDropZoneExist: false });
     }
 
     renderBreakpointIndicator() {
@@ -94,16 +162,6 @@ class StatementDecorator extends React.Component {
     onClick={() => this.onBreakpointClick()}
   />
     );
-    }
-
-    onBreakpointClick() {
-        const { model } = this.props;
-        const { isBreakpoint = false } = model;
-        if (model.isBreakpoint) {
-        model.removeBreakpoint();
-    } else {
-        model.addBreakpoint();
-    }
     }
 
     render() {
@@ -167,64 +225,6 @@ class StatementDecorator extends React.Component {
     { model.isBreakpoint && this.renderBreakpointIndicator() }
     { this.props.children }
   </g>);
-    }
-
-    setActionVisibility(show) {
-        if (!this.context.dragDropManager.isOnDrag()) {
-        if (show) {
-        this.context.activeArbiter.readyToActivate(this);
-    } else {
-        this.context.activeArbiter.readyToDeactivate(this);
-    }
-    }
-    }
-
-    onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-        dropTarget = this.props.model.getParent(),
-        model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-        if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-        return;
-    }
-        dragDropManager.setActivatedDropTarget(dropTarget,
-							nodeBeingDragged =>
-									// IMPORTANT: override node's default validation logic
-									// This drop zone is for statements only.
-									// Statements should only be allowed here.
-									 model.getFactory().isStatement(nodeBeingDragged),
-							() => dropTarget.getIndexOfChild(model),
-					);
-        this.setState({ innerDropZoneActivated: true,
-        innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-    });
-        dragDropManager.once('drop-target-changed', function () {
-        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-    }, this);
-    }
-    }
-
-    onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-        dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-        if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-        dragDropManager.clearActivatedDropTarget();
-        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-    }
-    }
-    }
-
-    openExpressionEditor(e) {
-        let options = this.props.editorOptions;
-        let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
-        if (options) {
-        new ExpressionEditor(this.statementBox, this.context.container,
-				text => this.onUpdate(text), options, packageScope);
-    }
-    }
-
-    onUpdate(text) {
     }
 
 }

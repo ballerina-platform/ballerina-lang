@@ -38,15 +38,6 @@ export default class GlobalExpanded extends React.Component {
         this.onKeyDown = this.onKeyDown.bind(this);
     }
 
-    handleAddGlobalClick() {
-        this.setState({ editing: true });
-    }
-
-    handleAddGlobalBlur() {
-        this.setState({ editing: false });
-        this.props.onAddInputBlur && this.props.onAddInputBlur(this.state.value);
-    }
-
     onChange(e) {
         this.setState({ value: e.target.value });
     }
@@ -58,6 +49,15 @@ export default class GlobalExpanded extends React.Component {
                 value: '',
             });
         }
+    }
+
+    handleAddGlobalBlur() {
+        this.setState({ editing: false });
+        this.props.onAddInputBlur && this.props.onAddInputBlur(this.state.value);
+    }
+
+    handleAddGlobalClick() {
+        this.setState({ editing: true });
     }
 
     render() {

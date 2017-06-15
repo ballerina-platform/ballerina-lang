@@ -32,14 +32,6 @@ class ElseIfStatement extends React.Component {
         this.onMouseOut = this.onMouseOut.bind(this);
     }
 
-    onMouseEnter() {
-        this.setState({ showAddButton: true });
-    }
-
-    onMouseOut() {
-        this.setState({ showAddButton: false });
-    }
-
     onAddElseIfClick() {
         const condition = BallerinaASTFactory.createBasicLiteralExpression({
             basicLiteralType: 'boolean',
@@ -50,6 +42,14 @@ class ElseIfStatement extends React.Component {
         });
         const thisNodeIndex = this.props.model.parent.getIndexOfChild(this.props.model);
         this.props.model.parent.addElseIfStatement(newElseIfStatement, thisNodeIndex + 1);
+    }
+
+    onMouseEnter() {
+        this.setState({ showAddButton: true });
+    }
+
+    onMouseOut() {
+        this.setState({ showAddButton: false });
     }
 
     render() {

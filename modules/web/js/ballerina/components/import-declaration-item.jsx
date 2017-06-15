@@ -30,16 +30,16 @@ export default class importDeclarationItem extends React.Component {
         this.handleDeleteClick = this.handleDeleteClick.bind(this);
     }
 
+    handleDeleteClick() {
+        this.props.onDeleteClick(this.props.importDec.getPackageName());
+    }
+
     handleMouseEnter() {
         this.setState({ highlighted: true });
     }
 
     handleMouseLeave() {
         this.setState({ highlighted: false });
-    }
-
-    handleDeleteClick() {
-        this.props.onDeleteClick(this.props.importDec.getPackageName());
     }
 
     render() {

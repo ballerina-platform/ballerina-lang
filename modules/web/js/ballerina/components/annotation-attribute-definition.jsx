@@ -38,13 +38,6 @@ class AnnotationAttributeDefinition extends React.Component {
         this.setAnnotationAttributeDefinition = this.setAnnotationAttributeDefinition.bind(this);
     }
 
-    /**
-     * Delete specified attribute.
-     * */
-    deleteAttribute() {
-        this.model.remove();
-    }
-
     /** q
      * Render Edit mode for attribute definition.
      * */
@@ -54,6 +47,18 @@ class AnnotationAttributeDefinition extends React.Component {
 
     onInputBlur(e) {
         this.setState({ editing: false, editValue: this.props.model.getAttributeStatementString() });
+    }
+
+    onInputChange(e) {
+        const variableDeclaration = e.target.value.replace(';', '');
+        if (variableDeclaration !== '') {
+            if (this.validateAttribute(variableDeclaration)) {
+                if (!this.setAnnotationAttributeDefinition(variableDeclaration)) {
+                    e.preventDefault();
+                }
+            }
+        }
+        this.setState({ editing: true, editValue: variableDeclaration });
     }
 
     onKeyDown(e) {
@@ -69,35 +74,19 @@ class AnnotationAttributeDefinition extends React.Component {
         }
     }
 
-    onInputChange(e) {
-        const variableDeclaration = e.target.value.replace(';', '');
-        if (variableDeclaration !== '') {
-            if (this.validateAttribute(variableDeclaration)) {
-                if (!this.setAnnotationAttributeDefinition(variableDeclaration)) {
-                    e.preventDefault();
-                }
-            }
-        }
-        this.setState({ editing: true, editValue: variableDeclaration });
-    }
+    /**
+     * Get types of ballerina to which can be applied when declaring variables.
+     * */
+    getTypeDropdownValues() {
+        const { renderingContext } = this.context;
+        const dropdownData = [];
+        // Adding items to the type dropdown.
+        const bTypes = renderingContext.environment.getTypes();
+        _.forEach(bTypes, (bType) => {
+            dropdownData.push({ id: bType, text: bType });
+        });
 
-    validateAttribute(attribute) {
-        if (attribute.includes('=')) {
-            const splitedExpression = attribute.split('=');
-            const leftSideSplitted = splitedExpression[0].split(' ');
-            const rightSide = splitedExpression[1].trim();
-
-            if (leftSideSplitted.length > 1 && rightSide) {
-                return true;
-            }
-        } else {
-            const splitedExpression = attribute.trim().split(' ');
-            if (splitedExpression.length > 1) {
-                return true;
-            }
-        }
-
-        return false;
+        return dropdownData;
     }
 
     /**
@@ -153,6 +142,45 @@ class AnnotationAttributeDefinition extends React.Component {
         }
     }
 
+    /**
+     * Delete specified attribute.
+     * */
+    deleteAttribute() {
+        this.model.remove();
+    }
+
+    validateAttribute(attribute) {
+        if (attribute.includes('=')) {
+            const splitedExpression = attribute.split('=');
+            const leftSideSplitted = splitedExpression[0].split(' ');
+            const rightSide = splitedExpression[1].trim();
+
+            if (leftSideSplitted.length > 1 && rightSide) {
+                return true;
+            }
+        } else {
+            const splitedExpression = attribute.trim().split(' ');
+            if (splitedExpression.length > 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate type.
+     * */
+    validateType(bType) {
+        let isValid = false;
+        const typeList = this.getTypeDropdownValues();
+        const filteredTypeList = _.filter(typeList, type => type.id === bType);
+        if (filteredTypeList.length > 0) {
+            isValid = true;
+        }
+        return isValid;
+    }
+
     render() {
         return (
             <g className="attribute-content-operations-wrapper">
@@ -201,34 +229,6 @@ class AnnotationAttributeDefinition extends React.Component {
                 </g>
             </g>
         );
-    }
-
-    /**
-     * Get types of ballerina to which can be applied when declaring variables.
-     * */
-    getTypeDropdownValues() {
-        const { renderingContext } = this.context;
-        const dropdownData = [];
-        // Adding items to the type dropdown.
-        const bTypes = renderingContext.environment.getTypes();
-        _.forEach(bTypes, (bType) => {
-            dropdownData.push({ id: bType, text: bType });
-        });
-
-        return dropdownData;
-    }
-
-    /**
-     * Validate type.
-     * */
-    validateType(bType) {
-        let isValid = false;
-        const typeList = this.getTypeDropdownValues();
-        const filteredTypeList = _.filter(typeList, type => type.id === bType);
-        if (filteredTypeList.length > 0) {
-            isValid = true;
-        }
-        return isValid;
     }
 }
 

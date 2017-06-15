@@ -38,8 +38,8 @@ class WorkerDeclarationPositionCalcVisitor {
         const parentViewState = parent.getViewState();
         const workers = _.filter(parent.getChildren(), child => child instanceof WorkerDeclaration);
         const workerIndex = _.findIndex(workers, node);
-        let x,
-            y;
+        let x;
+        let y;
 
         if (workerIndex === 0) {
             /**

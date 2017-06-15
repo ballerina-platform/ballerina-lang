@@ -33,9 +33,9 @@ const eventSplitter = /\s+/;
 // Iterates over the standard `event, callback` (as well as the fancy multiple
 // space-separated events `"change blur", callback` and jQuery-style event
 // maps `{event: callback}`).
-var eventsApi = function (iteratee, events, name, callback, opts) {
-    let i = 0,
-        names;
+const eventsApi = function (iteratee, events, name, callback, opts) {
+    let i = 0;
+    let names;
     if (name && typeof name === 'object') {
         // Handle event maps.
         if (callback !== void 0 && 'context' in opts && opts.context === void 0) opts.context = callback;
@@ -101,9 +101,9 @@ EventChannel.prototype.listenTo = function (obj, name, callback) {
 var onApi = function (events, name, callback, options) {
     if (callback) {
         const handlers = events[name] || (events[name] = []);
-        let context = options.context,
-            ctx = options.ctx,
-            listening = options.listening;
+        const context = options.context;
+        const ctx = options.ctx;
+        const listening = options.listening;
         if (listening) listening.count++;
 
         handlers.push({ callback, context, ctx: context || ctx, listening });
@@ -149,10 +149,10 @@ EventChannel.prototype.stopListening = function (obj, name, callback) {
 var offApi = function (events, name, callback, options) {
     if (!events) return;
 
-    let i = 0,
-        listening;
-    let context = options.context,
-        listeners = options.listeners;
+    let i = 0;
+    let listening;
+    const context = options.context;
+    const listeners = options.listeners;
 
     // Delete all events listeners and "drop" events.
     if (!name && !callback && !context) {
@@ -224,7 +224,7 @@ EventChannel.prototype.listenToOnce = function (obj, name, callback) {
 // `offer` unbinds the `onceWrapper` after it has been called.
 var onceMap = function (map, name, callback, offer) {
     if (callback) {
-        var once = map[name] = _.once(function () {
+        const once = map[name] = _.once(function () {
             offer(name, once);
             callback.apply(this, arguments);
         });
@@ -264,12 +264,12 @@ var triggerApi = function (objEvents, name, callback, args) {
 // triggering events. Tries to keep the usual cases speedy (most internal
 // Backbone events have 3 arguments).
 var triggerEvents = function (events, args) {
-    let ev,
-        i = -1,
-        l = events.length,
-        a1 = args[0],
-        a2 = args[1],
-        a3 = args[2];
+    let ev;
+    let i = -1;
+    const l = events.length;
+    const a1 = args[0];
+    const a2 = args[1];
+    const a3 = args[2];
     switch (args.length) {
     case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
     case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;

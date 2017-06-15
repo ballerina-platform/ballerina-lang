@@ -50,6 +50,11 @@ class AnnotationAttributeDecorator extends React.Component {
         this.setState({ editing: false, editValue: '' });
     }
 
+    onInputChange(e) {
+        const variableDeclaration = e.target.value.replace(';', '');
+        this.setState({ editing: true, editValue: variableDeclaration });
+    }
+
     onKeyDown(e) {
         if (e.keyCode === 13) {
             if (DEFAULT_INPUT_VALUE !== this.state.editValue) {
@@ -63,28 +68,18 @@ class AnnotationAttributeDecorator extends React.Component {
         }
     }
 
-    onInputChange(e) {
-        const variableDeclaration = e.target.value.replace(';', '');
-        this.setState({ editing: true, editValue: variableDeclaration });
-    }
-
-    validateAttribute(attribute) {
-        if (attribute.includes('=')) {
-            const splitedExpression = attribute.split('=');
-            const leftSideSplitted = splitedExpression[0].trim().split(' ');
-            const rightSide = splitedExpression[1].trim();
-
-            if (leftSideSplitted.length > 1 && rightSide) {
-                return true;
-            }
-        } else {
-            const splitedExpression = attribute.trim().split(' ');
-            if (splitedExpression.length > 1) {
-                return true;
-            }
-        }
-
-        return false;
+    /**
+     * Get types of ballerina to which can be applied when declaring variables.
+     * */
+    getTypeDropdownValues() {
+        const { renderingContext } = this.context;
+        const dropdownData = [];
+        // Adding items to the type dropdown.
+        const bTypes = renderingContext.environment.getTypes();
+        _.forEach(bTypes, (bType) => {
+            dropdownData.push({ id: bType, text: bType });
+        });
+        return dropdownData;
     }
 
     setAnnotationAttributeFromInputBox(input) {
@@ -138,6 +133,38 @@ class AnnotationAttributeDecorator extends React.Component {
         }
     }
 
+    validateAttribute(attribute) {
+        if (attribute.includes('=')) {
+            const splitedExpression = attribute.split('=');
+            const leftSideSplitted = splitedExpression[0].trim().split(' ');
+            const rightSide = splitedExpression[1].trim();
+
+            if (leftSideSplitted.length > 1 && rightSide) {
+                return true;
+            }
+        } else {
+            const splitedExpression = attribute.trim().split(' ');
+            if (splitedExpression.length > 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate type.
+     * */
+    validateType(bType) {
+        let isValid = false;
+        const typeList = this.getTypeDropdownValues();
+        const filteredTypeList = _.filter(typeList, type => type.id === bType);
+        if (filteredTypeList.length > 0) {
+            isValid = true;
+        }
+        return isValid;
+    }
+
     render() {
         const bBox = this.props.bBox;
         const viewState = this.props.model.getViewState();
@@ -188,33 +215,6 @@ class AnnotationAttributeDecorator extends React.Component {
                 </g>
             </g>
         );
-    }
-
-    /**
-     * Get types of ballerina to which can be applied when declaring variables.
-     * */
-    getTypeDropdownValues() {
-        const { renderingContext } = this.context;
-        const dropdownData = [];
-        // Adding items to the type dropdown.
-        const bTypes = renderingContext.environment.getTypes();
-        _.forEach(bTypes, (bType) => {
-            dropdownData.push({ id: bType, text: bType });
-        });
-        return dropdownData;
-    }
-
-    /**
-     * Validate type.
-     * */
-    validateType(bType) {
-        let isValid = false;
-        const typeList = this.getTypeDropdownValues();
-        const filteredTypeList = _.filter(typeList, type => type.id === bType);
-        if (filteredTypeList.length > 0) {
-            isValid = true;
-        }
-        return isValid;
     }
 }
 

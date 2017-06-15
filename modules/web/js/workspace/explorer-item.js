@@ -36,16 +36,19 @@ class ExplorerItem extends EventChannel {
     }
 
     render() {
-        let item = $('<div class="folder-tree"><div>'),
-            folderName = $(`<span>${this.getFolderName(this.path)}</span>`),
-            id = `folder-tree_${this.index}`,
-            header = $(`<div class="folder-tree-header" role="button" href="#${id
-                }"+ data-toggle="collapse" aria-expanded="true" aria-controls="${
-                id}"></div>`),
-            body = $(`<div class="collapse folder-tree-body" id="${id
-                }"></div>`),
-            folderIcon = $('<i class="fw fw-folder item-icon"></i>'),
-            arrowHeadIcon = $('<i class="fw fw-right expand-icon"></i>');
+        const item = $('<div class="folder-tree"><div>');
+        const folderName = $(`<span>${this.getFolderName(this.path)}</span>`);
+        const id = `folder-tree_${this.index}`;
+
+        const header = $(`<div class="folder-tree-header" role="button" href="#${id
+            }"+ data-toggle="collapse" aria-expanded="true" aria-controls="${
+            id}"></div>`);
+
+        const body = $(`<div class="collapse folder-tree-body" id="${id
+            }"></div>`);
+
+        const folderIcon = $('<i class="fw fw-folder item-icon"></i>');
+        const arrowHeadIcon = $('<i class="fw fw-right expand-icon"></i>');
 
         header.attr('id', this.path);
         header.append(arrowHeadIcon);
@@ -99,11 +102,11 @@ class ExplorerItem extends EventChannel {
     createContextMenuProvider() {
         const self = this;
         return function ($trigger) {
-            let items = {},
-                menu = { items },
-                isRoot = $trigger.hasClass('folder-tree-header'),
-                path = $trigger.attr('id'),
-                node = isRoot ? self._fileBrowser.getNode('#') : self._fileBrowser.getNode(path);
+            const items = {};
+            const menu = { items };
+            const isRoot = $trigger.hasClass('folder-tree-header');
+            const path = $trigger.attr('id');
+            const node = isRoot ? self._fileBrowser.getNode('#') : self._fileBrowser.getNode(path);
 
             if (isRoot || _.isEqual('folder', node.type)) {
                 items.createNewFile = {

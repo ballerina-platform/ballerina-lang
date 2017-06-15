@@ -29,6 +29,29 @@ class ConnectorActivationContainer extends React.Component {
         this.state = { activationZoneActivated: false, dropZoneDropNotAllowed: false };
     }
 
+    onMouseUp(e) {
+        this.setState({ activationZoneActivated: false });
+    }
+
+    onOutActivationZone(e) {
+        const messageManager = this.context.messageManager;
+        if (messageManager.isOnDrag()) {
+            messageManager.setDestination(undefined);
+            this.setState({ activationZoneActivated: false });
+        }
+        e.stopPropagation();
+    }
+
+    onOverActivationZone(e) {
+        const messageManager = this.context.messageManager;
+        const activationTarget = this.props.activationTarget;
+        if (messageManager.isOnDrag()) {
+            messageManager.setDestination(activationTarget);
+            this.setState({ activationZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination() });
+        }
+        e.stopPropagation();
+    }
+
     render() {
         const bBox = this.props.bBox;
         const dropZoneActivated = this.state.activationZoneActivated;
@@ -44,29 +67,6 @@ class ConnectorActivationContainer extends React.Component {
             />
             {this.props.children}
         </g>);
-    }
-
-    onOverActivationZone(e) {
-        const messageManager = this.context.messageManager;
-        const activationTarget = this.props.activationTarget;
-        if (messageManager.isOnDrag()) {
-            messageManager.setDestination(activationTarget);
-            this.setState({ activationZoneActivated: true, dropZoneDropNotAllowed: !messageManager.isAtValidDestination() });
-        }
-        e.stopPropagation();
-    }
-
-    onOutActivationZone(e) {
-        const messageManager = this.context.messageManager;
-        if (messageManager.isOnDrag()) {
-            messageManager.setDestination(undefined);
-            this.setState({ activationZoneActivated: false });
-        }
-        e.stopPropagation();
-    }
-
-    onMouseUp(e) {
-        this.setState({ activationZoneActivated: false });
     }
 }
 

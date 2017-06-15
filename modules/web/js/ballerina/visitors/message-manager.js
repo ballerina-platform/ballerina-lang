@@ -150,8 +150,8 @@ class MessageManager extends EventChannel {
     }
 
     startDrawMessage(mouseUpCallback, targetValidationCallback) {
-        let self = this,
-            container = d3.select(self._fileEditor._$canvasContainer.find('.svg-container').get(0));
+        const self = this;
+        const container = d3.select(self._fileEditor._$canvasContainer.find('.svg-container').get(0));
 
         container.on('mousemove', function (e) {
             self.trigger('message-draw-start');

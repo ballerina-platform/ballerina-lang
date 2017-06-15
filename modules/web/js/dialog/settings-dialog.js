@@ -44,8 +44,8 @@ const SettingsDialog = Backbone.View.extend(
         },
 
         render() {
-            let app = this.application,
-                options = this._options;
+            let app = this.application;
+            let options = this._options;
 
             if (!_.isNil(this._modalContainer)) {
                 this._modalContainer.remove();
