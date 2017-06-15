@@ -249,7 +249,7 @@ const OpenFileDialog = Backbone.View.extend(
                                 isDirty: false,
                             });
                             openConfigModal.modal('hide');
-                            app.commandManager.dispatch('create-new-tab', { tabOptions: { file: file } });
+                            app.commandManager.dispatch('create-new-tab', { tabOptions: { file } });
                         } else {
                             openFileWizardError.text(data.Error);
                             openFileWizardError.show();

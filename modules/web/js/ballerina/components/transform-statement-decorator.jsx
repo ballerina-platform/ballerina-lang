@@ -702,7 +702,7 @@ class TransformStatementDecorator extends React.Component {
     }
 
     drawConnection(id, source, target) {
-        const con = { id: id };
+        const con = { id };
         _.merge(con, source, target);
         self.mapper.addConnection(con);
     }

@@ -23,7 +23,7 @@ class DimensionCalculatorVisitor {
 
     canVisit(node) {
         if (Visitors[`${node.getType()}DimensionCalculatorVisitor`]) {
-            const nodeVisitor = new Visitors[`${node.getType()}DimensionCalculatorVisitor`]();
+            const nodeVisitor = new (Visitors[`${node.getType()}DimensionCalculatorVisitor`])();
             return nodeVisitor.canVisit(node);
         }
         log.debug(`Unable to find Dimension Calculator for : ${node.getType()}`);
@@ -34,7 +34,7 @@ class DimensionCalculatorVisitor {
 
     visit(node) {
         if (Visitors[`${node.getType()}DimensionCalculatorVisitor`]) {
-            const nodeVisitor = new Visitors[`${node.getType()}DimensionCalculatorVisitor`]();
+            const nodeVisitor = new (Visitors[`${node.getType()}DimensionCalculatorVisitor`])();
             return nodeVisitor.visit(node);
         }
         return undefined;
@@ -42,7 +42,7 @@ class DimensionCalculatorVisitor {
 
     beginVisit(node) {
         if (Visitors[`${node.getType()}DimensionCalculatorVisitor`]) {
-            const nodeVisitor = new Visitors[`${node.getType()}DimensionCalculatorVisitor`]();
+            const nodeVisitor = new (Visitors[`${node.getType()}DimensionCalculatorVisitor`])();
             return nodeVisitor.beginVisit(node);
         }
         return undefined;
@@ -50,7 +50,7 @@ class DimensionCalculatorVisitor {
 
     endVisit(node) {
         if (Visitors[`${node.getType()}DimensionCalculatorVisitor`]) {
-            const nodeVisitor = new Visitors[`${node.getType()}DimensionCalculatorVisitor`]();
+            const nodeVisitor = new (Visitors[`${node.getType()}DimensionCalculatorVisitor`])();
             return nodeVisitor.endVisit(node);
         }
         log.warn(`Unable to find Dimension Calculator for : ${node.getType()}`);
