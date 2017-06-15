@@ -36,7 +36,7 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource(`try${tryStatement.getWSRegion(1)}{${tryStatement.getWSRegion(2)}`);
+        this.appendSource('try' + tryStatement.getWSRegion(1) + '{' + tryStatement.getWSRegion(2));
         this.appendSource((tryStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
@@ -51,7 +51,7 @@ class TryStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitTryStatement(tryStatement) {
         this.outdent();
-        this.appendSource(`}${tryStatement.getWSRegion(3)}`);
+        this.appendSource('}' + tryStatement.getWSRegion(3));
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

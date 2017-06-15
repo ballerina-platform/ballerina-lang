@@ -31,14 +31,14 @@ class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(`reply${replyStatement.getWSRegion(1)}${replyStatement.getReplyMessage()}`);
+        this.appendSource('reply' + replyStatement.getWSRegion(1) + replyStatement.getReplyMessage());
     }
 
     visitReplyStatement(replyStatement) {
     }
 
     endVisitReplyStatement(replyStatement) {
-        this.appendSource(`;${replyStatement.getWSRegion(2)}`);
+        this.appendSource(';' + replyStatement.getWSRegion(2));
         this.appendSource((replyStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

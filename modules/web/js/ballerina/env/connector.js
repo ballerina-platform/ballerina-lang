@@ -67,7 +67,7 @@ class Connector {
      * @param {ConnectorActionDefinition} actionDef - ConnectorActionDefinition to be removed
      */
     removeAction(actionDef) {
-        _.remove(this._actions, function (action) {
+        _.remove(this._actions, (action) => {
             return _.isEqual(action.getName(), actionDef.getActionName());
         });
     }
@@ -77,10 +77,9 @@ class Connector {
      * @param {ConnectorDefinition} connectorDef - ConnectorDefinition whose children need to be removed
      */
     removeAllActions(connectorDef) {
-        const self = this;
         _.each(connectorDef.getChildren(), (child) => {
             if (BallerinaASTFactory.isConnectorAction(child)) {
-                self.removeAction(child);
+                this.removeAction(child);
             }
         });
     }
@@ -106,14 +105,12 @@ class Connector {
     }
 
     initFromJson(jsonNode) {
-        const self = this;
-
         this.setName(jsonNode.name);
 
         _.each(jsonNode.actions, (actionNode) => {
             const action = BallerinaEnvFactory.createConnectorAction();
             action.initFromJson(actionNode);
-            self.addAction(action);
+            this.addAction(action);
         });
     }
 }

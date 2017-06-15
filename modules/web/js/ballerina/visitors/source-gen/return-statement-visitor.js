@@ -44,7 +44,7 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitReturnStatement(returnStatement) {
-        this.appendSource(`;${returnStatement.getWSRegion(3)}`);
+        this.appendSource(';' + returnStatement.getWSRegion(3));
         this.appendSource((returnStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

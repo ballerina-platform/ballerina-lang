@@ -38,7 +38,7 @@ class ConditionalStatement extends Statement {
         if (!_.isNil(condition) && condition instanceof Expression) {
             this.setAttribute('_condition', condition, options);
         } else {
-            log.error(`Invalid value for condition received: ${condition}`);
+            log.error('Invalid value for condition received: ' + condition);
         }
     }
 

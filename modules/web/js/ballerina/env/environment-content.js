@@ -15,12 +15,13 @@
  */
 
 import $ from 'jquery';
-const environment_content = {};
+
+const environmentContent = {};
 
 /**
  * Get the packages from the package list api.
  * */
-environment_content.getPackages = function (app) {
+environmentContent.getPackages = function (app) {
     const packageServiceURL = app.config.services.packages.endpoint;
     let data = [];
 
@@ -34,7 +35,7 @@ environment_content.getPackages = function (app) {
         success(response) {
             data = response;
         },
-        error(xhr, textStatus, errorThrown) {
+        error() {
             data = { error: true, message: 'Unable to retrieve packages.' };
         },
     });
@@ -44,7 +45,7 @@ environment_content.getPackages = function (app) {
 /**
  *  Get native types from the Ballerina program service
  */
-environment_content.getNativeTypes = function (app) {
+environmentContent.getNativeTypes = function (app) {
     const programNativeTypesServiceURL = app.config.services.programNativeTypes.endpoint;
     let data = [];
     // TODO: remove the following hard coded url and use a value from application config
@@ -57,10 +58,10 @@ environment_content.getNativeTypes = function (app) {
         success(response) {
             data = response;
         },
-        error(xhr, textStatus, errorThrown) {
+        error() {
             data = { error: true, message: 'Unable to retrieve native types.' };
         },
     });
     return data;
 };
-export default environment_content;
+export default environmentContent;

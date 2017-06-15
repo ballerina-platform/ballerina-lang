@@ -42,7 +42,7 @@ class AnnotationAttributeDefinition extends ASTNode {
         if (!_.isNil(attributeName) && ASTNode.isValidIdentifier(attributeName)) {
             this.setAttribute('_attributeName', attributeName, options);
         } else {
-            const error = `Invalid name for the annotation attribute name: ${attributeName}`;
+            const error = 'Invalid name for the annotation attribute name: ' + attributeName;
             log.error(error);
             throw error;
         }
@@ -80,14 +80,14 @@ class AnnotationAttributeDefinition extends ASTNode {
         let statement = this.getAttributeType() + this.getWSRegion(0)
             + this.getAttributeName();
         if (!_.isEmpty(this.getAttributeValue())) {
-            statement += `${this.getWSRegion(1)}=${this.getWSRegion(2)
-                 }${this.getAttributeValue()
-                 }${this.getWSRegion(3)}`;
+            statement += this.getWSRegion(1) + '=' + this.getWSRegion(2)
+                + this.getAttributeValue()
+                + this.getWSRegion(3);
         } else if (!this.whiteSpace.useDefault) {
             // ignore a default space between indenifier & semicolon
             statement += this.getWSRegion(1);
         }
-        statement += `;${this.getWSRegion(4)}`;
+        statement += ';' + this.getWSRegion(4);
         return statement;
     }
 

@@ -214,18 +214,18 @@ class ActionInvocationExpression extends Expression {
 
         // Append the connector reference expression name to the arguments string
         if (!_.isEmpty(argsString)) {
-            argsString = `${connectorRef}, ${argsString}`;
+            argsString = connectorRef + ', ' + argsString;
         } else {
             argsString = connectorRef;
         }
 
-        let expression = `${this.getActionConnectorName() + this.getWSRegion(1)
-             }.${this.getWSRegion(2)}${this.getActionName()}${this.getWSRegion(3)
-             }(${this.getWSRegion(4)}${argsString})${this.getWSRegion(5)}`;
+        let expression = this.getActionConnectorName() + this.getWSRegion(1)
+            + '.' + this.getWSRegion(2) + this.getActionName() + this.getWSRegion(3)
+            + '(' + this.getWSRegion(4) + argsString + ')' + this.getWSRegion(5);
         if (!_.isUndefined(this.getActionPackageName()) && !_.isNil(this.getActionPackageName())
             && !_.isEqual(this.getActionPackageName(), 'Current Package')) {
-            expression = `${this.getActionPackageName() + this.getChildWSRegion('nameRef', 1)}:${
-                 this.getChildWSRegion('nameRef', 2)}${expression}`;
+            expression = this.getActionPackageName() + this.getChildWSRegion('nameRef', 1) + ':'
+                + this.getChildWSRegion('nameRef', 2) + expression;
         }
         return expression;
     }

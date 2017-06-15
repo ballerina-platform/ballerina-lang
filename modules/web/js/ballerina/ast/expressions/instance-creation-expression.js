@@ -50,7 +50,7 @@ class InstanceCreationExpression extends Expression {
     }
 
     generateExpression() {
-        this._expression = `new ${this.getTypeName()}`;
+        this._expression = 'new ' + this.getTypeName();
     }
 }
 

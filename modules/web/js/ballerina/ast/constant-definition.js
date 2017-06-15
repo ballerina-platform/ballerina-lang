@@ -57,11 +57,11 @@ class ConstantDefinition extends VariableDeclaration {
     }
 
     getConstantDefinitionAsString() {
-        let sourceGen = `const${this.getWSRegion(0)}${this._bType
-             }${this.getWSRegion(1)}${this._identifier
-             }${this.getWSRegion(2)}=${this.getWSRegion(3)}`;
+        let sourceGen = 'const' + this.getWSRegion(0) + this._bType
+            + this.getWSRegion(1) + this._identifier
+            + this.getWSRegion(2) + '=' + this.getWSRegion(3);
         if (this._bType === 'string') {
-            sourceGen += `"${this._value}"`;
+            sourceGen += '"' + this._value + '"';
         } else {
             sourceGen += this._value;
         }

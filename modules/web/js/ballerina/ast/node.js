@@ -42,8 +42,8 @@ class ASTNode extends EventChannel {
             if (!_.isNil(this.parent)) {
                 this.parent.trigger('tree-modified', event);
             } else {
-                log.debug(`Cannot find the parent node to propagate tree modified event up. Node: ${this.getType()
-                    }, EventType: ${event.type}, EventTitle: ${event.title}`);
+                log.debug('Cannot find the parent node to propagate tree modified event up. Node: ' + this.getType() +
+                    ', EventType: ' + event.type + ', EventTitle: ' + event.title);
             }
         });
 
@@ -271,6 +271,21 @@ class ASTNode extends EventChannel {
     }
 
     /**
+     * Filter matching children belonging to current scope from the predicate function
+     * @param {func} predicateFunction a function returning a boolean to match filter condition from children
+     * @return {[ASTNode]} array of matching AST nodes
+     */
+    filterChildrenInScope(predicateFunction) {
+        var children = [];
+        var scope = this;
+        while(!_.isUndefined(scope)) {
+            children = children.concat(scope.getChildren());
+            scope = scope.getParent();
+        }
+        return _.filter(children, predicateFunction);
+    }
+
+    /**
      * Find matching child from the predicate function+
      * @param predicateFunction a function returning a boolean to match find condition from children
      */
@@ -284,7 +299,9 @@ class ASTNode extends EventChannel {
      * @param name of child to remove
      */
     removeChildByName(predicateFunction, name) {
-        _.remove(this.getChildren(), child => predicateFunction && (child.getName() === name));
+        _.remove(this.getChildren(), (child) => {
+            return predicateFunction && (child.getName() === name);
+        });
     }
 
     /**
@@ -315,7 +332,7 @@ class ASTNode extends EventChannel {
 
         // fire change event with necessary callbacks for undo/redo
         if (_.isNil(options) || !options.doSilently) {
-            const title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : `Modify ${this.getType()}`;
+            const title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
             /**
              * @event ASTNode#tree-modified
              */
@@ -394,7 +411,7 @@ class ASTNode extends EventChannel {
 
         // fire change event with necessary callbacks for undo/redo
         if (_.isNil(options) || !options.doSilently) {
-            const title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : `Modify ${this.getType()}`;
+            const title = _.has(options, 'changeTitle') ? _.get(options, 'changeTitle') : 'Modify ' + this.getType();
             /**
              * @event ASTNode#tree-modified
              */
@@ -513,7 +530,9 @@ class ASTNode extends EventChannel {
      * @return {ASTNode[]}                   An array of children.
      */
     getChildrenOfType(typeCheckFunction) {
-        return _.filter(this.getChildren(), child => typeCheckFunction.call(child.getFactory(), child));
+        return _.filter(this.getChildren(), (child) => {
+            return typeCheckFunction.call(child.getFactory(), child);
+        });
     }
 
     /**
@@ -569,8 +588,8 @@ var uuid = function () {
             .toString(16)
             .substring(1);
     }
-    return `${s4() + s4()}-${s4()}-${s4()}-${
-        s4()}-${s4()}${s4()}${s4()}`;
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
 };
 
 export default ASTNode;

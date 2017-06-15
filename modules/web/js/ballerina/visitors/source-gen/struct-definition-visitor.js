@@ -37,7 +37,7 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
         const useDefaultWS = structDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
 
         // Adding annotations
@@ -49,9 +49,9 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += `struct${structDefinition.getWSRegion(0)
-               }${structDefinition.getStructName()}${structDefinition.getWSRegion(1)
-               }{${structDefinition.getWSRegion(2)}`;
+        constructedSourceSegment += 'struct' + structDefinition.getWSRegion(0)
+              + structDefinition.getStructName() + structDefinition.getWSRegion(1)
+              + '{' + structDefinition.getWSRegion(2);
         this.appendSource(constructedSourceSegment);
         this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
@@ -66,7 +66,7 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitStructDefinition(structDefinition) {
         this.outdent();
-        this.appendSource(`}${structDefinition.getWSRegion(3)}`);
+        this.appendSource('}' + structDefinition.getWSRegion(3));
         this.appendSource((structDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

@@ -22,7 +22,7 @@
 import Package from './package';
 import Connector from './connector';
 import ConnectorAction from './connector-action';
-import Function from './function';
+import FunctionDefinition from './function';
 import AnnotationDefinition from './annotation-definition';
 import AnnotationAttributeDefinition from './annotation-attribute-definition';
 
@@ -63,7 +63,7 @@ BallerinaEnvFactory.createConnectorAction = function (args) {
  * @param jsonNode
  */
 BallerinaEnvFactory.createFunction = function (args) {
-    const functionDef = new Function(args);
+    const functionDef = new FunctionDefinition(args);
     return functionDef;
 };
 
@@ -85,12 +85,16 @@ BallerinaEnvFactory.createAnnotationAttributeDefinition = function (args) {
     return annotationAttributeDefinition;
 };
 
+BallerinaEnvFactory.isPackage = function (pkg) {
+    return (pkg instanceof Package);
+};
+
 BallerinaEnvFactory.isConnector = function (connector) {
     return (connector instanceof Connector);
 };
 
 BallerinaEnvFactory.isFunction = function (functionDef) {
-    return (functionDef instanceof Function);
+    return (functionDef instanceof FunctionDefinition);
 };
 
 BallerinaEnvFactory.isConnectorAction = function (connectorAction) {

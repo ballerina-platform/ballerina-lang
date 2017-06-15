@@ -131,8 +131,8 @@ class VariableReferenceExpression extends Expression {
      * @override
      */
     getExpressionString() {
-        return (!_.isNil(this.getPackageName()) ? (`${this.getPackageName()
-                + this.getWSRegion(1)}:${this.getWSRegion(2)}`) : '')
+        return (!_.isNil(this.getPackageName()) ? (this.getPackageName()
+                + this.getWSRegion(1) + ':' + this.getWSRegion(2)) : '')
                 + this.getVariableName() + this.getWSRegion(3);
     }
 

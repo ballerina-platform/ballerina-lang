@@ -65,7 +65,7 @@ class ActionInvocationStatement extends Statement {
      * @param {function} callback
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(`${stmtString};`);
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
@@ -86,7 +86,7 @@ class ActionInvocationStatement extends Statement {
                     nodeToFireEvent = newNode;
                 }
             } else {
-                log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             }
 
             if (_.isFunction(callback)) {
@@ -102,7 +102,7 @@ class ActionInvocationStatement extends Statement {
                 context: nodeToFireEvent,
             });
         } else {
-            log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             if (_.isFunction(callback)) {
                 callback({ isValid: false, response: parsedJson });
             }

@@ -51,7 +51,7 @@ class ArrayMapAccessExpression extends Expression {
             const childJsonNode = jsonNode.children[itr];
             const child = self.getFactory().createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
-            indexString = `${indexString}[${child.getExpression()}]`;
+            indexString = indexString + '[' + child.getExpression() + ']';
         }
         return jsonNode.array_map_access_expression_name + indexString;
     }

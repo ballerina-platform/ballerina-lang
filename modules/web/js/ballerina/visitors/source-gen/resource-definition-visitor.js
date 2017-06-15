@@ -46,7 +46,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         const useDefaultWS = resourceDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
         _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), (annotationNode) => {
@@ -56,14 +56,14 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += `resource${resourceDefinition.getWSRegion(0)
-                   }${resourceDefinition.getResourceName()
-                   }${resourceDefinition.getWSRegion(1)
-                   }(`;
+        constructedSourceSegment += 'resource' + resourceDefinition.getWSRegion(0)
+                  + resourceDefinition.getResourceName()
+                  + resourceDefinition.getWSRegion(1)
+                  + '(';
 
-        constructedSourceSegment += `${resourceDefinition.getParametersAsString()
-                 })${resourceDefinition.getWSRegion(3)
-                 }{${resourceDefinition.getWSRegion(4)}`;
+        constructedSourceSegment += resourceDefinition.getParametersAsString()
+                + ')' + resourceDefinition.getWSRegion(3)
+                + '{' + resourceDefinition.getWSRegion(4);
         this.appendSource(constructedSourceSegment);
         this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
@@ -90,7 +90,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
 
     endVisitResourceDefinition(resourceDefinition) {
         this.outdent();
-        this.appendSource(`}${resourceDefinition.getWSRegion(5)}`);
+        this.appendSource('}' + resourceDefinition.getWSRegion(5));
         this.appendSource((resourceDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

@@ -40,17 +40,17 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         let constructedSourceSegment =
-          `${(importDeclaration.whiteSpace.useDefault) ? this.getIndentation() : ''
-           }import${
-           importDeclaration.getWSRegion(0)
-           }${importDeclaration.getPackageName()
-           }${(importDeclaration.whiteSpace.useDefault
-            && _.isNil(importDeclaration.getAsName())) ? '' : importDeclaration.getWSRegion(1)}`;
+          ((importDeclaration.whiteSpace.useDefault) ? this.getIndentation() : '')
+          + 'import'
+          + importDeclaration.getWSRegion(0)
+          + importDeclaration.getPackageName()
+          + ((importDeclaration.whiteSpace.useDefault
+            && _.isNil(importDeclaration.getAsName())) ? '' : importDeclaration.getWSRegion(1));
         if (!_.isNil(importDeclaration.getAsName())) {
             constructedSourceSegment += (
-                `as${importDeclaration.getWSRegion(2)
-                 }${importDeclaration.getAsName()
-                 }${importDeclaration.getWSRegion(3)}`
+                'as' + importDeclaration.getWSRegion(2)
+                + importDeclaration.getAsName()
+                + importDeclaration.getWSRegion(3)
             );
         }
         this.appendSource(constructedSourceSegment);
@@ -60,7 +60,7 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitImportDeclaration(importDeclaration) {
-        this.appendSource(`;${importDeclaration.getWSRegion(4)}`);
+        this.appendSource(';' + importDeclaration.getWSRegion(4));
 
         this.getParent().appendSource(this.getGeneratedSource());
     }

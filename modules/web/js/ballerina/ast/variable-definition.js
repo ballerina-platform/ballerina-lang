@@ -39,8 +39,8 @@ class VariableDefinition extends ASTNode {
         if (!_.isNil(name)) {
             this.setAttribute('_name', name, options);
         } else {
-            log.error(`Invalid Name [${name}] Provided`);
-            throw `Invalid Name [${name}] Provided`;
+            log.error('Invalid Name [' + name + '] Provided');
+            throw 'Invalid Name [' + name + '] Provided';
         }
     }
 
@@ -53,8 +53,8 @@ class VariableDefinition extends ASTNode {
         if (!_.isNil(typeName)) {
             this.setAttribute('_typeName', typeName, options);
         } else {
-            log.error(`Invalid Type Name [${typeName}] Provided`);
-            throw `Invalid Type Name [${typeName}] Provided`;
+            log.error('Invalid Type Name [' + typeName + '] Provided');
+            throw 'Invalid Type Name [' + typeName + '] Provided';
         }
     }
 
@@ -102,8 +102,8 @@ class VariableDefinition extends ASTNode {
         if (!_.isNil(isPublic)) {
             this.setAttribute('_isPublic', isPublic, options);
         } else {
-            log.error(`Invalid array type [${isPublic}] Provided`);
-            throw `Invalid array type [${isPublic}] Provided`;
+            log.error('Invalid array type [' + isPublic + '] Provided');
+            throw 'Invalid array type [' + isPublic + '] Provided';
         }
     }
 
@@ -120,7 +120,7 @@ class VariableDefinition extends ASTNode {
      * @return {string} - Variable definition as string.
      */
     getVariableDefinitionAsString() {
-        return `${this._typeName} ${this._name};`;
+        return this._typeName + ' ' + this._name + ';';
     }
 
     initFromJson(jsonNode) {

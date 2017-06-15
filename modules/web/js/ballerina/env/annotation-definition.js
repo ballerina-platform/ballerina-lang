@@ -89,11 +89,11 @@ class AnnotationDefinition extends EventChannel {
         this._annotationAttributeDefinitions.push(annotationAttributeDefinition);
     }
 
-    removeAnnotationAttributeDefinition(annotationAttributeDefinition) {
-        const annotationAttributeDefinitionToBeRemoved = annotationAttributeDefinition;
-        this._annotationAttributeDefinitions =
-            _.remove(this._annotationAttributeDefinitions, annotationAttributeDefinition => annotationAttributeDefinition.getIdentifier() ===
-                                                            annotationAttributeDefinitionToBeRemoved.getIdentifier());
+    removeAnnotationAttributeDefinition(annotationAttributeDefinitionToBeRemoved) {
+        _.remove(this._annotationAttributeDefinitions, (annotationAttributeDefinition) => {
+            return annotationAttributeDefinition.getIdentifier() ===
+                                          annotationAttributeDefinitionToBeRemoved.getIdentifier();
+        });
     }
 
     /**

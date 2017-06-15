@@ -88,8 +88,8 @@ class TypeCastExpression extends Expression {
                 arrayComponent += '[]';
             }
         }
-        expString += `(${this.getWSRegion(1)}${this.getTargetType().toString()}${arrayComponent})${
-                 this.getWSRegion(2)}${this.children[0].getExpressionString()}`;
+        expString += '(' + this.getWSRegion(1) + this.getTargetType().toString() + arrayComponent + ')'
+                + this.getWSRegion(2) + this.children[0].getExpressionString();
         return expString;
     }
 }

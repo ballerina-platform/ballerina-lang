@@ -49,8 +49,8 @@ class ResourceDefinition extends ASTNode {
         if (!_.isNil(resourceName)) {
             this.setAttribute('_resourceName', resourceName, options);
         } else {
-            log.error(`Invalid Resource name [${resourceName}] Provided`);
-            throw `Invalid Resource name [${resourceName}] Provided`;
+            log.error('Invalid Resource name [' + resourceName + '] Provided');
+            throw 'Invalid Resource name [' + resourceName + '] Provided';
         }
     }
 
@@ -80,12 +80,16 @@ class ResourceDefinition extends ASTNode {
     addVariableDeclaration(newVariableDeclaration) {
         const self = this;
         // Get the index of the last variable declaration.
-        let index = _.findLastIndex(this.getChildren(), child => self.getFactory().isVariableDeclaration(child));
+        let index = _.findLastIndex(this.getChildren(), (child) => {
+            return self.getFactory().isVariableDeclaration(child);
+        });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
-            index = _.findLastIndex(this.getChildren(), child => self.getFactory().isConnectorDeclaration(child));
+            index = _.findLastIndex(this.getChildren(), (child) => {
+                return self.getFactory().isConnectorDeclaration(child);
+            });
         }
 
         this.addChild(newVariableDeclaration, index + 1);
@@ -97,8 +101,10 @@ class ResourceDefinition extends ASTNode {
     removeVariableDeclaration(variableDeclarationIdentifier) {
         const self = this;
         // Removing the variable from the children.
-        const variableDeclarationChild = _.find(this.getChildren(), child => self.getFactory().isVariableDeclaration(child)
-                && child.getIdentifier() === variableDeclarationIdentifier);
+        const variableDeclarationChild = _.find(this.getChildren(), (child) => {
+            return self.getFactory().isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier;
+        });
         this.removeChild(variableDeclarationChild);
     }
 
@@ -129,11 +135,13 @@ class ResourceDefinition extends ASTNode {
      */
     addParameter(annotationType, annotationText, parameterType, parameterIdentifier) {
         // Check if already parameter exists with same identifier.
-        const identifierAlreadyExists = _.findIndex(this.getParameters(), parameter => parameter.getName() === parameterIdentifier) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getParameters(), (parameter) => {
+            return parameter.getName() === parameterIdentifier;
+        }) !== -1;
 
         // If parameter with the same identifier exists, then throw an error. Else create the new parameter.
         if (identifierAlreadyExists) {
-            const errorString = `A resource parameter with identifier '${parameterIdentifier}' already exists.`;
+            const errorString = "A resource parameter with identifier '" + parameterIdentifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
@@ -147,7 +155,9 @@ class ResourceDefinition extends ASTNode {
             const self = this;
 
             // Get the index of the last resource parameter declaration.
-            const index = _.findLastIndex(this.getChildren(), child => self.getFactory().isResourceParameter(child));
+            const index = _.findLastIndex(this.getChildren(), (child) => {
+                return self.getFactory().isResourceParameter(child);
+            });
 
             this.addChild(newParameter, index + 1);
         }
@@ -160,7 +170,9 @@ class ResourceDefinition extends ASTNode {
     removeParameter(modelID) {
         const self = this;
         // Deleting the variable from the children.
-        const resourceParameter = _.find(this.getChildren(), child => self.getFactory().isResourceParameter(child) && child.id === modelID);
+        const resourceParameter = _.find(this.getChildren(), (child) => {
+            return self.getFactory().isResourceParameter(child) && child.id === modelID;
+        });
 
         this.removeChild(resourceParameter);
     }
@@ -260,7 +272,9 @@ class ResourceDefinition extends ASTNode {
             Object.getPrototypeOf(this.constructor.prototype)
             .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
-            const firstWorkerIndex = _.findIndex(this.getChildren(), child => BallerinaASTFactory.isWorkerDeclaration(child));
+            const firstWorkerIndex = _.findIndex(this.getChildren(), (child) => {
+                return BallerinaASTFactory.isWorkerDeclaration(child);
+            });
 
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
@@ -297,7 +311,9 @@ class ResourceDefinition extends ASTNode {
      * @return {ConnectorDeclaration}
      */
     getConnectorByName(connectorName) {
-        const connectorReference = _.find(this.getChildren(), child => (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName)));
+        const connectorReference = _.find(this.getChildren(), (child) => {
+            return (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
 
         return !_.isNil(connectorReference) ? connectorReference : this.getParent().getConnectorByName(connectorName);
     }
@@ -308,7 +324,9 @@ class ResourceDefinition extends ASTNode {
      */
     getConnectorsInImmediateScope() {
         const factory = this.getFactory();
-        const connectorReferences = _.filter(this.getChildren(), child => factory.isConnectorDeclaration(child));
+        const connectorReferences = _.filter(this.getChildren(), (child) => {
+            return factory.isConnectorDeclaration(child);
+        });
 
         return !_.isEmpty(connectorReferences) ? connectorReferences : this.getParent().getConnectorsInImmediateScope();
     }
@@ -334,7 +352,7 @@ class ResourceDefinition extends ASTNode {
             });
             const annotationEntryForPathValue = BallerinaASTFactory.createAnnotationEntry({
                 leftValue: 'value',
-                rightValue: `\"/${this.getResourceName()}\"`,
+                rightValue: '\"/' + this.getResourceName() + '\"',
             });
             pathAnnotation.addChild(annotationEntryForPathValue);
             this.addChild(pathAnnotation, 1);

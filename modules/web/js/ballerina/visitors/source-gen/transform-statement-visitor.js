@@ -31,8 +31,8 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitTransformStatement(transformStatement) {
         this.node = transformStatement;
-        const constructedSourceSegment = `\n${this.getIndentation()
-                   }${transformStatement.getStatementString()} {\n`;
+        const constructedSourceSegment = '\n' + this.getIndentation() +
+                   transformStatement.getStatementString() + ' {\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
         log.debug('Begin Visit TransformStatement');
@@ -52,7 +52,7 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitTransformStatement() {
         this.outdent();
-        this.appendSource(`${this.getIndentation()}}\n`);
+        this.appendSource(this.getIndentation() + '}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit TransformStatement');
     }

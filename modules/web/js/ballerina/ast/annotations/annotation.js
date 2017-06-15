@@ -17,7 +17,6 @@
  */
 import _ from 'lodash';
 import ASTNode from '../node';
-
 const supportedHttpMethodAnnotations = ['POST', 'GET', 'PUT', 'HEAD', 'DELETE', 'PATCH', 'OPTION'];
 
 /**
@@ -116,14 +115,14 @@ class Annotation extends ASTNode {
 
     /**
      * The ballerina source code for the current annotation including its nested children.
-     * @return {string} The source code of the annotation.
+     * @return {string}
      */
     toString() {
         let annotationString;
         if (_.isUndefined(this._packageName) || _.isEmpty(this._packageName)) {
-            annotationString = `@${this.getWSRegion(0)}${this._identifier}`;
+            annotationString = '@' + this.getWSRegion(0) + this._identifier;
         } else {
-            annotationString = `@${this._packageName}:${this._identifier}${this.getWSRegion(1)}`;
+            annotationString = '@' + this._packageName + ':' + this._identifier + this.getWSRegion(1);
         }
 
         const childrenAsString = [];
@@ -131,7 +130,7 @@ class Annotation extends ASTNode {
             childrenAsString.push(child.toString());
         });
 
-        annotationString = `${annotationString}{${_.join(childrenAsString, ',')}}${this.getWSRegion(3)}`;
+        annotationString = annotationString + '{' + _.join(childrenAsString, ',') + '}' + this.getWSRegion(3);
         return annotationString;
     }
 
@@ -141,14 +140,15 @@ class Annotation extends ASTNode {
      * @param {string} jsonNode.annotation_package_path The full path of the annotation.
      * @param {string} jsonNode.annotation_package_name The package name.
      * @param {string} jsonNode.annotation_name The identifier of the annotation.
-     * @returns {void}
      */
     initFromJson(jsonNode) {
         this.setFullPackageName(jsonNode.annotation_package_path, { doSilently: true });
         this.setPackageName(jsonNode.annotation_package_name, { doSilently: true });
         this.setIdentifier(jsonNode.annotation_name, { doSilently: true });
         if (_.includes(
-                _.map(supportedHttpMethodAnnotations, e => e.toLowerCase()), this.getIdentifier().toLowerCase())) {
+                _.map(supportedHttpMethodAnnotations, (e) => {
+                    return e.toLowerCase();
+                }), this.getIdentifier().toLowerCase())) {
             this.setUniqueIdentifier('httpMethod');
         }
 
