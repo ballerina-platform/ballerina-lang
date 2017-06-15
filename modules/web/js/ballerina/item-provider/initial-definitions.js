@@ -110,7 +110,7 @@ const createAnnotationDefTool = {
     iconSrc: require('./../../../images/tool-icons/annotation-black.svg'),
     cssClass: 'icon fw fw-annotation',
     title: 'Annotation Definition',
-    nodeFactoryMethod: BallerinaASTFactory.createAnnotationDefinition,
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createAnnotationDefinition,
 };
 
 const mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,

@@ -18,6 +18,7 @@
 
 import BallerinaASTFactory from './ballerina-ast-factory';
 import FragmentUtils from '../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import _ from 'lodash';
 
 /**
@@ -286,6 +287,18 @@ DefaultBallerinaASTFactory.createWorkerReplyStatement = function (args) {
     const workerReplyStatement = BallerinaASTFactory.createWorkerReplyStatement();
     workerReplyStatement.setStatementFromString('m <- workerName');
     return workerReplyStatement;
+};
+
+/**
+ * create AnnotationDefinition
+ * @param {object} args
+ * @return {AnnotationDefinition}
+ * */
+DefaultBallerinaASTFactory.createAnnotationDefinition = function (args) {
+    const annotationDefinition = BallerinaASTFactory.createAnnotationDefinition(args);
+    const enableDefaultWSVisitor = new EnableDefaultWSVisitor();
+    annotationDefinition.accept(enableDefaultWSVisitor);
+    return annotationDefinition;
 };
 
 export default DefaultBallerinaASTFactory;
