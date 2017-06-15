@@ -17,18 +17,47 @@
  */
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for finally statement.
+ *
+ * @class FinallyStatementDimensionCalculatorVisitor
+ * */
 class FinallyStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf FinallyStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf FinallyStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf FinallyStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Finally statement node.
+     *
+     * @memberOf FinallyStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateCompoundStatementChild(node);
     }

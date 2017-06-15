@@ -15,24 +15,51 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import { util } from './../sizing-utils';
 import _ from 'lodash';
+import { util } from './../sizing-utils';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
+/**
+ * Dimension visitor class for Worker Reply Statement.
+ *
+ * @class WorkerReplyStatementDimensionCalculatorVisitor
+ * */
 class WorkerReplyStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf WorkerReplyStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf WorkerReplyStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf WorkerReplyStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Worker Reply Statement node.
+     *
+     * @memberOf WorkerReplyStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
         const workerDeclaration = node.getDestination();

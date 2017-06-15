@@ -15,21 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for If statement.
+ *
+ * @class IfStatementDimensionCalculatorVisitor
+ * */
 class IfStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf IfStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf IfStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf IfStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - if statement node.
+     *
+     * @memberOf IfStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateCompoundStatementChild(node, node.getConditionString());
     }

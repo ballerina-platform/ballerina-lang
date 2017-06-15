@@ -18,27 +18,65 @@
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for Struct definition.
+ *
+ * @class StructDefinitionDimensionCalculatorVisitor
+ * */
 class StructDefinitionDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf StructDefinitionDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf StructDefinitionDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf StructDefinitionDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * calculate the dimension of children.
+     *
+     * @param {array} children - collection of children.
+     * @param {object} components - components.
+     * @param {object} bBox - bounding box.
+     * @param {boolean} collapsed - true or false.
+     *
+     * @memberOf StructDefinitionDimensionCalculatorVisitor
+     * */
     _calculateChildrenDimensions(children = [], components, bBox, collapsed) {
-        const dimensions = children.map(() => {
+        children.forEach(() => {
             if (!collapsed) {
                 bBox.h += DesignerDefaults.structDefinitionStatement.height;
             }
         });
-        return dimensions;
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - struct definition node.
+     *
+     * @memberOf StructDefinitionDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node);
         const viewState = node.getViewState();

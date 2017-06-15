@@ -17,18 +17,47 @@
  */
 import { canvas, panel } from './../../configs/designer-defaults';
 
+/**
+ * Dimension visitor class for ballerina ast root.
+ *
+ * @class BallerinaASTRootDimensionCalculatorVisitor
+ * */
 class BallerinaASTRootDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf BallerinaASTRootDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visit the visitor.
+     *
+     * @memberOf BallerinaASTRootDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf BallerinaASTRootDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Ballerina AST Root node.
+     *
+     * @memberOf BallerinaASTRootDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         // get the visit state to set ast root dimentions.
         const viewState = node.getViewState();
@@ -46,11 +75,11 @@ class BallerinaASTRootDimensionCalculatorVisitor {
         // @todo filter out children
         children.forEach((element, index) => {
             const childViewState = element.getViewState();
-            viewState.bBox.h = viewState.bBox.h + childViewState.bBox.h;
+            viewState.bBox.h += childViewState.bBox.h;
 
             // add an extra gutter if there are more than one child.
             if (index !== 0) {
-                viewState.bBox.h = viewState.bBox.h + panel.wrapper.gutter.h;
+                viewState.bBox.h += panel.wrapper.gutter.h;
             }
 
             // if we find a child with a wider width we will assign that as the canvas width.

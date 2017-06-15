@@ -20,18 +20,47 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for While Statement.
+ *
+ * @class WhileStatementDimensionCalculatorVisitor
+ * */
 class WhileStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf WhileStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf WhileStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf WhileStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - While Statement node.
+     *
+     * @memberOf WhileStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
         const expression = node.getConditionString();
@@ -55,7 +84,7 @@ class WhileStatementDimensionCalculatorVisitor {
          */
         statementContainerHeight += (statementContainerHeight > 0 ? DesignerDefaults.statement.gutter.v :
         DesignerDefaults.blockStatement.body.height - DesignerDefaults.blockStatement.heading.height);
-        statementContainerWidth = getStatementContainerWidth(statementContainerWidth);
+        statementContainerWidth = this.getStatementContainerWidth(statementContainerWidth);
 
         const dropZoneHeight = DesignerDefaults.statement.gutter.v;
         components['drop-zone'] = new SimpleBBox();
@@ -70,7 +99,7 @@ class WhileStatementDimensionCalculatorVisitor {
 
         // for compound statement like while we need to render condition expression
         // we will calculate the width of the expression and adjest the block statement
-        if (expression != undefined) {
+        if (expression !== undefined) {
             // see how much space we have to draw the condition
             const available = statementContainerWidth - DesignerDefaults.blockStatement.heading.width - 10;
             components.expression = util.getTextWidth(expression, 0, available);
@@ -78,18 +107,26 @@ class WhileStatementDimensionCalculatorVisitor {
 
         viewState.components = components;
     }
-}
 
-function getStatementContainerWidth(currentWidth) {
-    let newWidth;
-    if (currentWidth > 0) {
-        newWidth = currentWidth + DesignerDefaults.blockStatement.body.padding.left +
-            DesignerDefaults.blockStatement.body.padding.right;
-    } else {
-        newWidth = DesignerDefaults.blockStatement.width;
+    /**
+    * get the statement container width.
+     *
+     * @param {number} currentWidth - current width
+     * @return {number} new width.
+     *
+     * @memberOf WhileStatementDimensionCalculatorVisitor
+    * */
+    getStatementContainerWidth(currentWidth) {
+        let newWidth;
+        if (currentWidth > 0) {
+            newWidth = currentWidth + DesignerDefaults.blockStatement.body.padding.left +
+                DesignerDefaults.blockStatement.body.padding.right;
+        } else {
+            newWidth = DesignerDefaults.blockStatement.width;
+        }
+
+        return newWidth;
     }
-
-    return newWidth;
 }
 
 export default WhileStatementDimensionCalculatorVisitor;

@@ -15,20 +15,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for committed statement.
+ *
+ * @class CommittedStatementDimensionCalculatorVisitor
+ * */
 class CommittedStatementDimensionCalculatorVisitor {
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf CommittedStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf CommittedStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf CommittedStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Committed statement node.
+     *
+     * @memberOf CommittedStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateCompoundStatementChild(node);
 

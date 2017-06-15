@@ -17,18 +17,47 @@
  */
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for function definition.
+ *
+ * @class FunctionDefinitionDimensionCalculatorVisitor
+ * */
 class FunctionDefinitionDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf FunctionDefinitionDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf FunctionDefinitionDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf FunctionDefinitionDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Function Definition node.
+     *
+     * @memberOf FunctionDefinitionDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populatePanelDecoratorBBox(node, node.getFunctionName());
     }

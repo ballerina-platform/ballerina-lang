@@ -18,18 +18,47 @@
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for return parameter definition holder.
+ *
+ * @class ReturnParameterDefinitionHolderDimensionCalculatorVisitor
+ * */
 class ReturnParameterDefinitionHolderDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ReturnParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ReturnParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ReturnParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Return parameter definition holder.
+     *
+     * @memberOf ReturnParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         // Creating component for text.
         for (let i = 0; i < node.getChildren().length; i++) {

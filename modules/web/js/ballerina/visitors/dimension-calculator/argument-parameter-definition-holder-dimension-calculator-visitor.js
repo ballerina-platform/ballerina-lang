@@ -15,24 +15,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
-import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for argument parameter definition holder
+ *
+ * @class ArgumentParameterDefinitionHolderDimensionCalculatorVisitor
+ * */
 class ArgumentParameterDefinitionHolderDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ArgumentParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor
+     *
+     * @memberOf ArgumentParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ArgumentParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Argument parameter definition holder node
+     *
+     * @memberOf ArgumentParameterDefinitionHolderDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         // Creating component for text.
         for (let i = 0; i < node.getChildren().length; i++) {
@@ -48,7 +74,6 @@ class ArgumentParameterDefinitionHolderDimensionCalculatorVisitor {
             viewState.components.deleteIcon.h = DesignerDefaults.panelHeading.heading.height - 7;
         }
     }
-
 }
 
 export default ArgumentParameterDefinitionHolderDimensionCalculatorVisitor;

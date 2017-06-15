@@ -15,32 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 
+/**
+ * Dimension visitor class for if else statement.
+ *
+ * @class IfElseStatementDimensionCalculatorVisitor
+ * */
 class IfElseStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf IfElseStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf IfElseStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf IfElseStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - IfElse statement node.
+     *
+     * @memberOf IfElseStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
-        const components = {};
         let statementWidth = 0;
         let statementHeight = 0;
         const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
 
         if (sortedChildren.length <= 0) {
-            throw 'Invalid number of children for if-else statement';
+            const exception = {
+                message: 'Invalid number of children for if-else statement',
+            };
+            throw exception;
         }
         const childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
         statementWidth = childWithMaxWidth.getViewState().bBox.w;
@@ -50,7 +80,8 @@ class IfElseStatementDimensionCalculatorVisitor {
              * Re adjust the width of all the other children
              */
             if (child.id !== childWithMaxWidth.id) {
-                child.getViewState().components.statementContainer.w = childWithMaxWidth.getViewState().components.statementContainer.w;
+                child.getViewState().components.statementContainer.w =
+                    childWithMaxWidth.getViewState().components.statementContainer.w;
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
             }
             statementHeight += child.getViewState().bBox.h;

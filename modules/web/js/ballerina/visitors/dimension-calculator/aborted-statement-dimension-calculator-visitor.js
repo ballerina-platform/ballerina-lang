@@ -15,21 +15,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import { util } from './../sizing-utils';
-import { blockStatement } from './../../configs/designer-defaults.js';
 
+/**
+ * Dimension visitor class for aborted statement.
+ *
+ * @class AbortedStatementDimensionCalculatorVisitor
+ * */
 class AbortedStatementDimensionCalculatorVisitor {
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true
+     *
+     * @memberOf AbortedStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf AbortedStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor
+     *
+     * @memberOf AbortedStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Aborted Statement node.
+     *
+     * @memberOf AbortedStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateCompoundStatementChild(node);
 

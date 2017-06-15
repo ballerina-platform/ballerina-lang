@@ -15,25 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for Connector Action.
+ *
+ * @class ConnectorActionDimensionCalculatorVisitor
+ * */
 class ConnectorActionDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ConnectorActionDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ConnectorActionDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ConnectorActionDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Connector action node.
+     *
+     * @memberOf ConnectorActionDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populatePanelDecoratorBBox(node, node.getActionName());
     }

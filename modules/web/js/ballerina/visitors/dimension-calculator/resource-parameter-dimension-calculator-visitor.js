@@ -18,18 +18,47 @@
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * dimension visitor class for Resource parameter.
+ *
+ * @class ResourceParameterDimensionCalculatorVisitor
+ * */
 class ResourceParameterDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ResourceParameterDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ResourceParameterDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ResourceParameterDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Resource parameter definition node.
+     *
+     * @memberOf ResourceParameterDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
 
@@ -42,7 +71,6 @@ class ResourceParameterDimensionCalculatorVisitor {
         viewState.components.deleteIcon.w = DesignerDefaults.panelHeading.heading.height - 7;
         viewState.components.deleteIcon.h = DesignerDefaults.panelHeading.heading.height - 7;
     }
-
 }
 
 export default ResourceParameterDimensionCalculatorVisitor;

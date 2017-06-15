@@ -15,22 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for Connector Definition.
+ *
+ * @class ConnectorDefinitionDimensionCalculatorVisitor
+ * */
 class ConnectorDefinitionDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ConnectorDefinitionDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ConnectorDefinitionDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ConnectorDefinitionDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Connector definition node
+     *
+     * @memberOf ConnectorDefinitionDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node, node.getConnectorName());
     }

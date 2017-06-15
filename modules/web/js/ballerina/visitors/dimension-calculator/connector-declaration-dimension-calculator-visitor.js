@@ -15,25 +15,51 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
-import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for connector declaration.
+ *
+ * @class ConnectorDeclarationDimensionCalculatorVisitor
+ * */
 class ConnectorDeclarationDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ConnectorDeclarationDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ConnectorDeclarationDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ConnectorDeclarationDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Connector declaration node.
+     *
+     * @memberOf ConnectorDeclarationDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
         const components = {};
@@ -41,15 +67,19 @@ class ConnectorDeclarationDimensionCalculatorVisitor {
         components.statementContainer = new SimpleBBox();
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
-        const textWidth = util.getTextWidth(node.getConnectorVariable(), DesignerDefaults.lifeLine.width, DesignerDefaults.lifeLine.width);
+        const textWidth = util.getTextWidth(node.getConnectorVariable(),
+            DesignerDefaults.lifeLine.width,
+            DesignerDefaults.lifeLine.width);
         viewState.variableTextWidth = textWidth.w;
         viewState.variableTextTrimmed = textWidth.text;
 
-        const statementContainerWidth = (DesignerDefaults.statementContainer.width + statementContainerWidthPadding) > viewState.variableTextWidth ? (DesignerDefaults.statementContainer.width + statementContainerWidthPadding)
+        const statementContainerWidth = (DesignerDefaults.statementContainer.width + statementContainerWidthPadding) >
+        viewState.variableTextWidth
+            ? (DesignerDefaults.statementContainer.width + statementContainerWidthPadding)
             : viewState.variableTextWidth;
         const statementContainerHeight = DesignerDefaults.statementContainer.height;
 
-        viewState.bBox.h = statementContainerHeight + DesignerDefaults.lifeLine.head.height * 2;
+        viewState.bBox.h = statementContainerHeight + (DesignerDefaults.lifeLine.head.height * 2);
         viewState.bBox.w = statementContainerWidth;
 
         components.statementContainer.h = statementContainerHeight;
