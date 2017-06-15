@@ -1109,7 +1109,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType lhsType = null;
         if (varDef.getTypeName().getName().equals("var")) {
         } else {
-            //this is not a possibility to current ballerina grammar added for completeness
+            // This is not a possible case with current ballerina grammar - added for completeness
             lhsType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
             varDef.setType(lhsType);
         }
