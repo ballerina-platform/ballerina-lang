@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import ServiceDefinitionVisitor from './service-definition-visitor';
 import AnnotationDefinitionVisitor from './annotation-definition-visitor';
@@ -27,11 +26,8 @@ import StructDefinitionVisitor from './struct-definition-visitor';
 import ConstantDefinitionVisitor from './constant-definition-visitor';
 
 class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
-    constructor() {
-        super();
-    }
 
-    canVisitBallerinaASTRoot(astRoot) {
+    canVisitBallerinaASTRoot() {
         return true;
     }
 

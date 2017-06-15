@@ -26,11 +26,8 @@ import StatementVisitorFactory from './statement-visitor-factory';
  * @constructor
  */
 class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitServiceDefinition(serviceDefinition) {
+    canVisitServiceDefinition() {
         return true;
     }
 

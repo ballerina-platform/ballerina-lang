@@ -15,8 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import FunctionInvocationExpression from '../../ast/expressions/function-invocation-expression';
 
@@ -26,11 +24,8 @@ import FunctionInvocationExpression from '../../ast/expressions/function-invocat
  * @constructor
  */
 class FunctionInvocationExpressionVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitFuncInvocationExpression(functionInvocation) {
+    canVisitFuncInvocationExpression() {
         return true;
     }
 
@@ -39,10 +34,10 @@ class FunctionInvocationExpressionVisitor extends AbstractStatementSourceGenVisi
         this.appendSource(source);
     }
 
-    visitFuncInvocationExpression(functionInvocation) {
+    visitFuncInvocationExpression() {
     }
 
-    endVisitFuncInvocationExpression(functionInvocation) {
+    endVisitFuncInvocationExpression() {
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

@@ -16,15 +16,17 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import ConditionalStatement from './conditional-statement';
 import FragmentUtils from '../../utils/fragment-utils';
 
 /**
  * Class for if conditions in ballerina. Extended from Conditional-Statement
- * @constructor
  */
 class ElseIfStatement extends ConditionalStatement {
+    /**
+     * Constructor for if-else statement
+     * @param {object} args constructor arguments
+     */
     constructor(args) {
         super();
         if (!_.isNil(_.get(args, 'condition'))) {
@@ -42,6 +44,11 @@ class ElseIfStatement extends ConditionalStatement {
         };
     }
 
+    /**
+     * Set condition from string
+     * @param {string} conditionString condition string
+     * @returns {void}
+     */
     setConditionFromString(conditionString) {
         if (!_.isNil(conditionString)) {
             const fragment = FragmentUtils.createExpressionFragment(conditionString);
@@ -53,20 +60,39 @@ class ElseIfStatement extends ConditionalStatement {
         }
     }
 
+    /**
+     * Set condition expression
+     * @param {Expression} condition condition string
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setCondition(condition, options) {
         if (!_.isNil(condition)) {
             this.setAttribute('_condition', condition, options);
         }
     }
 
+    /**
+     * Get condition string
+     * @return {string|*} condition string
+     */
     getConditionString() {
         return this.getCondition().getExpressionString();
     }
 
+    /**
+     * Get condition expression
+     * @return {Expression} condition expression
+     */
     getCondition() {
         return this._condition;
     }
 
+    /**
+     * initialize Else If Statement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         if (!_.isNil(jsonNode.condition)) {
             const condition = this.getFactory().createFromJson(jsonNode.condition);
@@ -76,7 +102,8 @@ class ElseIfStatement extends ConditionalStatement {
         }
         _.each(jsonNode.children, (childNode) => {
             let child;
-            // FIXME Keeping existing fragile logic to detect connector declaration as it is for now. We should refactor this
+            // FIXME: Keeping existing fragile logic to detect connector
+            // declaration as it is for now. We should refactor this
             if (childNode.type === 'variable_definition_statement' &&
                 !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = this.getFactory().createConnectorDeclaration();

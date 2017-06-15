@@ -16,16 +16,20 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
 import Statement from './statement';
 import FragmentUtils from './../../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
-import log from 'log';
 
 /**
  * Class to represent an Assignment statement.
  * @constructor
  */
 class AssignmentStatement extends Statement {
+    /**
+     * Constructor for assignment statement
+     * @param {object} args constructor arguments
+     */
     constructor(args) {
         super('AssignmentStatement');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
@@ -40,6 +44,7 @@ class AssignmentStatement extends Statement {
     /**
      * initialize AssignmentStatement from json object
      * @param {Object} jsonNode to initialize from
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         this.children = [];
@@ -69,7 +74,9 @@ class AssignmentStatement extends Statement {
 
     /**
      * Set the statement from the statement string
-     * @param {string} statementString
+     * @param {string} stmtString statement string
+     * @param {function} callback function
+     * @returns {void}
      */
     setStatementFromString(stmtString, callback) {
         const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
@@ -119,8 +126,9 @@ class AssignmentStatement extends Statement {
     /**
      * Set the full package name.
      * @param {String} fullPkgName full package name
-     * @param {Object} options
-     * */
+     * @param {Object} options set attribute options
+     * @returns {void}
+     */
     setFullPackageName(fullPkgName, options) {
         this.setAttribute('_fullPackageName', fullPkgName, options);
     }

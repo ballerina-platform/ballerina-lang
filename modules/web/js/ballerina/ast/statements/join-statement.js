@@ -22,18 +22,26 @@ import FragmentUtils from './../../utils/fragment-utils';
 /**
  * Class for Join clause in ballerina.
  * Must always be added to ForkJoinStatement as a child
- * @param args {{joinType:string, param: ParameterDefinition}} join type and the param definition.
- * @constructor
  */
 class JoinStatement extends Statement {
+    /**
+     * Constructor for Join statement
+     * @param {object} args {{joinType:string, param: ParameterDefinition}} join type and the param definition.
+     * @constructor
+     */
     constructor(args) {
         super('JoinStatement');
         this._joinType = _.get(args, 'joinType', 'all');
         this._joinWorkers = _.get(args, 'joinWorkers', []);
         const parameterDefinition = this.getFactory().createParameterDefinition({ typeName: 'map', name: 'm' });
         this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
+        this._joinCount = _.get(args, 'joinCount');
     }
 
+    /**
+     * Get the worker declarations
+     * @return {Array} array of worker declarations
+     */
     getWorkerDeclarations() {
         const workerDeclarations = [];
         const self = this;
@@ -48,60 +56,119 @@ class JoinStatement extends Statement {
         }]);
     }
 
+    /**
+     * Set the join type
+     * @param {object} type join type
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setJoinType(type, options) {
         if (!_.isNil(type)) {
             this.setAttribute('_joinType', type, options);
         }
     }
 
-    setJoinConditionFromString(cond, callback) {
+    /**
+     * Set join condition from expression string
+     * @param {string} cond condition expression
+     * @returns {void}
+     */
+    setJoinConditionFromString(cond) {
         const fragment = FragmentUtils.createJoinCondition(cond);
         const parsedJson = FragmentUtils.parseFragment(fragment);
         this.initFromJson(parsedJson);
     }
 
+    /**
+     * Get join condition as a string
+     * @return {string} join condition string
+     */
     getJoinConditionString() {
-        return (this._joinType === 'any' ? 'some ' + this._joinCount : this._joinType) + ' ' + this._joinWorkers.join(',');
+        return (this._joinType === 'any' ? 'some ' + this._joinCount : this._joinType)
+            + ' ' + this._joinWorkers.join(',');
     }
 
+    /**
+     * Get join type
+     * @return {object} join type
+     */
     getJoinType() {
         return this._joinType;
     }
 
+    /**
+     * Set join count
+     * @param {number} count join count
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setJoinCount(count, options) {
         if (!_.isNil(count)) {
             this.setAttribute('_joinCount', count, options);
         }
     }
 
+    /**
+     * Get join count
+     * @return {number} join count
+     */
     getJoinCount() {
         return this._joinCount;
     }
 
+    /**
+     * Set the workers inside join statement
+     * @param {WorkerDeclaration[]} workers worker declarations
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setJoinWorkers(workers, options) {
         if (!_.isNil(workers)) {
             this.setAttribute('_joinWorkers', workers, options);
         }
     }
 
+    /**
+     * Get the join workers
+     * @return {WorkerDeclaration[]} worker declaration array
+     */
     getJoinWorkers() {
         return this._joinWorkers;
     }
 
+    /**
+     * Set parameter
+     * @param {object} type parameter type
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setParameter(type, options) {
         if (!_.isNil(type)) {
             this.setAttribute('_joinParameter', type, options);
         }
     }
 
+    /**
+     * Get join parameter
+     * @return {ParameterDefinition} join parameter
+     */
     getParameter() {
         return this._joinParameter;
     }
 
+    /**
+     * Get parameter as string
+     * @return {string} parameter as a string
+     */
     getParameterAsString() {
         return this.getParameter().getParameterDefinitionAsString();
     }
 
+    /**
+     * Set parameter as string
+     * @param {string} str parameter string
+     * @returns {void}
+     */
     setParameterAsString(str) {
         const myRegexp = /^\s*(map\s*)([^\s\[\]]+)\s*$/g;
         const match = myRegexp.exec(str);
@@ -114,6 +181,11 @@ class JoinStatement extends Statement {
         }
     }
 
+    /**
+     * initialize JoinStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         const self = this;
         self.setJoinType(jsonNode.join_type);

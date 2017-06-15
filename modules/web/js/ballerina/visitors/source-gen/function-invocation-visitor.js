@@ -18,11 +18,8 @@
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
 class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitFuncInvocationStatement(functionInvocation) {
+    canVisitFuncInvocationStatement() {
         return true;
     }
 

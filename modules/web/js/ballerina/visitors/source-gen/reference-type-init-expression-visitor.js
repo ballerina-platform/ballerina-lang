@@ -15,30 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
 class RefTypeInitExpressionVisitor extends AbstractExpressionSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitReferenceTypeInitExpression(expression) {
+    canVisitReferenceTypeInitExpression() {
         return true;
     }
 
-    beginVisitReferenceTypeInitExpression(expression) {
+    beginVisitReferenceTypeInitExpression() {
         this.appendSource('{}');
         log.debug('Begin Visit Ref Type Init Expression');
     }
 
-    visitReferenceTypeInitExpression(expression) {
+    visitReferenceTypeInitExpression() {
         log.debug('Visit Ref Type Init  Expression');
     }
 
-    endVisitReferenceTypeInitExpression(expression) {
+    endVisitReferenceTypeInitExpression() {
         this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         log.debug('End Visit Ref Type Init  Expression');
     }

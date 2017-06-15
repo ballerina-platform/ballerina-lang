@@ -22,9 +22,13 @@ import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class to represent worker reply statement in ballerina.
- * @constructor
  */
 class WorkerReplyStatement extends Statement {
+    /**
+     * Constructor for WorkerReplyStatement
+     * @param {object} args - constructor arguments for WorkerReplyStatement
+     * @constructor
+     */
     constructor(args) {
         super('WorkerReplyStatement');
         this._source = _.get(args, 'source');
@@ -34,25 +38,44 @@ class WorkerReplyStatement extends Statement {
         this._workerName = _.get(args, 'workerName', 'workerName');
     }
 
+    /**
+     * Set the source worker
+     * @param {ASTNode} source - source worker
+     * @returns {void}
+     */
     setSource(source) {
         this._source = source;
     }
 
+    /**
+     * Get the source worker
+     * @returns {ASTNode} - source worker
+     */
     getSource() {
         return this._source;
     }
 
+    /**
+     * Set Destination Worker
+     * @param {ASTNode} destination - destination worker
+     * @returns {void}
+     */
     setDestination(destination) {
         this._destination = destination;
     }
 
+    /**
+     * Get the destination worker
+     * @returns {ASTNode} - destination worker
+     */
     getDestination() {
         return this._destination;
     }
 
     /**
      * Set destination worker Name
-     * @param {string} workerName
+     * @param {string} workerName - worker name
+     * @returns {void}
      */
     setWorkerName(workerName) {
         this._workerName = workerName;
@@ -66,10 +89,19 @@ class WorkerReplyStatement extends Statement {
         return this._workerName;
     }
 
+    /**
+     * Add the expression to the expression list
+     * @param {expression} expression - expression to be added to the expression list
+     * @returns {void}
+     */
     addToExpressionList(expression) {
         this._expressionList.push(expression);
     }
 
+    /**
+     * Get the expression list
+     * @return {Expression[]} - expression list
+     */
     getExpressionList() {
         return this._expressionList;
     }
@@ -99,8 +131,8 @@ class WorkerReplyStatement extends Statement {
 
     /**
      * Set the statement from the string
-     * @param {string} statementString
-     * @param {function} callback
+     * @param {string} statementString - statement string from which the statement is being set
+     * @param {function} callback - callback function
      * @override
      */
     setStatementFromString(statementString, callback) {
@@ -128,17 +160,23 @@ class WorkerReplyStatement extends Statement {
         }
     }
 
+    /**
+     * Define what type of nodes that this node can be added as a child.
+     * @param {ASTNode} node - Parent node that this node becoming a child of.
+     * @return {boolean} true|false.
+     */
     canBeAChildOf(node) {
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
             || this.getFactory().isWorkerDeclaration(node)
             || this.getFactory().isConnectorAction(node)
-            || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
+            || this.getFactory().isStatement(node);
     }
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize WorkerReplyStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         const workerName = jsonNode.worker_name;
@@ -155,7 +193,8 @@ class WorkerReplyStatement extends Statement {
         let workerInstance;
         if (!_.isNil(this.getParent())) {
             workerInstance = _.find(this.getParent().getChildren(), (child) => {
-                return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
+                return self.getFactory().isWorkerDeclaration(child)
+                    && !child.isDefaultWorker() && child.getWorkerName() === workerName;
             });
         }
         this.setDestination(workerInstance);

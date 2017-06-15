@@ -21,10 +21,13 @@ import Statement from './statement';
 
 /**
  * Class for return statement in ballerina.
- * @param expression zero or many expressions for a return statement.
- * @constructor
  */
 class ReturnStatement extends Statement {
+    /**
+     * Constructor for return statement
+     * @param {object} args zero or many expressions for a return statement.
+     * @constructor
+     */
     constructor(args) {
         super();
         this._expression = _.get(args, 'expression', '');
@@ -37,6 +40,12 @@ class ReturnStatement extends Statement {
         };
     }
 
+    /**
+     * Set expression
+     * @param {string} expression expression string to be set
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setExpression(expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
@@ -45,23 +54,37 @@ class ReturnStatement extends Statement {
         }
     }
 
+    /**
+     * Check whether, Can be a child of the given node
+     * @param {ASTNode} node ast node to be check against
+     * @return {boolean} can be a child of status
+     */
     canBeAChildOf(node) {
         return this.getFactory().isFunctionDefinition(node) ||
                this.getFactory().isConnectorAction(node) ||
             this.getFactory().isStatement(node);
     }
 
+    /**
+     * Get return expression as a string
+     * @return {string} return expression as string
+     */
     getReturnExpression() {
         return 'return' + this.getWSRegion(1) + this.getExpression();
     }
 
+    /**
+     * Get Expression
+     * @return {Expression} expression to return
+     */
     getExpression() {
         return this._expression;
     }
 
     /**
      * initialize from json
-     * @param jsonNode
+     * @param {object} jsonNode json node which is from the statement initialized
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         const self = this;

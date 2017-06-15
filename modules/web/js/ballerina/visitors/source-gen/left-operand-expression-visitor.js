@@ -16,17 +16,11 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
-import ExpressionVisitorFactory from './expression-visitor-factory';
 
 class LeftOperandExpressionVisitor extends AbstractExpressionSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitLeftOperandExpression(leftOperandExpression) {
+    canVisitLeftOperandExpression() {
         return true;
     }
 
@@ -36,7 +30,7 @@ class LeftOperandExpressionVisitor extends AbstractExpressionSourceGenVisitor {
         }
     }
 
-    endVisitLeftOperandExpression(leftOperandExpression) {
+    endVisitLeftOperandExpression() {
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

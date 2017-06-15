@@ -40,6 +40,7 @@ class ExpressionViewFactory {
         } else if (ASTFactory.isRightOperandExpression(expression)) {
             return new RightOperandExpressionVisitor(expression);
         }
+        return undefined;
     }
 }
 

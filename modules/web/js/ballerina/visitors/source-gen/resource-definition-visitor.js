@@ -15,13 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
-import ExpressionVisitorFactory from './expression-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
-import VariableDeclarationVisitor from './variable-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
 /**
@@ -29,11 +26,8 @@ import WorkerDeclarationVisitor from './worker-declaration-visitor';
  * @constructor
  */
 class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitResourceDefinition(resourceDefinition) {
+    canVisitResourceDefinition() {
         return true;
     }
 
@@ -49,12 +43,13 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
-        _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), (annotationNode) => {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString()
-                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-            }
-        });
+        _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation),
+            (annotationNode) => {
+                if (annotationNode.isSupported()) {
+                    constructedSourceSegment += annotationNode.toString()
+                        + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
+                }
+            });
 
         constructedSourceSegment += 'resource' + resourceDefinition.getWSRegion(0)
                   + resourceDefinition.getResourceName()
@@ -69,7 +64,7 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
         this.indent();
     }
 
-    visitResourceDefinition(resourceDefinition) {
+    visitResourceDefinition() {
     }
 
     visitStatement(statement) {

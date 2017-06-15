@@ -20,9 +20,13 @@ import Statement from './statement';
 
 /**
  * Class to represent an Transform statement.
- * @constructor
  */
 class TransformStatement extends Statement {
+    /**
+     * Constructor for TransformStatement
+     * @param {object} args - transform statement arguments
+     * @override
+     */
     constructor(args) {
         super(args);
         this.input = _.get(args, 'input', []);
@@ -30,18 +34,36 @@ class TransformStatement extends Statement {
         this.type = 'TransformStatement';
     }
 
+    /**
+     * set input
+     * @param {object} input - input to be set
+     * @returns {void}
+     */
     setInput(input) {
         this.input = input;
     }
 
+    /**
+     * Set output
+     * @param {object} output - output to be set
+     * @returns {void}
+     */
     setOutput(output) {
         this.output = output;
     }
 
+    /**
+     * Get input
+     * @return {Object} input
+     */
     getInput() {
         return this.input;
     }
 
+    /**
+     * Get output
+     * @return {Object} output
+     */
     getOutput() {
         return this.output;
     }
@@ -51,6 +73,7 @@ class TransformStatement extends Statement {
      * @param {Object} jsonNode to initialize from
      * @param {Object} jsonNode.transform_input input variable refs for transform statement
      * @param {Object} jsonNode.transform_output output variable refs for transform statement
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         _.each(jsonNode.transform_input, (childNode) => {
@@ -75,6 +98,9 @@ class TransformStatement extends Statement {
     /**
      * Override the removeChild function
      * @param {ASTNode} child - child node
+     * @param {boolean} ignoreModifiedTreeEvent - whether ignore th tree modified event
+     * @param {boolean} willVisit - whether visit or not
+     * @returns {void}
      */
     removeChild(child, ignoreModifiedTreeEvent, willVisit) {
         if (!_.isUndefined(willVisit) && willVisit !== true) {

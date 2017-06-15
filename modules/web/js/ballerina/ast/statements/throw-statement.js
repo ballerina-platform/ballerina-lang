@@ -22,15 +22,23 @@ import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Class for throw statement in ballerina.
- * @param expression one expression for a throw statement.
- * @constructor
  */
 class ThrowStatement extends Statement {
-    constructor(args) {
+    /**
+     * Constructor for throw statement
+     * @constructor
+     */
+    constructor() {
         super('ThrowStatement');
         this.type = 'ThrowStatement';
     }
 
+    /**
+     * Set expression
+     * @param {expression} expression throw statement expression
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setExpression(expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
@@ -41,8 +49,8 @@ class ThrowStatement extends Statement {
 
     /**
      * Set the throw statement string
-     * @param {string} statementString
-     * @param {function} callback
+     * @param {string} statementString statement string from which is statement set
+     * @param {function} callback callback function
      * @override
      */
     setStatementFromString(statementString, callback) {
@@ -82,6 +90,7 @@ class ThrowStatement extends Statement {
     /**
      * initialize ThrowStatement from json object
      * @param {Object} jsonNode to initialize from
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;

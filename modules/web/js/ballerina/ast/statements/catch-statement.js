@@ -25,6 +25,10 @@ import ConditionalStatement from './conditional-statement';
  * @extends ConditionalStatement
  */
 class CatchStatement extends ConditionalStatement {
+    /**
+     * Constructor for catch statement
+     * @param {object} args constructor arguments
+     */
     constructor(args) {
         super();
         this._parameter = _.get(args, 'parameter');
@@ -42,24 +46,49 @@ class CatchStatement extends ConditionalStatement {
         };
     }
 
+    /**
+     * Set parameter
+     * @param {string} parameter parameter instance
+     * @param {options} options set attribute options
+     * @returns {void}
+     */
     setParameter(parameter, options) {
         if (!_.isNil(parameter)) {
             this.setAttribute('_parameter', parameter, options);
         }
     }
 
+    /**
+     * Get parameter
+     * @return {object} parameter
+     */
     getParameter() {
         return this._parameter;
     }
 
+    /**
+     * Get the parameter definition string
+     * @returns {string} parameter definition string
+     */
     getParameterDefString() {
         return this._parameterDefString;
     }
 
+    /**
+     * Set parameter definition string
+     * @param {string} paramDef parameter instance
+     * @param {options} options set attribute options
+     * @returns {void}
+     */
     setParameterDefString(paramDef, options) {
         this.setAttribute('_parameterDefString', paramDef, options);
     }
 
+    /**
+     * initialize from json
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         const self = this;
         const parameterDef = jsonNode.parameter_definition;

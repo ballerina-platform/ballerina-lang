@@ -16,15 +16,13 @@
  * under the License.
  */
 import log from 'log';
+import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
 class TimeoutStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitTimeoutStatement(timeoutStatement) {
+    canVisitTimeoutStatement() {
         return true;
     }
 
@@ -35,7 +33,7 @@ class TimeoutStatementVisitor extends AbstractStatementSourceGenVisitor {
         log.debug('Begin Visit Timeout Statement');
     }
 
-    endVisitTimeoutStatement(timeoutStatement) {
+    endVisitTimeoutStatement() {
         this.appendSource('}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Timeout Statement');

@@ -21,10 +21,12 @@ import Statement from './statement';
 /**
  * Class for Timeout clause in ballerina.
  * Must always be added to ForkJoinStatement as a child
- * @param args none.
- * @constructor
  */
 class TimeoutStatement extends Statement {
+    /**
+     * Constructor for timeout statement
+     * @param {object} args arguments for timeout statement
+     */
     constructor(args) {
         super('TimeoutStatement');
         const parameterDefinition = this.getFactory().createParameterDefinition({ typeName: 'map', name: 'm' });
@@ -32,6 +34,10 @@ class TimeoutStatement extends Statement {
         this._expression = _.get(args, 'expression', '60');
     }
 
+    /**
+     * Get the worker declarations
+     * @return {WorkerDeclaration[]} worker declaration array
+     */
     getWorkerDeclarations() {
         const workerDeclarations = [];
         const self = this;
@@ -46,16 +52,31 @@ class TimeoutStatement extends Statement {
         }]);
     }
 
+    /**
+     * Get the parameter as a string
+     * @return {string} parameters string
+     */
     getParameterAsString() {
         return this.getParameter().getParameterDefinitionAsString();
     }
 
+    /**
+     * Set the expression
+     * @param {string} expression expression string to set
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setExpression(expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
         }
     }
 
+    /**
+     * Set parameter as string
+     * @param {string} str parameter string being set
+     * @returns {void}
+     */
     setParameterAsString(str) {
         const myRegexp = /^\s*(map\s*)([^\s\[\]]+)\s*$/g;
         const match = myRegexp.exec(str);
@@ -68,20 +89,39 @@ class TimeoutStatement extends Statement {
         }
     }
 
+    /**
+     * Get the expression string
+     * @returns {string} expression string
+     */
     getExpression() {
         return this._expression;
     }
 
+    /**
+     * Set parameter
+     * @param {object} type parameter type
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setParameter(type, options) {
         if (!_.isNil(type)) {
             this.setAttribute('_timeoutParameter', type, options);
         }
     }
 
+    /**
+     * Get timeout parameter
+     * @return {object} timeout parameter
+     */
     getParameter() {
         return this._timeoutParameter;
     }
 
+    /**
+     * initialize TimeoutStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         const self = this;
         const expressionChildNode = jsonNode.expression;

@@ -24,10 +24,13 @@ import BallerinaASTFactory from './../ballerina-ast-factory';
 
 /**
  * Class for if conditions in ballerina.
- * @constructor
  */
-
 class IfElseStatement extends Statement {
+    /**
+     * Constructor for IfElseStatement
+     * @param {object} args arguments for IfElseStatement
+     * @constructor
+     */
     constructor(args) {
         super('IfElseStatement');
 
@@ -35,18 +38,36 @@ class IfElseStatement extends Statement {
         this.createIfStatement(args);
     }
 
+    /**
+     * Get the If statement
+     * @return {IfStatement} if statement
+     */
     getIfStatement() {
         return this._ifStatement;
     }
 
+    /**
+     * Get the Else statement
+     * @return {ElseStatement} else statement
+     */
     getElseStatement() {
         return this._elseStatement;
     }
 
+    /**
+     * Get the ElseIf statement
+     * @return {ElseIfStatement} else if statement
+     */
     getElseIfStatements() {
         return this._elseIfStatements;
     }
 
+    /**
+     * Set the if statement
+     * @param {IfStatement} ifStatement if statement to be set
+     * @param {object} options set attribute options
+     * @returns {void}
+     */
     setIfStatement(ifStatement, options) {
         if (!_.isNil(this._ifStatement)) {
             this._ifStatement.remove();
@@ -55,8 +76,9 @@ class IfElseStatement extends Statement {
     }
 
     /**
-     * creates Else Statement
-     * @param args
+     * creates If Statement
+     * @param {object} args arguments for if-else statement
+     * @returns {IfStatement} if else node
      */
     createIfStatement(args) {
         const newIfStmt = new IfStatement(args);
@@ -67,7 +89,8 @@ class IfElseStatement extends Statement {
 
     /**
      * creates Else Statement
-     * @param args
+     * @param {object} args Else statement arguments
+     * @returns {ElseStatement} else statement
      */
     createElseStatement(args) {
         const newElseStatement = new ElseStatement(args);
@@ -78,7 +101,8 @@ class IfElseStatement extends Statement {
 
     /**
      * creates Else If Statement
-     * @param args
+     * @param {object} args arguments for elseif statement
+     * @returns {ElseIfStatement} Else if Statement
      */
     createElseIfStatement(args) {
         const condition = this.getFactory().createBasicLiteralExpression({
@@ -92,11 +116,22 @@ class IfElseStatement extends Statement {
         return newElseIfStatement;
     }
 
+    /**
+     * Add the else statement
+     * @param {ElseStatement} elseStatement else statement to add
+     * @returns {void}
+     */
     addElseStatement(elseStatement) {
         this._elseStatement = elseStatement;
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, elseStatement);
     }
 
+    /**
+     * Add else if statement
+     * @param {ElseIfStatement} elseIfStatement else if statement to add
+     * @param {number} index index where to be add
+     * @returns {void}
+     */
     addElseIfStatement(elseIfStatement, index) {
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
             return BallerinaASTFactory.isElseStatement(node);
@@ -110,13 +145,14 @@ class IfElseStatement extends Statement {
 
     /**
      * Override the addChild method for ordering the child elements
-     * @param {ASTNode} child
-     * @param {number|undefined} index
+     * @param {ASTNode} child child to be added
+     * @param {number} index index where to add the child
+     * @param {boolean} ignoreTreeModifiedEvent whether ignore tree modified event
+     * @param {boolean} ignoreChildAddedEvent whether ignore tree child added event
+     * @param {boolean} generateId whether generate id
+     * @returns {void}
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-        const lastElseIfIndex = _.findLastIndex(this.getChildren(), (node) => {
-            return BallerinaASTFactory.isElseIfStatement(node);
-        });
 
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
             return BallerinaASTFactory.isElseStatement(node);
@@ -136,6 +172,7 @@ class IfElseStatement extends Statement {
      * @param {Object} [jsonNode.if_statement] - If statement
      * @param {Object} [jsonNode.else_statement] - Else statement
      * @param {Object} [jsonNode.else_if_statements] - Else If statements
+     * @returns {void}
      */
     initFromJson(jsonNode) {
         // create if statement
@@ -163,8 +200,8 @@ class IfElseStatement extends Statement {
                     this.addChild(elseIfStatement);
                     elseIfStatement.initFromJson(elseIfStmtNode);
                     this._elseIfStatements.push(elseIfStatement);
-            	}
-        	});
+                }
+            });
         }
     }
 }

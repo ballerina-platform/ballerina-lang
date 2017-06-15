@@ -15,17 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
-import log from 'log';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 import ExpressionVisitorFactory from './expression-visitor-factory';
 
 class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitTypeConversionExpression(expression) {
+    canVisitTypeConversionExpression() {
         return true;
     }
 
@@ -33,10 +28,10 @@ class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
         this.appendSource('<' + expression.getName() + '>');
     }
 
-    visitTypeConversionExpression(expression) {
+    visitTypeConversionExpression() {
     }
 
-    endVisitTypeConversionExpression(expression) {
+    endVisitTypeConversionExpression() {
         this.getParent().appendSource(this.getGeneratedSource());
     }
 

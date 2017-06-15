@@ -15,18 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 import ExpressionVisitorFactory from './expression-visitor-factory';
 
 class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitTypeCastExpression(expression) {
+    canVisitTypeCastExpression() {
         return true;
     }
 
@@ -35,11 +30,11 @@ class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
         log.debug('Begin Visit Type Cast Expression');
     }
 
-    visitTypeCastExpression(expression) {
+    visitTypeCastExpression() {
         log.debug('Visit Ref Type Type Cast Expression');
     }
 
-    endVisitTypeCastExpression(expression) {
+    endVisitTypeCastExpression() {
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Type Cast Expression');
     }

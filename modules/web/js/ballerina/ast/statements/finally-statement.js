@@ -23,6 +23,9 @@ import Statement from './statement';
  * @constructor
  */
 class FinallyStatement extends Statement {
+    /**
+     * Constructor for finally statement
+     */
     constructor() {
         super();
         this.type = 'FinallyStatement';
@@ -34,6 +37,11 @@ class FinallyStatement extends Statement {
         };
     }
 
+    /**
+     * initialize FinallyStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @returns {void}
+     */
     initFromJson(jsonNode) {
         const self = this;
         _.each(jsonNode.children, (childNode) => {

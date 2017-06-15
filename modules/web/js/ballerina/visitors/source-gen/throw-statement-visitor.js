@@ -15,23 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
 class ThrowStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitThrowStatement(throwStatement) {
+    canVisitThrowStatement() {
         return true;
     }
 
-    beginVisitThrowStatement(throwStatement) {
+    beginVisitThrowStatement() {
         this.appendSource('throw ');
     }
 
-    visitThrowStatement(throwStatement) {
+    visitThrowStatement() {
     }
 
     endVisitThrowStatement(throwStatement) {

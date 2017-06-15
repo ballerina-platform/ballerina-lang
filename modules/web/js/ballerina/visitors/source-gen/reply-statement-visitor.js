@@ -18,11 +18,8 @@
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
 class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-    }
 
-    canVisitReplyStatement(replyStatement) {
+    canVisitReplyStatement() {
         return true;
     }
 
@@ -34,7 +31,7 @@ class ReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
         this.appendSource('reply' + replyStatement.getWSRegion(1) + replyStatement.getReplyMessage());
     }
 
-    visitReplyStatement(replyStatement) {
+    visitReplyStatement() {
     }
 
     endVisitReplyStatement(replyStatement) {
