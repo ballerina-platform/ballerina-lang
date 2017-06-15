@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import React from 'react';
-import { storiesOf, action, linkTo } from '@kadira/storybook';
+import { storiesOf } from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
 import StatementContainer from '../js/ballerina/components/statement-container';
 import { components } from '../js/ballerina/components/components';
@@ -27,16 +28,16 @@ const canvasBbox = {
     h: 500,
 };
 
-storiesOf('Break-Statement', module)
-    .add('default view', () => {
-        const breakStatement = React.createElement(components.BreakStatement,
-            { model: { viewState: { bBox: { x: 0, y: 0, w: 200, h: 50 } },
-                expression: 'break' } }, null);
-        return (
-          <CanvasDecorator bBox={canvasBbox}>
-            <StatementContainer>
-              {breakStatement}
-            </StatementContainer>
-          </CanvasDecorator>
-        );
-    });
+storiesOf('CanvasDecorator', module)
+  .add('default view', () => {
+      const functionInvocation = React.createElement(components.FunctionInvocationStatement,
+          { model: { viewState: { bBox: { x: 0, y: 0, w: 200, h: 50 } },
+              expression: 'this is the expression' } }, null);
+      return (
+        <CanvasDecorator bBox={canvasBbox}>
+          <StatementContainer>
+            {functionInvocation}
+          </StatementContainer>
+        </CanvasDecorator>
+      );
+  });

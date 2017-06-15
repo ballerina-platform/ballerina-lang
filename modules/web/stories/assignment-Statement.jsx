@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import React from 'react';
-import { storiesOf, action, linkTo } from '@kadira/storybook';
+import { storiesOf } from '@kadira/storybook';
 import CanvasDecorator from '../js/ballerina/components/canvas-decorator';
 import StatementContainer from '../js/ballerina/components/statement-container';
 import { components } from '../js/ballerina/components/components';
@@ -28,19 +27,19 @@ const canvasBbox = {
     h: 500,
 };
 
-storiesOf('Throw-Statement', module)
+storiesOf('Assignment-Statement', module)
     .add('default view', () => {
-        const throwStatement = React.createElement(components.ThrowStatement,
+        const assignmentStatement = React.createElement(components.AssignmentStatement,
             {
                 model: {
                     viewState: { bBox: { x: 0, y: 0, w: 200, h: 50 } },
-                    expression: 'throw Exception',
+                    expression: 'a = b',
                 },
             }, null);
         return (
           <CanvasDecorator bBox={canvasBbox}>
             <StatementContainer>
-              {throwStatement}
+              {assignmentStatement}
             </StatementContainer>
           </CanvasDecorator>
         );
