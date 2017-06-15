@@ -278,8 +278,14 @@ class ASTNode extends EventChannel {
     filterChildrenInScope(predicateFunction) {
         var children = [];
         var scope = this;
-        while(!_.isUndefined(scope)) {
-            children = children.concat(scope.getChildren());
+        var scopeIndex = this.getParent().getIndexOfChild(this);
+        //Traverse through current scopes parents
+        while(!_.isUndefined(scope.getParent())) {
+            //Get children declared before the current scope with the index
+            children = children.concat(
+                            _.filter(scope.getChildren(),
+                                    (curNode) => { return curNode.getParent().getIndexOfChild(curNode) < scopeIndex }));
+            scopeIndex = scope.getParent().getIndexOfChild(scope);
             scope = scope.getParent();
         }
         return _.filter(children, predicateFunction);
