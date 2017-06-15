@@ -90,12 +90,12 @@ class TransformStatementDecorator extends React.Component {
         const pointY = this.statementBox.y - breakpointSize / 2;
         return (
           <Breakpoint
-            x={pointX}
-            y={pointY}
-            size={breakpointSize}
-            isBreakpoint={this.props.model.isBreakpoint}
-            onClick={() => this.onBreakpointClick()}
-          />
+                  x={pointX}
+                  y={pointY}
+                  size={breakpointSize}
+                  isBreakpoint={this.props.model.isBreakpoint}
+                  onClick={() => this.onBreakpointClick()}
+                />
         );
     }
 
@@ -112,50 +112,44 @@ class TransformStatementDecorator extends React.Component {
     onExpand() {
         self = this;
         this._package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
-        const sourceId = `sourceStructs${this.props.model.id}`;
-        const targetId = `targetStructs${ this.props.model.id}`;
+        let sourceId = 'sourceStructs' + this.props.model.id;
+        let targetId = 'targetStructs' + this.props.model.id;
 
-        const sourceContent = $(
-                `${'<div class="source-view">' +
-                '<select id="'}${ sourceId }" class="type-mapper-combo">` +
+        let sourceContent = $(
+                '<div class="source-view">' +
+                '<select id="' + sourceId + '" class="type-mapper-combo">' +
                 '<option value="-1">-- Select source --</option>' +
-                '</select>'+
-                ' <span id="btn-add-source" class="btn-add-type fw-stack fw-lg btn btn-add">'+
-                '            <i class="fw fw-add fw-stack-1x"></i>'+
-                '          </span>'+
-                '           <span id="btn-remove-source" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
-                '            <i class="fw fw-delete fw-stack-1x"></i>'+
+                '</select>' +
+                ' <span id="btn-add-source" class="btn-add-type fw-stack fw-lg btn btn-add">' +
+                '            <i class="fw fw-add fw-stack-1x"></i>' +
                 '          </span>' +
                 '</div><div class="leftType"></div>');
 
-        const middleContent = $('<div class="middle-content"></div>');
+        let middleContent = $('<div class="middle-content"></div>');
 
-        const targetContent = $(
-                `${'<div class="target-view">' +
-                '<select id="'}${targetId }" class="type-mapper-combo">` +
+        let targetContent = $(
+                '<div class="target-view">' +
+                '<select id="' + targetId + '" class="type-mapper-combo">' +
                 '<option value="-1">-- Select target --</option>' +
                 '</select>' +
-                ' <span id="btn-add-target" class="btn-add-type fw-stack fw-lg btn btn-add">'+
-                '            <i class="fw fw-add fw-stack-1x"></i>'+
-                '          </span>'+
-                '           <span id="btn-remove-target" class="btn-remove-type fw-stack fw-lg btn btn-remove">'+
-                '            <i class="fw fw-delete fw-stack-1x"></i>'+
+                ' <span id="btn-add-target" class="btn-add-type fw-stack fw-lg btn btn-add">' +
+                '            <i class="fw fw-add fw-stack-1x"></i>' +
                 '          </span>' +
                 '</div><div class="rightType"></div>');
 
-        const transformNameText = $('<p class="transform-header-text ">'
+        let transformNameText = $('<p class="transform-header-text ">'
                                 + '<i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
-        const transformHeader = $('<div id ="transformHeader" class ="transform-header">'
+        let transformHeader = $('<div id ="transformHeader" class ="transform-header">'
                                 + '<i class="fw fw-cancel fw-helper fw-helper-circle-outline icon close-transform"></i></div>');
-        const transformHeaderPadding = $('<div id ="transformHeaderPadding" class ="transform-header-padding"></div>');
-        const transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
+        let transformHeaderPadding = $('<div id ="transformHeaderPadding" class ="transform-header-padding"></div>');
+        let transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
-        const transformOverlayContent = $('<div id = "transformOverlay-content" class="transformOverlay-content">' +
+        let transformOverlayContent = $('<div id = "transformOverlay-content" class="transformOverlay-content">' +
                                               '    </div>');
 
-        const transformOverlay = $('<div id="transformOverlay" class="transformOverlay">' +
+        let transformOverlay = $('<div id="transformOverlay" class="transformOverlay">' +
                                      '  </div>');
-        const transformFooter = $('<div id ="transformFooter" class ="transform-footer"></div>');
+        let transformFooter = $('<div id ="transformFooter" class ="transform-footer"></div>');
 
         transformOverlayContent.append(transformHeader);
         transformHeader.append(transformNameText);
@@ -179,18 +173,19 @@ class TransformStatementDecorator extends React.Component {
 	        this.onTransformDropZoneDeactivate(e);
         });
 
-        const span = document.getElementsByClassName('close-transform')[0];
+        let span = document.getElementsByClassName('close-transform')[0];
 
         this.predefinedStructs = [];
-        const transformIndex = this.props.model.parent.getIndexOfChild(this.props.model);
-        _.forEach(this.props.model.parent.getVariableDefinitionStatements(), (variableDefStmt) => {
-            const currentIndex = this.props.model.parent.getIndexOfChild(variableDefStmt);
+        let transformIndex = this.props.model.parent.getIndexOfChild(this.props.model);
+        _.forEach(this.props.model.filterChildrenInScope(
+                                     this.props.model.getFactory().isVariableDefinitionStatement), (variableDefStmt) => {
+            let currentIndex = this.props.model.parent.getIndexOfChild(variableDefStmt);
             let isStruct = false;
                // Checks struct defined before the transform statement
             if (currentIndex < transformIndex) {
                 _.forEach(this._package.getStructDefinitions(), (predefinedStruct) => {
                     if (variableDefStmt.children[0].getVariableType() == predefinedStruct.getStructName()) {
-                        const struct = self.createType(variableDefStmt.children[0].getVariableName(),
+                        let struct = self.createType(variableDefStmt.children[0].getVariableName(),
                                                         variableDefStmt.children[0].getVariableType(), predefinedStruct);
                         self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
                         self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
@@ -199,7 +194,7 @@ class TransformStatementDecorator extends React.Component {
                 });
 
                 if (!isStruct) {
-                    const variableType = {};
+                    let variableType = {};
                     variableType.id = variableDefStmt.id;
                     variableType.name = variableDefStmt.children[0].getVariableName();
                     variableType.type = variableDefStmt.children[0].getVariableType();
@@ -212,46 +207,24 @@ class TransformStatementDecorator extends React.Component {
         $('.type-mapper-combo').select2();
 
         $('#btn-add-source').click((e) => {
-            const currentSelection = $(`#${sourceId}`).val();
-            if (self.setSource(currentSelection, self.predefinedStructs)) {
-                const inputDef = BallerinaASTFactory
-                                        .createVariableReferenceExpression({ variableName: currentSelection });
-                const inputs = self.props.model.getInput();
+            let currentSelection = $('#' + sourceId).val();
+            let inputDef = BallerinaASTFactory
+                                    .createVariableReferenceExpression({ variableName: currentSelection });
+            if (self.setSource(currentSelection, self.predefinedStructs, self.props.model, inputDef.id)) {
+                let inputs = self.props.model.getInput();
                 inputs.push(inputDef);
                 self.props.model.setInput(inputs);
             }
         });
 
-        $('#btn-remove-source').click((e) => {
-            const currentSelection = $(`#${sourceId}`).val();
-            if (currentSelection != -1) {
-                self.mapper.removeType(currentSelection);
-                self.props.model.setInput([]);
-                const currentSelectionObj = _.find(self.predefinedStructs, { name: currentSelection });
-                currentSelectionObj.added = false;
-                self.props.model.children = [];
-            }
-        });
-
         $('#btn-add-target').click((e) => {
-            const currentSelection = $(`#${targetId}`).val();
-            if (self.setTarget(currentSelection, self.predefinedStructs)) {
-                const outDef = BallerinaASTFactory
-                                        .createVariableReferenceExpression({ variableName: currentSelection });
-                const outputs = self.props.model.getOutput();
+            let currentSelection = $('#' + targetId).val();
+            let outDef = BallerinaASTFactory
+                                    .createVariableReferenceExpression({ variableName: currentSelection });
+            if (self.setTarget(currentSelection, self.predefinedStructs, self.props.model, outDef.id)) {
+                let outputs = self.props.model.getOutput();
                 outputs.push(outDef);
                 self.props.model.setOutput(outputs);
-            }
-        });
-
-        $('#btn-remove-target').click((e) => {
-            const currentSelection = $(`#${targetId}`).val();
-            if (currentSelection != -1) {
-                self.mapper.removeType(currentSelection);
-                self.props.model.setOutput([]);
-                const currentSelectionObj = _.find(self.predefinedStructs, { name: currentSelection });
-                currentSelectionObj.added = false;
-                self.props.model.children = [];
             }
         });
 
@@ -268,36 +241,36 @@ class TransformStatementDecorator extends React.Component {
             $(transformOverlay).remove();
         };
 
-        const onConnectionCallback = function (connection) {
-            // on creating a connection
-            const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
-            const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
-            let sourceExpression;
-            let targetExpression;
+        let onConnectionCallback = function(connection) {
+            //on creating a connection
+            let sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
+            let targetStruct = _.find(self.predefinedStructs, { name:connection.targetStruct});
+            var sourceExpression;
+            var targetExpression;
 
-            if (sourceStruct != null) {
+            if(sourceStruct != null){
                 if (sourceStruct.type == 'struct') {
                     sourceExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
                 } else {
                     sourceExpression = BallerinaASTFactory
-                                                 .createVariableReferenceExpression({ variableName: sourceStruct.name });
+                                                 .createVariableReferenceExpression({variableName: sourceStruct.name});
                 }
             }
-            if (targetStruct != null) {
+            if(targetStruct != null){
                 if (targetStruct.type == 'struct') {
                     targetExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
                 } else {
                     targetExpression = BallerinaASTFactory
-                                                .createVariableReferenceExpression({ variableName: targetStruct.name });
+                                                .createVariableReferenceExpression({variableName: targetStruct.name});
                 }
             }
 
             if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
-                // Connection is from source struct to target struct.
-                const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-                const leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+                //Connection is from source struct to target struct.
+                let assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+                let leftOperand = BallerinaASTFactory.createLeftOperandExpression();
                 leftOperand.addChild(targetExpression);
-                const rightOperand = BallerinaASTFactory.createRightOperandExpression();
+                let rightOperand = BallerinaASTFactory.createRightOperandExpression();
                 rightOperand.addChild(sourceExpression);
                 assignmentStmt.addChild(leftOperand);
                 assignmentStmt.addChild(rightOperand);
@@ -306,22 +279,23 @@ class TransformStatementDecorator extends React.Component {
             } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
                     // Connection source is not a struct and target is a struct.
                     // Source could be a function node.
-                const assignmentStmtSource = self.findExistingAssignmentStatement(connection.targetReference.id);
+                let assignmentStmtSource = self.findExistingAssignmentStatement(connection.targetReference.id);
                 assignmentStmtSource.getChildren()[1].getChildren()[0].addChild(sourceExpression);
                 return assignmentStmtSource.id;
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                     // Connection target is not a struct and source is a struct.
                     // Target could be a function node.
-                const assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceReference.id);
+                let assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceReference.id);
                 assignmentStmtTarget.getChildren()[0].addChild(targetExpression);
                 return assignmentStmtTarget.id;
-            }
+            }     
                     // Connection source and target are not structs
                     // Source and target could be function nodes.
-            log.warn('multiple intermediate functions are not yet supported in design view');
+                log.warn('multiple intermediate functions are not yet supported in design view');
+            
         };
 
-        const onDisconnectionCallback = function (connection) {
+        let onDisconnectionCallback = function (connection) {
             // on removing a connection
             const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
             const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
@@ -335,12 +309,16 @@ class TransformStatementDecorator extends React.Component {
                 // Connection source is not a struct and target is a struct.
                 // Source could be a function node.
                 const assignmentStmtSource = self.findExistingAssignmentStatement(connection.targetReference.id);
-                _.remove(assignmentStmtSource.getChildren()[1].getChildren()[0].getChildren(), (child) => (child.getExpressionString() === targetExpression.getExpressionString()));
+                _.remove(assignmentStmtSource.getChildren()[1].getChildren()[0].getChildren(), (child) => {
+                    return (child.getExpressionString() === targetExpression.getExpressionString());
+                });
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                 // Connection target is not a struct and source is a struct.
                 // Target could be a function node.
                 const assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceReference.id);
-                _.remove(assignmentStmtTarget.getChildren()[0].getChildren(), (child) => (child.getExpressionString() === sourceExpression.getExpressionString()));
+                _.remove(assignmentStmtTarget.getChildren()[0].getChildren(), (child) => {
+                    return (child.getExpressionString() === sourceExpression.getExpressionString());
+                });
             } else {
                 // Connection source and target are not structs
                 // Source and target could be function nodes.
@@ -369,7 +347,7 @@ class TransformStatementDecorator extends React.Component {
                 const functionInvocationExpression = node.getChildren()[1].getChildren()[0];
                 const func = this.getFunctionDefinition(functionInvocationExpression);
                 if (_.isUndefined(func)) {
-                    alerts.error(`Function definition for "${functionInvocationExpression.getFunctionName()}" cannot be found`);
+                    alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
                     return;
                 }
                 this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
@@ -403,13 +381,13 @@ class TransformStatementDecorator extends React.Component {
             } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
                 const func = this.getFunctionDefinition(rightExpression);
                 if (_.isUndefined(func)) {
-                    alerts.error(`Function definition for "${ rightExpression.getFunctionName() }" cannot be found`);
+                    alerts.error('Function definition for "' + rightExpression.getFunctionName() + '" cannot be found');
                     return;
                 }
                 this.mapper.addFunction(func, statement, statement.getParent().removeChild.bind(statement.getParent()));
 
                 if (func.getParameters().length !== rightExpression.getChildren().length) {
-                    alerts.warn(`Function inputs and mapping count does not match in "${ func.getName() }"`);
+                    alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
                 } else {
                     const funcTarget = this.getConnectionProperties('target', rightExpression);
                     _.forEach(rightExpression.getChildren(), (expression, i) => {
@@ -421,7 +399,7 @@ class TransformStatementDecorator extends React.Component {
                 }
 
                 if (func.getReturnParams().length !== leftExpressions.getChildren().length) {
-                    alerts.warn(`Function inputs and mapping count does not match in "${func.getName()}"`);
+                    alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
                 } else {
                     const funcSource = this.getConnectionProperties('source', rightExpression);
                     _.forEach(leftExpressions.getChildren(), (expression, i) => {
@@ -442,35 +420,35 @@ class TransformStatementDecorator extends React.Component {
     getConnectionProperties(type, expression) {
         const con = {};
         if (BallerinaASTFactory.isFieldAccessExpression(expression)) {
-            con[`${type }Struct`] = expression.getChildren()[0].getVariableName();
-            const complexProp = this.createComplexProp(con[`${type }Struct`],
+            con[type + 'Struct'] = expression.getChildren()[0].getVariableName();
+            const complexProp = this.createComplexProp(con[type + 'Struct'],
                                         expression.getChildren()[1].getChildren());
-            con[`${type}Type`] = complexProp.types.reverse();
-            con[`${type}Property`] = complexProp.names.reverse();
+            con[type + 'Type'] = complexProp.types.reverse();
+            con[type + 'Property'] = complexProp.names.reverse();
         } else if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-            con[`${type }Function`] = true;
+            con[type + 'Function'] = true;
             if (_.isNull(expression.getPackageName())) {
                 // for current package, where package name is null
                 const packageName = expression.getFullPackageName().replace(' ', '');
-                con[`${type}Struct`] = `${packageName}-${expression.getFunctionName()}`;
+                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
             } else {
                 const packageName = expression.getPackageName().replace(' ', '');
-                con[`${type }Struct`] = `${packageName }-${ expression.getFunctionName()}`;
+                con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
             }
-            con[`${type }Id`] = expression.getID();
+            con[type + 'Id'] = expression.getID();
         } else if (BallerinaASTFactory.isVariableReferenceExpression(expression)) {
-            con[`${type}Struct`] = expression.getVariableName();
+            con[type + 'Struct'] = expression.getVariableName();
             const varRef = _.find(self.predefinedStructs, { name: expression.getVariableName() });
             if (!_.isUndefined(varRef)) {
-                con[`${type }Type`] = [varRef.type];
+                con[type + 'Type'] = [varRef.type];
             }
-            con[`${type}Property`] = [expression.getVariableName()];
+            con[type + 'Property'] = [expression.getVariableName()];
         } else if (['name', 'type'].every(prop => prop in expression)) {
-            con[`${type }Property`] = [expression.name];
-            con[`${type}Type`] = [expression.type];
+            con[type + 'Property'] = [expression.name];
+            con[type + 'Type'] = [expression.type];
         } else if (_.has(expression, 'type')) {
-            con[`${type }Property`] = [undefined];
-            con[`${type}Type`] = [expression.type];
+            con[type + 'Property'] = [undefined];
+            con[type + 'Type'] = [expression.type];
         } else {
             log.error('Unknown type to define connection properties');
         }
@@ -478,16 +456,18 @@ class TransformStatementDecorator extends React.Component {
     }
 
     drawConnection(id, source, target) {
-        const con = { id };
+        const con = { id: id };
         _.merge(con, source, target);
         self.mapper.addConnection(con);
     }
 
     findExistingAssignmentStatement(id) {
-        return _.find(self.props.model.getChildren(), (child) => child.getID() === id);
+        return _.find(self.props.model.getChildren(), (child) => {
+            return child.getID() === id;
+        });
     }
 
-    createComplexProp(typeName, children) {
+    createComplexProp(typeName, children)    {
         let prop = {};
         prop.names = [];
         prop.types = [];
@@ -495,12 +475,12 @@ class TransformStatementDecorator extends React.Component {
         const propName = children[0].getBasicLiteralValue();
         const struct = _.find(self.predefinedStructs, { name: typeName });
         if (_.isUndefined(struct)) {
-            alerts.error(`Struct definition for variable "${typeName}" cannot be found`);
+            alerts.error('Struct definition for variable "' + typeName + '" cannot be found');
             return;
         }
         const structProp = _.find(struct.properties, { name: propName });
         if (_.isUndefined(structProp)) {
-            alerts.error(`Struct field "${propName}" cannot be found in variable "${typeName}"`);
+            alerts.error('Struct field "' + propName + '" cannot be found in variable "' + typeName + '"');
             return;
         }
         const propType = structProp.type;
@@ -513,18 +493,18 @@ class TransformStatementDecorator extends React.Component {
     }
 
     createType(name, typeName, predefinedStruct) {
-        const struct = {};
+        let struct = {};
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
         struct.typeName = typeName;
 
         _.forEach(predefinedStruct.getVariableDefinitionStatements(), (stmt) => {
-            const property = {};
+            let property = {};
             property.name = stmt.children[0].getVariableName();
             property.type = stmt.children[0].getVariableType();
 
-            const innerStruct = _.find(self._package.getStructDefinitions(), { _structName: property.type });
+            let innerStruct = _.find(self._package.getStructDefinitions(), { _structName: property.type });
             if (innerStruct != null) {
                 property.innerType = self.createType(property.name, typeName, innerStruct);
             }
@@ -571,35 +551,34 @@ class TransformStatementDecorator extends React.Component {
 
         return (
           <g
-            className="statement"
-            onMouseOut={this.setActionVisibility.bind(this, false)}
-            onMouseOver={this.setActionVisibility.bind(this, true)}
-          >
-            <rect
-            x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
-            className={dropZoneClassName} {...fill}
-            onMouseOver={e => this.onDropZoneActivate(e)}
-            onMouseOut={e => this.onDropZoneDeactivate(e)}
-          />
-            <rect
-            x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
-            onClick={e => this.onExpand()}
-          />
-            <g className="statement-body">
-            <text x={text_x} y={text_y} className="transform-action" onClick={e => this.onExpand()}>{expression}</text>
-            <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={iconSize} height={iconSize} onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
-          </g>
-            <ActionBox
-            bBox={actionBbox}
-            show={this.state.active}
-            onDelete={() => this.onDelete()}
-            onJumptoCodeLine={() => this.onJumptoCodeLine()}
-          />
-            {		model.isBreakpoint &&
+className="statement"
+          onMouseOut={this.setActionVisibility.bind(this, false)}
+          onMouseOver={this.setActionVisibility.bind(this, true)}
+        >
+          <rect
+x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
+              className={dropZoneClassName} {...fill}
+              onMouseOver={e => this.onDropZoneActivate(e)}
+              onMouseOut={e => this.onDropZoneDeactivate(e)} />
+          <rect
+x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
+              onClick={e => this.onExpand()}
+            />
+          <g className="statement-body">
+              <text x={text_x} y={text_y} className="transform-action" onClick={e => this.onExpand()}>{expression}</text>
+              <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={iconSize} height={iconSize} onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
+            </g>
+          <ActionBox
+              bBox={actionBbox}
+              show={this.state.active}
+              onDelete={() => this.onDelete()}
+              onJumptoCodeLine={() => this.onJumptoCodeLine()}
+            />
+          {		model.isBreakpoint &&
                     this.renderBreakpointIndicator()
             }
-            {this.props.children}
-          </g>);
+          {this.props.children}
+        </g>);
     }
 
     setActionVisibility(show) {
@@ -622,13 +601,16 @@ class TransformStatementDecorator extends React.Component {
                 return;
             }
             dragDropManager.setActivatedDropTarget(dropTarget,
-				nodeBeingDragged =>
+				(nodeBeingDragged) => {
 					// This drop zone is for assignment statements only.
                     // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
                     // is an Assignment Statement, that implies there is a return parameter . If there is no
                     // return parameter, then it is a Function Invocation Statement, which is validated with below check.
-     model.getFactory().isAssignmentStatement(nodeBeingDragged),
-				() => dropTarget.getChildren().length,
+    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
+},
+				() => {
+    return dropTarget.getChildren().length;
+},
             );
         }
         e.stopPropagation();
@@ -655,12 +637,15 @@ class TransformStatementDecorator extends React.Component {
                 return;
             }
             dragDropManager.setActivatedDropTarget(dropTarget,
-				nodeBeingDragged =>
+				(nodeBeingDragged) => {
                     // IMPORTANT: override node's default validation logic
                     // This drop zone is for statements only.
                     // Statements should only be allowed here.
-     model.getFactory().isStatement(nodeBeingDragged),
-				() => dropTarget.getIndexOfChild(model),
+    return model.getFactory().isStatement(nodeBeingDragged);
+},
+				() => {
+    return dropTarget.getIndexOfChild(model);
+},
 			);
             this.setState({ innerDropZoneActivated: true,
                 innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
@@ -712,7 +697,9 @@ class TransformStatementDecorator extends React.Component {
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
 
-        messageManager.setTargetValidationCallback((destination) => actionInvocation.messageDrawTargetAllowed(destination));
+        messageManager.setTargetValidationCallback((destination) => {
+            return actionInvocation.messageDrawTargetAllowed(destination);
+        });
 
         messageManager.startDrawMessage((source, destination) => {
             source.setAttribute('_connector', destination);
@@ -737,15 +724,15 @@ class TransformStatementDecorator extends React.Component {
     }
 
     loadSchemaToComboBox(comboBoxId, name, typeName) {
-        $(`#${comboBoxId}`).append(`<option value="${name}">${name} : ${ typeName }</option>`);
+        $('#' + comboBoxId).append('<option value="' + name + '">' + name + ' : ' + typeName + '</option>');
     }
 
     createAccessNode(name, property) {
-        const structExpression = BallerinaASTFactory.createFieldAccessExpression();
-        const structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
-        const structProperty = BallerinaASTFactory.createBasicLiteralExpression({ basicLiteralType: 'string',
+        let structExpression = BallerinaASTFactory.createFieldAccessExpression();
+        let structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
+        let structProperty = BallerinaASTFactory.createBasicLiteralExpression({ basicLiteralType: 'string',
             basicLiteralValue: property });
-        const structName = BallerinaASTFactory.createVariableReferenceExpression();
+        let structName = BallerinaASTFactory.createVariableReferenceExpression();
 
         structName.setVariableName(name);
         structExpression.addChild(structName);
@@ -756,7 +743,7 @@ class TransformStatementDecorator extends React.Component {
     }
 
     getStructAccessNode(name, property) {
-        const structExpressions = [];
+        let structExpressions = [];
 
         _.forEach(property, (prop) => {
             structExpressions.push(self.createAccessNode(name, prop));
@@ -769,39 +756,63 @@ class TransformStatementDecorator extends React.Component {
     }
 
     setSource(currentSelection, predefinedStructs) {
-        let sourceSelection = _.find(predefinedStructs, { name: currentSelection });
-        if (_.isUndefined(sourceSelection)) {
-            alerts.error(`Mapping source "${  currentSelection  }" cannot be found`);
+        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+        if (_.isUndefined(sourceSelection)){
+            alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
         }
+
+        const removeFunc = function(id) {
+            self.mapper.removeType(id);
+            _.remove(self.props.model.getInput(),(currentObject) => {
+                return currentObject.getVariableName() === id;
+            });
+            self.props.model.setInput(self.props.model.getInput());
+            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            currentSelectionObj.added = false;
+        }
+
         if (!sourceSelection.added) {
             if (sourceSelection.type == 'struct') {
-                self.mapper.addSourceType(sourceSelection);
+                self.mapper.addSourceType(sourceSelection, removeFunc);
             } else {
-                self.mapper.addVariable(sourceSelection, 'source');
+                self.mapper.addVariable(sourceSelection, 'source', removeFunc);
             }
             sourceSelection.added = true;
             return true;
-        }
-        return false;
+        } 
+            return false;
+        
     }
 
     setTarget(currentSelection, predefinedStructs) {
-        let targetSelection = _.find(predefinedStructs, { name: currentSelection });
-        if (_.isUndefined(targetSelection)) {
-            alerts.error(`Mapping target "${  currentSelection  }" cannot be found`);
+        var targetSelection = _.find(predefinedStructs, { name: currentSelection});
+        if (_.isUndefined(targetSelection)){
+            alerts.error('Mapping target "' + currentSelection + '" cannot be found');
             return false;
         }
+
+        const removeFunc = function(id) {
+            self.mapper.removeType(id);
+            _.remove(self.props.model.getOutput(),(currentObject) => {
+                return currentObject.getVariableName() === id;
+            });
+            self.props.model.setOutput(self.props.model.getOutput());
+            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            currentSelectionObj.added = false;
+        }
+
         if (!targetSelection.added) {
             if (targetSelection.type == 'struct') {
-                self.mapper.addTargetType(targetSelection);
+                self.mapper.addTargetType(targetSelection, removeFunc);
             } else {
-                self.mapper.addVariable(targetSelection, 'target');
+                self.mapper.addVariable(targetSelection, 'target', removeFunc);
             }
             targetSelection.added = true;
             return true;
-        }
-        return false;
+        } 
+            return false;
+        
     }
 }
 
