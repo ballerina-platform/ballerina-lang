@@ -239,30 +239,12 @@ class ToolPaletteItemProvider extends EventChannel {
 
         _.each(connectorsOrdered, (connector) => {
             const packageName = _.last(_.split(pckg.getName(), '.'));
-            connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
-            const createConnectorDeclChildren = function () {
-                const params = _.map(connector.getParams(),
-                    param => BallerinaASTFactory
-                          .createVariableReferenceExpression({ variableName: param.identifier }));
-                const varDef = BallerinaASTFactory
-                      .createVariableDefinition({ pkgPath: packageName, typeName: connector.getName() });
-                const varRef = BallerinaASTFactory
-                  .createVariableReferenceExpression();
-                varRef.addChild(varDef);
-                const connectorName = BallerinaASTFactory.createSimpleTypeName({ typeName: connector.getName(),
-                    packageName,
-                    fullPackageName: pckg.getName() });
-
-                const connectorInit = BallerinaASTFactory.createConnectorInitExpression({ arguments: params,
-                    connectorName });
-                const children = [];
-                children.push(varRef);
-                children.push(connectorInit);
-                return children;
+            const args = {
+                pkgName: packageName,
+                connectorName: connector.getName()
             };
-            connector.meta = {
-                childrenFactory: createConnectorDeclChildren,
-            };
+            connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
+            connector.meta = args;
             // TODO : use a generic icon
             connector.icon = self.icons.connector;
             connector.title = connector.getName();
@@ -397,31 +379,12 @@ class ToolPaletteItemProvider extends EventChannel {
 
         _.each(connectorsOrdered, (connector) => {
             const packageName = _.last(_.split(pckg.getName(), '.'));
-            connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
-            const createConnectorDeclChildren = function () {
-                const params = _.map(connector.getParams(),
-                    param => BallerinaASTFactory
-                          .createVariableReferenceExpression({ variableName: param.identifier }),
-                );
-                const varDef = BallerinaASTFactory
-                      .createVariableDefinition({ pkgPath: packageName, typeName: connector.getName() });
-                const varRef = BallerinaASTFactory
-                  .createVariableReferenceExpression();
-                varRef.addChild(varDef);
-                const connectorName = BallerinaASTFactory.createSimpleTypeName({ typeName: connector.getName(),
-                    packageName,
-                    fullPackageName: pckg.getName() });
-
-                const connectorInit = BallerinaASTFactory.createConnectorInitExpression({ arguments: params,
-                    connectorName });
-                const children = [];
-                children.push(varRef);
-                children.push(connectorInit);
-                return children;
+            const args = {
+                pkgName: packageName,
+                connectorName: connector.getName()
             };
-            connector.meta = {
-                childrenFactory: createConnectorDeclChildren,
-            };
+            connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
+            connector.meta = args;
             // TODO : use a generic icon
             connector.icon = self.icons.connector;
             connector.title = connector.getName();
@@ -513,31 +476,12 @@ class ToolPaletteItemProvider extends EventChannel {
 
         _.each(connectorsOrdered, (connector) => {
             const packageName = _.last(_.split(pckg.getName(), '.'));
-            connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
-            const createConnectorDeclChildren = function () {
-                const params = _.map(connector.getParams(),
-                    param => BallerinaASTFactory
-                          .createVariableReferenceExpression({ variableName: param.identifier }),
-                );
-                const varDef = BallerinaASTFactory
-                      .createVariableDefinition({ pkgPath: packageName, typeName: connector.getName() });
-                const varRef = BallerinaASTFactory
-                  .createVariableReferenceExpression();
-                varRef.addChild(varDef);
-                const connectorName = BallerinaASTFactory.createSimpleTypeName({ typeName: connector.getName(),
-                    packageName,
-                    fullPackageName: pckg.getName() });
-
-                const connectorInit = BallerinaASTFactory.createConnectorInitExpression({ arguments: params,
-                    connectorName });
-                const children = [];
-                children.push(varRef);
-                children.push(connectorInit);
-                return children;
+            const args = {
+                pkgName: packageName,
+                connectorName: connector.getName()
             };
-            connector.meta = {
-                childrenFactory: createConnectorDeclChildren,
-            };
+            connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
+            connector.meta = args;
             // TODO : use a generic icon
             connector.icon = self.icons.connector;
             connector.title = connector.getName();

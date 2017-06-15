@@ -16,21 +16,25 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
+import FragmentUtils from '../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 
 /**
  * Defines a connector declaration AST node.
- * Default source will be as follows : http:HTTPConnector ep = new http:HTTPConnector("http://localhost:9090");
- * @param {Object} options - arguments for a connector declaration.
- * @param {ASTNode[]} Child nodes: a variable ref expr as LHS and a connector init expr as RHS
- * @constructor
- * @augments ASTNode
  */
 class ConnectorDeclaration extends ASTNode {
+    /**
+     * Constructor for connector declaration
+     * @param {Object} options - arguments for a connector declaration.
+     * @constructor
+     */
     constructor(options) {
         super('ConnectorDeclaration');
-        this.children = _.get(options, 'childrenFactory', () => { return []; }).call();
+        // this.children = _.get(options, 'childrenFactory', () => []).call();
+        this._declarationStatement = _.get(options, 'declarationStatement');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
@@ -40,130 +44,55 @@ class ConnectorDeclaration extends ASTNode {
         };
     }
 
-    setConnectorVariable(connectorVariable, options) {
-        const varRef = this.getChildrenOfType(this.getFactory().isVariableReferenceExpression)[0];
-        if (!_.isNil(varRef)) {
-            varRef.setVariableName(connectorVariable, options);
-        }
-    }
-
-    setConnectorType(type, options) {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            connectorInitExpr.getConnectorName().setTypeName(type, options);
-        }
-    }
-
-    setConnectorPkgName(pkgName, options) {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            connectorInitExpr.getConnectorName().setPackageName(pkgName, options);
-        }
-    }
-
-    setFullPackageName(fullPkgName, options) {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            connectorInitExpr.getConnectorName().setFullPackageName(fullPkgName, options);
-        }
-    }
-
     /**
      * Set connector details from the given expression.
      *
-     * @param {string} expression Expression entered by user.
-     * @param {object} options
+     * @param {string} stmtString Expression entered by user.
+     * @param {function} callback callback function
      * */
-    setConnectorExpression(expression, options) {
-        if (!_.isNil(expression) && expression !== '') {
-            const firstAssignmentIndex = expression.indexOf('=');
-            let leftSide = expression.slice(0, firstAssignmentIndex);
-            let rightSide = expression.slice((firstAssignmentIndex + 1), expression.length);
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(`${stmtString};`);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
 
-            if (leftSide) {
-                leftSide = leftSide.trim();
-                this.setConnectorPkgName(leftSide.includes(':') ?
-                    leftSide.split(':', 1)[0]
-                    : '');
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            const nodeToFireEvent = this;
+            this.initFromJson(parsedJson);
 
-                this.setConnectorType(leftSide.includes(':') ?
-                    leftSide.split(':', 2)[1].split(' ', 1)[0]
-                    : (leftSide.indexOf(' ') !== (leftSide.length - 1) ? leftSide.split(' ', 1)[0] : ''));
-
-                this.setConnectorVariable(leftSide.includes(':') ?
-                    leftSide.split(':', 2)[1].split(' ', 2)[1]
-                    : (leftSide.indexOf(' ') !== (leftSide.length - 1) ? leftSide.split(' ', 2)[1] : ''));
+            if (_.isFunction(callback)) {
+                callback({ isValid: true });
             }
-            if (rightSide) {
-                rightSide = rightSide.trim();
-                const args = this.getArgsFromString(rightSide.includes('(') ?
-                    rightSide.split('(', 2)[1].slice(0, (rightSide.split('(', 2)[1].length - 1))
-                    : '', options);
-                this.setArguments(args);
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Assignment statement Custom Tree modified',
+                context: nodeToFireEvent,
+            });
+        } else {
+            log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
+            if (_.isFunction(callback)) {
+                callback({ isValid: false, response: parsedJson });
             }
-        }
-    }
-
-    getStringFromArgs(args) {
-        return _.join(args.map((arg) => { return arg.getExpressionString(); }), ', ');
-    }
-
-    getArgsFromString(argList) {
-        const stringArgs = _.split(argList, ',');
-        return stringArgs.map((arg) => {
-            return this.getFactory().createVariableReferenceExpression({ variableName: arg.trim() });
-        });
-    }
-
-    setArguments(args) {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            connectorInitExpr.setArgs(args);
-        }
-    }
-
-    getArguments() {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            return connectorInitExpr.getArgs();
-        }
-    }
-
-    getConnectorVariable() {
-        const varRef = this.getChildrenOfType(this.getFactory().isVariableReferenceExpression)[0];
-        if (!_.isNil(varRef)) {
-            return varRef.getVariableName();
-        }
-    }
-
-    getConnectorType() {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            return connectorInitExpr.getConnectorName().getTypeName();
-        }
-    }
-
-    getConnectorPkgName() {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            return connectorInitExpr.getConnectorName().getPackageName();
-        }
-    }
-
-    getFullPackageName() {
-        const connectorInitExpr = this.getChildrenOfType(this.getFactory().isConnectorInitExpression)[0];
-        if (!_.isNil(connectorInitExpr)) {
-            return connectorInitExpr.getConnectorName().getFullPackageName();
         }
     }
 
     /**
-     * This will return connector expression
-     *
-     * @return {string} expression
-     * */
-    getConnectorExpression() {
-        return this.generateExpression();
+     * Get the connector name variable
+     * @return {string} - connector name variable
+     */
+    getConnectorVariable() {
+        return this._declarationStatement.getChildren()[0].getVariableName();
+    }
+
+    /**
+     * Set the connector name variable
+     * @param {string} variableName - variable name
+     * @return {void}
+     */
+    setConnectorVariable(variableName) {
+        this._declarationStatement.getChildren()[0].setVariableName(variableName);
     }
 
     /**
@@ -176,54 +105,18 @@ class ConnectorDeclaration extends ASTNode {
             this.whiteSpace.currentDescriptor = jsonNode.whitespace_descriptor;
             this.whiteSpace.useDefault = false;
         }
-        _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+
+        this._declarationStatement = self.getFactory().createFromJson(jsonNode);
+        this._declarationStatement.initFromJson(jsonNode);
     }
 
     /**
      * Generate Expression to Show on the edit textbox.
-     *
-     * @param {object} self Connector declaration
      * @return {string} expression
-     * */
-    generateExpression() {
-        let expression = '';
-        if (!this.shouldSkipPackageName(this.getConnectorPkgName())) {
-            expression += this.getConnectorPkgName() + ':';
-        }
-
-        if (!_.isNil(this.getConnectorType())) {
-            expression += this.getConnectorType() + ' ';
-        }
-
-        if (!_.isNil(this.getConnectorVariable())) {
-            expression += this.getConnectorVariable() + this.getWSRegion(1) + '=' + this.getWSRegion(2);
-        }
-
-        expression += 'create ';
-
-        if (!this.shouldSkipPackageName(this.getConnectorPkgName())) {
-            expression += this.getConnectorPkgName() + ':';
-        }
-
-        if (!_.isNil(this.getConnectorType())) {
-            expression += this.getConnectorType() + ' ';
-        }
-
-        expression += '(';
-        if (!_.isEmpty(this.getArguments())) {
-            expression += this.getStringFromArgs(this.getArguments());
-        }
-        expression += ')';
-        return expression;
-    }
-
-    shouldSkipPackageName(packageName) {
-        return _.isUndefined(packageName) || _.isNil(packageName) ||
-            _.isEqual(packageName, 'Current Package') || _.isEqual(packageName, '');
+     *
+     */
+    getStatementString() {
+        return this._declarationStatement.getStatementString();
     }
 
     /**
@@ -235,6 +128,7 @@ class ConnectorDeclaration extends ASTNode {
         const uniqueIDGenObject = {
             node: this,
             attributes: [{
+                checkEvenIfDefined: true,
                 defaultValue: 'endpoint',
                 setter: this.setConnectorVariable,
                 getter: this.getConnectorVariable,

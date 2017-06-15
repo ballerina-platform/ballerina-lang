@@ -301,4 +301,14 @@ DefaultBallerinaASTFactory.createAnnotationDefinition = function (args) {
     return annotationDefinition;
 };
 
+DefaultBallerinaASTFactory.createConnectorDeclaration = function (args) {
+    const packageName = args.pkgName;
+    const declarationStatement = (packageName !== 'Current Package' ? args.pkgName + ':' : '') + args.connectorName
+        + ' endpoint = create ' + (packageName !== 'Current Package' ? args.pkgName + ':' : '')
+        + args.connectorName + '()';
+    const connectorDeclaration = BallerinaASTFactory.createConnectorDeclaration();
+    connectorDeclaration.setStatementFromString(declarationStatement);
+    return connectorDeclaration;
+};
+
 export default DefaultBallerinaASTFactory;

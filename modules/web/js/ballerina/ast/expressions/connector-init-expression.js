@@ -21,11 +21,14 @@ import FragmentUtils from './../../utils/fragment-utils';
 
 /**
  * Constructor for ConnectorInitExpression
- * @param {Object} args - Arguments to create the ConnectorInitExpression
- * @constructor
  */
 class ConnectorInitExpression extends Expression {
 
+    /**
+     * Constructor for Connector init expression
+     * @param {Object} args - Arguments to create the ConnectorInitExpression
+     * @constructor
+     */
     constructor(args) {
         super('ConnectorInitExpression');
         this._arguments = _.get(args, 'arguments', []);
@@ -34,7 +37,8 @@ class ConnectorInitExpression extends Expression {
 
     /**
      * set connector name
-     * @param {SimpleTypeName} SimpleTypeName
+     * @param {string} connectorName - connector name
+     * @param {object} opts - set attribute options
      */
     setConnectorName(connectorName, opts) {
         this.setAttribute('_connectorName', connectorName, opts);
@@ -42,7 +46,7 @@ class ConnectorInitExpression extends Expression {
 
     /**
      * get connector name
-     * @return {SimpleTypeName} SimpleTypeName
+     * @return {string} connector name
      */
     getConnectorName() {
         return this._connectorName;
@@ -50,7 +54,9 @@ class ConnectorInitExpression extends Expression {
 
     /**
      * set args
-     * @param {Expression[]} argumets
+     * @param {Expression[]} args - arguments
+     * @param {object} opts - set attribute options
+     * @returns {void}
      */
     setArgs(args, opts) {
         this.setAttribute('_arguments', args, opts);
@@ -58,28 +64,11 @@ class ConnectorInitExpression extends Expression {
 
     /**
      * get args
-     * @return {Expression[]} argumets
+     * @return {Expression[]} arguments
      */
     getArgs() {
         return this._arguments;
     }
-
-    // accept(visitor) {
-    //     super.accept(visitor);
-    //     this.getArgs().forEach((arg) => {
-    //         visitor.visit(arg);
-    //         if (visitor.canVisit(arg)) {
-    //             arg.accept(visitor);
-    //         }
-    //     });
-    //     let connectorName = this.getConnectorName();
-    //     if (!_.isNil(connectorName)) {
-    //         visitor.visit(connectorName);
-    //         if (visitor.canVisit(connectorName)) {
-    //             connectorName.accept(visitor);
-    //         }
-    //     }
-    // }
 
     /**
      * initialize ConnectorInitExpression from json object
@@ -108,6 +97,12 @@ class ConnectorInitExpression extends Expression {
         this.setArgs(argExprs, { doSilently: true });
     }
 
+    /**
+     * Set expression from the expression string
+     * @param {string} expressionString - expression string from which the expression is re initialized
+     * @param {function} callback - callback function
+     * @override
+     */
     setExpressionFromString(expressionString, callback) {
         const fragment = FragmentUtils.createExpressionFragment(expressionString);
         const parsedJson = FragmentUtils.parseFragment(fragment);
@@ -133,18 +128,22 @@ class ConnectorInitExpression extends Expression {
         }
     }
 
+    /**
+     * Get the expression string
+     * @return {string} - expression string
+     */
     getExpressionString() {
         let expr = 'create' + this.getWSRegion(1)
             + this.getConnectorName().toString()
             + this.getWSRegion(2) + '(';
         this.getArgs().forEach((arg, index) => {
             expr += (index !== 0 && arg.whiteSpace.useDefault) ? ' ' : '';
-            expr += arg.generateExpression();
-            if (index < this.getArgs().length) {
+            expr += arg.getExpressionString();
+            if (index < this.getArgs().length - 1) {
                 expr += ',';
             }
         });
-        return expr;
+        return expr + ')';
     }
 }
 

@@ -18,26 +18,42 @@
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
- * @param parent
- * @constructor
+ * Source generation visitor for connector declaration
  */
 class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit for ConnectorDeclaration
+     * @return {boolean} - true
+     */
     canVisitConnectorDeclaration() {
         return true;
     }
 
+    /**
+     * Begin visit for ConnectorDeclaration
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration node
+     * @returns {void}
+     */
     beginVisitConnectorDeclaration(connectorDeclaration) {
         if (connectorDeclaration.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(connectorDeclaration.generateExpression());
+        this.appendSource(connectorDeclaration.getStatementString());
     }
 
+    /**
+     * Visit ConnectorDeclaration
+     */
     visitConnectorDeclaration() {
     }
 
+    /**
+     * End visit call for ConnectorDeclarationVisitor
+     * @param {ConnectorDeclaration} connectorDeclaration - corresponding connector declaration
+     * @returns {void}
+     */
     endVisitConnectorDeclaration(connectorDeclaration) {
         this.appendSource(connectorDeclaration.getWSRegion(3) + ';'
                 + connectorDeclaration.getWSRegion(4));
