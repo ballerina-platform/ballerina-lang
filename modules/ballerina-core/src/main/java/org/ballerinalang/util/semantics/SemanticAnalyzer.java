@@ -1751,6 +1751,32 @@ public class SemanticAnalyzer implements NodeVisitor {
     // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
+
+        String pkgPath = actionIExpr.getPackagePath();
+        String name = actionIExpr.getConnectorName();
+
+        // First check action invocation happens on a variable def
+        SymbolName symbolName = new SymbolName(name, pkgPath);
+        BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
+
+        if (bLangSymbol instanceof VariableDef) {
+            if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
+                throw BLangExceptionHelper.getSemanticException(actionIExpr.getNodeLocation(),
+                        SemanticErrors.INCORRECT_ACTION_INVOCATION);
+            }
+            Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
+            VariableRefExpr variableRefExpr = new VariableRefExpr(actionIExpr.getNodeLocation(), null, symbolName);
+            exprs[0] = variableRefExpr;
+            for (int i = 0; i < actionIExpr.getArgExprs().length; i++) {
+                exprs[i + 1] = actionIExpr.getArgExprs()[i];
+            }
+            actionIExpr.setArgExprs(exprs);
+            actionIExpr.setConnectorName(((VariableDef) bLangSymbol).getTypeName().getName());
+        } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
+            throw BLangExceptionHelper.getSemanticException(actionIExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_ACTION_INVOCATION);
+        }
+
         Expression[] exprs = actionIExpr.getArgExprs();
         for (Expression expr : exprs) {
             visitSingleValueExpr(expr);
