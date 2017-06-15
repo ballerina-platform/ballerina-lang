@@ -762,11 +762,11 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
             return false;
         }
 
-        var removeFunc = function(id) {
+        const removeFunc = function(id) {
             self.mapper.removeType(id);
-            _.remove(self.props.model.getInput(),  function(currentObject) {
-                                                                return currentObject.getVariableName() === id;
-                                                           });
+            _.remove(self.props.model.getInput(),(currentObject) => {
+                return currentObject.getVariableName() === id;
+            });
             self.props.model.setInput(self.props.model.getInput());
             var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
@@ -792,11 +792,11 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
             return false;
         }
 
-        var removeFunc = function(id) {
+        const removeFunc = function(id) {
             self.mapper.removeType(id);
-            _.remove(self.props.model.getOutput(), function(currentObject) {
-                                                                return currentObject.getVariableName() === id;
-                                                            })
+            _.remove(self.props.model.getOutput(),(currentObject) => {
+                return currentObject.getVariableName() === id;
+            });
             self.props.model.setOutput(self.props.model.getOutput());
             var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
