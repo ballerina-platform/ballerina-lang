@@ -16,19 +16,38 @@
  * under the License.
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import BlockStatementDecorator from './block-statement-decorator';
 import CompoundStatementDecorator from './compound-statement-decorator';
-import PropTypes from 'prop-types';
 import { statement, blockStatement } from './../configs/designer-defaults';
 import { getComponentForNodeArray } from './utils';
 import SimpleBBox from './../ast/simple-bounding-box';
+import ForkJoinStatementAST from './../ast/statements/fork-join-statement';
 
+/**
+ * React UI component to represent the the fork section and contain the timeout
+ * and join children of the fork-join language construct.
+ */
 class ForkJoinStatement extends React.Component {
 
+    /**
+     * Is the node a worker. This is used to identify the node under drag, second arg (target) is not used.
+     * @param {ASTNode} node element to be tested.
+     * @returns {Boolean} true if the node is a worker.
+     */
+    static isWorker(node) {
+        const factory = node.getFactory();
+        return factory.isWorkerDeclaration(node);
+    }
+
+    /**
+     * Override the rendering logic.
+     * @returns {XML} rendered component.
+     */
     render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox,
-            bodyBBox = model.viewState.components.body;
+        const model = this.props.model;
+        const bBox = model.viewState.bBox;
+        const bodyBBox = model.viewState.components.body;
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
         const forkBBox = new SimpleBBox(bBox.x, bBox.y + statement.gutter.v, bBox.w, bodyBBox.h
@@ -36,31 +55,27 @@ class ForkJoinStatement extends React.Component {
         const hiderTop = bBox.y + blockStatement.heading.height + statement.gutter.v + 1;
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
           <line
-            x1={bBox.getCenterX()} y1={hiderTop - 1} x2={bBox.getCenterX()}
-            y2={bBox.getBottom()} className="life-line-hider"
+            x1={bBox.getCenterX()}
+            y1={hiderTop - 1}
+            x2={bBox.getCenterX()}
+            y2={bBox.getBottom()}
+            className="life-line-hider"
           />
           <BlockStatementDecorator
-            model={model} dropTarget={model} bBox={forkBBox}
-            title={'Fork'} draggable={ForkJoinStatement.isWorker}
+            model={model}
+            dropTarget={model}
+            bBox={forkBBox}
+            title={'Fork'}
+            draggable={ForkJoinStatement.isWorker}
           >
             {children}
           </BlockStatementDecorator>
         </CompoundStatementDecorator>);
     }
-
-    static isWorker(dropTarget, nodeBeingDragged) {
-        const factory = dropTarget.getFactory();
-        return factory.isWorkerDeclaration(nodeBeingDragged);
-    }
 }
 
 ForkJoinStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    model: PropTypes.instanceOf(ForkJoinStatementAST).isRequired,
 };
 
 
