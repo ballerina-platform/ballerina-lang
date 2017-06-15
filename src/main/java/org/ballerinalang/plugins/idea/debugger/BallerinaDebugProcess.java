@@ -39,7 +39,6 @@ import com.intellij.xdebugger.frame.XValueMarkerProvider;
 import com.intellij.xdebugger.stepping.XSmartStepIntoHandler;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFrame;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakpointProperties;
@@ -110,13 +109,11 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         // To debug the debugger, add a breakpoint here. When it is hit, connect to the ballerina runtime using a
         // remote connection. then continue from here.
-        //        BallerinaWebSocketAdaptor webSocketAdaptor = new BallerinaWebSocketAdaptor();
-        try {
-            //            mySocket = mySocket.addListener(webSocketAdaptor);
-            mySocket = mySocket.connect();
-        } catch (WebSocketException e) {
-            e.printStackTrace();
-        }
+
+
+
+
+
     }
 
     @Override

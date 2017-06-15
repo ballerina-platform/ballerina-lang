@@ -19,28 +19,12 @@ package org.ballerinalang.plugins.idea.debugger;
 import com.intellij.execution.configurations.ModuleBasedConfiguration;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.project.ProjectUtil;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.AsyncResult;
-import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.FileTypeIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.ColoredTextContainer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XDebuggerUtil;
@@ -50,17 +34,13 @@ import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValue;
 import com.intellij.xdebugger.frame.XValueChildrenList;
-import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.debugger.dto.FrameDTO;
 import org.ballerinalang.plugins.idea.debugger.dto.MessageDTO;
 import org.ballerinalang.plugins.idea.debugger.dto.VariableDTO;
-import org.ballerinalang.plugins.idea.debugger.protocol.BallerinaAPI;
-import org.ballerinalang.plugins.idea.debugger.protocol.BallerinaRequest;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.concurrency.Promise;
 
 import java.util.List;
 
@@ -189,14 +169,9 @@ public class BallerinaStackFrame extends XStackFrame {
     @Override
     public void customizePresentation(@NotNull ColoredTextContainer component) {
         super.customizePresentation(component);
-        component.append(" at " /*+ myLocation.function.name*/, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        component.append(" at " + myMessage.getFrames().get(0).getFrameName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         component.setIcon(AllIcons.Debugger.StackFrame);
     }
-
-    //    @NotNull
-    //    private <T> Promise<T> send(@NotNull BallerinaRequest<T> request) {
-    //        return BallerinaDebugProcess.send(request, myProcessor);
-    //    }
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {

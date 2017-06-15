@@ -69,7 +69,6 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 .withParameterString(myConfiguration.getBallerinaToolParams())
                 .withParameters(parameters);
         if (isDebug()) {
-            ballerinaExecutor.withParameters("--debug", String.valueOf(5005));
             ballerinaExecutor.withParameters("--ballerina.debug", String.valueOf(myDebugPort));
         }
         return ballerinaExecutor;
@@ -80,7 +79,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     }
 
     public void setHistoryProcessHandler(@Nullable BallerinaHistoryProcessListener historyProcessHandler) {
-//        myHistoryProcessHandler = historyProcessHandler;
+        myHistoryProcessHandler = historyProcessHandler;
     }
 
     public boolean isDebug() {
