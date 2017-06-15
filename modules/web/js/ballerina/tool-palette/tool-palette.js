@@ -138,7 +138,7 @@ const ToolPalette = Backbone.View.extend({
      */
     addNewToolToGroup(groupID, toolDef) {
         let error;
-        let toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), groupID));
+        const toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), groupID));
         if (_.isNil(toolGroup)) {
             error = `cannot find a tool group with id ${groupID}`;
             log.error(error);
@@ -156,7 +156,7 @@ const ToolPalette = Backbone.View.extend({
      */
     removeToolFromGroup(groupID, toolId) {
         let error;
-        let toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), groupID));
+        const toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), groupID));
         if (_.isNil(toolGroup)) {
             error = `cannot find a tool group with id ${groupID}`;
             log.error(error);
@@ -244,7 +244,7 @@ const ToolPalette = Backbone.View.extend({
      */
     updateToolPaletteItem(toolGroupID, toolItem, attribute, newValue, metaAttr) {
         let error;
-        let toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), toolGroupID));
+        const toolGroup = _.find(this._itemProvider.getToolGroups(), group => _.isEqual(group.get('toolGroupID'), toolGroupID));
         if (_.isNil(toolGroup)) {
             error = `cannot find a tool group with id ${toolGroupID}`;
             log.error(error);

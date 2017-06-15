@@ -32,8 +32,8 @@ class TransformStatement extends React.Component {
      * Render Function for the assignment statement.
      * */
     render() {
-        let model = this.props.model;
-        let expression = this.props.model.getStatementString();
+        const model = this.props.model;
+        const expression = this.props.model.getStatementString();
         const xPos = model.viewState.bBox.x;
         const yPos = model.viewState.bBox.y;
         const hPos = model.viewState.bBox.h;

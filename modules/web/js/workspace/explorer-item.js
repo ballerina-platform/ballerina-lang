@@ -36,19 +36,19 @@ class ExplorerItem extends EventChannel {
     }
 
     render() {
-        let item = $('<div class="folder-tree"><div>');
-        let folderName = $(`<span>${this.getFolderName(this.path)}</span>`);
-        let id = `folder-tree_${this.index}`;
+        const item = $('<div class="folder-tree"><div>');
+        const folderName = $(`<span>${this.getFolderName(this.path)}</span>`);
+        const id = `folder-tree_${this.index}`;
 
-        let header = $(`<div class="folder-tree-header" role="button" href="#${id
+        const header = $(`<div class="folder-tree-header" role="button" href="#${id
             }"+ data-toggle="collapse" aria-expanded="true" aria-controls="${
             id}"></div>`);
 
-        let body = $(`<div class="collapse folder-tree-body" id="${id
+        const body = $(`<div class="collapse folder-tree-body" id="${id
             }"></div>`);
 
-        let folderIcon = $('<i class="fw fw-folder item-icon"></i>');
-        let arrowHeadIcon = $('<i class="fw fw-right expand-icon"></i>');
+        const folderIcon = $('<i class="fw fw-folder item-icon"></i>');
+        const arrowHeadIcon = $('<i class="fw fw-right expand-icon"></i>');
 
         header.attr('id', this.path);
         header.append(arrowHeadIcon);
@@ -102,11 +102,11 @@ class ExplorerItem extends EventChannel {
     createContextMenuProvider() {
         const self = this;
         return function ($trigger) {
-            let items = {};
-            let menu = { items };
-            let isRoot = $trigger.hasClass('folder-tree-header');
-            let path = $trigger.attr('id');
-            let node = isRoot ? self._fileBrowser.getNode('#') : self._fileBrowser.getNode(path);
+            const items = {};
+            const menu = { items };
+            const isRoot = $trigger.hasClass('folder-tree-header');
+            const path = $trigger.attr('id');
+            const node = isRoot ? self._fileBrowser.getNode('#') : self._fileBrowser.getNode(path);
 
             if (isRoot || _.isEqual('folder', node.type)) {
                 items.createNewFile = {

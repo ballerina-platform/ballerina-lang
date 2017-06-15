@@ -42,8 +42,8 @@ MenuItem.prototype.render = function () {
     this._title = title;
     this._listItemElement = item;
 
-    let shortcuts = _.get(this, 'definition.command.shortcuts');
-    let commandId = _.get(this, 'definition.command.id');
+    const shortcuts = _.get(this, 'definition.command.shortcuts');
+    const commandId = _.get(this, 'definition.command.id');
     if (!_.isNil(shortcuts)) {
         this._application.commandManager.registerCommand(commandId, { shortcuts });
         this.renderShortcutLabel();
@@ -63,9 +63,9 @@ MenuItem.prototype.getID = function () {
 };
 
 MenuItem.prototype.renderShortcutLabel = function () {
-    let shortcuts = _.get(this, 'definition.command.shortcuts');
-    let shortcutLabel = $('<span></span>');
-    let shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac.label : shortcuts.other.label;
+    const shortcuts = _.get(this, 'definition.command.shortcuts');
+    const shortcutLabel = $('<span></span>');
+    const shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac.label : shortcuts.other.label;
     shortcutLabel.addClass(_.get(this, 'options.cssClass.shortcut'));
     shortcutLabel.text(shortcut);
     this._linkElement.append(shortcutLabel);

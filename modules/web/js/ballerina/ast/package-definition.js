@@ -35,9 +35,9 @@ class PackageDefinition extends ASTNode {
      */
     setPackageName(packageName, options) {
         if (!_.isNil(packageName)) {
-            let self = this;
+            const self = this;
 
-            let changeCallBack = function () {
+            const changeCallBack = function () {
                 self.trigger('package-name-changed');
             };
 

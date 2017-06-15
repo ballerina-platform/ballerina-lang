@@ -101,9 +101,9 @@ EventChannel.prototype.listenTo = function (obj, name, callback) {
 var onApi = function (events, name, callback, options) {
     if (callback) {
         const handlers = events[name] || (events[name] = []);
-        let context = options.context;
-        let ctx = options.ctx;
-        let listening = options.listening;
+        const context = options.context;
+        const ctx = options.ctx;
+        const listening = options.listening;
         if (listening) listening.count++;
 
         handlers.push({ callback, context, ctx: context || ctx, listening });
@@ -151,8 +151,8 @@ var offApi = function (events, name, callback, options) {
 
     let i = 0;
     let listening;
-    let context = options.context;
-    let listeners = options.listeners;
+    const context = options.context;
+    const listeners = options.listeners;
 
     // Delete all events listeners and "drop" events.
     if (!name && !callback && !context) {
@@ -266,10 +266,10 @@ var triggerApi = function (objEvents, name, callback, args) {
 var triggerEvents = function (events, args) {
     let ev;
     let i = -1;
-    let l = events.length;
-    let a1 = args[0];
-    let a2 = args[1];
-    let a3 = args[2];
+    const l = events.length;
+    const a1 = args[0];
+    const a2 = args[1];
+    const a3 = args[2];
     switch (args.length) {
     case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx); return;
     case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, a1); return;

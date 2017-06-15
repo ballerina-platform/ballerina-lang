@@ -184,7 +184,7 @@ const FileTabList = TabList.extend(
         goToNextTab() {
             if (!_.isEmpty(this._tabs)) {
                 let nextTabIndex = 0;
-                let currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
+                const currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
                 if (currentActiveIndex >= 0) {
                     if (currentActiveIndex < (this._tabs.length - 1)) {
                         nextTabIndex = currentActiveIndex + 1;
@@ -197,7 +197,7 @@ const FileTabList = TabList.extend(
 
         goToPreviousTab() {
             if (!_.isEmpty(this._tabs)) {
-                let currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
+                const currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
                 let prevTabIndex = 0;
                 if (currentActiveIndex == 0) {
                     prevTabIndex = this._tabs.length - 1;

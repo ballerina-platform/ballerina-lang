@@ -27,8 +27,8 @@ class FinallyStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model;
-        let bBox = model.viewState.bBox;
+        const model = this.props.model;
+        const bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (<BlockStatementDecorator dropTarget={model} bBox={bBox} title={'Finally'} model={model}>
             {children}

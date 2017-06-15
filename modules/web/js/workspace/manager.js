@@ -186,16 +186,16 @@ class WorkspaceManager {
     }
 
     openNativeFileSaveDialog(options) {
-        let renderer = this.app.getNativeRenderProcess();
-        let fileSavedCallback = (!_.isNil(options)) ? options.callback : undefined;
+        const renderer = this.app.getNativeRenderProcess();
+        const fileSavedCallback = (!_.isNil(options)) ? options.callback : undefined;
         renderer.send('show-file-save-dialog');
         renderer.once('file-save-path-selected', (event, path) => {
             const activeTab = this.app.tabController.getActiveTab();
             if (!_.isNil(activeTab) && _.isFunction(activeTab.getFile)) {
-                let activeFile = activeTab.getFile();
-                let folderPath = path.substring(0, path.lastIndexOf(this.app.getPathSeperator()));
-                let fileName = path.substring(path.lastIndexOf(this.app.getPathSeperator()) + 1);
-                let config = activeTab.getBallerinaFileEditor().getContent();
+                const activeFile = activeTab.getFile();
+                const folderPath = path.substring(0, path.lastIndexOf(this.app.getPathSeperator()));
+                const fileName = path.substring(path.lastIndexOf(this.app.getPathSeperator()) + 1);
+                const config = activeTab.getBallerinaFileEditor().getContent();
 
                 activeFile.setPath(folderPath)
                           .setName(fileName)
@@ -294,10 +294,10 @@ class WorkspaceManager {
 
     updateUndoRedoMenus() {
         // undo manager for current tab
-        let activeTab = this.app.tabController.getActiveTab();
+        const activeTab = this.app.tabController.getActiveTab();
 
-        let undoMenuItem = this.app.menuBar.getMenuItemByID('edit.undo');
-        let redoMenuItem = this.app.menuBar.getMenuItemByID('edit.redo');
+        const undoMenuItem = this.app.menuBar.getMenuItemByID('edit.undo');
+        const redoMenuItem = this.app.menuBar.getMenuItemByID('edit.redo');
 
         if (activeTab instanceof FileTab) {
             const fileEditor = activeTab.getBallerinaFileEditor();
@@ -335,9 +335,9 @@ class WorkspaceManager {
     }
 
     updateSaveMenuItem() {
-        let activeTab = this.app.tabController.getActiveTab();
-        let saveMenuItem = this.app.menuBar.getMenuItemByID('file.save');
-        let saveAsMenuItem = this.app.menuBar.getMenuItemByID('file.saveAs');
+        const activeTab = this.app.tabController.getActiveTab();
+        const saveMenuItem = this.app.menuBar.getMenuItemByID('file.save');
+        const saveAsMenuItem = this.app.menuBar.getMenuItemByID('file.saveAs');
         if (activeTab instanceof FileTab) {
             const file = activeTab.getFile();
             if (file.isDirty()) {
@@ -353,8 +353,8 @@ class WorkspaceManager {
     }
 
     updateCodeFormatMenu() {
-        let activeTab = this.app.tabController.getActiveTab();
-        let codeFormatMenuItem = this.app.menuBar.getMenuItemByID('code.format');
+        const activeTab = this.app.tabController.getActiveTab();
+        const codeFormatMenuItem = this.app.menuBar.getMenuItemByID('code.format');
         if (activeTab instanceof FileTab) {
             const fileEditor = activeTab.getBallerinaFileEditor();
             if (!_.isNil(fileEditor) && fileEditor.isInSourceView()) {

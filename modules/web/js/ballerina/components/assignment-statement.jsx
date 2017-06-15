@@ -94,9 +94,9 @@ class AssignmentStatement extends React.Component {
      * Render Function for the assignment statement.
      * */
     render() {
-        let model = this.props.model;
-        let expression = model.viewState.expression;
-        let bBox = model.getViewState().bBox;
+        const model = this.props.model;
+        const expression = model.viewState.expression;
+        const bBox = model.getViewState().bBox;
 
         const innerZoneHeight = model.getViewState().components['drop-zone'].h;
 

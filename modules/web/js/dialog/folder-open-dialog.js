@@ -70,9 +70,9 @@ const FolderOpenDialog = Backbone.View.extend(
 
         render() {
             let fileBrowser;
-            let app = this.application;
-            let options = this._options;
-            let self = this;
+            const app = this.application;
+            const options = this._options;
+            const self = this;
 
             if (!_.isNil(this._modalContainer)) {
                 this._modalContainer.remove();
