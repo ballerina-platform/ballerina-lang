@@ -29,17 +29,17 @@ const canvasBbox = {
 
 storiesOf('ArrowDecorator', module)
   .add('default view', () => (
-    <CanvasDecorator bBox={canvasBbox}>
-      <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} />
-    </CanvasDecorator>
+      <CanvasDecorator bBox={canvasBbox}>
+          <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} />
+      </CanvasDecorator>
     ))
   .add('angled arrow', () => (
-    <CanvasDecorator bBox={canvasBbox}>
-      <ArrowDecorator start={{ x: 0, y: 0 }} end={{ x: 320, y: 100 }} />
-    </CanvasDecorator>
+      <CanvasDecorator bBox={canvasBbox}>
+          <ArrowDecorator start={{ x: 0, y: 0 }} end={{ x: 320, y: 100 }} />
+      </CanvasDecorator>
     ))
   .add('dashed arrow', () => (
-    <CanvasDecorator bBox={canvasBbox}>
-      <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} dashed />
-    </CanvasDecorator>
+      <CanvasDecorator bBox={canvasBbox}>
+          <ArrowDecorator start={{ x: 10, y: 10 }} end={{ x: 300, y: 10 }} dashed />
+      </CanvasDecorator>
     ));

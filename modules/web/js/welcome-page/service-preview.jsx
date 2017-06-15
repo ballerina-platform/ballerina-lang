@@ -31,19 +31,19 @@ class ServicePreviewView extends React.PureComponent {
         let previewThumbnails = (null);
         if (this.props.sampleConfigs) {
             previewThumbnails = this.props.sampleConfigs.map(config => (
-              <div
-                role="presentation"
-                className="col-md-3 thumbnail-wrapper"
-                onClick={config.clickEventCallback}
-                key={config.sampleName}
-              >
-                <div className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}>
-                  <img id="previewImg" src={`images/${config.image}.png`} alt={config.sampleName} />
-                  <div className="caption">
-                    <h4>{config.sampleName}</h4>
-                  </div>
-                </div>
-              </div>));
+                <div
+                    role="presentation"
+                    className="col-md-3 thumbnail-wrapper"
+                    onClick={config.clickEventCallback}
+                    key={config.sampleName}
+                >
+                    <div className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}>
+                        <img id="previewImg" src={`images/${config.image}.png`} alt={config.sampleName} />
+                        <div className="caption">
+                            <h4>{config.sampleName}</h4>
+                        </div>
+                    </div>
+                </div>));
         }
 
         return (<div>{previewThumbnails}</div>);

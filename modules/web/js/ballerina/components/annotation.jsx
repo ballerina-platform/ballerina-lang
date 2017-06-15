@@ -55,7 +55,7 @@ class Annotation extends React.Component {
             removeIcon = this.props.removeIcon;
         } else {
             removeIcon = (<div className="annotation-remove" onClick={this.deleteAnnotation.bind(this)}>
-              <i className="fw fw-cancel" />
+                <i className="fw fw-cancel" />
             </div>);
         }
 
@@ -65,7 +65,7 @@ class Annotation extends React.Component {
             annotationKeyPart = this.renderEditView(model);
         } else {
             annotationKeyPart = (<td className="annotation-key" onClick={this.onClickAnnotation.bind(this)}>
-              <span className="package-name"><span>@</span>{model.getPackageName()}</span>
+                <span className="package-name"><span>@</span>{model.getPackageName()}</span>
                 :
                 <span className="identifier">{model.getIdentifier()}</span>
             </td>);
@@ -77,39 +77,39 @@ class Annotation extends React.Component {
         if (attributesOfCurrentAnnotation.length > this.props.model.getChildren().length &&
             this.getAnnotationAttributes(model.getFullPackageName(), model.getIdentifier()).length > 0) {
             addIcon = (<div className="annotation-attribute-add" onClick={this.addAnnotationAttribute.bind(this)}>
-              <i className="fw fw-add" />
+                <i className="fw fw-add" />
             </div>);
         }
         if (model.children.length === 0) {
             key = (<tr>
-              {annotationKeyPart}
-              <td>
-                <span className="annotation-openning-bracket">{'{ '}{addIcon}{' }'}{removeIcon}</span>
-              </td>
+                {annotationKeyPart}
+                <td>
+                    <span className="annotation-openning-bracket">{'{ '}{addIcon}{' }'}{removeIcon}</span>
+                </td>
             </tr>);
         } else {
             key = (<tr>
-              {annotationKeyPart}
-              <td>
-                <span className="annotation-openning-bracket">{'{'}{addIcon}{removeIcon}</span>
-              </td>
+                {annotationKeyPart}
+                <td>
+                    <span className="annotation-openning-bracket">{'{'}{addIcon}{removeIcon}</span>
+                </td>
             </tr>);
         }
 
         const annotationAttributeComponents = [];
         for (const annotationAttribute of model.getChildren()) {
             annotationAttributeComponents.push(<tr key={annotationAttribute.getID()} className="annotation-attribute-row" >
-              <td />
-              <td>
-                <table>
-                  <tbody>
-                    <AnnotationAttribute
-                      model={annotationAttribute}
-                      annotationAttributes={this.getAnnotationAttributes(model.getFullPackageName(), model.getIdentifier())}
-                    />
-                  </tbody>
-                </table>
-              </td>
+                <td />
+                <td>
+                    <table>
+                        <tbody>
+                            <AnnotationAttribute
+                                model={annotationAttribute}
+                                annotationAttributes={this.getAnnotationAttributes(model.getFullPackageName(), model.getIdentifier())}
+                            />
+                        </tbody>
+                    </table>
+                </td>
             </tr>);
         }
 
@@ -117,27 +117,27 @@ class Annotation extends React.Component {
         if (model.getChildren().length !== 0) {
             if (!_.isUndefined(this.props.haveEndingComma) && this.props.haveEndingComma === true) {
                 closingBracket = (<tr>
-                  <td>
-                    <span className="annotation-closing-bracket">{'} ,'}</span>
-                  </td>
-                  <td />
+                    <td>
+                        <span className="annotation-closing-bracket">{'} ,'}</span>
+                    </td>
+                    <td />
                 </tr>);
             } else {
                 closingBracket = (<tr>
-                  <td>
-                    <span className="annotation-closing-bracket">{'}'}</span>
-                  </td>
-                  <td />
+                    <td>
+                        <span className="annotation-closing-bracket">{'}'}</span>
+                    </td>
+                    <td />
                 </tr>);
             }
         }
 
         return (<table key={model.getID()} className="annotation-table" >
-          <tbody>
-            {key}
-            {annotationAttributeComponents}
-            {closingBracket}
-          </tbody>
+            <tbody>
+                {key}
+                {annotationAttributeComponents}
+                {closingBracket}
+            </tbody>
         </table>);
     }
 
@@ -152,29 +152,29 @@ class Annotation extends React.Component {
     renderEditView(model) {
         if (this.state.packageNameSelected) {
             return (<td className="annotation-key">
-              <span className="package-name"><span>@</span>{model.getPackageName()}</span>
-              <span className="annotation-separator">:</span>
-              <AutoSuggestHtml
-                items={this.getIdentifiersForSuggestion()}
-                placeholder={'Identifier'}
-                initialValue={model.getIdentifier()}
-                onSuggestionSelected={this.onIdentifierSelected.bind(this)}
-                onKeyDown={this.onIdentifierKeyDown.bind(this)}
-                minWidth={130}
-                maxWidth={1000}
-              />
+                <span className="package-name"><span>@</span>{model.getPackageName()}</span>
+                <span className="annotation-separator">:</span>
+                <AutoSuggestHtml
+                    items={this.getIdentifiersForSuggestion()}
+                    placeholder={'Identifier'}
+                    initialValue={model.getIdentifier()}
+                    onSuggestionSelected={this.onIdentifierSelected.bind(this)}
+                    onKeyDown={this.onIdentifierKeyDown.bind(this)}
+                    minWidth={130}
+                    maxWidth={1000}
+                />
             </td>);
         }
         return (<td className="annotation-key">
-          <span className="package-name">@</span>
-          <AutoSuggestHtml
-            items={this.getPackageNamesForSuggestion()}
-            placeholder={'Add Annotation'}
-            initialValue={model.getFullPackageName()}
-            onSuggestionSelected={this.onPackageNameSelected.bind(this)}
-            minWidth={150}
-            maxWidth={1000}
-          />
+            <span className="package-name">@</span>
+            <AutoSuggestHtml
+                items={this.getPackageNamesForSuggestion()}
+                placeholder={'Add Annotation'}
+                initialValue={model.getFullPackageName()}
+                onSuggestionSelected={this.onPackageNameSelected.bind(this)}
+                minWidth={150}
+                maxWidth={1000}
+            />
         </td>);
     }
 

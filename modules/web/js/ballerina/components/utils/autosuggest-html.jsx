@@ -200,17 +200,17 @@ class AutoSuggestHtml extends React.Component {
         };
 
         return (
-          <Autosuggest
-            suggestions={this.state.suggestions}
-            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-            onSuggestionSelected={this.props.onSuggestionSelected}
-            getSuggestionValue={this.getSuggestionValue}
-            renderSuggestion={this.renderSuggestion}
-            shouldRenderSuggestions={() => true}
-            ref={this.storeInputReference}
-            inputProps={inputProps}
-          />
+            <Autosuggest
+                suggestions={this.state.suggestions}
+                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                onSuggestionSelected={this.props.onSuggestionSelected}
+                getSuggestionValue={this.getSuggestionValue}
+                renderSuggestion={this.renderSuggestion}
+                shouldRenderSuggestions={() => true}
+                ref={this.storeInputReference}
+                inputProps={inputProps}
+            />
         );
     }
 }

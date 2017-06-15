@@ -59,24 +59,24 @@ class ServiceDefinition extends React.Component {
         };
 
         return (<PanelDecorator
-          icon="tool-icons/service" title={title} bBox={bBox}
-          model={model}
-          dropTarget={this.props.model}
-          dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+            icon="tool-icons/service" title={title} bBox={bBox}
+            model={model}
+            dropTarget={this.props.model}
+            dropSourceValidateCB={node => this.canDropToPanelBody(node)}
         >
-          {
+            {
                     viewState.variablesExpanded ?
-                      <GlobalExpanded
-                        bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleVarialblesBadgeClick}
-                        title="Variables" addText={'+ Add Variable'} onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
-                        getValue={g => (g.getStatementString())}
-                      /> :
-                      <GlobalDefinitions
-                        bBox={expandedVariablesBBox} numberOfItems={variables.length}
-                        title={'Variables'} onExpand={this.handleVarialblesBadgeClick}
-                      />
+                        <GlobalExpanded
+                            bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleVarialblesBadgeClick}
+                            title="Variables" addText={'+ Add Variable'} onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
+                            getValue={g => (g.getStatementString())}
+                        /> :
+                        <GlobalDefinitions
+                            bBox={expandedVariablesBBox} numberOfItems={variables.length}
+                            title={'Variables'} onExpand={this.handleVarialblesBadgeClick}
+                        />
                 }
-          {children}
+            {children}
         </PanelDecorator>);
     }
 

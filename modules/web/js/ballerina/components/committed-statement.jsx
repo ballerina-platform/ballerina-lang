@@ -31,10 +31,10 @@ class CommittedStatement extends React.Component {
         const titleWidth = model.viewState.titleWidth;
         const children = getComponentForNodeArray(model.getChildren());
         return (<BlockStatementDecorator
-          dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-          title={'Committed'}
+            dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+            title={'Committed'}
         >
-          {children}
+            {children}
         </BlockStatementDecorator>);
     }
 }

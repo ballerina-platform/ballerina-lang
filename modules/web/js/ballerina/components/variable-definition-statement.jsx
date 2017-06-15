@@ -93,19 +93,19 @@ class VariableDefinitionStatement extends React.Component {
         }
 
         return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions}>
-          {!_.isNil(actionInvocation) &&
+            {!_.isNil(actionInvocation) &&
             <g>
-              <circle
-                cx={arrowStartPointX}
-                cy={arrowStartPointY}
-                r={radius}
-                fill="#444"
-                fillOpacity={0}
-                onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-                onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-                onMouseDown={e => this.onMouseDown(e)}
-                onMouseUp={e => this.onMouseUp(e)}
-              />
+                <circle
+                    cx={arrowStartPointX}
+                    cy={arrowStartPointY}
+                    r={radius}
+                    fill="#444"
+                    fillOpacity={0}
+                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                    onMouseDown={e => this.onMouseDown(e)}
+                    onMouseUp={e => this.onMouseUp(e)}
+                />
                 {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
                 {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
             </g>

@@ -58,24 +58,24 @@ export default class importDeclaration extends React.Component {
         };
 
         return (
-          <g className="package-definition-head" onClick={(e) => { this.props.onClick(e); }}>
-            <rect x={bBox.x} y={bBox.y} width={badgeWidth} height={headerHeight} rx="0" ry="0" className="package-definition-header" />
-            <rect x={bBox.x} y={bBox.y} height={headerHeight} className="import-definition-decorator" />
-            <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">
+            <g className="package-definition-head" onClick={(e) => { this.props.onClick(e); }}>
+                <rect x={bBox.x} y={bBox.y} width={badgeWidth} height={headerHeight} rx="0" ry="0" className="package-definition-header" />
+                <rect x={bBox.x} y={bBox.y} height={headerHeight} className="import-definition-decorator" />
+                <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">
                     Imports
                 </text>
-            <rect
-              x={numberBbox.x - (noOfImportsBGWidth - noOfImportsTextWidth) / 2} y={numberBbox.y - noOfImportsBGHeight / 2} width={noOfImportsBGWidth} height={noOfImportsBGHeight}
-              rx={noOfImportsBGHeight / 2} ry={noOfImportsBGHeight / 2} className="import-badge"
-            />
-            <text x={numberBbox.x} y={numberBbox.y} rx="0" ry="0" style={{ fontSize: importNoFontSize }} className="import-badge-text">
-              {noOfImports}
-            </text>
-            <image
-              width={iconSize} height={iconSize} className="property-pane-action-button-delete"
-              xlinkHref={ImageUtil.getSVGIconString('view')} x={iconBbox.x} y={iconBbox.y}
-            />
-          </g>
+                <rect
+                    x={numberBbox.x - (noOfImportsBGWidth - noOfImportsTextWidth) / 2} y={numberBbox.y - noOfImportsBGHeight / 2} width={noOfImportsBGWidth} height={noOfImportsBGHeight}
+                    rx={noOfImportsBGHeight / 2} ry={noOfImportsBGHeight / 2} className="import-badge"
+                />
+                <text x={numberBbox.x} y={numberBbox.y} rx="0" ry="0" style={{ fontSize: importNoFontSize }} className="import-badge-text">
+                    {noOfImports}
+                </text>
+                <image
+                    width={iconSize} height={iconSize} className="property-pane-action-button-delete"
+                    xlinkHref={ImageUtil.getSVGIconString('view')} x={iconBbox.x} y={iconBbox.y}
+                />
+            </g>
         );
     }
 }

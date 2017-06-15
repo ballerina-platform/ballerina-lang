@@ -50,17 +50,17 @@ class Breakpoint extends React.Component {
         }
 
         return (
-          <image
-            xlinkHref={icon}
-            className="property-pane-action-button-breakpoint"
-            onMouseOver={() => { this.showRemoveBreakpointIcon(true); }}
-            onMouseOut={() => { this.showRemoveBreakpointIcon(false); }}
-            height={this.props.size}
-            width={this.props.size}
-            x={this.props.x}
-            y={this.props.y}
-            onClick={this.props.onClick}
-          />
+            <image
+                xlinkHref={icon}
+                className="property-pane-action-button-breakpoint"
+                onMouseOver={() => { this.showRemoveBreakpointIcon(true); }}
+                onMouseOut={() => { this.showRemoveBreakpointIcon(false); }}
+                height={this.props.size}
+                width={this.props.size}
+                x={this.props.x}
+                y={this.props.y}
+                onClick={this.props.onClick}
+            />
         );
     }
 }

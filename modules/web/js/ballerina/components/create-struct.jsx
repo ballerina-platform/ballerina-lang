@@ -48,23 +48,23 @@ class CreateStruct extends React.Component {
         const { types = [] } = this.props;
         const renderingContext = this.props.renderingContext;
         return (
-          <div style={style} className="struct-content-operations-wrapper">
-            <div className="type-drop-wrapper struct-view">
-              <select tabIndex="-1" style={{ width: 188, height: 25 }} ref={(input) => { this.typeInput = input; }}>
-                {
+            <div style={style} className="struct-content-operations-wrapper">
+                <div className="type-drop-wrapper struct-view">
+                    <select tabIndex="-1" style={{ width: 188, height: 25 }} ref={(input) => { this.typeInput = input; }}>
+                        {
                           types.map(type => <option key={type} value={type}>{type}</option>)
                       }
-              </select>
+                    </select>
+                </div>
+                <input type="text" className="struct-identifier-text-input" placeholder="Identifier" ref={(input) => { this.identifierInput = input; }} />
+                <input type="text" className="struct-default-value-text-input" placeholder="Default Value" ref={(input) => { this.valueInput = input; }} />
+                <div className="add-struct-variable-button pull-left" onClick={event => this.handleSubmit(event)}>
+                    <span className="fw-stack fw-lg">
+                        <i className="fw fw-square fw-stack-2x" />
+                        <i className="fw fw-check fw-stack-1x fw-inverse add-struct-variable-button-square" />
+                    </span>
+                </div>
             </div>
-            <input type="text" className="struct-identifier-text-input" placeholder="Identifier" ref={(input) => { this.identifierInput = input; }} />
-            <input type="text" className="struct-default-value-text-input" placeholder="Default Value" ref={(input) => { this.valueInput = input; }} />
-            <div className="add-struct-variable-button pull-left" onClick={event => this.handleSubmit(event)}>
-              <span className="fw-stack fw-lg">
-                <i className="fw fw-square fw-stack-2x" />
-                <i className="fw fw-check fw-stack-1x fw-inverse add-struct-variable-button-square" />
-              </span>
-            </div>
-          </div>
         );
     }
 }

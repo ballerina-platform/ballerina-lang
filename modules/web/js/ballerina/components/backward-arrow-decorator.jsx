@@ -54,13 +54,13 @@ class BackwardArrow extends React.Component {
 
         const className = 'action-arrow action-dash-line';
         return (<g >
-          {enable && <line x1={arrowStart.x} x2={arrowEnd.x} y1={arrowStart.y} y2={arrowEnd.y} className={className} /> }
-          {enable &&
+            {enable && <line x1={arrowStart.x} x2={arrowEnd.x} y1={arrowStart.y} y2={arrowEnd.y} className={className} /> }
+            {enable &&
             <polygon
-              points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
-              transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
+                points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
+                transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
 						rotate(${this.getArrowAngle(arrowStart, arrowEnd)}, 0, 0)`}
-              className="action-arrow-head"
+                className="action-arrow-head"
             />
             }
         </g>);

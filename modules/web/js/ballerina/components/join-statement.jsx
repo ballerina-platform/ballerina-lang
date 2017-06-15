@@ -98,57 +98,57 @@ class JoinStatement extends React.Component {
         let addTimeoutBtn;
         if (!model.parent.hasTimeout()) {
             addTimeoutBtn = (
-              <g onClick={this.thisAddTimeout}>
-                <rect
-                  x={bBox.getRight() - 10}
-                  y={bBox.getBottom() - 25}
-                  width={20}
-                  height={20}
-                  rx={10}
-                  ry={10}
-                  className="add-timeout-button"
-                />
-                <text
-                  x={bBox.getRight() - 4}
-                  y={bBox.getBottom() - 15}
-                  width={20}
-                  height={20}
-                  className="add-timeout-button-label"
-                >+</text>
-              </g>);
+                <g onClick={this.thisAddTimeout}>
+                    <rect
+                        x={bBox.getRight() - 10}
+                        y={bBox.getBottom() - 25}
+                        width={20}
+                        height={20}
+                        rx={10}
+                        ry={10}
+                        className="add-timeout-button"
+                    />
+                    <text
+                        x={bBox.getRight() - 4}
+                        y={bBox.getBottom() - 15}
+                        width={20}
+                        height={20}
+                        className="add-timeout-button-label"
+                    >+</text>
+                </g>);
         } else {
             addTimeoutBtn = null;
         }
 
         return (
-          <CompoundStatementDecorator
-            model={model}
-            bBox={bBox}
-            onDelete={this.thisOnDelete}
-          >
-            <BlockStatementDecorator
-              model={model}
-              dropTarget={model}
-              bBox={bBox}
-              title={'Join'}
-              parameterBbox={parameterBbox}
-              utilities={addTimeoutBtn}
-              undeletable
-              parameterEditorOptions={parameterEditorOptions}
-              expression={{ text: model.getJoinConditionString() }}
-              editorOptions={this.editorOptions}
+            <CompoundStatementDecorator
+                model={model}
+                bBox={bBox}
+                onDelete={this.thisOnDelete}
             >
-              {model.children.length > 0 &&
-                <line
-                  x1={bBox.getCenterX()}
-                  y1={lifeLineY1}
-                  x2={bBox.getCenterX()}
-                  y2={lifeLineY2}
-                  className="join-lifeline"
-                /> }
-              {children}
-            </BlockStatementDecorator>
-          </CompoundStatementDecorator>);
+                <BlockStatementDecorator
+                    model={model}
+                    dropTarget={model}
+                    bBox={bBox}
+                    title={'Join'}
+                    parameterBbox={parameterBbox}
+                    utilities={addTimeoutBtn}
+                    undeletable
+                    parameterEditorOptions={parameterEditorOptions}
+                    expression={{ text: model.getJoinConditionString() }}
+                    editorOptions={this.editorOptions}
+                >
+                    {model.children.length > 0 &&
+                    <line
+                        x1={bBox.getCenterX()}
+                        y1={lifeLineY1}
+                        x2={bBox.getCenterX()}
+                        y2={lifeLineY2}
+                        className="join-lifeline"
+                    /> }
+                    {children}
+                </BlockStatementDecorator>
+            </CompoundStatementDecorator>);
     }
 
 }

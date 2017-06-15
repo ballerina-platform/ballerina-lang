@@ -38,10 +38,10 @@ storiesOf('Throw-Statement', module)
                 },
             }, null);
         return (
-          <CanvasDecorator bBox={canvasBbox}>
-            <StatementContainer>
-              {throwStatement}
-            </StatementContainer>
-          </CanvasDecorator>
+            <CanvasDecorator bBox={canvasBbox}>
+                <StatementContainer>
+                    {throwStatement}
+                </StatementContainer>
+            </CanvasDecorator>
         );
     });

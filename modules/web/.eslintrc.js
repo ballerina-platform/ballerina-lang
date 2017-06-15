@@ -43,7 +43,11 @@ module.exports = {
         "func-names": ["off"],
         "class-methods-use-this": ["off"],
         "arrow-body-style": "off",
-        "prefer-template": "off"
+        "prefer-template": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off",
+        "react/jsx-indent": ["error", 4],
+        "react/jsx-indent-props": ["error", 4]
     },
     "plugins": [
         "react"

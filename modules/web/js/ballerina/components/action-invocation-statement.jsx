@@ -88,24 +88,24 @@ class ActionInvocationStatement extends React.Component {
         backArrowEnd.y = backArrowStart.y;
 
         return (<StatementDecorator
-          viewState={model.viewState} expression={expression}
-          editorOptions={this.editorOptions} model={model}
+            viewState={model.viewState} expression={expression}
+            editorOptions={this.editorOptions} model={model}
         >
-          <g>
-            <circle
-              cx={arrowStartPointX}
-              cy={arrowStartPointY}
-              r={10}
-              fill="#444"
-              fillOpacity={0}
-              onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-              onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-              onMouseDown={e => this.onMouseDown(e)}
-              onMouseUp={e => this.onMouseUp(e)}
-            />
-            {!_.isNil(connector) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
-            {!_.isNil(connector) && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
-          </g>
+            <g>
+                <circle
+                    cx={arrowStartPointX}
+                    cy={arrowStartPointY}
+                    r={10}
+                    fill="#444"
+                    fillOpacity={0}
+                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                    onMouseDown={e => this.onMouseDown(e)}
+                    onMouseUp={e => this.onMouseUp(e)}
+                />
+                {!_.isNil(connector) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
+                {!_.isNil(connector) && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
+            </g>
         </StatementDecorator>);
     }
 

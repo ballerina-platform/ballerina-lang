@@ -38,10 +38,10 @@ storiesOf('Return-Statement', module)
                 },
             }, null);
         return (
-          <CanvasDecorator bBox={canvasBbox}>
-            <StatementContainer>
-              {returnStatement}
-            </StatementContainer>
-          </CanvasDecorator>
+            <CanvasDecorator bBox={canvasBbox}>
+                <StatementContainer>
+                    {returnStatement}
+                </StatementContainer>
+            </CanvasDecorator>
         );
     });

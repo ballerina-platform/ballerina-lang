@@ -37,10 +37,10 @@ storiesOf('Assignment-Statement', module)
                 },
             }, null);
         return (
-          <CanvasDecorator bBox={canvasBbox}>
-            <StatementContainer>
-              {assignmentStatement}
-            </StatementContainer>
-          </CanvasDecorator>
+            <CanvasDecorator bBox={canvasBbox}>
+                <StatementContainer>
+                    {assignmentStatement}
+                </StatementContainer>
+            </CanvasDecorator>
         );
     });

@@ -67,19 +67,19 @@ class FunctionDefinition extends React.Component {
         }];
 
         return (<PanelDecorator
-          icon={icons} title={name} bBox={bBox}
-          model={this.props.model}
-          dropTarget={this.props.model}
-          dropSourceValidateCB={node => this.canDropToPanelBody(node)}
-          titleComponentData={titleComponentData}
-        >
-          <LifeLine title="default" bBox={function_worker_bBox} classes={classes} />
-          <StatementContainer
+            icon={icons} title={name} bBox={bBox}
+            model={this.props.model}
             dropTarget={this.props.model}
-            title="StatementContainer" bBox={statementContainerBBox}
-          >
-            {children}
-          </StatementContainer>
+            dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+            titleComponentData={titleComponentData}
+        >
+            <LifeLine title="default" bBox={function_worker_bBox} classes={classes} />
+            <StatementContainer
+                dropTarget={this.props.model}
+                title="StatementContainer" bBox={statementContainerBBox}
+            >
+                {children}
+            </StatementContainer>
         </PanelDecorator>);
     }
 

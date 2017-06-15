@@ -49,23 +49,23 @@ class CanvasDecorator extends React.Component {
         const dropZoneClassName = (dropZoneActivated ? 'drop-zone active' : 'drop-zone ')
                         + (dropZoneDropNotAllowed ? ' blocked' : '');
         return (
-          <div className="grid-background" style={{ width: this.props.bBox.w }} >
-            <div ref={(x) => { setCanvasOverlay(x); }}>
-              {/* This space is used to render html elements over svg*/ }
+            <div className="grid-background" style={{ width: this.props.bBox.w }} >
+                <div ref={(x) => { setCanvasOverlay(x); }}>
+                    {/* This space is used to render html elements over svg*/ }
+                </div>
+                { (this.props.annotations) ? this.props.annotations : null }
+                <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
+                    <rect
+                        x="0" y="0"width="100%" height="100%"
+                        className={dropZoneClassName}
+                        onMouseOver={e => this.onDropZoneActivate(e)}
+                        onMouseOut={e => this.onDropZoneDeactivate(e)}
+                    />
+                    {this.props.children}
+                    <ArrowDecorator start={arrowStart} end={arrowEnd} enable moveWithMessageManager />
+                    <BackwardArrowDecorator start={arrowStart} end={arrowEnd} enable moveWithMessageManager />
+                </svg>
             </div>
-            { (this.props.annotations) ? this.props.annotations : null }
-            <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
-              <rect
-                x="0" y="0"width="100%" height="100%"
-                className={dropZoneClassName}
-                onMouseOver={e => this.onDropZoneActivate(e)}
-                onMouseOut={e => this.onDropZoneDeactivate(e)}
-              />
-              {this.props.children}
-              <ArrowDecorator start={arrowStart} end={arrowEnd} enable moveWithMessageManager />
-              <BackwardArrowDecorator start={arrowStart} end={arrowEnd} enable moveWithMessageManager />
-            </svg>
-          </div>
         );
     }
 

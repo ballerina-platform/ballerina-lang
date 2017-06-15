@@ -30,11 +30,11 @@ storiesOf('BlockStatementDecorator', module)
               title: 'while' }, null);
       const canvusbBox = { h: 800 };
       return (
-        <CanvasDecorator bBox={canvusbBox}>
-          <StatementContainer>
-            {whileStatement}
-          </StatementContainer>
-        </CanvasDecorator>
+          <CanvasDecorator bBox={canvusbBox}>
+              <StatementContainer>
+                  {whileStatement}
+              </StatementContainer>
+          </CanvasDecorator>
       );
   })
   .add('if box', () => {
@@ -43,11 +43,11 @@ storiesOf('BlockStatementDecorator', module)
               title: 'if' }, null);
       const canvusbBox = { h: 800 };
       return (
-        <CanvasDecorator bBox={canvusbBox}>
-          <StatementContainer>
-            {blockStatement}
-          </StatementContainer>
-        </CanvasDecorator>
+          <CanvasDecorator bBox={canvusbBox}>
+              <StatementContainer>
+                  {blockStatement}
+              </StatementContainer>
+          </CanvasDecorator>
       );
   })
   .add('if box', () => {
@@ -59,11 +59,11 @@ storiesOf('BlockStatementDecorator', module)
               title: 'else' }, null);
       const canvusbBox = { h: 800 };
       return (
-        <CanvasDecorator bBox={canvusbBox}>
-          <StatementContainer>
-            { [ifst, elsest]}
-          </StatementContainer>
-        </CanvasDecorator>
+          <CanvasDecorator bBox={canvusbBox}>
+              <StatementContainer>
+                  { [ifst, elsest]}
+              </StatementContainer>
+          </CanvasDecorator>
       );
   })
   .add('try box', () => {
@@ -72,10 +72,10 @@ storiesOf('BlockStatementDecorator', module)
               title: 'try' }, null);
       const canvusbBox = { h: 800 };
       return (
-        <CanvasDecorator bBox={canvusbBox}>
-          <StatementContainer>
-            {tryst}
-          </StatementContainer>
-        </CanvasDecorator>
+          <CanvasDecorator bBox={canvusbBox}>
+              <StatementContainer>
+                  {tryst}
+              </StatementContainer>
+          </CanvasDecorator>
       );
   });

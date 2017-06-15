@@ -41,21 +41,21 @@ class WorkerReplyStatement extends React.Component {
             const workerReplyStatement = model.getDestination().findChild(BallerinaASTFactory.isReplyStatement);
             if (!_.isUndefined(workerReplyStatement)) {
                 return (<g>
-                  <StatementDecorator
-                    model={model} viewState={model.viewState}
-                    expression={expression} editorOptions={this.editorOptions}
-                  />);
+                    <StatementDecorator
+                        model={model} viewState={model.viewState}
+                        expression={expression} editorOptions={this.editorOptions}
+                    />);
                       <StatementArrowConnection start={workerReplyStatement.viewState} end={model.viewState} />
                 </g>);
             }
             return (<StatementDecorator
-              model={model} viewState={model.viewState}
-              expression={expression} editorOptions={this.editorOptions}
+                model={model} viewState={model.viewState}
+                expression={expression} editorOptions={this.editorOptions}
             />);
         }
         return (<StatementDecorator
-          model={model} viewState={model.viewState}
-          expression={expression} editorOptions={this.editorOptions}
+            model={model} viewState={model.viewState}
+            expression={expression} editorOptions={this.editorOptions}
         />);
     }
 }

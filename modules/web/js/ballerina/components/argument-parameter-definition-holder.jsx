@@ -143,11 +143,11 @@ class ArgumentParameterDefinitionHolder extends React.Component {
         };
         const children = getComponentForNodeArray(model.getChildren());
         return (
-          <TagController
-            key={model.getID()} model={model} setter={this.addArgumentParameter}
-            validateInput={this.validateInput} modelComponents={children}
-            componentData={componentData} groupClass="argument-parameter-group"
-          />
+            <TagController
+                key={model.getID()} model={model} setter={this.addArgumentParameter}
+                validateInput={this.validateInput} modelComponents={children}
+                componentData={componentData} groupClass="argument-parameter-group"
+            />
         );
     }
 }

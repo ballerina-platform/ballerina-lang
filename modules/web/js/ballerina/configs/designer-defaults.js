@@ -277,4 +277,4 @@ export const variablesPane = {
     headerHeight: 35,
     topBarHeight: 25,
     inputHeight: 40,
-}
+};

@@ -69,19 +69,19 @@ class ElseIfStatement extends React.Component {
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
         const addElseIfBtn = (
-          <g onClick={this.onAddElseIfClick}>
-            <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-if-button" />
-            <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-if-button-label">+</text>
-          </g>
+            <g onClick={this.onAddElseIfClick}>
+                <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-if-button" />
+                <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-if-button-label">+</text>
+            </g>
         );
 
         return (
-          <BlockStatementDecorator
-            dropTarget={model} model={model} bBox={bBox} title={'Else If'} expression={expression}
-            utilities={addElseIfBtn} editorOptions={editorOptions}
-          >
-            {children}
-          </BlockStatementDecorator>
+            <BlockStatementDecorator
+                dropTarget={model} model={model} bBox={bBox} title={'Else If'} expression={expression}
+                utilities={addElseIfBtn} editorOptions={editorOptions}
+            >
+                {children}
+            </BlockStatementDecorator>
         );
     }
 }

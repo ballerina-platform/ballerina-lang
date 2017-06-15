@@ -71,11 +71,11 @@ class AnnotationDefinition extends React.Component {
         };
 
         const tagController = (<TagController
-          key={model.getID()} model={model} setter={this.addAttachmentPoint}
-          validateInput={this.validateInput} modelComponents={attachments}
-          componentData={componentData} isSelectBox
-          suggestions={this.getAnnotationAttachmentPointsForSuggestions()}
-          groupClass="annotation-attachment-group" label={'attach'}
+            key={model.getID()} model={model} setter={this.addAttachmentPoint}
+            validateInput={this.validateInput} modelComponents={attachments}
+            componentData={componentData} isSelectBox
+            suggestions={this.getAnnotationAttachmentPointsForSuggestions()}
+            groupClass="annotation-attachment-group" label={'attach'}
         />);
         const titleComponentData = [{
             isNode: false,
@@ -83,14 +83,14 @@ class AnnotationDefinition extends React.Component {
         }];
 
         return (<PanelDecorator
-          icon="annotation-black"
-          title={title}
-          bBox={bBox}
-          model={model}
-          titleComponentData={titleComponentData}
+            icon="annotation-black"
+            title={title}
+            bBox={bBox}
+            model={model}
+            titleComponentData={titleComponentData}
         >
-          <AnnotationAttributeDecorator model={model} bBox={bBox} />
-          {children}
+            <AnnotationAttributeDecorator model={model} bBox={bBox} />
+            {children}
         </PanelDecorator>);
     }
 

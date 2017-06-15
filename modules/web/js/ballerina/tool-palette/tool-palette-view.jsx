@@ -123,23 +123,23 @@ class Tool extends React.Component {
         const icon = tool.icon;
         if (this.props.toolOrder == 'horizontal') {
             return (
-              <div className="tool-block tool-container" data-original-title={tool.get('name')} data-placement="bottom" data-toggle="tooltip" id={tool.get('name')} title={tool.get('name')}>
-                <i className={tool.get('cssClass')} />
-                <span className="tool-title-wrap" />
-                <span className="tool-title-wrap">
-                  <p className="tool-title">{tool.get('name')}</p>
-                </span>
-              </div>
+                <div className="tool-block tool-container" data-original-title={tool.get('name')} data-placement="bottom" data-toggle="tooltip" id={tool.get('name')} title={tool.get('name')}>
+                    <i className={tool.get('cssClass')} />
+                    <span className="tool-title-wrap" />
+                    <span className="tool-title-wrap">
+                        <p className="tool-title">{tool.get('name')}</p>
+                    </span>
+                </div>
             );
         }
         return (
-          <div id={`${tool.id}-tool`} className={`tool-block tool-container-vertical ${tool.get('classNames')}`}>
-            <div className="tool-container-vertical-icon" data-placement="bottom" data-toggle="tooltip" title={tool.get('title')}>
-              <img src={icon.getAttribute('src')} className="tool-image" />
+            <div id={`${tool.id}-tool`} className={`tool-block tool-container-vertical ${tool.get('classNames')}`}>
+                <div className="tool-container-vertical-icon" data-placement="bottom" data-toggle="tooltip" title={tool.get('title')}>
+                    <img src={icon.getAttribute('src')} className="tool-image" />
+                </div>
+                <div className="tool-container-vertical-title" data-placement="bottom" data-toggle="tooltip" title={tool.get('title')}>{tool.get('title')}</div>
+                <p className="tool-title">{tool.get('name')}</p>
             </div>
-            <div className="tool-container-vertical-title" data-placement="bottom" data-toggle="tooltip" title={tool.get('title')}>{tool.get('title')}</div>
-            <p className="tool-title">{tool.get('name')}</p>
-          </div>
         );
     }
 }
@@ -183,13 +183,13 @@ class ToolGroup extends React.Component {
         const toolGroupName = group.get('toolGroupName').replace('org.wso2.ballerina.connectors.', '');
 
         const trigger = (<div className="tool-group-header">
-          <a className="tool-group-header-title">{toolGroupName}</a>
-          <span className="collapse-icon fw fw-down" />
+            <a className="tool-group-header-title">{toolGroupName}</a>
+            <span className="collapse-icon fw fw-down" />
         </div>);
 
         const triggerWhenOpen = (<div className="tool-group-header">
-          <a className="tool-group-header-title">{toolGroupName}</a>
-          <span className="collapse-icon fw fw-up" />
+            <a className="tool-group-header-title">{toolGroupName}</a>
+            <span className="collapse-icon fw fw-up" />
         </div>);
 
         const disabled = false;
@@ -199,19 +199,19 @@ class ToolGroup extends React.Component {
         }
 
         return (
-          <div id="tool-group-constructs-tool-group" className="tool-group">
-            <Collapsible trigger={trigger} triggerDisabled={disabled} open={open} triggerWhenOpen={triggerWhenOpen} transitionTime={200}>
-              <div className={`tool-group-body tool-group-body-${this.state.activeGridStyle}`}>
-                {this.props.showGridStyles && <div className="tools-view-modes-controls clearfix">
-                  <a className="collapse-icon fw fw-tiles" onClick={this.changeGridStyle} data-style="tiles" />
-                  <a className="collapse-icon fw fw-grid" onClick={this.changeGridStyle} data-style="grid" />
-                  <a className="collapse-icon fw fw-list" onClick={this.changeGridStyle} data-style="list" />
-                </div>
+            <div id="tool-group-constructs-tool-group" className="tool-group">
+                <Collapsible trigger={trigger} triggerDisabled={disabled} open={open} triggerWhenOpen={triggerWhenOpen} transitionTime={200}>
+                    <div className={`tool-group-body tool-group-body-${this.state.activeGridStyle}`}>
+                        {this.props.showGridStyles && <div className="tools-view-modes-controls clearfix">
+                            <a className="collapse-icon fw fw-tiles" onClick={this.changeGridStyle} data-style="tiles" />
+                            <a className="collapse-icon fw fw-grid" onClick={this.changeGridStyle} data-style="grid" />
+                            <a className="collapse-icon fw fw-list" onClick={this.changeGridStyle} data-style="list" />
+                        </div>
 }
-                {children}
-              </div>
-            </Collapsible>
-          </div>
+                        {children}
+                    </div>
+                </Collapsible>
+            </div>
         );
     }
 }
@@ -224,12 +224,12 @@ class ToolsPanel extends React.Component {
 
     render() {
         return (
-          <div className="tool-palette-panel">
-            <span className="tool-palette-panel-header-title">{this.props.name}</span>
-            <div className="tool-palette-panel-body">
-              {this.props.children}
+            <div className="tool-palette-panel">
+                <span className="tool-palette-panel-header-title">{this.props.name}</span>
+                <div className="tool-palette-panel-body">
+                    {this.props.children}
+                </div>
             </div>
-          </div>
         );
     }
 }
@@ -247,25 +247,25 @@ class ToolsPane extends React.Component {
 
     render() {
         return (
-          <div>
-            {this.props.constructs && <ToolGroup group={this.props.constructs} key="constructs" showGridStyles />}
-            {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) && <ToolGroup group={this.props.currentTools} key="Current Package" showGridStyles={false} />}
-            <ToolsPanel name="Connectors">
-              {this.props.connectors}
-              <a className="tool-palette-add-button" onClick={() => this.changePane('connectors')}>
-                <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
+            <div>
+                {this.props.constructs && <ToolGroup group={this.props.constructs} key="constructs" showGridStyles />}
+                {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) && <ToolGroup group={this.props.currentTools} key="Current Package" showGridStyles={false} />}
+                <ToolsPanel name="Connectors">
+                    {this.props.connectors}
+                    <a className="tool-palette-add-button" onClick={() => this.changePane('connectors')}>
+                        <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
                         More
                     </a>
-            </ToolsPanel>
-            <ToolsPanel name="Libraries">
-              {this.props.library}
-              <a className="tool-palette-add-button" onClick={() => this.changePane('library')}>
-                <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
+                </ToolsPanel>
+                <ToolsPanel name="Libraries">
+                    {this.props.library}
+                    <a className="tool-palette-add-button" onClick={() => this.changePane('library')}>
+                        <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
                         More
                     </a>
-              <br />
-            </ToolsPanel>
-          </div>
+                    <br />
+                </ToolsPanel>
+            </div>
         );
     }
 }
@@ -283,15 +283,15 @@ class ConnectorPane extends React.Component {
 
     render() {
         return (
-          <div className="connector-panel">
-            <div className="tool-pane-header">
+            <div className="connector-panel">
+                <div className="tool-pane-header">
                     Connectors
                     <a className="back" onClick={() => this.changePane('tools')}>
-                      <i className="fw fw-cancel fw-helper fw-helper-circle-outline icon" />
+                        <i className="fw fw-cancel fw-helper fw-helper-circle-outline icon" />
                     </a>
+                </div>
+                {this.props.connectors}
             </div>
-            {this.props.connectors}
-          </div>
         );
     }
 }
@@ -309,15 +309,15 @@ class LibraryPane extends React.Component {
 
     render() {
         return (
-          <div className="library-panel">
-            <div className="tool-pane-header">
+            <div className="library-panel">
+                <div className="tool-pane-header">
                     Libraries
                     <a className="back" onClick={() => this.changePane('tools')}>
-                      <i className="fw fw-cancel fw-helper fw-helper-circle-outline icon" />
+                        <i className="fw fw-cancel fw-helper fw-helper-circle-outline icon" />
                     </a>
+                </div>
+                {this.props.library}
             </div>
-            {this.props.library}
-          </div>
         );
     }
 }
@@ -339,12 +339,12 @@ class ToolSearch extends React.Component {
 
     render() {
         return (
-          <div className="non-user-selectable">
-            <div className="search-bar">
-              <i className="fw fw-search searchIcon" />
-              <input className="search-input" id="search-field" placeholder="Search" type="text" onChange={this.handleChange} value={this.state.text} />
+            <div className="non-user-selectable">
+                <div className="search-bar">
+                    <i className="fw fw-search searchIcon" />
+                    <input className="search-input" id="search-field" placeholder="Search" type="text" onChange={this.handleChange} value={this.state.text} />
+                </div>
             </div>
-          </div>
         );
     }
 }
@@ -471,23 +471,23 @@ class ToolPaletteView extends React.Component {
         constructs = this.searchTools(this.state.search, constructs);
 
         return (
-          <div className="tool-palette-container">
-            <ToolSearch onTextChange={this.onSearchTextChange} />
-            <Scrollbars
-              style={{
-                  width: 243,
-                  height: scrollHeight,
-              }} autoHide // Hide delay in ms
-              autoHideTimeout={1000}
-            >
-              {this.state.tab == 'tools' && <ToolsPane constructs={constructs} currentTools={currentTools} connectors={connectors} library={library} changePane={this.changePane} />
+            <div className="tool-palette-container">
+                <ToolSearch onTextChange={this.onSearchTextChange} />
+                <Scrollbars
+                    style={{
+                        width: 243,
+                        height: scrollHeight,
+                    }} autoHide // Hide delay in ms
+                    autoHideTimeout={1000}
+                >
+                    {this.state.tab == 'tools' && <ToolsPane constructs={constructs} currentTools={currentTools} connectors={connectors} library={library} changePane={this.changePane} />
 }
-              {this.state.tab == 'connectors' && <ConnectorPane connectors={connectors} changePane={this.changePane} />
+                    {this.state.tab == 'connectors' && <ConnectorPane connectors={connectors} changePane={this.changePane} />
 }
-              {this.state.tab == 'library' && <LibraryPane library={library} changePane={this.changePane} />
+                    {this.state.tab == 'library' && <LibraryPane library={library} changePane={this.changePane} />
 }
-            </Scrollbars>
-          </div>
+                </Scrollbars>
+            </div>
         );
     }
 

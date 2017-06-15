@@ -37,8 +37,8 @@ class AnnotationEntry extends React.Component {
         }
 
         return (<span>
-          <span className="annotation-value-key">{`${model.getLeftValue()} :`}</span>
-          <span className="annotation-value">{ rPrint }</span>
+            <span className="annotation-value-key">{`${model.getLeftValue()} :`}</span>
+            <span className="annotation-value">{ rPrint }</span>
         </span>);
     }
 }

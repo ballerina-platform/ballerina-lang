@@ -51,7 +51,7 @@ class PackageDefinitionVisitor extends AbstractSourceGenVisitor {
             let tailingWS = packageDefinition.getParent().getWSRegion(3);
             tailingWS = (packageDefinition.whiteSpace.useDefault) ? '\n\n' : tailingWS;
             this.appendSource(
-                packageDefinition.getParent().getWSRegion(2) + ';' + tailingWS
+                packageDefinition.getParent().getWSRegion(2) + ';' + tailingWS,
             );
             this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
         }
