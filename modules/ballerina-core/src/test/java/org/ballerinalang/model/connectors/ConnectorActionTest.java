@@ -206,8 +206,8 @@ public class ConnectorActionTest {
 
     @Test(description = "Test incorrect action invocation",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:3: incorrect action invocation " +
-                    "happens on non connector variable: 'cal'")
+            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:3: invalid action invocation. " +
+                    "connector variable expected")
     public void testIncorrectActionInvocation() {
         BTestUtils.getProgramFile("lang/connectors/incorrect-action-invocation.bal");
     }

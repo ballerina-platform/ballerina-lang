@@ -1762,7 +1762,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (bLangSymbol instanceof VariableDef) {
             if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
                 throw BLangExceptionHelper.getSemanticException(actionIExpr.getNodeLocation(),
-                        SemanticErrors.INCORRECT_ACTION_INVOCATION, bLangSymbol.getName());
+                        SemanticErrors.INCORRECT_ACTION_INVOCATION);
             }
             Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
             VariableRefExpr variableRefExpr = new VariableRefExpr(actionIExpr.getNodeLocation(), null, symbolName);
