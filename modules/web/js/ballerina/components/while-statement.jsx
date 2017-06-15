@@ -57,12 +57,12 @@ class WhileStatement extends React.Component {
             setterMethod: model.setConditionFromString,
         };
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-          <BlockStatementDecorator
-            dropTarget={model} bBox={blockStatementBBox} title={'While'}
-            expression={expression} editorOptions={this.editorOptions}
-          >
-            {children}
-          </BlockStatementDecorator>
+            <BlockStatementDecorator
+                dropTarget={model} bBox={blockStatementBBox} title={'While'}
+                expression={expression} editorOptions={this.editorOptions}
+            >
+                {children}
+            </BlockStatementDecorator>
         </CompoundStatementDecorator>);
     }
 }

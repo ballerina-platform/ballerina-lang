@@ -42,19 +42,19 @@ class ReplyStatement extends React.Component {
         const arrowStartPointX = bBox.getLeft();
         const arrowStartPointY = bBox.getTop() + (bBox.h + DesignerDefaults.statement.gutter.v) / 2;
         return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions}>
-          <g>
-            <circle
-              cx={arrowStartPointX}
-              cy={arrowStartPointY}
-              r={10}
-              fill="#444"
-              fillOpacity={0}
-              onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-              onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-              onMouseDown={e => this.onMouseDown(e)}
-              onMouseUp={e => this.onMouseUp(e)}
-            />
-          </g>
+            <g>
+                <circle
+                    cx={arrowStartPointX}
+                    cy={arrowStartPointY}
+                    r={10}
+                    fill="#444"
+                    fillOpacity={0}
+                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                    onMouseDown={e => this.onMouseDown(e)}
+                    onMouseUp={e => this.onMouseUp(e)}
+                />
+            </g>
         </StatementDecorator>);
     }
 

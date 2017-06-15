@@ -109,7 +109,7 @@ class Diagram extends React.Component {
         //    s CsnvasDecorator and pass child components for that.
 
         return (<CanvasDecorator dropTarget={this.model} title="StatementContainer" bBox={viewState.bBox} annotations={annotations}>
-          {others}
+            {others}
         </CanvasDecorator>);
     }
 

@@ -36,10 +36,10 @@ class TransactionStatement extends React.Component {
         const bBox = model.viewState.bBox;
         if (!parent.getCommittedStatement() || !parent.getAbortedStatement()) {
             return (
-              <g onClick={this.onAddAbortedCommittedClick}>
-                <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
-                <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
-              </g>
+                <g onClick={this.onAddAbortedCommittedClick}>
+                    <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
+                    <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
+                </g>
             );
         }
         return null;
@@ -71,18 +71,18 @@ class TransactionStatement extends React.Component {
         // If utilities available add utilities to the block statement.
         if (utilities) {
             return (<BlockStatementDecorator
-              dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-              title={'Transaction'} model={model.parent}
-              utilities={utilities}
+                dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+                title={'Transaction'} model={model.parent}
+                utilities={utilities}
             >
-              {children}
+                {children}
             </BlockStatementDecorator>);
         }
         return (<BlockStatementDecorator
-          dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-          title={'Transaction'} model={model.parent}
+            dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+            title={'Transaction'} model={model.parent}
         >
-          {children}
+            {children}
         </BlockStatementDecorator>);
     }
 

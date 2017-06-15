@@ -34,10 +34,10 @@ storiesOf('CanvasDecorator', module)
           { model: { viewState: { bBox: { x: 0, y: 0, w: 200, h: 50 } },
               expression: 'this is the expression' } }, null);
       return (
-        <CanvasDecorator bBox={canvasBbox}>
-          <StatementContainer>
-            {functionInvocation}
-          </StatementContainer>
-        </CanvasDecorator>
+          <CanvasDecorator bBox={canvasBbox}>
+              <StatementContainer>
+                  {functionInvocation}
+              </StatementContainer>
+          </CanvasDecorator>
       );
   });

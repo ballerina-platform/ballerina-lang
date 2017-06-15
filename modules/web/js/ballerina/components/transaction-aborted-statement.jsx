@@ -26,7 +26,7 @@ class TransactionAbortedStatement extends React.Component {
         const bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(model.getChildren());
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-          {children}
+            {children}
         </CompoundStatementDecorator>);
     }
 }

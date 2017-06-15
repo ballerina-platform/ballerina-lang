@@ -49,9 +49,9 @@ class StartArrowConnection extends React.Component {
         }
 
         return (<g>
-          <ArrowDecorator start={arrowStart} end={arrowEnd} enable />
-          <rect x={arrowEnd.x} y={arrowEnd.y - statement.height / 2} width={statement.width} height={statement.height} className="statement-rect" />
-          <text x={end.bBox.x + end.bBox.w / 2} y={arrowStart.y} textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
+            <ArrowDecorator start={arrowStart} end={arrowEnd} enable />
+            <rect x={arrowEnd.x} y={arrowEnd.y - statement.height / 2} width={statement.width} height={statement.height} className="statement-rect" />
+            <text x={end.bBox.x + end.bBox.w / 2} y={arrowStart.y} textAnchor="middle" alignmentBaseline="central" dominantBaseline="central">Start</text>
         </g>);
     }
 }

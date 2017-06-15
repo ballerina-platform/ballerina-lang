@@ -153,7 +153,6 @@ class IfElseStatement extends Statement {
      * @returns {void}
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
             return BallerinaASTFactory.isElseStatement(node);
         });

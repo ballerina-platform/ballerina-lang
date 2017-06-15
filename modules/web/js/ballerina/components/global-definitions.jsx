@@ -58,24 +58,24 @@ export default class GlobalDefinitions extends React.Component {
         };
 
         return (
-          <g className="package-definition-head" onClick={(e) => { this.props.onExpand(e); }}>
-            <rect x={bBox.x} y={bBox.y} width={badgeWidth} height={headerHeight} rx="0" ry="0" className="package-definition-header" />
-            <rect x={bBox.x} y={bBox.y} height={headerHeight} className="global-definition-decorator" />
-            <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">
-              {title}
-            </text>
-            <rect
-              x={numberBbox.x - (noOfGlobalsBGWidth - noOfGlobalsTextWidth) / 2} y={numberBbox.y - noOfGlobalsBGHeight / 2} width={noOfGlobalsBGWidth} height={noOfGlobalsBGHeight}
-              rx={noOfGlobalsBGHeight / 2} ry={noOfGlobalsBGHeight / 2} className="global-badge"
-            />
-            <text x={numberBbox.x} y={numberBbox.y} rx="0" ry="0" style={{ fontSize: globalsNoFontSize }} className="global-badge-text">
-              {numberOfItems}
-            </text>
-            <image
-              width={iconSize} height={iconSize} className="property-pane-action-button-delete"
-              xlinkHref={ImageUtil.getSVGIconString('view')} x={iconBbox.x} y={iconBbox.y}
-            />
-          </g>
+            <g className="package-definition-head" onClick={(e) => { this.props.onExpand(e); }}>
+                <rect x={bBox.x} y={bBox.y} width={badgeWidth} height={headerHeight} rx="0" ry="0" className="package-definition-header" />
+                <rect x={bBox.x} y={bBox.y} height={headerHeight} className="global-definition-decorator" />
+                <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">
+                    {title}
+                </text>
+                <rect
+                    x={numberBbox.x - (noOfGlobalsBGWidth - noOfGlobalsTextWidth) / 2} y={numberBbox.y - noOfGlobalsBGHeight / 2} width={noOfGlobalsBGWidth} height={noOfGlobalsBGHeight}
+                    rx={noOfGlobalsBGHeight / 2} ry={noOfGlobalsBGHeight / 2} className="global-badge"
+                />
+                <text x={numberBbox.x} y={numberBbox.y} rx="0" ry="0" style={{ fontSize: globalsNoFontSize }} className="global-badge-text">
+                    {numberOfItems}
+                </text>
+                <image
+                    width={iconSize} height={iconSize} className="property-pane-action-button-delete"
+                    xlinkHref={ImageUtil.getSVGIconString('view')} x={iconBbox.x} y={iconBbox.y}
+                />
+            </g>
         );
     }
 }

@@ -39,10 +39,10 @@ class CatchStatement extends React.Component {
         const expression = model.viewState.components.expression;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (<BlockStatementDecorator
-          dropTarget={model} bBox={bBox} title={'Catch'} expression={expression}
-          editorOptions={this.editorOptions}
+            dropTarget={model} bBox={bBox} title={'Catch'} expression={expression}
+            editorOptions={this.editorOptions}
         >
-          {children}
+            {children}
         </BlockStatementDecorator>);
     }
 }

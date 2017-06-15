@@ -151,42 +151,42 @@ class AnnotationAttributeDecorator extends React.Component {
             + DesignerDefaults.panel.body.padding.top
             + viewState.components.annotation.h;
         return (
-          <g className="attribute-content-operations-wrapper">
-            <g onClick={() => this.onClickVariableTextBox()}>
-              <rect
-                x={editBoxRect_x}
-                y={editBoxRect_y}
-                width={DesignerDefaults.annotationAttributeDefinition.heading.width}
-                height={DesignerDefaults.annotationAttributeDefinition.heading.height}
-                className="annotation-input"
-              />
-              <EditableText
-                x={editableBox_x}
-                y={editableBox_y}
-                width={DesignerDefaults.annotationAttributeDefinition.text.width}
-                height={DesignerDefaults.annotationAttributeDefinition.text.height}
-                labelClass={'annotation-input-placeholder'}
-                inputClass={'annotation-input-text-box'}
-                placeholder={DEFAULT_INPUT_VALUE}
-                displayText={DEFAULT_INPUT_VALUE}
-                onKeyDown={(e) => {
-                    this.onKeyDown(e);
-                }}
-                onBlur={(e) => {
-                    this.onInputBlur(e);
-                }}
-                onClick={() => {
-                    this.onClickVariableTextBox();
-                }}
-                editing={this.state.editing}
-                onChange={(e) => {
-                    this.onInputChange(e);
-                }}
-              >
-                {this.state.editValue}
-              </EditableText>
+            <g className="attribute-content-operations-wrapper">
+                <g onClick={() => this.onClickVariableTextBox()}>
+                    <rect
+                        x={editBoxRect_x}
+                        y={editBoxRect_y}
+                        width={DesignerDefaults.annotationAttributeDefinition.heading.width}
+                        height={DesignerDefaults.annotationAttributeDefinition.heading.height}
+                        className="annotation-input"
+                    />
+                    <EditableText
+                        x={editableBox_x}
+                        y={editableBox_y}
+                        width={DesignerDefaults.annotationAttributeDefinition.text.width}
+                        height={DesignerDefaults.annotationAttributeDefinition.text.height}
+                        labelClass={'annotation-input-placeholder'}
+                        inputClass={'annotation-input-text-box'}
+                        placeholder={DEFAULT_INPUT_VALUE}
+                        displayText={DEFAULT_INPUT_VALUE}
+                        onKeyDown={(e) => {
+                            this.onKeyDown(e);
+                        }}
+                        onBlur={(e) => {
+                            this.onInputBlur(e);
+                        }}
+                        onClick={() => {
+                            this.onClickVariableTextBox();
+                        }}
+                        editing={this.state.editing}
+                        onChange={(e) => {
+                            this.onInputChange(e);
+                        }}
+                    >
+                        {this.state.editValue}
+                    </EditableText>
+                </g>
             </g>
-          </g>
         );
     }
 

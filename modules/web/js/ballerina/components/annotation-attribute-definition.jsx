@@ -155,51 +155,51 @@ class AnnotationAttributeDefinition extends React.Component {
 
     render() {
         return (
-          <g className="attribute-content-operations-wrapper">
-            <g onClick={() => this.onClickVariableTextBox()}>
-              <rect
-                x={this.bBox.x} y={this.bBox.y} width={this.bBox.w + 30} height={this.bBox.h}
-                className="annotation-attribute-wrapper "
-              />
+            <g className="attribute-content-operations-wrapper">
+                <g onClick={() => this.onClickVariableTextBox()}>
+                    <rect
+                        x={this.bBox.x} y={this.bBox.y} width={this.bBox.w + 30} height={this.bBox.h}
+                        className="annotation-attribute-wrapper "
+                    />
 
-              <EditableText
-                x={this.bBox.x}
-                y={this.bBox.y + 15}
-                width={this.bBox.w}
-                height={this.bBox.h}
-                labelClass={'annotation-attribute-wrapper-text'}
-                inputClass={'annotation-attribute-input-text-box'}
-                displayText={util.getTextWidth(this.props.model.getAttributeStatementString()).text}
-                onKeyDown={(e) => {
-                    this.onKeyDown(e);
-                }}
-                onBlur={(e) => {
-                    this.onInputBlur(e);
-                }}
-                onClick={() => {
-                    this.onClickVariableTextBox();
-                }}
-                editing={this.state.editing}
-                onChange={(e) => {
-                    this.onInputChange(e);
-                }}
-              >
-                {this.state.editValue}
-              </EditableText>
+                    <EditableText
+                        x={this.bBox.x}
+                        y={this.bBox.y + 15}
+                        width={this.bBox.w}
+                        height={this.bBox.h}
+                        labelClass={'annotation-attribute-wrapper-text'}
+                        inputClass={'annotation-attribute-input-text-box'}
+                        displayText={util.getTextWidth(this.props.model.getAttributeStatementString()).text}
+                        onKeyDown={(e) => {
+                            this.onKeyDown(e);
+                        }}
+                        onBlur={(e) => {
+                            this.onInputBlur(e);
+                        }}
+                        onClick={() => {
+                            this.onClickVariableTextBox();
+                        }}
+                        editing={this.state.editing}
+                        onChange={(e) => {
+                            this.onInputChange(e);
+                        }}
+                    >
+                        {this.state.editValue}
+                    </EditableText>
+                </g>
+                <g onClick={() => this.deleteAttribute()}>
+                    <rect
+                        x={this.bBox.x + this.bBox.w} y={this.bBox.y} width={30} height={30}
+                        className="annotation-delete-wrapper"
+                    />
+                    <image
+                        x={this.bBox.x + this.bBox.w + 5} y={this.bBox.y + 5} width={20} height={20}
+                        className="delete-button-icon" xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
+                    >
+                        <title>Remove</title>
+                    </image>
+                </g>
             </g>
-            <g onClick={() => this.deleteAttribute()}>
-              <rect
-                x={this.bBox.x + this.bBox.w} y={this.bBox.y} width={30} height={30}
-                className="annotation-delete-wrapper"
-              />
-              <image
-                x={this.bBox.x + this.bBox.w + 5} y={this.bBox.y + 5} width={20} height={20}
-                className="delete-button-icon" xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
-              >
-                <title>Remove</title>
-              </image>
-            </g>
-          </g>
         );
     }
 

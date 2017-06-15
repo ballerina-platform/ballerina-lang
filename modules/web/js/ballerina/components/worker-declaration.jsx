@@ -55,13 +55,13 @@ class WorkerDeclaration extends React.Component {
         };
 
         return (<g>
-          <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox} />
-          <LifeLine
-            title={this.props.model.getWorkerName()} bBox={workerBBox}
-            editorOptions={this.editorOptions} model={this.props.model}
-            onDelete={this.onDelete.bind(this)} classes={classes}
-          />
-          {children}
+            <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox} />
+            <LifeLine
+                title={this.props.model.getWorkerName()} bBox={workerBBox}
+                editorOptions={this.editorOptions} model={this.props.model}
+                onDelete={this.onDelete.bind(this)} classes={classes}
+            />
+            {children}
         </g>
         );
     }

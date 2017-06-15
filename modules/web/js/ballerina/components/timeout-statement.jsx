@@ -66,21 +66,21 @@ class TimeoutStatement extends React.Component {
         }
         const centerX = bBox.getCenterX();
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-          <BlockStatementDecorator
-            model={model}
-            dropTarget={model}
-            bBox={bBox}
-            title={'Timeout'}
-            titleWidth={timeout.title.w}
-            parameterBbox={parameterBbox}
-            parameterEditorOptions={parameterEditorOptions}
-            expression={{ text: model.getExpression() }}
-            editorOptions={this.editorOptions}
-          >
-            {model.children.length > 0 &&
-            <line x1={centerX} y1={lifeLineY1} x2={centerX} y2={lifeLineY2} className="join-lifeline" />}
-            {children}
-          </BlockStatementDecorator>
+            <BlockStatementDecorator
+                model={model}
+                dropTarget={model}
+                bBox={bBox}
+                title={'Timeout'}
+                titleWidth={timeout.title.w}
+                parameterBbox={parameterBbox}
+                parameterEditorOptions={parameterEditorOptions}
+                expression={{ text: model.getExpression() }}
+                editorOptions={this.editorOptions}
+            >
+                {model.children.length > 0 &&
+                <line x1={centerX} y1={lifeLineY1} x2={centerX} y2={lifeLineY2} className="join-lifeline" />}
+                {children}
+            </BlockStatementDecorator>
         </CompoundStatementDecorator>);
     }
 }

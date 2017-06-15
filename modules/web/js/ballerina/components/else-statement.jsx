@@ -27,9 +27,9 @@ class ElseStatement extends React.Component {
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (
-          <BlockStatementDecorator dropTarget={model} model={model} bBox={bBox} title={'Else'}>
-            {children}
-          </BlockStatementDecorator>
+            <BlockStatementDecorator dropTarget={model} model={model} bBox={bBox} title={'Else'}>
+                {children}
+            </BlockStatementDecorator>
         );
     }
 }

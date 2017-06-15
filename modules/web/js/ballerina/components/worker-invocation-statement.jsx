@@ -95,37 +95,37 @@ class WorkerInvocationStatement extends React.Component {
         }
 
         return (<g>
-          <StatementDecorator
-            model={model} viewState={model.viewState}
-            expression={expression} editorOptions={this.editorOptions}
-          />
-          <g>
-            <circle
-              cx={statementX}
-              cy={arrowStart.y}
-              r={10}
-              fill="#444"
-              fillOpacity={0}
-              onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-              onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-              onMouseDown={e => this.onMouseDown(e)}
-              onMouseUp={e => this.onMouseUp(e)}
+            <StatementDecorator
+                model={model} viewState={model.viewState}
+                expression={expression} editorOptions={this.editorOptions}
             />
-          </g>
-          <g>
-            <circle
-              cx={statementX + statementWidth}
-              cy={arrowStart.y}
-              r={10}
-              fill="#444"
-              fillOpacity={0}
-              onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-              onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-              onMouseDown={e => this.onMouseDown(e)}
-              onMouseUp={e => this.onMouseUp(e)}
-            />
-          </g>
-          {!_.isNil(workerReplyStatement) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
+            <g>
+                <circle
+                    cx={statementX}
+                    cy={arrowStart.y}
+                    r={10}
+                    fill="#444"
+                    fillOpacity={0}
+                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                    onMouseDown={e => this.onMouseDown(e)}
+                    onMouseUp={e => this.onMouseUp(e)}
+                />
+            </g>
+            <g>
+                <circle
+                    cx={statementX + statementWidth}
+                    cy={arrowStart.y}
+                    r={10}
+                    fill="#444"
+                    fillOpacity={0}
+                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                    onMouseDown={e => this.onMouseDown(e)}
+                    onMouseUp={e => this.onMouseUp(e)}
+                />
+            </g>
+            {!_.isNil(workerReplyStatement) && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
         </g>);
     }
 
@@ -152,7 +152,7 @@ class WorkerInvocationStatement extends React.Component {
 
         messageManager.setTargetValidationCallback(destination => model.messageDrawTargetAllowed(destination));
 
-        messageManager.startDrawMessage(function (source, destination) {
+        messageManager.startDrawMessage((source, destination) => {
             const expressionsList = ((source.getStatementString().split('->')[0]).trim()).split(',');
             let expressionString;
             let workerName = '';

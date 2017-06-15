@@ -225,7 +225,7 @@ class ServiceClient extends EventChannel {
                     .setPersisted(true)
                     .setLastPersisted(_.now())
                     .save();
-            log.debug(`File ${file.getName()} saved successfully at ${file.getPath()}`);
+                log.debug(`File ${file.getName()} saved successfully at ${file.getPath()}`);
             },
             error(xhr, textStatus, errorThrown) {
                 data = getErrorFromResponse(xhr, textStatus, errorThrown);

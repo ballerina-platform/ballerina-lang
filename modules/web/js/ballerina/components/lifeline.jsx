@@ -59,38 +59,38 @@ class LifeLine extends React.Component {
         actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
 
         return (<g
-          className="life-line-group"
-          onMouseOut={this.setActionVisibility.bind(this, false)}
-          onMouseOver={this.setActionVisibility.bind(this, true)}
+            className="life-line-group"
+            onMouseOut={this.setActionVisibility.bind(this, false)}
+            onMouseOver={this.setActionVisibility.bind(this, true)}
         >
-          <line
-            x1={centerX} y1={bBox.y + titleBoxH / 2} x2={centerX} y2={y2 - titleBoxH / 2}
-            className={lineClass}
-          />
-          <rect
-            x={bBox.x} y={bBox.y} width={bBox.w} height={titleBoxH} rx="0" ry="0"
-            className={polygonClassTop} onClick={e => this.openExpressionEditor(e)}
-          />
-          <rect
-            x={bBox.x} y={y2 - titleBoxH} width={bBox.w} height={titleBoxH} rx="0" ry="0"
-            className={polygonClassBottom}
-          />
-          <text
-            x={centerX} y={bBox.y + titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
-            dominantBaseline="central" className="life-line-text genericT"
-            onClick={e => this.openExpressionEditor(e)}
-          >{ this.props.title }</text>
-          <text
-            x={centerX} y={y2 - titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
-            dominantBaseline="central" className="life-line-text genericT unhoverable"
-          >{ this.props.title }</text>
-          {this.props.onDelete &&
-          <ActionBox
-            show={this.state.active}
-            bBox={actionBbox}
-            onDelete={() => this.props.onDelete()}
-            onJumptoCodeLine={() => this.onJumptoCodeLine()}
-          />
+            <line
+                x1={centerX} y1={bBox.y + titleBoxH / 2} x2={centerX} y2={y2 - titleBoxH / 2}
+                className={lineClass}
+            />
+            <rect
+                x={bBox.x} y={bBox.y} width={bBox.w} height={titleBoxH} rx="0" ry="0"
+                className={polygonClassTop} onClick={e => this.openExpressionEditor(e)}
+            />
+            <rect
+                x={bBox.x} y={y2 - titleBoxH} width={bBox.w} height={titleBoxH} rx="0" ry="0"
+                className={polygonClassBottom}
+            />
+            <text
+                x={centerX} y={bBox.y + titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
+                dominantBaseline="central" className="life-line-text genericT"
+                onClick={e => this.openExpressionEditor(e)}
+            >{ this.props.title }</text>
+            <text
+                x={centerX} y={y2 - titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
+                dominantBaseline="central" className="life-line-text genericT unhoverable"
+            >{ this.props.title }</text>
+            {this.props.onDelete &&
+            <ActionBox
+                show={this.state.active}
+                bBox={actionBbox}
+                onDelete={() => this.props.onDelete()}
+                onJumptoCodeLine={() => this.onJumptoCodeLine()}
+            />
                         }
         </g>);
     }

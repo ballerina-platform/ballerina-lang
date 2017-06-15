@@ -148,11 +148,11 @@ class ReturnParameterDefinitionHolder extends React.Component {
         };
         const children = getComponentForNodeArray(model.getChildren());
         return (
-          <TagController
-            key={model.getID()} model={model} setter={this.addReturnParameter}
-            validateInput={this.validateInput} modelComponents={children}
-            componentData={componentData} groupClass="return-parameter-group"
-          />
+            <TagController
+                key={model.getID()} model={model} setter={this.addReturnParameter}
+                validateInput={this.validateInput} modelComponents={children}
+                componentData={componentData} groupClass="return-parameter-group"
+            />
         );
     }
 }

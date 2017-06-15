@@ -36,8 +36,8 @@ class AbortedStatement extends React.Component {
         const bBox = model.viewState.bBox;
         if (!parent.getCommittedStatement()) {
             return (<g onClick={this.onAddCommittedClick}>
-              <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
-              <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
+                <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
+                <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
             </g>);
         }
         return null;
@@ -63,17 +63,17 @@ class AbortedStatement extends React.Component {
         const children = getComponentForNodeArray(model.getChildren());
         if (utilities) {
             return (<BlockStatementDecorator
-              dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-              title={'Aborted'} utilities={utilities}
+                dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+                title={'Aborted'} utilities={utilities}
             >
-              {children}
+                {children}
             </BlockStatementDecorator>);
         }
         return (<BlockStatementDecorator
-          dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-          title={'Aborted'}
+            dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+            title={'Aborted'}
         >
-          {children}
+            {children}
         </BlockStatementDecorator>);
     }
 

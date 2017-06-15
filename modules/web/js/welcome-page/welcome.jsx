@@ -25,40 +25,40 @@ import React from 'react';
  * @extends {React.PureComponent}
  */
 const WelcomeView = () => (<div className="initial-background-container">
-  <div className="container-fluid welcome-wrapper">
-    <div className="media media-welcome-container">
-      <div className="media-left">
-        <div className="logo">
-          <a href={undefined}>
-            <img className="img-responsive" src="images/ballerina_logo.png" alt="logo" />
-          </a>
-        </div>
+    <div className="container-fluid welcome-wrapper">
+        <div className="media media-welcome-container">
+            <div className="media-left">
+                <div className="logo">
+                    <a href={undefined}>
+                        <img className="img-responsive" src="images/ballerina_logo.png" alt="logo" />
+                    </a>
+                </div>
 
-        <button id="btn-welcome-new" className="btn btn-primary">Create New </button>
-        <button id="btn-welcome-open" className="btn btn-secondary"> Open File</button>
+                <button id="btn-welcome-new" className="btn btn-primary">Create New </button>
+                <button id="btn-welcome-open" className="btn btn-secondary"> Open File</button>
 
-        <ul className="nav nav-pills">
-          {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
-          {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
-          {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
-          <li >
-            <a href="http://ballerinalang.org/docs/user-guide/0.8/" target="_blank" rel="noopener noreferrer">
-              <i className="fw fw-document" /> User Guide </a></li>
-        </ul>
-      </div>
-      <div className="media-body">
-        <div className="welcome-details-wrapper ">
-          <div className="header-title">
+                <ul className="nav nav-pills">
+                    {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
+                    {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
+                    {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
+                    <li >
+                        <a href="http://ballerinalang.org/docs/user-guide/0.8/" target="_blank" rel="noopener noreferrer">
+                            <i className="fw fw-document" /> User Guide </a></li>
+                </ul>
+            </div>
+            <div className="media-body">
+                <div className="welcome-details-wrapper ">
+                    <div className="header-title">
                           Try out our samples / templates
                       </div>
-          <div className="details-container">
-            <div id="inner-samples" className="row" />
-          </div>
-        </div>
+                    <div className="details-container">
+                        <div id="inner-samples" className="row" />
+                    </div>
+                </div>
 
-      </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>);
 
 

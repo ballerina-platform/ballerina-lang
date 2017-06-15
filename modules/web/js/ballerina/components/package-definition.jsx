@@ -162,73 +162,73 @@ class PackageDefinition extends React.Component {
         }
 
         return (
-          <g>
-            <g className="package-definition-head">
-              <rect
-                x={bBox.x} y={bBox.y} width={headerHeight} height={headerHeight}
-                onClick={this.handlePackageIconClick}
-                rx={headerHeight / 2} ry={headerHeight / 2}
-                className="package-definition-header"
-              />
-              {
+            <g>
+                <g className="package-definition-head">
+                    <rect
+                        x={bBox.x} y={bBox.y} width={headerHeight} height={headerHeight}
+                        onClick={this.handlePackageIconClick}
+                        rx={headerHeight / 2} ry={headerHeight / 2}
+                        className="package-definition-header"
+                    />
+                    {
                         packageDefExpanded && (
                         <g>
-                          <rect
-                            x={bBox.x} y={bBox.y} width={packageDefTextWidth + headerHeight}
-                            height={headerHeight}
-                            onClick={() => {
-                                this.onPackageClick();
-                            }}
-                            className="package-definition-header"
-                          />
-                          <EditableText
-                            x={bBox.x + headerHeight} y={bBox.y + headerHeight / 2}
-                            width={packageDefTextWidth - 5}
-                            onBlur={() => {
-                                this.onPackageInputBlur();
-                            }}
-                            onClick={() => {
-                                this.onPackageClick();
-                            }}
-                            editing={this.state.packageNameEditing}
-                            onChange={(e) => {
-                                this.onPackageInputChange(e);
-                            }}
-                          >
-                            {this.state.packageDefValue || ''}
-                          </EditableText>
+                            <rect
+                                x={bBox.x} y={bBox.y} width={packageDefTextWidth + headerHeight}
+                                height={headerHeight}
+                                onClick={() => {
+                                    this.onPackageClick();
+                                }}
+                                className="package-definition-header"
+                            />
+                            <EditableText
+                                x={bBox.x + headerHeight} y={bBox.y + headerHeight / 2}
+                                width={packageDefTextWidth - 5}
+                                onBlur={() => {
+                                    this.onPackageInputBlur();
+                                }}
+                                onClick={() => {
+                                    this.onPackageClick();
+                                }}
+                                editing={this.state.packageNameEditing}
+                                onChange={(e) => {
+                                    this.onPackageInputChange(e);
+                                }}
+                            >
+                                {this.state.packageDefValue || ''}
+                            </EditableText>
                         </g>
                         )
                     }(
                     <image
-                      width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString('package')}
-                      onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight - iconSize) / 2}
-                      y={bBox.y + (headerHeight - iconSize) / 2}
+                        width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString('package')}
+                        onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight - iconSize) / 2}
+                        y={bBox.y + (headerHeight - iconSize) / 2}
                     />
-            </g>
-            {
+                </g>
+                {
                     importsExpanded ?
-                      <ImportDeclarationExpanded
-                        bBox={expandedImportsBbox} imports={imports} packageSuggestions={packageSuggestions}
-                        onCollapse={this.handleImportsBadgeClick} onAddImport={this.handleAddImport}
-                        onDeleteImport={this.handleDeleteImport}
-                      /> :
-                      <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsBadgeClick} />
+                        <ImportDeclarationExpanded
+                            bBox={expandedImportsBbox} imports={imports} packageSuggestions={packageSuggestions}
+                            onCollapse={this.handleImportsBadgeClick} onAddImport={this.handleAddImport}
+                            onDeleteImport={this.handleDeleteImport}
+                        /> :
+                        <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsBadgeClick} />
                 }
-            {
+                {
                     globalsExpanded ?
-                      <GlobalExpanded
-                        bBox={expandedGlobalsBbox} globals={globals} onCollapse={this.handleGlobalsBadgeClick}
-                        title={'Globals'} addText={'+ Add Global'} onAddNewValue={this.handleAddGlobal}
-                        onDeleteClick={this.handleDeleteGlobal}
-                        getValue={g => (g.getConstantDefinitionAsString())}
-                      /> :
-                      <GlobalDefinitions
-                        bBox={globalsBbox} numberOfItems={globals.length}
-                        title={'Globals'} onExpand={this.handleGlobalsBadgeClick}
-                      />
+                        <GlobalExpanded
+                            bBox={expandedGlobalsBbox} globals={globals} onCollapse={this.handleGlobalsBadgeClick}
+                            title={'Globals'} addText={'+ Add Global'} onAddNewValue={this.handleAddGlobal}
+                            onDeleteClick={this.handleDeleteGlobal}
+                            getValue={g => (g.getConstantDefinitionAsString())}
+                        /> :
+                        <GlobalDefinitions
+                            bBox={globalsBbox} numberOfItems={globals.length}
+                            title={'Globals'} onExpand={this.handleGlobalsBadgeClick}
+                        />
                 }
-          </g>
+            </g>
         );
     }
 }

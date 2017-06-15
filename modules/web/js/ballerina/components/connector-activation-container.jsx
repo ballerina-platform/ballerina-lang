@@ -35,14 +35,14 @@ class ConnectorActivationContainer extends React.Component {
         const dropZoneNotAllowed = this.state.dropZoneDropNotAllowed;
         const dropZoneClassName = (dropZoneActivated ? 'activation-zone active' : 'activation-zone') + (dropZoneNotAllowed ? ' block' : '');
         return (<g className="connector-activation-container">
-          <rect
-            x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h}
-            className={dropZoneClassName}
-            onMouseOver={e => this.onOverActivationZone(e)}
-            onMouseOut={e => this.onOutActivationZone(e)}
-            onMouseUp={e => this.onMouseUp(e)}
-          />
-          {this.props.children}
+            <rect
+                x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h}
+                className={dropZoneClassName}
+                onMouseOver={e => this.onOverActivationZone(e)}
+                onMouseOut={e => this.onOutActivationZone(e)}
+                onMouseUp={e => this.onMouseUp(e)}
+            />
+            {this.props.children}
         </g>);
     }
 

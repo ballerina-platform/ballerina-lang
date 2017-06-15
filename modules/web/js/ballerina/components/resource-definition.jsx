@@ -52,18 +52,18 @@ class ResourceDefinition extends React.Component {
         }];
 
         return (<PanelDecorator
-          icon="tool-icons/resource" title={name} bBox={bBox}
-          model={this.props.model}
-          dropTarget={this.props.model}
-          dropSourceValidateCB={node => this.canDropToPanelBody(node)}
-          titleComponentData={titleComponentData}
+            icon="tool-icons/resource" title={name} bBox={bBox}
+            model={this.props.model}
+            dropTarget={this.props.model}
+            dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+            titleComponentData={titleComponentData}
         >
-          <g>
-            <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes} />
-            <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
-              {children}
-            </StatementContainer>
-          </g>
+            <g>
+                <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes} />
+                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
+                    {children}
+                </StatementContainer>
+            </g>
         </PanelDecorator>);
     }
 

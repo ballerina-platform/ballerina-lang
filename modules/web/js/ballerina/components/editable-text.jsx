@@ -108,7 +108,7 @@ class EditableText extends React.Component {
         };
 
         return (
-          <text {...textProps} className={labelClass}>{ displayText || children }</text>
+            <text {...textProps} className={labelClass}>{ displayText || children }</text>
         );
     }
 }

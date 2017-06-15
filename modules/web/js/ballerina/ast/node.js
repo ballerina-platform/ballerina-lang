@@ -276,9 +276,9 @@ class ASTNode extends EventChannel {
      * @return {[ASTNode]} array of matching AST nodes
      */
     filterChildrenInScope(predicateFunction) {
-        var children = [];
-        var scope = this;
-        while(!_.isUndefined(scope)) {
+        let children = [];
+        let scope = this;
+        while (!_.isUndefined(scope)) {
             children = children.concat(scope.getChildren());
             scope = scope.getParent();
         }

@@ -27,7 +27,7 @@ class IfElseStatement extends React.Component {
             bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
-          {children}
+            {children}
         </CompoundStatementDecorator>);
     }
 }

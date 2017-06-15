@@ -40,28 +40,28 @@ class ActionBox extends React.Component {
           (this.props.show === 'visible' ? 'show-action' : 'delayed-hide-action');
 
         return (<g className={className}>
-          <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} rx="0" ry="0" className="property-pane-action-button-wrapper" />
-          <image
-            width={iconSize} height={iconSize} className="property-pane-action-button-delete"
-            onClick={this.props.onDelete} xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
-            x={bBox.x + horizontalGap} y={y}
-          />
-          {this.props.onBreakpointClick &&
-          <Breakpoint
-            x={bBox.x + iconSize + horizontalGap * 2}
-            y={y}
-            size={iconSize}
-            isBreakpoint={this.props.isBreakpoint}
-            onClick={this.props.onBreakpointClick}
-          />
+            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} rx="0" ry="0" className="property-pane-action-button-wrapper" />
+            <image
+                width={iconSize} height={iconSize} className="property-pane-action-button-delete"
+                onClick={this.props.onDelete} xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
+                x={bBox.x + horizontalGap} y={y}
+            />
+            {this.props.onBreakpointClick &&
+            <Breakpoint
+                x={bBox.x + iconSize + horizontalGap * 2}
+                y={y}
+                size={iconSize}
+                isBreakpoint={this.props.isBreakpoint}
+                onClick={this.props.onBreakpointClick}
+            />
                     }
-          <image
-            width={iconSize} height={iconSize} className="property-pane-action-button-jump"
-            xlinkHref={ImageUtil.getSVGIconString('code-design')}
-            x={bBox.x + iconSize * (numIcons - 1) + horizontalGap * numIcons}
-            y={y}
-            onClick={this.props.onJumptoCodeLine}
-          />
+            <image
+                width={iconSize} height={iconSize} className="property-pane-action-button-jump"
+                xlinkHref={ImageUtil.getSVGIconString('code-design')}
+                x={bBox.x + iconSize * (numIcons - 1) + horizontalGap * numIcons}
+                y={y}
+                onClick={this.props.onJumptoCodeLine}
+            />
         </g>);
     }
 

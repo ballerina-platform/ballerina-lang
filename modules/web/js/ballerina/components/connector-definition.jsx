@@ -65,25 +65,25 @@ class ConnectorDefinition extends React.Component {
         }];
 
         return (<PanelDecorator
-          icon="tool-icons/connector" title={title} bBox={bBox}
-          model={model}
-          dropTarget={this.props.model}
-          dropSourceValidateCB={node => this.canDropToPanelBody(node)}
-          titleComponentData={titleComponentData}
+            icon="tool-icons/connector" title={title} bBox={bBox}
+            model={model}
+            dropTarget={this.props.model}
+            dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+            titleComponentData={titleComponentData}
         >
-          {
+            {
                     this.props.model.viewState.variablesExpanded ?
-                      <GlobalExpanded
-                        bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleVarialblesBadgeClick}
-                        title="Variables" onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
-                        addText={'+ Add Variable'} getValue={g => (g.getStatementString())}
-                      /> :
-                      <GlobalDefinitions
-                        bBox={expandedVariablesBBox} numberOfItems={variables.length}
-                        title={'Variables'} onExpand={this.handleVarialblesBadgeClick}
-                      />
+                        <GlobalExpanded
+                            bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleVarialblesBadgeClick}
+                            title="Variables" onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
+                            addText={'+ Add Variable'} getValue={g => (g.getStatementString())}
+                        /> :
+                        <GlobalDefinitions
+                            bBox={expandedVariablesBBox} numberOfItems={variables.length}
+                            title={'Variables'} onExpand={this.handleVarialblesBadgeClick}
+                        />
                 }
-          {children}
+            {children}
         </PanelDecorator>);
     }
 

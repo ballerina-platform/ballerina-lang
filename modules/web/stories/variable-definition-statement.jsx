@@ -38,10 +38,10 @@ storiesOf('Variable-Definition-Statement', module)
                 },
             }, null);
         return (
-          <CanvasDecorator bBox={canvasBbox}>
-            <StatementContainer>
-              {variableDefinitionStatement}
-            </StatementContainer>
-          </CanvasDecorator>
+            <CanvasDecorator bBox={canvasBbox}>
+                <StatementContainer>
+                    {variableDefinitionStatement}
+                </StatementContainer>
+            </CanvasDecorator>
         );
     });

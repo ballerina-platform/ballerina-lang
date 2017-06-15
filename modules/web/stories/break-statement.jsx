@@ -33,10 +33,10 @@ storiesOf('Break-Statement', module)
             { model: { viewState: { bBox: { x: 0, y: 0, w: 200, h: 50 } },
                 expression: 'break' } }, null);
         return (
-          <CanvasDecorator bBox={canvasBbox}>
-            <StatementContainer>
-              {breakStatement}
-            </StatementContainer>
-          </CanvasDecorator>
+            <CanvasDecorator bBox={canvasBbox}>
+                <StatementContainer>
+                    {breakStatement}
+                </StatementContainer>
+            </CanvasDecorator>
         );
     });

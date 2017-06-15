@@ -27,7 +27,7 @@ export default class StructOperationsRenderer {
     }
     renderOverlay(options) {
         ReactDOM.render(
-          <CreateStruct {...options} />,
+            <CreateStruct {...options} />,
             this.overlay);
     }
 }
