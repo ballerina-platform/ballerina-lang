@@ -15,24 +15,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
-import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for argument
+ *
+ * @class ArgumentDimensionCalculatorVisitor
+ * */
 class ArgumentDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ArgumentDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visit the visitor.
+     *
+     * @memberOf ArgumentDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ArgumentDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Argument node.
+     *
+     * @memberOf ArgumentDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
 
@@ -45,7 +71,6 @@ class ArgumentDimensionCalculatorVisitor {
         viewState.components.deleteIcon.w = DesignerDefaults.panelHeading.heading.height - 7;
         viewState.components.deleteIcon.h = DesignerDefaults.panelHeading.heading.height - 7;
     }
-
 }
 
 export default ArgumentDimensionCalculatorVisitor;

@@ -15,21 +15,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension calculator visitor class for abort statement.
+ *
+ * @class AbortStatementDimensionCalculatorVisitor
+ * */
 class AbortStatementDimensionCalculatorVisitor {
-    canVisit(node) {
+    /**
+     * Can this visitor be visited.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AbortStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * Begin visiting the visitor.
+     *
+     * @memberOf AbortStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AbortStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * end visit after finish visiting.
+     *
+     * @param {ASTNode} node - Abort statement node.
+     *
+     * @memberOf AbortStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }

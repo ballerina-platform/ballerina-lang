@@ -16,17 +16,48 @@
  * under the License.
  */
 import { util } from './../sizing-utils';
+
+/**
+ * Dimension visitor class for Transaction Statement.
+ *
+ * @class TransactionStatementDimensionCalculatorVisitor
+ * */
 class TransactionStatementDimensionCalculatorVisitor {
-    canVisit(node) {
+
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TransactionStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf TransactionStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TransactionStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Transaction Statement node.
+     *
+     * @memberOf TransactionStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateCompoundStatementChild(node);
 

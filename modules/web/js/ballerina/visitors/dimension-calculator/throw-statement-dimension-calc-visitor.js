@@ -17,18 +17,47 @@
  */
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for throw statement.
+ *
+ * @class ThrowStatementDimensionCalculatorVisitor
+ * */
 class ThrowStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ThrowStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ThrowStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ThrowStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - throw statement node.
+     *
+     * @memberOf ThrowStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }

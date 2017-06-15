@@ -17,18 +17,47 @@
  */
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for Try Statement.
+ *
+ * @class TryStatementDimensionCalculatorVisitor
+ * */
 class TryStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TryStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf TryStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TryStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Try Statement node.
+     *
+     * @memberOf TryStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateCompoundStatementChild(node);
     }

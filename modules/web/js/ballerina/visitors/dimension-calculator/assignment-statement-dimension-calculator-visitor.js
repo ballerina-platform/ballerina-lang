@@ -15,23 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import { util } from './../sizing-utils';
 
-
+/**
+ * Dimension visitor class for assignment statement.
+ *
+ * @class AssignmentStatementDimensionCalculatorVisitor
+ * */
 class AssignmentStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AssignmentStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf AssignmentStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AssignmentStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Assignment statement node.
+     *
+     * @memberOf AssignmentStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }

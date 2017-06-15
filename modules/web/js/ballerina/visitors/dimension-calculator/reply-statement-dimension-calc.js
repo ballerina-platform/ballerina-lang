@@ -15,22 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for Reply statement.
+ *
+ * @class ReplyStatementDimensionCalculatorVisitor
+ * */
 class ReplyStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Reply statement node.
+     *
+     * @memberOf ReplyStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getReplyExpression(), node.getViewState());
     }

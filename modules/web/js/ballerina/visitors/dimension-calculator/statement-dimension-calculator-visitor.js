@@ -15,25 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
-import { util } from './../sizing-utils';
 
-
+/**
+ * Dimension visitor class for Statement
+ *
+ * @class StatementDimensionCalculatorVisitor
+ * */
 class StatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf StatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf StatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf StatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - statement node.
+     *
+     * @memberOf StatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
         viewState.bBox.w = DesignerDefaults.statement.width;

@@ -18,18 +18,47 @@
 import { util } from './../sizing-utils';
 import { timeout } from '../../configs/designer-defaults';
 
+/**
+ * Dimension visitor class for timeout statement.
+ *
+ * @class TimeoutStatementDimensionCalculatorVisitor
+ * */
 class TimeoutStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TimeoutStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf TimeoutStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TimeoutStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Timeout Statement node.
+     *
+     * @memberOf TimeoutStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateCompoundStatementChild(node);
         util.addParamDimenstion(node.getViewState(), node.getExpression(), node.getParameterAsString()

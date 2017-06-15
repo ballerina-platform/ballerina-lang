@@ -19,27 +19,58 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 
-
+/**
+ * Dimension visitor class for Transaction Aborted Statement.
+ *
+ * @class TransactionAbortedStatementDimensionCalculatorVisitor
+ * */
 class TransactionAbortedStatementDimensionCalculatorVisitor {
-    canVisit(node) {
+
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TransactionAbortedStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf TransactionAbortedStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TransactionAbortedStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Transaction Aborted Statement node.
+     *
+     * @memberOf TransactionAbortedStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
-        const components = {};
         let statementWidth = 0;
         let statementHeight = 0;
         const sortedChildren = _.sortBy(node.getChildren(), child => child.getViewState().bBox.w);
 
         if (sortedChildren.length <= 0) {
-            throw 'Invalid number of children for Transaction-Aborted statement';
+            const exception = {
+                message: 'Invalid number of children for Transaction-Aborted statement',
+            };
+            throw exception;
         }
 
         const childWithMaxWidth = sortedChildren[sortedChildren.length - 1];
@@ -47,7 +78,8 @@ class TransactionAbortedStatementDimensionCalculatorVisitor {
 
         _.forEach(node.getChildren(), (child) => {
             if (child.id !== childWithMaxWidth.id) {
-                child.getViewState().components.statementContainer.w = childWithMaxWidth.getViewState().components.statementContainer.w;
+                child.getViewState().components.statementContainer.w =
+                    childWithMaxWidth.getViewState().components.statementContainer.w;
                 child.getViewState().bBox.w = childWithMaxWidth.getViewState().bBox.w;
             }
             statementHeight += child.getViewState().bBox.h;

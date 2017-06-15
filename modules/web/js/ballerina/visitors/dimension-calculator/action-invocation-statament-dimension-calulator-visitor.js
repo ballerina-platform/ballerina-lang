@@ -15,23 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import { util } from './../sizing-utils';
 
-
+/**
+ * Dimension visitor for action invocation statement.
+ *
+ * @class ActionInvocationStatementDimensionCalculatorVisitor
+ * */
 class ActionInvocationStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ActionInvocationStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visit the visitor.
+     *
+     * @memberOf ActionInvocationStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ActionInvocationStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Action invocation statement node
+     *
+     * @memberOf ActionInvocationStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }

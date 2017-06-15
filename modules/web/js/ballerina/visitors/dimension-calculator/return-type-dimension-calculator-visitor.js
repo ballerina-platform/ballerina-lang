@@ -16,21 +16,47 @@
  * under the License.
  */
 
+/**
+ * Dimension visitor class for return type.
+ *
+ * @class ReturnTypeDimensionCalculatorVisitor
+ * */
 class ReturnTypeDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ReturnTypeDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ReturnTypeDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ReturnTypeDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ReturnTypeDimensionCalculatorVisitor
+     * */
+    endVisit() {
     }
-
 }
 
 export default ReturnTypeDimensionCalculatorVisitor;

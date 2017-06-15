@@ -17,19 +17,47 @@
  */
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for service definition.
+ *
+ * @class ServiceDefinitionDimensionCalculatorVisitor
+ * */
 class ServiceDefinitionDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ServiceDefinitionDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
-
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ServiceDefinitionDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ServiceDefinitionDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - service definition node.
+     *
+     * @memberOf ServiceDefinitionDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node);
     }

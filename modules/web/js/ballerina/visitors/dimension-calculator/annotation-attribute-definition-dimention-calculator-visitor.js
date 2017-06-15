@@ -15,22 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from '../sizing-utils';
 
+/**
+ * Dimension visitor for annotation attribute.
+ *
+ * @class AnnotationAttributeDimensionCalculatorVisitor
+ * */
 class AnnotationAttributeDimensionCalculatorVisitor {
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AnnotationAttributeDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visit the visitor.
+     *
+     * @memberOf AnnotationAttributeDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AnnotationAttributeDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Annotation Attribute node.
+     *
+     * @memberOf AnnotationAttributeDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
         const components = {};

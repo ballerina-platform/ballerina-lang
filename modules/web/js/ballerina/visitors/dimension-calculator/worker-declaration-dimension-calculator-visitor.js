@@ -15,22 +15,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
+/**
+ * Dimension visitor class for Worker Declaration.
+ *
+ * @class WorkerDeclarationDimensionCalculatorVisitor
+ * */
 class WorkerDeclarationDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf WorkerDeclarationDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf WorkerDeclarationDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf WorkerDeclarationDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Worker Declaration node.
+     *
+     * @memberOf WorkerDeclarationDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
         const components = {};
@@ -55,7 +85,7 @@ class WorkerDeclarationDimensionCalculatorVisitor {
          */
         statementHeight += DesignerDefaults.statement.gutter.v * 2;
 
-        viewState.bBox.h = statementHeight + DesignerDefaults.lifeLine.head.height * 2;
+        viewState.bBox.h = statementHeight + (DesignerDefaults.lifeLine.head.height * 2);
         viewState.bBox.w = statementWidth;
 
         components.statementContainer.h = statementHeight;

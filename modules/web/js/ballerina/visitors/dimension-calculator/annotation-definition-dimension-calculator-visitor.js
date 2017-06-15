@@ -15,24 +15,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import SimpleBBox from './../../ast/simple-bounding-box';
 import { util } from './../sizing-utils';
 import BallerinaASTFactory from './../../ast/ballerina-ast-factory';
 
+/**
+ * Dimension visitor class for Annotation definition.
+ *
+ * @class AnnotationDefinitionDimensionCalculatorVisitor
+ * */
 class AnnotationDefinitionDimensionCalculatorVisitor {
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AnnotationDefinitionDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf AnnotationDefinitionDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AnnotationDefinitionDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Annotation definition node.
+     *
+     * @memberOf AnnotationDefinitionDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateOuterPanelDecoratorBBox(node, node.getAnnotationName());
         const viewState = node.getViewState();
@@ -43,8 +69,11 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
 
     /**
      * Get the max width among children
+     *
      * @param {object} node - children node to get the max width.
-     * @return {number} maxWidthAmongChildren - Max width among children
+     * @return {number} maxWidthAmongChildren - Max width among children.
+     *
+     * @memberOf AnnotationDefinitionDimensionCalculatorVisitor
      * */
     getMaxWidthOfChildren(node) {
         let maxWidthAmongChildren = 0;
@@ -60,7 +89,10 @@ class AnnotationDefinitionDimensionCalculatorVisitor {
 
     /**
      * Calculate Annotation Attribute Definition Dimension.
+     *
      * @param {object} node - annotation definition node.
+     *
+     * @memberOf AnnotationDefinitionDimensionCalculatorVisitor
      * */
     annotationAttributeDefinitionDimension(node) {
         let bodyHeight = node.viewState.components.body.h;

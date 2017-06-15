@@ -18,18 +18,47 @@
 import { packageDefinition } from '../../configs/designer-defaults';
 import ASTFactory from '../../ast/ballerina-ast-factory';
 
+/**
+ * Dimension visitor class for package definition.
+ *
+ * @class PackageDefinitionDimensionCalculatorVisitor
+ * */
 class PackageDefinitionDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf PackageDefinitionDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf PackageDefinitionDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf PackageDefinitionDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - package definition node.
+     *
+     * @memberOf PackageDefinitionDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
         const topGutter = 10;
@@ -44,7 +73,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
                 c => ASTFactory.isImportDeclaration(c));
 
             height += topGutter + topBarHeight + importInputHeight +
-                      imports.length * packageDefinition.importDeclaration.itemHeight;
+                (imports.length * packageDefinition.importDeclaration.itemHeight);
         }
 
         if (viewState.globalsExpanded) {
@@ -52,7 +81,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
                 c => ASTFactory.isConstantDefinition(c));
 
             height += topGutter + topBarHeight + importInputHeight +
-                      globals.length * packageDefinition.importDeclaration.itemHeight;
+                (globals.length * packageDefinition.importDeclaration.itemHeight);
         }
 
         viewState.bBox.h = height;

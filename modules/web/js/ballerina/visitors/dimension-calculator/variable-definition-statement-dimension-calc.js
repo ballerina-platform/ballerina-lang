@@ -17,19 +17,47 @@
  */
 import { util } from './../sizing-utils';
 
-
+/**
+ * Dimension visitor class for Variable Definition Statement.
+ *
+ * @class VariableDefinitionStatementDimensionCalculatorVisitor
+ * */
 class VariableDefinitionStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf VariableDefinitionStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf VariableDefinitionStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf VariableDefinitionStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Variable Definition Statement node.
+     *
+     * @memberOf VariableDefinitionStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }

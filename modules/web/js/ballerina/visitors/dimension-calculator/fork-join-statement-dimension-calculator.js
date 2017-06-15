@@ -15,24 +15,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import SimpleBBox from './../../ast/simple-bounding-box';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 
+/**
+ * Dimension visitor class for Fork Join.
+ *
+ * @class ForkJoinStatementDimensionCalculatorVisitor
+ * */
 class ForkJoinStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ForkJoinStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf ForkJoinStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ForkJoinStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Fork Join statement node.
+     *
+     * @memberOf ForkJoinStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         const viewState = node.getViewState();
         let containerW = DesignerDefaults.fork.lifeLineGutterH;
@@ -42,7 +70,7 @@ class ForkJoinStatementDimensionCalculatorVisitor {
         const childWithMaxHeight = _.maxBy(workers, child => child.getViewState().bBox.h);
 
         const bodyH = (childWithMaxHeight ? childWithMaxHeight.getViewState().bBox.h : 0) +
-            DesignerDefaults.statement.gutter.v * 2;
+            (DesignerDefaults.statement.gutter.v * 2);
 
         const bodyInnerH = (childWithMaxHeight ? childWithMaxHeight.getViewState().components.statementContainer.h : 0);
 
@@ -92,7 +120,10 @@ class ForkJoinStatementDimensionCalculatorVisitor {
             joinStatementsBBox.w = newW;
             bodyW = newW;
         } else {
-            throw 'Missing join in a fork statement.';
+            const exception = {
+                message: 'Missing join in a fork statement.',
+            };
+            throw exception;
         }
 
         viewState.components.body = new SimpleBBox(0, 0, bodyW, bodyH);

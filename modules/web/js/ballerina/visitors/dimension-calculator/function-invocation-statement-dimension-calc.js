@@ -17,18 +17,47 @@
  */
 import { util } from './../sizing-utils';
 
+/**
+ * Dimension visitor class for function invocation statement.
+ *
+ * @class FunctionInvocationStatementDimensionCalculatorVisitor
+ * */
 class FunctionInvocationStatementDimensionCalculatorVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf FunctionInvocationStatementDimensionCalculatorVisitor
+     * */
+    canVisit() {
         return true;
     }
 
-    beginVisit(node) {
+    /**
+     * begin visiting the visitor.
+     *
+     * @memberOf FunctionInvocationStatementDimensionCalculatorVisitor
+     * */
+    beginVisit() {
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf FunctionInvocationStatementDimensionCalculatorVisitor
+     * */
+    visit() {
     }
 
+    /**
+     * visit the visitor at the end.
+     *
+     * @param {ASTNode} node - Function Invocation statement node.
+     *
+     * @memberOf FunctionInvocationStatementDimensionCalculatorVisitor
+     * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.children[0].getExpressionString(), node.getViewState());
     }
