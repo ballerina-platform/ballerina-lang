@@ -22,7 +22,17 @@ import EventChannel from 'event_channel';
 import alerts from 'alerts';
 import DebugManager from './debug-manager';
 
+/**
+ * @description Debugger toolbar
+ * @class Tools
+ * @extends {EventChannel}
+ */
 class Tools extends EventChannel {
+    /**
+     * Creates an instance of Tools.
+     *
+     * @memberof Tools
+     */
     constructor() {
         super();
         this.compiled = _.template(
@@ -91,7 +101,13 @@ class Tools extends EventChannel {
         DebugManager.on('debug-hit', () => { this.enableNavigation(); });
         DebugManager.on('resume-execution', () => { this.disableNavigation(); });
     }
-
+    /**
+     *
+     * @description show set debugger arguments dialog
+     * @param {Object} ui configs
+     *
+     * @memberof Tools
+     */
     setArgs(args) {
         this.container = args.container;
         this.launchManager = args.launchManager;
@@ -109,18 +125,17 @@ class Tools extends EventChannel {
             this.appArgsDialog.modal('show');
         });
 
-        const self = this;
-        $('#form-run-application-with-args').submit(function (e) {
+        $('#form-run-application-with-args').submit((e) => {
             e.preventDefault();
             const newArgs = $(this).serializeArray().map(input => input.value)
                                 .join(' ')
                                 .trim();
-            const activeTab = self.application.tabController.getActiveTab();
+            const activeTab = this.application.tabController.getActiveTab();
             if (activeTab && activeTab.getFile()) {
                 const id = activeTab.getFile().id;
-                self.application.browserStorage.put(`launcher-app-configs-${id}`, newArgs);
+                this.application.browserStorage.put(`launcher-app-configs-${id}`, newArgs);
             }
-            self.appArgsDialog.modal('hide');
+            this.appArgsDialog.modal('hide');
         });
 
         const wrapper = $('#form-run-application-with-args .input_fields_wrap');
@@ -162,7 +177,10 @@ class Tools extends EventChannel {
             self.connectionDialog.modal('show');
         });
     }
-
+    /**
+     * @description renders debugger toolbar
+     * @memberof Tools
+     */
     render() {
         const context = {};
         context.active = DebugManager.active;
@@ -170,12 +188,23 @@ class Tools extends EventChannel {
         this.container.html(this.compiled(context));
         $('.btn-debug-activate').tooltip();
     }
-
+    /**
+     *
+     * handles all mouse click/ keyboard shortcut events on debugger toolbar and delegates to handleAction
+     * @param {Object} event - dom event
+     *
+     * @memberof Tools
+     */
     handleMouseAction(event) {
         const actionName = $(event.currentTarget).data('action');
         this.application.commandManager.dispatch(actionName);
     }
 
+    /**
+     * Handle trigger action from CommandManager
+     * @param {any} actionName - Name of the action triggered
+     * @memberof Tools
+     */
     handleAction(actionName) {
         let action = () => {};
         switch (actionName) {
@@ -207,7 +236,12 @@ class Tools extends EventChannel {
             }
         };
     }
-
+    /**
+     *
+     * Connect to a remote Debugging Url submited by user
+     *
+     * @memberof Tools
+     */
     connect() {
         $('.debug-connection-group').removeClass('has-error');
         $('.debug-connection-error').addClass('hide');
@@ -215,12 +249,22 @@ class Tools extends EventChannel {
         DebugManager.connect(debugUrl);
     }
 
+    /**
+     * Display an error if could not connect to remote debugging Url
+     *
+     *
+     * @memberof Tools
+     */
     connectionError() {
         $('.debug-connection-group').addClass('has-error');
         $('.debug-connection-error').removeClass('hide');
         this.render();
     }
-
+    /**
+     * Handle Debugging connection start
+     *
+     * @memberof Tools
+     */
     connectionStarted() {
         this.render();
 
@@ -233,7 +277,11 @@ class Tools extends EventChannel {
         DebugManager.publishBreakpoints();
         DebugManager.startDebug();
     }
-
+    /**
+     * Handle start debugging application
+     * 
+     * @memberof Tools
+     */
     debugApplication() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
@@ -244,7 +292,11 @@ class Tools extends EventChannel {
             alerts.error('Save file before start debugging application');
         }
     }
-
+    /**
+     * Handle start debugging service
+     *
+     * @memberof Tools
+     */
     debugService() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
@@ -255,26 +307,41 @@ class Tools extends EventChannel {
             alerts.error('Save file before start debugging service');
         }
     }
-
+    /**
+     *
+     * Returns true if file is saved and read to run
+     * @param {FileTab} tab
+     * @returns Boolean
+     *
+     * @memberof Tools
+     */
     isReadyToRun(tab) {
         if (typeof tab.getFile !== 'function') {
             return false;
         }
 
         const file = tab.getFile();
-       // file is not saved give an error and avoid running
+        // file is not saved give an error and avoid running
         if (file.isDirty()) {
             return false;
         }
 
         return true;
     }
-
+    /**
+     * Enables Debugging Navigation
+     *
+     * @memberof Tools
+     */
     enableNavigation() {
         this.navigation = true;
         this.render();
     }
-
+    /**
+     * Disables Debugging Navigation
+     *
+     * @memberof Tools
+     */
     disableNavigation() {
         this.navigation = false;
         this.render();

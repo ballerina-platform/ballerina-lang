@@ -22,7 +22,17 @@ import log from 'log';
 import Channel from './channel';
 import DebugPoint from './debug-point';
 
+/**
+ * DebugManager
+ * @class DebugManager
+ * @extends {EventChannel}
+ */
 class DebugManager extends EventChannel {
+    /**
+     * Creates an instance of DebugManager.
+     *
+     * @memberof DebugManager
+     */
     constructor() {
         super();
         this.debugPoints = [];
@@ -34,18 +44,31 @@ class DebugManager extends EventChannel {
         this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
     }
 
+    /**
+     * Send call to backend to step in
+     *
+     * @memberof DebugManager
+     */
     stepIn() {
         const message = { command: 'STEP_IN' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
-
+    /**
+     * Send call to backend to step out
+     *
+     * @memberof DebugManager
+     */
     stepOut() {
         const message = { command: 'STEP_OUT' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
-
+    /**
+     * Send call to backend to stop debugging
+     *
+     * @memberof DebugManager
+     */
     stop() {
         const message = { command: 'STOP' };
         if (this.launchManager.active) {
@@ -57,25 +80,41 @@ class DebugManager extends EventChannel {
             this.trigger('resume-execution');
         }
     }
-
+    /**
+     * Send call to backend to step over
+     *
+     * @memberof DebugManager
+     */
     stepOver() {
         const message = { command: 'STEP_OVER' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
-
+    /**
+     * Send call to backend to resume execution
+     *
+     * @memberof DebugManager
+     */
     resume() {
         const message = { command: 'RESUME' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
-
+    /**
+     * Send call to backend to start debugging
+     *
+     * @memberof DebugManager
+     */
     startDebug() {
         const message = { command: 'START' };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
-
+    /**
+     * @param {Object} message - Process message from backend
+     *
+     * @memberof DebugManager
+     */
     processMesssage(message) {
         if (message.code === 'DEBUG_HIT') {
             this.active = true;
@@ -91,17 +130,31 @@ class DebugManager extends EventChannel {
         }
     }
 
+    /**
+     * @param {String} url - Debugger backend url
+     *
+     * @memberof DebugManager
+     */
     connect(url) {
         if (url !== undefined || url !== '') {
             this.channel = new Channel({ endpoint: url, debugger: this });
             this.channel.connect();
         }
     }
-
+    /**
+     * @param {String} url - Start debugging with a remote url
+     *
+     * @memberof DebugManager
+     */
     startDebugger(url) {
         this.connect(url);
     }
 
+    /**
+     * @param {Object} options - Debug manager configs
+     *
+     * @memberof DebugManager
+     */
     init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
@@ -109,14 +162,26 @@ class DebugManager extends EventChannel {
             this.startDebugger(url);
         });
     }
-
+    /**
+     * Add new breakpoint
+     * @param {Integer} lineNumber - Line number of the breakpoint
+     * @param {String} fileName - File name of the breakpoint
+     *
+     * @memberof DebugManager
+     */
     addBreakPoint(lineNumber, fileName) {
         log.debug('debug point added', lineNumber, fileName);
         const point = new DebugPoint({ fileName, lineNumber });
         this.debugPoints.push(point);
         this.trigger('breakpoint-added', fileName);
     }
-
+    /**
+     * Remove breakpoint
+     * @param {Integer} lineNumber - Line number of the breakpoint
+     * @param {String} fileName - File name of the breakpoint
+     *
+     * @memberof DebugManager
+     */
     removeBreakPoint(lineNumber, fileName) {
         log.debug('debug point removed', lineNumber, fileName);
         const point = new DebugPoint({ fileName, lineNumber });
@@ -124,6 +189,11 @@ class DebugManager extends EventChannel {
         this.trigger('breakpoint-removed', fileName);
     }
 
+    /**
+     * Publishes current breakpoints to backend
+     *
+     * @memberof DebugManager
+     */
     publishBreakpoints() {
         try {
             const message = { command: 'SET_POINTS', points: this.debugPoints };
@@ -132,28 +202,59 @@ class DebugManager extends EventChannel {
             // @todo log
         }
     }
-
+    /**
+     * Check a given position for breakpoint or not
+     * @param {Integer} lineNumber - Line number of the breakpoint
+     * @param {String} fileName - File name of the breakpoint
+     * @returns {Boolean} true if has a breakpoint in the position
+     *
+     * @memberof DebugManager
+     */
     hasBreakPoint(lineNumber, fileName) {
         return !!this.debugPoints.find(point => point.lineNumber === lineNumber && point.fileName === fileName);
     }
-
+    /**
+     * Check debugging toolbar enabled or not
+     * @returns {Boolean} true if debugging toolbar is enabled
+     *
+     * @memberof DebugManager
+     */
     isEnabled() {
         return this.enable;
     }
-
+    /**
+     * Returns breakpoints for a given file
+     * @param {String} fileName - Name of the ballerina file
+     * @returns {[Integer]} line numbers of breakpoints
+     *
+     * @memberof DebugManager
+     */
     getDebugPoints(fileName) {
         const breakpoints = this.debugPoints.filter(breakpoint => breakpoint.fileName === fileName);
 
         const breakpointsLineNumbers = breakpoints.map(breakpoint => breakpoint.lineNumber);
         return breakpointsLineNumbers;
     }
-
+    /**
+     * Removes all breakpoints for a ballerina file
+     * @param {any} fileName - Name of the ballerina file
+     *
+     * @memberof DebugManager
+     */
     removeAllBreakpoints(fileName) {
         _.remove(this.debugPoints, item => item.fileName === fileName);
         log.debug('removed all debugpoints for fileName', fileName);
         this.publishBreakpoints();
     }
 
+    /**
+     * Create and return breakpoint object
+     * @param {Integer} lineNumber - Line number of the breakpoint
+     * @param {String} fileName - File name of the breakpoint
+     * @returns {DebugPoint}
+     *
+     * @memberof DebugManager
+     */
     createDebugPoint(lineNumber, fileName) {
         return new DebugPoint({ fileName, lineNumber });
     }

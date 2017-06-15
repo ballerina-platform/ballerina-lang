@@ -24,7 +24,18 @@ import log from 'log';
 const WS_NORMAL_CODE = 1000;
 const WS_SSL_CODE = 1015;
 
+/**
+ * Handles websocket communitation with debugger backend
+ * @class Channel
+ * @extends {EventChannel}
+ */
 class Channel extends EventChannel {
+    /**
+     * Creates an instance of Channel.
+     * @param {Object} args - connection configurations
+     *
+     * @memberof Channel
+     */
     constructor(args) {
         super();
         if (_.isNil(args.endpoint)) {
@@ -33,6 +44,11 @@ class Channel extends EventChannel {
         _.assign(this, args);
     }
 
+    /**
+     * Connect to debugger backend
+     *
+     * @memberof Channel
+     */
     connect() {
         const websocket = new WebSocket(this.endpoint);
         websocket.onmessage = (strMessage) => { this.parseMessage(strMessage); };
@@ -41,16 +57,31 @@ class Channel extends EventChannel {
         websocket.onerror = () => { this.onError(); };
         this.websocket = websocket;
     }
-
+    /**
+     * Parses string to JSON
+     * @param {String} strMessage - message
+     *
+     * @memberof Channel
+     */
     parseMessage(strMessage) {
         const message = JSON.parse(strMessage.data);
         this.debugger.processMesssage(message);
     }
-
+    /**
+     * Sends message to backend
+     * @param {Object} message - object to send
+     *
+     * @memberof Channel
+     */
     sendMessage(message) {
         this.websocket.send(JSON.stringify(message));
     }
-
+    /**
+     * Handles websocket onClose event
+     * @param {Object} event - websocket onClose event
+     *
+     * @memberof Channel
+     */
     onClose(event) {
         this.debugger.active = false;
         this.debugger.trigger('session-terminated');
@@ -67,12 +98,20 @@ class Channel extends EventChannel {
         }
         log.error(reason);
     }
-
+    /**
+     * Handles websocket onError event
+     *
+     * @memberof Channel
+     */
     onError() {
         this.debugger.active = false;
         this.debugger.trigger('session-error');
     }
-
+    /**
+     * Handles websocket onOpen event
+     *
+     * @memberof Channel
+     */
     onOpen() {
         this.debugger.active = true;
         this.debugger.trigger('session-started');

@@ -34,7 +34,7 @@ const Debugger = Backbone.View.extend({
             throw errMsg;
         }
         const container = $(_.get(config, 'container'));
-            // check whether container element exists in dom
+        // check whether container element exists in dom
         if (!container.length > 0) {
             errMsg = `unable to find container for debugger with selector: ${_.get(config, 'container')}`;
             log.error(errMsg);
@@ -54,7 +54,7 @@ const Debugger = Backbone.View.extend({
         this._verticalSeparator = $(_.get(this._options, 'separator'));
         this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
 
-            // register command
+        // register command
         this.application.commandManager.registerCommand(config.command.id, { shortcuts: config.command.shortcuts });
         this.application.commandManager.registerHandler(config.command.id, this.toggleDebugger, this);
     },

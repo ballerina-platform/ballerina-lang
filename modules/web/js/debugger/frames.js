@@ -19,8 +19,17 @@ import $ from 'jquery';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 import DebugManager from './debug-manager';
-
+/**
+ * @description Frames Class
+ * @class Frames
+ * @extends {EventChannel}
+ */
 class Frames extends EventChannel {
+    /**
+     * Creates an instance of Frames.
+     *
+     * @memberof Frames
+     */
     constructor() {
         super();
         const template =
@@ -79,24 +88,41 @@ class Frames extends EventChannel {
         DebugManager.on('session-ended', () => { this.clear(); });
         DebugManager.on('session-completed', () => { this.clear(); });
     }
-
+    /**
+     * @description set container to render frames
+     * @param {Object} container - dom node to render
+     *
+     * @memberof Frames
+     */
     setContainer(container) {
         this.container = container;
     }
-
+    /**
+     * @description clear frames view
+     *
+     * @memberof Frames
+     */
     clear() {
         this.container.empty();
     }
 
+    /**
+     *
+     * @description render debugger frames
+     * @param {Object} message - debug hit message
+     *
+     * @memberof Frames
+     */
     render(message) {
-      // clear duplicate main
+        // clear duplicate main
         message.frames = _.uniqWith(message.frames, (obj, other) => {
             if (_.isEqual(obj.frameName, other.frameName) && _.isEqual(obj.packageName, other.packageName)) {
                 return true;
             }
             return false;
         });
-      // drop unnecessary first frame in services
+
+        // drop unnecessary first frame in services
         const firstFrame = _.head(message.frames);
         if (firstFrame && firstFrame.frameName !== 'main') {
             message.frames.splice(0, 1);
@@ -106,12 +132,20 @@ class Frames extends EventChannel {
         const html = this.compiled(message);
         this.container.html(html);
 
-      // render variables tree
+        // render variables tree
         $('.debug-v-tree').jstree(this.js_tree_options);
     }
 
+    /**
+     *
+     * @description convert debugger frames to user readable values
+     * @param {Object} frames from debugger backend
+     * @returns [{Object}] frames
+     *
+     * @memberof Frames
+     */
     process(frames) {
-      // reverse order
+        // reverse order
         const newFrames = _.reverse(frames);
 
         newFrames.map((frame) => {
