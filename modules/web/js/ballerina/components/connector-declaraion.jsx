@@ -45,8 +45,8 @@ class ConnectorDeclaration extends React.Component {
             propertyType: 'text',
             key: 'ConnectorDeclaration',
             model: props.model,
-            getterMethod: props.model.getConnectorExpression,
-            setterMethod: props.model.setConnectorExpression,
+            getterMethod: props.model.getStatementString,
+            setterMethod: props.model.setStatementFromString,
         };
     }
 
