@@ -33,8 +33,8 @@ class AnnotationAttributePositionCalcVisitor {
         const parentViewState = parent.getViewState();
         const parentBBox = parentViewState.bBox;
         const bBox = viewState.bBox;
-        let x,
-            y;
+        let x;
+        let y;
 
         const attributes = _.filter(parent.getChildren(), child => ASTFactory.isAnnotationAttributeDefinition(child));
 

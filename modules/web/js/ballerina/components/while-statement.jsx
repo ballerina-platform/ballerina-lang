@@ -35,8 +35,8 @@ class WhileStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox;
+        let model = this.props.model;
+        let bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const blockStatementBBox = new SimpleBBox();
         blockStatementBBox.x = bBox.x;

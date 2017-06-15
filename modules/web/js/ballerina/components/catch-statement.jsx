@@ -34,8 +34,8 @@ class CatchStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox;
+        let model = this.props.model;
+        let bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (<BlockStatementDecorator

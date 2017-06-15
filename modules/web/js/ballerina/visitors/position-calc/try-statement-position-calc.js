@@ -32,10 +32,10 @@ class TryStatementPositionCalcVisitor {
         const parentBBox = parentViewState.bBox;
         const viewState = node.getViewState();
         const bBox = viewState.bBox;
-        let x,
-            y,
-            statementContainerX,
-            statementContainerY;
+        let x;
+        let y;
+        let statementContainerX;
+        let statementContainerY;
 
         x = parentBBox.x;
         y = parentBBox.y + parentViewState.components['drop-zone'].h;

@@ -34,8 +34,8 @@ class TransactionAbortedStatementPositionCalcVisitor {
         const parentStatementContainer = parentViewState.components.statementContainer;
         const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
         const currentIndex = _.findIndex(parentStatements, node);
-        let x,
-            y;
+        let x;
+        let y;
 
         if (parentStatementContainer.w < bBox.w) {
             throw 'Invalid statement container width found, statement width should be greater than or equal to ' +

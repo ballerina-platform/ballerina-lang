@@ -52,40 +52,40 @@ class CompoundStatementDecorator extends React.Component {
     }
 
     onDropZoneActivate(e) {
-  			const dragDropManager = this.context.dragDropManager,
-  						dropTarget = this.props.model.getParent(),
-  						model = this.props.model;
-  			if (dragDropManager.isOnDrag()) {
-  					if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-  							return;
-  					}
-  					dragDropManager.setActivatedDropTarget(dropTarget,
-  							nodeBeingDragged =>
-  									// IMPORTANT: override node's default validation logic
-  									// This drop zone is for statements only.
-  									// Statements should only be allowed here.
-  									 model.getFactory().isStatement(nodeBeingDragged),
-  							() => dropTarget.getIndexOfChild(model),
-  					);
-  					this.setState({ innerDropZoneActivated: true,
-  							innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-  					});
-  					dragDropManager.once('drop-target-changed', function () {
-  							this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-  					}, this);
-  			}
-  	}
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        const model = this.props.model;
+        if (dragDropManager.isOnDrag()) {
+                if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                        return;
+                }
+                dragDropManager.setActivatedDropTarget(dropTarget,
+                        nodeBeingDragged =>
+                                // IMPORTANT: override node's default validation logic
+                                // This drop zone is for statements only.
+                                // Statements should only be allowed here.
+                                 model.getFactory().isStatement(nodeBeingDragged),
+                        () => dropTarget.getIndexOfChild(model),
+                );
+                this.setState({ innerDropZoneActivated: true,
+                        innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
+                });
+                dragDropManager.once('drop-target-changed', function () {
+                        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+                }, this);
+        }
+    }
 
     onDropZoneDeactivate(e) {
-  			const dragDropManager = this.context.dragDropManager,
-  						dropTarget = this.props.model.getParent();
-  			if (dragDropManager.isOnDrag()) {
-  					if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-  							dragDropManager.clearActivatedDropTarget();
-  							this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-  					}
-  			}
-  	}
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        if (dragDropManager.isOnDrag()) {
+                if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                        dragDropManager.clearActivatedDropTarget();
+                        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+                }
+        }
+    }
 
     startDropZones() {
         this.setState({ innerDropZoneExist: true });

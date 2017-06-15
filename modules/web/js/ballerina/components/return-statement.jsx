@@ -39,8 +39,8 @@ class ReturnStatement extends React.Component {
      * Render function for the return statement.
      * */
     render() {
-        let model = this.props.model,
-            expression = model.viewState.expression;
+        let model = this.props.model;
+        let expression = model.viewState.expression;
         return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions} />);
     }
 }

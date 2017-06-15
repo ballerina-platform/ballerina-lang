@@ -380,8 +380,8 @@ class BallerinaFileEditor extends EventChannel {
         const swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
         swaggerViewBtn.click(() => {
             try {
-                let isSourceChanged = !self._sourceView.isClean(),
-                    savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+                let isSourceChanged = !self._sourceView.isClean();
+                let savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     let source = self._sourceView.getContent();
                     if (!_.isEmpty(source.trim())) {
@@ -454,8 +454,9 @@ class BallerinaFileEditor extends EventChannel {
             }
 
             // re-parse if there are modifications to source
-            let isSourceChanged = !self._sourceView.isClean(),
-                savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+            let isSourceChanged = !self._sourceView.isClean();
+
+            let savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
             let isSwaggerChanged = self.isInSwaggerView();
             if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                 let source = self._sourceView.getContent();

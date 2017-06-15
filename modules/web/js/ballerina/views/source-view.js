@@ -145,12 +145,12 @@ class SourceView extends EventChannel {
      * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
      */
     bindCommand(command) {
-        let id = command.id,
-            hasShortcut = _.has(command, 'shortcuts'),
-            self = this;
+        let id = command.id;
+        let hasShortcut = _.has(command, 'shortcuts');
+        let self = this;
         if (hasShortcut) {
-            let macShortcut = _.replace(command.shortcuts.mac.key, '+', '-'),
-                winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
+            let macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
+            let winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
             this.getEditor().commands.addCommand({
                 name: id,
                 bindKey: { win: winShortcut, mac: macShortcut },

@@ -23,8 +23,8 @@ import { getComponentForNodeArray } from './utils';
 class TryCatchStatement extends React.Component {
 
     render() {
-        let model = this.props.model,
-            bBox = model.viewState.bBox;
+        let model = this.props.model;
+        let bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             {children}

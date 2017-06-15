@@ -79,8 +79,8 @@ class ActionInvocationStatement extends React.Component {
      * Render Function for the Action Invocation statement.
      * */
     render() {
-        let model = this.props.model,
-            expression = model.viewState.expression;
+        let model = this.props.model;
+        let expression = model.viewState.expression;
         const actionInvocation = model.getChildren()[0];
         const bBox = model.getViewState().bBox;
         let connector = actionInvocation._connector;

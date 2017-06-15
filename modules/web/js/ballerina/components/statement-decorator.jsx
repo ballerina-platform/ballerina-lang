@@ -75,9 +75,9 @@ class StatementDecorator extends React.Component {
     }
 
     onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-        dropTarget = this.props.model.getParent(),
-        model = this.props.model;
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        const model = this.props.model;
         if (dragDropManager.isOnDrag()) {
         if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
         return;
@@ -100,8 +100,8 @@ class StatementDecorator extends React.Component {
     }
 
     onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-        dropTarget = this.props.model.getParent();
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
         if (dragDropManager.isOnDrag()) {
         if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
         dragDropManager.clearActivatedDropTarget();

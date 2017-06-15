@@ -92,8 +92,9 @@ class AnnotationContainer extends React.Component {
     onAnnotationIdentifierSelected(event, { suggestionValue }) {
         // Add annotation to the node(serviceDefinition, resourceDefinition, etc)
         // http://jsbin.com/orokep/edit?html,css,js,output
-        let match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue),
-            packagePrefix = match && match[1];
+        let match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue);
+
+        let packagePrefix = match && match[1];
 
         const newAnnotation = ASTFactory.createAnnotation({
             fullPackageName: this.state.selectedPackageNameValue,

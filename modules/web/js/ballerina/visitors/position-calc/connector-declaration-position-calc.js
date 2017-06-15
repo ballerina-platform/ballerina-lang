@@ -37,8 +37,8 @@ class ConnectorDeclarationPositionCalcVisitor {
         const workers = _.filter(parent.getChildren(), child => ASTFactory.isWorkerDeclaration(child));
         const connectors = _.filter(parent.getChildren(), child => ASTFactory.isConnectorDeclaration(child));
         const connectorIndex = _.findIndex(connectors, node);
-        let x,
-            y;
+        let x;
+        let y;
 
         if (ASTFactory.isServiceDefinition(parent) || ASTFactory.isConnectorDefinition(parent)) {
             x = positionPanelLevelConnectors(connectors, connectorIndex, parent);

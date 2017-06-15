@@ -30,9 +30,9 @@ class NewItemDialog extends ModalDialog {
     }
 
     onSubmit(data, itemName) {
-        let app = this._options.application,
-            path = data.path + app.getPathSeperator() + itemName,
-            existsResponse = this._serviceClient.exists(path);
+        let app = this._options.application;
+        let path = data.path + app.getPathSeperator() + itemName;
+        let existsResponse = this._serviceClient.exists(path);
         if (existsResponse.exists) {
             this.showError(`${itemName} already exists at ${data.path}`);
         } else {
@@ -75,8 +75,8 @@ class NewItemDialog extends ModalDialog {
                            '</div>');
         body.append(modalBody);
         this.show();
-        let self = this,
-            input = modalBody.find('input');
+        let self = this;
+        let input = modalBody.find('input');
 
         this.on('loaded', () => {
             input.focus();

@@ -33,8 +33,8 @@ class CanvasDecorator extends React.Component {
     }
 
     onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.dropTarget;
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.dropTarget;
         if (dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 return;
@@ -50,8 +50,8 @@ class CanvasDecorator extends React.Component {
     }
 
     onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.dropTarget;
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.dropTarget;
         if (dragDropManager.isOnDrag()) {
             if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
                 dragDropManager.clearActivatedDropTarget();

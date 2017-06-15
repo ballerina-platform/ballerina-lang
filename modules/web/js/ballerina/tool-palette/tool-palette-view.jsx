@@ -93,9 +93,9 @@ class Tool extends React.Component {
     }
 
     createCloneCallback(view) {
-        var icon = this.props.tool.icon,
-            self = this,
-            iconSize = '50px';
+        var icon = this.props.tool.icon;
+        var self = this;
+        var iconSize = '50px';
         var self = this;
         d3.select(icon).attr('width', iconSize).attr('height', iconSize);
         return () => {
