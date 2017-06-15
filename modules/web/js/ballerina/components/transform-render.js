@@ -28,11 +28,10 @@ import './transform-statement.css';
  * @param {object} typeConverterView Type Mapper View reference object
  * @constructor
  */
-var jsPlumb = jsPlumbLib.jsPlumb;
+const jsPlumb = jsPlumbLib.jsPlumb;
 
 
-class TransformRender
-{
+class TransformRender {
     constructor(onConnectionCallback, onDisconnectCallback) {
         this.references = [];
         this.viewId = 'transformer';
@@ -50,61 +49,60 @@ class TransformRender
         this.connectCallback = onConnectionCallback;
         this.connectionPool = [];
         this.existingJsTrees = [];
-        var self = this;
+        const self = this;
 
         this.jsPlumbInstance = jsPlumb.getInstance({
             Connector: self.getConnectorConfig(self.midpoint),
             Container: this.placeHolderName,
             PaintStyle: {
                 strokeWidth: 1,
-            //todo : load colors from css
+            // todo : load colors from css
                 stroke: '#666769',
                 cssClass: 'plumbConnect',
                 outlineStroke: '#F7F7F7',
-                outlineWidth: 2
+                outlineWidth: 2,
             },
             HoverPaintStyle: {
                 strokeWidth: 2,
                 stroke: '#ff9900',
                 outlineWidth: 2,
-                outlineStroke: '#ffe0b3'
+                outlineStroke: '#ffe0b3',
             },
-            EndpointStyle: {radius: 1},
+            EndpointStyle: { radius: 1 },
             ConnectionOverlays: [
                 ['Arrow', {
                     location: 1,
                     visible: true,
                     width: 6,
                     length: 6,
-                    foldback: 1
+                    foldback: 1,
                 }],
                 ['Custom', {
-                    create: function (component) {
+                    create(component) {
                         return $('<select id=\'typeMapperList' + self.viewIdSeperator + self.viewId + '\'></select>');
                     },
                     location: 0.5,
                     id: 'typeMapperDropdown',
-                    cssClass: 'typeMapperList'
-                }]
-            ]
+                    cssClass: 'typeMapperList',
+                }],
+            ],
         });
 
         $('#' + self.contextMenu).hide();
         this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
-            var contextMenuDiv = $('#' + self.contextMenu);
-            var anchorTag = $('<a>').attr('id', 'typeMapperConRemove').attr('class', 'type-mapper-con-remove');
+            const contextMenuDiv = $('#' + self.contextMenu);
+            const anchorTag = $('<a>').attr('id', 'typeMapperConRemove').attr('class', 'type-mapper-con-remove');
             anchorTag.html($('<i>').addClass('fw fw-delete'));
-            anchorTag.html( anchorTag.html() + ' Remove');
+            anchorTag.html(anchorTag.html() + ' Remove');
             contextMenuDiv.html(anchorTag);
 
             document.addEventListener('click', (eClick) => {
-                if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != 'path')
-                {
+                if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != 'path') {
                     $('#' + self.contextMenu).hide();
                 }
             }, false);
 
-            $( '.leftType, .middle-content, .rightType' ).scroll(function() {
+            $('.leftType, .middle-content, .rightType').scroll(() => {
                 $('#' + self.contextMenu).hide();
             });
 
@@ -114,9 +112,9 @@ class TransformRender
             });
 
             contextMenuDiv.css({
-                'top':e.pageY  ,
-                'left': e.pageX,
-                zIndex : 1000
+                top: e.pageY,
+                left: e.pageX,
+                zIndex: 1000,
             });
 
             contextMenuDiv.show();
@@ -126,7 +124,7 @@ class TransformRender
 
         this.jsPlumbInstance.bind('connection', (info, ev) => {
             self.reposition(self);
-    //TODO: for multiple type mappers
+    // TODO: for multiple type mappers
     // self.processTypeMapperDropdown(info);
         });
     }
@@ -137,11 +135,11 @@ class TransformRender
  * @param connection
  */
     disconnect(connection) {
-        var self = this;
-        var propertyConnection = this.getConnectionObject(connection.getParameter('id'),
+        const self = this;
+        const propertyConnection = this.getConnectionObject(connection.getParameter('id'),
         connection.sourceId, connection.targetId);
         this.midpoint = this.midpoint - this.midpointVariance;
-        this.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
+        this.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
         this.jsPlumbInstance.detach(connection);
         this.reposition(this);
         this.disconnectCallback(propertyConnection);
@@ -156,13 +154,13 @@ class TransformRender
  * @returns connectionObject
  */
     getConnectionObject(id, sourceId, targetId) {
-        var sourceName = this.getStructId(sourceId);
-        var targetName = this.getStructId(targetId);
+        const sourceName = this.getStructId(sourceId);
+        const targetName = this.getStructId(targetId);
 
-        var sourceRefObj;
-        var targetRefObj;
+        let sourceRefObj;
+        let targetRefObj;
 
-        for (var i = 0; i < this.references.length; i++) {
+        for (let i = 0; i < this.references.length; i++) {
             if (this.references[i].name == sourceName) {
                 sourceRefObj = this.references[i].refObj;
             } else if (this.references[i].name == targetName) {
@@ -171,7 +169,7 @@ class TransformRender
         }
 
         return {
-            id: id,
+            id,
             sourceStruct: this.getStructName(sourceName),
             sourceProperty: this.getPropertyNameStack(sourceId),
             sourceType: this.getPropertyType(sourceId),
@@ -181,7 +179,7 @@ class TransformRender
             targetType: this.getPropertyType(targetId),
             targetReference: targetRefObj,
             isComplexMapping: false,
-            complexMapperName: null
+            complexMapperName: null,
         };
     }
 
@@ -191,7 +189,7 @@ class TransformRender
  * @returns {*}
  */
     getStructId(propertyId) {
-        var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, '');
+        const id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, '');
         return id.split(this.idNameSeperator)[0];
     }
 
@@ -210,7 +208,7 @@ class TransformRender
  * @returns {*}
  */
     getPropertyType(propertyId) {
-        var parts = propertyId.split(this.idNameSeperator);
+        const parts = propertyId.split(this.idNameSeperator);
         return parts[parts.length - 1].split(this.nameTypeSeperator)[1].replace('_anchor', '');
     }
 
@@ -220,7 +218,7 @@ class TransformRender
  * @returns {*}
  */
     getPropertyName(propertyId) {
-        var parts = propertyId.split(this.idNameSeperator);
+        const parts = propertyId.split(this.idNameSeperator);
         return parts[parts.length - 1].split(this.nameTypeSeperator)[0];
     }
 
@@ -230,12 +228,12 @@ class TransformRender
  * @returns {Array}
  */
     getPropertyNameStack(propertyId) {
-        var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, '');
-        var parts = id.split(this.idNameSeperator);
-        var propertyNames = [];
-        var self = this;
-        var elementId = 0;
-        _.forEach(parts, aPart => {
+        const id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, '');
+        const parts = id.split(this.idNameSeperator);
+        const propertyNames = [];
+        const self = this;
+        let elementId = 0;
+        _.forEach(parts, (aPart) => {
             if (elementId != 0) {
                 propertyNames.push(aPart.split(self.nameTypeSeperator)[0]);
             } else {
@@ -250,21 +248,21 @@ class TransformRender
  * @param info connection object.
  */
     processTypeMapperDropdown(info) {
-        var sourceType = this.getPropertyType(info.sourceId);
-        var targetType = this.getPropertyType(info.targetId);
-        var isValidTypes = sourceType == targetType;
-        var self = this;
+        const sourceType = this.getPropertyType(info.sourceId);
+        const targetType = this.getPropertyType(info.targetId);
+        const isValidTypes = sourceType == targetType;
+        const self = this;
         if (!isValidTypes) {
-            var connection = info.connection;
+            const connection = info.connection;
             connection.getOverlay('typeMapperDropdown').show();
-            var typeMapperId = '#typeMapperList' + this.viewIdSeperator + this.viewId;
-            var updatedTypeMapperId = 'typeMapperList' + this.viewIdSeperator + connection.sourceId
+            const typeMapperId = '#typeMapperList' + this.viewIdSeperator + this.viewId;
+            const updatedTypeMapperId = 'typeMapperList' + this.viewIdSeperator + connection.sourceId
             + this.sourceTargetSeperator + connection.targetId;
-            var typeMappers = this.getExistingTypeMappers(this.typeConverterView, sourceType, targetType);
+            const typeMappers = this.getExistingTypeMappers(this.typeConverterView, sourceType, targetType);
             $.each(typeMappers, (i, item) => {
                 $(typeMapperId).append($('<option>', {
                     value: item,
-                    text: item
+                    text: item,
                 }));
             });
             $(typeMapperId).attr('id', updatedTypeMapperId);
@@ -284,9 +282,9 @@ class TransformRender
  * @returns {Array}
  */
     getExistingTypeMappers(typeConverterObj, sourceType, targetType) {
-        var compatibleTypeConverters = [];
-        var typeConverters = typeConverterObj.getPackage().getTypeMapperDefinitions();
-        _.forEach(typeConverters, typeConverter => {
+        const compatibleTypeConverters = [];
+        const typeConverters = typeConverterObj.getPackage().getTypeMapperDefinitions();
+        _.forEach(typeConverters, (typeConverter) => {
             if (typeConverterObj.getModel().getTypeMapperName() !== typeConverter.getTypeMapperName()) {
                 if (sourceType == typeConverter.getInputParamAndIdentifier().split(' ')[0] &&
             targetType == typeConverter.getReturnType()) {
@@ -304,10 +302,10 @@ class TransformRender
  * @param listId Id of the dropdown.
  */
     onChangeTypeMapper(listId) {
-        var id = listId.replace('typeMapperList' + this.viewIdSeperator, '');
-        var sourceId = id.split(this.sourceTargetSeperator)[0];
-        var targetId = id.split(this.sourceTargetSeperator)[1];
-        var connection = this.getConnectionObject(id, sourceId, targetId);
+        const id = listId.replace('typeMapperList' + this.viewIdSeperator, '');
+        const sourceId = id.split(this.sourceTargetSeperator)[0];
+        const targetId = id.split(this.sourceTargetSeperator)[1];
+        const connection = this.getConnectionObject(id, sourceId, targetId);
         this.disconnectCallback(connection);
         connection.isComplexMapping = true;
         connection.complexMapperName = $('#' + listId + ' option:selected').val();
@@ -319,10 +317,10 @@ class TransformRender
  * @param {string} name identifier of the type
  */
     removeType(name) {
-        var typeId = name + this.viewIdSeperator + this.viewId;
+        const typeId = name + this.viewIdSeperator + this.viewId;
         if ($('#' + typeId).attr('class') != null) {
-            var typeConns;
-            var lookupClass = 'property';
+            let typeConns;
+            let lookupClass = 'property';
 
             if ($('#' + typeId).attr('class').includes('struct')) {
                 lookupClass = 'jstree-anchor';
@@ -332,8 +330,8 @@ class TransformRender
                 typeConns = $('div[id^="' + typeId + '"]');
             }
 
-            var self = this;
-            _.forEach(typeConns, structCon => {
+            const self = this;
+            _.forEach(typeConns, (structCon) => {
                 if (_.includes(structCon.className, lookupClass)) {
                     self.jsPlumbInstance.remove(structCon.id);
                 }
@@ -348,19 +346,19 @@ class TransformRender
  * @param {object} connection connection object which specified source and target
  */
     addConnection(connection) {
-        var anchorEnd = '_anchor';
-        var sourceId = this.jsTreePrefix + this.viewIdSeperator + connection.sourceStruct
+        const anchorEnd = '_anchor';
+        let sourceId = this.jsTreePrefix + this.viewIdSeperator + connection.sourceStruct
         + this.viewIdSeperator + this.viewId;
-        var targetId = this.jsTreePrefix + this.viewIdSeperator + connection.targetStruct
+        let targetId = this.jsTreePrefix + this.viewIdSeperator + connection.targetStruct
         + this.viewIdSeperator + this.viewId;
-        var isSourceExists;
-        var isTargetExists;
+        let isSourceExists;
+        let isTargetExists;
 
         if (connection.sourceFunction) {
             sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
             isSourceExists = true;
         } else if (connection.sourceStruct == connection.sourceProperty[0]) {
-            //Construct Variable property id
+            // Construct Variable property id
             sourceId = connection.sourceStruct;
             isSourceExists = true;
         } else {
@@ -371,7 +369,7 @@ class TransformRender
             targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
             isTargetExists = true;
         } else if (connection.targetStruct == connection.targetProperty[0]) {
-            //Construct Variable property id
+            // Construct Variable property id
             targetId = connection.targetStruct;
             isTargetExists = true;
         } else {
@@ -398,19 +396,18 @@ class TransformRender
             }
 
             this.jsPlumbInstance.connect({
-                anchor: ['Continuous', {faces: ['right', 'left']}],
+                anchor: ['Continuous', { faces: ['right', 'left'] }],
                 source: sourceId,
                 target: targetId,
-                parameters: {id: connection.id}
+                parameters: { id: connection.id },
             });
             this.reposition(this);
-
         } else {
             this.connectionPool.push({
-                connection: connection,
-                isSourceExists: isSourceExists,
-                isTargetExists: isTargetExists,
-                connected: false
+                connection,
+                isSourceExists,
+                isTargetExists,
+                connected: false,
             });
         }
     }
@@ -422,10 +419,10 @@ class TransformRender
  * @param {object} reference AST model reference
  */
     addSourceType(struct, removeCallback) {
-        var id = struct.name + this.viewIdSeperator + this.viewId;
+        const id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         this.makeType(struct, removeCallback, 50, 10, 'source');
-        var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
+        const jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource);
     }
@@ -438,21 +435,21 @@ class TransformRender
  * @param createCallback
  */
     processJSTree(jsTreeId, structId, createCallback) {
-        var self = this;
-    //Disable jstree collapsing
+        const self = this;
+    // Disable jstree collapsing
         $.jstree.plugins.noclose = function () {
             this.close_node = $.noop;
         };
-        $('#' + jsTreeId).jstree({'plugins': ['noclose']}).on('ready.jstree', () => {
-            var sourceElements = $('#' + structId).find('.jstree-anchor');
-            _.forEach(sourceElements, element => {
+        $('#' + jsTreeId).jstree({ plugins: ['noclose'] }).on('ready.jstree', () => {
+            const sourceElements = $('#' + structId).find('.jstree-anchor');
+            _.forEach(sourceElements, (element) => {
                 createCallback(element, self);
             });
             $('#' + jsTreeId).jstree('open_all');
             self.existingJsTrees.push(structId);
             self.reposition(self);
-            _.forEach(self.connectionPool, conPoolObj => {
-                if (!conPoolObj.connected && structId === 
+            _.forEach(self.connectionPool, (conPoolObj) => {
+                if (!conPoolObj.connected && structId ===
                         conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
                 } else if (!conPoolObj.connected && structId ===
@@ -466,9 +463,9 @@ class TransformRender
             });
         }).on('after_open.jstree', (event, data) => {
             self.reposition(self);
-            var parentId = data.node.id;
-            var sourceElements = $('#' + parentId).find('.jstree-anchor');
-            _.forEach(sourceElements, element => {
+            const parentId = data.node.id;
+            const sourceElements = $('#' + parentId).find('.jstree-anchor');
+            _.forEach(sourceElements, (element) => {
                 createCallback(element, self);
             });
             self.jsPlumbInstance.repaintEverything();
@@ -481,8 +478,8 @@ class TransformRender
     }
 
     repaintAll(jsTreeId) {
-        var children = $('#' + jsTreeId).jstree().get_node('#').children_d;
-        _.forEach(children, child => {
+        const children = $('#' + jsTreeId).jstree().get_node('#').children_d;
+        _.forEach(children, (child) => {
             self.jsPlumbInstance.repaint(child.id + '_anchor');
         });
     }
@@ -494,10 +491,10 @@ class TransformRender
  * @param struct  Object which specifies the id, name, and type of the struct.
  */
     addComplexProperty(parentId, struct) {
-        var self = this;
-        _.forEach(struct.properties, property => {
+        const self = this;
+        _.forEach(struct.properties, (property) => {
             if (property.innerType != null && property.innerType.properties.length > 0) {
-                var complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type);
+                const complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type);
                 self.addComplexProperty(complexStructEl.attr('id'), property.innerType);
             } else {
                 self.makeProperty($('#' + parentId), property.name, property.type);
@@ -511,10 +508,10 @@ class TransformRender
  * @param {object} reference AST model reference
  */
     addTargetType(struct, removeCallback) {
-        var id = struct.name + this.viewIdSeperator + this.viewId;
+        const id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         this.makeType(struct, removeCallback, 50, 10, 'target');
-        var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
+        const jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
     }
@@ -527,29 +524,29 @@ class TransformRender
  * @param {object} reference
  */
     makeType(struct, removeCallback, posX, posY, type) {
-        var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
-        var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct');
-        var structName = $('<div>');
-        var closeButton = $('<span>').attr('id', struct.id + '-button').addClass('fw-stack fw-lg btn btn-remove');
-        var del = $('<i>').addClass('fw fw-delete fw-stack-1x');
+        const newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
+        const structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct');
+        const structName = $('<div>');
+        const closeButton = $('<span>').attr('id', struct.id + '-button').addClass('fw-stack fw-lg btn btn-remove');
+        const del = $('<i>').addClass('fw fw-delete fw-stack-1x');
         structName.append(structIcon);
-        structName.append($('<span>').text(struct.name + " : " + struct.typeName));
+        structName.append($('<span>').text(struct.name + ' : ' + struct.typeName));
         newStruct.append(structName);
         closeButton.append(del);
         structName.append(closeButton);
-        var subPlaceHolder;
+        let subPlaceHolder;
 
-        if(type == 'source' ) {
+        if (type == 'source') {
             subPlaceHolder = 'leftType';
         } else {
             subPlaceHolder = 'rightType';
         }
 
         newStruct.css({
-            'top': posX,
-            'left': posY
+            top: posX,
+            left: posY,
         });
-        var jsTreeContainer = $('<div>').attr('id', this.jsTreePrefix + this.viewIdSeperator + struct.id)
+        const jsTreeContainer = $('<div>').attr('id', this.jsTreePrefix + this.viewIdSeperator + struct.id)
         .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $('#' + this.placeHolderName).find('.' + subPlaceHolder).append(newStruct);
@@ -557,18 +554,17 @@ class TransformRender
     }
 
 
-
     addVariable(variable, type, removeCallback) {
-        var id = variable.name + this.viewIdSeperator + this.viewId;
-        var propId = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
-        var newVar = $('<div>').attr('id', id).attr('type', type).addClass('variable');
-        var varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
-        var   property = $('<a>').attr('id', propId).addClass('variable-content');
-        var propertyName = $('<span>').addClass('property-name').text(variable.name);
-        var seperator = $('<span>').addClass('property-name').text(':');
-        var propertyType = $('<span>').addClass('property-type').text(variable.type);
-        var closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
-        var del = $('<i>').addClass('fw fw-delete fw-stack-1x');
+        const id = variable.name + this.viewIdSeperator + this.viewId;
+        const propId = variable.name + this.idNameSeperator + variable.name + this.nameTypeSeperator + variable.type;
+        const newVar = $('<div>').attr('id', id).attr('type', type).addClass('variable');
+        const varIcon = $('<i>').addClass('type-mapper-icon fw fw-variable');
+        const property = $('<a>').attr('id', propId).addClass('variable-content');
+        const propertyName = $('<span>').addClass('property-name').text(variable.name);
+        const seperator = $('<span>').addClass('property-name').text(':');
+        const propertyType = $('<span>').addClass('property-type').text(variable.type);
+        const closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
+        const del = $('<i>').addClass('fw fw-delete fw-stack-1x');
         newVar.append(varIcon);
         property.append(propertyName);
         property.append(seperator);
@@ -576,15 +572,15 @@ class TransformRender
         closeButton.append(del);
         newVar.append(property);
         newVar.append(closeButton);
-        var subPlaceHolder;
+        let subPlaceHolder;
 
 
         newVar.css({
-            'top': 0,
-            'left': 0
+            top: 0,
+            left: 0,
         });
 
-        if(type == 'source' ) {
+        if (type == 'source') {
             subPlaceHolder = 'leftType';
             $('#' + this.placeHolderName).find('.leftType').append(newVar);
             this.addSource(property, this, false);
@@ -605,25 +601,25 @@ class TransformRender
  * @param {function} onFunctionRemove call back function for function remove
  */
     addFunction(func, reference, onFunctionRemove) {
-        func.meta.packageName  = func.meta.packageName.replace(' ','');
+        func.meta.packageName = func.meta.packageName.replace(' ', '');
         funcName = _.isEmpty(func.meta.packageName) ? func.getName() : func.meta.packageName + ' : ' + func.getName();
-        var funcText = func.getName();
-    //Allow multiple functions to drag and drop without conflicting
-        var functionInvocationModelId = reference.getChildren()[1].getChildren()[0].getID();
+        const funcText = func.getName();
+    // Allow multiple functions to drag and drop without conflicting
+        const functionInvocationModelId = reference.getChildren()[1].getChildren()[0].getID();
         func.name = (_.isEmpty(func.meta.packageName) ? func.getName() : func.meta.packageName + '-' + func.getName()) +
                    functionInvocationModelId;
 
-        var id = func.name + this.viewIdSeperator + this.viewId;
+        const id = func.name + this.viewIdSeperator + this.viewId;
         if ($('#' + id).length === 0) {
-            this.references.push({name: id, refObj: reference});
-            var newFunc = $('<div>').attr('id', id).addClass('func');
-            var self = this;
+            this.references.push({ name: id, refObj: reference });
+            const newFunc = $('<div>').attr('id', id).addClass('func');
+            const self = this;
             var funcName = $('<div>');
-            var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
-            var closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
-            var outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');
+            const funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
+            const closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
+            const outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');
 
-            var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
+            const del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
 
             funcName.append(funcIcon);
             funcName.append($('<span>').text(funcText));
@@ -633,20 +629,20 @@ class TransformRender
             newFunc.append(outputContent);
 
             newFunc.css({
-                'top': 0,
-                'left': 0
+                top: 0,
+                left: 0,
             });
 
             $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
             this.onRemove(id, func, onFunctionRemove, reference);
 
-            _.forEach(func.getParameters(), parameter => {
-                var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
+            _.forEach(func.getParameters(), (parameter) => {
+                const property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
                 self.addTarget(property, self);
             });
 
-            _.forEach(func.getReturnParams(), parameter => {
-                var property = self.makeFunctionAttribute($('#' + id + 'func-output'), parameter.name, parameter.type, false);
+            _.forEach(func.getReturnParams(), (parameter) => {
+                const property = self.makeFunctionAttribute($('#' + id + 'func-output'), parameter.name, parameter.type, false);
                 self.addSource(property, self, true);
             });
 
@@ -655,17 +651,17 @@ class TransformRender
     }
 
     makeFunctionAttribute(parentId, name, type, input) {
-        var id = parentId.selector.replace('#', '').replace('func-output','')
+        const id = parentId.selector.replace('#', '').replace('func-output', '')
         + this.idNameSeperator + name + this.nameTypeSeperator + type;
-        var property;
+        let property;
         if (input) {
             property = $('<div>').attr('id', id).addClass('func-in-property');
         } else {
             property = $('<div>').attr('id', id).addClass('func-out-property');
         }
-        var propertyName = $('<span>').addClass('property-name').text(name);
-        var seperator = $('<span>').addClass('property-name').text(':');
-        var propertyType = $('<span>').addClass('property-type').text(type);
+        const propertyName = $('<span>').addClass('property-name').text(name);
+        const seperator = $('<span>').addClass('property-name').text(':');
+        const propertyType = $('<span>').addClass('property-type').text(type);
 
         property.append(propertyName);
         property.append(seperator);
@@ -682,9 +678,9 @@ class TransformRender
  * @returns {*|jQuery}
  */
     makeProperty(parentId, name, type) {
-        var id = parentId.selector.replace('#', '') + this.idNameSeperator + name + this.nameTypeSeperator + type;
-        var ul = $('<ul class="property">');
-        var li = $('<li class="property">').attr('id', id).text(name + ' : ' + type);
+        const id = parentId.selector.replace('#', '') + this.idNameSeperator + name + this.nameTypeSeperator + type;
+        const ul = $('<ul class="property">');
+        const li = $('<li class="property">').attr('id', id).text(name + ' : ' + type);
         ul.append(li);
         $(parentId).append(ul);
         return li;
@@ -697,8 +693,8 @@ class TransformRender
  * @param self
  */
     addSource(element, self, maxConnections) {
-        var connectionConfig = {
-            anchor: ['Continuous', {faces: ['right']}]
+        const connectionConfig = {
+            anchor: ['Continuous', { faces: ['right'] }],
         };
         if (maxConnections) {
             connectionConfig.maxConnections = 1;
@@ -734,62 +730,61 @@ class TransformRender
     addTarget(element, self) {
         self.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
-            anchor: ['Continuous', {faces: ['left']}],
-            beforeDrop: function (params) {
-            //Checks property types are equal
-                var isValidTypes = self.getPropertyType(params.sourceId).toLowerCase()
+            anchor: ['Continuous', { faces: ['left'] }],
+            beforeDrop(params) {
+            // Checks property types are equal
+                const isValidTypes = self.getPropertyType(params.sourceId).toLowerCase()
                                         == self.getPropertyType(params.targetId).toLowerCase();
-                var connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
+                const connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
-                    self.midpoint = self.midpoint + self.midpointVariance;
-                    self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
+                    self.midpoint += self.midpointVariance;
+                    self.jsPlumbInstance.importDefaults({ Connector: self.getConnectorConfig(self.midpoint) });
                     connection.id = self.onConnection(connection);
                     params.connection.setParameter('id', connection.id);
                 }
                 return isValidTypes;
-            }
+            },
         })
     ;
     }
 
     disableParentsJsTree(connectionId, self) {
-        var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
-        var sourceJsTree = $('#' + sourceJsTreeId).jstree(true);
-        var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
-        _.forEach(node.parents, parentNodeId => {
+        const sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        const sourceJsTree = $('#' + sourceJsTreeId).jstree(true);
+        const node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
+        _.forEach(node.parents, (parentNodeId) => {
             if (parentNodeId !== '#') {
-                var parentNode = sourceJsTree.get_node(parentNodeId);
+                const parentNode = sourceJsTree.get_node(parentNodeId);
                 parentNode.state = 'leaf';
             }
         });
     }
 
     enableParentsJsTree(connectionId, self, connections, isSource) {
-        var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
-        var sourceJsTree = $('#' + sourceJsTreeId).jstree(true);
-        var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
-        _.forEach(node.parents, parentNodeId => {
+        const sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        const sourceJsTree = $('#' + sourceJsTreeId).jstree(true);
+        const node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
+        _.forEach(node.parents, (parentNodeId) => {
             if (parentNodeId !== '#' && !self.isChildConnectionExists(sourceJsTree, self, connections, isSource)) {
-                var parentNode = sourceJsTree.get_node(parentNodeId);
+                const parentNode = sourceJsTree.get_node(parentNodeId);
                 parentNode.state = {
                     disabled: false,
                     loaded: true,
                     opened: true,
-                    selected: false
+                    selected: false,
                 };
             }
         });
     }
 
     isChildConnectionExists(jsTreeNode, self, connections, isSource) {
-        var childNodes = jsTreeNode.children_d;
-        var child = _.find(childNodes, childId => {
-            var connection = _.find(connections, connection => {
+        const childNodes = jsTreeNode.children_d;
+        const child = _.find(childNodes, (childId) => {
+            const connection = _.find(connections, (connection) => {
                 if (isSource) {
                     return childId.includes(connection.sourceId);
-                } else {
-                    return childId.includes(connection.targetId);
                 }
+                return childId.includes(connection.targetId);
             });
             if (!_.isUndefined(connection)) {
                 return true;
@@ -809,10 +804,10 @@ class TransformRender
  * @returns {Array} List of connections
  */
     getSourceConnectionsByProperty(structName, property, type) {
-        var self = this;
-        var connections = [];
+        const self = this;
+        const connections = [];
         for (var i = 0; i < property.length; i++) {
-            _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
                 if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
                 + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
                     connections.push(self.getConnectionObject(connection.getParameter('id'),
@@ -820,7 +815,7 @@ class TransformRender
                 }
             });
 
-            _.forEach(connections, connection => {
+            _.forEach(connections, (connection) => {
                 self.jsPlumbInstance.detach(connection);
             });
         }
@@ -835,10 +830,10 @@ class TransformRender
  * @returns {Array} List of connections
  */
     getTargetConnectionsByProperty(structName, property, type) {
-        var self = this;
-        var connections = [];
+        const self = this;
+        const connections = [];
         for (var i = 0; i < property.length; i++) {
-            _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
                 if (connection.targetId.includes(structName + self.viewIdSeperator + self.viewId
                 + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
                     connections.push(self.getConnectionObject(connection.getParameter('id'),
@@ -846,7 +841,7 @@ class TransformRender
                 }
             });
 
-            _.forEach(connections, connection => {
+            _.forEach(connections, (connection) => {
                 self.jsPlumbInstance.detach(connection);
             });
         }
@@ -859,16 +854,16 @@ class TransformRender
  * @returns {Array} List of connections
  */
     getSourceConnectionsByStruct(structName) {
-        var self = this;
-        var connections = [];
-        _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
+        const self = this;
+        const connections = [];
+        _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
             if (connection.sourceId.includes(structName)) {
                 connections.push(self.getConnectionObject(connection.getParameter('id'),
             connection.sourceId, connection.targetId));
             }
         });
 
-        _.forEach(connections, connection => {
+        _.forEach(connections, (connection) => {
             self.jsPlumbInstance.detach(connection);
         });
 
@@ -881,16 +876,16 @@ class TransformRender
  * @returns {Array} List of connections
  */
     getTargetConnectionsByStruct(structName) {
-        var self = this;
-        var connections = [];
-        _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
+        const self = this;
+        const connections = [];
+        _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
             if (connection.targetId.includes(structName)) {
                 connections.push(self.getConnectionObject(connection.getParameter('id'),
             connection.sourceId, connection.targetId));
             }
         });
 
-        _.forEach(connections, connection => {
+        _.forEach(connections, (connection) => {
             self.jsPlumbInstance.detach(connection);
         });
 
@@ -903,53 +898,50 @@ class TransformRender
  * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
  */
     reposition(self) {
-        var funcs = $('.middle-content  > .func');
-        var sourceStructs = $('.leftType > .struct, .leftType > .variable');
-        var targetStructs = $('.rightType > .struct, .rightType > .variable');
-        var xFunctionPointer = ($('.middle-content').width()-300)/2;
-        var yFunctionPointer = 120;
-        var xSourcePointer = 0;
-        var ySourcePointer = 0;
-        var xTargetPointer = 0;
-        var yTargetPointer = 0;
-        var functionGap = 30;
-        var svgLines = $('#' + self.placeHolderName + '> svg');
+        const funcs = $('.middle-content  > .func');
+        const sourceStructs = $('.leftType > .struct, .leftType > .variable');
+        const targetStructs = $('.rightType > .struct, .rightType > .variable');
+        const xFunctionPointer = ($('.middle-content').width() - 300) / 2;
+        let yFunctionPointer = 120;
+        const xSourcePointer = 0;
+        let ySourcePointer = 0;
+        const xTargetPointer = 0;
+        let yTargetPointer = 0;
+        const functionGap = 30;
+        const svgLines = $('#' + self.placeHolderName + '> svg');
 
-        //Traverse through all the connection svg lines
-        _.forEach(svgLines, svgLine => {
-            //Get bottom and right values relative to the type mapper parent div
-            var arrowBotton = svgLine.children[2].getBoundingClientRect().bottom - $('.middle-content').position().top;
-            var right = svgLine.getBoundingClientRect().right;
+        // Traverse through all the connection svg lines
+        _.forEach(svgLines, (svgLine) => {
+            // Get bottom and right values relative to the type mapper parent div
+            const arrowBotton = svgLine.children[2].getBoundingClientRect().bottom - $('.middle-content').position().top;
+            const right = svgLine.getBoundingClientRect().right;
 
-            //Calculate the yFunctionPointer value  based on the bottom value of the direct connections
+            // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
             if (arrowBotton > yFunctionPointer && svgLine.getBoundingClientRect().width > 600) {
                 yFunctionPointer = arrowBotton;
             }
         });
 
-        //Traverse through all the function divs
-        _.forEach(funcs, func => {
-            //Position functions and increase yFunctionPointer with gaps
-            $('#'+ func.id).css('left', xFunctionPointer+ 'px');
-            $('#'+ func.id).css('top', yFunctionPointer + 'px');
-            yFunctionPointer +=  $('#'+ func.id).height() + functionGap;
-
+        // Traverse through all the function divs
+        _.forEach(funcs, (func) => {
+            // Position functions and increase yFunctionPointer with gaps
+            $('#' + func.id).css('left', xFunctionPointer + 'px');
+            $('#' + func.id).css('top', yFunctionPointer + 'px');
+            yFunctionPointer += $('#' + func.id).height() + functionGap;
         });
 
-        _.forEach(sourceStructs, structType => {
-            //Position functions and increase yFunctionPointer with gaps
-            $('#'+ structType.id).css('left', xSourcePointer+ 'px');
-            $('#'+ structType.id).css('top', ySourcePointer + 'px');
-            ySourcePointer +=  $('#'+ structType.id).height() + functionGap;
-
+        _.forEach(sourceStructs, (structType) => {
+            // Position functions and increase yFunctionPointer with gaps
+            $('#' + structType.id).css('left', xSourcePointer + 'px');
+            $('#' + structType.id).css('top', ySourcePointer + 'px');
+            ySourcePointer += $('#' + structType.id).height() + functionGap;
         });
 
-        _.forEach(targetStructs, structType => {
-            //Position functions and increase yFunctionPointer with gaps
-            $('#'+ structType.id).css('left', xTargetPointer+ 'px');
-            $('#'+ structType.id).css('top', yTargetPointer + 'px');
-            yTargetPointer +=  $('#'+ structType.id).height() + functionGap;
-
+        _.forEach(targetStructs, (structType) => {
+            // Position functions and increase yFunctionPointer with gaps
+            $('#' + structType.id).css('left', xTargetPointer + 'px');
+            $('#' + structType.id).css('top', yTargetPointer + 'px');
+            yTargetPointer += $('#' + structType.id).height() + functionGap;
         });
         self.jsPlumbInstance.repaintEverything();
     }
@@ -962,38 +954,40 @@ class TransformRender
     getConnectorConfig(midPoint) {
         return ['Flowchart', {
             midpoint: midPoint,
-            stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true
+            stub: [40, 60],
+            cornerRadius: 5,
+            alwaysRespectStubs: true,
         }];
     }
 
 
-onRemove(id, func,removeFunction, reference) {
-    var self = this;
-    $('#' + id + '-button').on('click', () => {
-        var removedFunction = {name: func.name};
-    removedFunction.incomingConnections = [];
-    removedFunction.outgoingConnections = [];
+    onRemove(id, func, removeFunction, reference) {
+        const self = this;
+        $('#' + id + '-button').on('click', () => {
+            const removedFunction = { name: func.name };
+            removedFunction.incomingConnections = [];
+            removedFunction.outgoingConnections = [];
 
-    _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
-        if (connection.target.id.includes(id)) {
-        removedFunction.incomingConnections.push(
+            _.forEach(self.jsPlumbInstance.getAllConnections(), (connection) => {
+                if (connection.target.id.includes(id)) {
+                    removedFunction.incomingConnections.push(
             self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
-    } else if (connection.source.id.includes(id)) {
-        removedFunction.outgoingConnections.push(
+                } else if (connection.source.id.includes(id)) {
+                    removedFunction.outgoingConnections.push(
             self.getConnectionObject(connection.getParameter('id'), connection.sourceId, connection.targetId));
-    }
-});
+                }
+            });
 
-for (var i = 0; i < self.references.length; i++) {
-    if (self.references[i].name === id) {
-        removedFunction.reference = self.references[i].refObj;
-    }
-}
+            for (let i = 0; i < self.references.length; i++) {
+                if (self.references[i].name === id) {
+                    removedFunction.reference = self.references[i].refObj;
+                }
+            }
 
-self.removeType(func.name);
-removeFunction(reference);
-});
-}
+            self.removeType(func.name);
+            removeFunction(reference);
+        });
+    }
 
 }
 
