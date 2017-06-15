@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import BallerinaASTFactory from './ballerina-ast-factory';
+import PackageDefinition from './package-definition';
 
 class BallerinaASTDeserializer {
     /**
@@ -29,6 +30,12 @@ class BallerinaASTDeserializer {
         if (!_.isNil(data.whitespace_descriptor)) {
             astRoot.setWhiteSpaceDescriptor(data.whitespace_descriptor);
             astRoot.whiteSpace.useDefault = false;
+            const packageNodes = astRoot.getChildrenOfType((node) => {
+                return node instanceof PackageDefinition;
+            });
+            if (!_.isNil(packageNodes[0]) && !_.isNil(packageNodes[0].getPackageName())) {
+                packageNodes[0].whiteSpace.useDefault = false;
+            }
         }
         return astRoot;
     }
