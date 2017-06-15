@@ -17,7 +17,6 @@
  */
 import log from 'log';
 import _ from 'lodash';
-import EventChannel from 'event_channel';
 import ServiceDefinition from './../ast/service-definition';
 import FunctionDefinition from './../ast/function-definition';
 import TypeDefinition from './../ast/type-definition';
@@ -79,7 +78,7 @@ class Package {
             }
         }
         this._constantDefinitions = this._constantDefinitions || [];
-        this._constantDefinitions = _.concat(this._constantDefinitions , constantDefinitions);
+        this._constantDefinitions = _.concat(this._constantDefinitions, constantDefinitions);
     }
 
     /**
@@ -124,7 +123,7 @@ class Package {
             }
         }
         this._typeDefinitions = this._typeDefinitions || [];
-        this._typeDefinitions = _.concat(this._typeDefinitions , typeDefinitions);
+        this._typeDefinitions = _.concat(this._typeDefinitions, typeDefinitions);
     }
 
     /**
@@ -151,7 +150,6 @@ class Package {
      * @fires Package#connector-defs-added
      */
     addConnectors(connectors) {
-        let self = this;
         let err;
         if (!_.isArray(connectors) && !(BallerinaEnvFactory.isConnector(connectors))) {
             err = 'Adding connector failed. Not an instance of connector ' + connectors;
@@ -169,7 +167,7 @@ class Package {
                 });
             }
         }
-        this._connectorDefinitions = _.concat(this._connectorDefinitions , connectors);
+        this._connectorDefinitions = _.concat(this._connectorDefinitions, connectors);
     }
 
     /**
@@ -205,7 +203,8 @@ class Package {
             if (!_.isEmpty(annotationDefinitions)) {
                 _.each(annotationDefinitions, (annotationDefinition) => {
                     if (!(annotationDefinition instanceof AnnotationDefinition)) {
-                        err = 'Adding annotation def failed. Not an instance of AnnotationDefinitions' + annotationDefinition;
+                        err = 'Adding annotation def failed. Not an instance of AnnotationDefinitions'
+                                       + annotationDefinition;
                         log.error(err);
                         throw err;
                     }
@@ -213,7 +212,7 @@ class Package {
             }
         }
         this._annotationDefinitions = this._annotationDefinitions || [];
-        this._annotationDefinitions = _.concat(this._annotationDefinitions , annotationDefinitions);
+        this._annotationDefinitions = _.concat(this._annotationDefinitions, annotationDefinitions);
     }
 
     /**
@@ -257,7 +256,7 @@ class Package {
             }
         }
         this._serviceDefinitions = this._serviceDefinitions || [];
-        this._serviceDefinitions = _.concat(this._serviceDefinitions , serviceDefinitions);
+        this._serviceDefinitions = _.concat(this._serviceDefinitions, serviceDefinitions);
     }
 
     /**
@@ -283,7 +282,6 @@ class Package {
      * @param functionDefinitions - can be an array of functionDefinitions or a single functionDefinition
      */
     addFunctionDefinitions(functionDefinitions) {
-        let self = this;
         let err;
         if (!_.isArray(functionDefinitions) && !(BallerinaEnvFactory.isFunction(functionDefinitions))) {
             err = 'Adding function def failed. Not an instance of FunctionDefinition' + functionDefinitions;
@@ -302,7 +300,7 @@ class Package {
             }
         }
         this._functionDefinitions = this._functionDefinitions || [];
-        this._functionDefinitions = _.concat(this._functionDefinitions , functionDefinitions);
+        this._functionDefinitions = _.concat(this._functionDefinitions, functionDefinitions);
     }
 
     /**
@@ -321,7 +319,7 @@ class Package {
      * @param connectorDefinition - connector definition to be removed
      */
     removeConnectorDefinition(connectorDefinition) {
-        let connector = _.filter(this._connectorDefinitions, (connectorDefinitionItem) => {
+        const connector = _.filter(this._connectorDefinitions, (connectorDefinitionItem) => {
             // TODO Need to check param types along with function name to support overloaded functions
             return _.isEqual(connectorDefinitionItem.getName(), connectorDefinition.getConnectorName());
         });
@@ -385,12 +383,9 @@ class Package {
         // modified elements comes first(reverse). Then remove the duplicates using struct name(uniqBy).
         // Then reverse it back(reverse).
         this._structDefinitions = _.reverse(
-            _.uniqBy(
-                _.reverse(
-                    _.concat(this._structDefinitions, structDefinitions)), (structDefinition) => {
+            _.uniqBy((_.reverse(_.concat(this._structDefinitions, structDefinitions))), (structDefinition) => {
                 return structDefinition.getStructName();
-            }),
-        );
+            }));
     }
 
     /**
@@ -412,25 +407,24 @@ class Package {
     }
 
     initFromJson(jsonNode) {
-        let self = this;
         this.setName(jsonNode.name);
 
         _.each(jsonNode.connectors, (connectorNode) => {
-            let connector = BallerinaEnvFactory.createConnector();
+            const connector = BallerinaEnvFactory.createConnector();
             connector.initFromJson(connectorNode);
-            self.addConnectors(connector);
+            this.addConnectors(connector);
         });
 
         _.each(jsonNode.functions, (functionNode) => {
-            let functionDef = BallerinaEnvFactory.createFunction();
+            const functionDef = BallerinaEnvFactory.createFunction();
             functionDef.initFromJson(functionNode);
-            self.addFunctionDefinitions(functionDef);
+            this.addFunctionDefinitions(functionDef);
         });
 
         _.each(jsonNode.annotations, (annotationNode) => {
-            let annotationDef = BallerinaEnvFactory.createAnnotationDefinition();
+            const annotationDef = BallerinaEnvFactory.createAnnotationDefinition();
             annotationDef.initFromJson(annotationNode);
-            self.addAnnotationDefinitions(annotationDef);
+            this.addAnnotationDefinitions(annotationDef);
         });
     }
 
@@ -439,7 +433,7 @@ class Package {
      * @return {Array}
      */
     getTypesInPackage() {
-        let types = [];
+        const types = [];
         _.forEach(this._connectorDefinitions, (connectorDef) => {
             types.push(connectorDef.getName());
         });

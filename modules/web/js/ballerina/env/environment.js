@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 import BallerinaEnvFactory from './ballerina-env-factory';
-import EnvironmentContent from 'environment_content';
-
-let instance;
+import EnvironmentContent from './environment-content';
 
 /**
  * @class BallerinaEnvironment
@@ -63,7 +62,7 @@ class BallerinaEnvironment extends EventChannel {
      * @fires BallerinaEnvironment#new-package-added
      */
     addPackage(packageInstance) {
-        if (!(packageInstance instanceof Package)) {
+        if (!(BallerinaEnvFactory.isPackage(packageInstance))) {
             const err = `${packageInstance} is not an instance of Package.`;
             log.error(err);
             throw err;
@@ -102,13 +101,12 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize packages from BALLERINA_HOME and/or Ballerina Repo
      */
     initializePackages(app) {
-        const self = this;
         const packagesJson = EnvironmentContent.getPackages(app);
 
         _.each(packagesJson, (packageNode) => {
             const pckg = BallerinaEnvFactory.createPackage();
             pckg.initFromJson(packageNode);
-            self._packages.push(pckg);
+            this._packages.push(pckg);
         });
     }
 
@@ -116,13 +114,12 @@ class BallerinaEnvironment extends EventChannel {
      * Initialize builtin types from Ballerina Program
      */
     initializeBuiltinTypes(builtinTypes) {
-        const self = this;
         _.each(builtinTypes, (builtinType) => {
             if (!_.isNil(builtinType)) {
-                self._types.push(builtinType.name);
+                this._types.push(builtinType.name);
             }
         });
-        self._types = _.sortBy(self._types, [function (type) {
+        this._types = _.sortBy(this._types, [function (type) {
             return type;
         }]);
     }
@@ -130,19 +127,16 @@ class BallerinaEnvironment extends EventChannel {
     /**
      * Initialize annotation attachment points for Ballerina Program
      * */
-    initializeAnnotationAttachmentPoints(app) {
-        const self = this;
-        self._annotationAttachmentTypes = _.sortBy(['service', 'resource', 'connector', 'action', 'function',
+    initializeAnnotationAttachmentPoints() {
+        this._annotationAttachmentTypes = _.sortBy(['service', 'resource', 'connector', 'action', 'function',
             'typemapper', 'struct', 'const', 'parameter', 'annotation'], [function (type) {
                 return type;
             }]);
     }
 
-    searchPackage(query, exclude) {
-        const search_text = query;
-        const exclude_packages = exclude;
+    searchPackage(query, excludePackages) {
         return _.filter(this._packages, (pckg) => {
-            const existing = _.filter(exclude_packages, ex => pckg.getName() === ex);
+            const existing = _.filter(excludePackages, ex => pckg.getName() === ex);
             return (existing.length === 0) && new RegExp(query.toUpperCase()).test(pckg.getName().toUpperCase());
         });
     }
