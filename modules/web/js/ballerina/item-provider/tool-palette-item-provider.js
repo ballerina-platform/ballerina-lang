@@ -226,7 +226,7 @@ class ToolPaletteItemProvider extends EventChannel {
      */
     getToolGroup(pckg) {
         const definitions = [];
-        var self = this;
+        const self = this;
 
         // Sort the connector package by name
         const connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {

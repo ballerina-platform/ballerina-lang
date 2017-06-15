@@ -32,7 +32,7 @@ let File = Backbone.Model.extend(
         },
 
         initialize (attrs, options) {
-            var errMsg;
+            let errMsg;
             if (!this.get('isPersisted')){
                 if(!_.has(options, 'storage')){
                     errMsg = 'unable to find storage' + _.toString(attrs);

@@ -265,8 +265,8 @@ class TransformStatementDecorator extends React.Component {
             //on creating a connection
             let sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
             let targetStruct = _.find(self.predefinedStructs, { name:connection.targetStruct});
-            var sourceExpression;
-            var targetExpression;
+            let sourceExpression;
+            let targetExpression;
 
             if(sourceStruct != null){
                 if (sourceStruct.type == 'struct') {
@@ -527,7 +527,7 @@ class TransformStatementDecorator extends React.Component {
     }
 
     setSource(currentSelection, predefinedStructs) {
-        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+        const sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
         if (_.isUndefined(sourceSelection)){
             alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
@@ -539,7 +539,7 @@ class TransformStatementDecorator extends React.Component {
                 return currentObject.getVariableName() === id;
             });
             self.props.model.setInput(self.props.model.getInput());
-            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            const currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
         }
 
@@ -556,7 +556,7 @@ class TransformStatementDecorator extends React.Component {
         
     }
     setTarget(currentSelection, predefinedStructs) {
-        var targetSelection = _.find(predefinedStructs, { name: currentSelection});
+        const targetSelection = _.find(predefinedStructs, { name: currentSelection});
         if (_.isUndefined(targetSelection)){
             alerts.error('Mapping target "' + currentSelection + '" cannot be found');
             return false;
@@ -568,7 +568,7 @@ class TransformStatementDecorator extends React.Component {
                 return currentObject.getVariableName() === id;
             });
             self.props.model.setOutput(self.props.model.getOutput());
-            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            const currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
         }
 

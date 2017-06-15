@@ -248,7 +248,7 @@ class SourceView extends EventChannel {
     }
 
     jumpToLine({expression=''}) {
-        var range = this._editor.find(expression.trim() , {
+        const range = this._editor.find(expression.trim() , {
             regExp:false,
         });
         if(!range) {

@@ -33,7 +33,7 @@ const eventSplitter = /\s+/;
 // Iterates over the standard `event, callback` (as well as the fancy multiple
 // space-separated events `"change blur", callback` and jQuery-style event
 // maps `{event: callback}`).
-var eventsApi = function (iteratee, events, name, callback, opts) {
+const eventsApi = function (iteratee, events, name, callback, opts) {
     let i = 0,
         names;
     if (name && typeof name === 'object') {
@@ -224,7 +224,7 @@ EventChannel.prototype.listenToOnce = function (obj, name, callback) {
 // `offer` unbinds the `onceWrapper` after it has been called.
 var onceMap = function (map, name, callback, offer) {
     if (callback) {
-        var once = map[name] = _.once(function () {
+        const once = map[name] = _.once(function () {
             offer(name, once);
             callback.apply(this, arguments);
         });
