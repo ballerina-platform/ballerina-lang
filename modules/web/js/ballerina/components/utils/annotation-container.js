@@ -17,19 +17,33 @@
  */
 let keyIndex = 0;
 
+/**
+ * Class of annotation container.
+ * */
 class AnnotationContainer {
 
+    /**
+     * Constructor for AnnotationContainer
+     *
+     * @param {object} bBox - binding box for the Annotation Container
+     * @param {object} annotations - annotations collection
+     * @param {ASTNode} parentNode - node of the parent of annotation container.
+     * */
     constructor(bBox, annotations, parentNode) {
         this.bBox = bBox;
         this.annotations = annotations;
         this.parentNode = parentNode;
     }
 
+    /**
+     * Get ID of the annotation container.
+     *
+     * @return {string} annotation container Id.
+     * */
     getID() {
         keyIndex += 1;
         return `annotation-container-${keyIndex}`;
     }
-
 }
 
 export default AnnotationContainer;
