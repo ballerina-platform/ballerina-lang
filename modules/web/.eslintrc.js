@@ -21,7 +21,9 @@ module.exports = {
                 "ClassDeclaration": true
             }
         }],
-        "valid-jsdoc": "warn",
+        "valid-jsdoc": ["warn", {
+            "requireReturn": false
+        }],
         "indent": ["error", 4],
         "import/no-extraneous-dependencies": ["off", { 
             "devDependencies": false, 
