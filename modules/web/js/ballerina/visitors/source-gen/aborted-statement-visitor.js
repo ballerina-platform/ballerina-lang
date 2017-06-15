@@ -31,8 +31,8 @@ class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitAbortedStatement(abortedStatement) {
         this.node = abortedStatement;
-        this.appendSource(`aborted${abortedStatement.getWSRegion(1)}{${
-             abortedStatement.getWSRegion(2)}`);
+        this.appendSource('aborted' + abortedStatement.getWSRegion(1) + '{'
+            + abortedStatement.getWSRegion(2));
         this.appendSource((abortedStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
         log.debug('Begin Visit Aborted Statement');
@@ -65,7 +65,7 @@ class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
             }
         }
 
-        this.appendSource(`}${tailingWS}`);
+        this.appendSource('}' + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Aborted Statement');
     }

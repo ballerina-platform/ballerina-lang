@@ -64,7 +64,7 @@ class BasicLiteralExpression extends Expression {
     getExpressionString() {
         if (this._basicLiteralType === 'string') {
             // Adding double quotes if it is a string.
-            return `\"${this.escapeEscapeChars(this._basicLiteralValue)}\"${this.getWSRegion(1)}`;
+            return '\"' + this.escapeEscapeChars(this._basicLiteralValue) + '\"' + this.getWSRegion(1);
         }
         return this._basicLiteralValue + this.getWSRegion(1);
     }

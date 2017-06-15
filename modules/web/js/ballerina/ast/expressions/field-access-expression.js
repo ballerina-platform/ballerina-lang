@@ -43,30 +43,30 @@ class FieldAccessExpression extends Expression {
             if (this.getFactory().isBasicLiteralExpression(exp)) {
                 if (exp.getBasicLiteralType() === 'string') {
                     if (this.getIsArrayExpression()) {
-                        return `[${exp.getExpressionString()}]`;
+                        return '[' + exp.getExpressionString() + ']';
                     }
-                    return `.${exp.getBasicLiteralValue()}`;
+                    return '.' + exp.getBasicLiteralValue();
                 }
-                return `[${exp.getExpressionString()}]`;
+                return '[' + exp.getExpressionString() + ']';
             }
-            return `[${exp.getExpressionString()}]`;
+            return '[' + exp.getExpressionString() + ']';
         } else if (this.getChildren().length === 2) {
             const firstVar = this.getChildren()[0];
             const secondVar = this.getChildren()[1];
             if (this.getFactory().isFieldAccessExpression(this.getParent())) {
                 // if this is an inner field access expression
                 if (this.getIsArrayExpression()) {
-                    return `[${firstVar.getExpressionString()}]${secondVar.getExpressionString()}`;
+                    return '[' + firstVar.getExpressionString() + ']' + secondVar.getExpressionString();
                 }
                 if (this.getFactory().isBasicLiteralExpression(firstVar)) {
                     if (firstVar.getBasicLiteralType() === 'string') {
                         if (this.getIsArrayExpression()) {
-                            return `[${firstVar.getExpressionString()}]${secondVar.getExpressionString()}`;
+                            return '[' + firstVar.getExpressionString() + ']' + secondVar.getExpressionString();
                         }
-                        return `.${firstVar.getBasicLiteralValue()}${secondVar.getExpressionString()}`;
+                        return '.' + firstVar.getBasicLiteralValue() + secondVar.getExpressionString();
                     }
                 } else {
-                    return `.${firstVar.getExpressionString()}${secondVar.getExpressionString()}`;
+                    return '.' + firstVar.getExpressionString() + secondVar.getExpressionString();
                 }
             } else {
                 return firstVar.getExpressionString() + secondVar.getExpressionString();

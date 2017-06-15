@@ -40,7 +40,7 @@ class BackTickExpression extends Expression {
     }
 
     getExpressionString() {
-        return (`\`${this._backTickEnclosedString}\``);
+        return ('`' + this._backTickEnclosedString + '`');
     }
 
     setExpressionFromString(expressionString, callback) {

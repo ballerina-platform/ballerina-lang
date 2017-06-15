@@ -107,7 +107,7 @@ class AnnotationDefinition extends ASTNode {
         if (!_.isNil(annotationName) && ASTNode.isValidIdentifier(annotationName)) {
             this.setAttribute('_annotationName', annotationName, options);
         } else {
-            const error = `Invalid name for the annotation name: ${annotationName}`;
+            const error = 'Invalid name for the annotation name: ' + annotationName;
             log.error(error);
             throw error;
         }
@@ -142,12 +142,14 @@ class AnnotationDefinition extends ASTNode {
         }
 
         // Check if already variable definition exists with same identifier.
-        const identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), attDef => attDef.getAttributeName() === identifier) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getAnnotationAttributeDefinitions(), (attDef) => {
+            return attDef.getAttributeName() === identifier;
+        }) !== -1;
 
         // If annotation attribute definition with the same identifier exists, then throw an error,
         // else create the new annotation attribute definition.
         if (identifierAlreadyExists) {
-            const errorString = `An attribute with identifier '${identifier}' already exists.`;
+            const errorString = 'An attribute with identifier \'' + identifier + '\' already exists.';
             log.error(errorString);
             throw errorString;
         } else {
@@ -175,10 +177,12 @@ class AnnotationDefinition extends ASTNode {
             throw errorString;
         }
 
-        const identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), attachmentPoint => _.isEqual(identifier, attachmentPoint)) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getAttachmentPoints(), (attachmentPoint) => {
+            return _.isEqual(identifier, attachmentPoint);
+        }) !== -1;
 
         if (identifierAlreadyExists) {
-            const errorString = `An attribute with identifier "${identifier}" already exists.`;
+            const errorString = 'An attribute with identifier "' + identifier + '" already exists.';
             log.error(errorString);
             throw errorString;
         } else {

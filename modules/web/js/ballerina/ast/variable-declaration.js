@@ -27,7 +27,7 @@ class VariableDeclaration extends ASTNode {
 
         // Validating the identifier.
         if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
-            const exceptionString = `Invalid identifier: \'${this.identifier}\'. An identifier must match the ` +
+            const exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the " +
                 'regex ^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
@@ -52,7 +52,7 @@ class VariableDeclaration extends ASTNode {
         if (!_.isNil(identifier) && ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('_identifier', identifier, options);
         } else {
-            const exceptionString = `Invalid identifier: \'${identifier}\'. An identifier must match the regex ` +
+            const exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
                 '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
@@ -68,7 +68,7 @@ class VariableDeclaration extends ASTNode {
      * @return {string} - Variable declaration as string.
      */
     getVariableDeclarationAsString() {
-        return `${this._bType} ${this._identifier};`;
+        return this._bType + ' ' + this._identifier + ';';
     }
 
     /**

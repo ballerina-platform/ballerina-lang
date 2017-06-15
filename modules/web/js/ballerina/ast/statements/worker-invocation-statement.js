@@ -80,7 +80,7 @@ class WorkerInvocationStatement extends Statement {
                 statementStr += ',';
             }
         }
-        statementStr += `->${this.getWorkerName()}`;
+        statementStr += '->' + this.getWorkerName();
 
         return statementStr;
     }
@@ -92,7 +92,7 @@ class WorkerInvocationStatement extends Statement {
      * @override
      */
     setStatementFromString(statementString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(`${statementString};`);
+        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
@@ -141,7 +141,9 @@ class WorkerInvocationStatement extends Statement {
 
         let workerInstance;
         if (!_.isNil(this.getParent())) {
-            workerInstance = _.find(this.getParent().getChildren(), child => self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName);
+            workerInstance = _.find(this.getParent().getChildren(), (child) => {
+                return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
+            });
         }
 
         this.setDestination(workerInstance);

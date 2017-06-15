@@ -32,8 +32,8 @@ class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitTransactionStatement(transactionStatement) {
         this.node = transactionStatement;
-        this.appendSource(`transaction${transactionStatement.getWSRegion(1)}{${
-             transactionStatement.getWSRegion(2)}`);
+        this.appendSource('transaction' + transactionStatement.getWSRegion(1) + '{'
+            + transactionStatement.getWSRegion(2));
         this.appendSource((transactionStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
@@ -55,7 +55,7 @@ class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
         && (_.isEmpty(parent.getAbortedStatement())
         && _.isEmpty(parent.getCommittedStatement())))
             ? '\n' : transactionStatement.getWSRegion(3);
-        this.appendSource(`}${tailingWS}`);
+        this.appendSource('}' + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

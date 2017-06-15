@@ -45,7 +45,7 @@ class ServiceDefinition extends ASTNode {
         if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
             this.setAttribute('_serviceName', serviceName, options);
         } else {
-            const errorString = `Invalid name for the service name: ${serviceName}`;
+            const errorString = 'Invalid name for the service name: ' + serviceName;
             log.error(errorString);
             throw errorString;
         }
@@ -107,15 +107,15 @@ class ServiceDefinition extends ASTNode {
         // If variable definition statement with the same identifier exists, then throw an error. Else create the new
         // variable definition statement.
         if (identifierAlreadyExists) {
-            const errorString = `A variable definition with identifier '${identifier}' already exists.`;
+            const errorString = "A variable definition with identifier '" + identifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new constant definition.
             const newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            let stmtString = `${bType} ${identifier}`;
+            let stmtString = bType + ' ' + identifier;
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
-                stmtString += ` = ${assignedValue}`;
+                stmtString += ' = ' + assignedValue;
             }
             newVariableDefinitionStatement.setStatementFromString(stmtString);
 
@@ -263,7 +263,9 @@ class ServiceDefinition extends ASTNode {
      */
     getConnectorsInImmediateScope() {
         const factory = this.getFactory();
-        const connectorReferences = _.filter(this.getChildren(), child => factory.isConnectorDeclaration(child));
+        const connectorReferences = _.filter(this.getChildren(), (child) => {
+            return factory.isConnectorDeclaration(child);
+        });
 
         return connectorReferences;
     }

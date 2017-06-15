@@ -37,7 +37,7 @@ class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisit
     }
 
     endVisitVariableDefinitionStatement(variableDefinitionStatement) {
-        this.appendSource(`;${variableDefinitionStatement.getWSRegion(4)}`);
+        this.appendSource(';' + variableDefinitionStatement.getWSRegion(4));
         this.appendSource((variableDefinitionStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

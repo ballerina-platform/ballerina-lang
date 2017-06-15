@@ -78,8 +78,8 @@ class TypeConversionExpression extends Expression {
 
     getExpressionString() {
         let expString = '';
-        expString += `<${this.getWSRegion(1)}${this.getTargetType().toString()}>${
-                 this.getWSRegion(2)}${this.children[0].getExpressionString()}`;
+        expString += '<' + this.getWSRegion(1) + this.getTargetType().toString() + '>'
+                + this.getWSRegion(2) + this.children[0].getExpressionString();
         return expString;
     }
 }

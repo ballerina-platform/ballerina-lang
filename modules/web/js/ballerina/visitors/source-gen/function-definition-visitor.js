@@ -46,12 +46,12 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         const useDefaultWS = functionDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         const functionReturnTypes = functionDefinition.getReturnTypesAsString();
         let functionReturnTypesSource;
         if (!_.isEmpty(functionReturnTypes)) {
-            functionReturnTypesSource = `(${functionDefinition.getWSRegion(5)}${functionDefinition.getReturnTypesAsString()})`;
+            functionReturnTypesSource = '(' + functionDefinition.getWSRegion(5) + functionDefinition.getReturnTypesAsString() + ')';
         }
 
         let constructedSourceSegment = '';
@@ -61,10 +61,10 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
                   + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             }
         });
-        constructedSourceSegment += ((functionDefinition.isNative() ? `native${functionDefinition.getWSRegion(0)}` : ''));
-        constructedSourceSegment += `function${functionDefinition.getWSRegion(1)
-             }${functionDefinition.getFunctionName()}${functionDefinition.getWSRegion(2)}(${functionDefinition.getWSRegion(3)
-             }${functionDefinition.getArgumentsAsString()})`;
+        constructedSourceSegment += ((functionDefinition.isNative() ? 'native' + functionDefinition.getWSRegion(0) : ''));
+        constructedSourceSegment += 'function' + functionDefinition.getWSRegion(1)
+            + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2) + '(' + functionDefinition.getWSRegion(3)
+            + functionDefinition.getArgumentsAsString() + ')';
         constructedSourceSegment += (!_.isNil(functionReturnTypesSource)
             ? (functionDefinition.getWSRegion(4) + functionReturnTypesSource) : '');
         constructedSourceSegment += functionDefinition.getWSRegion(6) +

@@ -49,7 +49,7 @@ class VariableDefinitionStatement extends Statement {
      */
     getStatementString() {
         let variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
-            (`${((this.getChildren()[0]).getChildren()[0]).getPkgName()}:`) : '';
+            (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
         variableDefinitionStatementString += this.getBType();
         if (((this.getChildren()[0]).getChildren()[0])._isArray) {
             for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0])._dimensions; itr++) {
@@ -59,7 +59,7 @@ class VariableDefinitionStatement extends Statement {
         variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
         if (!_.isNil(this.children[1])) {
             variableDefinitionStatementString +=
-              `${this.getWSRegion(1)}=${this.getWSRegion(2)}${this.children[1].getExpressionString()}`;
+              this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.children[1].getExpressionString();
         } else {
             variableDefinitionStatementString += this.getWSRegion(3);
         }
@@ -121,7 +121,7 @@ class VariableDefinitionStatement extends Statement {
      * @param {string} variableDefinitionStatementString - variable definition statement string
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(`${stmtString};`);
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
@@ -142,7 +142,7 @@ class VariableDefinitionStatement extends Statement {
                     nodeToFireEvent = newNode;
                 }
             } else {
-                log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             }
 
             if (_.isFunction(callback)) {
@@ -158,7 +158,7 @@ class VariableDefinitionStatement extends Statement {
                 context: nodeToFireEvent,
             });
         } else {
-            log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             if (_.isFunction(callback)) {
                 callback({ isValid: false, response: parsedJson });
             }

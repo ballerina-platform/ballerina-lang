@@ -30,7 +30,7 @@ class TypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     }
 
     beginVisitTypeConversionExpression(expression) {
-        this.appendSource(`<${expression.getName()}>`);
+        this.appendSource('<' + expression.getName() + '>');
     }
 
     visitTypeConversionExpression(expression) {

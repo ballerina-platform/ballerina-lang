@@ -140,8 +140,8 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement = function 
  * @returns {AssignmentStatement}
  */
 DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function (args) {
-    const assignmentStatementString = `m = ${args.actionPackageName}:${
-        args.actionConnectorName}.${args.action}()`;
+    const assignmentStatementString = 'm = ' + args.actionPackageName + ':' +
+        args.actionConnectorName + '.' + args.action + '()';
     const assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
     assignmentStatement.setStatementFromString(assignmentStatementString);
     return assignmentStatement;
@@ -234,9 +234,9 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
     if (!_.isNil(args) && _.has(args, 'functionDef')) {
         let functionInvokeString = '';
         if (!_.isNil(args.packageName)) {
-            functionInvokeString += `${args.packageName}:`;
+            functionInvokeString += args.packageName + ':';
         }
-        functionInvokeString += `${args.functionDef.getName()}(`;
+        functionInvokeString += args.functionDef.getName() + '(';
         if (!_.isEmpty(args.functionDef.getParameters())) {
             args.functionDef.getParameters().forEach((param, index) => {
                 if (index !== 0) {

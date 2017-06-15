@@ -39,7 +39,7 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
         const useDefaultWS = constantDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
 
         // Adding annotations
@@ -59,7 +59,7 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitConstantDefinition(constantDefinition) {
-        this.appendSource(`;${constantDefinition.getWSRegion(5)}`);
+        this.appendSource(';' + constantDefinition.getWSRegion(5));
         this.appendSource((constantDefinition.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

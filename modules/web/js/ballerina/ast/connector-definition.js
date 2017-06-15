@@ -122,7 +122,7 @@ class ConnectorDefinition extends ASTNode {
         if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
             this.setAttribute('connector_name', name, options);
         } else {
-            const errorString = `Invalid connector name: ${name}`;
+            const errorString = 'Invalid connector name: ' + name;
             log.error(errorString);
             throw errorString;
         }
@@ -201,29 +201,35 @@ class ConnectorDefinition extends ASTNode {
 
         // Check if already variable definition statement exists with same identifier.
         const identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
-                variableDefinitionStatement => _.isEqual(variableDefinitionStatement.getIdentifier(), identifier)) !== -1;
+                (variableDefinitionStatement) => {
+                    return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
+                }) !== -1;
 
         // If variable definition statement with the same identifier exists, then throw an error. Else create the new
         // variable definition statement.
         if (identifierAlreadyExists) {
-            const errorString = `A variable definition with identifier '${identifier}' already exists.`;
+            const errorString = "A variable definition with identifier '" + identifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new constant definition.
             const newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            let stmtString = `${bType} ${identifier}`;
+            let stmtString = bType + ' ' + identifier;
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
-                stmtString += ` = ${assignedValue}`;
+                stmtString += ' = ' + assignedValue;
             }
             newVariableDefinitionStatement.setStatementFromString(stmtString);
             const self = this;
 
             // Get the index of the last variable definition statement.
-            let index = _.findLastIndex(this.getChildren(), child => self.getFactory().isVariableDefinitionStatement(child));
+            let index = _.findLastIndex(this.getChildren(), (child) => {
+                return self.getFactory().isVariableDefinitionStatement(child);
+            });
 
             if (index === -1) {
-                index = _.findLastIndex(this.getChildren(), child => self.getFactory().isConnectorDeclaration(child));
+                index = _.findLastIndex(this.getChildren(), (child) => {
+                    return self.getFactory().isConnectorDeclaration(child);
+                });
             }
 
             this.addChild(newVariableDefinitionStatement, index + 1);
@@ -237,7 +243,9 @@ class ConnectorDefinition extends ASTNode {
     removeVariableDefinitionStatement(modelID) {
         const self = this;
         // Deleting the variable definition statement from the children.
-        const variableDefinitionStatementToRemove = _.find(this.getChildren(), child => self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID));
+        const variableDefinitionStatementToRemove = _.find(this.getChildren(), (child) => {
+            return self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID);
+        });
 
         this.removeChild(variableDefinitionStatementToRemove);
     }
@@ -334,7 +342,9 @@ class ConnectorDefinition extends ASTNode {
      */
     getConnectorByName(connectorName) {
         const factory = this.getFactory();
-        const connectorReference = _.find(this.getChildren(), child => (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName)));
+        const connectorReference = _.find(this.getChildren(), (child) => {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
 
         return connectorReference;
     }
@@ -345,7 +355,9 @@ class ConnectorDefinition extends ASTNode {
      */
     getConnectorsInImmediateScope() {
         const factory = this.getFactory();
-        const connectorReferences = _.filter(this.getChildren(), child => factory.isConnectorDeclaration(child));
+        const connectorReferences = _.filter(this.getChildren(), (child) => {
+            return factory.isConnectorDeclaration(child);
+        });
 
         return connectorReferences;
     }

@@ -77,7 +77,9 @@ class BallerinaASTRoot extends ASTNode {
                     addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isFunctionInvocationStatement(child)) {
-                const functionInvocationExpression = _.find(child.children, child => factory.isFunctionInvocationExpression(child));
+                const functionInvocationExpression = _.find(child.children, (child) => {
+                    return factory.isFunctionInvocationExpression(child);
+                });
                 if (functionInvocationExpression &&
                     functionInvocationExpression._fullPackageName) {
                     addImport(functionInvocationExpression.getFullPackageName(), options);
@@ -147,7 +149,9 @@ class BallerinaASTRoot extends ASTNode {
      */
     deleteImport(packageName, options) {
         const ballerinaASTFactory = this.getFactory();
-        const importDeclaration = _.find(this.getChildren(), child => ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName);
+        const importDeclaration = _.find(this.getChildren(), (child) => {
+            return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
+        });
 
         const modifiedEvent = {
             origin: this,
@@ -159,7 +163,9 @@ class BallerinaASTRoot extends ASTNode {
             },
         };
 
-        _.remove(this.getChildren(), child => ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName);
+        _.remove(this.getChildren(), (child) => {
+            return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
+        });
 
         /**
          * @event ASTNode#tree-modified
@@ -175,13 +181,15 @@ class BallerinaASTRoot extends ASTNode {
      */
     addImport(importDeclaration, options) {
         if (this.isExistingPackage(importDeclaration.getPackageName())) {
-            const errorString = `Package "${importDeclaration.getPackageName()}" is already imported.`;
+            const errorString = 'Package "' + importDeclaration.getPackageName() + '" is already imported.';
             log.error(errorString);
             throw errorString;
         }
 
         const ballerinaASTFactory = this.getFactory();
-        let index = _.findLastIndex(this.getChildren(), child => ballerinaASTFactory.isImportDeclaration(child));
+        let index = _.findLastIndex(this.getChildren(), (child) => {
+            return ballerinaASTFactory.isImportDeclaration(child);
+        });
 
         // If there are no imports index is -1. Then we need to add the first import after the package
         // definition which is the first child of the ast root
@@ -219,12 +227,14 @@ class BallerinaASTRoot extends ASTNode {
      */
     addConstantDefinition(bType, identifier, value) {
         // Check if already constant declaration exists with same identifier.
-        const identifierAlreadyExists = _.findIndex(this.getConstantDefinitions(), constantDefinition => constantDefinition.getIdentifier() === identifier) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getConstantDefinitions(), (constantDefinition) => {
+            return constantDefinition.getIdentifier() === identifier;
+        }) !== -1;
 
         // If constant declaration with the same identifier exists, then throw an error. Else create the new constant
         // declaration.
         if (identifierAlreadyExists) {
-            const errorString = `A constant with identifier '${identifier}' already exists.`;
+            const errorString = "A constant with identifier '" + identifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
@@ -237,11 +247,15 @@ class BallerinaASTRoot extends ASTNode {
             const self = this;
 
             // Get the index of the last constant declaration.
-            let index = _.findLastIndex(this.getChildren(), child => self.getFactory().isConstantDefinition(child));
+            let index = _.findLastIndex(this.getChildren(), (child) => {
+                return self.getFactory().isConstantDefinition(child);
+            });
 
             // If index is still -1, then get the index of the last import.
             if (index == -1) {
-                index = _.findLastIndex(this.getChildren(), child => self.getFactory().isImportDeclaration(child));
+                index = _.findLastIndex(this.getChildren(), (child) => {
+                    return self.getFactory().isImportDeclaration(child);
+                });
             }
 
             // If index is still -1, then consider the package definition.
@@ -260,7 +274,9 @@ class BallerinaASTRoot extends ASTNode {
     removeConstantDefinition(modelID) {
         const self = this;
         // Deleting the variable from the children.
-        const resourceParameter = _.find(this.getChildren(), child => self.getFactory().isConstantDefinition(child) && child.id === modelID);
+        const resourceParameter = _.find(this.getChildren(), (child) => {
+            return self.getFactory().isConstantDefinition(child) && child.id === modelID;
+        });
 
         this.removeChild(resourceParameter);
     }
@@ -372,7 +388,9 @@ class BallerinaASTRoot extends ASTNode {
     canBeParentOf(node) {
         const BallerinaASTFactory = this.getFactory();
 
-        const existingMainFunction = _.find(this.getFunctionDefinitions(), functionDef => functionDef.isMainFunction());
+        const existingMainFunction = _.find(this.getFunctionDefinitions(), (functionDef) => {
+            return functionDef.isMainFunction();
+        });
 
         if (!_.isNil(existingMainFunction) && BallerinaASTFactory.isFunctionDefinition(node) && node.isMainFunction()) {
             return false;
@@ -393,7 +411,9 @@ class BallerinaASTRoot extends ASTNode {
      * @return {Boolean} if exist returns true if doesn't return false
      * */
     isExistingPackage(packageName) {
-        return !!_.find(this.getImportDeclarations(), child => _.isEqual(child.getPackageName(), packageName));
+        return !!_.find(this.getImportDeclarations(), (child) => {
+            return _.isEqual(child.getPackageName(), packageName);
+        });
     }
 }
 

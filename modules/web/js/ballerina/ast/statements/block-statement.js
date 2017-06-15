@@ -30,7 +30,7 @@ class BlockStatement extends ASTNode {
     addVariableDeclaration(name, type) {
         const self = this;
         const ballerinaASTFactory = this.getFactory();
-        const leftExpression = `${type} ${name}`;
+        const leftExpression = type + ' ' + name;
         const args = {
             leftExpression,
             rightExpression: '',
@@ -46,7 +46,9 @@ class BlockStatement extends ASTNode {
         variableReferenceExpression.addChild(variableDefinition);
         leftStatement.addChild(variableReferenceExpression);
         variableDefStmt.addChild(leftStatement);
-        const index = _.findLastIndex(this.getChildren(), child => ballerinaASTFactory.isVariableDefinitionStatement(child));
+        const index = _.findLastIndex(this.getChildren(), (child) => {
+            return ballerinaASTFactory.isVariableDefinitionStatement(child);
+        });
         this.addChild(variableDefStmt, index + 1);
     }
 

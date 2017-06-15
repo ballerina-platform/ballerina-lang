@@ -61,7 +61,7 @@ class JoinStatement extends Statement {
     }
 
     getJoinConditionString() {
-        return `${this._joinType === 'any' ? `some ${this._joinCount}` : this._joinType} ${this._joinWorkers.join(',')}`;
+        return (this._joinType === 'any' ? 'some ' + this._joinCount : this._joinType) + ' ' + this._joinWorkers.join(',');
     }
 
     getJoinType() {

@@ -30,7 +30,7 @@ import CommonUtils from '../utils/common-utils';
 class ConnectorDeclaration extends ASTNode {
     constructor(options) {
         super('ConnectorDeclaration');
-        this.children = _.get(options, 'childrenFactory', () => []).call();
+        this.children = _.get(options, 'childrenFactory', () => { return []; }).call();
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: ' ',
@@ -105,12 +105,14 @@ class ConnectorDeclaration extends ASTNode {
     }
 
     getStringFromArgs(args) {
-        return _.join(args.map(arg => arg.getExpressionString()), ', ');
+        return _.join(args.map((arg) => { return arg.getExpressionString(); }), ', ');
     }
 
     getArgsFromString(argList) {
         const stringArgs = _.split(argList, ',');
-        return stringArgs.map(arg => this.getFactory().createVariableReferenceExpression({ variableName: arg.trim() }));
+        return stringArgs.map((arg) => {
+            return this.getFactory().createVariableReferenceExpression({ variableName: arg.trim() });
+        });
     }
 
     setArguments(args) {
@@ -190,25 +192,25 @@ class ConnectorDeclaration extends ASTNode {
     generateExpression() {
         let expression = '';
         if (!this.shouldSkipPackageName(this.getConnectorPkgName())) {
-            expression += `${this.getConnectorPkgName()}:`;
+            expression += this.getConnectorPkgName() + ':';
         }
 
         if (!_.isNil(this.getConnectorType())) {
-            expression += `${this.getConnectorType()} `;
+            expression += this.getConnectorType() + ' ';
         }
 
         if (!_.isNil(this.getConnectorVariable())) {
-            expression += `${this.getConnectorVariable() + this.getWSRegion(1)}=${this.getWSRegion(2)}`;
+            expression += this.getConnectorVariable() + this.getWSRegion(1) + '=' + this.getWSRegion(2);
         }
 
         expression += 'create ';
 
         if (!this.shouldSkipPackageName(this.getConnectorPkgName())) {
-            expression += `${this.getConnectorPkgName()}:`;
+            expression += this.getConnectorPkgName() + ':';
         }
 
         if (!_.isNil(this.getConnectorType())) {
-            expression += `${this.getConnectorType()} `;
+            expression += this.getConnectorType() + ' ';
         }
 
         expression += '(';

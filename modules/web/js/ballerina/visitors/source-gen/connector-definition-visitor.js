@@ -49,7 +49,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
         const useDefaultWS = connectorDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
         _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation), (annotationNode) => {
@@ -70,10 +70,10 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += `connector${
-           connectorDefinition.getWSRegion(0)}${connectorDefinition.getConnectorName()
-           }${connectorDefinition.getWSRegion(1)}(${argumentsSrc})${
-           connectorDefinition.getWSRegion(2)}{${connectorDefinition.getWSRegion(3)}`;
+        constructedSourceSegment += 'connector'
+          + connectorDefinition.getWSRegion(0) + connectorDefinition.getConnectorName()
+          + connectorDefinition.getWSRegion(1) + '(' + argumentsSrc + ')'
+          + connectorDefinition.getWSRegion(2) + '{' + connectorDefinition.getWSRegion(3);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -90,7 +90,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorDefinition(connectorDefinition) {
         this.outdent();
-        this.appendSource(`}${connectorDefinition.getWSRegion(4)}`);
+        this.appendSource('}' + connectorDefinition.getWSRegion(4));
         this.appendSource((connectorDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

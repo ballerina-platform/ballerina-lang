@@ -96,8 +96,8 @@ class AnnotationEntry extends ASTNode {
         }
 
         if (!_.isUndefined(this._leftValue) && !_.isEmpty(this._leftValue)) {
-            return `${this.getWSRegion(0) + this._leftValue + this.getWSRegion(1)
-                      }:${annotationEntryAsString}`;
+            return this.getWSRegion(0) + this._leftValue + this.getWSRegion(1)
+                    + ':' + annotationEntryAsString;
         }
         return annotationEntryAsString;
     }

@@ -52,7 +52,7 @@ class ReturnStatement extends Statement {
     }
 
     getReturnExpression() {
-        return `return${this.getWSRegion(1)}${this.getExpression()}`;
+        return 'return' + this.getWSRegion(1) + this.getExpression();
     }
 
     getExpression() {

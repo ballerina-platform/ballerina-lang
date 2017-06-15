@@ -34,8 +34,8 @@ class StructType extends ASTNode {
         if (!_.isNil(typeName)) {
             this.setAttribute('_typeName', typeName, options);
         } else {
-            log.error(`Invalid Type Name [${typeName}] Provided`);
-            throw `Invalid Type Name [${typeName}] Provided`;
+            log.error('Invalid Type Name [' + typeName + '] Provided');
+            throw 'Invalid Type Name [' + typeName + '] Provided';
         }
     }
 
