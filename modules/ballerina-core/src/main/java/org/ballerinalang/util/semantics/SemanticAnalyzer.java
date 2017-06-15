@@ -1755,21 +1755,23 @@ public class SemanticAnalyzer implements NodeVisitor {
         String pkgPath = actionIExpr.getPackagePath();
         String name = actionIExpr.getConnectorName();
 
-        // First look for the connectors
+        // First check action invocation happens on a variable def
         SymbolName symbolName = new SymbolName(name, pkgPath);
         BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
 
         if (bLangSymbol instanceof VariableDef) {
+            if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
+                throw BLangExceptionHelper.getSemanticException(actionIExpr.getNodeLocation(),
+                        SemanticErrors.INCOMPATIBLE_TYPES, BTypes.typeConnector, ((VariableDef) bLangSymbol).getType());
+            }
             Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
-            VariableRefExpr variableRefExpr = new VariableRefExpr(actionIExpr.getNodeLocation(),
-                    actionIExpr.getWhiteSpaceDescriptor(), symbolName);
+            VariableRefExpr variableRefExpr = new VariableRefExpr(actionIExpr.getNodeLocation(), null, symbolName);
             exprs[0] = variableRefExpr;
-            visitSingleValueExpr(variableRefExpr);
             for (int i = 0; i < actionIExpr.getArgExprs().length; i++) {
                 exprs[i + 1] = actionIExpr.getArgExprs()[i];
             }
             actionIExpr.setArgExprs(exprs);
-            actionIExpr.setConnectorName(variableRefExpr.getVariableDef().getTypeName().getName());
+            actionIExpr.setConnectorName(((VariableDef) bLangSymbol).getTypeName().getName());
         } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
             throw BLangExceptionHelper.getSemanticException(actionIExpr.getNodeLocation(),
                     SemanticErrors.INVALID_ACTION_INVOCATION);

@@ -204,11 +204,18 @@ public class ConnectorActionTest {
 //        BLangFunctions.invokeNew(programFile, "testDotActionInvocationWrong", functionArgs);
 //    }
 
-//    @Test(description = "Test incorrect action invocation",
-//            expectedExceptions = {SemanticException.class },
-//            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: incompatible types: " +
-//                    "expected a connector name, found 'cal'")
-//    public void testIncorrectActionInvocation() {
-//        BTestUtils.parseBalFile("lang/connectors/incorrect-action-invocation.bal");
-//    }
+    @Test(description = "Test incorrect action invocation",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:3: incompatible types: expected " +
+                    "'connector', found 'string'")
+    public void testIncorrectActionInvocation() {
+        BTestUtils.getProgramFile("lang/connectors/incorrect-action-invocation.bal");
+    }
+
+    @Test(description = "Test invalid action invocation",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "invalid-action-invocation.bal:2: invalid action invocation expression")
+    public void testInvalidActionInvocation() {
+        BTestUtils.getProgramFile("lang/connectors/invalid-action-invocation.bal");
+    }
 }
