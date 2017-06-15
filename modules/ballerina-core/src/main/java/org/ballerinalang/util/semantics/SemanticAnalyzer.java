@@ -65,7 +65,6 @@ import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryArithmeticExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
@@ -94,14 +93,12 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -134,12 +131,9 @@ import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.LangModelUtils;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.typemappers.NativeCastMapper;
-import org.ballerinalang.natives.typemappers.TypeMappingUtils;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -157,8 +151,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program.
@@ -166,23 +158,21 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
+    private static final String ERRORS_PACKAGE = "ballerina.lang.errors";
+    private static final String BALLERINA_CAST_ERROR = "TypeCastError";
+    private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
+    private static final String BALLERINA_ERROR = "Error";
+
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
     private int structMemAddrOffset = -1;
     private int workerMemAddrOffset = -1;
     private String currentPkg;
-    private TypeLattice packageTypeLattice;
     private CallableUnit currentCallableUnit = null;
     private Stack<CallableUnit> parentCallableUnit = new Stack<>();
+
     private Stack<SymbolScope> parentScope = new Stack<>();
-    // following pattern matches ${anyString} or ${anyString[int]} or ${anyString["anyString"]}
-    private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
-    private static final Pattern compiledPattern = Pattern.compile(patternString);
-    private static final String ERRORS_PACKAGE = "ballerina.lang.errors";
-    private static final String BALLERINA_CAST_ERROR = "TypeCastError";
-    private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
-    private static final String BALLERINA_ERROR = "Error";
 
     private int whileStmtCount = 0;
     private int transactionStmtCount = 0;
@@ -236,13 +226,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         currentScope = bLangPackage;
         currentPkg = bLangPackage.getPackagePath();
-        if (packageTypeLattice != null) {
-            TypeLattice currentLattice = bLangPackage.getTypeLattice();
-            currentLattice.merge(packageTypeLattice, currentPkg);
-            packageTypeLattice = currentLattice;
-        } else {
-            packageTypeLattice = bLangPackage.getTypeLattice();
-        }
 
         // Create package.<init> function
         NodeLocation pkgLocation = bLangPackage.getNodeLocation();
@@ -450,8 +433,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         closeScope();
     }
 
-    private void buildWorkerInteractions (CallableUnit callableUnit, Worker[] workers, boolean isWorkerInWorker,
-                                          boolean isForkJoinStmt) {
+    private void buildWorkerInteractions(CallableUnit callableUnit, Worker[] workers, boolean isWorkerInWorker,
+                                         boolean isForkJoinStmt) {
         // This map holds the worker data channels against the respective source and target workers
         Map<String, WorkerDataChannel> workerDataChannels = new HashMap<>();
         boolean statementCompleted = false;
@@ -899,12 +882,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         AttachmentPoint attachedPoint = annotation.getAttachedPoint();
         SymbolName annotationSymName = new SymbolName(annotation.getName(), annotation.getPkgPath());
         BLangSymbol annotationSymbol = currentScope.resolve(annotationSymName);
-        
+
         if (!(annotationSymbol instanceof AnnotationDef)) {
-            BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.UNDEFINED_ANNOTATION, 
+            BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.UNDEFINED_ANNOTATION,
                     annotationSymName);
         }
-        
+
         // Validate the attached point
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
         if (annotationDef.getAttachmentPoints() != null && annotationDef.getAttachmentPoints().length > 0) {
@@ -916,18 +899,18 @@ public class SemanticAnalyzer implements NodeVisitor {
                         annotationSymName, attachedPoint);
             }
         }
-        
+
         // Validate the attributes and their types
         validateAttributes(annotation, annotationDef);
-        
+
         // Populate default values for annotation attributes
         populateDefaultValues(annotation, annotationDef);
     }
 
     /**
      * Visit and validate attributes of an annotation attachment.
-     * 
-     * @param annotation Annotation attachment to validate attributes
+     *
+     * @param annotation    Annotation attachment to validate attributes
      * @param annotationDef Definition of the annotation
      */
     private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
@@ -935,33 +918,33 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check attribute existence
             BLangSymbol attributeSymbol = annotationDef.resolveMembers(new SymbolName(attributeName));
             if (attributeSymbol == null || !(attributeSymbol instanceof AnnotationAttributeDef)) {
-                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.NO_SUCH_ATTRIBUTE, 
-                    attributeName, annotation.getName());
+                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.NO_SUCH_ATTRIBUTE,
+                        attributeName, annotation.getName());
             }
-            
+
             // Check types
             AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef) attributeSymbol);
             SimpleTypeName attributeType = attributeDef.getTypeName();
             SimpleTypeName valueType = attributeValue.getType();
             BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
-            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(), 
+            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(),
                     attributeType.getPackagePath()));
-            
+
             if (attributeType.isArrayType()) {
                 if (!valueType.isArrayType()) {
-                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
-                        attributeTypeSymbol.getSymbolName() + TypeConstants.ARRAY_TNAME, 
-                        valueTypeSymbol.getSymbolName());
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES,
+                            attributeTypeSymbol.getSymbolName() + TypeConstants.ARRAY_TNAME,
+                            valueTypeSymbol.getSymbolName());
                 }
-                
+
                 AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
                 for (AnnotationAttributeValue value : valuesArray) {
                     valueTypeSymbol = currentScope.resolve(value.getType().getSymbolName());
                     if (attributeTypeSymbol != valueTypeSymbol) {
-                        BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
-                            attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
+                        BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES,
+                                attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
                     }
-                    
+
                     // If the value of the attribute is another annotation, then recursively
                     // traverse to its attributes and validate
                     AnnotationAttachment childAnnotation = value.getAnnotationValue();
@@ -971,15 +954,15 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             } else {
                 if (valueType.isArrayType()) {
-                    BLangExceptionHelper.throwSemanticError(attributeValue, 
-                        SemanticErrors.INCOMPATIBLE_TYPES_ARRAY_FOUND, attributeTypeSymbol.getName());
+                    BLangExceptionHelper.throwSemanticError(attributeValue,
+                            SemanticErrors.INCOMPATIBLE_TYPES_ARRAY_FOUND, attributeTypeSymbol.getName());
                 }
 
                 if (attributeTypeSymbol != valueTypeSymbol) {
                     BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES,
                             attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
                 }
-                
+
                 // If the value of the attribute is another annotation, then recursively
                 // traverse to its attributes and validate
                 AnnotationAttachment childAnnotation = attributeValue.getAnnotationValue();
@@ -989,18 +972,18 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         });
     }
-    
+
     /**
      * Populate default values to the annotation attributes.
-     * 
-     * @param annotation Annotation attachment to populate default values
+     *
+     * @param annotation    Annotation attachment to populate default values
      * @param annotationDef Definition of the annotation corresponds to the provided annotation attachment
      */
     private void populateDefaultValues(AnnotationAttachment annotation, AnnotationDef annotationDef) {
         Map<String, AnnotationAttributeValue> attributeValPairs = annotation.getAttributeNameValuePairs();
         for (AnnotationAttributeDef attributeDef : annotationDef.getAttributeDefs()) {
             String attributeName = attributeDef.getName();
-            
+
             // if the current attribute is not defined in the annotation attachment, populate it with default value
             if (!attributeValPairs.containsKey(attributeName)) {
                 BasicLiteral defaultValue = attributeDef.getAttributeValue();
@@ -1070,7 +1053,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (fieldBType != valueType) {
                 BLangExceptionHelper.throwSemanticError(annotationAttributeDef,
-                    SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, fieldType, fieldVal.getTypeName());
+                        SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, fieldType, fieldVal.getTypeName());
             }
         } else {
             BLangSymbol typeSymbol;
@@ -1081,10 +1064,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             // Check whether the field type is a built in value type or an annotation.
-            if (((typeSymbol instanceof BType) && !BTypes.isValueType((BType) typeSymbol)) || 
+            if (((typeSymbol instanceof BType) && !BTypes.isValueType((BType) typeSymbol)) ||
                     (!(typeSymbol instanceof BType) && !(typeSymbol instanceof AnnotationDef))) {
                 BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_ATTRIBUTE_TYPE,
-                    fieldType);
+                        fieldType);
             }
 
             if (!(typeSymbol instanceof BType)) {
@@ -1202,7 +1185,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             varDefStmt.setRExpr(result.implicitCastExpr);
         } else if (!result.assignable) {
             BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
-                            rhsType, lhsType);
+                    rhsType, lhsType);
         }
     }
 
@@ -1831,6 +1814,32 @@ public class SemanticAnalyzer implements NodeVisitor {
     // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
+
+        String pkgPath = actionIExpr.getPackagePath();
+        String name = actionIExpr.getConnectorName();
+
+        // First check action invocation happens on a variable def
+        SymbolName symbolName = new SymbolName(name, pkgPath);
+        BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
+
+        if (bLangSymbol instanceof VariableDef) {
+            if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
+                throw BLangExceptionHelper.getSemanticException(actionIExpr.getNodeLocation(),
+                        SemanticErrors.INCORRECT_ACTION_INVOCATION);
+            }
+            Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
+            VariableRefExpr variableRefExpr = new VariableRefExpr(actionIExpr.getNodeLocation(), null, symbolName);
+            exprs[0] = variableRefExpr;
+            for (int i = 0; i < actionIExpr.getArgExprs().length; i++) {
+                exprs[i + 1] = actionIExpr.getArgExprs()[i];
+            }
+            actionIExpr.setArgExprs(exprs);
+            actionIExpr.setConnectorName(((VariableDef) bLangSymbol).getTypeName().getName());
+        } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
+            throw BLangExceptionHelper.getSemanticException(actionIExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_ACTION_INVOCATION);
+        }
+
         Expression[] exprs = actionIExpr.getArgExprs();
         for (Expression expr : exprs) {
             visitSingleValueExpr(expr);
@@ -1851,32 +1860,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(DivideExpr divideExpr) {
-        BType arithmeticExprType = verifyBinaryArithmeticExprType(divideExpr);
-
-        if (arithmeticExprType == BTypes.typeInt) {
-            divideExpr.setEvalFunc(DivideExpr.DIV_INT_FUNC);
-
-        } else if (arithmeticExprType == BTypes.typeFloat) {
-            divideExpr.setEvalFunc(DivideExpr.DIV_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(divideExpr);
-        }
+        BType binaryExprType = verifyBinaryArithmeticExprType(divideExpr);
+        validateBinaryExprTypeForIntFloat(divideExpr, binaryExprType);
     }
 
     @Override
-    public void visit(ModExpression modExpression) {
-        BType arithmeticExprType = verifyBinaryArithmeticExprType(modExpression);
-
-        if (arithmeticExprType == BTypes.typeInt) {
-            modExpression.setEvalFunc(ModExpression.MOD_INT_FUNC);
-
-        } else if (arithmeticExprType == BTypes.typeFloat) {
-            modExpression.setEvalFunc(ModExpression.MOD_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(modExpression);
-        }
+    public void visit(ModExpression modExpr) {
+        BType binaryExprType = verifyBinaryArithmeticExprType(modExpr);
+        validateBinaryExprTypeForIntFloat(modExpr, binaryExprType);
     }
 
     @Override
@@ -1884,27 +1875,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(unaryExpr.getRExpr());
         unaryExpr.setType(unaryExpr.getRExpr().getType());
 
-        if (Operator.SUB.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.typeInt) {
-                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.typeFloat) {
-                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
-            } else {
-                throwInvalidUnaryOpError(unaryExpr);
-            }
-        } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.typeInt) {
-                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
-            } else if (unaryExpr.getType() == BTypes.typeFloat) {
-                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
-            } else {
+        if (Operator.SUB.equals(unaryExpr.getOperator()) || Operator.ADD.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() != BTypes.typeInt && unaryExpr.getType() != BTypes.typeFloat) {
                 throwInvalidUnaryOpError(unaryExpr);
             }
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
-            if (unaryExpr.getType() == BTypes.typeBoolean) {
-                unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
-            } else {
+            if (unaryExpr.getType() != BTypes.typeBoolean) {
                 throwInvalidUnaryOpError(unaryExpr);
             }
 
@@ -1916,21 +1893,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AddExpression addExpr) {
-        BType arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
-
-        if (arithmeticExprType == BTypes.typeInt) {
-            addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
-
-        } else if (arithmeticExprType == BTypes.typeFloat) {
-            addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
-
-        } else if (arithmeticExprType == BTypes.typeString) {
-            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
-
-        }  else if (arithmeticExprType == BTypes.typeXML) {
-            addExpr.setEvalFunc(AddExpression.ADD_XML_FUNC);
-
-        } else {
+        BType binaryExprType = verifyBinaryArithmeticExprType(addExpr);
+        if (binaryExprType != BTypes.typeInt &&
+                binaryExprType != BTypes.typeFloat &&
+                binaryExprType != BTypes.typeString &&
+                binaryExprType != BTypes.typeXML) {
             throwInvalidBinaryOpError(addExpr);
         }
     }
@@ -1938,151 +1905,57 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(MultExpression multExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(multExpr);
-
-        if (binaryExprType == BTypes.typeInt) {
-            multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
-
-        } else if (binaryExprType == BTypes.typeFloat) {
-            multExpr.setEvalFunc(MultExpression.MULT_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(multExpr);
-        }
+        validateBinaryExprTypeForIntFloat(multExpr, binaryExprType);
     }
 
     @Override
     public void visit(SubtractExpression subtractExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
-
-        if (binaryExprType == BTypes.typeInt) {
-            subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
-
-        } else if (binaryExprType == BTypes.typeFloat) {
-            subtractExpr.setEvalFunc(SubtractExpression.SUB_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(subtractExpr);
-        }
+        validateBinaryExprTypeForIntFloat(subtractExpr, binaryExprType);
     }
 
     @Override
     public void visit(AndExpression andExpr) {
         visitBinaryLogicalExpr(andExpr);
-        andExpr.setEvalFunc(AndExpression.AND_FUNC);
     }
 
     @Override
     public void visit(OrExpression orExpr) {
         visitBinaryLogicalExpr(orExpr);
-        orExpr.setEvalFunc(OrExpression.OR_FUNC);
     }
 
     @Override
     public void visit(EqualExpression equalExpr) {
-        BType compareExprType = verifyBinaryEqualityExprType(equalExpr);
-
-        if (compareExprType == BTypes.typeInt) {
-            equalExpr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
-
-        } else if (compareExprType == BTypes.typeFloat) {
-            equalExpr.setEvalFunc(EqualExpression.EQUAL_FLOAT_FUNC);
-
-        } else if (compareExprType == BTypes.typeBoolean) {
-            equalExpr.setEvalFunc(EqualExpression.EQUAL_BOOLEAN_FUNC);
-
-        } else if (compareExprType == BTypes.typeString) {
-            equalExpr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
-
-        } else if (compareExprType == BTypes.typeNull) {
-            equalExpr.setRefTypeEvalFunc(EqualExpression.EQUAL_NULL_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(equalExpr);
-        }
+        verifyBinaryEqualityExprType(equalExpr);
     }
 
     @Override
     public void visit(NotEqualExpression notEqualExpr) {
-        BType compareExprType = verifyBinaryEqualityExprType(notEqualExpr);
-
-        if (compareExprType == BTypes.typeInt) {
-            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
-
-        } else if (compareExprType == BTypes.typeFloat) {
-            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_FLOAT_FUNC);
-
-        } else if (compareExprType == BTypes.typeBoolean) {
-            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_BOOLEAN_FUNC);
-
-        } else if (compareExprType == BTypes.typeString) {
-            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
-
-        } else if (compareExprType == BTypes.typeNull) {
-            notEqualExpr.setRefTypeEvalFunc(NotEqualExpression.NOT_EQUAL_NULL_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(notEqualExpr);
-        }
+        verifyBinaryEqualityExprType(notEqualExpr);
     }
 
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
-
-        if (compareExprType == BTypes.typeInt) {
-            greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
-
-        } else if (compareExprType == BTypes.typeFloat) {
-            greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(greaterEqualExpr);
-        }
+        validateBinaryExprTypeForIntFloat(greaterEqualExpr, compareExprType);
     }
 
     @Override
     public void visit(GreaterThanExpression greaterThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
-
-        if (compareExprType == BTypes.typeInt) {
-            greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
-
-        } else if (compareExprType == BTypes.typeFloat) {
-            greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(greaterThanExpr);
-        }
+        validateBinaryExprTypeForIntFloat(greaterThanExpr, compareExprType);
     }
 
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
-
-        if (compareExprType == BTypes.typeInt) {
-            lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
-
-        } else if (compareExprType == BTypes.typeFloat) {
-            lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(lessEqualExpr);
-        }
+        validateBinaryExprTypeForIntFloat(lessEqualExpr, compareExprType);
     }
 
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
-
-        if (compareExprType == BTypes.typeInt) {
-            lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
-
-        } else if (compareExprType == BTypes.typeFloat) {
-            lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_FLOAT_FUNC);
-
-        } else {
-            throwInvalidBinaryOpError(lessThanExpr);
-        }
+        validateBinaryExprTypeForIntFloat(lessThanExpr, compareExprType);
     }
 
     @Override
@@ -2244,6 +2117,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression keyExpr = keyValueExpr.getKeyExpr();
             if (!(keyExpr instanceof VariableRefExpr)) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INVALID_FIELD_NAME_STRUCT_INIT);
+                return;
             }
 
             VariableRefExpr varRefExpr = (VariableRefExpr) keyExpr;
@@ -2257,15 +2131,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (!(varDefSymbol instanceof VariableDef)) {
-                BLangExceptionHelper.throwSemanticError(varRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
+                BLangExceptionHelper.throwSemanticError(varRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                         varDefSymbol.getSymbolName());
             }
 
             VariableDef varDef = (VariableDef) varDefSymbol;
             varRefExpr.setVariableDef(varDef);
-            Expression valueExpr = keyValueExpr.getValueExpr();
 
             BType structFieldType = varDef.getType();
+            Expression valueExpr = keyValueExpr.getValueExpr();
             if (valueExpr instanceof RefTypeInitExpr) {
                 valueExpr = getNestedInitExpr(valueExpr, structFieldType);
                 keyValueExpr.setValueExpr(valueExpr);
@@ -2273,99 +2147,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             valueExpr.accept(this);
 
-            if (structFieldType == BTypes.typeAny) {
-                AssignabilityResult result = performAssignabilityCheck(structFieldType, valueExpr);
-                if (result.implicitCastExpr != null) {
-                    valueExpr = result.implicitCastExpr;
-                    keyValueExpr.setValueExpr(valueExpr);
-                }
-            }
-
-            if (!TypeMappingUtils.isCompatible(structFieldType, valueExpr.getType())) {
+            // Check whether the right-hand type can be assigned to the left-hand type.
+            AssignabilityResult result = performAssignabilityCheck(structFieldType, valueExpr);
+            if (result.implicitCastExpr != null) {
+                valueExpr = result.implicitCastExpr;
+                keyValueExpr.setValueExpr(valueExpr);
+            } else if (!result.assignable) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
         }
-    }
-
-    @Override
-    public void visit(BacktickExpr backtickExpr) {
-        // In this case, type of the backtickExpr should be xml
-        BType inheritedType = backtickExpr.getInheritedType();
-        if (inheritedType != BTypes.typeXML) {
-            BLangExceptionHelper.throwSemanticError(backtickExpr, SemanticErrors.INCOMPATIBLE_TYPES_EXPECTED_XML);
-        }
-        backtickExpr.setType(inheritedType);
-
-        // Analyze the string and create relevant tokens
-        // First check the literals
-        String[] literals = backtickExpr.getTemplateStr().split(patternString);
-        List<Expression> argExprList = new ArrayList<>();
-
-        // Split will always have at least one matching literal
-        int i = 0;
-        if (literals.length > i) {
-            BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(),
-                    backtickExpr.getWhiteSpaceDescriptor(),
-                    new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(literals[i]));
-            visit(basicLiteral);
-            argExprList.add(basicLiteral);
-            i++;
-        }
-
-        // Then get the variable references
-        // ${var} --> group0: ${var}, group1: var, group2: var
-        // ${arr[10]} --> group0: ${arr[10]}, group1: arr[10], group2: arr, group3: [10], group4: 10
-        // ${myMap["key"]} --> group0: ${myMap["key"]}, group1: myMap["key"],
-        //                                          group2: myMap, group3: ["key"], group4: "key", group5: key
-        Matcher m = compiledPattern.matcher(backtickExpr.getTemplateStr());
-
-        while (m.find()) {
-            if (m.group(3) != null) {
-                BasicLiteral indexExpr;
-                if (m.group(5) != null) {
-                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), backtickExpr.getWhiteSpaceDescriptor(),
-                            new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(m.group(5)));
-                    indexExpr.setType(BTypes.typeString);
-                } else {
-                    indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(), backtickExpr.getWhiteSpaceDescriptor(),
-                            new SimpleTypeName(TypeConstants.INT_TNAME), new BInteger(Integer.parseInt(m.group(4))));
-                    indexExpr.setType(BTypes.typeInt);
-                }
-
-                SymbolName mapOrArrName = new SymbolName(m.group(2), currentPkg);
-
-                ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder =
-                        new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
-
-                VariableRefExpr arrayMapVarRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
-                        backtickExpr.getWhiteSpaceDescriptor(), mapOrArrName);
-                visit(arrayMapVarRefExpr);
-
-                builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
-                builder.setSymbolName(mapOrArrName);
-                Expression[] exprs = {indexExpr};
-                builder.setIndexExprs(exprs);
-                ArrayMapAccessExpr arrayMapAccessExpr = builder.buildWithSymbol();
-                visit(arrayMapAccessExpr);
-                argExprList.add(arrayMapAccessExpr);
-            } else {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(backtickExpr.getNodeLocation(),
-                        backtickExpr.getWhiteSpaceDescriptor(), new SymbolName(m.group(1), currentPkg));
-                visit(variableRefExpr);
-                argExprList.add(variableRefExpr);
-            }
-            if (literals.length > i) {
-                BasicLiteral basicLiteral = new BasicLiteral(backtickExpr.getNodeLocation(),
-                        backtickExpr.getWhiteSpaceDescriptor(),
-                        new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(literals[i]));
-                visit(basicLiteral);
-                argExprList.add(basicLiteral);
-                i++;
-            }
-        }
-
-        backtickExpr.setArgsExprs(argExprList.toArray(new Expression[argExprList.size()]));
     }
 
     @Override
@@ -2410,14 +2201,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         // casting a null literal is not supported.
         if (rExpr instanceof NullLiteral) {
             BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
-                sourceType, targetType);
+                    sourceType, targetType);
         }
 
         // Find the eval function from explicit casting lattice
         TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
             typeCastExpr.setOpcode(newEdge.getOpcode());
-            typeCastExpr.setEvalFunc(newEdge.getTypeMapperFunction());
 
             // TODO 0.89 release
 //            if (!newEdge.isSafe() && !isMultiReturn) {
@@ -2432,19 +2222,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (sourceType == targetType) {
             typeCastExpr.setOpcode(InstructionCodes.NOP);
-            // TODO Remove this once the interpreter is removed.
-            typeCastExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
             if (!isMultiReturn) {
                 typeCastExpr.setTypes(new BType[]{targetType});
                 return;
             }
 
         } else {
-            // TODO Remove the this else if block once the old interpreter is removed
-            if (sourceType instanceof StructDef && targetType instanceof StructDef) {
-                typeCastExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
-            }
-
             boolean isUnsafeCastPossible = false;
             if (isMultiReturn) {
                 isUnsafeCastPossible = checkUnsafeCastPossible(sourceType, targetType);
@@ -2463,9 +2246,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeCastExpr,
-                SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
+                    SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
         }
-        typeCastExpr.setTypes(new BType[] { targetType, (BType) error });
+        typeCastExpr.setTypes(new BType[]{targetType, (BType) error});
     }
 
 
@@ -2493,7 +2276,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null);
         if (newEdge != null) {
             typeConversionExpr.setOpcode(newEdge.getOpcode());
-            typeConversionExpr.setEvalFunc(newEdge.getTypeMapperFunction());
 
             // TODO 0.89 release
 //            if (!newEdge.isSafe() && !isMultiReturn) {
@@ -2502,15 +2284,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 //            }
 
             if (!isMultiReturn) {
-                typeConversionExpr.setTypes(new BType[] { targetType });
+                typeConversionExpr.setTypes(new BType[]{targetType});
                 return;
             }
 
         } else if (sourceType == targetType) {
             typeConversionExpr.setOpcode(InstructionCodes.NOP);
-
-            // TODO Remove this once the interpreter is removed.
-            typeConversionExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_UNSAFE_FUNC);
             if (!isMultiReturn) {
                 typeConversionExpr.setTypes(new BType[]{targetType});
                 return;
@@ -2525,54 +2304,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CONVERSION_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeConversionExpr,
-                SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
+                    SemanticErrors.CANNOT_RESOLVE_STRUCT, ERRORS_PACKAGE, BALLERINA_CAST_ERROR);
         }
-        typeConversionExpr.setTypes(new BType[] { targetType, (BType) error });
+        typeConversionExpr.setTypes(new BType[]{targetType, (BType) error});
     }
 
     @Override
     public void visit(NullLiteral nullLiteral) {
         nullLiteral.setType(BTypes.typeNull);
-    }
-
-    @Override
-    public void visit(StackVarLocation stackVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ServiceVarLocation serviceVarLocation) {
-
-    }
-
-    @Override
-    public void visit(GlobalVarLocation globalVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ConnectorVarLocation connectorVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ConstantLocation constantLocation) {
-
-    }
-
-    @Override
-    public void visit(StructVarLocation structVarLocation) {
-    }
-
-    @Override
-    public void visit(WorkerVarLocation workerVarLocation) {
-
-    }
-
-    public void visit(ResourceInvocationExpr resourceIExpr) {
-    }
-
-    public void visit(MainInvoker mainInvoker) {
     }
 
 
@@ -2600,7 +2339,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
             // Set type of the arrays access expression
-            BType expectedType =  arrayMapVarRefExpr.getType();
+            BType expectedType = arrayMapVarRefExpr.getType();
             for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
                 expectedType = ((BArrayType) expectedType).getElementType();
             }
@@ -2640,6 +2379,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+    private void validateBinaryExprTypeForIntFloat(BinaryExpression binaryExpr, BType binaryExprType) {
+        if (binaryExprType != BTypes.typeInt && binaryExprType != BTypes.typeFloat) {
+            throwInvalidBinaryOpError(binaryExpr);
+        }
+    }
+
     private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
         visitBinaryExpr(binaryArithmeticExpr);
         BType type = verifyBinaryExprType(binaryArithmeticExpr);
@@ -2654,30 +2399,36 @@ public class SemanticAnalyzer implements NodeVisitor {
         return type;
     }
 
-    private BType verifyBinaryEqualityExprType(BinaryExpression binaryExpression) {
-        visitBinaryExpr(binaryExpression);
-        BType rType = binaryExpression.getRExpr().getType();
-        BType lType = binaryExpression.getLExpr().getType();
+    private void verifyBinaryEqualityExprType(BinaryExpression binaryExpr) {
+        visitBinaryExpr(binaryExpr);
+        BType rType = binaryExpr.getRExpr().getType();
+        BType lType = binaryExpr.getLExpr().getType();
         BType type;
 
         if (rType == BTypes.typeNull) {
             if (BTypes.isValueType(lType)) {
-                BLangExceptionHelper.throwSemanticError(binaryExpression, 
-                    SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lType, rType);
+                BLangExceptionHelper.throwSemanticError(binaryExpr,
+                        SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lType, rType);
             }
             type = rType;
         } else if (lType == BTypes.typeNull) {
             if (BTypes.isValueType(rType)) {
-                BLangExceptionHelper.throwSemanticError(binaryExpression, 
-                    SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lType, rType);
+                BLangExceptionHelper.throwSemanticError(binaryExpr,
+                        SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lType, rType);
             }
             type = lType;
         } else {
-            type = verifyBinaryExprType(binaryExpression);
+            type = verifyBinaryExprType(binaryExpr);
         }
 
-        binaryExpression.setType(BTypes.typeBoolean);
-        return type;
+        binaryExpr.setType(BTypes.typeBoolean);
+        if (type != BTypes.typeInt &&
+                type != BTypes.typeFloat &&
+                type != BTypes.typeBoolean &&
+                type != BTypes.typeString &&
+                type != BTypes.typeNull) {
+            throwInvalidBinaryOpError(binaryExpr);
+        }
     }
 
     private BType verifyBinaryExprType(BinaryExpression binaryExpr) {
@@ -2696,9 +2447,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
                 if (newEdge != null) { // Implicit cast from right to left
                     newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
-                                                rExpr, lType);
+                            rExpr, lType);
                     newExpr.setOpcode(newEdge.getOpcode());
-                    newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                     newExpr.accept(this);
                     binaryExpr.setRExpr(newExpr);
                     return lType;
@@ -2708,7 +2458,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                         newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
                                 lExpr, rType);
                         newExpr.setOpcode(newEdge.getOpcode());
-                        newExpr.setEvalFunc(newEdge.getTypeMapperFunction());
                         newExpr.accept(this);
                         binaryExpr.setLExpr(newExpr);
                         return rType;
@@ -2787,10 +2536,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void checkForMultiValuedCastingErrors(AssignStmt assignStmt, Expression[] lExprs,
-            ExecutableMultiReturnExpr rExpr) {
+                                                  ExecutableMultiReturnExpr rExpr) {
         BType[] returnTypes = rExpr.getTypes();
         if (lExprs.length != returnTypes.length) {
-            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, 
+            BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH,
                     lExprs.length, returnTypes.length);
         }
 
@@ -2802,8 +2551,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
             if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
-                BLangExceptionHelper.throwSemanticError(assignStmt, 
-                    SemanticErrors.INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT, varName, returnType, lExpr.getType());
+                BLangExceptionHelper.throwSemanticError(assignStmt,
+                        SemanticErrors.INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT, varName, returnType, lExpr.getType());
             }
         }
     }
@@ -2854,7 +2603,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(funcIExpr.getName(),
-                                                                                pkgPath, paramTypes);
+                pkgPath, paramTypes);
         BLangSymbol functionSymbol = currentScope.resolve(symbolName);
 
         functionSymbol = matchAndUpdateFunctionArguments(funcIExpr, symbolName, functionSymbol);
@@ -2880,7 +2629,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (!(nativeUnit instanceof Function)) {
-                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                         symbolName);
             }
             function = (Function) nativeUnit;
@@ -2888,7 +2637,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             if (!(functionSymbol instanceof Function)) {
-                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                         symbolName);
                 return;
             }
@@ -2902,13 +2651,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Helper method to match the function with invocation (check whether parameters map, do cast if applicable).
      *
-     * @param funcIExpr invocation expression
-     * @param symbolName function symbol name
+     * @param funcIExpr      invocation expression
+     * @param symbolName     function symbol name
      * @param functionSymbol matching function
      * @return functionSymbol matching function
      */
     private BLangSymbol matchAndUpdateFunctionArguments(FunctionInvocationExpr funcIExpr,
-                                                       FunctionSymbolName symbolName, BLangSymbol functionSymbol) {
+                                                        FunctionSymbolName symbolName, BLangSymbol functionSymbol) {
         if (functionSymbol == null) {
             return null;
         }
@@ -2953,67 +2702,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             funcIExpr.getArgExprs()[i] = updatedArgExprs[i];
         }
         return functionSymbol;
-    }
-
-    /**
-     * Helper method to generate error message for each ambiguous function.
-     *
-     * @param funcIExpr
-     * @param functionSymbol
-     * @return errorMsg
-     */
-    private static String generateErrorMessage(FunctionInvocationExpr funcIExpr, BLangSymbol functionSymbol,
-                                               String packagePath) {
-        Function function;
-        //in future when native functions support implicit casting invocation, functionSymbol can be either
-        //NativeUnitProxy or a Function.
-        if (functionSymbol instanceof NativeUnitProxy) {
-            NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
-
-            if (!(nativeUnit instanceof Function)) {
-                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
-                                                        functionSymbol.getName());
-            }
-            function = (Function) nativeUnit;
-        } else {
-            if (!(functionSymbol instanceof Function)) {
-                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
-                                                        functionSymbol.getName());
-            }
-            function = (Function) functionSymbol;
-        }
-        //below getName should always return a valid String value, hence ArrayIndexOutOfBoundsException
-        // or NullPointerException cannot happen here.
-        String funcName = (function.getPackagePath() == null || function.getPackagePath().equals(".")) ?
-                function.getName() : function.getPackagePath() + ":" + function.getName();
-
-        StringBuilder sBuilder = new StringBuilder(funcName + "(");
-        String prefix = "";
-        for (ParameterDef parameterDef : function.getParameterDefs()) {
-            sBuilder.append(prefix);
-            prefix = ",";
-            String pkgPath = parameterDef.getTypeName().getPackagePath();
-            if (pkgPath != null) {
-                sBuilder.append(pkgPath).append(":");
-            }
-            sBuilder.append(parameterDef.getTypeName().getName());
-        }
-        sBuilder.append(")");
-        return sBuilder.toString();
-    }
-
-    /**
-     * Get current package Scope.
-     *
-     * @param scope
-     * @return scope
-     */
-    private SymbolScope getCurrentPackageScope(SymbolScope scope) {
-        if (scope instanceof BLangPackage) {
-            return scope;
-        } else {
-            return getCurrentPackageScope(scope.getEnclosingScope());
-        }
     }
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
@@ -3180,7 +2868,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (exprType instanceof StructDef) {
             visitStructAccessExpr(fieldExpr, exprType);
-        } else if (exprType  instanceof BJSONType) {
+        } else if (exprType instanceof BJSONType) {
             visitJSONAccessExpr(fieldAccessExpr, fieldExpr);
         } else if (exprType instanceof BMapType) {
             visitMapAccessExpr(fieldAccessExpr, varRefExpr, fieldExpr, enclosingScope);
@@ -3196,7 +2884,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Visit a struct and its fields and semantically validate the field expression.
      *
      * @param fieldExpr field expression to validate
-     * @param exprType Struct definition
+     * @param exprType  Struct definition
      */
     private void visitStructAccessExpr(FieldAccessExpr fieldExpr, BType exprType) {
         Expression fieldVar = fieldExpr.getVarRef();
@@ -3222,7 +2910,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      * with a {@link JSONFieldAccessExpr}.
      *
      * @param parentExpr Current expression
-     * @param fieldExpr Field access expression of the current expression
+     * @param fieldExpr  Field access expression of the current expression
      */
     private void visitJSONAccessExpr(FieldAccessExpr parentExpr, FieldAccessExpr fieldExpr) {
         if (fieldExpr == null) {
@@ -3252,9 +2940,9 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Visits a map access expression. Rewrites the tree by replacing the {@link FieldAccessExpr} with an
      * {@link ArrayMapAccessExpr}. Then revisits the rewritten branch, and check for semantic.
      *
-     * @param parentExpr Current expression
-     * @param varRefExpr VariableRefExpression of the current expression
-     * @param fieldExpr Field access expression of the current expression
+     * @param parentExpr     Current expression
+     * @param varRefExpr     VariableRefExpression of the current expression
+     * @param fieldExpr      Field access expression of the current expression
      * @param enclosingScope Enclosing scope
      */
     private void visitMapAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
@@ -3290,10 +2978,10 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Visits an array access expression. Rewrites the tree by replacing the {@link FieldAccessExpr} with an
      * {@link ArrayMapAccessExpr}. Then revisits the rewritten branch, and check for semantic.
      *
-     * @param parentExpr Current expression
-     * @param varRefExpr VariableRefExpression of the current expression
-     * @param fieldExpr Field access expression of the current expression
-     * @param exprType Type to which the expression evaluates
+     * @param parentExpr     Current expression
+     * @param varRefExpr     VariableRefExpression of the current expression
+     * @param fieldExpr      Field access expression of the current expression
+     * @param exprType       Type to which the expression evaluates
      * @param enclosingScope Enclosing scope
      */
     private void visitArrayAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
@@ -3359,7 +3047,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpr = new TypeCastExpression(rhsExpr.getNodeLocation(),
                     rhsExpr.getWhiteSpaceDescriptor(), rhsExpr, lhsType);
             typeCastExpr.setOpcode(typeEdge.getOpcode());
-            typeCastExpr.setEvalFunc(typeEdge.getTypeMapperFunction());
         }
         return typeCastExpr;
     }
@@ -3396,7 +3083,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             function.setParameterTypes(paramTypes);
             FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(function.getName(),
-                                                                            function.getPackagePath(), paramTypes);
+                    function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);
@@ -3590,7 +3277,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Create the '<init>' function and inject it to the struct
             BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
-                structDef.getNodeLocation(), structDef);
+                    structDef.getNodeLocation(), structDef);
             for (VariableDefStmt variableDefStmt : structDef.getFieldDefStmts()) {
                 blockStmtBuilder.addStmt(variableDefStmt);
             }
@@ -3738,12 +3425,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (refTypeInitExpr instanceof ArrayInitExpr) {
             if (fieldType == BTypes.typeAny || fieldType == BTypes.typeMap) {
                 fieldType = BTypes.resolveType(new SimpleTypeName(BTypes.typeAny.getName(),
-                                true, 1), currentScope, expr.getNodeLocation());
+                        true, 1), currentScope, expr.getNodeLocation());
             } else if (fieldType == BTypes.typeJSON) {
                 refTypeInitExpr = new JSONArrayInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             }
-        } else if (!(refTypeInitExpr instanceof BacktickExpr)) {
+        } else {
             // if the inherited type is any, then default this initializer to a map init expression
             if (fieldType == BTypes.typeAny) {
                 fieldType = BTypes.typeMap;
@@ -3759,8 +3446,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             }
         }
-        refTypeInitExpr.setInheritedType(fieldType);
 
+        refTypeInitExpr.setInheritedType(fieldType);
         return refTypeInitExpr;
     }
 
@@ -3936,9 +3623,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             implicitCastExpr = new TypeCastExpression(rhsExpr.getNodeLocation(),
                     null, rhsExpr, lhsType);
             implicitCastExpr.setOpcode(InstructionCodes.NOP);
-
-            // TODO Remove following line once the old interpreter is removed.
-            implicitCastExpr.setEvalFunc(NativeCastMapper.STRUCT_TO_STRUCT_SAFE_FUNC);
 
             assignabilityResult.assignable = true;
             assignabilityResult.implicitCastExpr = implicitCastExpr;

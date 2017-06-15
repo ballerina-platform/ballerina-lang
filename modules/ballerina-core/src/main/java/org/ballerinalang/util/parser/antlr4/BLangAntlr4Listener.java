@@ -1643,14 +1643,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBacktickString(BallerinaParser.BacktickStringContext ctx) {
-        if (ctx.exception == null) {
-            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-            if (isVerboseMode) {
-                whiteSpaceDescriptor = WhiteSpaceUtil.getBacktickStringWS(tokenStream, ctx);
-            }
-            modelBuilder.createBacktickExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                    ctx.BacktickStringLiteral().getText());
-        }
     }
 
     @Override

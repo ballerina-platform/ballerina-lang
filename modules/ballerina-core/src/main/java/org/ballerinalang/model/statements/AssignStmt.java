@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.expressions.Expression;

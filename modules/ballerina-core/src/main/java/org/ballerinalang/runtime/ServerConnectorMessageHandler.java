@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
@@ -211,27 +210,4 @@ public class ServerConnectorMessageHandler {
         }
 
     }
-
-    public static void handleErrorFromOutbound(Context balContext, Throwable throwable) {
-        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        String errorWithTrace = errorMsg + "\n" + stacktrace;
-        outStream.println(errorWithTrace);
-
-        // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg + ", ballerina service stack trace: " + stacktrace, throwable);
-
-        Object protocol = balContext.getServerConnectorProtocol();
-        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-        try {
-            optionalErrorHandler
-                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), null,
-                            balContext.getBalCallback());
-        } catch (Exception e) {
-            throw new BallerinaException("Cannot handle error using the error handler for: " + protocol, e);
-        }
-    }
-
 }

@@ -1,10 +1,65 @@
 # Workers
 
-A worker is a thread of execution. It is represented on a sequence diagram as a vertical "lifeline" of logic to be executed. 
+A worker is a programmable actor in Ballerina. It is represented on a sequence diagram as a vertical "lifeline" of logic to be executed. 
 
 ![alt text](../images/worker-lifeline.png "The default worker in a resource")
 
-When you create a [resource](resources.md), [function](functions.md), or [action](actions.md), a default worker is created automatically that performs the logic for that entity. You can add more workers to a resource or function, giving each worker its own logic to execute. This approach allows you to program parallel threads of execution. You can also use the [fork/join](statements.md#forkjoin) statement to easily create a set of workers and have them process in parallel.
+The default worker is just a worker that is defined without declaring it as such. For example, the following syntax:
+
+```
+function foo (int x) {
+  statement1;
+  statement2;
+}
+
+```
+
+is equivalent to:
+
+```
+function foo (int x) {
+  worker {
+    statement1;
+    statement2;
+  }
+}
+```
+The default worker does not result in a thread of its own: it inherits a thread from the caller. Note that the same applies for resources as well.
+ 
+If there were additional workers in the function, then it is as follows:
+
+```
+function foo (int x) {
+  worker {
+    statement1;
+    statement2;
+  }
+  worker OtherWorker1 {
+    s1;
+    s2;
+    s3;
+  }
+  worker OtherWorker2 {
+    s1;
+  }
+}
+```
+For syntactic convenience, you can adopt the following approach:
+
+```
+function foo (int x) {
+  statement1;
+  statement2;
+  worker OtherWorker1 {
+    s1;
+    s2;
+    s3;
+  }
+  worker OtherWorker2 {
+    s1;
+  }
+}
+```
 
 Workers do not share any state with each other. Upon invocation, the “parent” worker can pass a message to the new worker. Resource workers can also access the service's state.
 

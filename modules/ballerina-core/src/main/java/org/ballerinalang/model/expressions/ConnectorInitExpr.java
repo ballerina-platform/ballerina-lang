@@ -17,12 +17,10 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code ConnectorInitExpr} represents a expression which creates a new connector instance.
@@ -45,10 +43,5 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
     }
 }

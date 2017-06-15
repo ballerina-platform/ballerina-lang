@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
 import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
@@ -58,7 +57,6 @@ import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryArithmeticExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
@@ -86,14 +84,12 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -1550,12 +1546,7 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BacktickExpr backtickExpr) {
-
-    }
-
-
+    
     // Init expressions
 
     @Override
@@ -2003,51 +1994,6 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    @Override
-    public void visit(StackVarLocation stackVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ServiceVarLocation serviceVarLocation) {
-
-    }
-
-    @Override
-    public void visit(GlobalVarLocation globalVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ConnectorVarLocation connectorVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ConstantLocation constantLocation) {
-
-    }
-
-    @Override
-    public void visit(StructVarLocation structVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ResourceInvocationExpr resourceIExpr) {
-
-    }
-
-    @Override
-    public void visit(MainInvoker mainInvoker) {
-
-    }
-
-    @Override
-    public void visit(WorkerVarLocation workerVarLocation) {
-
-    }
-
 
     // Private methods
 
@@ -2441,11 +2387,8 @@ public class CodeGenerator implements NodeVisitor {
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }
-        if (timeoutIP == nextIP()) {
-            gotoInstruction.setOperand(0, nextIP() + 1);
-        } else {
-            gotoInstruction.setOperand(0, nextIP());
-        }
+
+        gotoInstruction.setOperand(0, nextIP());
     }
 
 

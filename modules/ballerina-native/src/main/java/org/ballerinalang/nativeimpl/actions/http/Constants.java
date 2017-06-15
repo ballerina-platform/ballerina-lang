@@ -46,6 +46,7 @@ public class Constants {
     public static final String TO = "TO";
     public static final String USER_AGENT_HEADER = "User-Agent";
     public static final String REQUEST_URL = "REQUEST_URL";
+    public static final String SRC_HANDLER = "SRC_HANDLER";
 
 
     public static final String HTTP_METHOD_GET = "GET";
