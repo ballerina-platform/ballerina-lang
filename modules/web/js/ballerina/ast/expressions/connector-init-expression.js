@@ -134,9 +134,9 @@ class ConnectorInitExpression extends Expression {
     }
 
     getExpressionString() {
-        let expr = `create${this.getWSRegion(1)
-             }${this.getConnectorName().toString()
-             }${this.getWSRegion(2)}(`;
+        let expr = 'create' + this.getWSRegion(1)
+            + this.getConnectorName().toString()
+            + this.getWSRegion(2) + '(';
         this.getArgs().forEach((arg, index) => {
             expr += (index !== 0 && arg.whiteSpace.useDefault) ? ' ' : '';
             expr += arg.generateExpression();

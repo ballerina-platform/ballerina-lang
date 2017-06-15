@@ -98,7 +98,9 @@ class IfElseStatement extends Statement {
     }
 
     addElseIfStatement(elseIfStatement, index) {
-        const elseStatementIndex = _.findIndex(this.getChildren(), node => BallerinaASTFactory.isElseStatement(node));
+        const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
+            return BallerinaASTFactory.isElseStatement(node);
+        });
 
         this._elseIfStatements.push(elseIfStatement);
 
@@ -112,9 +114,13 @@ class IfElseStatement extends Statement {
      * @param {number|undefined} index
      */
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
-        const lastElseIfIndex = _.findLastIndex(this.getChildren(), node => BallerinaASTFactory.isElseIfStatement(node));
+        const lastElseIfIndex = _.findLastIndex(this.getChildren(), (node) => {
+            return BallerinaASTFactory.isElseIfStatement(node);
+        });
 
-        const elseStatementIndex = _.findIndex(this.getChildren(), node => BallerinaASTFactory.isElseStatement(node));
+        const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
+            return BallerinaASTFactory.isElseStatement(node);
+        });
 
         if (BallerinaASTFactory.isElseIfStatement(child) && elseStatementIndex > -1) {
             index = elseStatementIndex;

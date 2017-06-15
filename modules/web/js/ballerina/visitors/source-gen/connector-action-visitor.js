@@ -50,14 +50,14 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         const useDefaultWS = connectorAction.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let connectorActionReturnTypesSource = '';
         if (!_.isEmpty(actionReturnTypes)) {
             // if return types were not there before && no space ATM before (, add a space before
             const precedingWS = ((_.isEmpty(connectorAction.getWSRegion(3)) &&
                     actionReturnTypes[0].whiteSpace.useDefault) ? ' ' : connectorAction.getWSRegion(3));
-            connectorActionReturnTypesSource = `${precedingWS}(${connectorAction.getReturnTypesAsString()})`;
+            connectorActionReturnTypesSource = precedingWS + '(' + connectorAction.getReturnTypesAsString() + ')';
         }
 
         let constructedSourceSegment = '';
@@ -68,11 +68,11 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        constructedSourceSegment += `action${connectorAction.getWSRegion(1)
-             }${connectorAction.getActionName()
-             }${connectorAction.getWSRegion(2)}(${connectorAction.getArgumentsAsString()
-             })${connectorActionReturnTypesSource
-             }${connectorAction.getWSRegion(4)}{${connectorAction.getWSRegion(5)}`;
+        constructedSourceSegment += 'action' + connectorAction.getWSRegion(1)
+            + connectorAction.getActionName()
+            + connectorAction.getWSRegion(2) + '(' + connectorAction.getArgumentsAsString()
+            + ')' + connectorActionReturnTypesSource
+            + connectorAction.getWSRegion(4) + '{' + connectorAction.getWSRegion(5);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
@@ -89,7 +89,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorAction(connectorAction) {
         this.outdent();
-        this.appendSource(`}${connectorAction.getWSRegion(6)}`);
+        this.appendSource('}' + connectorAction.getWSRegion(6));
         this.appendSource((connectorAction.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

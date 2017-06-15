@@ -31,7 +31,7 @@ class CommittedStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitCommittedStatement(committedStatement) {
         this.node = committedStatement;
-        this.appendSource(`committed${committedStatement.getWSRegion(1)}{${committedStatement.getWSRegion(2)}`);
+        this.appendSource('committed' + committedStatement.getWSRegion(1) + '{' + committedStatement.getWSRegion(2));
         this.appendSource((committedStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
@@ -63,7 +63,7 @@ class CommittedStatementVisitor extends AbstractStatementSourceGenVisitor {
             }
         }
 
-        this.appendSource(`}${tailingWS}`);
+        this.appendSource('}' + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

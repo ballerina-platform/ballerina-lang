@@ -171,7 +171,7 @@ class WorkerDeclaration extends ASTNode {
         let argsAsString = '';
         const args = this.getArgumentsList();
         _.forEach(args, (argument, index) => {
-            argsAsString += `${argument.parameter_type} `;
+            argsAsString += argument.parameter_type + ' ';
             argsAsString += argument.parameter_name;
             if (args.length - 1 != index) {
                 argsAsString += ' , ';

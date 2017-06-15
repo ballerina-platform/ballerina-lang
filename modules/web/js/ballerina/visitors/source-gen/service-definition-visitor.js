@@ -43,7 +43,7 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
         const useDefaultWS = serviceDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
-            this.replaceCurrentPrecedingIndentation(`\n${this.getIndentation()}`);
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
         _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
@@ -51,17 +51,17 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
                 constructedSourceSegment += annotationNode.toString()
                       + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             });
-        constructedSourceSegment += `service${serviceDefinition.getWSRegion(0)
-               }${serviceDefinition.getServiceName()
-               }${serviceDefinition.getWSRegion(1)}{${
-               serviceDefinition.getWSRegion(2)}`;
+        constructedSourceSegment += 'service' + serviceDefinition.getWSRegion(0)
+              + serviceDefinition.getServiceName()
+              + serviceDefinition.getWSRegion(1) + '{'
+              + serviceDefinition.getWSRegion(2);
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
     endVisitServiceDefinition(serviceDefinition) {
         this.outdent();
-        this.appendSource(`}${serviceDefinition.getWSRegion(3)}`);
+        this.appendSource('}' + serviceDefinition.getWSRegion(3));
         this.appendSource((serviceDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

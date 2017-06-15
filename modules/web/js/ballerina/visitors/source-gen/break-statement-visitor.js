@@ -40,8 +40,8 @@ class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     endVisitBreakStatement(breakStatement) {
-        this.appendSource(`${breakStatement.getWSRegion(1)};${
-                             breakStatement.getWSRegion(2)}`);
+        this.appendSource(breakStatement.getWSRegion(1) + ';'
+                            + breakStatement.getWSRegion(2));
         this.appendSource((breakStatement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

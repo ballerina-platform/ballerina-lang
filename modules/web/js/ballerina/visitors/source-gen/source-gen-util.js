@@ -24,7 +24,9 @@ class SourceGenUtil {
         const charArray = content.split('');
         // capture all chars from end, upto the last non-ws char (excluding it)
         const charsTillLastNonWSChar = _.takeRightWhile(charArray,
-          charAtIndex => !(/\S/g.test(charAtIndex)));
+          (charAtIndex) => {
+              return !(/\S/g.test(charAtIndex));
+          });
         // out of found tailing whiteSpace, find whiteSpace upto last new line char
         // or if there is no new line chars, get upto last non WS
         // or empty if there is no any tailing whiteSpace at all

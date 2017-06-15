@@ -55,7 +55,7 @@ class FunctionDefinition extends CallableDefinition {
         if (!_.isNil(name) && ASTNode.isValidIdentifier(name)) {
             this.setAttribute('_functionName', name, options);
         } else {
-            const errorString = `Invalid function name: ${name}`;
+            const errorString = 'Invalid function name: ' + name;
             log.error(errorString);
             throw errorString;
         }
@@ -191,7 +191,7 @@ class FunctionDefinition extends CallableDefinition {
         if (!_.isUndefined(identifier)) {
             const child = returnParamDefHolder.findChildByIdentifier(true, identifier);
             if (_.isUndefined(child)) {
-                const errorString = `An return argument with identifier '${identifier}' already exists.`;
+                const errorString = "An return argument with identifier '" + identifier + "' already exists.";
                 log.error(errorString);
                 throw errorString;
             }
@@ -225,7 +225,9 @@ class FunctionDefinition extends CallableDefinition {
             return false;
         }
             // check if any of the return types have identifiers
-        const indexWithoutIdentifiers = _.findIndex(this.getReturnParameterDefinitionHolder().getChildren(), child => _.isUndefined(child.getName()));
+        const indexWithoutIdentifiers = _.findIndex(this.getReturnParameterDefinitionHolder().getChildren(), (child) => {
+            return _.isUndefined(child.getName());
+        });
 
         if (indexWithoutIdentifiers !== -1) {
             return false;
@@ -249,7 +251,7 @@ class FunctionDefinition extends CallableDefinition {
 
         // Deleting the argument from the AST.
         if (!_.isUndefined(removeChild)) {
-            const exceptionString = `Could not find a return type with id : ${modelID}`;
+            const exceptionString = 'Could not find a return type with id : ' + modelID;
             log.error(exceptionString);
             throw exceptionString;
         }
@@ -290,7 +292,9 @@ class FunctionDefinition extends CallableDefinition {
             Object.getPrototypeOf(this.constructor.prototype)
               .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
-            const firstWorkerIndex = _.findIndex(this.getChildren(), child => BallerinaASTFactory.isWorkerDeclaration(child));
+            const firstWorkerIndex = _.findIndex(this.getChildren(), (child) => {
+                return BallerinaASTFactory.isWorkerDeclaration(child);
+            });
 
             if (firstWorkerIndex > -1 && _.isNil(index)) {
                 index = firstWorkerIndex;
@@ -393,7 +397,9 @@ class FunctionDefinition extends CallableDefinition {
      */
     getConnectorByName(connectorName) {
         const factory = this.getFactory();
-        return _.find(this.getChildren(), child => (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName)));
+        return _.find(this.getChildren(), (child) => {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
     }
 
     /**
@@ -402,7 +408,9 @@ class FunctionDefinition extends CallableDefinition {
      */
     getConnectorsInImmediateScope() {
         const factory = this.getFactory();
-        return _.filter(this.getChildren(), child => factory.isConnectorDeclaration(child));
+        return _.filter(this.getChildren(), (child) => {
+            return factory.isConnectorDeclaration(child);
+        });
     }
 
     /**
@@ -424,8 +432,8 @@ function autoGenerateId() {
             .substring(1);
     }
 
-    return `${s4() + s4()}-${s4()}-${s4()}-${
-        s4()}-${s4()}${s4()}${s4()}`;
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
 }
 
 export default FunctionDefinition;

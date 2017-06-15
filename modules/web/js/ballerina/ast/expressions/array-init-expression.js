@@ -51,9 +51,9 @@ class ArrayInitExpression extends Expression {
     getExpressionString() {
         let generatedExpression = '[';
         _.each(this.getChildren(), (child) => {
-            generatedExpression += `${child.getExpressionString()},`;
+            generatedExpression += child.getExpressionString() + ',';
         });
-        generatedExpression = `${generatedExpression.replace(/,\s*$/, '')}]`;
+        generatedExpression = generatedExpression.replace(/,\s*$/, '') + ']';
         return generatedExpression;
     }
 

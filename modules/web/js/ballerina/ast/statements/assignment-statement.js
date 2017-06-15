@@ -56,15 +56,15 @@ class AssignmentStatement extends Statement {
      * @return {string} assignment statement string
      */
     getStatementString() {
-        return `${(!_.isNil(this.getChildren()[0])
+        return ((!_.isNil(this.getChildren()[0])
                 ? this.getChildren()[0].getExpressionString() : '')
                 // default tailing whitespace of expressions is emtpy - hence we need to
                 // append a sapce here
                 + ((!_.isNil(this.getChildren()[0])
-                      && this.getChildren()[0].whiteSpace.useDefault) ? ' ' : '')}=${
-            !_.isNil(this.getChildren()[1])
+                      && this.getChildren()[0].whiteSpace.useDefault) ? ' ' : '')) + '=' +
+            (!_.isNil(this.getChildren()[1])
                 // we are getting following whitespace of = from assignment statement
-                ? this.getWSRegion(2) + this.getChildren()[1].getExpressionString() : ''}`;
+                ? this.getWSRegion(2) + this.getChildren()[1].getExpressionString() : '');
     }
 
     /**
@@ -72,7 +72,7 @@ class AssignmentStatement extends Statement {
      * @param {string} statementString
      */
     setStatementFromString(stmtString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(`${stmtString};`);
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
@@ -93,7 +93,7 @@ class AssignmentStatement extends Statement {
                     nodeToFireEvent = newNode;
                 }
             } else {
-                log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             }
 
             if (_.isFunction(callback)) {
@@ -109,7 +109,7 @@ class AssignmentStatement extends Statement {
                 context: nodeToFireEvent,
             });
         } else {
-            log.error(`Error while parsing statement. Error response${JSON.stringify(parsedJson)}`);
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             if (_.isFunction(callback)) {
                 callback({ isValid: false, response: parsedJson });
             }

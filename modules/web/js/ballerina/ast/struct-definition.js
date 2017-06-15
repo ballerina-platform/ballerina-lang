@@ -81,20 +81,22 @@ class StructDefinition extends ASTNode {
         }
 
         // Check if already variable definition exists with same identifier.
-        const identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(), variableDefinitionStatement => variableDefinitionStatement.getIdentifier() === identifier) !== -1;
+        const identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(), (variableDefinitionStatement) => {
+            return variableDefinitionStatement.getIdentifier() === identifier;
+        }) !== -1;
 
         // If variable definition with the same identifier exists, then throw an error. Else create the new variable
         // definition.
         if (identifierAlreadyExists) {
-            var errorString = `A variable with identifier '${identifier}' already exists.`;
+            var errorString = "A variable with identifier '" + identifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new variable definition.
             const newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
             let stmtString = '';
-            if (defaultValue == '') { stmtString = `${bType} ${identifier}`; } else {
-                stmtString = `${bType} ${identifier} = ${defaultValue}`;
+            if (defaultValue == '') { stmtString = bType + ' ' + identifier; } else {
+                stmtString = bType + ' ' + identifier + ' = ' + defaultValue;
             }
             newVariableDefinitionStatement.setStatementFromString(stmtString);
 

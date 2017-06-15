@@ -46,7 +46,7 @@ class ThrowStatement extends Statement {
      * @override
      */
     setStatementFromString(statementString, callback) {
-        const fragment = FragmentUtils.createStatementFragment(`${statementString};`);
+        const fragment = FragmentUtils.createStatementFragment(statementString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
 
         if ((!_.has(parsedJson, 'error') || !_.has(parsedJson, 'syntax_errors'))
@@ -76,7 +76,7 @@ class ThrowStatement extends Statement {
      * @override
      */
     getStatementString() {
-        return `throw ${this.getChildren()[0].getExpressionString()}`;
+        return 'throw ' + this.getChildren()[0].getExpressionString();
     }
 
     /**

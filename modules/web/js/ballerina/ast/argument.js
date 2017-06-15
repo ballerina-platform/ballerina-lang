@@ -36,7 +36,7 @@ class Argument extends ASTNode {
 
         // Validating the argument.
         if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {
-            const exceptionString = `Invalid identifier: '${this.identifier}'. An identifier must match the regex ` +
+            const exceptionString = 'Invalid identifier: \'' + this.identifier + '\'. An identifier must match the regex ' +
                 '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
@@ -56,7 +56,7 @@ class Argument extends ASTNode {
     getArgumentAsString() {
         let argAsString = '';
         argAsString += this.bType;
-        argAsString += !_.isUndefined(this.identifier) ? ` ${this.identifier}` : '';
+        argAsString += !_.isUndefined(this.identifier) ? ' ' + this.identifier : '';
         return argAsString.trim();
     }
 
@@ -64,7 +64,7 @@ class Argument extends ASTNode {
         if (_.isNil(identifier) || ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('identifier', identifier, options);
         } else {
-            const exceptionString = `Invalid identifier: '${identifier}'. An identifier must match the regex ` +
+            const exceptionString = 'Invalid identifier: \'' + identifier + '\'. An identifier must match the regex ' +
                 '^[a-zA-Z$_][a-zA-Z0-9$_]*$';
             log.error(exceptionString);
             throw exceptionString;
@@ -74,7 +74,7 @@ class Argument extends ASTNode {
     // TODO: This function is to temporary fix the issue of function drag and drop until the model refactor
     getParameterAsString() {
         let paramAsString = '';
-        paramAsString += `${this.getBType()} `;
+        paramAsString += '' + this.getBType() + ' ';
         paramAsString += this.getIdentifier();
 
         return paramAsString.trim();

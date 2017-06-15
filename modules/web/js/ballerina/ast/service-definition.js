@@ -45,7 +45,7 @@ class ServiceDefinition extends ASTNode {
         if (!_.isNil(serviceName) && ASTNode.isValidIdentifier(serviceName)) {
             this.setAttribute('_serviceName', serviceName, options);
         } else {
-            const errorString = `Invalid name for the service name: ${serviceName}`;
+            const errorString = 'Invalid name for the service name: ' + serviceName;
             log.error(errorString);
             throw errorString;
         }
@@ -102,27 +102,31 @@ class ServiceDefinition extends ASTNode {
 
         // Check if already variable definition statement exists with same identifier.
         const identifierAlreadyExists = _.findIndex(this.getVariableDefinitionStatements(),
-                                                                                variableDefinitionStatement => _.isEqual(variableDefinitionStatement.getIdentifier(), identifier)) !== -1;
+                                                                                (variableDefinitionStatement) => {
+                                                                                    return _.isEqual(variableDefinitionStatement.getIdentifier(), identifier);
+                                                                                }) !== -1;
 
         // If variable definition statement with the same identifier exists, then throw an error. Else create the new
         // variable definition statement.
         if (identifierAlreadyExists) {
-            const errorString = `A variable definition with identifier '${identifier}' already exists.`;
+            const errorString = "A variable definition with identifier '" + identifier + "' already exists.";
             log.error(errorString);
             throw errorString;
         } else {
             // Creating new constant definition.
             const newVariableDefinitionStatement = this.getFactory().createVariableDefinitionStatement();
-            let stmtString = `${bType} ${identifier}`;
+            let stmtString = bType + ' ' + identifier;
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
-                stmtString += ` = ${assignedValue}`;
+                stmtString += ' = ' + assignedValue;
             }
             newVariableDefinitionStatement.setStatementFromString(stmtString);
 
             const self = this;
 
             // Get the index of the last variable definition statement.
-            const index = _.findLastIndex(this.getChildren(), child => self.getFactory().isVariableDefinitionStatement(child));
+            const index = _.findLastIndex(this.getChildren(), (child) => {
+                return self.getFactory().isVariableDefinitionStatement(child);
+            });
 
             this.addChild(newVariableDefinitionStatement, index + 1);
         }
@@ -135,7 +139,9 @@ class ServiceDefinition extends ASTNode {
     removeVariableDefinitionStatement(modelID) {
         const self = this;
         // Deleting the variable definition statement from the children.
-        const variableDefinitionStatementToRemove = _.find(this.getChildren(), child => self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID));
+        const variableDefinitionStatementToRemove = _.find(this.getChildren(), (child) => {
+            return self.getFactory().isVariableDefinitionStatement(child) && _.isEqual(child.id, modelID);
+        });
 
         this.removeChild(variableDefinitionStatementToRemove);
     }
@@ -189,10 +195,14 @@ class ServiceDefinition extends ASTNode {
         let newIndex = index;
         // Always the connector declarations should be the first children
         if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
-            newIndex = _.findLastIndex(this.getChildren(), node => self.BallerinaASTFactory.isConnectorDeclaration(node));
+            newIndex = _.findLastIndex(this.getChildren(), (node) => {
+                return self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
 
             if (newIndex === -1) {
-                newIndex = _.findLastIndex(this.getChildren(), child => self.getFactory().isVariableDefinitionStatement(child));
+                newIndex = _.findLastIndex(this.getChildren(), (child) => {
+                    return self.getFactory().isVariableDefinitionStatement(child);
+                });
             }
             newIndex += 1;
         }
@@ -249,7 +259,9 @@ class ServiceDefinition extends ASTNode {
      */
     getConnectorByName(connectorName) {
         const factory = this.getFactory();
-        const connectorReference = _.find(this.getChildren(), child => (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName)));
+        const connectorReference = _.find(this.getChildren(), (child) => {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        });
 
         return connectorReference;
     }
@@ -260,7 +272,9 @@ class ServiceDefinition extends ASTNode {
      */
     getConnectorsInImmediateScope() {
         const factory = this.getFactory();
-        const connectorReferences = _.filter(this.getChildren(), child => factory.isConnectorDeclaration(child));
+        const connectorReferences = _.filter(this.getChildren(), (child) => {
+            return factory.isConnectorDeclaration(child);
+        });
 
         return connectorReferences;
     }

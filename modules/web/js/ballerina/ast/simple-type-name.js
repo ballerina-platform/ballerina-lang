@@ -74,8 +74,8 @@ class SimpleTypeName extends ASTNode {
 
     toString() {
         let typeNameString = '';
-        typeNameString += ((!_.isEmpty(this.getPackageName())) ? `${this.getPackageName()
-                  + this.getWSRegion(1)}:${this.getWSRegion(2)}` : '');
+        typeNameString += ((!_.isEmpty(this.getPackageName())) ? this.getPackageName()
+                  + this.getWSRegion(1) + ':' + this.getWSRegion(2) : '');
         typeNameString += this.getTypeName() + this.getWSRegion(3);
         return typeNameString;
     }

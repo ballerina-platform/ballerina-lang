@@ -1820,7 +1820,7 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         node = BallerinaASTFactory.createCommittedStatement();
         break;
     default:
-        throw new Error(`Unknown node definition for ${jsonNode.type}`);
+        throw new Error('Unknown node definition for ' + jsonNode.type);
     }
 
     node.setLineNumber(jsonNode.line_number, { doSilently: true });

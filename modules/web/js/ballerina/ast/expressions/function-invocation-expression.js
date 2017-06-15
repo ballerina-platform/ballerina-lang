@@ -79,10 +79,10 @@ class FunctionInvocationExpression extends Expression {
     getExpressionString() {
         let text = '';
         if (!_.isNil(this._packageName) && !_.isEmpty(this._packageName) && !_.isEqual(this._packageName, 'Current Package')) {
-            text += `${this._packageName + this.getChildWSRegion('nameRef', 1)}:`;
+            text += this._packageName + this.getChildWSRegion('nameRef', 1) + ':';
         }
         text += this.getChildWSRegion('nameRef', 2) + this._functionName + this.getWSRegion(1);
-        text += `(${this.getWSRegion(2)}`;
+        text += '(' + this.getWSRegion(2);
 
         this.children.forEach((child, index) => {
             if (index !== 0) {
@@ -92,7 +92,7 @@ class FunctionInvocationExpression extends Expression {
                 text += child.getExpressionString();
             }
         });
-        text += `)${this.getWSRegion(3)}`;
+        text += ')' + this.getWSRegion(3);
         return text;
     }
 

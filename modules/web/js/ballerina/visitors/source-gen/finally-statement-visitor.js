@@ -35,7 +35,7 @@ class FinallyStatementVisitor extends AbstractStatementSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource(`finally${finallyStatement.getWSRegion(1)}{${finallyStatement.getWSRegion(2)}`);
+        this.appendSource('finally' + finallyStatement.getWSRegion(1) + '{' + finallyStatement.getWSRegion(2));
         this.appendSource((finallyStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
@@ -50,7 +50,7 @@ class FinallyStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitFinallyStatement(finallyStatement) {
         this.outdent();
-        this.appendSource(`}${finallyStatement.getWSRegion(3)}`);
+        this.appendSource('}' + finallyStatement.getWSRegion(3));
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

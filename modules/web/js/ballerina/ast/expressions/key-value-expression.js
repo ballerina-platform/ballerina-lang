@@ -56,9 +56,9 @@ class KeyValueExpression extends Expression {
         let expString = '';
         const keyExpressionNode = this.children[0];
         const valueExpressionNode = this.children[1];
-        expString += `${keyExpressionNode.getExpressionString()
-                   }:${this.getWSRegion(2)
-                   }${valueExpressionNode.getExpressionString()}`;
+        expString += keyExpressionNode.getExpressionString()
+                  + ':' + this.getWSRegion(2)
+                  + valueExpressionNode.getExpressionString();
         return expString;
     }
 
