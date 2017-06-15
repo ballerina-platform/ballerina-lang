@@ -16,9 +16,7 @@
  * under the License.
  */
 
-import $ from 'jquery';
 import _ from 'lodash';
-import log from 'log';
 import EventChannel from 'event_channel';
 import 'jquery-contextmenu';
 

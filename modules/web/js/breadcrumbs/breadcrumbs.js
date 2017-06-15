@@ -58,7 +58,7 @@ const BreadcrumbControl = Backbone.View.extend(
                 }
             });
 
-            this.listenTo(tabController, 'last-tab-removed', function (evt) {
+            this.listenTo(tabController, 'last-tab-removed', function () {
                 this.setPath('', '');
             });
         },
@@ -67,12 +67,11 @@ const BreadcrumbControl = Backbone.View.extend(
             const pathArr = _.split(path, '/');
 
             this.$el.empty();
-            const self = this;
             pathArr.forEach((segment) => {
                 if (!_.isEmpty(segment)) {
                     const li = $(`<li>${segment}</li>`);
-                    li.addClass(_.get(self._options, 'cssClass.item'));
-                    self.$el.append(li);
+                    li.addClass(_.get(this._options, 'cssClass.item'));
+                    this.$el.append(li);
                 }
             });
             const fileLi = $(`<li>${file}</li>`);

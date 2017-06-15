@@ -19,8 +19,8 @@ import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
 import Backbone from 'backbone';
-import Tab from './tab';
 import 'bootstrap';
+import Tab from './tab';
 
 const TabList = Backbone.View.extend(
     /** @lends TabList.prototype */

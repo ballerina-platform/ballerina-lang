@@ -16,19 +16,25 @@
  * under the License.
  */
 import log from 'log';
+import _ from 'lodash';
+import $ from 'jquery';
 import Backbone from 'backbone';
 
+/**
+ * Backbone view for a Tab.
+ */
 const Tab = Backbone.View.extend(
     /** @lends Tab.prototype */
     {
         /**
-         * @augments Backbone.View
-         * @constructs
-         * @class TabView represents the view for tab.
+         * Initializes a tab.
+         * 
+         * @param {Object} options The object for creating a tab.
+         * @param {string} options.title The title of the tab.
+         * @param {HTMLElement} options.template The html element object for the tab.
          */
         initialize(options) {
-            let errMsg,
-                template;
+            let errMsg;
             // FIXME
             _.set(this, 'id', this.cid);
             _.set(this, '_title', _.get(options, 'title'));
@@ -37,7 +43,7 @@ const Tab = Backbone.View.extend(
                 log.error(errMsg);
                 throw errMsg;
             }
-            template = $(_.get(options, 'template'));
+            const template = $(_.get(options, 'template'));
             if (!template.length > 0) {
                 errMsg = `unable to find template with id ${_.get(options, 'template')}`;
                 log.error(errMsg);

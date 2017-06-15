@@ -96,37 +96,35 @@ const FileBrowser = Backbone.View.extend({
     },
 
     getURLProvider() {
-        const self = this;
         return function (node) {
             if (node.id === '#') {
-                if (!_.isNil(self._root)) {
-                    if (self._fetchFiles) {
-                        return `${self._workspaceServiceURL}/listFiles?path=${btoa(self._root)}`;
+                if (!_.isNil(this._root)) {
+                    if (this._fetchFiles) {
+                        return `${this._workspaceServiceURL}/listFiles?path=${btoa(this._root)}`;
                     }
-                    return `${self._workspaceServiceURL}/list?path=${btoa(self._root)}`;
+                    return `${this._workspaceServiceURL}/list?path=${btoa(this._root)}`;
                 }
-                return `${self._workspaceServiceURL}/root`;
+                return `${this._workspaceServiceURL}/root`;
             }
 
-            if (self._fetchFiles) {
-                return `${self._workspaceServiceURL}/listFiles?path=${btoa(node.id)}`;
+            if (this._fetchFiles) {
+                return `${this._workspaceServiceURL}/listFiles?path=${btoa(node.id)}`;
             }
-            return `${self._workspaceServiceURL}/list?path=${btoa(node.id)}`;
+            return `${this._workspaceServiceURL}/list?path=${btoa(node.id)}`;
         };
     },
 
     /**
-     * @param path a single path or an array of folder paths to select
+     * @param {string} path a single path or an array of folder paths to select
      */
     select(path) {
         this._$parent_el.jstree(true).deselect_all();
-        let pathSeparator = this.application.getPathSeperator(),
-            pathParts = _.split(path, pathSeparator),
-            currentPart = '/',
-            self = this;
+        const pathSeparator = this.application.getPathSeperator();
+        const pathParts = _.split(path, pathSeparator);
+        let currentPart = '/';
         pathParts.forEach((part) => {
             currentPart += part;
-            self._$parent_el.jstree(true).open_node(currentPart);
+            this._$parent_el.jstree(true).open_node(currentPart);
             currentPart += pathSeparator;
         });
 
@@ -142,26 +140,29 @@ const FileBrowser = Backbone.View.extend({
     },
 
     render() {
-        const self = this;
         this._$parent_el
-                .jstree(self._treeConfig).on('changed.jstree', (e, data) => {
+                .jstree(this._treeConfig).on('changed.jstree', (e, data) => {
                     if (data && data.selected && data.selected.length) {
-                        self.selected = data.selected[0];
-                        self.trigger('selected', data.selected[0]);
+                        this.selected = data.selected[0];
+                        this.trigger('selected', data.selected[0]);
                     } else {
-                        self.selected = false;
-                        self.trigger('selected', null);
+                        this.selected = false;
+                        this.trigger('selected', null);
                     }
-                }).on('open_node.jstree', (e, data) => {
+                })
+                .on('open_node.jstree', (e, data) => {
                     data.instance.set_icon(data.node, 'fw fw-folder');
-                }).on('close_node.jstree', (e, data) => {
+                })
+                .on('close_node.jstree', (e, data) => {
                     data.instance.set_icon(data.node, 'fw fw-folder');
-                }).on('ready', () => {
-                    self.trigger('ready');
-                }).on('dblclick.jstree', (event) => {
+                })
+                .on('ready', () => {
+                    this.trigger('ready');
+                })
+                .on('dblclick.jstree', (event) => {
                     const item = $(event.target).closest('li');
-                    const node = self._$parent_el.jstree(true).get_node(item[0].id);
-                    self.trigger('double-click-node', node);
+                    const node = this._$parent_el.jstree(true).get_node(item[0].id);
+                    this.trigger('double-click-node', node);
                 });
         return this;
     },
