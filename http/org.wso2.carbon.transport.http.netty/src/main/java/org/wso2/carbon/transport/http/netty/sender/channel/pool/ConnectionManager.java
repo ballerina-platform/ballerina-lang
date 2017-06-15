@@ -291,7 +291,8 @@ public class ConnectionManager {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
-            Map<String, TargetChannel> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPerHostPool();
+            Map<String, TargetChannel> objectPoolMap = targetChannel.getCorrelatedSource()
+                    .getTargetChannelPerHostPool();
             objectPoolMap.put(targetChannel.getHttpRoute().toString(), targetChannel);
         }
     }
