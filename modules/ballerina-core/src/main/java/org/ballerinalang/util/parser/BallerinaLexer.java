@@ -1,4 +1,4 @@
-// Generated from /home/djkevincr/bal_release_io/bin/ballerina/docs/grammar/Ballerina.g4 by ANTLR 4.5.3
+// Generated from Ballerina.g4 by ANTLR 4.5.3
 package org.ballerinalang.util.parser;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
