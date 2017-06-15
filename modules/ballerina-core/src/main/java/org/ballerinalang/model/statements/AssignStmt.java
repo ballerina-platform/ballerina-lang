@@ -55,11 +55,6 @@ public class AssignStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
-    @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
-    }
-
     public void setRhsExpr(Expression rhsExpr) {
         this.rhsExpr = rhsExpr;
     }
