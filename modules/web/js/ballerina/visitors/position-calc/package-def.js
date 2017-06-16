@@ -33,7 +33,7 @@ class PackageDefinitionPositionCalcVisitor {
      * @memberOf PackageDefinitionPositionCalcVisitor
      * */
     canVisit() {
-        log.debug('can visit FunctionInvocationStatementPositionCalc');
+        log.debug('can visit PackageDefinitionPositionCalcVisitor');
         return true;
     }
 
@@ -45,7 +45,7 @@ class PackageDefinitionPositionCalcVisitor {
      * @memberOf PackageDefinitionPositionCalcVisitor
      * */
     beginVisit(node) {
-        log.debug('begin visit FunctionInvocationStatementPositionCalc');
+        log.debug('begin visit PackageDefinitionPositionCalcVisitor');
         const viewSate = node.getViewState();
         const bBox = viewSate.bBox;
 
@@ -59,7 +59,7 @@ class PackageDefinitionPositionCalcVisitor {
      * @memberOf PackageDefinitionPositionCalcVisitor
      * */
     visit() {
-        log.debug('visit FunctionInvocationStatementPositionCalc');
+        log.debug('visit PackageDefinitionPositionCalcVisitor');
     }
 
     /**
@@ -68,7 +68,7 @@ class PackageDefinitionPositionCalcVisitor {
      * @memberOf PackageDefinitionPositionCalcVisitor
      * */
     endVisit() {
-        log.debug('end visit FunctionInvocationStatementPositionCalc');
+        log.debug('end visit PackageDefinitionPositionCalcVisitor');
     }
 }
 
