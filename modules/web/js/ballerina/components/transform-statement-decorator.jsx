@@ -767,6 +767,7 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
             _.remove(self.props.model.getInput(),(currentObject) => {
                 return currentObject.getVariableName() === id;
             });
+            self.removeAssignmentStatements(id, "source");
             self.props.model.setInput(self.props.model.getInput());
             var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
@@ -797,6 +798,7 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
             _.remove(self.props.model.getOutput(),(currentObject) => {
                 return currentObject.getVariableName() === id;
             });
+            self.removeAssignmentStatements(id, "target");
             self.props.model.setOutput(self.props.model.getOutput());
             var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
@@ -813,6 +815,23 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
         } 
             return false;
         
+    }
+
+    removeAssignmentStatements(id, type) {
+        var index = 0;
+        if(type == "source") {
+            index = 1;
+        }
+        _.remove(self.props.model.getChildren(),(currentObject) => {
+            var condition = false;
+            if (currentObject.children[index].children[0].getFactory()
+                .isFieldAccessExpression(currentObject.children[index].children[0])) {
+                condition = currentObject.children[index].children[0].children[0].getExpressionString() === id;
+            } else {
+               condition = currentObject.children[index].children[0].getVariableName() === id;
+            }
+            return condition;
+        });
     }
 }
 
