@@ -24,7 +24,6 @@ import EventChannel from 'event_channel';
 import Package from './../env/package';
 import ToolGroup from './../tool-palette/tool-group';
 import InitialTools from './initial-definitions';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
 const iconFunction = require('./../../../images/tool-icons/function.svg');
@@ -241,7 +240,7 @@ class ToolPaletteItemProvider extends EventChannel {
             const packageName = _.last(_.split(pckg.getName(), '.'));
             const args = {
                 pkgName: packageName,
-                connectorName: connector.getName()
+                connectorName: connector.getName(),
             };
             connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
             connector.meta = args;

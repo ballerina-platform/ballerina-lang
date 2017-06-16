@@ -56,10 +56,13 @@ function findBalFilesInDirSync(dir, filelist) {
     return filelist;
 }
 
+/* global describe*/
+// Reference : https://stackoverflow.com/a/39158329/1403246
 describe('Ballerina Composer Test Suite', () => {
     const testResDir = path.resolve(path.join('js', 'tests', 'resources'));
     const testFiles = findBalFilesInDirSync(testResDir);
     testFiles.forEach((testFile) => {
+        /* global it */
         it(`${testFile.replace(testResDir, '')} file serialize/deserialize test`, () => {
             const expectedSource = readFile(testFile);
             const generatedSource = ballerinaASTDeserializer(expectedSource);
