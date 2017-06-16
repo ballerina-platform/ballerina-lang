@@ -82,12 +82,15 @@ public class BLangServiceInterceptors {
             serverConnectorInterceptorInfoMap.put(interceptorInfo.serverConnector, interceptorInfo);
 
             if (interceptorConfig.getDeploymentDirectory() == null) {
-                throw new BLangRuntimeException("invalid interceptor deployment directory");
+                throw new BLangRuntimeException("invalid interceptor deployment directory for server connector" +
+                        interceptorConfig.getServerConnector());
             }
 
             File interceptorDeploymentDirectory = new File(interceptorConfig.getDeploymentDirectory());
             if (!interceptorDeploymentDirectory.exists()) {
-                throw new BLangRuntimeException("interceptor deployment directory doesn't exist");
+                throw new BLangRuntimeException("interceptor deployment directory " +
+                        interceptorConfig.getDeploymentDirectory() + " doesn't exist for server connector " +
+                        interceptorConfig.getServerConnector());
             }
             interceptorInfo.deploymentPath = interceptorDeploymentDirectory.toPath();
             BLangProgramLoader bLangProgramLoader = new BLangProgramLoader();
