@@ -16,6 +16,7 @@
  * under the License.
  */
 
+import $ from 'jquery';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 
@@ -80,10 +81,9 @@ MenuItem.prototype.disable = function () {
 MenuItem.prototype.enable = function () {
     this._listItemElement.addClass(_.get(this, 'options.cssClass.active'));
     this._listItemElement.removeClass(_.get(this, 'options.cssClass.inactive'));
-    const self = this;
     this._linkElement.off('click');
     this._linkElement.click(() => {
-        self._application.commandManager.dispatch(self.definition.command.id);
+        this._application.commandManager.dispatch(this.definition.command.id);
     });
 };
 

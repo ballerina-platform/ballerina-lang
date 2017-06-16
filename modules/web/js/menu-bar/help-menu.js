@@ -16,45 +16,43 @@
  * under the License.
  */
 
-define(([], function () {
-    const HelpMenu = {
-        id: 'help',
-        label: 'Help',
-        items: [
-            {
-                id: 'welcome_page',
-                label: 'Welcome Page',
-                command: {
-                    id: 'go-to-welcome-page',
-                },
+const HelpMenu = {
+    id: 'help',
+    label: 'Help',
+    items: [
+        {
+            id: 'welcome_page',
+            label: 'Welcome Page',
+            command: {
+                id: 'go-to-welcome-page',
             },
-            {
-                id: 'user_guide',
-                label: 'User Guide',
-                command: {
-                    id: 'go-to-user-guide',
-                    shortcuts: {
-                        mac: {
-                            key: 'f1',
-                            label: 'F1',
-                        },
-                        other: {
-                            key: 'f1',
-                            label: 'F1',
-                        },
+        },
+        {
+            id: 'user_guide',
+            label: 'User Guide',
+            command: {
+                id: 'go-to-user-guide',
+                shortcuts: {
+                    mac: {
+                        key: 'f1',
+                        label: 'F1',
+                    },
+                    other: {
+                        key: 'f1',
+                        label: 'F1',
                     },
                 },
             },
-            {
-                id: 'about',
-                label: 'About',
-                command: {
-                    id: 'show-about-dialog',
-                },
+        },
+        {
+            id: 'about',
+            label: 'About',
+            command: {
+                id: 'show-about-dialog',
             },
-        ],
+        },
+    ],
 
-    };
+};
 
-    return HelpMenu;
-}));
+export default HelpMenu;

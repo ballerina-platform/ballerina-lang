@@ -20,6 +20,7 @@ import FileMenu from './file-menu';
 import EditMenu from './edit-menu';
 import HelpMenu from './help-menu';
 import CodeMenu from './code-menu';
+
 const menuBar = {};
 
 menuBar[FileMenu.id] = FileMenu;
