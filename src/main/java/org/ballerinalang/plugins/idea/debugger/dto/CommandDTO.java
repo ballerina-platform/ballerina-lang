@@ -28,7 +28,7 @@
 //
 //    private String command;
 //
-//    private ArrayList<BreakPointDTO> points;
+//    private ArrayList<BreakPoint> points;
 //
 //    public String getCommand() {
 //        return command;
@@ -38,11 +38,11 @@
 //        this.command = command;
 //    }
 //
-//    public ArrayList<BreakPointDTO> getPoints() {
+//    public ArrayList<BreakPoint> getPoints() {
 //        return points;
 //    }
 //
-//    public void setPoints(ArrayList<BreakPointDTO> points) {
+//    public void setPoints(ArrayList<BreakPoint> points) {
 //        this.points = points;
 //    }
 //
@@ -54,7 +54,7 @@
 //     */
 ////    public ArrayList<NodeLocation> getBreakPoints() {
 ////        ArrayList<NodeLocation> breakPoints = new ArrayList<NodeLocation>();
-////        for (BreakPointDTO bp: points) {
+////        for (BreakPoint bp: points) {
 ////            breakPoints.add(new NodeLocation(bp.getFileName(), bp.getLineNumber()));
 ////        }
 ////        return breakPoints;

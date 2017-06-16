@@ -16,40 +16,14 @@
 
 package org.ballerinalang.plugins.idea.debugger.dto;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *  DTO class representing Call Stack Frames and their variables.
- */
-public class FrameDTO {
+public class Frame {
 
     private String packageName, frameName, fileName;
     private int lineID;
-    private List<VariableDTO> variables = new ArrayList<VariableDTO>();
-
-    public FrameDTO(){
-
-    }
-
-    public FrameDTO(String packageName, String frameName, String fileName, int lineID) {
-        this.packageName = packageName;
-        this.frameName = frameName;
-        this.fileName = fileName;
-        this.lineID = lineID;
-    }
-
-//    public FrameDTO(FrameInfo frame) {
-//        this.packageName = frame.getPackageName();
-//        this.frameName = frame.getFrameName();
-//        this.fileName = frame.getFileName();
-//        this.lineID = frame.getLineID();
-//        for (VariableInfo vinfo: frame.getVariableInfo()) {
-//            variables.add(new VariableDTO(vinfo));
-//        }
-//    }
-
+    private List<Variable> variables = new ArrayList<>();
 
     public String getPackageName() {
         return packageName;
@@ -83,7 +57,7 @@ public class FrameDTO {
         this.lineID = lineID;
     }
 
-    public List<VariableDTO> getVariables() {
+    public List<Variable> getVariables() {
         return variables;
     }
 }

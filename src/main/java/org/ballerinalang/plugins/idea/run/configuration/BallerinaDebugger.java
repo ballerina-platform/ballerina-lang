@@ -77,6 +77,12 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 throw new ExecutionException("Cannot run debugger");
             }
 
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e1) {
+
+            }
+
             return XDebuggerManager.getInstance(env.getProject()).startSession(env, new XDebugProcessStarter() {
 
                 @NotNull
@@ -91,11 +97,7 @@ public class BallerinaDebugger extends GenericProgramRunner {
                         ApplicationManager.getApplication().invokeLater(() -> {
                             int MAX_RETRIES = 5;
                             for (int retries = 0; retries < MAX_RETRIES; retries++) {
-                                try {
-                                    Thread.sleep(1500);
-                                } catch (InterruptedException e1) {
 
-                                }
                                 try {
                                     mySocket = mySocket.connect();
                                     break;

@@ -23,17 +23,12 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.SyntaxTraverser;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ThreeState;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
@@ -46,17 +41,15 @@ import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
+import com.intellij.xdebugger.frame.presentation.XKeywordValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XNumericValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
-import org.ballerinalang.plugins.idea.debugger.dto.VariableDTO;
-import org.ballerinalang.plugins.idea.debugger.protocol.BallerinaAPI;
-import org.ballerinalang.plugins.idea.debugger.protocol.BallerinaRequest;
+import org.ballerinalang.plugins.idea.debugger.dto.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -64,22 +57,22 @@ import javax.swing.*;
 
 public class BallerinaXValue extends XNamedValue {
 
-    @NotNull
-    //    private final BallerinaAPI.Variable myVariable;
-    private final VariableDTO myVariable;
-
-    private final Icon myIcon;
     private final BallerinaDebugProcess myProcess;
+    @NotNull
+    private final Variable myVariable;
+    private final String myFrameName;
+    private final Icon myIcon;
     //    private final BallerinaCommandProcessor myProcessor;
     //    private final int myFrameId;
 
     public BallerinaXValue(@NotNull BallerinaDebugProcess process,
-                           @NotNull VariableDTO variable,
-                           //                           @NotNull BallerinaAPI.Variable variable,
+                           @NotNull String frameName,
+                           @NotNull Variable variable,
                            //                           @NotNull BallerinaCommandProcessor processor, int frameId,
                            @Nullable Icon icon) {
         super(variable.getName());
         myProcess = process;
+        myFrameName = frameName;
         myVariable = variable;
         myIcon = icon;
         //        myProcessor = processor;
@@ -89,14 +82,29 @@ public class BallerinaXValue extends XNamedValue {
     @Override
     public void computePresentation(@NotNull XValueNode node, @NotNull XValuePlace place) {
         XValuePresentation presentation = getPresentation();
+        boolean hasChildren = false;
+        if (myVariable.getValue() == null && myVariable.getChildren() != null) {
+            hasChildren = true;
+        }
         //        boolean hasChildren = myVariable.children.length > 0;
         //        node.setPresentation(myIcon, presentation, hasChildren);
-        node.setPresentation(myIcon, presentation, false);
+        node.setPresentation(myIcon, presentation, hasChildren);
     }
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        //        BallerinaAPI.Variable[] children = myVariable.children;
+        List<Variable> children = myVariable.getChildren();
+        if (children == null) {
+            super.computeChildren(node);
+        } else {
+            XValueChildrenList list = new XValueChildrenList();
+            for (Variable child : children) {
+                list.add(child.getName(), new BallerinaXValue(myProcess, myFrameName, child, AllIcons.Nodes.Field));
+            }
+            node.addChildren(list, true);
+        }
+
+
         //        if (children.length == 0) {
         //            super.computeChildren(node);
         //        } else {
@@ -133,8 +141,19 @@ public class BallerinaXValue extends XNamedValue {
     @NotNull
     private XValuePresentation getPresentation() {
         String value = myVariable.getValue();
-        //        if (myVariable.isNumber()) return new XNumericValuePresentation(value);
-        //        if (myVariable.isString()) return new XStringValuePresentation(value);
+        if (value == null) {
+            return new XRegularValuePresentation(myFrameName, "Scope");
+        }
+
+        if (myVariable.isNumber()) {
+            return new XNumericValuePresentation(value);
+        }
+        if (myVariable.isString()) {
+            return new XStringValuePresentation(value);
+        }
+        if (myVariable.isBoolean()) {
+            return new XKeywordValuePresentation(value);
+        }
         //        if (myVariable.isBool()) {
         //            return new XValuePresentation() {
         //                @Override
@@ -180,6 +199,7 @@ public class BallerinaXValue extends XNamedValue {
     @Override
     public void computeSourcePosition(@NotNull XNavigatable navigatable) {
         readActionInPooledThread(new Runnable() {
+
             @Override
             public void run() {
                 navigatable.setSourcePosition(findPosition());
@@ -187,18 +207,26 @@ public class BallerinaXValue extends XNamedValue {
 
             @Nullable
             private XSourcePosition findPosition() {
-                XDebugSession debugSession = getSession();
-                if (debugSession == null) return null;
+                XDebugSession debugSession = myProcess.getSession();
+                if (debugSession == null) {
+                    return null;
+                }
                 XStackFrame stackFrame = debugSession.getCurrentStackFrame();
-                if (stackFrame == null) return null;
+                if (stackFrame == null) {
+                    return null;
+                }
                 Project project = debugSession.getProject();
                 XSourcePosition position = debugSession.getCurrentPosition();
                 Editor editor = ((FileEditorManagerImpl) FileEditorManager.getInstance(project))
                         .getSelectedTextEditor(true);
-                if (editor == null || position == null) return null;
+                if (editor == null || position == null) {
+                    return null;
+                }
                 String name = myName.startsWith("&") ? myName.replaceFirst("\\&", "") : myName;
                 PsiElement resolved = findTargetElement(project, position, editor, name);
-                if (resolved == null) return null;
+                if (resolved == null) {
+                    return null;
+                }
                 VirtualFile virtualFile = resolved.getContainingFile().getVirtualFile();
                 return XDebuggerUtil.getInstance().createPositionByOffset(virtualFile, resolved.getTextOffset());
             }
@@ -206,19 +234,8 @@ public class BallerinaXValue extends XNamedValue {
     }
 
     private static void readActionInPooledThread(@NotNull Runnable runnable) {
-        ApplicationManager.getApplication().executeOnPooledThread(() -> ApplicationManager.getApplication()
-                .runReadAction(runnable));
-    }
-
-    @Nullable
-    private Project getProject() {
-        XDebugSession session = getSession();
-        return session != null ? session.getProject() : null;
-    }
-
-    @Nullable
-    private XDebugSession getSession() {
-        return myProcess.getSession();
+        ApplicationManager.getApplication().executeOnPooledThread(() ->
+                ApplicationManager.getApplication().runReadAction(runnable));
     }
 
     @NotNull

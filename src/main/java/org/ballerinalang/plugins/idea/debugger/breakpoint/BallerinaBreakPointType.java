@@ -71,7 +71,7 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
         public boolean process(@NotNull PsiElement element) {
             IElementType type = element.getNode().getElementType();
             if (type == BallerinaTypes.COMMENT_STATEMENT
-                    || type instanceof PsiWhiteSpace) {
+                    || type instanceof PsiWhiteSpace || element.getNode().getText().isEmpty()) {
                 myIsLineBreakpointAvailable = false;
             } else {
                 myIsLineBreakpointAvailable = true;

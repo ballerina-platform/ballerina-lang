@@ -20,8 +20,8 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XSuspendContext;
-import org.ballerinalang.plugins.idea.debugger.dto.MessageDTO;
-import org.ballerinalang.plugins.idea.debugger.protocol.BallerinaAPI;
+import org.ballerinalang.plugins.idea.debugger.dto.Frame;
+import org.ballerinalang.plugins.idea.debugger.dto.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,9 +36,9 @@ public class BallerinaSuspendContext extends XSuspendContext {
                                    //            , int threadId,
                                    //                                   @NotNull List<BallerinaAPI.Location> locations,
                                    //                                   @NotNull BallerinaCommandProcessor processor
-            , MessageDTO message
+            , Message message
     ) {
-        myStack = new BallerinaExecutionStack(process/*, threadId, locations, processor*/, message);
+        myStack = new BallerinaExecutionStack(process/*, threadId, locations, processor*/, message.getFrames());
     }
 
     @Nullable
@@ -71,7 +71,7 @@ public class BallerinaSuspendContext extends XSuspendContext {
                                        //                                       @NotNull BallerinaCommandProcessor
                                        // processor
 
-                , MessageDTO message
+                , List<Frame> frames
         ) {
             super("Thread #" + 1);
             myProcess = process;
@@ -81,8 +81,11 @@ public class BallerinaSuspendContext extends XSuspendContext {
             //            for (int i = 0; i < myLocations.size(); i++) {
             //                myStack.add(new BallerinaStackFrame(myProcess, myLocations.get(i), myProcessor, i));
             //            }
-            myStack = ContainerUtil.newArrayListWithCapacity(1);
-            myStack.add(new BallerinaStackFrame(myProcess, /*myLocations.get(i), myProcessor, i*/message));
+            // Todo -
+            myStack = ContainerUtil.newArrayListWithCapacity(frames.size());
+            for (Frame frame : frames) {
+                myStack.add(new BallerinaStackFrame(myProcess, /*myLocations.get(i), myProcessor, i*/frame));
+            }
         }
 
         @Nullable

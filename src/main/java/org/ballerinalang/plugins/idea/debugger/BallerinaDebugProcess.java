@@ -24,7 +24,11 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
@@ -43,12 +47,15 @@ import com.neovisionaries.ws.client.WebSocketFrame;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakpointProperties;
 
-import org.ballerinalang.plugins.idea.debugger.dto.BreakPointDTO;
-import org.ballerinalang.plugins.idea.debugger.dto.MessageDTO;
+import org.ballerinalang.plugins.idea.debugger.dto.BreakPoint;
+import org.ballerinalang.plugins.idea.debugger.dto.Message;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -77,7 +84,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
         // Todo - add session
         //        myDebuggerSession = XsltDebuggerSession.getInstance(myProcessHandler);
-
 
     }
 
@@ -109,11 +115,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         // To debug the debugger, add a breakpoint here. When it is hit, connect to the ballerina runtime using a
         // remote connection. then continue from here.
-
-
-
-
-
     }
 
     @Override
@@ -202,9 +203,9 @@ public class BallerinaDebugProcess extends XDebugProcess {
                             String json = frame.getPayloadText();
 
                             ObjectMapper mapper = new ObjectMapper();
-                            MessageDTO message = null;
+                            Message message = null;
                             try {
-                                message = mapper.readValue(json, MessageDTO.class);
+                                message = mapper.readValue(json, Message.class);
                             } catch (IOException e) {
 
                             }
@@ -216,7 +217,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
                             if ("DEBUG_HIT".equals(message.getCode())) {
                                 XBreakpoint<BallerinaBreakpointProperties> breakpoint
-                                        = findBreak(message.getLocation());
+                                        = findBreakPoint(message.getLocation());
                                 BallerinaSuspendContext context =
                                         new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
                                 XDebugSession session = getSession();
@@ -225,11 +226,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                                 } else {
                                     session.breakpointReached(breakpoint, null, context);
                                 }
-
-
                             }
-
-
                         }
                     }
             );
@@ -257,10 +254,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
     }
 
-    private XBreakpoint<BallerinaBreakpointProperties> findBreak(@NotNull BreakPointDTO breakPointDTO) {
+    private XBreakpoint<BallerinaBreakpointProperties> findBreakPoint(@NotNull BreakPoint breakPoint) {
 
-        String fileName = breakPointDTO.getFileName();
-        int lineNumber = breakPointDTO.getLineNumber();
+        String fileName = breakPoint.getFileName();
+        int lineNumber = breakPoint.getLineNumber();
 
         for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
             XSourcePosition breakpointPosition = breakpoint.getSourcePosition();
@@ -390,19 +387,33 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
         private void sendBreakpoints() {
             StringBuilder stringBuilder = new StringBuilder("{\"command\":\"SET_POINTS\", \"points\": [");
-            int size = breakpoints.size();
-            for (int i = 0; i < size; i++) {
-                XSourcePosition breakpointPosition = breakpoints.get(i).getSourcePosition();
-                if (breakpointPosition == null) {
-                    return;
-                }
-                VirtualFile file = breakpointPosition.getFile();
-                int line = breakpointPosition.getLine();
-                // Todo - get relative package path
-                stringBuilder.append("{\"fileName\":\"").append(file.getName()).append("\"");
-                stringBuilder.append(", \"lineNumber\":").append(line + 1).append("}");
-                if (i < size - 1) {
-                    stringBuilder.append(",");
+            if (!getSession().areBreakpointsMuted()) {
+                int size = breakpoints.size();
+                for (int i = 0; i < size; i++) {
+                    XSourcePosition breakpointPosition = breakpoints.get(i).getSourcePosition();
+                    if (breakpointPosition == null) {
+                        return;
+                    }
+                    VirtualFile file = breakpointPosition.getFile();
+                    int line = breakpointPosition.getLine();
+                    Project project = getSession().getProject();
+
+                    String name="";
+                    // Only get relative path if a package declaration is present in the file.
+                    PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+                    PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
+                            PackageDeclarationNode.class);
+                    if (packageDeclarationNode != null) {
+                        name = BallerinaUtil.suggestPackageNameForFile(project, file);
+                        name = name.replaceAll("\\.", "/") + "/";
+                    }
+                    name += file.getName();
+
+                    stringBuilder.append("{\"fileName\":\"").append(name).append("\"");
+                    stringBuilder.append(", \"lineNumber\":").append(line + 1).append("}");
+                    if (i < size - 1) {
+                        stringBuilder.append(",");
+                    }
                 }
             }
             stringBuilder.append("]}");

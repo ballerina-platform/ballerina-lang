@@ -16,26 +16,13 @@
 
 package org.ballerinalang.plugins.idea.debugger.dto;
 
-/**
- * DTO class representing variables in the stack upon a debug hit.
- *
- * @since 0.8.0
- */
-public class VariableDTO {
+import java.util.List;
+
+public class Variable {
 
     private String scope, name;
     private String type, value;
-
-    public VariableDTO() {
-    }
-//
-//    public VariableDTO(VariableInfo vinfo) {
-//        this.scope = vinfo.getScope();
-//        this.name = vinfo.getName();
-//        this.type = vinfo.getType();
-//        this.value = vinfo.getbValueSting();
-//    }
-
+    private List<Variable> children;
 
     public String getScope() {
         return scope;
@@ -67,5 +54,25 @@ public class VariableDTO {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public List<Variable> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Variable> children) {
+        this.children = children;
+    }
+
+    public boolean isNumber() {
+        return type != null && "BInteger".equals(type);
+    }
+
+    public boolean isString() {
+        return type != null && "BString".equals(type);
+    }
+
+    public boolean isBoolean() {
+        return type != null && "BBoolean".equals(type);
     }
 }

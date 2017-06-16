@@ -17,23 +17,10 @@
 package org.ballerinalang.plugins.idea.debugger.dto;
 
 
-/**
- * Break point DTO class.
- */
-public class BreakPointDTO {
+public class BreakPoint {
 
     private String fileName;
-
     private int lineNumber = -1;
-
-    public BreakPointDTO(){
-
-    }
-
-    public BreakPointDTO(String fileName, int lineNumber) {
-        this.fileName = fileName;
-        this.lineNumber = lineNumber;
-    }
 
     public String getFileName() {
         return fileName;

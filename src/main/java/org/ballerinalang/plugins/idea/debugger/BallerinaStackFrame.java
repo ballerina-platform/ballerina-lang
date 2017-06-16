@@ -16,17 +16,24 @@
 
 package org.ballerinalang.plugins.idea.debugger;
 
-import com.intellij.execution.configurations.ModuleBasedConfiguration;
-import com.intellij.execution.configurations.RunProfile;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.module.Module;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FileTypeIndex;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.ColoredTextContainer;
 import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
@@ -34,29 +41,32 @@ import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValue;
 import com.intellij.xdebugger.frame.XValueChildrenList;
-import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.debugger.dto.FrameDTO;
-import org.ballerinalang.plugins.idea.debugger.dto.MessageDTO;
-import org.ballerinalang.plugins.idea.debugger.dto.VariableDTO;
-import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
+import org.ballerinalang.plugins.idea.BallerinaFileType;
+import org.ballerinalang.plugins.idea.debugger.dto.Frame;
+import org.ballerinalang.plugins.idea.debugger.dto.Variable;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 
 public class BallerinaStackFrame extends XStackFrame {
 
     private final BallerinaDebugProcess myProcess;
-    private final MessageDTO myMessage;
+    private final Frame myFrame;
 
     //    private final BallerinaAPI.Location myLocation;
     //    private final BallerinaCommandProcessor myProcessor;
     //    private final int myId;
 
     public BallerinaStackFrame(@NotNull BallerinaDebugProcess process,
-                               MessageDTO messageDTO
+                               Frame frame
                                //                               @NotNull BallerinaAPI.Location location,
                                //                               @NotNull BallerinaCommandProcessor processor, int id
     ) {
@@ -65,7 +75,7 @@ public class BallerinaStackFrame extends XStackFrame {
         //        myProcessor = processor;
         //        myId = id;
 
-        myMessage = messageDTO;
+        myFrame = frame;
 
     }
 
@@ -113,25 +123,44 @@ public class BallerinaStackFrame extends XStackFrame {
         //        };
     }
 
-    @NotNull
-    private XValue createXValue(@NotNull VariableDTO variable, @Nullable Icon icon) {
-        return new BallerinaXValue(myProcess, variable, icon);
-    }
+    //    @NotNull
+    //    private XValue createXValue(@NotNull Variable variable, @Nullable Icon icon) {
+    //        return new BallerinaXValue(myProcess, variable, icon);
+    //    }
 
     @Nullable
     @Override
     public XSourcePosition getSourcePosition() {
         VirtualFile file = findFile();
         return file == null ? null : XDebuggerUtil.getInstance().createPosition(file,
-                myMessage.getLocation().getLineNumber() - 1);
+                myFrame.getLineID() - 1);
     }
 
     @Nullable
     private VirtualFile findFile() {
-        // Todo - check path
-        String url = "/home/shan/Documents/WSO2/Sources/Test_0.8.6_final/org/test/" +
-                myMessage.getLocation().getFileName();
 
+        String relativePath = myFrame.getFileName();
+
+        Project project = myProcess.getSession().getProject();
+
+        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
+        VirtualFile file = null;
+        for (VirtualFile contentRoot : contentRoots) {
+            String absolutePath = contentRoot.getPath() + "/" + relativePath;
+            file = LocalFileSystem.getInstance().findFileByPath(absolutePath);
+            if (file != null) {
+                break;
+            }
+        }
+
+        if (file == null) {
+            // Todo - Temp fix. Might show the wrong file if more than one file have the same name.
+            // If a file is not found, that can mean the file did not had any package declaration, so it was ran as a
+            // file, not a package.
+            GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
+
+//            file = getVirtualFile(relativePath, myFrame.getPackageName(), scope);
+        }
         //        AsyncResult<DataContext> dataContextFromFocus = DataManager.getInstance().getDataContextFromFocus();
         //        // Get the result from the data context.
         //        DataContext result = dataContextFromFocus.getResult();
@@ -152,42 +181,124 @@ public class BallerinaStackFrame extends XStackFrame {
         //        }
 
 
-        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(url);
-        if (file == null && SystemInfo.isWindows) {
-            Project project = myProcess.getSession().getProject();
-            RunProfile profile = myProcess.getSession().getRunProfile();
-            Module module = profile instanceof ModuleBasedConfiguration ? ((ModuleBasedConfiguration) profile)
-                    .getConfigurationModule().getModule() : null;
-            String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(module);
-            if (sdkHomePath == null) return null;
-            String newUrl = StringUtil.replaceIgnoreCase(url, "c:/go", sdkHomePath);
-            return LocalFileSystem.getInstance().findFileByPath(newUrl);
-        }
+        //        VirtualFile file = LocalFileSystem.getInstance().findFileByPath(url);
+        //        if (file == null && SystemInfo.isWindows) {
+        //
+        //            RunProfile profile = myProcess.getSession().getRunProfile();
+        //            Module module = profile instanceof ModuleBasedConfiguration ? ((ModuleBasedConfiguration) profile)
+        //                    .getConfigurationModule().getModule() : null;
+        //            String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(module);
+        //            if (sdkHomePath == null) return null;
+        //            String newUrl = StringUtil.replaceIgnoreCase(url, "c:/go", sdkHomePath);
+        //            return LocalFileSystem.getInstance().findFileByPath(newUrl);
+        //        }
+
+
         return file;
+    }
+
+    private VirtualFile getVirtualFile(String relativePath, String packageName, GlobalSearchScope scope) {
+        List<VirtualFile> matchingFiles = new LinkedList<>();
+        ApplicationManager.getApplication().executeOnPooledThread(
+                () -> ApplicationManager.getApplication().runReadAction(
+                        () -> {
+                            for (VirtualFile virtualFile : FileTypeIndex.getFiles(BallerinaFileType.INSTANCE, scope)) {
+                                if (virtualFile.getName().equals(relativePath)) {
+                                    matchingFiles.add(virtualFile);
+                                }
+                            }
+
+
+                        }
+                )
+        );
+        if (matchingFiles.isEmpty()) {
+            return null;
+        }
+        if (matchingFiles.size() == 1) {
+            return matchingFiles.get(0);
+        }
+        for (VirtualFile matchingFile : matchingFiles) {
+
+            PsiFile psiFile = PsiManager.getInstance(myProcess.getSession().getProject()).findFile(matchingFile);
+            PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
+                    PackageDeclarationNode.class);
+            if (packageDeclarationNode != null) {
+                if (".".equals(packageName)) {
+                    continue;
+                }
+
+                PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
+                        PackagePathNode.class);
+                if (packagePathNode != null) {
+                    if (packageName.equals(packagePathNode.getText())) {
+                        return matchingFile;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override
     public void customizePresentation(@NotNull ColoredTextContainer component) {
         super.customizePresentation(component);
-        component.append(" at " + myMessage.getFrames().get(0).getFrameName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        component.append(" at ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        component.append(myFrame.getFrameName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
         component.setIcon(AllIcons.Debugger.StackFrame);
     }
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        List<FrameDTO> frames = myMessage.getFrames();
 
-        FrameDTO frameDTO = frames.get(0);
 
-        List<VariableDTO> variables = frameDTO.getVariables();
+        Map<String, List<Variable>> scopeMap = new HashMap<>();
 
-        XValueChildrenList xVars = new XValueChildrenList(variables.size());
+        List<Variable> variables = myFrame.getVariables();
 
-        for (VariableDTO variable : variables) {
-            xVars.add(variable.getName(), createXValue(variable, BallerinaIcons.VARIABLE));
+        for (Variable variable : variables) {
+            String scopeName = variable.getScope();
+            if (scopeMap.containsKey(scopeName)) {
+                List<Variable> list = scopeMap.get(scopeName);
+                list.add(variable);
+            } else {
+                List<Variable> list = new LinkedList<>();
+                list.add(variable);
+                scopeMap.put(scopeName, list);
+            }
         }
 
-        node.addChildren(xVars, true);
+        XValueChildrenList xValueChildrenList = new XValueChildrenList(scopeMap.size());
+
+        scopeMap.forEach((scopeName, variableList) -> {
+
+            //            for (Variable variable : variableList) {
+
+            Variable scopeVariable = new Variable();
+            scopeVariable.setName(scopeName);
+            scopeVariable.setChildren(variableList);
+
+            BallerinaXValue ballerinaXValue = new BallerinaXValue(myProcess, myFrame.getFrameName(), scopeVariable,
+                    AllIcons.Debugger.Value);
+
+
+            xValueChildrenList.add(scopeName, ballerinaXValue);
+            //            }
+
+            node.addChildren(xValueChildrenList, true);
+        });
+
+
+        //
+        //        XValueChildrenList xVars = new XValueChildrenList(variables.size());
+        //
+        //        for (Variable variable : variables) {
+        //            xVars.add(variable.getName(), createXValue(variable, BallerinaIcons.VARIABLE));
+        //        }
+        //        nodeIcon = AllIcons.Debugger.Value;
+        //
+        //
+        //        node.addChildren(xVars, false);
 
 
         //        send(new BallerinaRequest.ListLocalVars(myId)).done(variables -> {
