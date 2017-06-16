@@ -15,14 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+import _ from 'lodash';
 import $ from 'jquery';
 import Backbone from 'backbone';
 import EventChannel from 'event_channel';
 
 const instance = null;
-
-
 class Search extends EventChannel {
     constructor() {
         super();
@@ -54,7 +52,7 @@ class Search extends EventChannel {
         this.el.modal('hide');
     }
 
-    search(e) {
+    search() {
         const text = this.search_box.val();
         this.result = this.adapter.search(text);
         this.render(this.result);
@@ -64,7 +62,7 @@ class Search extends EventChannel {
         this.adapter = a;
     }
 
-    render(result) {
+    render() {
         let html = '';
         const adapter = this.adapter;
         const self = this;
@@ -83,8 +81,8 @@ class Search extends EventChannel {
 }
 
 export default function getSearch(adapter) {
-    if (adapter == undefined) {
-        throw 'Undefined adapter passed for search box.';
+    if (adapter === undefined) {
+        throw new Error('Undefined adapter passed for search box.');
     }
     const i = (instance || new Search());
     i.setAdapter(adapter);
