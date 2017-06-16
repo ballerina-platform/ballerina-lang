@@ -170,12 +170,13 @@ StatementContainer.propTypes = {
         h: PropTypes.number.isRequired,
     }).isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
-    children: PropTypes.arrayOf(PropTypes.element).isRequired,
+    children: PropTypes.arrayOf(PropTypes.element),
     draggable: PropTypes.func,
 };
 
 StatementContainer.defaultProps = {
     draggable: undefined,
+    children: [],
 };
 
 StatementContainer.contextTypes = {
