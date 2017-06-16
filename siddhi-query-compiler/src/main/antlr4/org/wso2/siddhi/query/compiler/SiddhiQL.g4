@@ -34,8 +34,8 @@ error
 execution_plan
     : (plan_annotation|error)*
       ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* ';'?
-      || (execution_element|error) (';' (execution_element|error))* ';'?
-      || (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* (';' (execution_element|error))* ';'? )
+      | (execution_element|error) (';' (execution_element|error))* ';'?
+      | (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* (';' (execution_element|error))* ';'? )
     ;
 
 execution_element
@@ -255,10 +255,13 @@ having
 query_output
     :INSERT output_event_type? INTO target
     |DELETE target (FOR output_event_type)? ON expression
-    |UPDATE OR INSERT INTO target (FOR output_event_type)? ON expression
-    |UPDATE target (FOR output_event_type)? ON expression
+    |UPDATE OR INSERT INTO target (FOR output_event_type)? SET update_set ON expression
+    |UPDATE target (FOR output_event_type)? SET update_set ON expression
     |RETURN output_event_type?
     ;
+
+update_set
+    :
 
 output_event_type
     : ALL EVENTS | ALL RAW EVENTS | EXPIRED EVENTS | EXPIRED RAW EVENTS | CURRENT? EVENTS   
@@ -612,6 +615,7 @@ HAVING:   H A V I N G;
 INSERT:   I N S E R T;
 DELETE:   D E L E T E;
 UPDATE:   U P D A T E;
+SET:      S E T;
 RETURN:   R E T U R N;
 EVENTS:   E V E N T S;
 INTO:     I N T O;

@@ -1252,9 +1252,11 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             if (ctx.output_event_type() != null) {
                 return new UpdateStream(source.streamId,
                         (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                        null,
                         (Expression) visit(ctx.expression()));
             } else {
-                return new UpdateStream(source.streamId, (Expression) visit(ctx.expression()));
+                return new UpdateStream(source.streamId, null,
+                        (Expression) visit(ctx.expression()));
             }
         } else if (ctx.RETURN() != null) {
             if (ctx.output_event_type() != null) {

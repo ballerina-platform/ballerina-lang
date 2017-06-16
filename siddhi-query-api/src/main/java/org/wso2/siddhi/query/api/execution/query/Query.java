@@ -21,12 +21,7 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
-import org.wso2.siddhi.query.api.execution.query.output.stream.DeleteStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateOrInsertStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.*;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -111,21 +106,31 @@ public class Query implements ExecutionElement {
     }
 
     public void updateBy(String outputTableId, Expression onUpdateExpression) {
-        this.outputStream = new UpdateStream(outputTableId, onUpdateExpression);
+        this.outputStream = new UpdateStream(outputTableId, null, onUpdateExpression);
     }
 
-    public void updateBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression
-            onUpdateExpression) {
-        this.outputStream = new UpdateStream(outputTableId, outputEventType, onUpdateExpression);
+    public void updateBy(String outputTableId, UpdateSet updateSetAttributes, Expression onUpdateExpression) {
+        this.outputStream = new UpdateStream(outputTableId, updateSetAttributes, onUpdateExpression);
     }
 
-    public void updateOrInsertBy(String outputTableId, Expression onUpdateExpression) {
-        this.outputStream = new UpdateOrInsertStream(outputTableId, onUpdateExpression);
+    public void updateBy(String outputTableId, OutputStream.OutputEventType outputEventType,
+                         Expression onUpdateExpression) {
+        this.outputStream = new UpdateStream(outputTableId, outputEventType, null, onUpdateExpression);
     }
 
-    public void updateOrInsertBy(String outputTableId, OutputStream.OutputEventType outputEventType, Expression
-            onUpdateExpression) {
-        this.outputStream = new UpdateOrInsertStream(outputTableId, outputEventType, onUpdateExpression);
+    public void updateBy(String outputTableId, OutputStream.OutputEventType outputEventType,
+                         UpdateSet updateSetAttributes, Expression onUpdateExpression) {
+        this.outputStream = new UpdateStream(outputTableId, outputEventType, updateSetAttributes, onUpdateExpression);
+    }
+
+    public void updateOrInsertBy(String outputTableId, UpdateSet updateSetAttributes, Expression onUpdateExpression) {
+        this.outputStream = new UpdateOrInsertStream(outputTableId, updateSetAttributes, onUpdateExpression);
+    }
+
+    public void updateOrInsertBy(String outputTableId, OutputStream.OutputEventType outputEventType,
+                                 UpdateSet updateSetAttributes, Expression onUpdateExpression) {
+        this.outputStream = new UpdateOrInsertStream(outputTableId, outputEventType, updateSetAttributes,
+                onUpdateExpression);
     }
 
     public OutputStream getOutputStream() {
