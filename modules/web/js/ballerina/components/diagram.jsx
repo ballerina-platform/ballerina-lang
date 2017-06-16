@@ -19,20 +19,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CanvasDecorator from './canvas-decorator';
-import FunctionDefinition from './function-definition';
 import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import { getComponentForNodeArray } from './utils';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
-import ASTRoot from '../ast/ballerina-ast-root';
 import Renderer from './renderer';
 import ActiveArbiter from './active-arbiter';
 import StructOperationsRenderer from './struct-operations-renderer';
 
+/**
+ * React component for diagram.
+ *
+ * @class Diagram
+ * @extends {React.Component}
+ */
 class Diagram extends React.Component {
 
+    /**
+     * Creates an instance of Diagram.
+     * @param {Object} props React properties.
+     * @memberof Diagram
+     */
     constructor(props) {
         super(props);
         this.editor = props.editor;
@@ -52,6 +61,10 @@ class Diagram extends React.Component {
         });
     }
 
+    /**
+     * @override
+     * @memberof Diagram
+     */
     getChildContext() {
         return {
             dragDropManager: this.props.dragDropManager,
@@ -65,10 +78,22 @@ class Diagram extends React.Component {
         };
     }
 
+    /**
+     * Getter for getting the model.
+     *
+     * @returns {ASTNode} The model.
+     * @memberof Diagram
+     */
     getModel() {
         return this.model;
     }
 
+    /**
+     * Setter for model.
+     *
+     * @param {ASTNode} model The model.
+     * @memberof Diagram
+     */
     setModel(model) {
         this.model = model;
 
@@ -81,6 +106,10 @@ class Diagram extends React.Component {
         // this.model.on('tree-modified', _.debounce(_.bind(() => { this.forceUpdate(); }, this), 150));
     }
 
+    /**
+     * @override
+     * @memberof Diagram
+     */
     render() {
         // Following is how we render the diagram.
         // 1. We will visit the model tree and calculate width and height of all
@@ -97,7 +126,7 @@ class Diagram extends React.Component {
         //    in the tree. We will use PositionCalcVisitor for this.
         this.model.accept(this.positionCalc);
         // 3. Now we need to create component for each child of root node.
-        let [pkgDef, imports, constants, others] = [undefined, [], [], []];
+        let [others] = [undefined, [], [], []];
         const otherNodes = [];
         this.model.children.forEach((child) => {
             switch (child.constructor.name) {
@@ -121,23 +150,26 @@ class Diagram extends React.Component {
         // 4. Ok we are all set, now lets render the diagram with React. We will create
         //    s CsnvasDecorator and pass child components for that.
 
-        return (<CanvasDecorator dropTarget={this.model} title="StatementContainer" bBox={viewState.bBox} annotations={annotations}>
+        return (<CanvasDecorator
+            dropTarget={this.model}
+            title="StatementContainer"
+            bBox={viewState.bBox}
+            annotations={annotations}
+        >
             {others}
         </CanvasDecorator>);
     }
 }
 
 Diagram.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
     editor: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     renderer: PropTypes.instanceOf(Renderer).isRequired,
+    container: PropTypes.instanceOf(Object).isRequired,
+    overlay: PropTypes.instanceOf(Object).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    structOperationsRenderer: PropTypes.instanceOf(Object).isRequired,
 };
 
 Diagram.childContextTypes = {

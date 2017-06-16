@@ -16,22 +16,34 @@
  * under the License.
  */
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
 import { getComponentForNodeArray } from './utils';
+import BlockStatementDecorator from './block-statement-decorator';
+import CommitedStatementAST from './../ast/statemcommitted-statement';
 
-class CommittedStatement extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+/**
+ * React component for committed statement.
+ *
+ * @class CommittedStatement
+ * @extends {React.PureComponent}
+ */
+class CommittedStatement extends React.PureComponent {
 
+    /**
+     * Renders view for a commit statement.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof CommittedStatement
+     */
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const titleWidth = model.viewState.titleWidth;
         const children = getComponentForNodeArray(model.getChildren());
         return (<BlockStatementDecorator
-            dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+            dropTarget={model}
+            bBox={bBox}
+            titleWidth={titleWidth}
             title={'Committed'}
         >
             {children}
@@ -40,12 +52,7 @@ class CommittedStatement extends React.Component {
 }
 
 CommittedStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    model: PropTypes.instanceOf(CommitedStatementAST).isRequired,
 };
 
 export default CommittedStatement;

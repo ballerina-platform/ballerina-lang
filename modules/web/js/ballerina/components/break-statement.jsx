@@ -16,16 +16,23 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
+import BreakStatementAST from './../ast/statements/break-statement';
+import StatementDecorator from './statement-decorator';
 
 /**
  * Break statement decorator.
- * */
-class BreakStatement extends React.Component {
+ *
+ * @class BreakStatement
+ * @extends {React.PureComponent}
+ */
+class BreakStatement extends React.PureComponent {
     /**
      * Render function for the break statement.
-     * */
+     *
+     * @returns {ReactElement} The view.
+     * @memberof BreakStatement
+     */
     render() {
         const model = this.props.model;
         const expression = model.getStatementString();
@@ -34,15 +41,7 @@ class BreakStatement extends React.Component {
 }
 
 BreakStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
-    expression: PropTypes.shape({
-        expression: PropTypes.string,
-    }),
+    model: PropTypes.instanceOf(BreakStatementAST).isRequired,
 };
 
 export default BreakStatement;

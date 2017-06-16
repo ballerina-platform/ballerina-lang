@@ -17,16 +17,18 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
+ * React component for creating a struct.
+ *
  * @class CreateStruct
  * @extends {React.Component}
  */
 class CreateStruct extends React.Component {
     /**
      * Creates an instance of CreateStruct.
-     * @param {object} props
-     *
+     * @param {Object} props React properties.
      * @memberof CreateStruct
      */
     constructor(props) {
@@ -35,16 +37,22 @@ class CreateStruct extends React.Component {
             display: true,
         };
     }
+
     /**
-     * Handle create new struct button click
+     * Handle submit event.
+     * @memberof CreateStruct
      */
     handleSubmit() {
         this.props.onSubmit(this.typeInput.value, this.identifierInput.value, this.valueInput.value);
         this.identifierInput.value = '';
         this.valueInput.value = '';
     }
+
     /**
-     * @inheritdoc
+     * Renders the view.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof CreateStruct
      */
     render() {
         const style = {
@@ -59,14 +67,14 @@ class CreateStruct extends React.Component {
             style.display = 'none';
         }
         const { types = [] } = this.props;
-        const renderingContext = this.props.renderingContext;
         return (
             <div style={style} className="struct-content-operations-wrapper">
                 <div className="type-drop-wrapper struct-view">
                     <select
                         tabIndex="-1"
                         style={{ width: 188, height: 25 }}
-                        ref={(input) => { this.typeInput = input; }}>
+                        ref={(input) => { this.typeInput = input; }}
+                    >
                         {
                             types.map(type => <option key={type} value={type}>{type}</option>)
                         }
@@ -82,7 +90,8 @@ class CreateStruct extends React.Component {
                     type="text"
                     className="struct-default-value-text-input"
                     placeholder="Default Value"
-                    ref={(input) => { this.valueInput = input; }} />
+                    ref={(input) => { this.valueInput = input; }}
+                />
                 <div className="add-struct-variable-button pull-left" onClick={event => this.handleSubmit(event)}>
                     <span className="fw-stack fw-lg">
                         <i className="fw fw-square fw-stack-2x" />
@@ -93,5 +102,20 @@ class CreateStruct extends React.Component {
         );
     }
 }
+
+CreateStruct.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        w: PropTypes.number.isRequired,
+        h: PropTypes.number.isRequired,
+    }).isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    types: PropTypes.arrayOf(PropTypes.string),
+};
+
+CreateStruct.defaultProps = {
+    types: [],
+};
 
 export default CreateStruct;

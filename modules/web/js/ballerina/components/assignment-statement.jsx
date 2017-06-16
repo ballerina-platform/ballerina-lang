@@ -16,21 +16,30 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import AssignmentStatementAST from './../ast/statements/assignment-statement';
 import MessageManager from './../visitors/message-manager';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 import BallerinaASTFactory from './../../ballerina/ast/ballerina-ast-factory';
+import StatementDecorator from './statement-decorator';
 
 /**
  * Assignment statement decorator.
- * */
+ *
+ * @class AssignmentStatement
+ * @extends {React.Component}
+ */
 class AssignmentStatement extends React.Component {
 
+    /**
+     * Creates an instance of AssignmentStatement.
+     * @param {Object} props React properties.
+     * @memberof AssignmentStatement
+     */
     constructor(props) {
         super(props);
         this.editorOptions = {
@@ -42,31 +51,45 @@ class AssignmentStatement extends React.Component {
         };
     }
 
+    /**
+     * Event when mouse leaves the starting point.
+     * @param {Object} e event.
+     * @memberof AssignmentStatement
+     */
     onArrowStartPointMouseOut(e) {
         e.target.style.fill = '#444';
         e.target.style.fillOpacity = 0;
     }
 
+    /**
+     * Event when mouse enters the starting point.
+     * @param {Object} e event.
+     * @memberof AssignmentStatement
+     */
     onArrowStartPointMouseOver(e) {
         e.target.style.fill = '#444';
         e.target.style.fillOpacity = 0.5;
         e.target.style.cursor = 'url(images/BlackHandwriting.cur), pointer';
     }
 
-    onMouseDown(e) {
+    /**
+     * On mouse down event.
+     * @memberof AssignmentStatement
+     */
+    onMouseDown() {
         const messageManager = this.context.messageManager;
         const model = this.props.model;
         const bBox = model.getViewState().bBox;
-        const statement_h = this.statementBox.h;
+        const statementH = this.statementBox.h;
         const messageStartX = bBox.x + bBox.w;
-        const messageStartY = this.statementBox.y + statement_h / 2;
-        let actionInvocation;
-        actionInvocation = model.getChildren()[1].getChildren()[0];
+        const messageStartY = this.statementBox.y + (statementH / 2);
+        const actionInvocation = model.getChildren()[1].getChildren()[0];
         messageManager.setSource(actionInvocation);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
 
-        messageManager.setTargetValidationCallback(destination => actionInvocation.messageDrawTargetAllowed(destination));
+        messageManager.setTargetValidationCallback(destination =>
+                                                                actionInvocation.messageDrawTargetAllowed(destination));
 
         messageManager.startDrawMessage((source, destination) => {
             source.setConnector(destination);
@@ -75,11 +98,20 @@ class AssignmentStatement extends React.Component {
         });
     }
 
-    onMouseUp(e) {
+    /**
+     * On mouse up event.
+     * @memberof AssignmentStatement
+     */
+    onMouseUp() {
         const messageManager = this.context.messageManager;
         messageManager.reset();
     }
 
+    /**
+     * Sets the visibility of the action.
+     * @param {boolean} show true to show, else false.
+     * @memberof AssignmentStatement
+     */
     setActionVisibility(show) {
         if (!this.context.dragDropManager.isOnDrag()) {
             if (show) {
@@ -91,8 +123,10 @@ class AssignmentStatement extends React.Component {
     }
 
     /**
-     * Render Function for the assignment statement.
-     * */
+     * Renders the view for an assignment statement.
+     * @returns {ReactElement} The view.
+     * @memberof AssignmentStatement
+     */
     render() {
         const model = this.props.model;
         const expression = model.viewState.expression;
@@ -108,30 +142,31 @@ class AssignmentStatement extends React.Component {
         this.statementBox.x = bBox.x;
 
         const arrowStartPointX = bBox.getRight();
-        const arrowStartPointY = this.statementBox.y + this.statementBox.h / 2;
+        const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
-        const actionInvocation = BallerinaASTFactory.isActionInvocationExpression(model.getChildren()[1].getChildren()[0]) ?
-            model.getChildren()[1].getChildren()[0] : undefined;
+        const actionInvocation = BallerinaASTFactory.isActionInvocationExpression(
+                        model.getChildren()[1].getChildren()[0]) ? model.getChildren()[1].getChildren()[0] : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };
         const backArrowStart = { x: 0, y: 0 };
         const backArrowEnd = { x: 0, y: 0 };
 
-        if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation._connector)) {
-            connector = actionInvocation._connector;
+        if (!_.isNil(actionInvocation) && !_.isNil(actionInvocation.getConnector())) {
+            connector = actionInvocation.getConnector();
 
             // TODO: need a proper way to do this
-            const isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(child => child.id === connector.id));
+            const isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(
+                                                                                child => child.id === connector.id));
 
             arrowStart.x = this.statementBox.x + this.statementBox.w;
-            arrowStart.y = this.statementBox.y + this.statementBox.h / 3;
+            arrowStart.y = this.statementBox.y + (this.statementBox.h / 3);
 
             if (!isConnectorAvailable) {
                 connector = undefined;
-                actionInvocation._connector = undefined;
+                actionInvocation.setConnector(undefined);
             } else {
-                arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w / 2;
+                arrowEnd.x = connector.getViewState().bBox.x + (connector.getViewState().bBox.w / 2);
             }
 
             arrowEnd.y = arrowStart.y;
@@ -142,7 +177,12 @@ class AssignmentStatement extends React.Component {
         }
 
 
-        return (<StatementDecorator viewState={model.viewState} expression={expression} editorOptions={this.editorOptions} model={model}>
+        return (<StatementDecorator
+            viewState={model.viewState}
+            expression={expression}
+            editorOptions={this.editorOptions}
+            model={model}
+        >
             {!_.isNil(actionInvocation) &&
             <g>
                 <circle
@@ -165,15 +205,7 @@ class AssignmentStatement extends React.Component {
 }
 
 AssignmentStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
-    expression: PropTypes.shape({
-        expression: PropTypes.string,
-    }),
+    model: PropTypes.instanceOf(AssignmentStatementAST).isRequired,
 };
 
 AssignmentStatement.contextTypes = {
