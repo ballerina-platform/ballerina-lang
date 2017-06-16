@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import $ from 'jquery';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 import MenuItem from './menu-item';

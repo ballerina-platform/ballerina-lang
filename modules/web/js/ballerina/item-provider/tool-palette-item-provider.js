@@ -20,12 +20,15 @@
  * Module to provide items(tool groups, tools) for a given tool palette.
  */
 import _ from 'lodash';
+import EventChannel from 'event_channel';
 import Package from './../env/package';
 import ToolGroup from './../tool-palette/tool-group';
 import InitialTools from './initial-definitions';
-import EventChannel from 'event_channel';
-import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
+
+const iconFunction = require('./../../../images/tool-icons/function.svg');
+const iconConnector = require('./../../../images/tool-icons/connector.svg');
+const iconAction = require('./../../../images/tool-icons/action.svg');
 
 /**
  * constructs ToolPaletteItemProvider
@@ -43,24 +46,16 @@ class ToolPaletteItemProvider extends EventChannel {
         // array which contains tool groups that are added on the fly
         this._dynamicToolGroups = _.get(args, 'dynamicToolGroups', []);
 
-        const self = this;
         // Packages to be added to the tool palette by default in order.
         this._defaultImportedPackages = [];
-        /* _.forEach(["ballerina.net.http", "ballerina.lang.*"],
-            function (defaultPackageString) {
-                var packagesToImport = self._ballerinaFileEditor._environment.searchPackage(defaultPackageString);
-                _.forEach(packagesToImport, function (packageToImport) {
-                    self._defaultImportedPackages.push(packageToImport);
-                });
-            });*/
 
         // views added to tool palette for each imported package keyed by package name
         this._importedPackagesViews = {};
 
         this.iconSrcs = {
-            function: require('./../../../images/tool-icons/function.svg'),
-            connector: require('./../../../images/tool-icons/connector.svg'),
-            action: require('./../../../images/tool-icons/action.svg'),
+            function: iconFunction,
+            connector: iconConnector,
+            action: iconAction,
         };
 
         this.cssClass = {
@@ -83,17 +78,15 @@ class ToolPaletteItemProvider extends EventChannel {
      * init function
      */
     init() {
-        const self = this;
-
         this._initialToolGroups = _.slice(InitialTools);
         this._toolGroups = _.merge(this._initialToolGroups, this._dynamicToolGroups);
 
         // Adding default packages
-        const sortedPackages = _.sortBy(self._defaultImportedPackages, [function (pckg) {
+        const sortedPackages = _.sortBy(this._defaultImportedPackages, [function (pckg) {
             return pckg.getName();
         }]);
         _.forEach(sortedPackages, (packageToImport) => {
-            self.addImport(packageToImport);
+            this.addImport(packageToImport);
         });
     }
 
@@ -131,7 +124,9 @@ class ToolPaletteItemProvider extends EventChannel {
         if (pckg instanceof Package) {
             const group = this.getToolGroup(pckg);
 
-            const exisitingPackageWithName = _.filter(this._dynamicToolGroups, (pkg) => pkg.attributes.toolGroupName === pckg.getName());
+            const exisitingPackageWithName = _.filter(this._dynamicToolGroups, (pkg) => {
+                return pkg.attributes.toolGroupName === pckg.getName();
+            });
 
             /**
              * Add the new package to the arrays, only if it doesn't exists already.
@@ -164,15 +159,18 @@ class ToolPaletteItemProvider extends EventChannel {
                 const group = this.getToolGroup(pckg);
 
                 // Need to remove any old group models added for this package and add the new one
-                _.remove(this._toolGroups, (group) => group.get('toolGroupName') === pckg.getName());
+                _.remove(this._toolGroups, (toolGroup) => {
+                    return toolGroup.get('toolGroupName') === pckg.getName();
+                });
 
                 // Similarly need to remove old views
                 const existingView = this._importedPackagesViews[pckg.getName()];
 
                 if (!_.isUndefined(existingView)) {
-                    const isCollapsed = existingView.$el.find('.tool-group-header').hasClass('tool-group-header-collapse');
-                    // if 'tool-group-header-collapse' class is present the view was collapsed. So add the new view also in
-                    // collapsed state
+                    const isCollapsed = existingView.$el.find('.tool-group-header')
+                                                .hasClass('tool-group-header-collapse');
+                    // If 'tool-group-header-collapse' class is present the view was collapsed.
+                    // So add the new view also in collapsed state
                     options.collapsed = isCollapsed;
                     existingView.remove();
                 }
@@ -189,7 +187,9 @@ class ToolPaletteItemProvider extends EventChannel {
      * @param packageName - name of the package to be removed
      */
     removeImportToolGroup(packageName) {
-        const defaultPackageIndex = _.findIndex(this._defaultImportedPackages, (p) => p.getName() === packageName);
+        const defaultPackageIndex = _.findIndex(this._defaultImportedPackages, (p) => {
+            return p.getName() === packageName;
+        });
 
         if (defaultPackageIndex !== -1) {
             // The package is a default package.
@@ -226,7 +226,6 @@ class ToolPaletteItemProvider extends EventChannel {
      */
     getToolGroup(pckg) {
         const definitions = [];
-        const self = this;
 
         // Sort the connector package by name
         const connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
@@ -241,26 +240,24 @@ class ToolPaletteItemProvider extends EventChannel {
             const packageName = _.last(_.split(pckg.getName(), '.'));
             const args = {
                 pkgName: packageName,
-                connectorName: connector.getName()
+                connectorName: connector.getName(),
             };
             connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
             connector.meta = args;
             // TODO : use a generic icon
-            connector.icon = self.icons.connector;
+            connector.icon = this.icons.connector;
             connector.title = connector.getName();
             connector.id = connector.getName();
             definitions.push(connector);
-
-            const toolGroupID = `${pckg.getName()}-tool-group`;
 
             const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
                 return action.getName();
             }]);
             _.each(actionsOrdered, (action, index, collection) => {
                 /* We need to add a special class to actions to indent them in tool palette. */
-                action.setId(`${connector.getName() }-${action.getName()}`);
+                action.setId(`${connector.getName()}-${action.getName()}`);
                 action.classNames = 'tool-connector-action';
-                if ((index + 1) == collection.length) {
+                if ((index + 1) === collection.length) {
                     action.classNames = 'tool-connector-action tool-connector-last-action';
                 }
                 action.meta = {
@@ -269,18 +266,18 @@ class ToolPaletteItemProvider extends EventChannel {
                     actionPackageName: packageName,
                     fullPackageName: pckg.getName(),
                 };
-                action.icon = self.icons.action;
+                action.icon = this.icons.action;
 
                 action.title = action.getName();
 
                 action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
                 if (action.getReturnParams().length > 0) {
-                    action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    action.nodeFactoryMethod =
+                             DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                 }
 
                 action.id = action.getId();
                 definitions.push(action);
-                const toolGroupID = `${pckg.getName() }-tool-group`;
             });
         });
 
@@ -297,13 +294,11 @@ class ToolPaletteItemProvider extends EventChannel {
                 packageName,
                 fullPackageName: pckg.getName(),
             };
-            functionDef.icon = self.icons.function;
+            functionDef.icon = this.icons.function;
 
             functionDef.title = functionDef.getName();
             functionDef.id = functionDef.getName();
             definitions.push(functionDef);
-
-            const toolGroupID = `${pckg.getName() }-tool-group`;
         });
 
         const group = new ToolGroup({
@@ -345,9 +340,9 @@ class ToolPaletteItemProvider extends EventChannel {
     getNewImportPosition(newImportName) {
         let packageNames = [];
         packageNames = packageNames.concat(_.map(this._defaultImportedPackages, '_name'));
-        for (const key in this._importedPackagesViews) {
+        _.forEach(this._importedPackagesViews, (key) => {
             packageNames.push(key);
-        }
+        });
         packageNames = _.sortBy(packageNames);
         return packageNames[_.sortedIndex(packageNames, newImportName)];
     }
@@ -357,7 +352,7 @@ class ToolPaletteItemProvider extends EventChannel {
      * @param packageString
      */
     getPackageToImport(packageString) {
-        return this._ballerinaFileEditor._environment.searchPackage(packageString);
+        return this._ballerinaFileEditor.getEnvironment().searchPackage(packageString);
     }
 
     /**
@@ -365,8 +360,7 @@ class ToolPaletteItemProvider extends EventChannel {
      * @param pckg {Package} Package Object.
      */
     getCombinedToolGroup(pckg) {
-        let definitions = [];
-        const self = this;
+        const definitions = [];
 
         // Sort the connector package by name
         const connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
@@ -381,26 +375,24 @@ class ToolPaletteItemProvider extends EventChannel {
             const packageName = _.last(_.split(pckg.getName(), '.'));
             const args = {
                 pkgName: packageName,
-                connectorName: connector.getName()
+                connectorName: connector.getName(),
             };
             connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
             connector.meta = args;
             // TODO : use a generic icon
-            connector.icon = self.icons.connector;
+            connector.icon = this.icons.connector;
             connector.title = connector.getName();
             connector.id = connector.getName();
             definitions.push(connector);
-
-            const toolGroupID = `${pckg.getName()}-tool-group`;
 
             const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
                 return action.getName();
             }]);
             _.each(actionsOrdered, (action, index, collection) => {
                 /* We need to add a special class to actions to indent them in tool palette. */
-                action.setId(`${connector.getName() }-${action.getName()}`);
+                action.setId(`${connector.getName()}-${action.getName()}`);
                 action.classNames = 'tool-connector-action';
-                if ((index + 1) == collection.length) {
+                if ((index + 1) === collection.length) {
                     action.classNames = 'tool-connector-action tool-connector-last-action';
                 }
                 action.meta = {
@@ -409,18 +401,18 @@ class ToolPaletteItemProvider extends EventChannel {
                     actionPackageName: packageName,
                     fullPackageName: pckg.getName(),
                 };
-                action.icon = self.icons.action;
+                action.icon = this.icons.action;
 
                 action.title = action.getName();
 
                 action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
                 if (action.getReturnParams().length > 0) {
-                    action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    action.nodeFactoryMethod = DefaultBallerinaASTFactory
+                                                  .createAggregatedActionInvocationAssignmentStatement;
                 }
 
                 action.id = action.getId();
                 definitions.push(action);
-                const toolGroupID = `${pckg.getName()}-tool-group`;
             });
         });
 
@@ -437,18 +429,16 @@ class ToolPaletteItemProvider extends EventChannel {
                 packageName,
                 fullPackageName: pckg.getName(),
             };
-            functionDef.icon = self.icons.function;
+            functionDef.icon = this.icons.function;
 
             functionDef.title = functionDef.getName();
             functionDef.id = functionDef.getName();
             definitions.push(functionDef);
-
-            const toolGroupID = `${pckg.getName() }-tool-group`;
         });
 
         const group = new ToolGroup({
             toolGroupName: pckg.getName(),
-            toolGroupID: `${pckg.getName() }-tool-group`,
+            toolGroupID: `${pckg.getName()}-tool-group`,
             toolOrder: 'vertical',
             toolDefinitions: definitions,
         });
@@ -462,42 +452,35 @@ class ToolPaletteItemProvider extends EventChannel {
      * @param pckg {Package} Package Object.
      */
     getConnectorToolGroup(pckg) {
-        let definitions = [];
-        const self = this;
+        const definitions = [];
 
         // Sort the connector package by name
         const connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
             return connectorPackage.getName();
         }]);
 
-        const functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
-            return functionDef.getName();
-        }]);
-
         _.each(connectorsOrdered, (connector) => {
             const packageName = _.last(_.split(pckg.getName(), '.'));
             const args = {
                 pkgName: packageName,
-                connectorName: connector.getName()
+                connectorName: connector.getName(),
             };
             connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
             connector.meta = args;
             // TODO : use a generic icon
-            connector.icon = self.icons.connector;
+            connector.icon = this.icons.connector;
             connector.title = connector.getName();
             connector.id = connector.getName();
             definitions.push(connector);
-
-            const toolGroupID = `${pckg.getName() }-tool-group`;
 
             const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
                 return action.getName();
             }]);
             _.each(actionsOrdered, (action, index, collection) => {
                 /* We need to add a special class to actions to indent them in tool palette. */
-                action.setId(`${connector.getName() }-${action.getName()}`);
+                action.setId(`${connector.getName()}-${action.getName()}`);
                 action.classNames = 'tool-connector-action';
-                if ((index + 1) == collection.length) {
+                if ((index + 1) === collection.length) {
                     action.classNames = 'tool-connector-action tool-connector-last-action';
                 }
                 action.meta = {
@@ -506,24 +489,24 @@ class ToolPaletteItemProvider extends EventChannel {
                     actionPackageName: packageName,
                     fullPackageName: pckg.getName(),
                 };
-                action.icon = self.icons.action;
+                action.icon = this.icons.action;
 
                 action.title = action.getName();
 
                 action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
                 if (action.getReturnParams().length > 0) {
-                    action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    action.nodeFactoryMethod = DefaultBallerinaASTFactory
+                                                  .createAggregatedActionInvocationAssignmentStatement;
                 }
 
                 action.id = action.getId();
                 definitions.push(action);
-                const toolGroupID = `${pckg.getName() }-tool-group`;
             });
         });
 
         const group = new ToolGroup({
             toolGroupName: pckg.getName(),
-            toolGroupID: `${pckg.getName() }-tool-group`,
+            toolGroupID: `${pckg.getName()}-tool-group`,
             toolOrder: 'vertical',
             toolDefinitions: definitions,
         });
@@ -537,8 +520,7 @@ class ToolPaletteItemProvider extends EventChannel {
      * @param pckg {Package} Package Object.
      */
     getLibraryToolGroup(pckg) {
-        let definitions = [];
-        const self = this;
+        const definitions = [];
 
         const functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
             return functionDef.getName();
@@ -557,18 +539,16 @@ class ToolPaletteItemProvider extends EventChannel {
                 packageName,
                 fullPackageName: pckg.getName(),
             };
-            functionDef.icon = self.icons.function;
+            functionDef.icon = this.icons.function;
 
             functionDef.title = functionDef.getName();
             functionDef.id = functionDef.getName();
             definitions.push(functionDef);
-
-            const toolGroupID = `${pckg.getName()}-tool-group`;
         });
 
         const group = new ToolGroup({
             toolGroupName: pckg.getName(),
-            toolGroupID: `${pckg.getName() }-tool-group`,
+            toolGroupID: `${pckg.getName()}-tool-group`,
             toolOrder: 'vertical',
             toolDefinitions: definitions,
         });

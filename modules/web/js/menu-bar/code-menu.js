@@ -16,32 +16,30 @@
  * under the License.
  */
 
-define(([], function () {
-    const CodeMenu = {
-        id: 'code',
-        label: 'Code',
-        items: [
-            {
+const CodeMenu = {
+    id: 'code',
+    label: 'Code',
+    items: [
+        {
+            id: 'format',
+            label: 'Reformat Code',
+            command: {
                 id: 'format',
-                label: 'Reformat Code',
-                command: {
-                    id: 'format',
-                    shortcuts: {
-                        mac: {
-                            key: 'command+option+l',
-                            label: '\u2318\u2325L',
-                        },
-                        other: {
-                            key: 'ctrl+alt+l',
-                            label: 'Ctrl+Alt+L',
-                        },
+                shortcuts: {
+                    mac: {
+                        key: 'command+option+l',
+                        label: '\u2318\u2325L',
+                    },
+                    other: {
+                        key: 'ctrl+alt+l',
+                        label: 'Ctrl+Alt+L',
                     },
                 },
-                disabled: true,
             },
-        ],
+            disabled: true,
+        },
+    ],
 
-    };
+};
 
-    return CodeMenu;
-}));
+export default CodeMenu;

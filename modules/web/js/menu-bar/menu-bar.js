@@ -22,14 +22,14 @@ import EventChannel from 'event_channel';
 import menuDefinitions from './menu-definitions';
 import MenuGroup from './menu-group';
 
-let MenuBar = function (options) {
+const MenuBar = function (options) {
     let errMsg;
     if (!_.has(options, 'container')) {
         errMsg = 'Unable to find configuration for container';
         log.error(errMsg);
         throw errMsg;
     }
-    let container = $(_.get(options, 'container'));
+    const container = $(_.get(options, 'container'));
     this._$parent_el = container;
     this._options = options;
     this._menuGroups = {};
@@ -39,22 +39,20 @@ MenuBar.prototype = Object.create(EventChannel.prototype);
 MenuBar.prototype.constructor = MenuBar;
 
 MenuBar.prototype.render = function () {
-    let parent = this._$parent_el;
-    let self = this;
-    let _options = this._options;
-    let application = _.get(this._options, 'application');
+    const parent = this._$parent_el;
+    const options = this._options;
+    const application = _.get(this._options, 'application');
 
     // Iterate over menu groups
     _.forEach(menuDefinitions, (menuGroupDefinition) => {
-        let menuGroupOpts = { definition: _.cloneDeep(menuGroupDefinition) };
-        _.set(menuGroupOpts, 'options', _.cloneDeep(_.get(_options, 'menu_group')));
+        const menuGroupOpts = { definition: _.cloneDeep(menuGroupDefinition) };
+        _.set(menuGroupOpts, 'options', _.cloneDeep(_.get(options, 'menu_group')));
         _.set(menuGroupOpts, 'options.parent', parent);
         _.set(menuGroupOpts, 'options.application', application);
-        let menuGroup = new MenuGroup(menuGroupOpts);
+        const menuGroup = new MenuGroup(menuGroupOpts);
         menuGroup.render();
-        _.set(self._menuGroups, menuGroup.getID(), menuGroup);
-    },
-            );
+        _.set(this._menuGroups, menuGroup.getID(), menuGroup);
+    });
 };
 
 MenuBar.prototype.setVisible = function (isVisible) {
