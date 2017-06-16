@@ -24,7 +24,7 @@ ballerina.config:
       # Enable Service interception
       enable: false
       # Interceptor deployment directory
-      deploymentDirectory: ${ballerina.home}/bre/interceptors
+      deploymentDirectory: path/to/deployment/directory
       # Request interceptors.
       request:
         -

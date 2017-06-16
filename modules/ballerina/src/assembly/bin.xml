@@ -39,12 +39,6 @@
         </fileSet>
 
         <fileSet>
-            <directory>interceptors</directory>
-            <outputDirectory>bre/interceptors</outputDirectory>
-            <fileMode>644</fileMode>
-        </fileSet>
-
-        <fileSet>
             <directory>logs</directory>
             <outputDirectory>logs</outputDirectory>
             <fileMode>644</fileMode>
