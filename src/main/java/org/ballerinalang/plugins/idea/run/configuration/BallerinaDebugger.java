@@ -30,7 +30,6 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
-import com.neovisionaries.ws.client.WebSocket;
 import org.ballerinalang.plugins.idea.debugger.BallerinaDebugProcess;
 import org.ballerinalang.plugins.idea.debugger.BallerinaWebSocketConnector;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunningState;
@@ -43,7 +42,6 @@ import java.net.ServerSocket;
 public class BallerinaDebugger extends GenericProgramRunner {
 
     private static final String ID = "BallerinaDebugger";
-    private WebSocket mySocket;
 
     @NotNull
     @Override
@@ -69,7 +67,7 @@ public class BallerinaDebugger extends GenericProgramRunner {
             ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(historyProcessListener);
             ((BallerinaApplicationRunningState) state).setDebugPort(port);
 
-            // start debugger
+            // Start debugger.
             ExecutionResult executionResult = state.execute(env.getExecutor(), new BallerinaDebugger());
             if (executionResult == null) {
                 throw new ExecutionException("Cannot run debugger");
@@ -80,7 +78,9 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 @NotNull
                 @Override
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
-                    String address = NetUtils.getLoopbackAddress().getHostAddress() + ":" + port;
+                    // Get the host address.
+                    String address = NetUtils.getLocalHostString() + ":" + port;
+                    // Create a new connector. This will be used to communicate with the debugger.
                     BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
                     return new BallerinaDebugProcess(session, ballerinaDebugSession, executionResult);
                 }

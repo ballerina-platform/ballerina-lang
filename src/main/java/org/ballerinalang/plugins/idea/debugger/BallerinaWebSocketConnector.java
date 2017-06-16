@@ -67,11 +67,11 @@ public class BallerinaWebSocketConnector {
 
     void sendCommand(Command command) {
         if (isConnected()) {
-            myWebSocket.sendText(generateCommandRequest(command));
+            myWebSocket.sendText(generateRequest(command));
         }
     }
 
-    private String generateCommandRequest(Command command) {
+    private String generateRequest(Command command) {
         return "{\"command\":\"" + command + "\"}";
     }
 
@@ -90,8 +90,10 @@ public class BallerinaWebSocketConnector {
     }
 
     String getState() {
-        if (myConnectionState == ConnectionState.CONNECTED) {
-            return "Connected to " + myWebSocket.getURI();
+        if (myConnectionState == ConnectionState.NOT_CONNECTED) {
+            return "Not connected.";
+        } else if (myConnectionState == ConnectionState.CONNECTED) {
+            return "Connected to " + myWebSocket.getURI() + ".";
         } else if (myConnectionState == ConnectionState.DISCONNECTED) {
             return "Disconnected.";
         } else if (myConnectionState == ConnectionState.ERROR) {

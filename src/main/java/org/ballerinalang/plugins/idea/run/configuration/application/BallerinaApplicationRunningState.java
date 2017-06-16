@@ -63,11 +63,9 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         if (parameters.isEmpty()) {
             parameters = myConfiguration.getFilePath();
         }
-        BallerinaExecutor ballerinaExecutor = executor
-                .withParameters("run")
-                .withParameters(kind.name().toLowerCase())
-                .withParameterString(myConfiguration.getBallerinaToolParams())
-                .withParameters(parameters);
+        BallerinaExecutor ballerinaExecutor = executor.withParameters("run").withParameters(kind.name().toLowerCase())
+                .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(parameters);
+        // If debugging mode is running, we need to add the debugging flag.
         if (isDebug()) {
             ballerinaExecutor.withParameters("--ballerina.debug", String.valueOf(myDebugPort));
         }
@@ -82,6 +80,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         myHistoryProcessHandler = historyProcessHandler;
     }
 
+    /**
+     * Indicates whether the debugging is invoked or not.
+     *
+     * @return {@code true} if debugging is running, {@code false} otherwise.
+     */
     private boolean isDebug() {
         return DefaultDebugExecutor.EXECUTOR_ID.equals(getEnvironment().getExecutor().getId());
     }

@@ -44,7 +44,7 @@ public class BallerinaStackFrame extends XStackFrame {
     private final BallerinaDebugProcess myProcess;
     private final Frame myFrame;
 
-    public BallerinaStackFrame(@NotNull BallerinaDebugProcess process, @NotNull Frame frame) {
+    BallerinaStackFrame(@NotNull BallerinaDebugProcess process, @NotNull Frame frame) {
         myProcess = process;
         myFrame = frame;
     }
@@ -56,6 +56,9 @@ public class BallerinaStackFrame extends XStackFrame {
         return null;
     }
 
+    /**
+     * Returns the source position. This is used to show the debug hit in the file.
+     */
     @Nullable
     @Override
     public XSourcePosition getSourcePosition() {
@@ -132,6 +135,9 @@ public class BallerinaStackFrame extends XStackFrame {
     //        return null;
     //    }
 
+    /**
+     * Customizes the stack name in the Frames sub window in Debug window.
+     */
     @Override
     public void customizePresentation(@NotNull ColoredTextContainer component) {
         super.customizePresentation(component);
@@ -140,30 +146,49 @@ public class BallerinaStackFrame extends XStackFrame {
         component.setIcon(AllIcons.Debugger.StackFrame);
     }
 
+    /**
+     * Adds variables in the current stack to the node.
+     */
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
+        // We categorize variables according to the scope. But we get all the variables in the stack. So we need to
+        // distinguish values in each scope. In this Map, key will be the scope name. Value will be the list of
+        // variables in that scope.
         Map<String, List<Variable>> scopeMap = new HashMap<>();
+        // Iterate through each variable.
         List<Variable> variables = myFrame.getVariables();
         for (Variable variable : variables) {
+            // Get the scope.
             String scopeName = variable.getScope();
+            // Check whether the scope is already available in the map.
             if (scopeMap.containsKey(scopeName)) {
+                // If it is already in the map, add the variable to the corresponding list.
                 List<Variable> list = scopeMap.get(scopeName);
                 list.add(variable);
             } else {
+                // If it is not available in the map, add it as a new entry.
                 List<Variable> list = new LinkedList<>();
                 list.add(variable);
                 scopeMap.put(scopeName, list);
             }
         }
 
-        XValueChildrenList xValueChildrenList = new XValueChildrenList(scopeMap.size());
+        // Iterate through each scope in the map.
         scopeMap.forEach((scopeName, variableList) -> {
+            // Create a new XValueChildrenList to hold the XValues.
+            XValueChildrenList xValueChildrenList = new XValueChildrenList(variableList.size());
+            // Create a new variable to represent the scope.
             Variable scopeVariable = new Variable();
+            // Set the variable name.
             scopeVariable.setName(scopeName);
+            // Set the children.
             scopeVariable.setChildren(variableList);
+            // Create a new XValue.
             BallerinaXValue ballerinaXValue = new BallerinaXValue(myProcess, myFrame.getFrameName(), scopeVariable,
                     AllIcons.Debugger.Value);
+            // Add the XValue to the list.
             xValueChildrenList.add(scopeName, ballerinaXValue);
+            // Add the list to the node as children.
             node.addChildren(xValueChildrenList, true);
         });
     }

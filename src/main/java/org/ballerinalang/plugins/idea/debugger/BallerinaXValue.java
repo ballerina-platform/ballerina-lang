@@ -50,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class BallerinaXValue extends XNamedValue {
 
@@ -63,8 +63,8 @@ public class BallerinaXValue extends XNamedValue {
     @Nullable
     private final Icon myIcon;
 
-    public BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull String frameName,
-                           @NotNull Variable variable, @Nullable Icon icon) {
+    BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull String frameName,
+                    @NotNull Variable variable, @Nullable Icon icon) {
         super(variable.getName());
         myProcess = process;
         myFrameName = frameName;
