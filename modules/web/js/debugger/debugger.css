@@ -224,7 +224,7 @@ div > .col-xs-12 {
 #frameAccordion .panel-heading a{
     padding:5px 12px;
     color:#fff;
-    background:#333333;
+    background:#333;
     display:block;
     margin:0;
     padding-bottom:2px;
@@ -246,7 +246,7 @@ div > .col-xs-12 {
 }
 
 #frameAccordion .jstree-default .jstree-last{
-    background: #333333 !important;
+    background: #333 !important;
 }
 
 #frameAccordion .panel{
