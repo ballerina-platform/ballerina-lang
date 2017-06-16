@@ -61,8 +61,8 @@ public class GetHash extends AbstractNativeFunction {
      */
 
     @Override public BValue[] execute(Context context) {
-        String baseString = getArgument(context, 0).stringValue();
-        String algorithm = getArgument(context, 1).stringValue();
+        String baseString = getStringArgument(context, 0);
+        String algorithm = getStringArgument(context, 1);
 
         //todo document the supported algorithm
         switch (algorithm) {

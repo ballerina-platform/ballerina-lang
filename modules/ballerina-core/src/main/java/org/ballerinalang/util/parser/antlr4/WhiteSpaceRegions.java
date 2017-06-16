@@ -68,15 +68,19 @@ public class WhiteSpaceRegions {
     public static final int FUNCTION_DEF_NATIVE_KEYWORD_TO_FUNCTION_KEYWORD = 0;
     public static final int FUNCTION_DEF_FUNCTION_KEYWORD_TO_IDENTIFIER_START = 1;
     public static final int FUNCTION_DEF_IDENTIFIER_TO_PARAM_LIST_START = 2;
-    public static final int FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 3;
-    public static final int FUNCTION_DEF_BODY_START_TO_LAST_TOKEN = 4;
-    public static final int FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN = 5;
+    public static final int FUNCTION_DEF_PARAM_LIST_START_TO_NEXT_TOKEN = 3;
+    public static final int FUNCTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 4;
+    public static final int FUNCTION_DEF_RETURN_PARAM_START_TO_NEXT_TOKEN = 5;
+    public static final int FUNCTION_DEF_BODY_START_TO_LAST_TOKEN = 6;
+    public static final int FUNCTION_DEF_BODY_START_TO_NEXT_TOKEN = 7;
+    public static final int FUNCTION_DEF_BODY_END_TO_NEXT_TOKEN = 8;
 
     // whitespace regions in a connector definition
     public static final int CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER = 0;
     public static final int CONNECTOR_DEF_IDENTIFIER_TO_PARAM_LIST_START = 1;
     public static final int CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START = 2;
-    public static final int CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 3;
+    public static final int CONNECTOR_DEF_PARAM_BODY_START_TO_NEXT_TOKEN = 3;
+    public static final int CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in a action definition
     public static final int ACTION_DEF_NATIVE_KEYWORD_TO_ACTION_KEYWORD = 0;
@@ -84,12 +88,14 @@ public class WhiteSpaceRegions {
     public static final int ACTION_DEF_IDENTIFIER_TO_PARAM_LIST_START = 2;
     public static final int ACTION_DEF_PARAM_LIST_END_TO_RETURN_PARAM_START = 3;
     public static final int ACTION_DEF_BODY_START_TO_LAST_TOKEN = 4;
-    public static final int ACTION_DEF_BODY_END_TO_NEXT_TOKEN = 5;
+    public static final int ACTION_DEF_BODY_START_TO_NEXT_TOKEN = 5;
+    public static final int ACTION_DEF_BODY_END_TO_NEXT_TOKEN = 6;
 
     // whitespace regions in a struct definition
     public static final int STRUCT_DEF_STRUCT_KEYWORD_TO_IDENTIFIER = 0;
     public static final int STRUCT_DEF_IDENTIFIER_TO_BODY_START = 1;
-    public static final int STRUCT_DEF_BODY_END_TO_NEXT_TOKEN = 2;
+    public static final int STRUCT_DEF_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int STRUCT_DEF_BODY_END_TO_NEXT_TOKEN = 3;
 
     // whitespace regions in a type mapper definition
     public static final int TYPE_MAP_DEF_NATIVE_KEYWORD_TO_SIGNATURE_START = 0;
@@ -104,13 +110,15 @@ public class WhiteSpaceRegions {
     public static final int CONST_DEF_VAL_TYPE_TO_IDENTIFIER = 1;
     public static final int CONST_DEF_IDENTIFIER_TO_EQUAL_OPERATOR = 2;
     public static final int CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START = 3;
-    public static final int CONST_DEF_END_TO_NEXT_TOKEN = 4;
+    public static final int CONST_DEF_LITERAL_END_TO_NEXT_TOKEN = 4;
+    public static final int CONST_DEF_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in a annotation definition
     public static final int ANNOTATION_DEF_ANNOTATION_KEYWORD_TO_IDENTIFIER = 0;
     public static final int ANNOTATION_DEF_IDENTIFIER_TO_ATTACH_KEYWORD = 1;
     public static final int ANNOTATION_DEF_BODY_START_TO_LAST_TOKEN = 2;
-    public static final int ANNOTATION_DEF_BODY_END_TO_NEXT_TOKEN = 3;
+    public static final int ANNOTATION_DEF_BODY_START_TO_NEXT_TOKEN = 3;
+    public static final int ANNOTATION_DEF_BODY_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in an annotation attachment point
     public static final int ANNOTATION_ATTACHMENT_POINT_PRECEDING_WS = 0;
@@ -160,20 +168,25 @@ public class WhiteSpaceRegions {
     // whitespace regions in a if clause
     public static final int IF_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START = 1;
-    public static final int IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 2;
-    public static final int IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 3;
+    public static final int IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION = 2;
+    public static final int IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 3;
+    public static final int IF_CLAUSE_BODY_START_TO_NEXT_TOKEN = 4;
+    public static final int IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in a else if clause
     public static final int ELSE_IF_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int ELSE_IF_CLAUSE_ELSE_KEYWORD_TO_IF_KEYWORD = 1;
     public static final int ELSE_IF_CLAUSE_IF_KEYWORD_TO_CONDITION_WRAPPER_START = 2;
-    public static final int ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 3;
-    public static final int ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 4;
+    public static final int ELSE_IF_CLAUSE_CONDITION_WRAPPER_START_TO_CONDITION = 3;
+    public static final int ELSE_IF_CLAUSE_CONDITION_WRAPPER_END_TO_BODY_START = 4;
+    public static final int ELSE_IF_CLAUSE_BODY_START_TO_NEXT_TOKEN = 5;
+    public static final int ELSE_IF_CLAUSE_BODY_END_TO_NEXT_TOKEN = 6;
 
     // whitespace regions in a else clause
     public static final int ELSE_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int ELSE_CLAUSE_ELSE_KEYWORD_TO_BODY_START = 1;
-    public static final int ELSE_CLAUSE_END_TO_NEXT_TOKEN = 2;
+    public static final int ELSE_CLAUSE_BODY_START_TO_NEXT_TOKEN = 2;
+    public static final int ELSE_CLAUSE_END_TO_NEXT_TOKEN = 3;
 
     // whitespace regions in a while statement
     public static final int WHILE_STMT_PRECEDING_WHITESPACE = 0;
@@ -189,12 +202,14 @@ public class WhiteSpaceRegions {
     // whitespace regions in try clause
     public static final int TRY_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START = 1;
-    public static final int TRY_CLAUSE_END_NEXT_TOKEN = 2;
+    public static final int TRY_CLAUSE_BODY_START_TO_NEXT_TOKEN = 2;
+    public static final int TRY_CLAUSE_END_NEXT_TOKEN = 3;
 
     // whitespace regions in finally clause
     public static final int FINALLY_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int FINALLY_CLAUSE_FINALLY_KEYWORD_TO_BODY_START = 1;
-    public static final int FINALLY_CLAUSE_END_NEXT_TOKEN = 2;
+    public static final int FINALLY_CLAUSE_BODY_START_TO_NEXT_TOKEN = 2;
+    public static final int FINALLY_CLAUSE_END_TO_NEXT_TOKEN = 3;
 
     // whitespace regions in catch clause
     public static final int CATCH_CLAUSE_PRECEDING_WHITESPACE = 0;
@@ -203,7 +218,8 @@ public class WhiteSpaceRegions {
     public static final int CATCH_CLAUSE_EXCEPTION_TYPE_TO_EXCEPTION_IDENTIFIER = 3;
     public static final int CATCH_CLAUSE_EXCEPTION_IDENTIFIER_TO_EXCEPTION_WRAPPER_END = 4;
     public static final int CATCH_CLAUSE_EXCEPTION_WRAPPER_END_TO_BODY_START = 5;
-    public static final int CATCH_CLAUSE_END_TO_NEXT_TOKEN = 6;
+    public static final int CATCH_CLAUSE_BODY_START_TO_NEXT_TOKEN = 6;
+    public static final int CATCH_CLAUSE_END_TO_NEXT_TOKEN = 7;
 
     // whitespace regions in throw statement
     public static final int THROW_STMT_PRECEDING_WHITESPACE = 0;
@@ -244,19 +260,21 @@ public class WhiteSpaceRegions {
     public static final int ACTION_INVOCATION_NAME_REF_TO_DOT_OPERATOR = 1;
     public static final int ACTION_INVOCATION_DOT_OPERATOR_TO_IDENTIFIER = 2;
     public static final int ACTION_INVOCATION_IDENTIFIER_TO_EXP_LIST_WRAPPER = 3;
-    public static final int ACTION_INVOCATION_END_TO_NEXT_TOKEN = 4;
+    public static final int ACTION_INVOCATION_EXP_LIST_START_TO_NEXT_TOKEN = 4;
+    public static final int ACTION_INVOCATION_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in an action invocation statement
     public static final int ACTION_INVOCATION_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int ACTION_INVOCATION_STMT_VAR_EXP_LIST_TO_EQUAL_OPERATOR = 1;
-    public static final int ACTION_INVOCATION_STMT_EQUAL_OPERATOR_TO_EXPRESSION = 2;
-    public static final int ACTION_INVOCATION_STMT_EXPRESSION_TO_END = 3;
-    public static final int ACTION_INVOCATION_STMT_END_TO_NEXT_TOKEN = 4;
+    public static final int ACTION_INVOCATION_STMT_END_TO_NEXT_TOKEN = 1;
 
     // whitespace regions in a function invocation expr
-    public static final int FUNCTION_INVOCATION_PRECEDING_WHITESPACE = 0;
-    public static final int FUNCTION_INVOCATION_NAME_REF_TO_EXP_LIST = 1;
-    public static final int FUNCTION_INVOCATION_END_TO_NEXT_TOKEN = 2;
+    public static final int FUNCTION_INVOCATION_EXPR_PRECEDING_WHITESPACE = 0;
+    public static final int FUNCTION_INVOCATION_EXPR_NAME_REF_TO_ARG_LIST_START = 1;
+    public static final int FUNCTION_INVOCATION_EXPR_ARG_LIST_START_TO_NEXT_TOKEN = 2;
+    public static final int FUNCTION_INVOCATION_EXPR_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a function invocation stmt :Note other regions are coming from expr
+    public static final int FUNCTION_INVOCATION_STMT_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in a simple literal
     public static final int SIMPLE_LITERAL_PRECEDING_WHITESPACE = 0;
@@ -282,7 +300,8 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a map struct literal
     public static final int MAP_STRUCT_LITERAL_PRECEDING_WHITESPACE = 0;
-    public static final int MAP_STRUCT_LITERAL_FOLLOWING_WHITESPACE = 1;
+    public static final int MAP_STRUCT_LITERAL_BODY_START_TO_NEXT_TOKEN = 1;
+    public static final int MAP_STRUCT_LITERAL_FOLLOWING_WHITESPACE = 2;
 
     // whitespace regions in a connector init expr
     public static final int CONNECTOR_INIT_EXP_PRECEDING_WHITESPACE = 0;
@@ -305,8 +324,15 @@ public class WhiteSpaceRegions {
 
     // white space regions in a typecast expr
     public static final int TYPE_CAST_EXP_PRECEDING_WHITESPACE = 0;
-    public static final int TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP = 1;
-    public static final int TYPE_CAST_EXP_FOLLOWING_WHITESPACE = 2;
+    public static final int TYPE_CAST_EXP_TYPE_CAST_START_TO_TYPE_NAME = 1;
+    public static final int TYPE_CAST_EXP_TYPE_CAST_END_TO_EXP = 2;
+    public static final int TYPE_CAST_EXP_FOLLOWING_WHITESPACE = 3;
+
+    // white space regions in a type-conversion expr
+    public static final int TYPE_CONVERSION_EXP_PRECEDING_WHITESPACE = 0;
+    public static final int TYPE_CONVERSION_EXP_TYPE_CAST_START_TO_TYPE_NAME = 1;
+    public static final int TYPE_CONVERSION_EXP_TYPE_CAST_END_TO_EXP = 2;
+    public static final int TYPE_CONVERSION_EXP_FOLLOWING_WHITESPACE = 3;
 
     // white space regions in a unary expr
     public static final int UNARY_EXP_PRECEDING_WHITESPACE = 0;
@@ -314,10 +340,10 @@ public class WhiteSpaceRegions {
     public static final int UNARY_EXP_FOLLOWING_WHITESPACE = 2;
 
     // white space regions in a field def
-    public static final int FILED_DEF_PRECEDING_WHITESPACE = 0;
-    public static final int FILED_DEF_TYPE_NAME_TO_ID = 1;
-    public static final int FILED_DEF_ID_TO_EQUAL_OPERATOR = 2;
-    public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 3;
+    public static final int FILED_DEF_TYPE_NAME_TO_ID = 0;
+    public static final int FILED_DEF_ID_TO_NEXT_TOKEN = 1;
+    public static final int FILED_DEF_EQUAL_OPERATOR_TO_LITERAL = 2;
+    public static final int FILED_DEF_LITERAL_TO_NEXT_TOKEN = 3;
     public static final int FILED_DEF_FOLLOWING_WHITESPACE = 4;
 
     // whitespace regions in a transform statement
@@ -325,4 +351,26 @@ public class WhiteSpaceRegions {
     public static final int TRANSFORM_STMT_TO_BODY_START = 2;
     public static final int TRANSFORM_STMT_END_TO_NEXT_TOKEN = 3;
 
+    // whitespace regions in a transaction statement
+    public static final int TRANSACTION_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int TRANSACTION_STMT_TRANSACTION_KEYWORD_TO_BODY_START = 1;
+    public static final int TRANSACTION_STMT_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int TRANSACTION_STMT_BODY_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a committed clause
+    public static final int COMMITTED_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int COMMITTED_STMT_TRANSACTION_KEYWORD_TO_BODY_START = 1;
+    public static final int COMMITTED_STMT_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int COMMITTED_STMT_BODY_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in a aborted clause
+    public static final int ABORTED_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int ABORTED_STMT_TRANSACTION_KEYWORD_TO_BODY_START = 1;
+    public static final int ABORTED_STMT_BODY_START_TO_FIRST_TOKEN = 2;
+    public static final int ABORTED_STMT_BODY_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in abort statement
+    public static final int ABORT_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int ABORT_STMT_ABORT_KEYWORD_TO_END = 1;
+    public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 2;
 }

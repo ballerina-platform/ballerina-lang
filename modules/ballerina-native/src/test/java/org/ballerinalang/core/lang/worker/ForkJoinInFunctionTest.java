@@ -17,69 +17,84 @@
  */
 package org.ballerinalang.core.lang.worker;
 
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-//import org.testng.annotations.Test;
 
 /**
  * Test cases for usages of fork-join in functions.
  */
 public class ForkJoinInFunctionTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile bProgramFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/fork-join-in-function.bal");
+        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-in-all.bal");
     }
 
 
     @Test(description = "Test Fork Join All")
     public void testForkJoinAll() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAll", args);
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAll", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BArray);
-        Assert.assertEquals(((BArray) returns[0]).size(), 2);
-        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
-        Assert.assertTrue(((BArray) returns[0]).get(1) instanceof BMessage);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(((BRefValueArray) returns[0]).size(), 2);
+        Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
+        Assert.assertTrue(((BRefValueArray) returns[0]).get(1) instanceof BMessage);
     }
 
     @Test(description = "Test Fork Join Any")
     public void testForkJoinAny() {
+        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-some.bal");
         BValue[] args = {new BMessage()};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAny", args);
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAny", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BArray);
-        Assert.assertEquals(((BArray) returns[0]).size(), 1);
-        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(((BRefValueArray) returns[0]).size(), 1);
+        Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
 
     }
 
     @Test(description = "Test Fork Join All of specific")
     public void testForkJoinAllOfSpecific() {
+        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-all-specific.bal");
         BValue[] args = {new BMessage()};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAllOfSpecific", args);
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAllOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BArray);
-        Assert.assertEquals(((BArray) returns[0]).size(), 2);
-        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
-        Assert.assertTrue(((BArray) returns[0]).get(1) instanceof BMessage);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(((BRefValueArray) returns[0]).size(), 2);
+        Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
+        Assert.assertTrue(((BRefValueArray) returns[0]).get(1) instanceof BMessage);
     }
 
     @Test(description = "Test Fork Join Any of specific")
     public void testForkJoinAnyOfSpecific() {
+        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-any-specific.bal");
         BValue[] args = {new BMessage()};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAnyOfSpecific", args);
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAnyOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BArray);
-        Assert.assertEquals(((BArray) returns[0]).size(), 1);
-        Assert.assertTrue(((BArray) returns[0]).get(0) instanceof BMessage);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(((BRefValueArray) returns[0]).size(), 1);
+        Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
+    }
+
+    @Test(description = "Test Fork Join Without Timeout Expression")
+    public void testForkJoinWithoutTimeoutExpression() {
+        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-without-timeout.bal");
+        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinWithoutTimeoutExpression");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.23);
     }
 }

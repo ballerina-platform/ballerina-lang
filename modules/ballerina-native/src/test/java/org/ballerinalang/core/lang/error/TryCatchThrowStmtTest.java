@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.core.lang.error;
 
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -36,17 +36,17 @@ import org.testng.annotations.Test;
  */
 public class TryCatchThrowStmtTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/errors/testTryCatchStmt.bal");
+        programFile = BTestUtils.getProgramFile("lang/errors/testTryCatchStmt.bal");
     }
 
     @Test(description = "Test try block execution.")
     public void testTryCatchStmt() {
         BValue[] args = {new BInteger(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTryCatch", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -58,7 +58,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test catch block execution.")
     public void testTryCatchWithThrow() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTryCatch", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -70,7 +70,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test catch block execution, where thrown exception is caught using equivalent catch block ")
     public void testTryCatchEquivalentCatch() {
         BValue[] args = {new BInteger(-1)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTryCatch", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -82,7 +82,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test throw statement in a function.")
     public void testTryCatch() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFunctionThrow", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFunctionThrow", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -91,52 +91,52 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(returns[1].stringValue(), "013", "Unexpected execution order.");
     }
 
-    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = ".*uncaught error: " +
-            "Error\\{ msg : test message\\}", expectedExceptions = BallerinaException.class)
+    @Test(description = "Test uncaught error in a function.", expectedExceptionsMessageRegExp = "error: " +
+            "ballerina.lang.errors:Error, message: test message.*", expectedExceptions = BLangRuntimeException.class)
     public void testUncaughtException() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testUncaughtException", args);
+        BLangFunctions.invokeNew(programFile, "testUncaughtException", args);
     }
 
     @Test(description = "Test getStack trace of an error in a function.")
     public void testGetStackTrace() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStackTrace", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testStackTrace", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
-        BValue value = ((BStruct) returns[0]).getValue(0);
+        BValue value = ((BStruct) returns[0]).getRefField(0);
         Assert.assertNotNull(value);
-        Assert.assertNotNull(value instanceof BArray);
-        BArray bArray = (BArray) value;
+        BRefValueArray bArray = (BRefValueArray) value;
         Assert.assertEquals(bArray.size(), 3);
-        Assert.assertEquals(((BStruct) bArray.get(0)).getValue(0).stringValue(), "testNestedThrow");
-        Assert.assertEquals(((BStruct) bArray.get(1)).getValue(0).stringValue(), "testUncaughtException");
-        Assert.assertEquals(((BStruct) bArray.get(2)).getValue(0).stringValue(), "testStackTrace");
+        Assert.assertEquals(((BStruct) bArray.get(0)).getStringField(0), "testNestedThrow");
+        Assert.assertEquals(((BStruct) bArray.get(1)).getStringField(0), "testUncaughtException");
+        Assert.assertEquals(((BStruct) bArray.get(2)).getStringField(0), "testStackTrace");
+
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*redeclared symbol 'e'.*")
     public void testDuplicateExceptionVariable() {
-        BTestUtils.parseBalFile("lang/errors/duplicate-var-try-catch.bal");
+        BTestUtils.getProgramFile("lang/errors/duplicate-var-try-catch.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*only a struct type " +
             "structurally equivalent to ballerina.lang.errors:Error is allowed here")
     public void testInvalidThrow() {
-        BTestUtils.parseBalFile("lang/errors/invalid-throw.bal");
+        BTestUtils.getProgramFile("lang/errors/invalid-throw.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*only a struct type " +
             "structurally equivalent to ballerina.lang.errors:Error is allowed here")
     public void testInvalidFunctionThrow() {
-        BTestUtils.parseBalFile("lang/errors/invalid-function-throw.bal");
+        BTestUtils.getProgramFile("lang/errors/invalid-function-throw.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*error 'TestError' " +
             "already caught in try catch block")
     public void testDuplicateCatchBlock() {
-        BTestUtils.parseBalFile("lang/errors/duplicate-catch-block.bal");
+        BTestUtils.getProgramFile("lang/errors/duplicate-catch-block.bal");
     }
 
 }

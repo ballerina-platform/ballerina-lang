@@ -16,12 +16,13 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.87-SNAPSHOT</version>
+        <version>0.89-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -76,7 +77,21 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <ballerina.core.test.coverage>${project.build.directory}/../../ballerina-core/target/coverage-reports
+        </ballerina.core.test.coverage>
+        <ballerina.native.test.coverage>${project.build.directory}/../../ballerina-native/target/coverage-reports
+        </ballerina.native.test.coverage>
+        <individual.test.report.name>jacoco-unit.exec</individual.test.report.name>
+    </properties>
+
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -89,44 +104,55 @@
                         </goals>
                         <configuration>
                             <target name="mergeReports">
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                                         classpathref="maven.plugin.classpath"/>
                                 <if>
                                     <and>
-                                        <available file="${ballerina.core.test.coverage}/${individual.test.report.name}" />
-                                        <available file="${ballerina.native.test.coverage}/${individual.test.report.name}" />
+                                        <available
+                                                file="${ballerina.core.test.coverage}/${individual.test.report.name}"/>
+                                        <available
+                                                file="${ballerina.native.test.coverage}/${individual.test.report.name}"/>
                                     </and>
                                     <then>
                                         <taskdef name="report" classname="org.jacoco.ant.ReportTask">
-                                            <classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar" />
+                                            <classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar"/>
                                         </taskdef>
-                                        <mkdir dir="${basedir}/../../target/coverage-report" />
+                                        <mkdir dir="${basedir}/../../target/coverage-report"/>
                                         <report>
                                             <executiondata>
                                                 <fileset dir="${ballerina.core.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
+                                                    <include name="${individual.test.report.name}"/>
                                                 </fileset>
                                                 <fileset dir="${ballerina.native.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
+                                                    <include name="${individual.test.report.name}"/>
                                                 </fileset>
                                             </executiondata>
                                             <structure name="Ballerina Coverage Report">
                                                 <group name="ballerina">
                                                     <classfiles>
-                                                        <fileset dir="${project.build.directory}/../../ballerina-core/target/classes">
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaBaseListener*" />
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaLexer*" />
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaListener*" />
-                                                            <exclude name="org/ballerinalang/util/parser/BallerinaParser*" />
+                                                        <fileset
+                                                                dir="${project.build.directory}/../../ballerina-core/target/classes">
+                                                            <exclude
+                                                                    name="org/ballerinalang/util/parser/BallerinaBaseListener*"/>
+                                                            <exclude
+                                                                    name="org/ballerinalang/util/parser/BallerinaLexer*"/>
+                                                            <exclude
+                                                                    name="org/ballerinalang/util/parser/BallerinaListener*"/>
+                                                            <exclude
+                                                                    name="org/ballerinalang/util/parser/BallerinaParser*"/>
                                                         </fileset>
-                                                        <fileset dir="${project.build.directory}/../../ballerina-native/target/classes" />
+                                                        <fileset
+                                                                dir="${project.build.directory}/../../ballerina-native/target/classes"/>
                                                     </classfiles>
                                                     <sourcefiles encoding="UTF-8">
-                                                        <fileset dir="${project.build.directory}/../../ballerina-core/src/main/java" />
-                                                        <fileset dir="${project.build.directory}/../../ballerina-native/src/main/java" />
+                                                        <fileset
+                                                                dir="${project.build.directory}/../../ballerina-core/src/main/java"/>
+                                                        <fileset
+                                                                dir="${project.build.directory}/../../ballerina-native/src/main/java"/>
                                                     </sourcefiles>
                                                 </group>
                                             </structure>
-                                            <html destdir="${basedir}/../../target/coverage-report/site" />
+                                            <html destdir="${basedir}/../../target/coverage-report/site"/>
                                         </report>
                                     </then>
                                 </if>
@@ -155,10 +181,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <ballerina.core.test.coverage>${project.build.directory}/../../ballerina-core/target/coverage-reports</ballerina.core.test.coverage>
-        <ballerina.native.test.coverage>${project.build.directory}/../../ballerina-native/target/coverage-reports</ballerina.native.test.coverage>
-        <individual.test.report.name>jacoco-unit.exec</individual.test.report.name>
-    </properties>
 </project>

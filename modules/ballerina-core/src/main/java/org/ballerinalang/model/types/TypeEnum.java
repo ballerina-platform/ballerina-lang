@@ -17,34 +17,69 @@
 */
 package org.ballerinalang.model.types;
 
+import static org.ballerinalang.model.types.TypeConstants.ANY_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.ANY_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.ARRAY_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.ARRAY_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.BLOB_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.BLOB_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.BOOLEAN_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.BOOLEAN_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.CONNECTOR_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.CONNECTOR_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.DATATABLE_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.FLOAT_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.FLOAT_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.INT_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.INT_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.JSON_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.MAP_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.MESSAGE_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.REFTYPE_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.STRING_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.STRING_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.STRUCT_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.STRUCT_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.VOID_TNAME;
+import static org.ballerinalang.model.types.TypeConstants.VOID_TSIG;
+import static org.ballerinalang.model.types.TypeConstants.XML_TNAME;
+
 /**
  * {@code TypeEnum} represents all the types names in Ballerina.
  *
  * @since 0.8.0
  */
 public enum TypeEnum {
-    INT("int"),
-    FLOAT("float"),
-    BOOLEAN("boolean"),
-    STRING("string"),
-    MESSAGE("message"),
-    XML("xml"),
-    JSON("json"),
-    MAP("map"),
-    ARRAY("arrays"),
-    CONNECTOR("connector"),
-    DATATABLE("datatable"),
-    STRUCT("struct"),
-    EMPTY(""),
-    ANY("any");
+    INT(INT_TNAME, INT_TSIG),
+    FLOAT(FLOAT_TNAME, FLOAT_TSIG),
+    STRING(STRING_TNAME, STRING_TSIG),
+    BOOLEAN(BOOLEAN_TNAME, BOOLEAN_TSIG),
+    BLOB(BLOB_TNAME, BLOB_TSIG),
+    MESSAGE(MESSAGE_TNAME, REFTYPE_TSIG),
+    XML(XML_TNAME, REFTYPE_TSIG),
+    JSON(JSON_TNAME, REFTYPE_TSIG),
+    MAP(MAP_TNAME, REFTYPE_TSIG),
+    DATATABLE(DATATABLE_TNAME, REFTYPE_TSIG),
+    VOID(VOID_TNAME, VOID_TSIG),
+    STRUCT(STRUCT_TNAME, STRUCT_TSIG),
+    ANY(ANY_TNAME, ANY_TSIG),
+    ARRAY(ARRAY_TNAME, ARRAY_TSIG),
+    CONNECTOR(CONNECTOR_TNAME, CONNECTOR_TSIG),
+    EMPTY("", VOID_TSIG);
 
     private String name;
+    private String sig;
 
-    TypeEnum(String name) {
+    TypeEnum(String name, String sig) {
         this.name = name;
+        this.sig = sig;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getSig() {
+        return sig;
     }
 }

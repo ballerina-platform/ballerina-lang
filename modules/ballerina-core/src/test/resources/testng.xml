@@ -23,7 +23,6 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="false"  />
         <packages>
             <package name="org.ballerinalang.model.values"/>
             <package name="org.ballerinalang.model.expressions"/>
@@ -33,25 +32,6 @@ under the License.
             <package name="org.ballerinalang.model.annotations"/>
             <package name="org.ballerinalang.model.arraysofarrays"/>
         </packages>
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-        </classes>
-    </test>
-    <!-- Ballerina Test Cases - Non Blocking. -->
-    <test name="ballerina-lang-test-suite-non-blocking" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="true" />
-        <packages>
-            <!--<package name="org.ballerinalang.model.values"/>-->
-            <!--<package name="org.ballerinalang.model.expressions"/>-->
-            <!--<package name="org.ballerinalang.model.statements"/>-->
-            <!--<package name="org.ballerinalang.model.structs"/>-->
-            <package name="org.ballerinalang.model.connectors"/>
-            <package name="org.ballerinalang.model.annotations"/>
-            <package name="org.ballerinalang.model.arraysofarrays"/>
-        </packages>
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-        </classes>
     </test>
 
     <!-- Parser Level Test Cases -->
@@ -66,88 +46,30 @@ under the License.
 
     <!-- Native Function Related Test Cases. -->
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="false" />
         <packages>
             <package name="org.ballerinalang.core.nativeimpl.functions"/>
         </packages>
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-        </classes>
-    </test>
-    <!-- Native Function Related Test Cases. -->
-    <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
-        <parameter name="enableNonBlocking" value="true" />
-        <packages>
-            <package name="org.ballerinalang.core.nativeimpl.functions"/>
-        </packages>
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-        </classes>
     </test>
 
 
-    <test name="ballerina-service-test">
-        <parameter name="enableNonBlocking" value="false" />
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-            <class name="org.ballerinalang.service.ServiceVariableTest"/>
-            <class name="org.ballerinalang.service.JMSServiceTest" />
-            <class name="org.ballerinalang.service.FileServiceTest" />
-        </classes>
-    </test>
-    <!-- Non Blocking Test Cases -->
-    <test name="ballerina-service-test-non-blocking">
-        <parameter name="enableNonBlocking" value="true" />
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-            <class name="org.ballerinalang.service.ServiceVariableTest"/>
-            <class name="org.ballerinalang.service.JMSServiceTest" />
-        </classes>
-    </test>
+    <!-- Debugger TestCases TODO: Enable this. -->
 
-    <!-- Debugger TestCases -->
-
-    <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.core.interpreter.DebuggerTest"/>
-        </classes>
-    </test>
+    <!--<test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">-->
+        <!--<classes>-->
+            <!--<class name="org.ballerinalang.core.interpreter.DebuggerTest"/>-->
+        <!--</classes>-->
+    <!--</test>-->
 
 
     <test name="ballerina-any-type-test-suite">
-        <parameter name="enableNonBlocking" value="false" />
         <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
-            <class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>
-            <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
-        </classes>
-    </test>
-    <!-- Non Blocking Test Cases -->
-    <test name="ballerina-any-type-test-suite-non-blocking">
-        <parameter name="enableNonBlocking" value="true" />
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-            <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
-            <!--<class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>-->
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
         </classes>
     </test>
 
     <test name="ballerina-global-var-test-suite">
-        <parameter name="enableNonBlocking" value="false" />
         <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionTest" />
-            <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionWithPkgTest" />
-            <class name="org.ballerinalang.model.globalvar.GlobalVarErrorTest" />
-        </classes>
-    </test>
-    <!-- Non Blocking Test Cases -->
-    <test name="ballerina-global-var-test-suite-non-blocking">
-        <parameter name="enableNonBlocking" value="true" />
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionTest" />
             <class name="org.ballerinalang.model.globalvar.GlobalVarFunctionWithPkgTest" />
             <class name="org.ballerinalang.model.globalvar.GlobalVarErrorTest" />
@@ -155,34 +77,13 @@ under the License.
     </test>
 
     <test name="ballerina-constant-access-test-suite">
-        <parameter name="enableNonBlocking" value="false" />
         <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-            <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
-        </classes>
-    </test>
-    <!-- Non Blocking Test Cases -->
-    <test name="ballerina-constant-access-test-suite-non-blocking">
-        <parameter name="enableNonBlocking" value="true" />
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
         </classes>
     </test>
 
     <test name="ballerina-identifier-literal-test-suite">
-        <parameter name="enableNonBlocking" value="false" />
         <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
-            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
-            <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
-        </classes>
-    </test>
-    <!-- Non Blocking Test Cases -->
-    <test name="ballerina-identifier-literal-test-suite-non-blocking">
-        <parameter name="enableNonBlocking" value="true" />
-        <classes>
-            <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralPackageTest" />
             <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
         </classes>

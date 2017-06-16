@@ -2,61 +2,86 @@ import ballerina.lang.datatables;
 import ballerina.data.sql;
 import ballerina.lang.errors;
 
-function testInsertTableData() (int) {
+struct ResultCustomers {
+    string FIRSTNAME;
+}
+
+struct ResultDataType {
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+}
+
+struct ResultCount {
+    int COUNTVAL;
+}
+
+struct ResultArrayType {
+    map INT_ARRAY;
+    map LONG_ARRAY;
+    map DOUBLE_ARRAY;
+    map BOOLEAN_ARRAY;
+    map STRING_ARRAY;
+    map FLOAT_ARRAY;
+}
+
+function testInsertTableData () (int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
+    int insertCount = sql:ClientConnector.update (testDB, "Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 2, 5000.75, 'USA')",
-            parameters);
-    sql:ClientConnector.close(testDB);
+                                                  parameters);
+    sql:ClientConnector.close (testDB);
     return insertCount;
 }
 
-function testCreateTable() (int) {
+function testCreateTable () (int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    int returnValue = sql:ClientConnector.update(testDB, "CREATE TABLE IF NOT EXISTS Students(studentID int,
-                LastName varchar(255))", parameters);
-    sql:ClientConnector.close(testDB);
+    int returnValue = sql:ClientConnector.update (testDB,
+              "CREATE TABLE IF NOT EXISTS Students(studentID int, LastName varchar(255))", parameters);
+    sql:ClientConnector.close (testDB);
     return returnValue;
 }
 
-function testUpdateTableData() (int) {
+function testUpdateTableData () (int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    int updateCount = sql:ClientConnector.update(testDB, "Update Customers set country = 'UK' where registrationID = 1",
-            parameters);
-    sql:ClientConnector.close(testDB);
+    int updateCount = sql:ClientConnector.update (testDB,
+              "Update Customers set country = 'UK' where registrationID = 1", parameters);
+    sql:ClientConnector.close (testDB);
     return updateCount;
 }
 
-function testGeneratedKeyOnInsert() (string) {
+function testGeneratedKeyOnInsert () (string) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     int insertCount;
     string[] generatedID;
     sql:Parameter[] parameters = [];
-    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
-        "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-        values ('Mary', 'Williams', 3, 5000.75, 'USA')", parameters);
-    sql:ClientConnector.close(testDB);
+    string[] keyColumns = [];
+    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeys (testDB,
+                "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                values ('Mary', 'Williams', 3, 5000.75, 'USA')", parameters, keyColumns);
+    sql:ClientConnector.close (testDB);
     return generatedID[0];
 }
 
-function testGeneratedKeyWithColumn() (string) {
+function testGeneratedKeyWithColumn () (string) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     int insertCount;
@@ -64,169 +89,185 @@ function testGeneratedKeyWithColumn() (string) {
     string[] keyColumns;
     keyColumns = ["CUSTOMERID"];
     sql:Parameter[] parameters = [];
-    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
-        "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-        values ('Kathy', 'Williams', 4, 5000.75, 'USA')", parameters, keyColumns);
-    sql:ClientConnector.close(testDB);
+    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeys (testDB,
+                "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                values ('Kathy', 'Williams', 4, 5000.75, 'USA')", parameters, keyColumns);
+    sql:ClientConnector.close (testDB);
     return generatedID[0];
 }
 
-function testSelectData() (string) {
+function testSelectData () (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-
-    string firstName;
-    sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
-        parameters);
-    while (datatables:next(dt)) {
-        firstName = datatables:getString(dt, 1);
-    }
-    datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return firstName;
-}
-
-function testSelectIntFloatData() (int, int, float, float) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-
-    int int_type;
-    int long_type;
-    float float_type;
-    float double_type;
-
-    sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  int_type, long_type, float_type, double_type from DataTypeTable where row_id = 1",
-        parameters);
-    while (datatables:next(dt)) {
-        int_type = datatables:getInt(dt, 1);
-        long_type = datatables:getInt(dt, 2);
-        float_type = datatables:getFloat(dt, 3);
-        double_type = datatables:getFloat(dt, 4);
-    }
-    datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return int_type, long_type, float_type, double_type;
-}
-
-function testCallProcedure() (string) {
-    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    string firstName;
-    sql:ClientConnector.call(testDB, "{call InsertPersonData(100,'James')}", parameters);
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100",
-        parameters);
-    while (datatables:next(dt)) {
-        firstName = datatables:getString(dt, 1);
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = 1",
+                                               parameters);
+    errors:TypeCastError err;
+    ResultCustomers rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCustomers) dataStruct;
+        firstName = rs.FIRSTNAME;
     }
     datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return firstName;
+    sql:ClientConnector.close (testDB);
+    return;
 }
 
-function testCallProcedureWithResultSet() (string) {
+function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    string firstName;
-    datatable dt = sql:ClientConnector.call(testDB, "{call SelectPersonData()}", parameters);
-    while (datatables:next(dt)) {
-        firstName = datatables:getString(dt, 1);
+    errors:TypeCastError err;
+    ResultDataType rs;
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT  int_type, long_type, float_type, double_type
+              from DataTypeTable where row_id = 1", parameters);
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultDataType) dataStruct;
+        int_type = rs.INT_TYPE;
+        long_type = rs.LONG_TYPE;
+        float_type = rs.FLOAT_TYPE;
+        double_type = rs.DOUBLE_TYPE;
     }
     datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return firstName;
+    sql:ClientConnector.close (testDB);
+    return;
 }
 
-function testConnectorWithDataSource() (string) {
+function testCallProcedure () (string firstName) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    sql:ClientConnector.call (testDB, "{call InsertPersonData(100,'James')}", parameters);
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = 100",
+                                               parameters);
+    errors:TypeCastError err;
+    ResultCustomers rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCustomers) dataStruct;
+        firstName = rs.FIRSTNAME;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close (testDB);
+    return;
+}
+
+function testCallProcedureWithResultSet () (string firstName) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.call (testDB, "{call SelectPersonData()}", parameters);
+    errors:TypeCastError err;
+    ResultCustomers rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCustomers) dataStruct;
+        firstName = rs.FIRSTNAME;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close (testDB);
+    return;
+}
+
+function testConnectorWithDataSource () (string firstName) {
     map propertiesMap = {"dataSourceClassName":"org.hsqldb.jdbc.JDBCDataSource",
-        "dataSource.user":"SA", "dataSource.password":"", "dataSource.loginTimeout":0,
-        "dataSource.url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
+                        "dataSource.user":"SA", "dataSource.password":"", "dataSource.loginTimeout":0,
+                        "dataSource.url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    string firstName;
     sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
-        parameters);
-    while (datatables:next(dt)) {
-        firstName = datatables:getString(dt, 1);
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = 1",
+                                               parameters);
+    errors:TypeCastError err;
+    ResultCustomers rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCustomers) dataStruct;
+        firstName = rs.FIRSTNAME;
     }
     datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return firstName;
+    sql:ClientConnector.close (testDB);
+    return;
 }
 
-function testConnectionPoolProperties() (string) {
+function testConnectionPoolProperties () (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "driverClassName":"org.hsqldb.jdbcDriver", "username":"SA", "password":"", "maximumPoolSize":1,
-        "idleTimeout":600000, "connectionTimeout":30000, "autoCommit":"true", "maxLifetime":1800000,
-        "minimumIdle":1, "poolName":"testHSQLPool", "initializationFailTimeout":1,
-        "isolateInternalQueries":"false", "allowPoolSuspension":"false", "readOnly":"false",
-        "registerMbeans":"false", "validationTimeout":5000, "leakDetectionThreshold":0,
-        "connectionInitSql":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
-        "transactionIsolation":"2", "catalog":"PUBLIC",
-        "connectionTestQuery":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
+                        "driverClassName":"org.hsqldb.jdbcDriver", "username":"SA", "password":"", "maximumPoolSize":1,
+                        "idleTimeout":600000, "connectionTimeout":30000, "autoCommit":"true", "maxLifetime":1800000,
+                        "minimumIdle":1, "poolName":"testHSQLPool", "initializationFailTimeout":1,
+                        "isolateInternalQueries":"false", "allowPoolSuspension":"false", "readOnly":"false",
+                        "registerMbeans":"false", "validationTimeout":5000, "leakDetectionThreshold":0,
+                        "connectionInitSql":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
+                        "transactionIsolation":"2", "catalog":"PUBLIC",
+                        "connectionTestQuery":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    string firstName;
     sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
-        parameters);
-    while (datatables:next(dt)) {
-        firstName = datatables:getString(dt, 1);
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = 1",
+                                               parameters);
+    errors:TypeCastError err;
+    ResultCustomers rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCustomers) dataStruct;
+        firstName = rs.FIRSTNAME;
     }
     datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return firstName;
+    sql:ClientConnector.close (testDB);
+    return;
 }
 
-function testQueryParameters() (string) {
+function testQueryParameters () (string firstName) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-            "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    string firstName;
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter[] parameters = [para1];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = ?",
-        parameters);
-    while (datatables:next(dt)) {
-        firstName = datatables:getString(dt, 1);
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = ?",
+                                               parameters);
+    errors:TypeCastError err;
+    ResultCustomers rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCustomers) dataStruct;
+        firstName = rs.FIRSTNAME;
     }
     datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return firstName;
+    sql:ClientConnector.close (testDB);
+    return;
 }
 
-function testInsertTableDataWithParameters() (int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+function testInsertTableDataWithParameters () (int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-	sql:Parameter para1 = {sqlType:"varchar", value:"Anne", direction:0};
-	sql:Parameter para2 = {sqlType:"varchar", value:"James", direction:0};
-	sql:Parameter para3 = {sqlType:"integer", value:3, direction:0};
-	sql:Parameter para4 = {sqlType:"double", value:5000.75, direction:0};
-	sql:Parameter para5 = {sqlType:"varchar", value:"UK", direction:0};
+    sql:Parameter para1 = {sqlType:"varchar", value:"Anne", direction:0};
+    sql:Parameter para2 = {sqlType:"varchar", value:"James", direction:0};
+    sql:Parameter para3 = {sqlType:"integer", value:3, direction:0};
+    sql:Parameter para4 = {sqlType:"double", value:5000.75, direction:0};
+    sql:Parameter para5 = {sqlType:"varchar", value:"UK", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
-    int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
+    int insertCount = sql:ClientConnector.update (testDB, "Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters);
-    sql:ClientConnector.close(testDB);
+    sql:ClientConnector.close (testDB);
     return insertCount;
 }
 
-function testOutParameters()
-    (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-            "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter paraID = {sqlType:"integer", value:"1", direction:0};
@@ -246,18 +287,17 @@ function testOutParameters()
     sql:Parameter paraBinary = {sqlType:"binary", direction:1};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    sql:ClientConnector.call(testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
-    sql:ClientConnector.close(testDB);
+                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
+    sql:ClientConnector.call (testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close (testDB);
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-        paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-        paraBlob.value, paraBinary.value;
+           paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
+           paraBlob.value, paraBinary.value;
 }
 
-function testNullOutParameters()
-    (any, any, any, any, any, any, any ,any ,any ,any ,any, any, any, any) {
+function testNullOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-            "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter paraID = {sqlType:"integer", value:"2", direction:0};
@@ -277,17 +317,17 @@ function testNullOutParameters()
     sql:Parameter paraBinary = {sqlType:"binary", direction:1};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    sql:ClientConnector.call(testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
-    sql:ClientConnector.close(testDB);
+                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
+    sql:ClientConnector.call (testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close (testDB);
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-        paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-        paraBlob.value, paraBinary.value;
+           paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
+           paraBlob.value, paraBinary.value;
 }
 
-function testINParameters() (int) {
+function testINParameters () (int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter paraID = {sqlType:"integer", value:3, direction:0};
@@ -307,20 +347,20 @@ function testINParameters() (int) {
     sql:Parameter paraBinary = {sqlType:"binary", value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:0};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-            paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    int insertCount = sql:ClientConnector.update(testDB, "INSERT INTO DataTypeTable (row_id,int_type, long_type,
+                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
+    int insertCount = sql:ClientConnector.update (testDB, "INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
-    sql:ClientConnector.close(testDB);
+    sql:ClientConnector.close (testDB);
     return insertCount;
 }
 
-function testNullINParameters() (int) {
+function testNullINParameters () (int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-	sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
+    sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:0};
     sql:Parameter paraLong = {sqlType:"bigint", direction:0};
     sql:Parameter paraFloat = {sqlType:"float", direction:0};
@@ -337,18 +377,17 @@ function testNullINParameters() (int) {
     sql:Parameter paraBinary = {sqlType:"binary", direction:0};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-            paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    int insertCount = sql:ClientConnector.update(testDB, "INSERT INTO DataTypeTable (row_id, int_type, long_type,
+                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
+    int insertCount = sql:ClientConnector.update (testDB, "INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
-    sql:ClientConnector.close(testDB);
+    sql:ClientConnector.close (testDB);
     return insertCount;
 }
 
-function testINOutParameters()
-    (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-            "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter paraID = {sqlType:"integer", value:5, direction:0};
@@ -368,18 +407,18 @@ function testINOutParameters()
     sql:Parameter paraBinary = {sqlType:"binary", value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:2};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    sql:ClientConnector.call(testDB, "{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
-    sql:ClientConnector.close(testDB);
+                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
+    sql:ClientConnector.call (testDB, "{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close (testDB);
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-        paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-        paraBlob.value, paraBinary.value;
+           paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
+           paraBlob.value, paraBinary.value;
 }
 
-function testNullINOutParameters()
-    (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testNullINOutParameters ()
+(any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-            "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter paraID = {sqlType:"integer", value:"6", direction:0};
@@ -399,47 +438,50 @@ function testNullINOutParameters()
     sql:Parameter paraBinary = {sqlType:"binary", direction:2};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
-    sql:ClientConnector.call(testDB, "{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
-    sql:ClientConnector.close(testDB);
+                                  paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
+    sql:ClientConnector.call (testDB, "{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close (testDB);
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-        paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-        paraBlob.value, paraBinary.value ;
+           paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
+           paraBlob.value, paraBinary.value;
 }
 
-function testEmptySQLType() (int) {
+function testEmptySQLType () (int) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter para1 = {value:"Anne", direction:0};
     sql:Parameter[] parameters = [para1];
-    int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName) values (?)", parameters);
-    sql:ClientConnector.close(testDB);
+    int insertCount = sql:ClientConnector.update (testDB, "Insert into Customers (firstName) values (?)", parameters);
+    sql:ClientConnector.close (testDB);
     return insertCount;
 }
 
-function testCloseConnectionPool () (int) {
+function testCloseConnectionPool () (int count) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    int count;
     sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS",
-                                              parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS",
+                                               parameters);
+    errors:TypeCastError err;
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCount) dataStruct;
+        count = rs.COUNTVAL;
     }
     datatables:close(dt);
-    sql:ClientConnector.close(testDB);
-    return count;
+    sql:ClientConnector.close (testDB);
+    return;
 }
 
-function testArrayInParameters() (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
-                                       map boolean_arr, map float_arr) {
+function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
+                                   map boolean_arr, map float_arr) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter para1 = {sqlType:"integer", value:2, direction:0};
@@ -451,28 +493,31 @@ function testArrayInParameters() (int insertCount, map int_arr, map long_arr, ma
     sql:Parameter para7 = {sqlType:"array", value:"Hello,Ballerina", direction:0, structuredType:"varchar"};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
 
-    insertCount = sql:ClientConnector.update(testDB, "INSERT INTO ArrayTypes (row_id, int_array, long_array,
+    insertCount = sql:ClientConnector.update (testDB, "INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", parameters);
 
     sql:Parameter[] params = [];
-    datatable df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array,
+    datatable dt = sql:ClientConnector.select (testDB, "SELECT int_array, long_array, double_array, boolean_array,
         string_array, float_array from ArrayTypes where row_id = 2", params);
-    while (datatables:next(df)) {
-        int_arr = datatables:getArray(df, "int_array");
-        long_arr = datatables:getArray(df, "long_array");
-        double_arr = datatables:getArray(df, "double_array");
-        boolean_arr = datatables:getArray(df, "boolean_array");
-        string_arr = datatables:getArray(df, "string_array");
-        float_arr = datatables:getArray(df, "float_array");
+    ResultArrayType rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultArrayType) dataStruct;
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        double_arr = rs.DOUBLE_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
     }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
+    datatables:close(dt);
+    sql:ClientConnector.close (testDB);
     return;
 }
 
-function testArrayOutParameters() (any, any, any, any, any, any) {
+function testArrayOutParameters () (any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     string firstName;
@@ -483,14 +528,14 @@ function testArrayOutParameters() (any, any, any, any, any, any) {
     sql:Parameter para5 = {sqlType:"array", direction:1};
     sql:Parameter para6 = {sqlType:"array", direction:1};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
-    sql:ClientConnector.call(testDB, "{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
-    sql:ClientConnector.close(testDB);
+    sql:ClientConnector.call (testDB, "{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close (testDB);
     return para1.value, para2.value, para3.value, para4.value, para5.value, para6.value;
 }
 
-function testArrayInOutParameters() (any, any, any, any, any, any, any) {
+function testArrayInOutParameters () (any, any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter para1 = {sqlType:"integer", value:3, direction:0};
@@ -503,14 +548,14 @@ function testArrayInOutParameters() (any, any, any, any, any, any, any) {
     sql:Parameter para8 = {sqlType:"array", value:"Hello,Ballerina,Lang", direction:2, structuredType:"varchar"};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
 
-    sql:ClientConnector.call(testDB, "{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
-    sql:ClientConnector.close(testDB);
+    sql:ClientConnector.call (testDB, "{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close (testDB);
     return para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value;
 }
 
-function testBatchUpdate() (int[]) {
+function testBatchUpdate () (int[]) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                        "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     //Batch 1
@@ -531,77 +576,81 @@ function testBatchUpdate() (int[]) {
     sql:Parameter[][] parameters = [parameters1, parameters2];
 
     int[] updateCount;
-    updateCount  = sql:ClientConnector.batchUpdate(testDB, "Insert into Customers
+    updateCount = sql:ClientConnector.batchUpdate(testDB, "Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters);
     sql:ClientConnector.close(testDB);
     return updateCount;
 }
 
-function testLocalTransacton () (int, int) {
+function testLocalTransacton () (int returnVal, int count) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
+    returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
-    sql:ClientConnector.update(testDB, "Insert into Customers
+        sql:ClientConnector.update(testDB, "Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
-                               parameters);
-    sql:ClientConnector.update(testDB, "Insert into Customers
+                                   parameters);
+        sql:ClientConnector.update(testDB, "Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 200, 5000.75, 'USA')",
-                               parameters);
+                                   parameters);
     } aborted {
-        returnVal = - 1;
+        returnVal = -1;
     }
     //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 200",
-    parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                   registrationID = 200", parameters);
+    errors:TypeCastError err;
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return returnVal, count;
+    return;
 }
 
-function testTransactonRollback () (int, int) {
+function testTransactonRollback () (int returnVal, int count) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
+    returnVal = 0;
     sql:Parameter[] parameters = [];
-    try{
+    try {
         transaction {
-            sql:ClientConnector.update(testDB, "Insert into Customers
-                    (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
-                                       parameters);
-            sql:ClientConnector.update(testDB, "Insert into Customers2
-                    (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')",
-                                       parameters);
+            sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
+            sql:ClientConnector.update(testDB, "Insert into Customers2 (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')", parameters);
         } aborted {
-            returnVal = - 1;
+            returnVal = -1;
         }
-    } catch (errors:Error e){
+    } catch (errors:Error e) {
         // ignore.
     }
     //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 210",
-        parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                   registrationID = 210", parameters);
+    errors:TypeCastError err;
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return returnVal, count;
+    return;
 }
 
-function testTransactonAbort () (int, int) {
+function testTransactonAbort () (int returnVal, int count) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
+    returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
         int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
@@ -610,99 +659,207 @@ function testTransactonAbort () (int, int) {
 
         insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
                 (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 220, 5000.75, 'USA')",
-                                             parameters);
+                                                 parameters);
         int i = 0;
         if (i == 0) {
             abort;
         }
     } aborted {
-        returnVal = - 1;
+        returnVal = -1;
     }
     //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 220",
-        parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                   registrationID = 220", parameters);
+    errors:TypeCastError err;
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return returnVal, count;
+    return;
 }
 
-function testTransactonErrorThrow () (int, int, int) {
+function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
-    int catchValue = 0;
+    returnVal = 0;
+    catchValue = 0;
     sql:Parameter[] parameters = [];
-    try{
+    try {
         transaction {
-            int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
-                            (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')",
-                                                                 parameters);
+            int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,
+                      registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')", parameters);
             int i = 0;
             if (i == 0) {
-                errors:Error err = { msg : "error" };
+                errors:Error err = {msg:"error"};
                 throw err;
             }
         } aborted {
-            returnVal = - 1;
+            returnVal = -1;
         }
-    }catch(errors:Error err){
+    } catch (errors:Error err) {
         catchValue = -1;
     }
     //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 260",
-        parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                   registrationID = 260", parameters);
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return returnVal, catchValue, count;
+    return;
 }
 
-function testTransactionErrorThrowAndCatch () (int, int, int) {
+function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    int returnVal = 0;
-    int catchValue = 0;
+    returnVal = 0;
+    catchValue = 0;
     sql:Parameter[] parameters = [];
     transaction {
-        int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
-                        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')",
-                                                             parameters);
+        int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,
+                 creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')", parameters);
         int i = 0;
-        try{
+        try {
             if (i == 0) {
-                errors:Error err = { msg : "error" };
+                errors:Error err = {msg:"error"};
                 throw err;
             }
-        } catch(errors:Error err){
+        } catch (errors:Error err) {
             catchValue = -1;
         }
     } aborted {
-        returnVal = - 1;
+        returnVal = -1;
     }
     //check whether update action is performed
-    int count;
-    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) from Customers where registrationID = 250",
-        parameters);
-    while (datatables:next(dt)) {
-        count = datatables:getInt(dt, 1);
+    errors:TypeCastError err;
+    ResultCount rs;
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                   registrationID = 250", parameters);
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
-    return returnVal, catchValue, count;
+    return;
 }
 
-function testDateTimeInParameters() (int[]) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+function testTransactonCommitted () (int returnVal, int count) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    returnVal = 0;
+    sql:Parameter[] parameters = [];
+    transaction {
+        sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,creditLimit,
+               country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
+        sql:ClientConnector.update(testDB, "Insert into Customers (firstName,lastName,registrationID,creditLimit,
+               country) values ('James', 'Clerk', 300, 5000.75, 'USA')", parameters);
+    } committed {
+        returnVal = 1;
+    }
+    //check whether update action is performed
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                  registrationID = 300", parameters);
+    errors:TypeCastError err;
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, err = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int count) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    returnVal1 = 0;
+    returnVal2 = 0;
+    sql:Parameter[] parameters = [];
+    transaction {
+        sql:ClientConnector.update(testDB, "Insert into Customers
+            (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
+                                   parameters);
+        sql:ClientConnector.update(testDB, "Insert into Customers
+            (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
+                                   parameters);
+    } committed {
+        returnVal1 = 1;
+    } aborted {
+        returnVal1 = -1;
+    }
+
+    transaction {
+        sql:ClientConnector.update(testDB, "Insert into Customers
+            (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
+                                   parameters);
+        sql:ClientConnector.update(testDB, "Insert into Customers
+            (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 400, 5000.75, 'USA')",
+                                   parameters);
+    } aborted {
+        returnVal2 = -1;
+    } committed {
+        returnVal2 = 1;
+    }
+    //check whether update action is performed
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                      registrationID = 400", parameters);
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return returnVal1, returnVal2, count;
+}
+
+function testTransactonWithoutHandlers () (int count) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:Parameter[] parameters = [];
+    transaction {
+        sql:ClientConnector.update(testDB, "Insert into Customers
+                        (firstName,lastName,registrationID,creditLimit,country) values
+                                           ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
+        sql:ClientConnector.update(testDB, "Insert into Customers
+                        (firstName,lastName,registrationID,creditLimit,country) values
+                                           ('James', 'Clerk', 350, 5000.75, 'USA')", parameters);
+    }
+    //check whether update action is performed
+    datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
+                                      registrationID = 350", parameters);
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testDateTimeInParameters () (int[]) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     int[] returnValues = [];
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
@@ -728,4 +885,39 @@ function testDateTimeInParameters() (int[]) {
     returnValues[1] = insertCount2;
     sql:ClientConnector.close(testDB);
     return returnValues;
+}
+
+
+function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter para1 = {sqlType:"integer", value:10, direction:0};
+    sql:Parameter para2 = {sqlType:"date", value:date, direction:0};
+    sql:Parameter para3 = {sqlType:"time", value:time, direction:0};
+    sql:Parameter para4 = {sqlType:"timestamp", value:timestamp, direction:0};
+    sql:Parameter para5 = {sqlType:"datetime", value:timestamp, direction:0};
+
+    sql:Parameter para6 = {sqlType:"date", direction:1};
+    sql:Parameter para7 = {sqlType:"time", direction:1};
+    sql:Parameter para8 = {sqlType:"timestamp", direction:1};
+    sql:Parameter para9 = {sqlType:"datetime", direction:1};
+
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8, para9];
+
+    sql:ClientConnector.call(testDB, "{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", parameters);
+
+    sql:Parameter[] emptyParam = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT count(*) as countval from DateTimeTypes
+                                  where row_id = 10", emptyParam);
+    ResultCount rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultCount)dataStruct;
+        count = rs.COUNTVAL;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
 }

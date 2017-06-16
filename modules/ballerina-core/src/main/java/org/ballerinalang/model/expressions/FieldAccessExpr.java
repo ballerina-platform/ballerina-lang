@@ -17,13 +17,11 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * <p>
@@ -112,15 +110,6 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
         if (varRefExpr instanceof ReferenceExpr) {
             this.symbolName = ((ReferenceExpr) varRefExpr).getSymbolName();
         }
-    }
-
-    public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName,
-                           String pkgName, String pkgPath, ReferenceExpr structVarRefExpr) {
-        super(location, whiteSpaceDescriptor, null, structVarRefExpr);
-        this.symbolName = symbolName;
-        this.pkgName = pkgName;
-        this.pkgPath = pkgPath;
-        this.varRefExpr = structVarRefExpr;
     }
 
     /**
@@ -274,14 +263,6 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
-    /**
      * Get the type to which this entire expression chain evaluates to.
      * Type of a struct field access expression chain, is the type of the field expression at the chain.
      */
@@ -304,16 +285,6 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      */
     public BType getExpressionType() {
         return this.type;
-    }
-    
-    @Override
-    public void setTempOffset(int index) {
-        this.varRefExpr.setTempOffset(index);
-    }
-    
-    @Override
-    public int getTempOffset() {
-        return varRefExpr.getTempOffset();
     }
     
     @Override

@@ -19,11 +19,11 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -35,17 +35,17 @@ import org.testng.annotations.Test;
  */
 public class DivideExprTest {
     private static final double DELTA = 0.01;
-    private BLangProgram bLangProgram;
+    private ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/divide-expr.bal");
+        bLangProgram = BTestUtils.getProgramFile("lang/expressions/divide-expr.bal");
     }
 
     @Test(description = "Test two int divide expression")
     public void testIntDivideExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(50) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivide", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "intDivide", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -55,10 +55,10 @@ public class DivideExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int divide expression", expectedExceptions = BallerinaException.class)
+    @Test(description = "Test two int divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testIntDivideByZeroExpr() {
         BValue[] args = { new BInteger(2000), new BInteger(0) };
-        BLangFunctions.invoke(bLangProgram, "intDivide", args);
+        BLangFunctions.invokeNew(bLangProgram, "intDivide", args);
     }
 
     @Test(description = "Test two float divide expression")
@@ -69,7 +69,7 @@ public class DivideExprTest {
         double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BFloat(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivide", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "floatDivide", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -78,10 +78,10 @@ public class DivideExprTest {
         Assert.assertEquals(actual, expectedResult, DELTA);
     }
 
-    @Test(description = "Test two float divide expression", expectedExceptions = BallerinaException.class)
+    @Test(description = "Test two float divide expression", expectedExceptions = BLangRuntimeException.class)
     public void testFloatDivideByZeroExpr() {
         BValue[] args = { new BFloat(300.0f), new BFloat(0) };
-        BLangFunctions.invoke(bLangProgram, "floatDivide", args);
+        BLangFunctions.invokeNew(bLangProgram, "floatDivide", args);
     }
 
     @Test(description = "Test integer division by float")
@@ -92,7 +92,7 @@ public class DivideExprTest {
         double expectedResult = a / b;
 
         BValue[] args = { new BInteger(a), new BFloat(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivideByFloat", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "intDivideByFloat", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
@@ -109,7 +109,7 @@ public class DivideExprTest {
         double expectedResult = a / b;
 
         BValue[] args = { new BFloat(a), new BInteger(b) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatDivideByInt", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "floatDivideByInt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class, "Return type of the division is invalid");
@@ -127,7 +127,7 @@ public class DivideExprTest {
             expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: invalid operation: " +
                     "incompatible types 'string' and 'float'")
     public void testAddIncompatibleTypes() {
-        BTestUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
+        BTestUtils.getProgramFile("lang/expressions/divide-incompatible-types.bal");
     }
     
     @Test(description = "Test dividing values of unsupported types (json)",
@@ -135,6 +135,6 @@ public class DivideExprTest {
             expectedExceptionsMessageRegExp = "divide-unsupported-types.bal:10: invalid operation: " +
                     "operator / not defined on 'json'")
     public void testAddUnsupportedTypes() {
-        BTestUtils.parseBalFile("lang/expressions/divide-unsupported-types.bal");
+        BTestUtils.getProgramFile("lang/expressions/divide-unsupported-types.bal");
     }
 }

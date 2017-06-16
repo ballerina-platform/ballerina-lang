@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.expressions.Expression;
@@ -53,14 +52,5 @@ public class AssignStmt extends AbstractStatement {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
-    }
-
-    public void setRhsExpr(Expression rhsExpr) {
-        this.rhsExpr = rhsExpr;
     }
 }

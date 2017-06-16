@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -36,19 +35,17 @@ import org.testng.annotations.Test;
  * @since 0.8.0
  */
 public class MapAccessExprTest {
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        // Linking Native functions.
-        SymScope symScope = new SymScope(null);
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/map-access-expr.bal");
+        programFile = BTestUtils.getProgramFile("lang/expressions/map-access-expr.bal");
     }
 
     @Test(description = "Test map access expression")
     public void testMapAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapAccessTest", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "mapAccessTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -61,17 +58,17 @@ public class MapAccessExprTest {
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapReturnTest", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "mapReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
 
-        BMap<BString, BString> mapValue = (BMap<BString, BString>) returns[0];
+        BMap mapValue = (BMap) returns[0];
         Assert.assertEquals(mapValue.size(), 3);
 
-        Assert.assertEquals(mapValue.get(new BString("fname")).stringValue(), "Chanaka");
-        Assert.assertEquals(mapValue.get(new BString("lname")).stringValue(), "Fernando");
-        Assert.assertEquals(mapValue.get(new BString("ChanakaFernando")).stringValue(), "ChanakaFernando");
+        Assert.assertEquals(mapValue.get("fname").stringValue(), "Chanaka");
+        Assert.assertEquals(mapValue.get("lname").stringValue(), "Fernando");
+        Assert.assertEquals(mapValue.get("ChanakaFernando").stringValue(), "ChanakaFernando");
 
     }
 
@@ -79,7 +76,7 @@ public class MapAccessExprTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "incorrect-map-access.bal:4: non-string map index type 'int'")
     public void testMapAccessWithIndex() {
-        BTestUtils.parseBalFile("lang/expressions/incorrect-map-access.bal");
+        BTestUtils.getProgramFile("lang/expressions/incorrect-map-access.bal");
     }
     
     @Test(description = "Test nested map access",
@@ -87,13 +84,13 @@ public class MapAccessExprTest {
             expectedExceptionsMessageRegExp = "nested-map-access.bal:3: invalid operation: indexing is not " +
             "supported for map elements of type 'any'. cast the value before access with index")
     public void testNestedMapAccess() {
-        BTestUtils.parseBalFile("lang/expressions/nested-map-access.bal");
+        BTestUtils.getProgramFile("lang/expressions/nested-map-access.bal");
     }
     
     @Test(description = "Test array access expression as the index of a map")
     public void testArrayAccessAsIndexOfMapt() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayAccessAsIndexOfMapt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testArrayAccessAsIndexOfMapt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

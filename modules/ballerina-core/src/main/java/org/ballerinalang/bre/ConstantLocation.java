@@ -17,18 +17,12 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
-import org.ballerinalang.model.Node;
-import org.ballerinalang.model.NodeExecutor;
-import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BValue;
-
 /**
  * {@code ConstantLocation} represents a location where a constant is stored at runtime.
  *
  * @since 0.8.0
  */
-public class ConstantLocation extends MemoryLocation implements Node {
+public class ConstantLocation extends MemoryLocation {
     private int staticMemAddrOffset;
 
     public ConstantLocation(int staticMemAddrOffset) {
@@ -37,20 +31,5 @@ public class ConstantLocation extends MemoryLocation implements Node {
 
     public int getStaticMemAddrOffset() {
         return staticMemAddrOffset;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
-    @Override
-    public BValue access(BLangExecutionVisitor executor) {
-        return executor.access(this);
     }
 }

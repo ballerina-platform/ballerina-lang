@@ -66,7 +66,7 @@ function testAccessArrayInStruct() (int, int) {
     return p1.marks[1], p1["marks"][2];
 }
 
-function testMapInitWithAnyType() (any, map, json) {
+function testMapInitWithAnyType() (any, map) {
     any a = {name:"Supun"};
-    return a, (map)a, (json)a;
+    return a, (map)a;
 }

@@ -18,12 +18,10 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.Action;
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code ActionInvocationExpr} represents action invocation expression.
@@ -38,8 +36,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private Expression[] exprs;
     private Action action;
     private BType[] types = new BType[0];
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
+    private int[] offsets;
 
     public ActionInvocationExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -60,6 +57,10 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         return connectorName;
     }
 
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
+    }
+
     @Override
     public String getName() {
         return name;
@@ -78,6 +79,10 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public Expression[] getArgExprs() {
         return exprs;
+    }
+
+    public void setArgExprs(Expression[] exprs) {
+        this.exprs = exprs;
     }
 
     @Override
@@ -105,39 +110,17 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         }
     }
 
+    public int[] getOffsets() {
+        return offsets;
+    }
+
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this)[0];
-    }
-
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
-    }
-
-    @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
     }
 
 }

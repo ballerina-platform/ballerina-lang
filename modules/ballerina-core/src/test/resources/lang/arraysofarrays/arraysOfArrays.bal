@@ -86,3 +86,7 @@ function twoDarrayStructTest() (int) {
     return b3.x;
 }
 
+function nestedArrayInit() (int, int) {
+    int[][][] a = [[[100, 200, 3], [2, 5, 6]], [[100, 200, 3], [2, 5, 6], [12, 15, 16]]];
+    return a[1][2][0], a[0][1][2];
+}

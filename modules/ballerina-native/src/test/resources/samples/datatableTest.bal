@@ -1,309 +1,319 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
+import ballerina.lang.errors;
+import ballerina.lang.xmls;
+import ballerina.lang.jsons;
+import ballerina.lang.blobs;
 
-function getXXXByIndex()(int, int, float, float, boolean, string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                        "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    int i;
-    int l;
-    float f;
-    float d;
-    boolean b;
-    string s;
-
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
-                string_type from DataTable WHERE row_id = 1",parameters);
-    while (datatables:next(df)) {
-        i = datatables:getInt(df, 1);
-        l = datatables:getInt(df, 2);
-        f = datatables:getFloat(df, 3);
-        d = datatables:getFloat(df, 4);
-        b = datatables:getBoolean(df, 5);
-        s = datatables:getString(df, 6);
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return i, l, f, d, b, s;
+struct ResultPrimitive {
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    boolean BOOLEAN_TYPE;
+    string STRING_TYPE;
 }
 
-function getXXXByName()(int, int, float, float, boolean, string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    int i;
-    int l;
-    float f;
-    float d;
-    boolean b;
-    string s;
-
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
-                string_type from DataTable WHERE row_id = 1",parameters);
-    while (datatables:next(df)) {
-        i = datatables:getInt(df, "int_type");
-        l = datatables:getInt(df, "long_type");
-        f = datatables:getFloat(df, "float_type");
-        d = datatables:getFloat(df, "double_type");
-        b = datatables:getBoolean(df, "boolean_type");
-        s = datatables:getString(df, "string_type");
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return i, l, f, d, b, s;
+struct ResultSetTestAlias {
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    boolean BOOLEAN_TYPE;
+    string STRING_TYPE;
+    int DT2INT_TYPE;
 }
 
-function toJson()(json) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    json result;
-
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
-                string_type from DataTable WHERE row_id = 1",parameters);
-    result = datatables:toJson(df);
-    return result;
+struct ResultObject {
+    blob BLOB_TYPE;
+    string CLOB_TYPE;
+    string TIME_TYPE;
+    string DATE_TYPE;
+    string TIMESTAMP_TYPE;
+    string DATETIME_TYPE;
+    string BINARY_TYPE;
 }
 
-function toXmlWithWrapper()(xml) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    xml result;
-
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
-                string_type from DataTable WHERE row_id = 1",parameters);
-    result = datatables:toXml(df, "types", "type");
-    return result;
+struct ResultMap {
+    map INT_ARRAY;
+    map LONG_ARRAY;
+    map FLOAT_ARRAY;
+    map BOOLEAN_ARRAY;
+    map STRING_ARRAY;
 }
 
-function toXmlComplex() (xml) {
+struct ResultBlob {
+    blob BLOB_TYPE;
+}
+
+struct ResultDates {
+    string DATE_TYPE;
+    string TIME_TYPE;
+    string TIMESTAMP_TYPE;
+    string DATETIME_TYPE;
+}
+
+
+function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    xml result;
-
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type,
-                float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
-                from MixTypes LIMIT 1",parameters);
-    result = datatables:toXml(df, "types", "type");
-    return result;
-}
-
-function getByName()(string, string, int, int, int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    string blob;
-    string clob;
-    int time;
-    int date;
-    int timestamp;
 
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
-                from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        blob = datatables:getString(df, "blob_type", "blob");
-        clob = datatables:getString(df, "clob_type", "clob");
-        time = datatables:getInt(df, "time_type", "time");
-        date = datatables:getInt(df, "date_type", "date");
-        timestamp = datatables:getInt(df, "timestamp_type", "timestamp");
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp;
-}
-
-function getByIndex()(string, string, int, int, int, string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    string blob;
-    string clob;
-    int time;
-    int date;
-    int timestamp;
-    string binary;
-
-    sql:ClientConnector.update(testDB, "Update ComplexTypes set clob_type = 'Test String' where row_id = 1",parameters);
-
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
-            binary_type from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        blob = datatables:getString(df, 1, "blob");
-        clob = datatables:getString(df, 2, "clob");
-        time = datatables:getInt(df, 3, "time");
-        date = datatables:getInt(df, 4, "date");
-        timestamp = datatables:getInt(df, 5, "timestamp");
-        binary = datatables:getString(df, 6, "binary");
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp, binary;
-}
-
-function getObjectAsStringByIndex()(string, string, string, string, string, string ) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    string blob;
-    string clob;
-    string time;
-    string date;
-    string timestamp;
-    string datetime;
-
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
-                datetime_type from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        blob = datatables:getValueAsString(df, 1);
-        clob = datatables:getValueAsString(df, 2);
-        time = datatables:getValueAsString(df, 3);
-        date = datatables:getValueAsString(df, 4);
-        timestamp = datatables:getValueAsString(df, 5);
-        datetime = datatables:getValueAsString(df, 6);
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp, datetime;
-}
-
-function getObjectAsStringByName()(string, string, string, string, string, string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    string blob;
-    string clob;
-    string time;
-    string date;
-    string timestamp;
-    string datetime;
-
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
-                datetime_type from ComplexTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        blob = datatables:getValueAsString(df, "blob_type");
-        clob = datatables:getValueAsString(df, "clob_type");
-        time = datatables:getValueAsString(df, "time_type");
-        date = datatables:getValueAsString(df, "date_type");
-        timestamp = datatables:getValueAsString(df, "timestamp_type");
-        datetime = datatables:getValueAsString(df, "datetime_type");
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp, datetime;
-}
-
-
-function getArrayByName()(map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-
-    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
-                from ArrayTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        int_arr = datatables:getArray(df, "int_array");
-        long_arr = datatables:getArray(df, "long_array");
-        float_arr = datatables:getArray(df, "float_array");
-        boolean_arr = datatables:getArray(df, "boolean_array");
-        string_arr = datatables:getArray(df, "string_array");
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return;
-}
-
-function getArrayByIndex()(map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                            "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-
-    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array, string_array
-                from ArrayTypes LIMIT 1",parameters);
-    while (datatables:next(df)) {
-        int_arr = datatables:getArray(df, 1);
-        long_arr = datatables:getArray(df, 2);
-        float_arr = datatables:getArray(df, 3);
-        boolean_arr = datatables:getArray(df, 4);
-        string_arr = datatables:getArray(df, 5);
-    }
-    datatables:close(df);
-    sql:ClientConnector.close(testDB);
-    return;
-}
-
-function testDateTime(string time, string date, string timestamp) (int time1, int date1, int timestamp1) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
-    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter para1 = {sqlType:"TIME", value:time, direction:0};
-    sql:Parameter para2 = {sqlType:"DATE", value:date, direction:0};
-    sql:Parameter para3 = {sqlType:"TIMESTAMP", value:timestamp, direction:0};
-    sql:Parameter[] parameters = [para1,para2,para3];
-
-    int insertCount = sql:ClientConnector.update(testDB,"Insert into DateTimeTypes
-        (time_type, date_type, timestamp_type) values (?,?,?)", parameters);
-
-    sql:Parameter[] emptyParam = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT time_type, date_type, timestamp_type
-                from DateTimeTypes LIMIT 1", emptyParam);
-    while (datatables:next(dt)) {
-        time1 = datatables:getInt(dt, "time_type", "time");
-        date1 = datatables:getInt(dt, "date_type", "date");
-        timestamp1 = datatables:getInt(dt, "timestamp_type", "timestamp");
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    ResultPrimitive rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultPrimitive)dataStruct;
+        i = rs.INT_TYPE;
+        l = rs.LONG_TYPE;
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        b = rs.BOOLEAN_TYPE;
+        s = rs.STRING_TYPE;
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
 
-function testJsonWithNull()(json) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+function testToJson () (json) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    json result;
+    sql:Parameter[] parameters = [];
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
-                string_type from DataTable WHERE row_id = 2",parameters);
-    result = datatables:toJson(df);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    json result = <json>dt;
     return result;
 }
 
-function testXmlWithNull()(xml) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                         "username":"SA", "password":"", "maximumPoolSize":1};
+function testToXml () (xml) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters=[];
-    datatable df;
-    xml result;
+    sql:Parameter[] parameters = [];
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
-                string_type from DataTable WHERE row_id = 2",parameters);
-    result = datatables:toXml(df, "types", "type");
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    xml result = <xml>dt;
     return result;
+}
+
+function toXmlComplex () (xml) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:Parameter[] parameters = [];
+
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type,
+                float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
+                from MixTypes where row_id =1", parameters);
+    xml result = <xml>dt;
+    return result;
+}
+
+function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
+                                                                 string datetime) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter para0 = {sqlType:"integer", value:1};
+    sql:Parameter para1 = {sqlType:"DATE", value:datein};
+    sql:Parameter para2 = {sqlType:"TIME", value:timein};
+    sql:Parameter para3 = {sqlType:"TIMESTAMP", value:timestampin};
+    sql:Parameter para4 = {sqlType:"DATETIME", value:timestampin};
+    sql:Parameter[] parameters = [para0, para1, para2, para3, para4];
+
+    int insertCount = sql:ClientConnector.update(testDB, "Insert into DateTimeTypes
+        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", parameters);
+
+    sql:Parameter[] emptyParam = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT date_type, time_type, timestamp_type, datetime_type
+                from DateTimeTypes where row_id = 1", emptyParam);
+    ResultDates rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultDates)dataStruct;
+        time = rs.TIME_TYPE;
+        date = rs.DATE_TYPE;
+        timestamp = rs.TIMESTAMP_TYPE;
+        datetime = rs.DATETIME_TYPE;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testGetComplexTypes () (string blobValue, string clob, string time, string date, string timestamp,
+                                 string datetime, string binary) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type,
+              timestamp_type, datetime_type, binary_type from ComplexTypes where row_id = 1", parameters);
+    ResultObject rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultObject)dataStruct;
+
+        blob blobData = rs.BLOB_TYPE;
+        blobValue = blobs:toString(blobData, "UTF-8");
+        clob = rs.CLOB_TYPE;
+        time = rs.TIME_TYPE;
+        date = rs.DATE_TYPE;
+        timestamp = rs.TIMESTAMP_TYPE;
+        datetime = rs.DATETIME_TYPE;
+        binary = rs.BINARY_TYPE;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+
+function testArrayData () (map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 1", parameters);
+    ResultMap rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultMap)dataStruct;
+
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testJsonWithNull () (json) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
+    json result = <json>dt;
+    return result;
+}
+
+function testXmlWithNull () (xml) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+               boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
+    xml result = <xml>dt;
+    return result;
+}
+
+function testToXmlWithinTransaction () (string, int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    int returnValue = 0;
+    string result;
+    try {
+        transaction {
+            sql:Parameter[] parameters = [];
+            datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
+                WHERE row_id = 1", parameters);
+            xml xmlResult = <xml>dt;
+            result = xmls:toString(xmlResult);
+        } aborted {
+            returnValue = -1;
+        }
+    } catch (errors:Error ex) {
+        returnValue = -2;
+    }
+    return result, returnValue;
+}
+
+function testToJsonWithinTransaction () (string, int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    int returnValue = 0;
+    string result;
+    try {
+        transaction {
+            sql:Parameter[] parameters = [];
+            datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
+                WHERE row_id = 1", parameters);
+            json jsonResult = <json>dt;
+            result = jsons:toString(jsonResult);
+        } aborted {
+            returnValue = -1;
+        }
+    } catch (errors:Error ex) {
+        returnValue = -2;
+    }
+    return result, returnValue;
+}
+
+function testBlobData () (string blobStringData) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type from ComplexTypes where row_id = 1", parameters);
+    blob blobData;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        ResultBlob rs;
+        errors:TypeCastError err;
+        rs, err = (ResultBlob)dataStruct;
+        blobData = rs.BLOB_TYPE;
+    }
+    blobStringData = blobs:toString(blobData, "UTF-8");
+
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testColumnAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT dt1.int_type, dt1.long_type, dt1.float_type,
+           dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
+           left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", parameters);
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        ResultSetTestAlias rs;
+        errors:TypeCastError err;
+        rs, err = (ResultSetTestAlias)dataStruct;
+
+        i = rs.INT_TYPE;
+        l = rs.LONG_TYPE;
+        f = rs.FLOAT_TYPE;
+        d = rs.DOUBLE_TYPE;
+        b = rs.BOOLEAN_TYPE;
+        s = rs.STRING_TYPE;
+        i2 = rs.DT2INT_TYPE;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
 }

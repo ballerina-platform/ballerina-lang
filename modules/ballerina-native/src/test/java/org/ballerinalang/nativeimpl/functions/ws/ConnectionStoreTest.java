@@ -18,11 +18,11 @@
 
 package org.ballerinalang.nativeimpl.functions.ws;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
 import org.ballerinalang.testutils.ws.MockWebSocketSession;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,8 +36,8 @@ import java.util.Map;
  */
 public class ConnectionStoreTest {
 
-    private BLangProgram wsApp;
-    private BLangProgram httpApp;
+    private ProgramFile wsApp;
+    private ProgramFile httpApp;
 
     // Client are identified here by Sessions
     private MockWebSocketSession session1 = new MockWebSocketSession("session1");
@@ -45,13 +45,15 @@ public class ConnectionStoreTest {
     private MockWebSocketSession session3 = new MockWebSocketSession("session3");
     private MockWebSocketSession session4 = new MockWebSocketSession("session4");
 
-    private final String wsPath = "/chat/ws";
+    private final String wsPath = "/chat-store/ws";
     private final String httpBasePath = "/data";
 
     @BeforeClass
     public void  setup() {
-        wsApp = EnvironmentInitializer.setup("samples/websocket/connection_store_sample/websocketEndpoint.bal");
-        httpApp = EnvironmentInitializer.setup("samples/websocket/connection_store_sample/httpService.bal");
+        wsApp = EnvironmentInitializer.setupProgramFile(
+                "samples/websocket/connection_store_sample/websocketEndpoint.bal");
+        httpApp = EnvironmentInitializer.setupProgramFile(
+                "samples/websocket/connection_store_sample/httpService.bal");
 
         //Registering WebSocket clients
         Map<String, String> headers = new HashMap<>();

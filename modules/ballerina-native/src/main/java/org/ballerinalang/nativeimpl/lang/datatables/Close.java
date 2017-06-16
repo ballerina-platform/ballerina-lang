@@ -46,8 +46,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class Close extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        dataTable.close();
+        BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
+        dataTable.close(ctx.isInTransaction());
         return VOID_RETURN;
     }
 }

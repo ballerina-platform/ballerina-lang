@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * {@code BDataTableType} represents a output data set of a SQL select query in Ballerina.
@@ -34,7 +33,7 @@ public class BDataTableType extends BType {
     /**
      * Create a {@code BDataTableType} which represents the SQL Result Set.
      *
-     * @param typeName   string name of the type
+     * @param typeName string name of the type
      */
     BDataTableType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BDataTable.class);
@@ -47,6 +46,16 @@ public class BDataTableType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
+        return (V) new BDataTable(null, new ArrayList<>(0));
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.DATATABLE.getName());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.DATATABLE_TAG;
     }
 }

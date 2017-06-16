@@ -17,21 +17,17 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
-import org.ballerinalang.model.ExecutableExpr;
 import org.ballerinalang.model.Node;
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code MemoryLocation} represents a location where a variable or constant is stored at runtime.
  *
  * @since 0.8.0
  */
-public class MemoryLocation implements Node, ExecutableExpr, ExecutableMemLocation {
+public class MemoryLocation implements Node {
 
     @Override
     public void accept(NodeVisitor visitor) {
@@ -44,16 +40,6 @@ public class MemoryLocation implements Node, ExecutableExpr, ExecutableMemLocati
 
     @Override
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-        return null;
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return null;
-    }
-
-    @Override
-    public BValue access(BLangExecutionVisitor visitor) {
         return null;
     }
 }

@@ -18,10 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.model.types.TypeLattice;
-import org.ballerinalang.runtime.worker.WorkerInteractionDataHolder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -123,29 +119,6 @@ public class BallerinaFile implements Node {
         return null;
     }
 
-    public TypeLattice getTypeLattice() {
-        return null;
-    }
-
-    public Function getMainFunction() {
-        return null;
-    }
-
-    public StructDef[] getStructDefs() {
-        return null;
-    }
-
-    public SymScope getPackageScope() {
-        return null;
-    }
-
-    public int getSizeOfStaticMem() {
-        return 0;
-    }
-
-    public void setSizeOfStaticMem(int sizeOfStaticMem) {
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -233,10 +206,6 @@ public class BallerinaFile implements Node {
         public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
             this.packageBuilder.addTypeMapper(typeMapper);
-        }
-
-        public void addWorkerInteractionDataHolder(WorkerInteractionDataHolder workerInteractionDataHolder) {
-            this.packageBuilder.addWorkerInteractionDataHolder(workerInteractionDataHolder);
         }
 
         /**

@@ -30,8 +30,11 @@ import net.sf.saxon.tree.tiny.TinyAttributeImpl;
 import net.sf.saxon.tree.tiny.TinyElementImpl;
 import net.sf.saxon.tree.tiny.TinyTextImpl;
 import net.sf.saxon.value.EmptySequence;
+
+import org.apache.axiom.om.OMElement;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
@@ -71,14 +74,16 @@ public class GetXML extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
 
+            xml = XMLUtils.getSingletonValue(xml);
+            
             // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
-            XdmNode doc = builder.build(xml.value().getSAXSource(true));
+            XdmNode doc = builder.build(((OMElement) xml.value()).getSAXSource(true));
             XPathSelector selector = xPathCompiler.compile(xPath).load();
             selector.setContextItem(doc);
             XdmValue xdmValue = selector.evaluate();
@@ -87,7 +92,7 @@ public class GetXML extends AbstractNativeFunction {
             if (sequence instanceof EmptySequence) {
                 ErrorHandler.logWarn(OPERATION, "The xpath '" + xPath + "' does not match any XML element.");
             } else if (sequence instanceof TinyElementImpl || sequence.head() instanceof TinyElementImpl) {
-                result = new BXML(xdmValue.toString());
+                result = XMLUtils.parse(xdmValue.toString());
             } else if (sequence instanceof TinyAttributeImpl || sequence.head() instanceof TinyAttributeImpl) {
                 throw new BallerinaException("The element matching path '" + xPath + "' is an attribute, but not a " +
                         "XML element.");
@@ -98,9 +103,9 @@ public class GetXML extends AbstractNativeFunction {
                 throw new BallerinaException("The element matching path '" + xPath + "' is not a XML element.");
             }
         } catch (SaxonApiException e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         } catch (Throwable e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         }
         //TinyAttributeImpl
         // Setting output value.

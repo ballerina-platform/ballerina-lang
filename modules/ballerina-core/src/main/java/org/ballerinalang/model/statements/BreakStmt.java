@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -34,6 +33,7 @@ public class BreakStmt extends AbstractStatement {
 
     private BreakStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor, BlockStmt[] statements) {
         super(nodeLocations);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.blockStmts = statements;
     }
 
@@ -44,16 +44,6 @@ public class BreakStmt extends AbstractStatement {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    /**
-     * Executes the statement.
-     *
-     * @param executor instance of a {@code NodeExecutor}
-     */
-    @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
     }
 
     /**

@@ -19,11 +19,11 @@
 package org.ballerinalang.model.globalvar;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -41,8 +41,9 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test accessing global variables defined in other packages")
     public void testAccessingGlobalVar() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/globalvar/pkg/main");
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getGlobalVars");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/globalvar/pkg/main");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.globalvar.pkg.main",
+                "getGlobalVars");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -56,17 +57,19 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test change global var within functions")
     public void testChangeGlobalVarWithinFunction() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/globalvar/pkg/main");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/globalvar/pkg/main");
         BValue[] args = {new BInteger(88)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "changeGlobalVar", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.globalvar.pkg.main",
+                "changeGlobalVar", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
 
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
 
-        BLangProgram bLangProgram1 = BTestUtils.parseBalFile("lang/globalvar/pkg/main");
-        BValue[] returnsChanged = BLangFunctions.invoke(bLangProgram1, "getGlobalFloatVar");
+        ProgramFile programFileGlobalVar = BTestUtils.getProgramFile("lang/globalvar/pkg/main");
+        BValue[] returnsChanged = BLangFunctions.invokeNew(programFileGlobalVar, "lang.globalvar.pkg.main",
+                "getGlobalFloatVar");
 
         Assert.assertEquals(returnsChanged.length, 1);
         Assert.assertSame(returnsChanged[0].getClass(), BFloat.class);
@@ -76,8 +79,9 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test assigning global variable to another global variable in different package")
     public void testAssignGlobalVarToAnotherGlobalVar() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/globalvar/pkg/main");
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getAssignedGlobalVarFloat");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/globalvar/pkg/main");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.globalvar.pkg.main",
+                "getAssignedGlobalVarFloat");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -88,8 +92,9 @@ public class GlobalVarFunctionWithPkgTest {
 
     @Test(description = "Test assigning function invocation to global variable")
     public void testAssignFuncInvocationToGlobalVar() {
-        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/globalvar/pkg/main");
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getGlobalVarInt");
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/globalvar/pkg/main");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.globalvar.pkg.main",
+                "getGlobalVarInt");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

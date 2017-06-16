@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
-        <version>0.87-SNAPSHOT</version>
+        <version>0.89-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.87-SNAPSHOT</version>
+    <version>0.89-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <url>http://ballerinalang.org</url>
@@ -189,7 +189,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.87-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.89-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <commons-net.version>3.6</commons-net.version>
@@ -200,6 +200,7 @@
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
         <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>

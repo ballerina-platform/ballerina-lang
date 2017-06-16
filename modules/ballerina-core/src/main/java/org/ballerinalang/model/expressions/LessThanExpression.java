@@ -20,10 +20,6 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.Operator.LESS_THAN;
 
@@ -33,12 +29,6 @@ import static org.ballerinalang.model.Operator.LESS_THAN;
  * @since 0.8.0
  */
 public class LessThanExpression extends BinaryCompareExpression {
-
-    public static final BiFunction<BValueType, BValueType, BValueType> LESS_THAN_INT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.intValue() < rVal.intValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> LESS_THAN_FLOAT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.floatValue() < rVal.floatValue());
 
     public LessThanExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
                               Expression rExpr) {

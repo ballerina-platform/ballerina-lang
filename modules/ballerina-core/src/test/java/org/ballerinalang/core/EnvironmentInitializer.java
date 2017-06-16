@@ -18,12 +18,10 @@
 
 package org.ballerinalang.core;
 
-import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
@@ -44,18 +42,13 @@ public class EnvironmentInitializer {
 
         BLangProgram bLangProgram = BTestUtils.parseBalFile(sourcePath);
 
-        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
         for (BLangPackage servicePackage : bLangProgram.getPackages()) {
             for (Service service : servicePackage.getServices()) {
                 service.setBLangProgram(bLangProgram);
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
                         dispatcher.serviceRegistered(service));
-                service.accept(flowBuilder);
             }
         }
-
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-        bLangProgram.setRuntimeEnvironment(runtimeEnv);
 
         return bLangProgram;
     }

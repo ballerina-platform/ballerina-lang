@@ -58,8 +58,8 @@ public class Remove extends AbstractJSONFunction {
         String jsonPath = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) getArgument(ctx, 0);
-            jsonPath = getArgument(ctx, 1).stringValue();
+            BJSON json = (BJSON) getRefArgument(ctx, 0);
+            jsonPath = getStringArgument(ctx, 0);
 
             // Removing the element
             WriteContext jsonCtx = JsonPath.parse(json.value());

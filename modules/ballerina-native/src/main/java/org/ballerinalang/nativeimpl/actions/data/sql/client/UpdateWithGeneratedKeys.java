@@ -19,10 +19,11 @@ package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
@@ -36,7 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * {@code updateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
+ * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
  *
  * @since 0.8.0
  */
@@ -47,36 +48,40 @@ import org.osgi.service.component.annotations.Component;
         args = {@Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "query", type = TypeEnum.STRING),
                 @Argument(name = "parameters", type = TypeEnum.ARRAY, elementType = TypeEnum.STRUCT,
-                          structType = "Parameter")},
+                          structType = "Parameter"),
+                @Argument(name = "keyColumns", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         returnType = { @ReturnType(type = TypeEnum.INT),
-                       @ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+                       @ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING) },
         connectorArgs = {
                 @Argument(name = "options", type = TypeEnum.MAP)
         })
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "The update with generated keys action implementation for SQL connector.") })
+        value = "The update with generated keys given columns action implementation for SQL connector.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
         value = "Connector")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "query",
         value = "String")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "parameters",
         value = "Parameter array")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "keyColumns",
+        value = "String array")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "rowCount",
         value = "Updated row count") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "generatedKeys",
         value = "Generated keys array") })
 @Component(
-        name = "action.data.sql.updateWithGeneratedKeys",
+        name = "action.data.sql.UpdateWithGeneratedKeys",
         immediate = true,
         service = AbstractNativeAction.class)
 public class UpdateWithGeneratedKeys extends AbstractSQLAction {
 
     @Override
     public BValue execute(Context context) {
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String query = getArgument(context, 1).stringValue();
-        BArray parameters = (BArray) getArgument(context, 2);
-        BMap sharedMap = (BMap) bConnector.getValue(1);
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        String query = getStringArgument(context, 0);
+        BRefValueArray parameters = (BRefValueArray) getRefArgument(context, 1);
+        BStringArray keyColumns = (BStringArray) getRefArgument(context, 2);
+        BMap sharedMap = (BMap) bConnector.getRefField(1);
         SQLDatasource datasource = null;
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) != null) {
             datasource = (SQLDatasource) sharedMap.get(new BString(Constants.DATASOURCE_KEY));
@@ -84,7 +89,7 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
             throw new BallerinaException("Datasource have not been initialized properly at " +
                     "Init native action invocation.");
         }
-        executeUpdateWithKeys(context, datasource, query, null, parameters);
+        executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
         return null;
     }
 }

@@ -18,11 +18,11 @@
 
 package org.ballerinalang.globalvar;
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,11 +34,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class GlobalVarServicePkgTest {
 
-    BLangProgram bLangProgram;
+    ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = EnvironmentInitializer.setup("lang/globalvar/pkg/main");
+        bLangProgram = EnvironmentInitializer.setupProgramFile("lang/globalvar/pkg/main");
     }
 
     @Test(description = "Test accessing global variables in other packages")
@@ -113,7 +113,7 @@ public class GlobalVarServicePkgTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(bLangProgram);
+        // EnvironmentInitializer.cleanup(bLangProgram);
     }
 
 }

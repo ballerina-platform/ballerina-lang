@@ -4,7 +4,7 @@ Now that you know [a little bit about Ballerina](index.md), let's take it for a 
 
 ## Install Ballerina
 
-1. Go to [http://www.ballerinalang.org](www.ballerinalang.org) and click **Download**. 
+1. Go to [http://www.ballerinalang.org](http://www.ballerinalang.org) and click **Download**. 
 1. Download the Ballerina Tools distribution and unzip it on your computer. Ballerina Tools includes the Ballerina runtime plus the visual editor (Composer) and other tools. 
 1. Add the `<ballerina_home>/bin` directory to your $PATH environment variable so that you can run the Ballerina commands from anywhere. 
 

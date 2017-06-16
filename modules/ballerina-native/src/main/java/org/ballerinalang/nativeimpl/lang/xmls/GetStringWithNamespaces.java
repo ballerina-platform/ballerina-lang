@@ -26,8 +26,11 @@ import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.value.EmptySequence;
+
+import org.apache.axiom.om.OMElement;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -40,13 +43,12 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-
 /**
  * Evaluate xPath on a XML object and returns the matching string value. Namespaces are supported.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xmls",
-        functionName = "getString",
+        functionName = "getStringWithNamespace",
         args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "namespaces", type = TypeEnum.MAP)},
@@ -73,15 +75,17 @@ public class GetStringWithNamespaces extends AbstractNativeFunction {
         BValue result = null;
         try {
             // Accessing Parameters.
-            BXML xml = (BXML) getArgument(ctx, 0);
-            String xPath = getArgument(ctx, 1).stringValue();
-            BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 2);
+            BXML xml = (BXML) getRefArgument(ctx, 0);
+            String xPath = getStringArgument(ctx, 0);
+            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 1);
 
+            xml = XMLUtils.getSingletonValue(xml);
+            
             // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
-            XdmNode doc = builder.build(xml.value().getSAXSource(true));
+            XdmNode doc = builder.build(((OMElement) xml.value()).getSAXSource(true));
             if (namespaces != null && !namespaces.isEmpty()) {
                 for (BString entry : namespaces.keySet()) {
                     xPathCompiler.declareNamespace(entry.stringValue(), namespaces.get(entry).stringValue());
@@ -98,9 +102,9 @@ public class GetStringWithNamespaces extends AbstractNativeFunction {
                 result = new BString(xdmValue.toString());
             }
         } catch (SaxonApiException e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         } catch (Throwable e) {
-            ErrorHandler.handleXPathException(OPERATION, e);
+            ErrorHandler.handleXMLException(OPERATION, e);
         }
 
         // Setting output value.

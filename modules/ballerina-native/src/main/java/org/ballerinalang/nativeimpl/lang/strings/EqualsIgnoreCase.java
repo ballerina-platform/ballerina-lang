@@ -54,8 +54,8 @@ public class EqualsIgnoreCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String string1 = getArgument(context, 0).stringValue();
-        String anotherString = getArgument(context, 1).stringValue();
+        String string1 = getStringArgument(context, 0);
+        String anotherString = getStringArgument(context, 1);
 
         BBoolean booleanValue = new BBoolean(string1.equalsIgnoreCase(anotherString));
         return getBValues(booleanValue);

@@ -70,7 +70,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         String uri = null;
         try {
-            uri = connector.getValue(0).stringValue() + path;
+            uri = connector.getStringField(0) + path;
 
             URL url = new URL(uri);
             String host = url.getHost();
@@ -121,7 +121,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     private boolean validateParams(BConnector connector) {
         //TODO removed empty string check for URL - fix this properly once the all connectors usages updated
         //TODO remove empty URLs
-        if (connector != null && connector.getValue(0) != null) {
+        if (connector != null && connector.getStringField(0) != null) {
             return true;
         } else {
             throw new BallerinaException("Connector parameters not defined correctly.");
@@ -137,6 +137,13 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             if (clientConnector == null) {
                 throw new BallerinaException("Http client connector is not available");
+            }
+
+            Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
+            if (sourceHandler != null) {
+                context.setProperty(Constants.SRC_HANDLER, sourceHandler);
+            } else {
+                message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
             }
 
             clientConnector.send(message, balConnectorCallback);
@@ -168,12 +175,21 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
             throws ClientConnectorException {
+        balConnectorCallback.setNonBlockingExecution(true);
         org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                 getClientConnector(Constants.PROTOCOL_HTTP);
 
         if (clientConnector == null) {
             throw new BallerinaException("Http client connector is not available");
         }
+
+        Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
+        if (sourceHandler != null) {
+            context.setProperty(Constants.SRC_HANDLER, sourceHandler);
+        } else {
+            message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
+        }
+
         clientConnector.send(message, balConnectorCallback);
     }
 

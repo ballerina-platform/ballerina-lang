@@ -19,10 +19,9 @@ package org.ballerinalang.model.expressions;
 
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -35,16 +34,16 @@ import org.testng.annotations.Test;
  */
 public class FuncInvocationWithImplicitCastTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/func-invocation-with-implicit-cast.bal");
+        bLangProgram = BTestUtils.getProgramFile("lang/expressions/func-invocation-with-implicit-cast.bal");
     }
 
     @Test(description = "Test Function invocation with implicit cast")
     public void testFuncInvocationWithImplicitCast() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testImplicitCastInvocation");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testImplicitCastInvocation");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -54,21 +53,9 @@ public class FuncInvocationWithImplicitCastTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test Function invocation with exact match, when cast possible")
-    public void testFunctionInvocationWithExactMatchWhenCastPossible() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testExactMatchWhenCastPossible");
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = 18;
-        Assert.assertEquals(actual, expected);
-    }
-
     @Test(description = "Test Function invocation with implicit cast, multiple params")
     public void testFunctionInvocationWithImplicitCastMultiParam() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testImplicitCastInvocationWithMultipleParams");
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testImplicitCastInvocationWithMultipleParams");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

@@ -16,36 +16,36 @@
 
 package org.ballerinalang.nativeimpl.actions;
 
-import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.nativeimpl.lang.system.PrintlnAny;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.testng.annotations.BeforeClass;
+//import org.ballerinalang.bre.SymScope;
+//import org.ballerinalang.model.BLangProgram;
+//import org.ballerinalang.nativeimpl.lang.system.PrintlnAny;
+//import org.ballerinalang.nativeimpl.util.BTestUtils;
+//import org.testng.annotations.BeforeClass;
 
 /**
  * Test class for Native Action test.
  */
 public class NativeActionTest {
 
-    private BLangProgram bLangProgram;
-    private SymScope globalScope;
-
-    @BeforeClass
-    public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/PassthroughService.bal");
-
-        globalScope = new SymScope(SymScope.Name.GLOBAL);
-
-        PrintlnAny printlnFunc = new PrintlnAny();
-
-        printlnFunc.getParameterDefs();
-
-
-    }
-
-
-
-    public void testNativeFuncInvocation() {
-
-    }
+//    private BLangProgram bLangProgram;
+//    private SymScope globalScope;
+//
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("samples/PassthroughService.bal");
+//
+//        globalScope = new SymScope(SymScope.Name.GLOBAL);
+//
+//        PrintlnAny printlnFunc = new PrintlnAny();
+//
+//        printlnFunc.getParameterDefs();
+//
+//
+//    }
+//
+//
+//
+//    public void testNativeFuncInvocation() {
+//
+//    }
 }

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -72,11 +71,6 @@ public class IfElseStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
-    @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
-    }
-
     /**
      * Represent an else if block of an if statement.
      */
@@ -96,6 +90,10 @@ public class IfElseStmt extends AbstractStatement {
 
         public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
             return whiteSpaceDescriptor;
+        }
+
+        public NodeLocation getNodeLocation() {
+            return location;
         }
 
         public Expression getElseIfCondition() {

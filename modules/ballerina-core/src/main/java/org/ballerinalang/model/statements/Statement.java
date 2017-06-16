@@ -18,8 +18,7 @@
 
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.ExecutableStmt;
-import org.ballerinalang.model.LinkedNode;
+import org.ballerinalang.model.Node;
 
 /**
  * Represents a statement. All statements nodes implements this interface.
@@ -29,7 +28,8 @@ import org.ballerinalang.model.LinkedNode;
  *
  * @since 0.8.0
  */
-public interface Statement extends LinkedNode, ExecutableStmt {
+public interface Statement extends Node {
+    
     void setAlwaysReturns(boolean returns);
 
     boolean isAlwaysReturns();

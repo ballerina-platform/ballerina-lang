@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
@@ -126,6 +128,11 @@ public class Main {
                 bCmd.setParentCmdParser(cmdParser);
             }
 
+            // Build Version Command
+            VersionCmd versionCmd = new VersionCmd();
+            cmdParser.addCommand("version", versionCmd);
+            versionCmd.setParentCmdParser(cmdParser);
+
             cmdParser.setProgramName("ballerina");
             cmdParser.parse(args);
             String parsedCmdName = cmdParser.getParsedCommand();
@@ -182,6 +189,19 @@ public class Main {
         out.append("\n");
         out.append("Use \"ballerina help [command]\" for more information about a command.");
         outStream.println(out.toString());
+    }
+
+    private static void printVersionInfo() {
+        try (InputStream inputStream = Main.class.getResourceAsStream("/META-INF/launcher.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            String version = "Ballerina " + properties.getProperty("ballerina.version") + "\n";
+            outStream.print(version);
+        } catch (Throwable ignore) {
+            // Exception is ignored
+            throw LauncherUtils.createUsageException("version info not available");
+        }
     }
 
     /**
@@ -678,6 +698,66 @@ public class Main {
 
         @Override
         public void setSelfCmdParser(JCommander selfCmdParser) {
+        }
+    }
+
+    /**
+     * This class represents the "version" command and it holds arguments and flags specified by the user
+     *
+     * @since 0.8.1
+     */
+    @Parameters(commandNames = "version", commandDescription = "print Ballerina version")
+    private static class VersionCmd implements BLauncherCmd {
+
+        @Parameter(description = "Command name")
+        private List<String> versionCommands;
+
+        @Parameter(names = "--debug", hidden = true)
+        private String debugPort;
+
+        @Parameter(names = {"--help", "-h"}, hidden = true)
+        private boolean helpFlag;
+
+        private JCommander parentCmdParser;
+
+        public void execute() {
+            if (helpFlag) {
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "version");
+                outStream.println(commandUsageInfo);
+                return;
+            }
+
+            if (versionCommands == null) {
+                printVersionInfo();
+                return;
+            } else if (versionCommands.size() > 1) {
+                throw LauncherUtils.createUsageException("too many arguments given");
+            }
+
+            String userCommand = versionCommands.get(0);
+            if (parentCmdParser.getCommands().get(userCommand) == null) {
+                throw LauncherUtils.createUsageException("unknown command `" + userCommand + "`");
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "version";
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+            out.append("  ballerina version\n");
+        }
+
+        @Override
+        public void setParentCmdParser(JCommander parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
+        }
+
+        @Override
+        public void setSelfCmdParser(JCommander selfCmdParser) {
+
         }
     }
 

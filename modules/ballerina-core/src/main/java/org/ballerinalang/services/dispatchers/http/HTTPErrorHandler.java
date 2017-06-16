@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.services.dispatchers.http;
 
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +42,19 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
     private static final Logger log = LoggerFactory.getLogger(HTTPErrorHandler.class);
 
     @Override
-    public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback callback) {
-        callback.done(createErrorMessage(e.getMessage(), 500));
+    public void handleError(Exception error, CarbonMessage carbonMessage, CarbonCallback callback) {
+        Object carbonStatusCode = carbonMessage.getProperty(Constants.HTTP_STATUS_CODE);
+        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
+        String errorMsg = error.getMessage();
+        log.error(errorMsg);
+        ErrorHandlerUtils.printError(error);
+        if (statusCode == 404) {
+            // TODO Temporary solution. Fix Me!!!
+            callback.done(createErrorMessage(errorMsg, statusCode));
+        } else {
+            // TODO If you put just "", then we got a NPE. Need to find why
+            callback.done(createErrorMessage("  ", statusCode));
+        }
     }
 
     @Override

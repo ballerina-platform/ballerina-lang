@@ -17,42 +17,32 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
+import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BValue;
-
-import java.util.function.BiFunction;
 
 /**
  * Class to hold the data related to type casting expression.
  *
  * @since 0.8.0
  */
-public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeMapper> {
-    private String name;
-    private String pkgName;
-    private String pkgPath;
+public class TypeCastExpression extends AbstractExpression implements ExecutableMultiReturnExpr {
+
     private SimpleTypeName typeName;
     private Expression rExpr;
-    private BType targetType;
-    private String packageName;
-    private SymbolName typeMapperName;
-    private TypeMapper typeMapper;
-    protected BiFunction<BValue, BType, BValue> evalFunc;
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
+    private BType[] types = new BType[0];
+
+    private int[] offsets;
+    private int opcode;
 
     public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
                               BType targetType) {
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
-        this.targetType = targetType;
+        this.type = targetType;
     }
 
     public TypeCastExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
@@ -60,14 +50,6 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         super(location, whiteSpaceDescriptor);
         this.rExpr = rExpr;
         this.typeName = typeName;
-    }
-
-    public BiFunction<BValue, BType, BValue> getEvalFunc() {
-        return evalFunc;
-    }
-
-    public void setEvalFunc(BiFunction<BValue, BType, BValue> evalFunc) {
-        this.evalFunc = evalFunc;
     }
 
     public Expression getRExpr() {
@@ -78,86 +60,32 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         return typeName;
     }
 
+    public int getOpcode() {
+        return opcode;
+    }
+
+    public void setOpcode(int opcode) {
+        this.opcode = opcode;
+    }
+
     @Override
     public BType getType() {
-        return targetType;
+        return type;
     }
 
+    @Deprecated
     public BType getTargetType() {
-        return targetType;
+        return getType();
     }
 
+    @Deprecated
     public void setTargetType(BType targetType) {
-        this.targetType = targetType;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public SymbolName getTypeMapperName() {
-        return typeMapperName;
-    }
-
-    public void setTypeMapperName(SymbolName typeMapperName) {
-        this.typeMapperName = typeMapperName;
+        this.type = targetType;
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getPackageName() {
-        return pkgName;
-    }
-
-    @Override
-    public String getPackagePath() {
-        return pkgPath;
-    }
-
-    /**
-     * Returns an arrays of arguments of this callable unit invocation expression.
-     *
-     * @return the arrays of arguments
-     */
-    @Override
-    public Expression[] getArgExprs() {
-        Expression[] expressions = {this.rExpr};
-        return expressions;
-    }
-
-    /**
-     * Returns the {@code CallableUnit} linked with this callable unit invocation expression.
-     *
-     * @return the linked {@code CallableUnit}
-     */
-    @Override
-    public TypeMapper getCallableUnit() {
-        return this.typeMapper;
-    }
-
-    /**
-     * Sets the {@code CallableUnit}.
-     *
-     * @param callableUnit type of the callable unit
-     */
-    @Override
-    public void setCallableUnit(TypeMapper callableUnit) {
-        this.typeMapper = callableUnit;
-
     }
 
     /**
@@ -167,7 +95,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      */
     @Override
     public BType[] getTypes() {
-        return new BType[0];
+        return types;
     }
 
     /**
@@ -177,38 +105,25 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      */
     @Override
     public void setTypes(BType[] types) {
+        this.types = types;
 
+        multipleReturnsAvailable = types.length > 1;
+        if (!multipleReturnsAvailable && types.length == 1) {
+            this.type = types[0];
+        }
     }
 
-    /**
-     * Executes and Returns all the results of this expression.
-     *
-     * @param executor instance of a {@code NodeExecutor}
-     * @return results of this expression
-     */
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return new BValue[0];
+    public int[] getOffsets() {
+        return offsets;
     }
 
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
+        setTempOffset(offsets[0]);
     }
 
     @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
+    public void setMultiReturnAvailable(boolean multiReturnsAvailable) {
+        this.multipleReturnsAvailable = multiReturnsAvailable;
     }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
-    }
-
 }
